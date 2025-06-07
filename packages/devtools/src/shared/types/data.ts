@@ -18,7 +18,7 @@ export interface SessionContext {
 export interface ModuleInfo {
   id: string
   loads: RolldownModuleLoadInfo[]
-  transforms: RolldownModuleTransformInfo[]
+  transforms?: RolldownModuleTransformInfo[]
   resolve_ids: RolldownResolveInfo[]
   imports: ModuleImport[] | null
   importers: string[] | null

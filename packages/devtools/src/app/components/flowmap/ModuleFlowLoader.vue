@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { SessionContext } from '~~/shared/types'
+import type { RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { computedAsync } from '@vueuse/core'
+import { ref, watchEffect } from 'vue'
 import { backend } from '~/state/backend'
 
 const props = defineProps<{
@@ -8,12 +9,24 @@ const props = defineProps<{
   module: string
 }>()
 
+const transforms = ref<RolldownModuleTransformInfo[]>([])
+watchEffect(async () => {
+  const arg = {
+    session: props.session.id,
+    module: props.module,
+  }
+  transforms.value = await backend.value!.functions['vite:rolldown:get-module-transforms']?.(arg)
+})
+
 const info = computedAsync(async () => {
   const arg = {
     session: props.session.id,
     module: props.module,
   }
-  return await backend.value!.functions['vite:rolldown:get-module-info']?.(arg)
+  return {
+    ...(await backend.value!.functions['vite:rolldown:get-module-info']?.(arg)),
+    transforms: transforms.value,
+  }
 })
 </script>
 
