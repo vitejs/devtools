@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
+import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { computedAsync } from '@vueuse/core'
 import { ref, watchEffect } from 'vue'
 import { backend } from '~/state/backend'
@@ -26,7 +26,7 @@ const info = computedAsync(async () => {
   return {
     ...(await backend.value!.functions['vite:rolldown:get-module-info']?.(arg)),
     transforms: transforms.value,
-  }
+  } as ModuleInfo
 })
 </script>
 
