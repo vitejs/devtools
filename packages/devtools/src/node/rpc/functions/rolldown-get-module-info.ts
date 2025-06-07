@@ -18,7 +18,7 @@ export const rolldownGetModuleInfo = defineRpcFunction({
         if (!events.length)
           return null
 
-        const info: ModuleInfo = {
+        const info: Omit<ModuleInfo, 'transforms'> = {
           id: module,
           loads: [],
           imports: [],
