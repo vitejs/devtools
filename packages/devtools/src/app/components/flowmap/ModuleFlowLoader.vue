@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { computedAsync } from '@vueuse/core'
-import { ref,nextTick, watchEffect } from 'vue'
+import { nextTick, ref, watchEffect } from 'vue'
 
 const props = defineProps<{
   session: SessionContext
