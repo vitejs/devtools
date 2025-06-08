@@ -1,6 +1,8 @@
 import process from 'node:process'
 import { consola } from 'consola'
-import { createWsServer } from '../../../node/ws'
+
+import { defineEventHandler } from 'h3'
+import { createWsServer } from '../../../../../node/ws'
 
 consola.restoreAll()
 
@@ -15,6 +17,6 @@ const ws = createWsServer({
   return ws
 })
 
-export default eventHandler(async () => {
+export default defineEventHandler(async () => {
   return await (await ws).getMetadata()
 })

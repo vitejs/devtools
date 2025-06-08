@@ -1,4 +1,4 @@
-import type { BirpcGroup, BirpcOptions } from 'birpc'
+import type { BirpcGroup, EventOptions } from 'birpc'
 import { createBirpcGroup } from 'birpc'
 
 export function createRpcServer<
@@ -8,7 +8,7 @@ export function createRpcServer<
   functions: ServerFunctions,
   options: {
     preset: (rpc: BirpcGroup<ClientFunctions, ServerFunctions>) => void
-    rpcOptions?: BirpcOptions<ClientFunctions>
+    rpcOptions?: EventOptions<ClientFunctions>
   },
 ) {
   const rpc = createBirpcGroup<ClientFunctions, ServerFunctions>(functions, [], options?.rpcOptions ?? {})

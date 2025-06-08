@@ -2,7 +2,6 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
-import { backend } from '~/state/backend'
 import { getFileTypeFromName } from '~/utils/icon'
 
 const params = useRoute().params as {
@@ -15,9 +14,10 @@ const session = reactive({
   rootDir: '',
   modulesList: shallowRef<ModuleListItem[]>([]),
 }) as SessionContext
+const rpc = useRpc()
 
 onMounted(async () => {
-  const summary = await backend.value!.functions['vite:rolldown:get-session-summary']!({
+  const summary = await rpc.value!['vite:rolldown:get-session-summary']!({
     session: params.session,
   })
   session.rootDir = summary.rootDir

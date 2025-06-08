@@ -1,11 +1,32 @@
 import { parse, stringify } from 'structured-clone-es'
+import { defineRpcClientPreset } from '..'
 
 export interface WebSocketRpcClientOptions {
   url: string
+  onConnected?: (e: Event) => void
+  onError?: (e: Error) => void
+  onDisconnected?: (e: CloseEvent) => void
 }
 
-export function createWsRpcPreset(options: WebSocketRpcClientOptions) {
+function NOOP() {}
+
+export const createWsRpcPreset = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
   const ws = new WebSocket(options.url)
+  const { onConnected = NOOP, onError = NOOP, onDisconnected = NOOP } = options
+
+  ws.addEventListener('open', (e) => {
+    onConnected(e)
+  })
+
+  ws.addEventListener('error', (e) => {
+    const _e = e instanceof Error ? e : new Error(e.type)
+    onError(_e)
+  })
+
+  ws.addEventListener('close', (e) => {
+    onDisconnected(e)
+  })
+
   return {
     on: (handler: (data: string) => void) => {
       ws.addEventListener('message', (e) => {
@@ -27,4 +48,4 @@ export function createWsRpcPreset(options: WebSocketRpcClientOptions) {
     serialize: stringify,
     deserialize: parse,
   }
-}
+})

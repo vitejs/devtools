@@ -2,6 +2,7 @@ packages:
   - packages/*
 catalogs:
   build:
+    '@nuxt/kit': ^3.17.5
     '@unocss/nuxt': ^66.1.3
     '@vueuse/nuxt': ^13.3.0
     esbuild: ^0.25.5

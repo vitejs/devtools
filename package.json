@@ -52,6 +52,7 @@
   },
   "resolutions": {
     "@nuxt/devtools": "catalog:devtools",
+    "@nuxt/kit": "catalog:build",
     "@rolldown/debug": "catalog:deps",
     "esbuild": "catalog:build",
     "nitropack": "catalog:build",

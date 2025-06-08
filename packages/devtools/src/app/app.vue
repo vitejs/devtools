@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '#app/composables/head'
-import { shallowRef } from 'vue'
-import { createDevBackend } from './backends/dev'
-import { backend } from './state/backend'
-import { fetchData } from './state/data'
+import { useNuxtApp } from '#app/nuxt'
+import { useServerConnectionInfo } from './modules/rpc/runtime/composables/rpc'
 
 import 'floating-vue/dist/style.css'
 import './styles/cm.css'
@@ -15,26 +13,16 @@ useHead({
   title: 'Vite DevTools',
 })
 
-const error = shallowRef()
-
-createDevBackend()
-  .then(async (b) => {
-    backend.value = b
-    await b.connect()
-    await fetchData(b)
-    return b
-  })
-  .catch((e) => {
-    console.error(e)
-    error.value = e
-  })
+const connectionInfo = useServerConnectionInfo()
+const { $connectToServer } = useNuxtApp()
+$connectToServer()
 </script>
 
 <template>
-  <div v-if="error" text-red>
-    {{ error }}
+  <div v-if="connectionInfo.error" text-red>
+    {{ connectionInfo.error }}
   </div>
-  <div v-else-if="!backend">
+  <div v-else-if="!connectionInfo.connected">
     Connecting...
   </div>
   <div v-else>

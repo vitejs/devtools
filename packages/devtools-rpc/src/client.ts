@@ -8,7 +8,7 @@ export function createRpcClient<
   functions: ClientFunctions,
   options: {
     preset: BirpcOptions<ServerFunctions>
-    rpcOptions?: BirpcOptions<ServerFunctions>
+    rpcOptions?: Partial<BirpcOptions<ServerFunctions>>
   },
 ) {
   const { preset, rpcOptions = {} } = options

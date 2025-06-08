@@ -1,12 +1,11 @@
-import type { ChannelOptions } from 'birpc'
 import type { WebSocket } from 'ws'
 import type { ConnectionMeta } from '../shared/types'
 import type { CreateServerFunctionsOptions } from './functions'
+import type { ServerFunctions } from './rpc'
+import { createRpcServer } from '@vitejs/devtools-rpc'
+import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
-import { createBirpcGroup } from 'birpc'
 import { getPort } from 'get-port-please'
-import { parse, stringify } from 'structured-clone-es'
-import { WebSocketServer } from 'ws'
 import { MARK_CHECK } from './constants'
 import { createServerFunctions } from './functions'
 
@@ -17,50 +16,32 @@ export interface CreateWsServerOptions extends CreateServerFunctionsOptions {
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const port = options.port ?? await getPort({ port: 7812, random: true })
-  const wss = new WebSocketServer({
-    port,
-  })
+
   const wsClients = new Set<WebSocket>()
 
   const serverFunctions = await createServerFunctions(options)
-  const rpc = createBirpcGroup(
-    serverFunctions,
-    [],
-    {
+
+  const preset = createWsRpcPreset({
+    port: port!,
+    onConnected: (ws) => {
+      wsClients.add(ws)
+      console.log(c.green`${MARK_CHECK} Websocket client connected`)
+    },
+    onDisconnected: (ws) => {
+      wsClients.delete(ws)
+      console.log(c.red`${MARK_CHECK} Websocket client disconnected`)
+    },
+  })
+
+  const rpc = createRpcServer<ServerFunctions, ServerFunctions>(serverFunctions, {
+    preset,
+    rpcOptions: {
       onError(error, name) {
         console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
         console.error(error)
         throw error
       },
-      timeout: 120_000,
     },
-  )
-
-  wss.on('connection', (ws) => {
-    wsClients.add(ws)
-    const channel: ChannelOptions = {
-      post: d => ws.send(d),
-      on: (fn) => {
-        ws.on('message', (data) => {
-          fn(data)
-        })
-      },
-      serialize: stringify,
-      deserialize: parse,
-    }
-    rpc.updateChannels((c) => {
-      c.push(channel)
-    })
-    ws.on('close', () => {
-      wsClients.delete(ws)
-      rpc.updateChannels((c) => {
-        const index = c.indexOf(channel)
-        if (index >= 0)
-          c.splice(index, 1)
-      })
-    })
-
-    console.log(c.green`${MARK_CHECK} Websocket client connected`)
   })
 
   const getMetadata = async (): Promise<ConnectionMeta> => {
@@ -72,7 +53,6 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   return {
     port,
-    wss,
     rpc,
     serverFunctions,
     getMetadata,

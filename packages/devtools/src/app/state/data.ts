@@ -1,8 +1,8 @@
-import type { Backend } from '../types/backend'
 import { ref } from 'vue'
 
+const rpc = useRpc()
 export const rawEvents = ref<any>([])
 
-export async function fetchData(backend: Backend) {
-  rawEvents.value = await backend.functions['vite:get-payload']()
+export async function fetchData() {
+  rawEvents.value = await rpc.value!['vite:get-payload']()
 }

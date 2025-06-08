@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@rolldown/debug": "catalog:deps",
+    "@vitejs/devtools-rpc": "workspace:*",
     "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",

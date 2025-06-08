@@ -18,7 +18,19 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": "./dist/index.mjs",
+    "./presets/ws/server": {
+      "types": "./dist/presets/ws/server.d.mts",
+      "import": "./dist/presets/ws/server.mjs"
+    },
+    "./presets/ws/client": {
+      "types": "./dist/presets/ws/client.d.mts",
+      "import": "./dist/presets/ws/client.mjs"
+    },
+    "./presets": {
+      "types": "./dist/presets/index.d.mts",
+      "import": "./dist/presets/index.mjs"
+    }
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -29,6 +41,11 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "prepack": "pnpm build"
+  },
+  "peerDependenciesMeta": {
+    "ws": {
+      "optional": true
+    }
   },
   "dependencies": {
     "birpc": "catalog:deps",
