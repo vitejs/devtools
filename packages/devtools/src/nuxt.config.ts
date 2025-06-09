@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import Inspect from 'vite-plugin-inspect'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
@@ -22,6 +23,10 @@ export default defineNuxtConfig({
     'nuxt-eslint-auto-explicit-import',
     ...isWebContainer ? ['./app/modules/webcontainer'] : [],
   ],
+
+  alias: {
+    '@vitejs/devtools-rpc': fileURLToPath(new URL('../../devtools-rpc/src', import.meta.url)),
+  },
 
   logLevel: 'verbose',
   srcDir: 'app',

@@ -11,7 +11,7 @@ export function defineRpcFunction<
   return definition
 }
 
-export async function getPpcHandler<
+export async function getRpcHandler<
   NAME extends string,
   TYPE extends RpcFunctionType,
   ARGS extends any[],

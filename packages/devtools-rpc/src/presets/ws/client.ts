@@ -12,7 +12,11 @@ function NOOP() {}
 
 export const createWsRpcPreset = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
   const ws = new WebSocket(options.url)
-  const { onConnected = NOOP, onError = NOOP, onDisconnected = NOOP } = options
+  const {
+    onConnected = NOOP,
+    onError = NOOP,
+    onDisconnected = NOOP,
+  } = options
 
   ws.addEventListener('open', (e) => {
     onConnected(e)
