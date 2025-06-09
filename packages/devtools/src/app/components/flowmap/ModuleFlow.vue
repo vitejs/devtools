@@ -287,9 +287,9 @@ const codeDisplay = computed(() => {
         v-if="codeDisplay"
         w-200 m4
         border="~ base rounded-lg" bg-glass of-hidden
-        grid="~ rows-[max-content_1fr]"
+        grid="~ rows-[max-content_1fr]" max-h-120vh
       >
-        <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2">
+        <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2" h-max-100vh>
           <PluginName :name="codeDisplay.plugin_name" />
           <span op50 text-xs>
             {{ codeDisplay.type === 'load' ? 'Load' : 'Transform' }}
