@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRpc } from '#imports'
+
 const rpc = useRpc()
 const sessions = await rpc.value!['vite:rolldown:list-sessions']()
 </script>

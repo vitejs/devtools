@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
+import { useRpc } from '#imports'
 import { computedAsync } from '@vueuse/core'
 import { nextTick, ref, watchEffect } from 'vue'
 

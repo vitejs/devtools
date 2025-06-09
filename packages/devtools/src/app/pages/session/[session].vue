@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
+import { useRpc } from '#imports'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
 import { getFileTypeFromName } from '~/utils/icon'
 

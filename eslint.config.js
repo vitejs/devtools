@@ -5,11 +5,7 @@ import nuxt from './packages/devtools/src/.nuxt/eslint.config.mjs'
 export default antfu({
   pnpm: true,
 })
-  .append(nuxt({
-    rules: {
-      'unimport/auto-insert': 'off',
-    },
-  }))
+  .append(nuxt())
   .append({
     files: ['packages/devtools/src/node/**/*.ts'],
     rules: {

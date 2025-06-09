@@ -1,3 +1,4 @@
+import { useRpc } from '#imports'
 import { ref } from 'vue'
 
 const rpc = useRpc()

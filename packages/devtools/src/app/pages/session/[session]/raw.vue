@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
+import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 
 const props = defineProps<{
