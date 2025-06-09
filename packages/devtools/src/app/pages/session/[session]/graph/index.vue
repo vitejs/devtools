@@ -119,6 +119,13 @@ const searched = computed(() => {
 })
 
 const display = ref<'list' | 'graph'>('list')
+
+function toggleDisplay() {
+  if (route.query.module) {
+    router.replace({ query: { ...route.query, module: undefined } })
+  }
+  display.value = display.value === 'list' ? 'graph' : 'list'
+}
 </script>
 
 <template>
@@ -127,7 +134,7 @@ const display = ref<'list' | 'graph'>('list')
     <div flex="col gap-2" right-4 top-4 border="~ base rounded-xl" p2 bg-glass fixed z-panel-nav>
       <button
         btn-action
-        @click="display = display === 'list' ? 'graph' : 'list'"
+        @click="toggleDisplay"
       >
         <div v-if="display === 'graph'" i-ph-graph-duotone />
         <div v-else i-ph-list-duotone />
