@@ -36,7 +36,7 @@ export const rolldownGetModuleTransforms = defineRpcFunction({
           let diff_added = 0
           let diff_removed = 0
           if (start.source !== end.transformed_source && start.source != null && end.transformed_source != null) {
-            const delta = diffLines(end.transformed_source, start.source)
+            const delta = diffLines(start.source, end.transformed_source)
             diff_added = delta.filter(d => d.added).map(d => d.value).join('').split(/\n/g).length
             diff_removed = delta.filter(d => d.removed).map(d => d.value).join('').split(/\n/g).length
           }
