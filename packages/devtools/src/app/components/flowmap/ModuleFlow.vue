@@ -183,7 +183,7 @@ const codeDisplay = computed(() => {
         </VMenu>
       </template>
     </div>
-    <div w-max flex="~ gap-4">
+    <div w-max flex="~">
       <div select-none>
         <FlowmapExpandable
           :items="resolveIds"
@@ -288,8 +288,7 @@ const codeDisplay = computed(() => {
       <div
         v-if="codeDisplay"
         min-w-200 m4
-        border="~ base rounded-lg" bg-glass of-hidden
-        grid="~ rows-[max-content_1fr]" max-h-120vh
+        border="~ base rounded-lg" bg-glass of-hidden max-h-120vh w0 flex-1
       >
         <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2" h-max-100vh>
           <PluginName :name="codeDisplay.plugin_name" />
