@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleFlowNode, RolldownModuleLoadNoChanges, RolldownModuleTransformInfo, RolldownModuleTransformNoChanges, SessionContext } from '~~/shared/types'
 import { Menu as VMenu } from 'floating-vue'
-import { computed, ref, shallowRef, toRefs } from 'vue'
+import { computed, ref, shallowRef, toRefs, watch } from 'vue'
 import PluginName from '../display/PluginName.vue'
 
 const props = defineProps<{
@@ -9,8 +9,10 @@ const props = defineProps<{
   session: SessionContext
   transformsLoading: boolean
 }>()
+const emit = defineEmits<{
+  (e: 'select', v: boolean): void
+}>()
 const { info } = toRefs(props)
-
 const expandNoChangesTransform = ref(false)
 const expandNoChangesLoad = ref(false)
 const selected = shallowRef<RolldownModuleFlowNode | null>(null)
@@ -76,6 +78,10 @@ function select(node: RolldownModuleFlowNode) {
   selected.value = node
 }
 
+watch(selected, (v) => {
+  emit('select', !!v)
+})
+
 function activate(node: RolldownModuleFlowNode) {
   if (node.type === 'transform_no_changes')
     expandNoChangesTransform.value = !expandNoChangesTransform.value
@@ -107,7 +113,7 @@ const codeDisplay = computed(() => {
 </script>
 
 <template>
-  <div pt4 w-max min-w-full>
+  <div pt4 w-full min-w-full>
     <div v-if="info.importers?.length" text-sm>
       <div flex>
         <VMenu>
@@ -183,8 +189,8 @@ const codeDisplay = computed(() => {
         </VMenu>
       </template>
     </div>
-    <div w-max flex="~">
-      <div select-none>
+    <div w-full flex="~">
+      <div select-none flex-1>
         <FlowmapExpandable
           :items="resolveIds"
           :expandable="resolveIds.length > 0"
@@ -287,8 +293,8 @@ const codeDisplay = computed(() => {
 
       <div
         v-if="codeDisplay"
-        min-w-200 m4
-        border="~ base rounded-lg" bg-glass of-hidden max-h-120vh w0 flex-1
+        m4
+        border="~ base rounded-lg" bg-glass of-hidden max-h-120vh flex-1
       >
         <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2" h-max-100vh>
           <PluginName :name="codeDisplay.plugin_name" />

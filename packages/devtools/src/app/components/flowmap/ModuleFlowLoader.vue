@@ -12,6 +12,7 @@ const props = defineProps<{
 const rpc = useRpc()
 const transforms = ref<RolldownModuleTransformInfo[]>([])
 const transformsLoading = ref(false)
+const flowNodeSelected = ref(false)
 watchEffect(async () => {
   const arg = {
     session: props.session.id,
@@ -35,20 +36,26 @@ const info = computedAsync(async () => {
     ...(await rpc.value!['vite:rolldown:get-module-info']?.(arg)),
   } as ModuleInfo
 })
+
+function selectFlowNode(v: boolean) {
+  flowNodeSelected.value = v
+}
 </script>
 
 <template>
   <div of-auto w-full h-full relative>
-    <div v-if="info" flex="~ col" w-max min-w-full>
+    <div v-if="info" flex="~ col" w-full min-w-full>
       <FlowmapModuleFlow
         p4
         :info
         :session
         :transforms-loading
+        @select="selectFlowNode"
       />
       <ChartModuleFlamegraph
         :info
         :session="session"
+        :flow-node-selected="flowNodeSelected"
       />
     </div>
     <VisualLoading v-else />
