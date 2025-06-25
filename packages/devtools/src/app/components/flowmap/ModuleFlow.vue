@@ -293,8 +293,7 @@ const codeDisplay = computed(() => {
 
       <div
         v-if="codeDisplay"
-        m4
-        border="~ base rounded-lg" bg-glass of-hidden max-h-120vh flex-1
+        border="~ base rounded-lg" bg-glass of-hidden max-h-120vh flex-1 m4
       >
         <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2" h-max-100vh>
           <PluginName :name="codeDisplay.plugin_name" />
