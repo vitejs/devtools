@@ -36,6 +36,8 @@ const isGrabbing = ref(false)
 const width = ref(window.innerWidth)
 const height = ref(window.innerHeight)
 const scale = ref(1)
+const translateX = ref(0)
+const translateY = ref(0)
 const nodesRefMap = shallowReactive(new Map<string, HTMLDivElement>())
 
 const nodes = shallowRef<HierarchyNode<Node>[]>([])
@@ -147,13 +149,112 @@ function calculateGraph() {
   })
 }
 
-function focusOn(id: string, animated = true) {
-  const el = nodesRefMap.get(id)
-  el?.scrollIntoView({
-    block: 'center',
-    inline: 'center',
-    behavior: animated ? 'smooth' : 'instant',
+function zoomGraph(zoomIn: boolean) {
+  const rect = container.value!.getBoundingClientRect()
+  const centerX = rect.width / 2
+  const centerY = rect.height / 2
+
+  const graphCenterX = (centerX - translateX.value) / scale.value
+  const graphCenterY = (centerY - translateY.value) / scale.value
+
+  const oldScale = scale.value
+  const scaleFactor = zoomIn ? 1.5 : 0.5
+  const newScale = Math.max(0.1, Math.min(3, oldScale * scaleFactor))
+
+  const newTranslateX = centerX - graphCenterX * newScale
+  const newTranslateY = centerY - graphCenterY * newScale
+
+  scale.value = newScale
+  translateX.value = newTranslateX
+  translateY.value = newTranslateY
+}
+
+function setupViewportControls() {
+  let startX = 0
+  let startY = 0
+  let startTranslateX = 0
+  let startTranslateY = 0
+
+  useEventListener(container, 'mousedown', (e) => {
+    if ((e.target as HTMLElement).closest('[data-module-node]')) {
+      return
+    }
+
+    isGrabbing.value = true
+    startX = e.clientX
+    startY = e.clientY
+    startTranslateX = translateX.value
+    startTranslateY = translateY.value
+    e.preventDefault()
   })
+
+  useEventListener('mouseleave', () => isGrabbing.value = false)
+  useEventListener('mouseup', () => isGrabbing.value = false)
+
+  useEventListener('mousemove', (e) => {
+    if (!isGrabbing.value)
+      return
+
+    e.preventDefault()
+    const deltaX = e.clientX - startX
+    const deltaY = e.clientY - startY
+
+    translateX.value = startTranslateX + deltaX
+    translateY.value = startTranslateY + deltaY
+  })
+
+  useEventListener(container, 'wheel', (e) => {
+    e.preventDefault()
+    zoomGraph(e.deltaY < 0)
+  })
+
+  useEventListener('keydown', (e) => {
+    if ((e.altKey || e.metaKey)) {
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault()
+        zoomGraph(true)
+      }
+      else if (e.key === '-') {
+        e.preventDefault()
+        zoomGraph(false)
+      }
+    }
+  })
+}
+
+function focusOn(id: string, animated = true) {
+  const node = nodesMap.get(id)
+  if (!node)
+    return
+
+  const containerRect = container.value!.getBoundingClientRect()
+  const targetX = containerRect.width / 2 - node.x! * scale.value
+  const targetY = containerRect.height / 2 - node.y! * scale.value
+
+  if (animated) {
+    const startX = translateX.value
+    const startY = translateY.value
+    const duration = 500
+    const startTime = Date.now()
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const eased = 1 - (1 - progress) ** 3 // easeOutCubic
+
+      translateX.value = startX + (targetX - startX) * eased
+      translateY.value = startY + (targetY - startY) * eased
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      }
+    }
+    animate()
+  }
+  else {
+    translateX.value = targetX
+    translateY.value = targetY
+  }
 }
 
 function generateLink(link: Link) {
@@ -173,37 +274,8 @@ function getLinkColor(_link: Link) {
   return 'stroke-#8882'
 }
 
-function handleDragingScroll() {
-  let x = 0
-  let y = 0
-  const SCROLLBAR_THICKNESS = 20
-
-  useEventListener(container, 'mousedown', (e) => {
-    // prevent dragging when clicking on scrollbar
-    const rect = container.value!.getBoundingClientRect()
-    const distRight = rect.right - e.clientX
-    const distBottom = rect.bottom - e.clientY
-    if (distRight <= SCROLLBAR_THICKNESS || distBottom <= SCROLLBAR_THICKNESS) {
-      return
-    }
-
-    isGrabbing.value = true
-    x = container.value!.scrollLeft + e.pageX
-    y = container.value!.scrollTop + e.pageY
-  })
-  useEventListener('mouseleave', () => isGrabbing.value = false)
-  useEventListener('mouseup', () => isGrabbing.value = false)
-  useEventListener('mousemove', (e) => {
-    if (!isGrabbing.value)
-      return
-    e.preventDefault()
-    container.value!.scrollLeft = x - e.pageX
-    container.value!.scrollTop = y - e.pageY
-  })
-}
-
 onMounted(() => {
-  handleDragingScroll()
+  setupViewportControls()
 
   watch(
     () => [props.modules, graphRender.value],
@@ -216,65 +288,91 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full h-screen of-scroll relative select-none
+    w-full h-screen overflow-hidden relative select-none
     :class="isGrabbing ? 'cursor-grabbing' : ''"
   >
+    <div
+      absolute left-0 top-0 w-full h-full
+      class="bg-dots"
+      :style="{
+        transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+        transformOrigin: '0 0',
+      }"
+    />
+
     <div
       absolute left-0 top-0
       :style="{
         width: `${width}px`,
         height: `${height}px`,
+        transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+        transformOrigin: '0 0',
       }"
-      class="bg-dots"
-    />
-    <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateLink(link)!"
-          :class="getLinkColor(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-          fill="none"
-        />
-      </g>
-    </svg>
-    <!-- <svg pointer-events-none absolute left-0 top-0 z-graph-link-active :width="width" :height="height">
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateLink(link)!"
-          fill="none"
-          class="stroke-primary:75"
-        />
-      </g>
-    </svg> -->
-    <template
-      v-for="node of nodes"
-      :key="node.data.module.id"
     >
-      <template v-if="node.data.module.id !== '~root'">
-        <DisplayModuleId
-          :id="node.data.module.id"
-          :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-          absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
-          border="~ base rounded"
-          :link="true"
-          :session="session"
-          :pkg="node.data.module"
-          :minimal="true"
-          :style="{
-            left: `${node.x}px`,
-            top: `${node.y}px`,
-            minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
-            transform: 'translate(-50%, -50%)',
-            maxWidth: '400px',
-            maxHeight: '50px',
-            overflow: 'hidden',
-          }"
-        />
+      <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
+        <g>
+          <path
+            v-for="link of links"
+            :key="link.id"
+            :d="generateLink(link)!"
+            :class="getLinkColor(link)"
+            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+            fill="none"
+          />
+        </g>
+      </svg>
+
+      <template
+        v-for="node of nodes"
+        :key="node.data.module.id"
+      >
+        <template v-if="node.data.module.id !== '~root'">
+          <DisplayModuleId
+            :id="node.data.module.id"
+            :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
+            data-module-node
+            absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
+            border="~ base rounded"
+            :link="true"
+            :session="session"
+            :pkg="node.data.module"
+            :minimal="true"
+            :style="{
+              left: `${node.x}px`,
+              top: `${node.y}px`,
+              minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
+              transform: 'translate(-50%, -50%)',
+              maxWidth: '400px',
+              maxHeight: '50px',
+              overflow: 'hidden',
+            }"
+          />
+        </template>
       </template>
-    </template>
+    </div>
+
+    <div absolute top-4 right-4 px-3 py-1 bg-glass border="~ base rounded" text-sm op-75>
+      {{ Math.round(scale * 100) }}%
+    </div>
+
+    <div absolute bottom-4 right-4 flex flex-col gap-2>
+      <button
+        p2 op-fade hover:op100
+        flex="~ items-center justify-center"
+        rounded border border-base op80
+        @click="zoomGraph(true)"
+      >
+        <span class="i-carbon-add text-lg" />
+      </button>
+      <button
+        p2 op-fade hover:op100
+        flex="~ items-center justify-center"
+        rounded border border-base
+        exact-active-class="text-primary op100!"
+        @click="zoomGraph(false)"
+      >
+        <span class="i-carbon-subtract text-lg" />
+      </button>
+    </div>
   </div>
 </template>
