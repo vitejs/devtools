@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SessionContext } from '~~/shared/types'
+import type { ModuleDest, ModuleTreeNode, SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
@@ -71,6 +71,92 @@ const allFileTypes = computed(() => {
   return fileTypes
 })
 
+function toTree(modules: ModuleDest[], name: string) {
+  const node: ModuleTreeNode = { name, children: {}, items: [] }
+
+  function add(mod: ModuleDest, parts: string[], current = node) {
+    if (!mod)
+      return
+
+    if (parts.length <= 1) {
+      current.items.push(mod)
+      return
+    }
+
+    const first = parts.shift()!
+    if (!current.children[first])
+      current.children[first] = { name: first, children: {}, items: [] }
+    add(mod, parts, current.children[first])
+  }
+
+  modules.forEach((m) => {
+    const parts = m.path.split(/\//g).filter(Boolean)
+    add(m, parts)
+  })
+
+  function flat(node: ModuleTreeNode) {
+    if (!node)
+      return
+    const children = Object.values(node.children)
+    if (children.length === 1 && !node.items.length) {
+      const child = children[0]
+      node.name = node.name ? `${node.name}/${child.name}` : child.name
+      node.items = child.items
+      node.children = child.children
+      flat(node)
+    }
+    else {
+      children.forEach(flat)
+    }
+  }
+
+  Object.values(node.children).forEach(flat)
+
+  return node
+}
+
+const moduleTree = computed(() => {
+  if (!props.session.modulesList.length) {
+    return {
+      workspace: {
+        children: {},
+        items: [],
+      },
+      nodeModules: {
+        children: {},
+        items: [],
+      },
+      virtual: {
+        children: {},
+        items: [],
+      },
+    }
+  }
+  const inWorkspace: ModuleDest[] = []
+  const inNodeModules: ModuleDest[] = []
+  const inVirtual: ModuleDest[] = []
+
+  parsedPaths.value.map(i => ({ full: i.mod.id, path: i.mod.id, _p: i.path.path })).forEach((i) => {
+    if (i.full.startsWith(props.session.meta.cwd) && !i._p.startsWith('../')) {
+      inWorkspace.push(i)
+    }
+    else if (i.full.includes('node_modules')) {
+      inNodeModules.push(i)
+    }
+    else if (i.full.startsWith('virtual:')) {
+      inVirtual.push(i)
+    }
+  })
+
+  inWorkspace.forEach(i => i.path = i.path.slice(props.session.meta.cwd.length + 1))
+
+  return {
+    workspace: toTree(inWorkspace, 'Project Root'),
+    nodeModules: toTree(inNodeModules, 'Node Modules'),
+    virtual: toTree(inVirtual, 'Virtual Modules'),
+  }
+})
+
 const filtered = computed(() => {
   let modules = parsedPaths.value
   if (filters.file_types) {
@@ -128,6 +214,12 @@ function toggleDisplay() {
 </script>
 
 <template>
+  <ModulesTreeNode
+    v-if="Object.keys(moduleTree.workspace.children).length"
+    :node="moduleTree.workspace"
+    p="l3 t4"
+    icon="i-carbon-portfolio"
+  />
   <div relative max-h-screen of-hidden>
     <div flex="col gap-2" absolute left-4 top-4 max-w-90vw border="~ base rounded-xl" bg-glass z-panel-nav>
       <div border="b base">
