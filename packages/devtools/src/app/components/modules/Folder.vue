@@ -29,7 +29,7 @@ const moduleTree = computed(() => {
   const inNodeModules: ModuleDest[] = []
   const inVirtual: ModuleDest[] = []
 
-  props.modules.map(i => ({ full: i.id, path: i.path })).forEach((i) => {
+  props.modules.map(i => ({ full: i.id, path: i.path! })).forEach((i) => {
     if (i.full.startsWith(props.session.meta.cwd)) {
       if (!i.path.startsWith('../')) {
         i.path = i.full.slice(props.session.meta.cwd.length + 1)

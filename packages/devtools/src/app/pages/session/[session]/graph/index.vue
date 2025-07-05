@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
+import type { ClientSettings } from '~/state/settings'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
@@ -136,7 +137,7 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
-function toggleDisplay(type: 'list' | 'graph' | 'folder') {
+function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
   }

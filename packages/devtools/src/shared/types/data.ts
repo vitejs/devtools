@@ -4,7 +4,7 @@ export type { ModuleImport }
 
 export interface ModuleListItem {
   id: string
-  path: string
+  path?: string
   fileType: string
   imports: ModuleImport[]
   importers: string[]
