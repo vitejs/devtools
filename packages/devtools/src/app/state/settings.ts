@@ -5,7 +5,7 @@ import { computed } from 'vue'
 export interface ClientSettings {
   codeviewerLineWrap: boolean
   codeviewerDiffPanelSize: number
-  flowModuleGraphView: 'list' | 'graph'
+  flowModuleGraphView: 'list' | 'graph' | 'folder'
   flowExpandResolveId: boolean
   flowExpandTransforms: boolean
   flowExpandLoads: boolean

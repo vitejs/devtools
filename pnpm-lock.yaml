@@ -178,6 +178,9 @@ catalogs:
     '@iconify-json/catppuccin':
       specifier: ^1.2.11
       version: 1.2.11
+    '@iconify-json/codicon':
+      specifier: ^1.2.24
+      version: 1.2.24
     '@iconify-json/logos':
       specifier: ^1.2.4
       version: 1.2.4
@@ -257,6 +260,9 @@ importers:
       '@iconify-json/catppuccin':
         specifier: catalog:icons
         version: 1.2.11
+      '@iconify-json/codicon':
+        specifier: catalog:icons
+        version: 1.2.24
       '@iconify-json/logos':
         specifier: catalog:icons
         version: 1.2.4
@@ -1004,6 +1010,9 @@ packages:
 
   '@iconify-json/catppuccin@1.2.11':
     resolution: {integrity: sha512-Hc71/cfLZhb8Hetr+tBb9XRe24DNIBM4EPFoHa6mUJdXTHakPeeGLjEa3owDNcGSwZFJCXnBizDpkCL8UwMR9w==}
+
+  '@iconify-json/codicon@1.2.24':
+    resolution: {integrity: sha512-NApoTjRdJbNRBSCrJrkvpQGYmORmJ3oG/Aj4tEQecaSKbBzn1LfOb9s4KmHELyDgiLPzHzTSEIh61BqdDi7Mgw==}
 
   '@iconify-json/logos@1.2.4':
     resolution: {integrity: sha512-XC4If5D/hbaZvUkTV8iaZuGlQCyG6CNOlaAaJaGa13V5QMYwYjgtKk3vPP8wz3wtTVNVEVk3LRx1fOJz+YnSMw==}
@@ -6915,6 +6924,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/catppuccin@1.2.11':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/codicon@1.2.24':
     dependencies:
       '@iconify/types': 2.0.0
 

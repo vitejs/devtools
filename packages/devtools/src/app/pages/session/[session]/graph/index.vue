@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ModuleDest, ModuleTreeNode, SessionContext } from '~~/shared/types'
+import type { SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
@@ -27,6 +27,23 @@ const filters = reactive<Filters>({
   file_types: (route.query.file_types ? toArray(route.query.file_types) : null) as string[] | null,
   node_modules: (route.query.node_modules ? toArray(route.query.node_modules) : null) as string[] | null,
 })
+const moduleViewTypes = [
+  {
+    label: 'List',
+    value: 'list',
+    icon: 'i-ph-list-duotone',
+  },
+  {
+    label: 'Graph',
+    value: 'graph',
+    icon: 'i-ph-graph-duotone',
+  },
+  {
+    label: 'Folder',
+    value: 'folder',
+    icon: 'i-ph-folder-duotone',
+  },
+] as const
 
 debouncedWatch(
   filters,
@@ -71,92 +88,6 @@ const allFileTypes = computed(() => {
   return fileTypes
 })
 
-function toTree(modules: ModuleDest[], name: string) {
-  const node: ModuleTreeNode = { name, children: {}, items: [] }
-
-  function add(mod: ModuleDest, parts: string[], current = node) {
-    if (!mod)
-      return
-
-    if (parts.length <= 1) {
-      current.items.push(mod)
-      return
-    }
-
-    const first = parts.shift()!
-    if (!current.children[first])
-      current.children[first] = { name: first, children: {}, items: [] }
-    add(mod, parts, current.children[first])
-  }
-
-  modules.forEach((m) => {
-    const parts = m.path.split(/\//g).filter(Boolean)
-    add(m, parts)
-  })
-
-  function flat(node: ModuleTreeNode) {
-    if (!node)
-      return
-    const children = Object.values(node.children)
-    if (children.length === 1 && !node.items.length) {
-      const child = children[0]
-      node.name = node.name ? `${node.name}/${child.name}` : child.name
-      node.items = child.items
-      node.children = child.children
-      flat(node)
-    }
-    else {
-      children.forEach(flat)
-    }
-  }
-
-  Object.values(node.children).forEach(flat)
-
-  return node
-}
-
-const moduleTree = computed(() => {
-  if (!props.session.modulesList.length) {
-    return {
-      workspace: {
-        children: {},
-        items: [],
-      },
-      nodeModules: {
-        children: {},
-        items: [],
-      },
-      virtual: {
-        children: {},
-        items: [],
-      },
-    }
-  }
-  const inWorkspace: ModuleDest[] = []
-  const inNodeModules: ModuleDest[] = []
-  const inVirtual: ModuleDest[] = []
-
-  parsedPaths.value.map(i => ({ full: i.mod.id, path: i.mod.id, _p: i.path.path })).forEach((i) => {
-    if (i.full.startsWith(props.session.meta.cwd) && !i._p.startsWith('../')) {
-      inWorkspace.push(i)
-    }
-    else if (i.full.includes('node_modules')) {
-      inNodeModules.push(i)
-    }
-    else if (i.full.startsWith('virtual:')) {
-      inVirtual.push(i)
-    }
-  })
-
-  inWorkspace.forEach(i => i.path = i.path.slice(props.session.meta.cwd.length + 1))
-
-  return {
-    workspace: toTree(inWorkspace, 'Project Root'),
-    nodeModules: toTree(inNodeModules, 'Node Modules'),
-    virtual: toTree(inVirtual, 'Virtual Modules'),
-  }
-})
-
 const filtered = computed(() => {
   let modules = parsedPaths.value
   if (filters.file_types) {
@@ -165,7 +96,7 @@ const filtered = computed(() => {
   if (filters.node_modules) {
     modules = modules.filter(mod => mod.path.moduleName && filters.node_modules!.includes(mod.path.moduleName))
   }
-  return modules.map(mod => mod.mod)
+  return modules.map(mod => ({ ...mod.mod, path: mod.path.path }))
 })
 
 function isFileTypeSelected(type: string) {
@@ -205,21 +136,15 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
-function toggleDisplay() {
+function toggleDisplay(type: 'list' | 'graph' | 'folder') {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
   }
-  settings.value.flowModuleGraphView = settings.value.flowModuleGraphView === 'list' ? 'graph' : 'list'
+  settings.value.flowModuleGraphView = type
 }
 </script>
 
 <template>
-  <ModulesTreeNode
-    v-if="Object.keys(moduleTree.workspace.children).length"
-    :node="moduleTree.workspace"
-    p="l3 t4"
-    icon="i-carbon-portfolio"
-  />
   <div relative max-h-screen of-hidden>
     <div flex="col gap-2" absolute left-4 top-4 max-w-90vw border="~ base rounded-xl" bg-glass z-panel-nav>
       <div border="b base">
@@ -253,12 +178,14 @@ function toggleDisplay() {
       <div flex="~ gap-2 items-center" p2 border="t base">
         <span op50 pl2 text-sm>View as</span>
         <button
+          v-for="viewType of moduleViewTypes"
+          :key="viewType.value"
           btn-action
-          @click="toggleDisplay"
+          :class="settings.flowModuleGraphView === viewType.value ? 'bg-active' : 'grayscale op50'"
+          @click="toggleDisplay(viewType.value)"
         >
-          <div v-if="settings.flowModuleGraphView === 'graph'" i-ph-graph-duotone />
-          <div v-else i-ph-list-duotone />
-          {{ settings.flowModuleGraphView === 'list' ? 'List' : 'Graph' }}
+          <div :class="viewType.icon" />
+          {{ viewType.label }}
         </button>
       </div>
       <!-- TODO: should we add filters for node_modules? -->
@@ -276,8 +203,14 @@ function toggleDisplay() {
         </div>
       </div>
     </template>
-    <template v-else>
+    <template v-else-if="settings.flowModuleGraphView === 'graph'">
       <ModulesGraph
+        :session="session"
+        :modules="searched"
+      />
+    </template>
+    <template v-else>
+      <ModulesFolder
         :session="session"
         :modules="searched"
       />

@@ -71,6 +71,7 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.10
     '@iconify-json/catppuccin': ^1.2.11
+    '@iconify-json/codicon': ^1.2.24
     '@iconify-json/logos': ^1.2.4
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5
