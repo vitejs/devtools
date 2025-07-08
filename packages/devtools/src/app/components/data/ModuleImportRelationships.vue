@@ -72,7 +72,6 @@ function calculateGraph() {
   // Unset the canvas size, and recalculate again after nodes are rendered
   width.value = window.innerWidth
   height.value = window.innerHeight
-  const importIds = props.module.imports?.map(x => x.module_id)
   const seen = new Set<ModuleListItem>()
 
   // build imports graph
@@ -110,12 +109,7 @@ function calculateGraph() {
   // Rotate the graph from top-down to left-right
   const _importsNodes = importsRoot.descendants()
   for (const node of _importsNodes) {
-    if (importIds?.includes(node.data.module.id)) {
-      [node.x, node.y] = [-(SPACING.width + SPACING.gap), node.x!]
-    }
-    else {
-      [node.x, node.y] = [node.y! - SPACING.width, node.x!]
-    }
+    [node.x, node.y] = [node.y! - SPACING.width, node.x!]
   }
 
   // Offset the graph and adding margin
@@ -123,12 +117,7 @@ function calculateGraph() {
   const minY = Math.min(..._importsNodes.map(n => n.y!))
   if (minX < SPACING.margin) {
     for (const node of _importsNodes) {
-      if (importIds?.includes(node.data.module.id)) {
-        node.x! += Math.abs(minX) + SPACING.margin
-      }
-      else {
-        node.x! += Math.abs(minX) + SPACING.margin
-      }
+      node.x! += Math.abs(minX) + SPACING.margin
     }
   }
   if (minY < SPACING.margin) {
@@ -142,15 +131,6 @@ function calculateGraph() {
     .map((x): Link => {
       return {
         ...x,
-        source: {
-          ...x.source,
-          x: x.source.x! - (SPACING.width) + SPACING.linkOffset,
-          y: x.source.y!,
-        } as HierarchyNode<Node>,
-        target: {
-          ...x.target,
-          x: x.target.x! + SPACING.width - SPACING.linkOffset,
-        } as HierarchyNode<Node>,
         import: x.source.data.import,
         id: `${x.source.data.module.id}|${x.target.data.module.id}`,
       }
@@ -191,7 +171,12 @@ function calculateGraph() {
 
   const _importersNodes = importersRoot.descendants()
   for (const node of _importersNodes) {
-    [node.x, node.y] = [node.y! - SPACING.width, node.x!]
+    if (props.module.importers?.includes(node.data.module.id)) {
+      [node.x, node.y] = [-(SPACING.width + SPACING.gap), node.x!]
+    }
+    else {
+      [node.x, node.y] = [node.y! - SPACING.width, node.x!]
+    }
   }
 
   const rootNode = _importsNodes.find(n => n.data.module.id === props.module.id)!
@@ -211,6 +196,15 @@ function calculateGraph() {
     .map((x): Link => {
       return {
         ...x,
+        source: {
+          ...x.source,
+          x: x.source.x! - (SPACING.width) + SPACING.linkOffset,
+          y: x.source.y!,
+        } as HierarchyNode<Node>,
+        target: {
+          ...x.target,
+          x: x.target.x! + SPACING.width - SPACING.linkOffset,
+        } as HierarchyNode<Node>,
         import: x.source.data.import,
         id: `${x.source.data.module.id}|${x.target.data.module.id}`,
       }
@@ -228,6 +222,7 @@ function calculateGraph() {
     focusOn(props.module.id, false)
   })
 }
+
 function focusOn(id: string, animated = true) {
   const el = nodesRefMap.get(id)
   el?.scrollIntoView({
