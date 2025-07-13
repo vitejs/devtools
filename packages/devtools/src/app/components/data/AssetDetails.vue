@@ -39,17 +39,7 @@ function openInEditor() {
         </button>
       </div>
     </div>
-    <div op50>
-      Chunks
-    </div>
-    <div v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1>
-      <DataChunkDetails
-        :chunk="chunk"
-        :session="session"
-        :show-modules="false"
-      />
-    </div>
-    <template v-if="asset.content && showSource">
+    <template v-if="showSource">
       <div flex="~ gap-2 items-center">
         <div op50>
           Source
@@ -66,5 +56,15 @@ function openInEditor() {
         />
       </div>
     </template>
+    <div op50>
+      Chunks
+    </div>
+    <div v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1>
+      <DataChunkDetails
+        :chunk="chunk"
+        :session="session"
+        :show-modules="false"
+      />
+    </div>
   </div>
 </template>
