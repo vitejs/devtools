@@ -375,7 +375,7 @@ const codeDisplay = computed(() => {
         </template>
         <template v-else-if="selected?.type === 'asset'">
           <div p4>
-            Assets Details (TODO)
+            Assets Details (WIP)
             - Trace back to the chunk
             - A button to open the asset in the editor
             - A button to show source in the page

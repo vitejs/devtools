@@ -22,7 +22,7 @@ const { state: assets } = useAsyncState(
   <div p5 flex="~ col gap-4">
     Assets
     <!--
-      TODO:
+      WIP:
       - Use tree view to show assets
       - Show asssets detail on the right panel
       - View of Flamechart with nanovis

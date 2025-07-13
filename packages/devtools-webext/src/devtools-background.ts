@@ -13,7 +13,7 @@ const checkViteInterval = window.setInterval(() => {
 }, 1000)
 
 function createDevToolsPanel() {
-  // TODO: detect vite env
+  // TODO (hold-off): detect vite env
   chrome.devtools.inspectedWindow.eval('true', (detected) => {
     if (!detected || checkInfo.viteDetected) {
       return
