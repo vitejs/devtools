@@ -2,10 +2,13 @@
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
 
-defineProps<{
+withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
-}>()
+  showModules?: boolean
+}>(), {
+  showModules: true,
+})
 </script>
 
 <template>
@@ -32,20 +35,22 @@ defineProps<{
       {{ chunk.imports }}
     </div> -->
 
-    <div op50>
-      Modules
-    </div>
-    <div flex="~ col gap-1" ws-nowrap>
-      <DisplayModuleId
-        v-for="module of chunk.modules"
-        :id="module"
-        :key="module"
-        :session
-        :link="true"
-        :minimal="true"
-        hover="bg-active"
-        border="~ base rounded" px2 py1 w-full
-      />
-    </div>
+    <template v-if="showModules">
+      <div op50>
+        Modules
+      </div>
+      <div flex="~ col gap-1" ws-nowrap>
+        <DisplayModuleId
+          v-for="module of chunk.modules"
+          :id="module"
+          :key="module"
+          :session
+          :link="true"
+          :minimal="true"
+          hover="bg-active"
+          border="~ base rounded" px2 py1 w-full
+        />
+      </div>
+    </template>
   </div>
 </template>

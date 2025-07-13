@@ -375,22 +375,11 @@ const codeDisplay = computed(() => {
         </template>
         <template v-else-if="selected?.type === 'asset'">
           <div p4>
-            <div relative>
-              <div absolute top-0 right-0 flex="~ gap-2">
-                <button btn-action>
-                  <div i-carbon-launch />
-                  Open in editor
-                </button>
-                <button btn-action>
-                  <div i-catppuccin-java-class-abstract />
-                  View source
-                </button>
-              </div>
-            </div>
-
-            - Trace back to the chunk
-            - A button to open the asset in the editor
-            - A button to show source in the page
+            <DataAssetDetails
+              :asset="selected"
+              :session="session"
+              :chunks="info.chunks"
+            />
           </div>
         </template>
         <template v-else-if="codeDisplay?.from && codeDisplay?.to">
