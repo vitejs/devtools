@@ -13,7 +13,9 @@ State: **🚧 Work in progress**
 
 We are currently focusing on get the basic data visualization working for **Vite-Rolldown's build mode**. Dev mode will be delayed for later until Vite get the full-bundler dev mode.
 
-You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) if you are interested in helping out.
+You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excluding `hold-off`) if you are interested in helping out.
+
+For the `devtools-webext` package, we plan to use it for dev mode in the future, so no contributions are needed at this time.
 
 ## 🧑‍💻 Development Guide
 
