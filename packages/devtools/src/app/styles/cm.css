@@ -26,7 +26,7 @@ html:not(.dark) {
   --cm-regex: #ab5e3f;
   --cm-json-property: #698c96;
   --cm-selection-background: #44444410;
-  --cm-line-number-gutter: #fafafa50;
+  --cm-line-number-gutter: #fafafa;
 }
 
 html.dark {
@@ -52,7 +52,7 @@ html.dark {
   --cm-line-number: #888888;
   --cm-line-highlight-background: #444444;
   --cm-selection-background: #44444450;
-  --cm-line-number-gutter: #1a1a1a50;
+  --cm-line-number-gutter: #1a1a1a;
 }
 
 
