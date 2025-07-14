@@ -152,6 +152,6 @@ function _onUpdate(size: number) {
   --at-apply: bg-red-400/30;
 }
 .CodeMirror-linenumber{
-    --at-apply: bg-white;
+    --at-apply: bg-[var(--cn-line-number-background)];
 }
 </style>
