@@ -97,26 +97,27 @@ function selectFlowNode(v: boolean) {
         </button>
       </div>
     </div>
-    <div h-30 w-100 />
-    <FlowmapModuleFlow
-      v-if="view === 'flow'"
-      p4
-      :info
-      :session
-      :transforms-loading
-      @select="selectFlowNode"
-    />
-    <ChartModuleFlamegraph
-      v-if="view === 'charts'"
-      :info
-      :session="session"
-      :flow-node-selected="flowNodeSelected"
-    />
-    <DataModuleImportRelationships
-      v-if="view === 'imports'"
-      :module="info"
-      :session="session"
-    />
+    <div of-auto max-h-full pt-30>
+      <FlowmapModuleFlow
+        v-if="view === 'flow'"
+        p4
+        :info
+        :session
+        :transforms-loading
+        @select="selectFlowNode"
+      />
+      <ChartModuleFlamegraph
+        v-if="view === 'charts'"
+        :info
+        :session="session"
+        :flow-node-selected="flowNodeSelected"
+      />
+      <DataModuleImportRelationships
+        v-if="view === 'imports'"
+        :module="info"
+        :session="session"
+      />
+    </div>
   </div>
   <VisualLoading v-else />
 </template>

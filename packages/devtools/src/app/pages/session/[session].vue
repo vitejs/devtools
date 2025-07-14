@@ -93,7 +93,6 @@ onMounted(async () => {
         v-on-click-outside="closeFlowPanel"
         fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
-        of-auto
       >
         <DataModuleDetailsLoader
           :module="(route.query.module as string)"
