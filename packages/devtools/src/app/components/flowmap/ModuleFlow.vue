@@ -375,10 +375,11 @@ const codeDisplay = computed(() => {
         </template>
         <template v-else-if="selected?.type === 'asset'">
           <div p4>
-            Assets Details (WIP)
-            - Trace back to the chunk
-            - A button to open the asset in the editor
-            - A button to show source in the page
+            <DataAssetDetails
+              :asset="selected"
+              :session="session"
+              :chunks="info.chunks"
+            />
           </div>
         </template>
         <template v-else-if="codeDisplay?.from && codeDisplay?.to">
