@@ -223,13 +223,13 @@ function handleDragingScroll() {
 
 onMounted(() => {
   handleDragingScroll()
-
-  watch(
-    () => [props.modules, graphRender.value],
-    calculateGraph,
-    { immediate: true },
-  )
 })
+
+watch(
+  () => [props.modules, graphRender.value],
+  calculateGraph,
+  { immediate: true },
+)
 </script>
 
 <template>

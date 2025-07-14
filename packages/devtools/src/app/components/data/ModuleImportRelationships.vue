@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
-import { computed, nextTick, onMounted, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   module: ModuleInfo
@@ -233,30 +233,28 @@ function focusOn(id: string, animated = true) {
   })
 }
 
-onMounted(() => {
-  watch(
-    () => [props.module],
-    calculateGraph,
-    { immediate: true },
-  )
-})
+watch(
+  () => [props.module],
+  calculateGraph,
+  { immediate: true },
+)
 </script>
 
 <template>
   <div
     ref="container"
-    w-full min-h-full relative select-none of-auto
+    min-h-full of-auto relative select-none w-full
   >
     <div
       flex="~ items-center justify-center"
     >
-      <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
+      <svg :height="height" :width="width" absolute left-0 pointer-events-none top-0 z-graph-link>
         <g>
           <path
             v-for="link of links"
             :key="link.id"
-            :d="generateLink(link)!"
             :class="getLinkColor(link)"
+            :d="generateLink(link)!"
             :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
             fill="none"
           />
@@ -270,13 +268,7 @@ onMounted(() => {
           <DisplayModuleId
             :id="node.data.module.id"
             :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-            absolute hover="bg-active" block px2 p1 bg-glass
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
+            :link="true" :minimal="true" :session="session" :style="{
               left: `${node.x}px`,
               top: `${node.y}px`,
               minWidth: `${SPACING.width}px`,
@@ -284,7 +276,13 @@ onMounted(() => {
               maxWidth: '400px',
               maxHeight: '50px',
               overflow: 'hidden',
-            }"
+            }" absolute bg-glass
+            block
+            border="~ base rounded"
+            hover="bg-active"
+            p1
+            px2
+            z-graph-node
           />
         </template>
       </template>
