@@ -13,6 +13,7 @@ export interface ClientSettings {
   flowExpandAssets: boolean
   flowShowAllTransforms: boolean
   flowShowAllLoads: boolean
+  assetViewType: 'list' | 'folder' | 'flamechart'
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -28,6 +29,7 @@ export const settings = useLocalStorage<ClientSettings>(
     flowExpandAssets: true,
     flowShowAllTransforms: false,
     flowShowAllLoads: false,
+    assetViewType: 'list',
   },
   {
     mergeDefaults: true,

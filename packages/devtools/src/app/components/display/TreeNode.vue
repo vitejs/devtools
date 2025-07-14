@@ -53,6 +53,7 @@ function select(node: ModuleDest) {
         v-for="e of Object.entries(node.children)"
         :key="e[0]" :node="e[1]" :link="link"
         :padding="padding + 1"
+        @select="select"
       />
       <template v-for="i of node.items" :key="i.full">
         <component
