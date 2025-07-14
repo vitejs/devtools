@@ -151,7 +151,4 @@ function _onUpdate(size: number) {
 .diff-removed-inline {
   --at-apply: bg-red-400/30;
 }
-.CodeMirror-linenumber{
-    --at-apply: bg-[var(--cn-line-number-background)];
-}
 </style>
