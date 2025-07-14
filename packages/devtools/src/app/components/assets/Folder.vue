@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import type { Asset } from '@rolldown/debug'
 import type { ModuleDest, SessionContext } from '~~/shared/types'
-import { useRouter } from '#app/composables/router'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { toTree } from '../../utils/format'
 
 const props = defineProps<{
   assets: Asset[]
   session: SessionContext
 }>()
-const router = useRouter()
-const selected = ref('')
 const assetTree = computed(() => {
   const nodes: ModuleDest[] = []
   props.assets.forEach((i) => {
@@ -21,15 +18,6 @@ const assetTree = computed(() => {
   })
   return toTree(nodes, 'Project')
 })
-
-function select(node: ModuleDest) {
-  selected.value = node.path
-  router.replace({
-    query: {
-      asset: node.path,
-    },
-  })
-}
 </script>
 
 <template>
@@ -40,8 +28,8 @@ function select(node: ModuleDest) {
       :node="assetTree"
       icon="i-catppuccin:folder-dist catppuccin"
       icon-open="i-catppuccin:folder-dist-open catppuccin"
-      :link="false"
-      @select="select"
+      :link="true"
+      link-query-key="asset"
     />
   </div>
 </template>
