@@ -125,6 +125,8 @@ const fuse = computedWithControl(
   () => new Fuse(filtered.value, {
     includeScore: true,
     keys: ['id'],
+    ignoreLocation: true,
+    threshold: 0.4,
   }),
 )
 
@@ -200,7 +202,7 @@ function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
           :modules="searched"
         />
         <div text-center text-xs op50 m4>
-          {{ filtered.length }} of {{ session.modulesList.length }}
+          {{ searched.length }} of {{ session.modulesList.length }}
         </div>
       </div>
     </template>
