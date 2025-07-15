@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const rpc = useRpc()
-const { state: assets } = useAsyncState(
+const { state: assets, isLoading } = useAsyncState(
   async () => {
     return await rpc.value!['vite:rolldown:get-assets-list']?.({
       session: props.session.id,
@@ -19,6 +19,7 @@ const { state: assets } = useAsyncState(
 </script>
 
 <template>
+  <VisualLoading v-if="isLoading" />
   <div p5 flex="~ col gap-4">
     Assets
     <!--

@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const rpc = useRpc()
-const { state: chunks } = useAsyncState(
+const { state: chunks, isLoading } = useAsyncState(
   async () => {
     return await rpc.value!['vite:rolldown:get-chunks-graph']?.({
       session: props.session.id,
@@ -19,7 +19,8 @@ const { state: chunks } = useAsyncState(
 </script>
 
 <template>
-  <div p5 flex="~ col gap-4">
+  <VisualLoading v-if="isLoading" />
+  <div v-else p5 flex="~ col gap-4">
     Chunks
     <!-- TODO: graph view -->
     <template v-for="chunk of chunks" :key="chunk.id">
