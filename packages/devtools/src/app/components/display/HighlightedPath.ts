@@ -60,7 +60,7 @@ export default defineComponent({
             }
             removeIndexes.add(index + 1)
             removeIndexes.add(index + 2)
-            classes[index + 3].push('op25!')
+            classes[index + 3]?.push('op25!')
             if (nodes[index + 4]?.children === 'node_modules') {
               removeIndexes.add(index + 3)
               removeIndexes.add(index + 4)
