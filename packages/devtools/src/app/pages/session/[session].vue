@@ -114,9 +114,9 @@ onMounted(async () => {
       <div
         :key="(route.query.asset as string)"
         v-on-click-outside="closeAssetPanel"
-        fixed right-0 bottom-0 top-30 left-150 z-panel-content
+        fixed right-0 bottom-0 top-30 z-panel-content of-auto
         bg-glass border="l t base rounded-tl-xl"
-        of-auto
+        class="left-20 xl:left-100 2xl:left-150"
       >
         <DataAssetDetailsLoader
           :asset="(route.query.asset as string)"
