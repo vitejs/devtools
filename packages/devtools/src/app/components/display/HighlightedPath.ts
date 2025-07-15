@@ -54,8 +54,10 @@ export default defineComponent({
 
           if (part === '.pnpm') {
             classes[index]?.push('op50')
-            if (nodes[index])
-              nodes[index].children = '…'
+            if (nodes[index]) {
+              nodes[index].children = '...'
+              classes[index].push('mr0.5')
+            }
             removeIndexes.add(index + 1)
             removeIndexes.add(index + 2)
             if (nodes[index + 4]?.children === 'node_modules') {
