@@ -52,7 +52,7 @@ function selectFlowNode(v: boolean) {
 <template>
   <div v-if="info" relative h-full w-full>
     <DisplayCloseButton
-      absolute right-2 top-1.5
+      absolute right-2 top-1.5 bg-glass z-panel-content
       @click="emit('close')"
     />
     <div
@@ -97,26 +97,27 @@ function selectFlowNode(v: boolean) {
         </button>
       </div>
     </div>
-    <div h-30 w-100 />
-    <FlowmapModuleFlow
-      v-if="view === 'flow'"
-      p4
-      :info
-      :session
-      :transforms-loading
-      @select="selectFlowNode"
-    />
-    <ChartModuleFlamegraph
-      v-if="view === 'charts'"
-      :info
-      :session="session"
-      :flow-node-selected="flowNodeSelected"
-    />
-    <DataModuleImportRelationships
-      v-if="view === 'imports'"
-      :module="info"
-      :session="session"
-    />
+    <div of-auto h-full pt-30>
+      <FlowmapModuleFlow
+        v-if="view === 'flow'"
+        p4
+        :info
+        :session
+        :transforms-loading
+        @select="selectFlowNode"
+      />
+      <ChartModuleFlamegraph
+        v-if="view === 'charts'"
+        :info
+        :session="session"
+        :flow-node-selected="flowNodeSelected"
+      />
+      <DataModuleImportRelationships
+        v-if="view === 'imports'"
+        :module="info"
+        :session="session"
+      />
+    </div>
   </div>
   <VisualLoading v-else />
 </template>

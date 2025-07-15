@@ -27,7 +27,7 @@ const assetViewTpyes = [
   },
 ] as const
 const rpc = useRpc()
-const { state: assets } = useAsyncState(
+const { state: assets, isLoading } = useAsyncState(
   async () => {
     return await rpc.value!['vite:rolldown:get-assets-list']?.({
       session: props.session.id,
@@ -42,7 +42,8 @@ function toggleDisplay(type: ClientSettings['assetViewType']) {
 </script>
 
 <template>
-  <div p4 flex="~ col gap-4">
+  <VisualLoading v-if="isLoading" />
+  <div v-else p4 flex="~ col gap-4">
     <div flex="~ gap-2">
       <button
         v-for="viewType of assetViewTpyes"
