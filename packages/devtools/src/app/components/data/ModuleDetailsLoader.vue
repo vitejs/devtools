@@ -52,7 +52,7 @@ function selectFlowNode(v: boolean) {
 <template>
   <div v-if="info" relative h-full w-full>
     <DisplayCloseButton
-      absolute right-2 top-1.5
+      absolute right-2 top-1.5 bg-glass z-panel-content
       @click="emit('close')"
     />
     <div
@@ -97,7 +97,7 @@ function selectFlowNode(v: boolean) {
         </button>
       </div>
     </div>
-    <div of-auto max-h-full pt-30>
+    <div of-auto h-full pt-30>
       <FlowmapModuleFlow
         v-if="view === 'flow'"
         p4
