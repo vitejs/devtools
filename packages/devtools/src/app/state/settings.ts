@@ -14,6 +14,7 @@ export interface ClientSettings {
   flowShowAllTransforms: boolean
   flowShowAllLoads: boolean
   assetViewType: 'list' | 'folder' | 'treemap'
+  chartAnimation: boolean
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -30,6 +31,7 @@ export const settings = useLocalStorage<ClientSettings>(
     flowShowAllTransforms: false,
     flowShowAllLoads: false,
     assetViewType: 'list',
+    chartAnimation: true,
   },
   {
     mergeDefaults: true,
