@@ -3,7 +3,7 @@ import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
-import { computed, nextTick, onMounted, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   module: ModuleInfo
@@ -233,13 +233,11 @@ function focusOn(id: string, animated = true) {
   })
 }
 
-onMounted(() => {
-  watch(
-    () => [props.module],
-    calculateGraph,
-    { immediate: true },
-  )
-})
+watch(
+  () => [props.module],
+  calculateGraph,
+  { immediate: true },
+)
 </script>
 
 <template>
