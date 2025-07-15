@@ -21,9 +21,9 @@ const assetViewTpyes = [
     icon: 'i-ph-folder-duotone',
   },
   {
-    label: 'Flamechart',
-    value: 'flamechart',
-    icon: 'i-ph-chart-donut-duotone',
+    label: 'Treemap',
+    value: 'treemap',
+    icon: 'i-ph-checkerboard-duotone',
   },
 ] as const
 const rpc = useRpc()
@@ -61,8 +61,8 @@ function toggleDisplay(type: ClientSettings['assetViewType']) {
     <template v-else-if="settings.assetViewType === 'folder'">
       <AssetsFolder v-if="assets?.length" :assets="assets" :session="session" />
     </template>
-    <template v-else>
-      WIP: Flamechart view
+    <template v-else-if="settings.assetViewType === 'treemap'">
+      <AssetsTreemap v-if="assets?.length" :assets="assets" :session="session" />
     </template>
   </div>
 </template>
