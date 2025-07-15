@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Asset } from '@rolldown/debug'
+import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { ModuleDest, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 import { toTree } from '../../utils/format'
 
 const props = defineProps<{
-  assets: Asset[]
+  assets: AssetInfo[]
   session: SessionContext
 }>()
 const assetTree = computed(() => {
