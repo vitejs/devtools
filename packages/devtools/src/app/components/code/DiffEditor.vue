@@ -133,8 +133,8 @@ function _onUpdate(size: number) {
 
 <template>
   <div h-full w-full max-h-100vh :class="oneColumn ? 'flex' : 'grid grid-cols-2'">
-    <div v-show="!oneColumn" ref="fromEl" class="h-full max-h-100vh" />
-    <div ref="toEl" class="h-full max-h-100vh" />
+    <div v-show="!oneColumn" ref="fromEl" h-full max-h-100vh />
+    <div ref="toEl" h-full max-h-100vh :class="oneColumn ? 'w-full' : ''" />
   </div>
 </template>
 
