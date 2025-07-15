@@ -63,8 +63,8 @@ const moduleTree = computed(() => {
         v-if="Object.keys(moduleTree.workspace.children).length"
         :node="moduleTree.workspace"
         p="l3"
-        icon="i-catppuccin:folder-dist catppuccin"
-        icon-open="i-catppuccin:folder-dist-open catppuccin"
+        icon="i-catppuccin:folder-dist icon-catppuccin"
+        icon-open="i-catppuccin:folder-dist-open icon-catppuccin"
         :link="true"
       />
 
@@ -73,8 +73,8 @@ const moduleTree = computed(() => {
         <DisplayTreeNode
           :node="moduleTree.nodeModules"
           p="l3"
-          icon="i-catppuccin:folder-node catppuccin"
-          icon-open="i-catppuccin:folder-node-open catppuccin"
+          icon="i-catppuccin:folder-node icon-catppuccin"
+          icon-open="i-catppuccin:folder-node-open icon-catppuccin"
           :link="true"
           :open="false"
         />
@@ -85,8 +85,8 @@ const moduleTree = computed(() => {
         <DisplayTreeNode
           :node="moduleTree.virtual"
           p="l3"
-          icon="i-catppuccin:folder-components catppuccin"
-          icon-open="i-catppuccin:folder-components-open catppuccin"
+          icon="i-catppuccin:folder-components icon-catppuccin"
+          icon-open="i-catppuccin:folder-components-open icon-catppuccin"
           :link="true"
           :open="false"
         />

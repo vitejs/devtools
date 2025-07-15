@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
-import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
-import { computed, nextTick, onMounted, ref, shallowReactive, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   module: ModuleInfo
@@ -20,20 +19,22 @@ type Link = HierarchyLink<Node> & {
   import?: ModuleImport
 }
 
+type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
+
+const MAX_LINKS = 20
 const SPACING = {
   width: 400,
-  height: 55,
-  linkOffset: 20,
-  margin: 300,
-  gap: 60,
+  height: 50,
+  padding: 4,
+  marginX: 8,
+  border: 1,
+  margin: 8,
+  dot: 16,
+  dotOffset: 80,
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
-const width = ref(window.innerWidth)
-const height = ref(window.innerHeight)
-const nodes = shallowRef<HierarchyNode<Node>[]>([])
 const links = shallowRef<Link[]>([])
-const nodesRefMap = shallowReactive(new Map<string, HTMLDivElement>())
 
 const modulesMap = computed(() => {
   const map = new Map<string, ModuleListItem>()
@@ -41,6 +42,28 @@ const modulesMap = computed(() => {
     map.set(module.id, module)
   }
   return map
+})
+
+const importers = computed(() => {
+  return props.module.importers?.map(x => modulesMap.value.get(x))
+})
+
+const normalizedMaxLinks = computed(() => {
+  return Math.min(Math.max(props.module.importers?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
+})
+
+const importersMaxLength = computed(() => Math.min(importers.value?.length || 0, MAX_LINKS))
+const importsMaxLength = computed(() => Math.min(props.module.imports?.length || 0, MAX_LINKS))
+const nodesHeight = computed(() => SPACING.height * normalizedMaxLinks.value + SPACING.padding * (normalizedMaxLinks.value + 1) + SPACING.border * 2)
+const importersVerticalOffset = computed(() => {
+  const diff = Math.max(0, importsMaxLength.value - importersMaxLength.value)
+  const offset = (diff * (SPACING.height + SPACING.padding)) / 2
+  return Math.min(offset, nodesHeight.value / 2)
+})
+const importsVerticalOffset = computed(() => {
+  const diff = Math.max(0, importersMaxLength.value - importsMaxLength.value)
+  const offset = (diff * (SPACING.height + SPACING.padding)) / 2
+  return Math.min(offset, nodesHeight.value / 2)
 })
 
 const createLinkHorizontal = linkHorizontal()
@@ -54,13 +77,13 @@ const createLinkVertical = linkVertical()
 function generateLink(link: Link) {
   if (link.target.x! <= link.source.x!) {
     return createLinkVertical({
-      source: [link.source.x! + SPACING.width / 2 - SPACING.linkOffset, link.source.y!],
-      target: [link.target.x! - SPACING.width / 2 + SPACING.linkOffset, link.target.y!],
+      source: [link.source.x!, link.source.y!],
+      target: [link.target.x!, link.target.y!],
     })
   }
   return createLinkHorizontal({
-    source: [link.source.x! + SPACING.width / 2 - SPACING.linkOffset, link.source.y!],
-    target: [link.target.x! - SPACING.width / 2 + SPACING.linkOffset, link.target.y!],
+    source: [link.source.x!, link.source.y!],
+    target: [link.target.x!, link.target.y!],
   })
 }
 
@@ -68,175 +91,78 @@ function getLinkColor(_link: Link) {
   return 'stroke-#8882'
 }
 
-function calculateGraph() {
-  // Unset the canvas size, and recalculate again after nodes are rendered
-  width.value = window.innerWidth * 0.8
-  height.value = window.innerHeight * 0.8
-  const seen = new Set<ModuleListItem>()
+const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${importers.value?.length ? SPACING.dotOffset : 0}px`)
+const linkStartX = computed(() => importers.value?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
+const dotStartX = computed(() => importers.value?.length ? linkStartX.value + SPACING.dotOffset : linkStartX.value)
+const dotStartY = computed(() => (SPACING.height * normalizedMaxLinks.value + ((normalizedMaxLinks.value + 1) * SPACING.padding)) / 2)
 
-  // build imports graph
-  const importsRoot = hierarchy<Node>(
-    { module: { id: '~root' } } as any,
-    (parent) => {
-      if (parent.module.id === '~root') {
-        const module = modulesMap.value.get(props.module.id)!
-        return [{ module }]
-      }
-      else if (parent.module.id === props.module.id) {
-        const modules = parent.module.imports
-          .map((x): Node | undefined => {
-            const module = modulesMap.value.get(x.module_id)!
-            if (!module)
-              return undefined
-            if (seen.has(module))
-              return undefined
-
-            seen.add(module)
-            return {
-              module,
-            }
-          })
-          .filter(x => x !== undefined)
-        return [...modules]
-      }
-    },
-  )
-
-  const layout = tree<Node>()
-    .nodeSize([SPACING.height, SPACING.width + SPACING.gap])
-  layout(importsRoot)
-
-  // Rotate the graph from top-down to left-right
-  const _importsNodes = importsRoot.descendants()
-  for (const node of _importsNodes) {
-    [node.x, node.y] = [node.y! - SPACING.width, node.x!]
+function calculateLinkX(type: LinkPoint) {
+  switch (type) {
+    case 'importer-start':
+      return linkStartX.value
+    case 'importer-end':
+      return dotStartX.value
+    case 'import-start':
+      return dotStartX.value + SPACING.dot
+    case 'import-end':
+      return importers.value?.length ? linkStartX.value + SPACING.dotOffset * 2 + SPACING.dot : linkStartX.value + SPACING.dotOffset + SPACING.dot
   }
-
-  const _importsLinks = importsRoot.links()
-    .filter(x => x.source.data.module.id !== '~root')
-    .map((x): Link => {
-      return {
-        ...x,
-        import: x.source.data.import,
-        id: `${x.source.data.module.id}|${x.target.data.module.id}`,
-      }
-    })
-
-  // build importers graph
-  const importersRoot = hierarchy<Node>(
-    { module: { id: '~root' } } as any,
-    (parent) => {
-      if (parent.module.id === '~root') {
-        const module = modulesMap.value.get(props.module.id)!
-        if (seen.has(module))
-          return undefined
-        seen.add(module)
-        return [{ module }]
-      }
-      else if (parent.module.id === props.module.id) {
-        const modules = parent.module.importers
-          .map((x): Node | undefined => {
-            const module = modulesMap.value.get(x)!
-            if (!module)
-              return undefined
-            if (seen.has(module))
-              return undefined
-
-            seen.add(module)
-            return {
-              module,
-            }
-          })
-          .filter(x => x !== undefined)
-        return modules
-      }
-    },
-  )
-
-  layout(importersRoot)
-
-  const _importersNodes = importersRoot.descendants()
-  for (const node of _importersNodes) {
-    if (props.module.importers?.includes(node.data.module.id)) {
-      [node.x, node.y] = [-(SPACING.width + SPACING.gap), node.x!]
-    }
-    else {
-      [node.x, node.y] = [node.y! - SPACING.width, node.x!]
-    }
+}
+function calculateLinkY(type: LinkPoint, i?: number) {
+  switch (type) {
+    case 'importer-start':
+      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importersVerticalOffset.value
+    case 'import-end':
+      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importsVerticalOffset.value
+    case 'importer-end':
+    case 'import-start':
+      return dotStartY.value
   }
-
-  const rootNode = _importsNodes.find(n => n.data.module.id === props.module.id)!
-  _importersNodes.forEach((n) => {
-    if (n.data.module.id === props.module.id) {
-      n.x = rootNode!.x
-      n.y = rootNode!.y
-    }
-    else {
-      n.x = rootNode.x! + n.x!
-      n.y = rootNode.y! + n.y!
-    }
-  })
-
-  // Offset the graph and adding margin
-  const _nodes = [..._importsNodes, ..._importersNodes]
-  const minX = Math.min(..._nodes.map(n => n.x!))
-  const minY = Math.min(..._nodes.map(n => n.y!))
-  if (minX < SPACING.margin) {
-    for (const node of _nodes) {
-      node.x! += Math.abs(minX) + SPACING.margin
-    }
-  }
-  if (minY < SPACING.margin) {
-    for (const node of _nodes) {
-      node.y! += Math.abs(minY) + SPACING.margin
-    }
-  }
-
-  const _importersLinks = importersRoot.links()
-    .filter(x => x.source.data.module.id !== '~root')
-    .map((x): Link => {
-      return {
-        ...x,
-        source: {
-          ...x.source,
-          x: x.source.x! - (SPACING.width) + SPACING.linkOffset,
-          y: x.source.y!,
-        } as HierarchyNode<Node>,
-        target: {
-          ...x.target,
-          x: x.target.x! + SPACING.width - SPACING.linkOffset,
-        } as HierarchyNode<Node>,
-        import: x.source.data.import,
-        id: `${x.source.data.module.id}|${x.target.data.module.id}`,
-      }
-    })
-
-  // deduplicate modules
-  nodes.value = _nodes.filter((n, i, s) =>
-    i === s.findIndex(t => t.data.module.id === n.data.module.id),
-  )
-  links.value = [..._importsLinks, ..._importersLinks]
-
-  nextTick(() => {
-    width.value = (container.value!.scrollWidth + SPACING.margin)
-    height.value = (container.value!.scrollHeight + SPACING.margin)
-    focusOn(props.module.id, false)
-  })
 }
 
-function focusOn(id: string, animated = true) {
-  const el = nodesRefMap.get(id)
-  el?.scrollIntoView({
-    block: 'center',
-    inline: 'center',
-    behavior: animated ? 'smooth' : 'instant',
-  })
+function generateLinks() {
+  links.value = []
+
+  // importers (left -> current node)
+  if (importers.value?.length) {
+    const _importersLinks = Array.from({ length: importersMaxLength.value }, (_, i) => {
+      return {
+        id: '',
+        source: {
+          x: calculateLinkX('importer-start'),
+          y: calculateLinkY('importer-start', i),
+        } as HierarchyNode<Node>,
+        target: {
+          x: calculateLinkX('importer-end'),
+          y: calculateLinkY('importer-end'),
+        } as HierarchyNode<Node>,
+      }
+    })
+    links.value.push(..._importersLinks)
+  }
+  // imports (current node -> right)
+  if (props.module?.imports?.length) {
+    const _importsLinks = Array.from({ length: importsMaxLength.value }, (_, i) => {
+      return {
+        id: '',
+        source: {
+          x: calculateLinkX('import-start'),
+          y: calculateLinkY('import-start'),
+        } as HierarchyNode<Node>,
+        target: {
+          x: calculateLinkX('import-end'),
+          y: calculateLinkY('import-end', i),
+        } as HierarchyNode<Node>,
+      }
+    })
+    links.value.push(..._importsLinks)
+  }
 }
 
 onMounted(() => {
   watch(
     () => [props.module],
-    calculateGraph,
+    generateLinks,
     { immediate: true },
   )
 })
@@ -245,49 +171,91 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full min-h-full relative select-none of-auto
+    w-full relative select-none
   >
-    <div
-      flex="~ items-center justify-center"
-    >
-      <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
-        <g>
-          <path
-            v-for="link of links"
-            :key="link.id"
-            :d="generateLink(link)!"
-            :class="getLinkColor(link)"
-            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-            fill="none"
-          />
-        </g>
-      </svg>
-      <template
-        v-for="node of nodes"
-        :key="node.data.module.id"
+    <!-- nodes -->
+    <div flex px2>
+      <!-- importers -->
+      <div
+        v-if="importers?.length"
+        py1
+        :style="{
+          width: `${SPACING.width}px`,
+          marginTop: `${importersVerticalOffset}px`,
+        }"
       >
-        <template v-if="node.data.module.id !== '~root'">
+        <template v-for="(importer, i) of importers" :key="importer.id">
           <DisplayModuleId
-            :id="node.data.module.id"
-            :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-            absolute hover="bg-active" block px2 p1 bg-glass
+            :id="importer!.id"
+            hover="bg-active" block px2 p1 bg-base
             z-graph-node
             border="~ base rounded"
             :link="true"
             :session="session"
             :minimal="true"
             :style="{
-              left: `${node.x}px`,
-              top: `${node.y}px`,
-              minWidth: `${SPACING.width}px`,
-              transform: 'translate(-50%, -50%)',
-              maxWidth: '400px',
-              maxHeight: '50px',
+              width: `${SPACING.width}px`,
+              height: `${SPACING.height}px`,
               overflow: 'hidden',
+              marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
             }"
           />
         </template>
-      </template>
+      </div>
+      <!-- dot: current module -->
+      <div
+        bg-base rounded-full border-3 font-mono border-active :style="{
+          margin: dotNodeMargin,
+          width: `${SPACING.dot}px`,
+          height: `${SPACING.dot}px`,
+        }"
+      />
+      <!-- imports -->
+      <div
+        v-if="module.imports?.length"
+        py1
+        :style="{
+          width: `${SPACING.width}px`,
+          marginTop: `${importsVerticalOffset}px`,
+        }"
+      >
+        <template v-for="(_import, i) of module.imports" :key="_import.id">
+          <DisplayModuleId
+            :id="_import!.module_id"
+            hover="bg-active" block px2 p1 bg-base
+            z-graph-node
+            border="~ base rounded"
+            :link="true"
+            :session="session"
+            :minimal="true"
+            :style="{
+              width: `${SPACING.width}px`,
+              height: `${SPACING.height}px`,
+              overflow: 'hidden',
+              marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
+            }"
+          />
+        </template>
+      </div>
     </div>
+
+    <!-- links -->
+    <svg
+      pointer-events-none absolute left-0 top-0 z-graph-link w-full
+      :style="{
+        height: `${nodesHeight}px`,
+      }"
+    >
+      <g>
+        <path
+          v-for="link of links"
+          :key="link.id"
+          :d="generateLink(link)!"
+          :class="getLinkColor(link)"
+          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+          fill="none"
+        />
+      </g>
+    </svg>
   </div>
 </template>

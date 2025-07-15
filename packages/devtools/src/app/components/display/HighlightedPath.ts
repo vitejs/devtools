@@ -53,14 +53,18 @@ export default defineComponent({
           }
 
           if (part === '.pnpm') {
-            classes[index]?.push('op50')
-            if (nodes[index])
-              nodes[index].children = '…'
+            if (nodes[index]) {
+              nodes[index].children = '~'
+              classes[index].push('op25!')
+              classes[index - 1].push('op25!')
+            }
             removeIndexes.add(index + 1)
             removeIndexes.add(index + 2)
+            classes[index + 3].push('op25!')
             if (nodes[index + 4]?.children === 'node_modules') {
               removeIndexes.add(index + 3)
               removeIndexes.add(index + 4)
+              classes[index + 5].push('op25!')
             }
           }
           if (part === ':') {

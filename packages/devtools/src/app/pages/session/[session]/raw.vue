@@ -24,6 +24,7 @@ const events = useAsyncState(
 </script>
 
 <template>
+  <VisualLoading v-if="events.isLoading" />
   <div>
     <DataRawEventsTable
       v-if="events.isReady"

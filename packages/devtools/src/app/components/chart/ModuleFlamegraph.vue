@@ -2,7 +2,7 @@
 import type { TreeNodeInput } from 'nanovis'
 import type { ModuleInfo, SessionContext } from '~~/shared/types'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
-import { computed, defineProps, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   info: ModuleInfo

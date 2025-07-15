@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getFileTypeFromModuleId } from '~/utils/icon'
-import { isDark } from '../../composables/dark'
 
 const props = defineProps<{
   filename: string
@@ -12,8 +11,8 @@ const info = computed(() => getFileTypeFromModuleId(props.filename))
 
 <template>
   <div
-    flex-none
+    flex-none icon-catppuccin
     :title="info.description || info.name"
-    :class="[info.icon, isDark ? '' : 'brightness-60 hue-rotate-180 invert-100 saturate-200']"
+    :class="[info.icon]"
   />
 </template>
