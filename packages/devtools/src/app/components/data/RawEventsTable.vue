@@ -2,7 +2,7 @@
 import type { RolldownEvent } from '~~/node/rolldown/events-manager'
 import type { SessionContext } from '~~/shared/types'
 import { Dropdown as VDropdown } from 'floating-vue'
-import { defineProps, withDefaults } from 'vue'
+import { withDefaults } from 'vue'
 
 type FIELDS = 'module_id' | 'action' | 'content' | 'timestamp' | 'event_id' | 'plugin_name' | '*'
 
