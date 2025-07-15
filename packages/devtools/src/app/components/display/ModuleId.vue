@@ -63,7 +63,7 @@ const containerClass = computed(() => {
         :class="containerClass"
       >
         <DisplayFileIcon v-if="icon" :filename="id" mr1.5 />
-        <span>
+        <span overflow-hidden text-ellipsis break-all line-clamp-2>
           <DisplayHighlightedPath :path="relativePath" :minimal="minimal" />
         </span>
         <slot />
