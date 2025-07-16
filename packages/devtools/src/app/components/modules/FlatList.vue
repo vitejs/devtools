@@ -10,7 +10,6 @@ defineProps<{
 <template>
   <div flex="~ col gap-2" p4>
     <template v-for="mod of modules" :key="mod">
-      <!-- WIP: toggle to show detailed list like plugins and time cost -->
       <DisplayModuleId
         :id="mod.id"
         :session

@@ -92,6 +92,7 @@ onMounted(async () => {
     fileType: getFileTypeFromName(mod.id).name,
     imports: mod.imports ?? [],
     importers: mod.importers ?? [],
+    buildMetrics: mod.build_metrics,
   }))
   isLoading.value = false
 })

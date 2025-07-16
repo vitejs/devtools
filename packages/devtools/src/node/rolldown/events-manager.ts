@@ -1,15 +1,21 @@
-import type { Asset as AssetInfo, Chunk as ChunkInfo, Event, Module as ModuleInfo } from '@rolldown/debug'
+import type { Asset as AssetInfo, Chunk as ChunkInfo, Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
+import type { ModuleBuildMetrics } from '~~/shared/types'
+import { getContentByteSize } from '../utils/format'
 
 export type RolldownEvent = Event & {
   event_id: string
 }
 
+type ModuleBuildHookEvents = Exclude<Event, 'StringRef'> & (HookResolveIdCallStart | HookResolveIdCallEnd | HookLoadCallStart | HookLoadCallEnd | HookTransformCallStart | HookTransformCallEnd)
+
 export class RolldownEventsManager {
   events: RolldownEvent[] = []
   chunks: Map<number, ChunkInfo> = new Map()
   assets: Map<string, AssetInfo> = new Map()
-  modules: Map<string, ModuleInfo> = new Map()
+  modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
   source_refs: Map<string, string> = new Map()
+  module_build_hook_events: Map<string, ModuleBuildHookEvents> = new Map()
+  module_build_metrics: Map<string, ModuleBuildMetrics> = new Map()
 
   interpretSourceRefs(event: Event, key: string) {
     if (key in event && typeof event[key as keyof Event] === 'string') {
@@ -18,6 +24,51 @@ export class RolldownEventsManager {
         if (this.source_refs.has(refKey)) {
           (event as any)[key] = this.source_refs.get(refKey)
         }
+      }
+    }
+  }
+
+  recordModuleBuildMetrics(event: ModuleBuildHookEvents) {
+    if (['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart'].includes(event.action)) {
+      this.module_build_hook_events.set(`${event.action}_${event.call_id}`, event)
+    }
+    else if (['HookResolveIdCallEnd', 'HookLoadCallEnd', 'HookTransformCallEnd'].includes(event.action)) {
+      const start = this.module_build_hook_events.get(`${event.action.replace('End', 'Start')}_${event.call_id}`)
+      const module_id = event.action === 'HookResolveIdCallEnd' ? event.resolved_id! : (event as HookLoadCallEnd | HookTransformCallEnd).module_id
+      if (start) {
+        const info = {
+          start_time: +start.timestamp,
+          end_time: +event.timestamp,
+          duration: +event.timestamp - +start.timestamp,
+          plugin_id: event.plugin_id,
+          plugin_name: event.plugin_name,
+        }
+        const module_build_metrics = this.module_build_metrics.get(module_id) ?? { resolve_ids: [], loads: [], transforms: [] }
+        if (event.action === 'HookResolveIdCallEnd') {
+          module_build_metrics.resolve_ids.push(info)
+        }
+        else if (event.action === 'HookLoadCallEnd') {
+          if (!event.content && info.duration < 10) {
+            return
+          }
+          module_build_metrics.loads.push(info)
+        }
+        else if (event.action === 'HookTransformCallEnd') {
+          const _start = start as HookTransformCallStart
+          const _end = event as HookTransformCallEnd
+          const no_changes = _start.content === _end.content
+          // TODO: remove module id check when rolldown fixes the unique call id
+          if ((no_changes && info.duration < 10) || _start.module_id !== _end.module_id) {
+            return
+          }
+
+          module_build_metrics.transforms.push({
+            ...info,
+            source_code_size: getContentByteSize(_start.content!),
+            transformed_code_size: getContentByteSize(_end.content!),
+          })
+        }
+        this.module_build_metrics.set(module_id, module_build_metrics)
       }
     }
   }
@@ -43,6 +94,7 @@ export class RolldownEventsManager {
 
     this.interpretSourceRefs(event, 'source')
     this.interpretSourceRefs(event, 'content')
+    this.recordModuleBuildMetrics(event as ModuleBuildHookEvents)
 
     if ('module_id' in event) {
       if (this.modules.has(event.module_id))
@@ -52,12 +104,20 @@ export class RolldownEventsManager {
         is_external: false,
         imports: [],
         importers: [],
+        build_metrics: {
+          resolve_ids: [],
+          loads: [],
+          transforms: [],
+        },
       })
     }
 
     if (event.action === 'ModuleGraphReady') {
       for (const module of event.modules) {
-        this.modules.set(module.id, module)
+        this.modules.set(module.id, {
+          ...module,
+          build_metrics: this.module_build_metrics.get(module.id),
+        })
         module.importers = Array.from(new Set(module.importers || [])).sort((a, b) => a.localeCompare(b))
         module.imports = Array.from(new Set(module.imports || [])).sort((a, b) => a.module_id.localeCompare(b.module_id))
       }
