@@ -171,91 +171,96 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full relative select-none
+    w-full h-full relative select-none
+    flex="~ items-center justify-center"
   >
-    <!-- nodes -->
-    <div flex px2>
-      <!-- importers -->
-      <div
-        v-if="importers?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importersVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(importer, i) of importers" :key="importer.id">
-          <DisplayModuleId
-            :id="importer!.id"
-            hover="bg-active" block px2 p1 bg-base
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-      <!-- dot: current module -->
-      <div
-        bg-base rounded-full border-3 font-mono border-active :style="{
-          margin: dotNodeMargin,
-          width: `${SPACING.dot}px`,
-          height: `${SPACING.dot}px`,
-        }"
-      />
-      <!-- imports -->
-      <div
-        v-if="module.imports?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importsVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(_import, i) of module.imports" :key="_import.id">
-          <DisplayModuleId
-            :id="_import!.module_id"
-            hover="bg-active" block px2 p1 bg-base
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-    </div>
-
-    <!-- links -->
-    <svg
-      pointer-events-none absolute left-0 top-0 z-graph-link w-full
-      :style="{
-        height: `${nodesHeight}px`,
-      }"
-    >
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateLink(link)!"
-          :class="getLinkColor(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-          fill="none"
+    <div relative :style="{ height: `${nodesHeight}px` }">
+      <!-- nodes -->
+      <div flex px2>
+        <!-- importers -->
+        <div
+          v-if="importers?.length"
+          py1
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importersVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(importer, i) of importers" :key="importer.id">
+            <DisplayModuleId
+              :id="importer!.id"
+              hover="bg-active" px2 p1 bg-base
+              z-graph-node
+              flex="~ items-center"
+              border="~ base rounded"
+              :link="true"
+              :session="session"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+        <!-- dot: current module -->
+        <div
+          bg-base rounded-full border-3 font-mono border-active :style="{
+            margin: dotNodeMargin,
+            width: `${SPACING.dot}px`,
+            height: `${SPACING.dot}px`,
+          }"
         />
-      </g>
-    </svg>
+        <!-- imports -->
+        <div
+          v-if="module.imports?.length"
+          py1
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importsVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(_import, i) of module.imports" :key="_import.id">
+            <DisplayModuleId
+              :id="_import!.module_id"
+              hover="bg-active" px2 p1 bg-base
+              z-graph-node
+              flex="~ items-center"
+              border="~ base rounded"
+              :link="true"
+              :session="session"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+      </div>
+
+      <!-- links -->
+      <svg
+        pointer-events-none absolute left-0 top-0 z-graph-link w-full
+        :style="{
+          height: `${nodesHeight}px`,
+        }"
+      >
+        <g>
+          <path
+            v-for="link of links"
+            :key="link.id"
+            :d="generateLink(link)!"
+            :class="getLinkColor(link)"
+            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+            fill="none"
+          />
+        </g>
+      </svg>
+    </div>
   </div>
 </template>
