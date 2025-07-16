@@ -100,36 +100,16 @@ function selectFlowNode(v: boolean) {
       <div text-xs font-mono flex="~ items-center" ml2>
         <!-- build flow duration -->
         <span i-ph-magnifying-glass-duotone />
-        <DisplayDuration
-          :duration="durations.resolveIds"
-          :color="true"
-          :factor="5"
-          text-xs
-        />
+        <DisplayDuration :duration="durations.resolveIds" />
         <span i-carbon-arrow-right op50 />
         <span i-ph-upload-simple-duotone />
-        <DisplayDuration
-          :duration="durations.loads"
-          :color="true"
-          :factor="5"
-          text-xs
-        />
+        <DisplayDuration :duration="durations.loads" />
         <span i-carbon-arrow-right op50 />
         <span i-ph-magic-wand-duotone />
-        <DisplayDuration
-          :duration="durations.transforms"
-          :color="true"
-          :factor="5"
-          text-xs
-        />
+        <DisplayDuration :duration="durations.transforms" />
         <span i-carbon-arrow-right op50 />
         <span i-ph-clock-duotone />
-        <DisplayDuration
-          :duration="durations.total"
-          :color="true"
-          :factor="5"
-          text-xs
-        />
+        <DisplayDuration :duration="durations.total" />
         <span op40>|</span>
         <!-- code size -->
         <DisplayFileSizeBadge v-tooltip="{ placement: 'bottom', content: 'Source code size' }" :bytes="sourceCodeSize" />
