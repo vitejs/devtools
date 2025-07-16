@@ -103,28 +103,6 @@ const nodes = computed<RolldownModuleFlowNode[]>(() => [
   ...info.value.assets,
 ])
 
-const durations = computed(() => {
-  const _resolveIds = resolveIds.value.reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
-  const _loads = loads.value.reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
-  const _transforms = transforms.value.filter(t => t.type === 'transform').reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
-  const total = _resolveIds + _loads + _transforms
-  return {
-    resolveIds: _resolveIds,
-    loads: _loads,
-    transforms: _transforms,
-    total,
-  }
-})
-
 function isSelectedAncestor(node?: RolldownModuleFlowNode) {
   if (!selected.value || !node)
     return false
@@ -211,16 +189,6 @@ const codeDisplay = computed(() => {
             />
           </div>
         </template>
-        <template v-if="durations.total && !info.imports?.length" #inline-after>
-          <div flex="~ items-center" ml-2>
-            <DisplayDuration
-              :duration="durations.total"
-              :color="true"
-              :factor="5"
-              text-xs
-            />
-          </div>
-        </template>
       </FlowmapNode>
       <template v-if="info.imports?.length">
         <div w-10 border="t base dashed" mya />
@@ -230,16 +198,6 @@ const codeDisplay = computed(() => {
               <div flex="~ items-center gap-1" text-sm text-orange px3 py1>
                 <div i-ph-arrows-split-duotone rotate-270 />
                 {{ info.imports?.length }} imports
-              </div>
-            </template>
-            <template #inline-after>
-              <div flex="~ items-center" ml-2>
-                <DisplayDuration
-                  :duration="durations.total"
-                  :color="true"
-                  :factor="5"
-                  text-xs
-                />
               </div>
             </template>
           </FlowmapNode>
@@ -274,16 +232,6 @@ const codeDisplay = computed(() => {
             <div i-ph-magnifying-glass-duotone /> Resolve Id
             <span op50 text-xs>({{ info.resolve_ids.length }})</span>
           </template>
-          <template v-if="durations.resolveIds" #inline-after>
-            <div flex="~ items-center" ml-2>
-              <DisplayDuration
-                :duration="durations.resolveIds"
-                :color="true"
-                :factor="5"
-                text-xs
-              />
-            </div>
-          </template>
           <template #container>
             <div>
               <FlowmapNodeModuleInfo
@@ -309,16 +257,6 @@ const codeDisplay = computed(() => {
           <template #node>
             <div i-ph-upload-simple-duotone /> Load
             <span op50 text-xs>({{ info.loads.length }})</span>
-          </template>
-          <template v-if="durations.loads" #inline-after>
-            <div flex="~ items-center" ml-2>
-              <DisplayDuration
-                :duration="durations.loads"
-                :color="true"
-                :factor="5"
-                text-xs
-              />
-            </div>
           </template>
           <template #container>
             <div>
@@ -347,16 +285,6 @@ const codeDisplay = computed(() => {
             <div i-ph-magic-wand-duotone /> Transform
             <span v-if="transformsLoading" i-ph-spinner animate-spin />
             <span v-else op50 text-xs>({{ info.transforms.length }})</span>
-          </template>
-          <template v-if="durations.transforms" #inline-after>
-            <div flex="~ items-center" ml-2>
-              <DisplayDuration
-                :duration="durations.transforms"
-                :color="true"
-                :factor="5"
-                text-xs
-              />
-            </div>
           </template>
           <template #container>
             <div>

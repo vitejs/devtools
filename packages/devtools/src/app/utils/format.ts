@@ -4,8 +4,14 @@ export function bytesToHumanSize(bytes: number, digits = 2) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
   if (i === 0)
-    return ['<1', 'K']
+    return [bytes, 'B']
   return [(+(bytes / 1024 ** i).toFixed(digits)).toLocaleString(), sizes[i]]
+}
+
+export function getContentByteSize(content: string) {
+  if (!content)
+    return 0
+  return new TextEncoder().encode(content).length
 }
 
 export function toTree(modules: ModuleDest[], name: string) {

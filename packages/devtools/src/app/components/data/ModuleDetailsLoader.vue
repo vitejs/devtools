@@ -2,7 +2,8 @@
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { computedAsync } from '@vueuse/core'
-import { nextTick, ref, watchEffect } from 'vue'
+import { computed, nextTick, ref, watchEffect } from 'vue'
+import { getContentByteSize } from '~~/app/utils/format'
 
 const props = defineProps<{
   session: SessionContext
@@ -44,6 +45,41 @@ const info = computedAsync(async () => {
   } as ModuleInfo
 })
 
+const durations = computed(() => {
+  const data = info.value
+  const _resolveIds = data?.resolve_ids.reduce((t, node) => {
+    t += node.duration
+    return t
+  }, 0) ?? 0
+  const _loads = data?.loads?.reduce((t, node) => {
+    t += node.duration
+    return t
+  }, 0) ?? 0
+  const _transforms = data?.transforms.reduce((t, node) => {
+    t += node.duration
+    return t
+  }, 0) ?? 0
+  const total = _resolveIds + _loads + _transforms
+  return {
+    resolveIds: _resolveIds,
+    loads: _loads,
+    transforms: _transforms,
+    total,
+  }
+})
+
+const sourceCodeSize = computed(() => {
+  const data = info.value?.transforms
+  const source = data?.[0]?.content_from ?? ''
+  return getContentByteSize(source)
+})
+
+const transformedCodeSize = computed(() => {
+  const data = info.value?.transforms?.filter(t => t.content_to)?.reverse()
+  const source = data?.[0]?.content_to ?? ''
+  return getContentByteSize(source)
+})
+
 function selectFlowNode(v: boolean) {
   flowNodeSelected.value = v
 }
@@ -61,6 +97,45 @@ function selectFlowNode(v: boolean) {
       flex="~ col gap-2"
     >
       <DisplayModuleId :id="module" px2 py1 :session />
+      <div text-xs font-mono flex="~ items-center" ml2>
+        <!-- build flow duration -->
+        <span i-ph-magnifying-glass-duotone />
+        <DisplayDuration
+          :duration="durations.resolveIds"
+          :color="true"
+          :factor="5"
+          text-xs
+        />
+        <span i-carbon-arrow-right op50 />
+        <span i-ph-upload-simple-duotone />
+        <DisplayDuration
+          :duration="durations.loads"
+          :color="true"
+          :factor="5"
+          text-xs
+        />
+        <span i-carbon-arrow-right op50 />
+        <span i-ph-magic-wand-duotone />
+        <DisplayDuration
+          :duration="durations.transforms"
+          :color="true"
+          :factor="5"
+          text-xs
+        />
+        <span i-carbon-arrow-right op50 />
+        <span i-ph-clock-duotone />
+        <DisplayDuration
+          :duration="durations.total"
+          :color="true"
+          :factor="5"
+          text-xs
+        />
+        <span op40>|</span>
+        <!-- code size -->
+        <DisplayFileSizeBadge v-tooltip="{ placement: 'bottom', content: 'Source code size' }" :bytes="sourceCodeSize" />
+        <span i-carbon-arrow-right op50 />
+        <DisplayFileSizeBadge v-tooltip="{ placement: 'bottom', content: 'Transformed code size' }" :bytes="transformedCodeSize" />
+      </div>
       <div flex="~ gap-2">
         <button
           :class="view === 'flow' ? 'text-primary' : ''"
