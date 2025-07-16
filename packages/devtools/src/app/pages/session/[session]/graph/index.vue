@@ -195,14 +195,16 @@ function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
       <!-- {{ allNodeModules }} -->
     </div>
     <template v-if="settings.flowModuleGraphView === 'list'">
-      <div of-auto max-h-screen pt-45 relative>
+      <div of-auto h-screen pt-45>
         <ModulesFlatList
           v-if="settings.flowModuleGraphView === 'list'"
           :session="session"
           :modules="searched"
         />
-        <div text-center text-xs op50 m4>
-          {{ searched.length }} of {{ session.modulesList.length }}
+        <div
+          absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+        >
+          <span op50>{{ searched.length }} of {{ session.modulesList.length }}</span>
         </div>
       </div>
     </template>
