@@ -31,10 +31,6 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
       </button>
     </template>
 
-    <template #inline-after>
-      <slot name="inline-after" />
-    </template>
-
     <template v-if="expandable && expanded" #after>
       <div>
         <svg
