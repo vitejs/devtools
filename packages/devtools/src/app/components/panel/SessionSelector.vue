@@ -23,7 +23,7 @@ const sessions = await rpc.value!['vite:rolldown:list-sessions']()
       <div font-mono font-sm>
         {{ session.meta.cwd }}
       </div>
-      <div flex="~ gap-1 items-center">
+      <div v-if="session.meta.inputs[0]" flex="~ gap-1 items-center">
         <DisplayModuleId :id="session.meta.inputs[0].filename" :cwd="session.meta.cwd" />
         <DisplayBadge :text="session.meta.inputs[0].name || 'entry'" />
         <span v-if="session.meta.inputs.length > 1" op50 text-xs border="~ base rounded-md" px1 font-mono>

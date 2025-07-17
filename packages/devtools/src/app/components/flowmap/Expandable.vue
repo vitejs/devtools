@@ -14,6 +14,7 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
 
 <template>
   <FlowmapNode
+    v-model:expanded="expanded"
     :lines="{ top: true, bottom: !expandable || !expanded }" pl6 pt4
     :class-node-outer="classRootNode"
     :active="activeStart"
@@ -24,7 +25,7 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
 
     <template v-if="expandable" #inline-before>
       <button
-        w-6 h-6 mr1 ml--7 mya rounded-full hover="bg-active" flex="~ items-center justify-center"
+        w-6 h-6 mr1 ml--7 mya rounded-full hover="bg-active" flex="~ items-center justify-center" cursor-pointer
         @click="expanded = !expanded"
       >
         <div i-ph-caret-right text-sm op50 transition duration-300 :class="{ 'rotate-90': expanded }" />

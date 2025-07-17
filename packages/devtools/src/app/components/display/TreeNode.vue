@@ -8,12 +8,14 @@ const props = withDefaults(defineProps<{
   icon?: string
   iconOpen?: string
   link?: string | boolean
+  linkQueryKey?: string
   padding?: number
   open?: boolean
 }>(), {
   icon: 'i-catppuccin:folder icon-catppuccin',
   iconOpen: 'i-catppuccin:folder-open icon-catppuccin',
   padding: 0,
+  linkQueryKey: 'module',
 })
 
 const emit = defineEmits<{
@@ -53,11 +55,13 @@ function select(node: ModuleDest) {
         v-for="e of Object.entries(node.children)"
         :key="e[0]" :node="e[1]" :link="link"
         :padding="padding + 1"
+        :link-query-key="linkQueryKey"
+        @select="select"
       />
       <template v-for="i of node.items" :key="i.full">
         <component
           :is="link ? NuxtLink : 'div'"
-          :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: i.full }, hash: location.hash }) : undefined"
+          :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, [linkQueryKey]: i.full }, hash: location.hash }) : undefined"
           text-sm
           ws-nowrap
           flex="~ gap-1"

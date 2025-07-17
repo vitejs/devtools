@@ -266,7 +266,7 @@ const codeDisplay = computed(() => {
                 :item="item"
                 :session="session"
                 :active="isSelectedAncestor(item)"
-                :class="index > 0 ? 'pt-2' : ''"
+                :class="index > 0 && item.type !== 'no_changes_hide' ? 'pt-2' : ''"
                 @select="e => selected = e"
                 @toggle-show-all="flowShowAllLoads = !flowShowAllLoads"
               />
@@ -294,7 +294,7 @@ const codeDisplay = computed(() => {
                 :item="item"
                 :session="session"
                 :active="isSelectedAncestor(item)"
-                :class="index > 0 ? 'pt-2' : ''"
+                :class="index > 0 && item.type !== 'no_changes_hide' ? 'pt-2' : ''"
                 @select="e => selected = e"
                 @toggle-show-all="flowShowAllTransforms = !flowShowAllTransforms"
               />

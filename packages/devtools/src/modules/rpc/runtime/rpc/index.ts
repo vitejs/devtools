@@ -1,5 +1,5 @@
-import type { ServerFunctions } from '../../../../../node/rpc'
-import type { ClientFunctions, ConnectionMeta } from '../../../../../shared/types'
+import type { ServerFunctions } from '../../../../node/rpc'
+import type { ClientFunctions, ConnectionMeta } from '../../../../shared/types'
 import { useRuntimeConfig } from '#app/nuxt'
 import { createRpcClient as _createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'

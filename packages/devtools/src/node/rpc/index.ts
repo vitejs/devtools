@@ -2,6 +2,7 @@ import type { DefinitionsToFunctions, FilterDefinitions } from './types'
 import { getPayload } from './functions/get-payload'
 import { openInEditor } from './functions/open-in-editor'
 import { openInFinder } from './functions/open-in-finder'
+import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
 import { rolldownGetChunksGraph } from './functions/rolldown-get-chunks-graph'
 import { rolldownGetModuleInfo } from './functions/rolldown-get-module-info'
@@ -23,6 +24,7 @@ export const rpcFunctions = [
   rolldownGetModuleTransforms,
   rolldownGetChunksGraph,
   rolldownGetAssetsList,
+  rolldownGetAssetDetails,
 ] as const
 
 export type ServerFunctions = DefinitionsToFunctions<typeof rpcFunctions>
