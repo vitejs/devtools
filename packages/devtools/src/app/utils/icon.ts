@@ -1,11 +1,15 @@
 import { makeCachedFunction } from './cache'
 
-export interface ModuleTypeRule {
-  match: RegExp
+interface Basic {
   name: string
   description: string
   icon: string
 }
+export interface ModuleTypeRule extends Basic {
+  match: RegExp
+}
+
+export interface PluginType extends Basic {}
 
 // @unocss-include
 export const ModuleTypeRules: ModuleTypeRule[] = [
@@ -117,17 +121,58 @@ export const ModuleTypeRules: ModuleTypeRule[] = [
     description: 'SVG',
     icon: 'i-catppuccin-svg',
   },
+
 ]
 
-const DefaultTypeRule: ModuleTypeRule = {
+// @unocss-include
+export const PluginTypes: PluginType[] = [
+
+  {
+    name: 'vite',
+    description: 'Vite',
+    icon: 'i-catppuccin-vite',
+  },
+  {
+    name: 'vue',
+    description: 'Vue',
+    icon: 'i-catppuccin-vue',
+  },
+  {
+    name: 'unocss',
+    description: 'Unocss',
+    icon: 'i-catppuccin-unocss',
+  },
+  {
+    name: 'nuxt',
+    description: 'Nuxt',
+    icon: 'i-catppuccin-nuxt',
+  },
+  {
+    name: 'builtin',
+    description: 'Builtin',
+    icon: 'i-catppuccin-folder-prisma',
+  },
+]
+
+const DefaultFileTypeRule: ModuleTypeRule = {
   name: 'file',
   match: /.*/,
   description: 'File',
   icon: 'i-catppuccin-file',
 }
 
+const DefaultPluginType: PluginType = {
+  name: 'plugin',
+  description: 'Plugin',
+  icon: 'i-catppuccin-folder-plugins',
+}
+
+export function getPluginTypeFromName(name: string) {
+  return PluginTypes.find(rule => rule.name === name) ?? DefaultPluginType
+}
+
 export function getFileTypeFromName(name: string) {
-  return ModuleTypeRules.find(rule => rule.name === name) ?? DefaultTypeRule
+  return ModuleTypeRules.find(rule => rule.name === name) ?? DefaultFileTypeRule
 }
 
 export const getFileTypeFromModuleId = makeCachedFunction((moduleId: string): ModuleTypeRule => {
@@ -141,5 +186,5 @@ export const getFileTypeFromModuleId = makeCachedFunction((moduleId: string): Mo
     }
   }
 
-  return DefaultTypeRule
+  return DefaultFileTypeRule
 })

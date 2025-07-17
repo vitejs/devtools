@@ -1,6 +1,8 @@
-import type { Asset as AssetInfo, Chunk as ChunkInfo, HookResolveIdCallStart, ModuleImport, SessionMeta } from '@rolldown/debug'
+import type { Asset as AssetInfo, Chunk as ChunkInfo, HookResolveIdCallStart, ModuleImport, PluginItem, SessionMeta } from '@rolldown/debug'
 
 export type { ModuleImport }
+
+export type { PluginItem }
 
 export interface ModuleListItem {
   id: string
