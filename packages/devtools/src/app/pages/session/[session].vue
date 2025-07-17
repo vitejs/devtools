@@ -3,6 +3,7 @@ import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { vOnClickOutside } from '@vueuse/components'
+import { onKeyDown } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
 import { useSideNav } from '~/state/nav'
 import { getFileTypeFromName } from '~/utils/icon'
@@ -28,6 +29,21 @@ function closeFlowPanel() {
 function closeAssetPanel() {
   router.replace({ query: { ...route.query, asset: undefined } })
 }
+
+onKeyDown('Escape', (e) => {
+  e.preventDefault()
+
+  if (!e.isTrusted || e.repeat)
+    return
+
+  const { module, asset } = route.query
+
+  if (module)
+    closeFlowPanel()
+
+  if (asset)
+    closeAssetPanel()
+})
 
 useSideNav(() => {
   if (!session.meta)
