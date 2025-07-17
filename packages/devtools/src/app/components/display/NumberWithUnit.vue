@@ -6,7 +6,8 @@ defineProps<{
 </script>
 
 <template>
-  <span block>
+  <div>
+    <slot />
     <span>{{ number }}</span><span ml-0.4 text-xs op75>{{ unit }}</span>
-  </span>
+  </div>
 </template>

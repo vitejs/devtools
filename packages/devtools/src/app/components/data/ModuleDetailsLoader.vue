@@ -96,25 +96,39 @@ function selectFlowNode(v: boolean) {
       border="~ base rounded-lg"
       flex="~ col gap-2"
     >
-      <DisplayModuleId :id="module" px2 py1 :session />
-      <div text-xs font-mono flex="~ items-center" ml2>
-        <!-- build flow duration -->
-        <span i-ph-magnifying-glass-duotone />
-        <DisplayDuration :duration="durations.resolveIds" />
-        <span i-carbon-arrow-right op50 />
-        <span i-ph-upload-simple-duotone />
-        <DisplayDuration :duration="durations.loads" />
-        <span i-carbon-arrow-right op50 />
-        <span i-ph-magic-wand-duotone />
-        <DisplayDuration :duration="durations.transforms" />
-        <span i-carbon-arrow-right op50 />
-        <span i-ph-clock-duotone />
-        <DisplayDuration :duration="durations.total" />
+      <DisplayModuleId :id="module" px2 pt1 :session />
+      <div text-xs font-mono flex="~ items-center gap-3" ml2>
+        <DisplayDuration
+          :duration="durations.resolveIds" flex="~ gap-1 items-center"
+          :title="`resolveId hooks cost: ${durations.resolveIds}ms`"
+        >
+          <span i-ph-magnifying-glass-duotone inline-block />
+        </DisplayDuration>
+        <DisplayDuration
+          :duration="durations.loads" flex="~ gap-1 items-center"
+          :title="`load hooks cost: ${durations.loads}ms`"
+        >
+          <span i-ph-upload-simple-duotone inline-block />
+        </DisplayDuration>
+        <DisplayDuration
+          :duration="durations.transforms" flex="~ gap-1 items-center"
+          :title="`transform hooks cost: ${durations.transforms}ms`"
+        >
+          <span i-ph-magic-wand-duotone inline-block />
+        </DisplayDuration>
         <span op40>|</span>
-        <!-- code size -->
-        <DisplayFileSizeBadge v-tooltip="{ placement: 'bottom', content: 'Source code size' }" :bytes="sourceCodeSize" />
-        <span i-carbon-arrow-right op50 />
-        <DisplayFileSizeBadge v-tooltip="{ placement: 'bottom', content: 'Transformed code size' }" :bytes="transformedCodeSize" />
+        <DisplayDuration
+          :duration="durations.total" flex="~ gap-1 items-center"
+          :title="`Total build cost: ${durations.total}ms`"
+        >
+          <span i-ph-clock-duotone inline-block />
+        </DisplayDuration>
+        <span op40>|</span>
+        <div flex="~ gap-1 items-center">
+          <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
+          <span i-carbon-arrow-right op50 />
+          <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
+        </div>
       </div>
       <div flex="~ gap-2">
         <button
