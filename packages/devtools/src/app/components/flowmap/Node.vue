@@ -9,6 +9,8 @@ const props = defineProps<{
   classNodeInner?: string
   active?: boolean
 }>()
+
+const expanded = defineModel<boolean>('expanded', { required: false, default: true })
 </script>
 
 <template>
@@ -31,7 +33,8 @@ const props = defineProps<{
           props.classNodeOuter,
           active ? 'border-flow-active' : 'border-flow',
         ]"
-        border="~ rounded-2xl" bg-base of-hidden
+        border="~ rounded-2xl" bg-base of-hidden cursor-pointer
+        @click="expanded = !expanded"
       >
         <slot name="inner">
           <div px3 py1 :class="props.classNodeInner" flex="~ inline gap-2 items-center">

@@ -36,7 +36,7 @@ export function toTree(modules: ModuleDest[], name: string) {
       return
     const children = Object.values(node.children)
     if (children.length === 1 && !node.items.length) {
-      const child = children[0]
+      const child = children[0]!
       node.name = node.name ? `${node.name}/${child.name}` : child.name
       node.items = child.items
       node.children = child.children

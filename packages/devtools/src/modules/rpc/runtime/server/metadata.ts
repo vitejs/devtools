@@ -3,8 +3,8 @@ import process from 'node:process'
 
 import { consola } from 'consola'
 import { defineEventHandler } from 'h3'
-import { RolldownLogsManager } from '../../../../../node/rolldown/logs-manager'
-import { createWsServer } from '../../../../../node/ws'
+import { RolldownLogsManager } from '../../../../node/rolldown/logs-manager'
+import { createWsServer } from '../../../../node/ws'
 
 consola.restoreAll()
 

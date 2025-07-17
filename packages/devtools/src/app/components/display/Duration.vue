@@ -58,6 +58,6 @@ const units = computed(() => {
 <template>
   <DisplayNumberWithUnit
     :class="getDurationColor(ms)"
-    :number="units[0]" :unit="units[1]"
+    :number="units[0]!" :unit="units[1]!"
   />
 </template>

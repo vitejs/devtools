@@ -34,13 +34,13 @@ export default defineComponent({
 
         if (type === 'path') {
           if (part.match(/^\.+$/)) {
-            classes[index].push('op50')
+            classes[index]?.push('op50')
           }
           else if (part === '/') {
-            classes[index].push('op50')
+            classes[index]?.push('op50')
           }
           else if (part === 'node_modules' || part === 'dist' || part === 'lib' || part.match(/^\.\w/)) {
-            classes[index].push('op60')
+            classes[index]?.push('op60')
           }
 
           // If the path is minimal, remove all the parts before the node_modules
@@ -55,57 +55,57 @@ export default defineComponent({
           if (part === '.pnpm') {
             if (nodes[index]) {
               nodes[index].children = '~'
-              classes[index].push('op25!')
-              classes[index - 1].push('op25!')
+              classes[index]?.push('op25!')
+              classes[index - 1]?.push('op25!')
             }
             removeIndexes.add(index + 1)
             removeIndexes.add(index + 2)
-            classes[index + 3].push('op25!')
+            classes[index + 3]?.push('op25!')
             if (nodes[index + 4]?.children === 'node_modules') {
               removeIndexes.add(index + 3)
               removeIndexes.add(index + 4)
-              classes[index + 5].push('op25!')
+              classes[index + 5]?.push('op25!')
             }
           }
           if (part === ':') {
             if (nodes[index - 1]) {
-              styles[index - 1].push(`color: ${getPluginColor(parts[index - 1])}`)
+              styles[index - 1]?.push(`color: ${getPluginColor(parts[index - 1]!)}`)
             }
-            classes[index].push('op50')
+            classes[index]?.push('op50')
           }
           if (parts[index - 2] === 'node_modules' && !part.startsWith('.')) {
-            const color = `color: ${getPluginColor(parts[index])}`
-            styles[index].push(color)
+            const color = `color: ${getPluginColor(parts[index]!)}`
+            styles[index]?.push(color)
             if (part.startsWith('@')) {
-              styles[index + 1].push(color)
-              styles[index + 2].push(color)
+              styles[index + 1]?.push(color)
+              styles[index + 2]?.push(color)
             }
           }
         }
 
         if (type === 'query') {
           if (part === '?') {
-            classes[index].push('text-red-500 dark:text-red-400')
+            classes[index]?.push('text-red-500 dark:text-red-400')
           }
           else if (part === '&') {
-            classes[index].push('text-orange-500 dark:text-orange-400')
+            classes[index]?.push('text-orange-500 dark:text-orange-400')
           }
           if (part === '=') {
-            classes[index].push('text-orange-900 dark:text-orange-200 op50')
+            classes[index]?.push('text-orange-900 dark:text-orange-200 op50')
           }
           else if (parts[index + 1] === '=') {
-            classes[index].push('text-amber-900 dark:text-amber-200')
+            classes[index]?.push('text-amber-900 dark:text-amber-200')
           }
           else {
-            classes[index].push('text-orange-900 dark:text-orange-200')
+            classes[index]?.push('text-orange-900 dark:text-orange-200')
           }
         }
       })
 
       nodes.forEach((node, index) => {
         if (node.props) {
-          node.props.class = classes[index].join(' ')
-          node.props.style = styles[index].join(';')
+          node.props.class = classes[index]?.join(' ') ?? ''
+          node.props.style = styles[index]?.join(';') ?? ''
         }
       })
 

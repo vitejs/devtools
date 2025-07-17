@@ -162,7 +162,10 @@ function calculateGraph() {
   nextTick(() => {
     width.value = (container.value!.scrollWidth / scale.value + SPACING.margin)
     height.value = (container.value!.scrollHeight / scale.value + SPACING.margin)
-    focusOn(rootModules.value[0].id, false)
+    const moduleId = rootModules.value?.[0]?.id
+    if (moduleId) {
+      focusOn(moduleId, false)
+    }
   })
 }
 
