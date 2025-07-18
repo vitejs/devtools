@@ -5,7 +5,7 @@ import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
 import { getFileTypeFromModuleId, getFileTypeFromName } from '~/utils/icon'
@@ -17,7 +17,7 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 
-const searchValue = reactive<{ search: string, selected: string[] | null, [key: string]: any }>({
+const searchValue = ref<{ search: string, selected: string[] | null, [key: string]: any }>({
   search: (route.query.search || '') as string,
   selected: (route.query.file_types ? toArray(route.query.file_types) : null) as string[] | null,
   node_modules: (route.query.node_modules ? toArray(route.query.node_modules) : null) as string[] | null,
@@ -42,12 +42,12 @@ const moduleViewTypes = [
 ] as const
 
 debouncedWatch(
-  searchValue,
+  searchValue.value,
   (f) => {
     const query: any = {
       ...route.query,
       search: f.search || undefined,
-      file_types: f.file_types || undefined,
+      file_types: f.selected || undefined,
       node_modules: f.node_modules || undefined,
     }
     router.replace({
@@ -89,11 +89,11 @@ const searchFilterTypes = computed(() => {
 
 const filtered = computed(() => {
   let modules = parsedPaths.value
-  if (searchValue.selected) {
-    modules = modules.filter(mod => searchValue.selected!.includes(mod.type.name))
+  if (searchValue.value.selected) {
+    modules = modules.filter(mod => searchValue.value.selected!.includes(mod.type.name))
   }
-  if (searchValue.node_modules) {
-    modules = modules.filter(mod => mod.path.moduleName && searchValue.node_modules!.includes(mod.path.moduleName))
+  if (searchValue.value.node_modules) {
+    modules = modules.filter(mod => mod.path.moduleName && searchValue.value.node_modules!.includes(mod.path.moduleName))
   }
   return modules.map(mod => ({ ...mod.mod, path: mod.path.path }))
 })
@@ -109,11 +109,11 @@ const fuse = computedWithControl(
 )
 
 const searched = computed(() => {
-  if (!searchValue.search) {
+  if (!searchValue.value.search) {
     return filtered.value
   }
   return fuse.value
-    .search(searchValue.search)
+    .search(searchValue.value.search)
     .map(r => r.item)
 })
 

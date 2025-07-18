@@ -4,7 +4,7 @@ import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray, uniqueBy } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, reactive } from 'vue'
+import { computed, ref } from 'vue'
 import { getPluginTypeFromName } from '~/utils/icon'
 
 const props = defineProps<{
@@ -18,7 +18,7 @@ const parsedPlugins = computed(() => {
   const { plugins = [] } = props.session?.meta
   function getPluginType(input: string): string {
     const match = input.match(/^([^:]+):/)
-    return match ? match[1] : 'plugin'
+    return match ? match[1]! : 'plugin'
   }
   return plugins.map((item) => {
     const type = getPluginType(item.name)
@@ -29,7 +29,7 @@ const parsedPlugins = computed(() => {
   })
 })
 
-const searchValue = reactive<{ search: string, selected: string[] | null }>({
+const searchValue = ref<{ search: string, selected: string[] | null }>({
   search: (route.query.search || '') as string,
   selected: (route.query.plugin_types ? toArray(route.query.plugin_types) : null) as string[] | null,
 })
@@ -44,8 +44,8 @@ const searchFilterTypes = computed(() => {
 
 const filtered = computed(() => {
   let plugins = parsedPlugins.value
-  if (searchValue.selected) {
-    plugins = plugins.filter(plugin => searchValue.selected?.includes(plugin.type))
+  if (searchValue.value.selected) {
+    plugins = plugins.filter(plugin => searchValue.value.selected?.includes(plugin.type))
   }
   return plugins
 })
@@ -61,16 +61,16 @@ const fuse = computedWithControl(
 )
 
 const searched = computed(() => {
-  if (!searchValue.search) {
+  if (!searchValue.value.search) {
     return filtered.value
   }
   return fuse.value
-    .search(searchValue.search)
+    .search(searchValue.value.search)
     .map(r => r.item)
 })
 
 debouncedWatch(
-  searchValue,
+  searchValue.value,
   (f) => {
     const query: any = {
       ...route.query,

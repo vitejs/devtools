@@ -50,7 +50,7 @@ function toggleFilterType(type: string) {
 </script>
 
 <template>
-  <div flex="col gap-2" max-w-90vw border="~ base rounded-xl" bg-glass>
+  <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
     <div border="b base">
       <input
         v-model="Model.search"
