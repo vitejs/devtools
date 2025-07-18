@@ -1,29 +1,109 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
+import { useRoute, useRouter } from '#app/composables/router'
+import { clearUndefined, toArray, uniqueBy } from '@antfu/utils'
+import { computedWithControl, debouncedWatch } from '@vueuse/core'
+import Fuse from 'fuse.js'
+import { computed, ref } from 'vue'
+import { getPluginTypeFromName } from '~/utils/icon'
 
-defineProps<{
+const props = defineProps<{
   session: SessionContext
 }>()
+
+const route = useRoute()
+const router = useRouter()
+
+const parsedPlugins = computed(() => {
+  const { plugins = [] } = props.session?.meta
+  function getPluginType(input: string): string {
+    const match = input.match(/^([^:]+):/)
+    return match ? match[1]! : 'plugin'
+  }
+  return plugins.map((item) => {
+    const type = getPluginType(item.name)
+    return {
+      ...item,
+      type,
+    }
+  })
+})
+
+const searchValue = ref<{ search: string, selected: string[] | null }>({
+  search: (route.query.search || '') as string,
+  selected: (route.query.plugin_types ? toArray(route.query.plugin_types) : null) as string[] | null,
+})
+
+const searchFilterTypes = computed(() => {
+  const pluginTypes = parsedPlugins.value.map((item) => {
+    const { description: label, name: value, icon } = getPluginTypeFromName(item.type)
+    return { label, value, icon }
+  })
+  return uniqueBy(pluginTypes, (a, b) => a.value === b.value)
+})
+
+const filtered = computed(() => {
+  let plugins = parsedPlugins.value
+  if (searchValue.value.selected) {
+    plugins = plugins.filter(plugin => searchValue.value.selected?.includes(plugin.type))
+  }
+  return plugins
+})
+
+const fuse = computedWithControl(
+  () => filtered.value,
+  () => new Fuse(filtered.value, {
+    includeScore: true,
+    keys: ['name'],
+    ignoreLocation: true,
+    threshold: 0.4,
+  }),
+)
+
+const searched = computed(() => {
+  if (!searchValue.value.search) {
+    return filtered.value
+  }
+  return fuse.value
+    .search(searchValue.value.search)
+    .map(r => r.item)
+})
+
+debouncedWatch(
+  searchValue.value,
+  (f) => {
+    const query: any = {
+      ...route.query,
+      search: f.search || undefined,
+      plugin_types: f.selected || undefined,
+    }
+    router.replace({
+      query: clearUndefined(query),
+    })
+  },
+  { debounce: 500 },
+)
 </script>
 
 <template>
-  <div p4>
-    <div py2 op50>
-      Plugins ({{ session.meta.plugins.length }})
+  <div relative max-h-screen of-hidden>
+    <div absolute left-4 top-4 z-panel-nav>
+      <DataSearchPanel v-model="searchValue" :filter-types="searchFilterTypes" />
     </div>
+    <div of-auto h-screen flex="~ col gap-2" pt32>
+      <PluginsFlatList :plugins="searched ?? []" />
+      <div
+        absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      >
+        <span op50>{{ searched.length }} of {{ session?.meta?.plugins?.length || 0 }}</span>
+      </div>
+    </div>
+  </div>
+</template>
 
-    <!--
+<!--
       TODO: plugins framegraph
         Two different views direction:
           - plugins -> hooks -> modules
           - modules -> hooks -> plugins
-    -->
-    <div flex="~ col gap-1">
-      <template v-for="plugin in session.meta.plugins" :key="plugin.id">
-        <div font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active">
-          <DisplayPluginName :name="plugin.name" />
-        </div>
-      </template>
-    </div>
-  </div>
-</template>
+-->
