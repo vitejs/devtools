@@ -14,20 +14,15 @@ const props = defineProps<{
   session: SessionContext
 }>()
 
-interface Filters {
-  search: string
-  file_types: string[] | null
-  node_modules: string[] | null
-}
-
 const route = useRoute()
 const router = useRouter()
 
-const filters = reactive<Filters>({
+const searchValue = reactive<{ search: string, selected: string[] | null, [key: string]: any }>({
   search: (route.query.search || '') as string,
-  file_types: (route.query.file_types ? toArray(route.query.file_types) : null) as string[] | null,
+  selected: (route.query.file_types ? toArray(route.query.file_types) : null) as string[] | null,
   node_modules: (route.query.node_modules ? toArray(route.query.node_modules) : null) as string[] | null,
 })
+
 const moduleViewTypes = [
   {
     label: 'List',
@@ -47,7 +42,7 @@ const moduleViewTypes = [
 ] as const
 
 debouncedWatch(
-  filters,
+  searchValue,
   (f) => {
     const query: any = {
       ...route.query,
@@ -72,6 +67,17 @@ const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
   }
 }))
 
+const searchFilterTypes = computed(() => {
+  const fileTypes = new Set<string>()
+  for (const mod of parsedPaths.value) {
+    fileTypes.add(mod.type.name)
+  }
+  return Array.from(fileTypes).map((name) => {
+    const { name: value, description: label, icon } = getFileTypeFromName(name)
+    return { value, label, icon }
+  })
+})
+
 // const allNodeModules = computed(() => {
 //   const nodeModules = new Set<string>()
 //   for (const mod of parsedPaths.value) {
@@ -81,44 +87,16 @@ const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
 //   return nodeModules
 // })
 
-const allFileTypes = computed(() => {
-  const fileTypes = new Set<string>()
-  for (const mod of parsedPaths.value) {
-    fileTypes.add(mod.type.name)
-  }
-  return fileTypes
-})
-
 const filtered = computed(() => {
   let modules = parsedPaths.value
-  if (filters.file_types) {
-    modules = modules.filter(mod => filters.file_types!.includes(mod.type.name))
+  if (searchValue.selected) {
+    modules = modules.filter(mod => searchValue.selected!.includes(mod.type.name))
   }
-  if (filters.node_modules) {
-    modules = modules.filter(mod => mod.path.moduleName && filters.node_modules!.includes(mod.path.moduleName))
+  if (searchValue.node_modules) {
+    modules = modules.filter(mod => mod.path.moduleName && searchValue.node_modules!.includes(mod.path.moduleName))
   }
   return modules.map(mod => ({ ...mod.mod, path: mod.path.path }))
 })
-
-function isFileTypeSelected(type: string) {
-  return filters.file_types == null || filters.file_types.includes(type)
-}
-
-function toggleFileType(type: string) {
-  if (filters.file_types == null) {
-    filters.file_types = Array.from(allFileTypes.value)
-  }
-
-  if (filters.file_types.includes(type)) {
-    filters.file_types = filters.file_types.filter(t => t !== type)
-  }
-  else {
-    filters.file_types.push(type)
-  }
-  if (filters.file_types.length === allFileTypes.value.size) {
-    filters.file_types = null
-  }
-}
 
 const fuse = computedWithControl(
   () => filtered.value,
@@ -131,11 +109,11 @@ const fuse = computedWithControl(
 )
 
 const searched = computed(() => {
-  if (filters.search === '') {
+  if (!searchValue.search) {
     return filtered.value
   }
   return fuse.value
-    .search(filters.search)
+    .search(searchValue.search)
     .map(r => r.item)
 })
 
@@ -149,51 +127,25 @@ function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
 
 <template>
   <div relative max-h-screen of-hidden>
-    <div flex="col gap-2" absolute left-4 top-4 max-w-90vw border="~ base rounded-xl" bg-glass z-panel-nav>
-      <div border="b base">
-        <input
-          v-model="filters.search"
-          p2 px4 w-full
-          style="outline: none"
-          placeholder="Search"
-        >
-      </div>
-      <div flex="~ gap-2 wrap" p2>
-        <label
-          v-for="type of allFileTypes"
-          :key="type"
-          border="~ base rounded-md" px2 py1
-          flex="~ items-center gap-1"
-          select-none
-          :title="type"
-          :class="isFileTypeSelected(type) ? 'bg-active' : 'grayscale op50'"
-        >
-          <input
-            type="checkbox"
-            :checked="isFileTypeSelected(type)"
-            mr1
-            @change="toggleFileType(type)"
+    <div absolute left-4 top-4 z-panel-nav>
+      <DataSearchPanel v-model="searchValue" :filter-types="searchFilterTypes">
+        <div flex="~ gap-2 items-center" p2 border="t base">
+          <span op50 pl2 text-sm>View as</span>
+          <button
+            v-for="viewType of moduleViewTypes"
+            :key="viewType.value"
+            btn-action
+            :class="settings.flowModuleGraphView === viewType.value ? 'bg-active' : 'grayscale op50'"
+            @click="toggleDisplay(viewType.value)"
           >
-          <div :class="getFileTypeFromName(type).icon" icon-catppuccin />
-          <div text-sm>{{ getFileTypeFromName(type).description }}</div>
-        </label>
-      </div>
-      <div flex="~ gap-2 items-center" p2 border="t base">
-        <span op50 pl2 text-sm>View as</span>
-        <button
-          v-for="viewType of moduleViewTypes"
-          :key="viewType.value"
-          btn-action
-          :class="settings.flowModuleGraphView === viewType.value ? 'bg-active' : 'grayscale op50'"
-          @click="toggleDisplay(viewType.value)"
-        >
-          <div :class="viewType.icon" />
-          {{ viewType.label }}
-        </button>
-      </div>
-      <!-- TODO: should we add filters for node_modules? -->
-      <!-- {{ allNodeModules }} -->
+            <div :class="viewType.icon" />
+            {{ viewType.label }}
+          </button>
+        </div>
+      </DataSearchPanel>
     </div>
+    <!-- TODO: should we add filters for node_modules? -->
+    <!-- {{ allNodeModules }} -->
     <template v-if="settings.flowModuleGraphView === 'list'">
       <div of-auto h-screen pt-45>
         <ModulesFlatList

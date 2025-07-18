@@ -36,13 +36,15 @@ function toggleFilterType(type: string) {
   const { filterTypes } = props
   if (!Model?.value?.selected) {
     Model.value.selected = filterTypes.map(t => t.value)
-    return
   }
   if (Model.value.selected.includes(type)) {
     Model.value.selected = Model.value.selected.filter(t => t !== type)
   }
   else {
     Model.value.selected.push(type)
+  }
+  if (Model?.value?.selected.length === props.filterTypes.length) {
+    Model.value.selected = null
   }
 }
 </script>
@@ -78,5 +80,6 @@ function toggleFilterType(type: string) {
         <div text-sm>{{ type.label }}</div>
       </label>
     </div>
+    <slot />
   </div>
 </template>
