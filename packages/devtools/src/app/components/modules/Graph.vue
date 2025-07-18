@@ -62,6 +62,11 @@ onKeyPressed(['=', '+'], (e) => {
     zoomIn()
 })
 
+// Prevent space from scrolling the page
+onKeyPressed([' '], (e) => {
+  e.preventDefault()
+})
+
 const modulesMap = computed(() => {
   const map = new Map<string, ModuleListItem>()
   for (const module of props.modules) {
