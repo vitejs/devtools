@@ -112,7 +112,6 @@ export default defineNuxtConfig({
         'fuse.js',
         'd3-hierarchy',
         'd3-shape',
-        'modern-screenshot',
       ],
       exclude: [
         'structured-clone-es',
