@@ -8,6 +8,7 @@ import { getContentByteSize } from '~~/app/utils/format'
 const props = defineProps<{
   session: SessionContext
   module: string
+  view: 'flow' | 'charts' | 'imports'
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +19,6 @@ const rpc = useRpc()
 const transforms = ref<RolldownModuleTransformInfo[]>([])
 const transformsLoading = ref(false)
 const flowNodeSelected = ref(false)
-const view = ref<'flow' | 'charts' | 'imports'>('flow')
 
 watchEffect(async () => {
   const arg = {
@@ -137,7 +137,7 @@ function selectFlowNode(v: boolean) {
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'flow'"
+          @click="$router.replace({ query: { ...$route.query, moduleView: 'flow' } })"
         >
           <div i-ph-git-branch-duotone rotate-180 />
           Build Flow
@@ -148,7 +148,7 @@ function selectFlowNode(v: boolean) {
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'charts'"
+          @click="$router.replace({ query: { ...$route.query, moduleView: 'charts' } })"
         >
           <div i-ph-chart-donut-duotone />
           Charts
@@ -159,7 +159,7 @@ function selectFlowNode(v: boolean) {
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'imports'"
+          @click="$router.replace({ query: { ...$route.query, moduleView: 'imports' } })"
         >
           <div i-ph-graph-duotone />
           Imports

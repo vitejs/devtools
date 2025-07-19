@@ -116,6 +116,7 @@ onMounted(async () => {
       >
         <DataModuleDetailsLoader
           :module="(route.query.module as string)"
+          :view="(route.query.moduleView as 'flow' | 'charts' | 'imports') || 'flow'"
           :session="session"
           @close="closeFlowPanel"
         />
