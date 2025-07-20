@@ -3,12 +3,12 @@ import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~
 import { useRpc } from '#imports'
 import { computedAsync } from '@vueuse/core'
 import { computed, nextTick, ref, watchEffect } from 'vue'
+import { settings } from '~~/app/state/settings'
 import { getContentByteSize } from '~~/app/utils/format'
 
 const props = defineProps<{
   session: SessionContext
   module: string
-  view: 'flow' | 'charts' | 'imports'
 }>()
 
 const emit = defineEmits<{
@@ -132,34 +132,34 @@ function selectFlowNode(v: boolean) {
       </div>
       <div flex="~ gap-2">
         <button
-          :class="view === 'flow' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'flow' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="$router.replace({ query: { ...$route.query, moduleView: 'flow' } })"
+          @click="settings.moduleDetailsViewType = 'flow'"
         >
           <div i-ph-git-branch-duotone rotate-180 />
           Build Flow
         </button>
         <button
-          :class="view === 'charts' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'charts' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="$router.replace({ query: { ...$route.query, moduleView: 'charts' } })"
+          @click="settings.moduleDetailsViewType = 'charts'"
         >
           <div i-ph-chart-donut-duotone />
           Charts
         </button>
         <button
-          :class="view === 'imports' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'imports' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="$router.replace({ query: { ...$route.query, moduleView: 'imports' } })"
+          @click="settings.moduleDetailsViewType = 'imports'"
         >
           <div i-ph-graph-duotone />
           Imports
@@ -168,7 +168,7 @@ function selectFlowNode(v: boolean) {
     </div>
     <div of-auto h-full pt-30>
       <FlowmapModuleFlow
-        v-if="view === 'flow'"
+        v-if="settings.moduleDetailsViewType === 'flow'"
         p4
         :info
         :session
@@ -176,13 +176,13 @@ function selectFlowNode(v: boolean) {
         @select="selectFlowNode"
       />
       <ChartModuleFlamegraph
-        v-if="view === 'charts'"
+        v-if="settings.moduleDetailsViewType === 'charts'"
         :info
         :session="session"
         :flow-node-selected="flowNodeSelected"
       />
       <DataModuleImportRelationships
-        v-if="view === 'imports'"
+        v-if="settings.moduleDetailsViewType === 'imports'"
         :module="info"
         :session="session"
       />
