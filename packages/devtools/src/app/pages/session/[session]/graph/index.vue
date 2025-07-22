@@ -8,7 +8,7 @@ import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
-import { getFileTypeFromModuleId, getFileTypeFromName } from '~/utils/icon'
+import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
   session: SessionContext
@@ -17,7 +17,11 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 
-const searchValue = ref<{ search: string, selected: string[] | null, [key: string]: any }>({
+const searchValue = ref<{
+  search: string
+  selected: string[] | null
+  [key: string]: any
+}>({
   search: (route.query.search || '') as string,
   selected: (route.query.file_types ? toArray(route.query.file_types) : null) as string[] | null,
   node_modules: (route.query.node_modules ? toArray(route.query.node_modules) : null) as string[] | null,
@@ -68,13 +72,8 @@ const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
 }))
 
 const searchFilterTypes = computed(() => {
-  const fileTypes = new Set<string>()
-  for (const mod of parsedPaths.value) {
-    fileTypes.add(mod.type.name)
-  }
-  return Array.from(fileTypes).map((name) => {
-    const { name: value, description: label, icon } = getFileTypeFromName(name)
-    return { value, label, icon }
+  return ModuleTypeRules.filter((rule) => {
+    return parsedPaths.value.some(mod => rule.match.test(mod.mod.id))
   })
 })
 
@@ -90,7 +89,10 @@ const searchFilterTypes = computed(() => {
 const filtered = computed(() => {
   let modules = parsedPaths.value
   if (searchValue.value.selected) {
-    modules = modules.filter(mod => searchValue.value.selected!.includes(mod.type.name))
+    modules = modules.filter((mod) => {
+      const type = getFileTypeFromModuleId(mod.mod.id)
+      return searchValue.value.selected!.includes(type.name)
+    })
   }
   if (searchValue.value.node_modules) {
     modules = modules.filter(mod => mod.path.moduleName && searchValue.value.node_modules!.includes(mod.path.moduleName))
@@ -117,25 +119,25 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
-function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
+function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
   }
-  settings.value.flowModuleGraphView = type
+  settings.value.moduleGraphViewType = type
 }
 </script>
 
 <template>
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
-      <DataSearchPanel v-model="searchValue" :filter-types="searchFilterTypes">
+      <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
             v-for="viewType of moduleViewTypes"
             :key="viewType.value"
             btn-action
-            :class="settings.flowModuleGraphView === viewType.value ? 'bg-active' : 'grayscale op50'"
+            :class="settings.moduleGraphViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
             <div :class="viewType.icon" />
@@ -146,7 +148,7 @@ function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
     </div>
     <!-- TODO: should we add filters for node_modules? -->
     <!-- {{ allNodeModules }} -->
-    <template v-if="settings.flowModuleGraphView === 'list'">
+    <template v-if="settings.moduleGraphViewType === 'list'">
       <div of-auto h-screen pt-45>
         <ModulesFlatList
           :session="session"
@@ -159,7 +161,7 @@ function toggleDisplay(type: ClientSettings['flowModuleGraphView']) {
         </div>
       </div>
     </template>
-    <template v-else-if="settings.flowModuleGraphView === 'graph'">
+    <template v-else-if="settings.moduleGraphViewType === 'graph'">
       <ModulesGraph
         :session="session"
         :modules="searched"

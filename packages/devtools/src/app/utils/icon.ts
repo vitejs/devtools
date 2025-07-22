@@ -1,18 +1,20 @@
 import { makeCachedFunction } from './cache'
 
-interface Basic {
+export interface FilterMatchRule {
+  match: RegExp
   name: string
   description: string
   icon: string
 }
-export interface ModuleTypeRule extends Basic {
-  match: RegExp
-}
-
-export interface PluginType extends Basic {}
 
 // @unocss-include
-export const ModuleTypeRules: ModuleTypeRule[] = [
+export const ModuleTypeRules: FilterMatchRule[] = [
+  {
+    match: /[\\/]node_modules[\\/]/i,
+    name: 'node_modules',
+    description: 'Node Modules',
+    icon: 'i-catppuccin-npm',
+  },
   {
     match: /virtual:|^\0/,
     name: 'virtual',
@@ -24,12 +26,6 @@ export const ModuleTypeRules: ModuleTypeRule[] = [
     name: 'package',
     description: 'Package',
     icon: 'i-catppuccin-java-class-abstract',
-  },
-  {
-    match: /[\\/]node_modules[\\/]/i,
-    name: 'node_modules',
-    description: 'Node Modules',
-    icon: 'i-catppuccin-npm',
   },
   {
     match: /\.vue$/i,
@@ -125,57 +121,58 @@ export const ModuleTypeRules: ModuleTypeRule[] = [
 ]
 
 // @unocss-include
-export const PluginTypes: PluginType[] = [
-
+export const PluginTypeRules: FilterMatchRule[] = [
   {
+    match: /^(replace|define|alias)$/,
+    name: 'rollup',
+    description: 'Rollup',
+    icon: 'i-catppuccin-rollup',
+  },
+  {
+    match: /^vite:/i,
     name: 'vite',
     description: 'Vite',
     icon: 'i-catppuccin-vite',
   },
   {
-    name: 'vue',
-    description: 'Vue',
-    icon: 'i-catppuccin-vue',
-  },
-  {
+    match: /^unocss:/i,
     name: 'unocss',
     description: 'Unocss',
     icon: 'i-catppuccin-unocss',
   },
   {
+    match: /^nuxt:/i,
     name: 'nuxt',
     description: 'Nuxt',
     icon: 'i-catppuccin-nuxt',
   },
   {
+    match: /^builtin:/i,
     name: 'builtin',
     description: 'Builtin',
     icon: 'i-catppuccin-folder-prisma',
   },
 ]
 
-const DefaultFileTypeRule: ModuleTypeRule = {
+export const DefaultFileTypeRule: FilterMatchRule = {
   name: 'file',
   match: /.*/,
   description: 'File',
   icon: 'i-catppuccin-file',
 }
 
-const DefaultPluginType: PluginType = {
+export const DefaultPluginType: FilterMatchRule = {
   name: 'plugin',
-  description: 'Plugin',
+  match: /.*/,
+  description: 'User Plugins',
   icon: 'i-catppuccin-folder-plugins',
-}
-
-export function getPluginTypeFromName(name: string) {
-  return PluginTypes.find(rule => rule.name === name) ?? DefaultPluginType
 }
 
 export function getFileTypeFromName(name: string) {
   return ModuleTypeRules.find(rule => rule.name === name) ?? DefaultFileTypeRule
 }
 
-export const getFileTypeFromModuleId = makeCachedFunction((moduleId: string): ModuleTypeRule => {
+export const getFileTypeFromModuleId = makeCachedFunction((moduleId: string): FilterMatchRule => {
   moduleId = moduleId
     .replace(/(\?|&)v=[^&]*/, '$1')
     .replace(/\?$/, '')
@@ -187,4 +184,13 @@ export const getFileTypeFromModuleId = makeCachedFunction((moduleId: string): Mo
   }
 
   return DefaultFileTypeRule
+})
+
+export const getPluginTypeFromName = makeCachedFunction((name: string): FilterMatchRule => {
+  for (const rule of PluginTypeRules) {
+    if (rule.match.test(name)) {
+      return rule
+    }
+  }
+  return DefaultPluginType
 })

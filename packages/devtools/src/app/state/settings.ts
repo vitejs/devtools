@@ -5,7 +5,6 @@ import { computed } from 'vue'
 export interface ClientSettings {
   codeviewerLineWrap: boolean
   codeviewerDiffPanelSize: number
-  flowModuleGraphView: 'list' | 'graph' | 'folder'
   flowExpandResolveId: boolean
   flowExpandTransforms: boolean
   flowExpandLoads: boolean
@@ -13,8 +12,10 @@ export interface ClientSettings {
   flowExpandAssets: boolean
   flowShowAllTransforms: boolean
   flowShowAllLoads: boolean
+  moduleGraphViewType: 'list' | 'graph' | 'folder'
   assetViewType: 'list' | 'folder' | 'treemap'
   chartAnimation: boolean
+  moduleDetailsViewType: 'flow' | 'charts' | 'imports'
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -22,7 +23,6 @@ export const settings = useLocalStorage<ClientSettings>(
   {
     codeviewerLineWrap: false,
     codeviewerDiffPanelSize: 200,
-    flowModuleGraphView: 'list',
     flowExpandResolveId: true,
     flowExpandTransforms: true,
     flowExpandLoads: true,
@@ -30,8 +30,10 @@ export const settings = useLocalStorage<ClientSettings>(
     flowExpandAssets: true,
     flowShowAllTransforms: false,
     flowShowAllLoads: false,
+    moduleGraphViewType: 'list',
     assetViewType: 'list',
     chartAnimation: true,
+    moduleDetailsViewType: 'flow',
   },
   {
     mergeDefaults: true,

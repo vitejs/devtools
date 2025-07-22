@@ -3,6 +3,7 @@ import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~
 import { useRpc } from '#imports'
 import { computedAsync } from '@vueuse/core'
 import { computed, nextTick, ref, watchEffect } from 'vue'
+import { settings } from '~~/app/state/settings'
 import { getContentByteSize } from '~~/app/utils/format'
 
 const props = defineProps<{
@@ -18,7 +19,6 @@ const rpc = useRpc()
 const transforms = ref<RolldownModuleTransformInfo[]>([])
 const transformsLoading = ref(false)
 const flowNodeSelected = ref(false)
-const view = ref<'flow' | 'charts' | 'imports'>('flow')
 
 watchEffect(async () => {
   const arg = {
@@ -123,43 +123,45 @@ function selectFlowNode(v: boolean) {
         >
           <span i-ph-clock-duotone inline-block />
         </DisplayDuration>
-        <span op40>|</span>
-        <div flex="~ gap-1 items-center">
-          <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
-          <span i-carbon-arrow-right op50 />
-          <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
-        </div>
+        <template v-if="sourceCodeSize && transformedCodeSize">
+          <span op40>|</span>
+          <div flex="~ gap-1 items-center">
+            <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
+            <span i-carbon-arrow-right op50 />
+            <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
+          </div>
+        </template>
       </div>
       <div flex="~ gap-2">
         <button
-          :class="view === 'flow' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'flow' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'flow'"
+          @click="settings.moduleDetailsViewType = 'flow'"
         >
           <div i-ph-git-branch-duotone rotate-180 />
           Build Flow
         </button>
         <button
-          :class="view === 'charts' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'charts' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'charts'"
+          @click="settings.moduleDetailsViewType = 'charts'"
         >
           <div i-ph-chart-donut-duotone />
           Charts
         </button>
         <button
-          :class="view === 'imports' ? 'text-primary' : ''"
+          :class="settings.moduleDetailsViewType === 'imports' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="view = 'imports'"
+          @click="settings.moduleDetailsViewType = 'imports'"
         >
           <div i-ph-graph-duotone />
           Imports
@@ -168,7 +170,7 @@ function selectFlowNode(v: boolean) {
     </div>
     <div of-auto h-full pt-30>
       <FlowmapModuleFlow
-        v-if="view === 'flow'"
+        v-if="settings.moduleDetailsViewType === 'flow'"
         p4
         :info
         :session
@@ -176,13 +178,13 @@ function selectFlowNode(v: boolean) {
         @select="selectFlowNode"
       />
       <ChartModuleFlamegraph
-        v-if="view === 'charts'"
+        v-if="settings.moduleDetailsViewType === 'charts'"
         :info
         :session="session"
         :flow-node-selected="flowNodeSelected"
       />
       <DataModuleImportRelationships
-        v-if="view === 'imports'"
+        v-if="settings.moduleDetailsViewType === 'imports'"
         :module="info"
         :session="session"
       />

@@ -7,7 +7,8 @@ export const rolldownListSessions = defineRpcFunction({
   setup: ({ manager }) => {
     return {
       handler: async (): Promise<BuildInfo[]> => {
-        return manager.list()
+        const list = await manager.list()
+        return list.sort((a, b) => b.timestamp - a.timestamp)
       },
     }
   },

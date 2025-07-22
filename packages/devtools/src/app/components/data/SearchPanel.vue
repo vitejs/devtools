@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import type { FilterMatchRule } from '~/utils/icon'
 import { useVModel } from '@vueuse/core'
 import { withDefaults } from 'vue'
-
-interface FilterType { label: string, value: string, icon: string }
 
 interface ModelValue { search: string, selected: string[] | null }
 
 const props = withDefaults(
   defineProps<{
-    filterTypes: FilterType[]
+    rules: FilterMatchRule[]
     modelValue?: ModelValue
   }>(),
   {
@@ -23,28 +22,28 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: ModelValue): void
 }>()
 
-const Model = useVModel(props, 'modelValue', emit)
+const model = useVModel(props, 'modelValue', emit)
 
-function isFilterTypeSelected(type: string) {
+function isRuleSelected(rule: FilterMatchRule) {
   const { modelValue } = props
   if (!modelValue?.selected)
     return true
-  return modelValue.selected.includes(type)
+  return modelValue.selected.includes(rule.name)
 }
 
-function toggleFilterType(type: string) {
-  const { filterTypes } = props
-  if (!Model?.value?.selected) {
-    Model.value.selected = filterTypes.map(t => t.value)
+function toggleRule(rule: FilterMatchRule) {
+  const { rules } = props
+  if (!model?.value?.selected) {
+    model.value.selected = rules.map(r => r.name)
   }
-  if (Model.value.selected.includes(type)) {
-    Model.value.selected = Model.value.selected.filter(t => t !== type)
+  if (model.value.selected.includes(rule.name)) {
+    model.value.selected = model.value.selected.filter(t => t !== rule.name)
   }
   else {
-    Model.value.selected.push(type)
+    model.value.selected.push(rule.name)
   }
-  if (Model?.value?.selected.length === props.filterTypes.length) {
-    Model.value.selected = null
+  if (model?.value?.selected.length === props.rules.length) {
+    model.value.selected = null
   }
 }
 </script>
@@ -53,7 +52,7 @@ function toggleFilterType(type: string) {
   <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
     <div border="b base">
       <input
-        v-model="Model.search"
+        v-model="model.search"
         p2 px4
         w-full
         style="outline: none"
@@ -62,22 +61,22 @@ function toggleFilterType(type: string) {
     </div>
     <div flex="~ gap-2 wrap" p2>
       <label
-        v-for="type of filterTypes"
-        :key="type.value"
+        v-for="rule of rules"
+        :key="rule.name"
         border="~ base rounded-md" px2 py1
         flex="~ items-center gap-1"
         select-none
-        :title="type.label"
-        :class="isFilterTypeSelected(type.value) ? 'bg-active' : 'grayscale op50'"
+        :title="rule.description"
+        :class="isRuleSelected(rule) ? 'bg-active' : 'grayscale op50'"
       >
         <input
           type="checkbox"
           mr1
-          :checked="isFilterTypeSelected(type.value)"
-          @change="toggleFilterType(type.value)"
+          :checked="isRuleSelected(rule)"
+          @change="toggleRule(rule)"
         >
-        <div :class="type.icon" icon-catppuccin />
-        <div text-sm>{{ type.label }}</div>
+        <div :class="rule.icon" icon-catppuccin />
+        <div text-sm>{{ rule.description || rule.name }}</div>
       </label>
     </div>
     <slot />

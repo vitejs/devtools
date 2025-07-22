@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
-import { clearUndefined, toArray, uniqueBy } from '@antfu/utils'
+import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, debouncedWatch } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
-import { getPluginTypeFromName } from '~/utils/icon'
+import { DefaultPluginType, getPluginTypeFromName, PluginTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
   session: SessionContext
@@ -14,38 +14,28 @@ const props = defineProps<{
 const route = useRoute()
 const router = useRouter()
 
-const parsedPlugins = computed(() => {
-  const { plugins = [] } = props.session?.meta
-  function getPluginType(input: string): string {
-    const match = input.match(/^([^:]+):/)
-    return match ? match[1]! : 'plugin'
-  }
-  return plugins.map((item) => {
-    const type = getPluginType(item.name)
-    return {
-      ...item,
-      type,
-    }
-  })
-})
-
 const searchValue = ref<{ search: string, selected: string[] | null }>({
   search: (route.query.search || '') as string,
   selected: (route.query.plugin_types ? toArray(route.query.plugin_types) : null) as string[] | null,
 })
 
 const searchFilterTypes = computed(() => {
-  const pluginTypes = parsedPlugins.value.map((item) => {
-    const { description: label, name: value, icon } = getPluginTypeFromName(item.type)
-    return { label, value, icon }
-  })
-  return uniqueBy(pluginTypes, (a, b) => a.value === b.value)
+  return [
+    ...PluginTypeRules.filter((rule) => {
+      return props.session?.meta?.plugins?.some(item => rule.match.test(item.name))
+    }),
+    DefaultPluginType,
+  ]
 })
 
 const filtered = computed(() => {
-  let plugins = parsedPlugins.value
+  let plugins = props.session?.meta?.plugins
+
   if (searchValue.value.selected) {
-    plugins = plugins.filter(plugin => searchValue.value.selected?.includes(plugin.type))
+    plugins = plugins.filter((plugin) => {
+      const type = getPluginTypeFromName(plugin.name)
+      return searchValue.value.selected!.includes(type.name)
+    })
   }
   return plugins
 })
@@ -88,7 +78,7 @@ debouncedWatch(
 <template>
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
-      <DataSearchPanel v-model="searchValue" :filter-types="searchFilterTypes" />
+      <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes" />
     </div>
     <div of-auto h-screen flex="~ col gap-2" pt32>
       <PluginsFlatList :plugins="searched ?? []" />
@@ -102,8 +92,8 @@ debouncedWatch(
 </template>
 
 <!--
-      TODO: plugins framegraph
-        Two different views direction:
-          - plugins -> hooks -> modules
-          - modules -> hooks -> plugins
+TODO: plugins framegraph
+  Two different views direction:
+    - plugins -> hooks -> modules
+    - modules -> hooks -> plugins
 -->
