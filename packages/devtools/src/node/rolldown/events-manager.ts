@@ -8,6 +8,10 @@ export type RolldownEvent = Event & {
 
 type ModuleBuildHookEvents = Exclude<Event, 'StringRef'> & (HookResolveIdCallStart | HookResolveIdCallEnd | HookLoadCallStart | HookLoadCallEnd | HookTransformCallStart | HookTransformCallEnd)
 
+const DURATION_THRESHOLD = 10
+const MODULE_BUILD_START_HOOKS = ['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart']
+const MODULE_BUILD_END_HOOKS = ['HookResolveIdCallEnd', 'HookLoadCallEnd', 'HookTransformCallEnd']
+
 export class RolldownEventsManager {
   events: RolldownEvent[] = []
   chunks: Map<number, ChunkInfo> = new Map()
@@ -29,11 +33,12 @@ export class RolldownEventsManager {
   }
 
   recordModuleBuildMetrics(event: ModuleBuildHookEvents) {
-    if (['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart'].includes(event.action)) {
+    if (MODULE_BUILD_START_HOOKS.includes(event.action)) {
       this.module_build_hook_events.set(`${event.action}_${event.call_id}`, event)
     }
-    else if (['HookResolveIdCallEnd', 'HookLoadCallEnd', 'HookTransformCallEnd'].includes(event.action)) {
-      const start = this.module_build_hook_events.get(`${event.action.replace('End', 'Start')}_${event.call_id}`)
+    else if (MODULE_BUILD_END_HOOKS.includes(event.action)) {
+      const start_event_name = `${event.action.replace('End', 'Start')}_${event.call_id}`
+      const start = this.module_build_hook_events.get(start_event_name)
       const module_id = event.action === 'HookResolveIdCallEnd' ? event.resolved_id! : (event as HookLoadCallEnd | HookTransformCallEnd).module_id
       if (start) {
         const info = {
@@ -48,7 +53,7 @@ export class RolldownEventsManager {
           module_build_metrics.resolve_ids.push(info)
         }
         else if (event.action === 'HookLoadCallEnd') {
-          if (!event.content && info.duration < 10) {
+          if (!event.content && info.duration < DURATION_THRESHOLD) {
             return
           }
           module_build_metrics.loads.push(info)
@@ -58,7 +63,7 @@ export class RolldownEventsManager {
           const _end = event as HookTransformCallEnd
           const no_changes = _start.content === _end.content
           // TODO: remove module id check when rolldown fixes the unique call id
-          if ((no_changes && info.duration < 10) || _start.module_id !== _end.module_id) {
+          if ((no_changes && info.duration < DURATION_THRESHOLD) || _start.module_id !== _end.module_id) {
             return
           }
 
@@ -113,6 +118,7 @@ export class RolldownEventsManager {
     }
 
     if (event.action === 'ModuleGraphReady') {
+      this.module_build_hook_events.clear()
       for (const module of event.modules) {
         this.modules.set(module.id, {
           ...module,
