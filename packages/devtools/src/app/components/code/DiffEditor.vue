@@ -132,9 +132,9 @@ function _onUpdate(size: number) {
 </script>
 
 <template>
-  <div h-full w-full max-h-100vh :class="oneColumn ? 'flex' : 'grid grid-cols-2'">
-    <div v-show="!oneColumn" ref="fromEl" h-full max-h-100vh />
-    <div ref="toEl" h-full max-h-100vh :class="oneColumn ? 'w-full' : ''" />
+  <div h-full w-full of-auto :class="oneColumn ? 'flex' : 'grid grid-cols-2'" style="overscroll-behavior: contain">
+    <div v-show="!oneColumn" ref="fromEl" h-inherit />
+    <div ref="toEl" h-inherit :class="oneColumn ? 'w-full' : ''" />
   </div>
 </template>
 
