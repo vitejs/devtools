@@ -224,12 +224,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ChartAssetTreemap
-    v-if="graph"
-    :graph="graph"
-    :selected="nodeSelected"
-    @select="x => selectNode(x)"
-  />
+  <div p4>
+    <ChartAssetTreemap
+      v-if="graph"
+      :graph="graph"
+      :selected="nodeSelected"
+      @select="x => selectNode(x)"
+    />
+  </div>
   <div
     v-if="nodeHover?.meta"
     bg-glass fixed z-panel-nav border="~ base rounded" p2 text-sm

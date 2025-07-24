@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <div p4>
-    <div flex="~ col gap-1">
+    <div flex="~ col gap-2">
       <template v-for="asset in assets" :key="asset.id">
         <NuxtLink
           :to="{ query: { asset: asset.filename } }"
