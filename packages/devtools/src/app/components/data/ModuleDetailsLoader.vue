@@ -2,7 +2,7 @@
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { computedAsync } from '@vueuse/core'
-import { computed, nextTick, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, ref, watchEffect } from 'vue'
 import { settings } from '~~/app/state/settings'
 import { getContentByteSize } from '~~/app/utils/format'
 
@@ -19,6 +19,10 @@ const rpc = useRpc()
 const transforms = ref<RolldownModuleTransformInfo[]>([])
 const transformsLoading = ref(false)
 const flowNodeSelected = ref(false)
+
+onMounted(() => {
+  settings.value.moduleDetailsViewType = 'flow'
+})
 
 watchEffect(async () => {
   const arg = {
