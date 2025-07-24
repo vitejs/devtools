@@ -3,7 +3,7 @@ import type { FilterMatchRule } from '~/utils/icon'
 import { useVModel } from '@vueuse/core'
 import { withDefaults } from 'vue'
 
-interface ModelValue { search: string, selected: string[] | null }
+interface ModelValue { search: string, selected?: string[] | null }
 
 const props = withDefaults(
   defineProps<{
@@ -71,7 +71,7 @@ function unselectToggle() {
 
 <template>
   <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
-    <div border="b base">
+    <div>
       <input
         v-model="model.search"
         p2 px4
@@ -80,7 +80,7 @@ function unselectToggle() {
         placeholder="Search"
       >
     </div>
-    <div flex="~ gap-2 wrap" p2>
+    <div v-if="rules.length" flex="~ gap-2 wrap" p2 border="t base">
       <label
         v-for="rule of rules"
         :key="rule.name"
