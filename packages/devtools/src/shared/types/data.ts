@@ -2,6 +2,21 @@ import type { Asset as AssetInfo, Chunk as ChunkInfo, HookResolveIdCallStart, Mo
 
 export type { ModuleImport }
 
+export interface BuildMetrics {
+  plugin_name: string
+  plugin_id: number
+  duration: number
+  source_code_size?: number
+  transformed_code_size?: number
+  start_time: number
+  end_time: number
+}
+
+export interface ModuleBuildMetrics {
+  resolve_ids: BuildMetrics[]
+  loads: BuildMetrics[]
+  transforms: BuildMetrics[]
+}
 export type { PluginItem }
 
 export interface ModuleListItem {
@@ -10,6 +25,7 @@ export interface ModuleListItem {
   fileType: string
   imports: ModuleImport[]
   importers: string[]
+  buildMetrics: ModuleBuildMetrics | undefined
 }
 
 export interface SessionContext {
@@ -27,6 +43,7 @@ export interface ModuleInfo {
   imports: ModuleImport[] | null
   importers: string[] | null
   assets: RolldownAssetInfo[]
+  build_metrics: ModuleBuildMetrics
 }
 
 export interface ModuleDest {

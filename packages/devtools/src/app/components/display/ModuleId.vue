@@ -78,6 +78,9 @@ const containerClass = computed(() => {
           text="virtual"
         /> -->
       </div>
+      <div>
+        <slot name="detail" />
+      </div>
       <template #popper>
         <span font-mono text-sm>
           {{ props.id }}
