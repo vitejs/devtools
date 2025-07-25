@@ -2,6 +2,7 @@
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { computed, ref } from 'vue'
+import { settings } from '~~/app/state/settings'
 
 const props = defineProps<{
   chunks: RolldownChunkInfo[]
@@ -45,6 +46,12 @@ function openInEditor() {
           Source
         </div>
         <span flex-auto />
+        <DisplayIconButton
+          title="Line Wrapping"
+          class-icon="i-carbon-text-wrap"
+          :active="settings.codeviewerLineWrap"
+          @click="settings.codeviewerLineWrap = !settings.codeviewerLineWrap"
+        />
         <DisplayCloseButton @click="showSource = false" />
       </div>
       <div class="w-full of-auto px2 py1" border="~ base rounded-lg">

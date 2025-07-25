@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RolldownChunkInfo, RolldownModuleFlowNode, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
+import { settings } from '~~/app/state/settings'
 import PluginName from '../display/PluginName.vue'
 
 const props = defineProps<{
@@ -72,6 +73,12 @@ function handleClose() {
           {{ codeDisplay?.type === 'load' ? 'Load' : 'Transform' }}
         </span>
         <div flex-auto />
+        <DisplayIconButton
+          title="Line Wrapping"
+          class-icon="i-carbon-text-wrap"
+          :active="settings.codeviewerLineWrap"
+          @click="settings.codeviewerLineWrap = !settings.codeviewerLineWrap"
+        />
         <DisplayCloseButton @click="handleClose" />
       </div>
       <CodeDiffEditor
