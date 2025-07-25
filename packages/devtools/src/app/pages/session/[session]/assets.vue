@@ -8,7 +8,7 @@ import { useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { createColorGetterSpectrum, Sunburst, Treemap } from 'nanovis'
+import { createColorGetterSpectrum, Flamegraph, Sunburst, Treemap } from 'nanovis'
 import { computed, nextTick, onUnmounted, reactive, ref, shallowRef, watch } from 'vue'
 import { isDark } from '~/composables/dark'
 import { settings } from '~/state/settings'
@@ -47,6 +47,11 @@ const assetViewTpyes = [
     label: 'Sunburst',
     value: 'sunburst',
     icon: 'i-ph-chart-donut-duotone',
+  },
+  {
+    label: 'Flamegraph',
+    value: 'flamegraph',
+    icon: 'i-ph-chart-bar-horizontal-duotone',
   },
 ] as const
 const rpc = useRpc()
@@ -275,6 +280,9 @@ watch(
           ...options.value,
           selectedPaddingRatio: 0,
         })
+        break
+      default:
+        graph.value = new Flamegraph(tree.value.root, options.value)
     }
 
     nextTick(() => {
@@ -343,6 +351,11 @@ onUnmounted(() => {
           v-if="graph" :graph="graph"
           :selected="nodeSelected"
           @select="x => selectNode(x)"
+        />
+      </template>
+      <template v-else-if="settings.assetViewType === 'flamegraph'">
+        <AssetsFlamegraph
+          v-if="graph" :graph="graph"
         />
       </template>
     </div>

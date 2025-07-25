@@ -13,7 +13,7 @@ export interface ClientSettings {
   flowShowAllTransforms: boolean
   flowShowAllLoads: boolean
   moduleGraphViewType: 'list' | 'graph' | 'folder'
-  assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst'
+  assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst' | 'flamegraph'
   chartAnimation: boolean
   moduleDetailsViewType: 'flow' | 'charts' | 'imports'
 }
