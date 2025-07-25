@@ -22,7 +22,7 @@ export const settings = useLocalStorage<ClientSettings>(
   'vite-devtools-settings',
   {
     codeviewerLineWrap: false,
-    codeviewerDiffPanelSize: 200,
+    codeviewerDiffPanelSize: 50,
     flowExpandResolveId: true,
     flowExpandTransforms: true,
     flowExpandLoads: true,
