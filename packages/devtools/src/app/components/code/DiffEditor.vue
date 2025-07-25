@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type CodeMirror from 'codemirror'
+import { Pane, Splitpanes } from 'splitpanes'
 import { nextTick, onMounted, toRefs, useTemplateRef, watchEffect } from 'vue'
 import { guessCodemirrowMode, syncEditorScrolls, syncScrollListeners, useCodeMirror } from '~/composables/codemirror'
 import { settings } from '~/state/settings'
@@ -132,10 +133,14 @@ function _onUpdate(size: number) {
 </script>
 
 <template>
-  <div h-full w-full of-auto :class="oneColumn ? 'flex' : 'grid grid-cols-2'" style="overscroll-behavior: contain">
-    <div v-show="!oneColumn" ref="fromEl" h-inherit />
-    <div ref="toEl" h-inherit :class="oneColumn ? 'w-full' : ''" />
-  </div>
+  <Splitpanes class="min-h-0 flex-1" :class="oneColumn ? 'flex' : 'grid grid-cols-2'">
+    <Pane v-if="!oneColumn" size="50" min-size="10" max-size="100">
+      <div ref="fromEl" h-inherit />
+    </Pane>
+    <Pane size="50" min-size="10" max-size="100">
+      <div ref="toEl" h-inherit />
+    </Pane>
+  </Splitpanes>
 </template>
 
 <style lang="postcss">
