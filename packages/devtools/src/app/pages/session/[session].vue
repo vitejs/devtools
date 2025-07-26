@@ -93,6 +93,7 @@ onMounted(async () => {
     imports: mod.imports ?? [],
     importers: mod.importers ?? [],
   }))
+  session.buildDuration = summary.build_duration
   isLoading.value = false
 })
 </script>

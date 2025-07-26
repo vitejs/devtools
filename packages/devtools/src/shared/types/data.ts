@@ -16,6 +16,7 @@ export interface SessionContext {
   id: string
   meta: SessionMeta
   modulesList: ModuleListItem[]
+  buildDuration: number
 }
 
 export interface ModuleInfo {
