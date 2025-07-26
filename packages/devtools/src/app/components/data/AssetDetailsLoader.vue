@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
@@ -22,9 +23,11 @@ const { state } = useAsyncState(
     return {
       asset: { ...res?.asset, type: 'asset' },
       chunks: [{ ...res?.chunk, type: 'chunk' }],
+      importers: res?.importers,
     } satisfies {
       asset: RolldownAssetInfo
       chunks: RolldownChunkInfo[]
+      importers: AssetInfo[]
     }
   },
   null,
@@ -37,6 +40,6 @@ const { state } = useAsyncState(
       absolute right-2 top-1.5
       @click="emit('close')"
     />
-    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" />
+    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" />
   </div>
 </template>

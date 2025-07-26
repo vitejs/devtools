@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { computed, ref } from 'vue'
@@ -8,6 +9,7 @@ const props = defineProps<{
   chunks: RolldownChunkInfo[]
   session: SessionContext
   asset: RolldownAssetInfo
+  importers: AssetInfo[]
 }>()
 
 const rpc = useRpc()
@@ -73,5 +75,17 @@ function openInEditor() {
         :show-modules="false"
       />
     </div>
+    <template v-if="importers.length">
+      <div op50>
+        Importers
+      </div>
+      <div flex="~ col gap-2">
+        <AssetsListItem
+          v-for="asset in importers"
+          :key="asset.filename"
+          :asset="asset"
+        />
+      </div>
+    </template>
   </div>
 </template>

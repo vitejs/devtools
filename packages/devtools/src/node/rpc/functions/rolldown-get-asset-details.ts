@@ -10,10 +10,14 @@ export const rolldownGetAssetDetails = defineRpcFunction({
         const assets = await reader.manager.assets
         const chunks = await reader.manager.chunks
         const asset = assets.get(id)!
-        const chunk = chunks.get(asset.chunk_id!)!
+        const assetList = Array.from(assets.values())
+        const assetChunkId = asset.chunk_id!
+        const chunk = chunks.get(assetChunkId)!
+        const importers = Array.from(chunks.values()).filter(mod => mod.imports.some(i => i.chunk_id === assetChunkId)).map(c => assetList.find(a => a.chunk_id === c.chunk_id)!)
         return {
           asset,
           chunk,
+          importers,
         }
       },
     }
