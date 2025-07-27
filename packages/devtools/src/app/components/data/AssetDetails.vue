@@ -10,6 +10,7 @@ const props = defineProps<{
   session: SessionContext
   asset: RolldownAssetInfo
   importers: AssetInfo[]
+  imports: AssetInfo[]
 }>()
 
 const rpc = useRpc()
@@ -42,6 +43,7 @@ function openInEditor() {
         </button>
       </div>
     </div>
+
     <template v-if="showSource">
       <div flex="~ gap-2 items-center">
         <div op50>
@@ -65,27 +67,31 @@ function openInEditor() {
         />
       </div>
     </template>
-    <div op50>
-      Chunks
-    </div>
-    <div v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1>
-      <DataChunkDetails
-        :chunk="chunk"
-        :session="session"
-        :show-modules="false"
-      />
-    </div>
-    <template v-if="importers.length">
-      <div op50>
-        Importers
-      </div>
+
+    <div flex="~ col gap-4" pl2>
       <div flex="~ col gap-2">
-        <AssetsListItem
-          v-for="asset in importers"
-          :key="asset.filename"
-          :asset="asset"
-        />
+        <div op50>
+          Chunks
+        </div>
+        <div v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1>
+          <DataChunkDetails
+            :chunk="chunk"
+            :session="session"
+            :show-modules="false"
+          />
+        </div>
       </div>
-    </template>
+      <template v-if="importers.length || imports.length">
+        <div flex="~ col gap-2">
+          <div op50>
+            Asset Relationships
+          </div>
+          <DataAssetRelationships
+            :importers="importers"
+            :imports="imports"
+          />
+        </div>
+      </template>
+    </div>
   </div>
 </template>
