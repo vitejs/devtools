@@ -8,14 +8,14 @@ export interface BuildMetrics {
   duration: number
   source_code_size?: number
   transformed_code_size?: number
-  start_time: number
-  end_time: number
+  timestamp_start: number
+  timestamp_end: number
 }
 
 export interface ModuleBuildMetrics {
-  resolve_ids: BuildMetrics[]
-  loads: BuildMetrics[]
-  transforms: BuildMetrics[]
+  resolve_ids: RolldownResolveInfo[]
+  loads: RolldownModuleLoadInfo[]
+  transforms: Array<Omit<RolldownModuleTransformInfo, 'diff_added' | 'diff_removed'> & { source_code_size: number, transformed_code_size: number }>
 }
 export type { PluginItem }
 

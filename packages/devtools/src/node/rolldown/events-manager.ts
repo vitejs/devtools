@@ -6,7 +6,7 @@ export type RolldownEvent = Event & {
   event_id: string
 }
 
-type ModuleBuildHookEvents = Exclude<Event, 'StringRef'> & (HookResolveIdCallStart | HookResolveIdCallEnd | HookLoadCallStart | HookLoadCallEnd | HookTransformCallStart | HookTransformCallEnd)
+type ModuleBuildHookEvents = (Exclude<Event, 'StringRef'> & (HookResolveIdCallStart | HookResolveIdCallEnd | HookLoadCallStart | HookLoadCallEnd | HookTransformCallStart | HookTransformCallEnd)) & { event_id: string }
 
 const DURATION_THRESHOLD = 10
 const MODULE_BUILD_START_HOOKS = ['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart']
@@ -43,21 +43,33 @@ export class RolldownEventsManager {
       const module_id = event.action === 'HookResolveIdCallEnd' ? event.resolved_id! : (event as HookLoadCallEnd | HookTransformCallEnd).module_id
       if (start) {
         const info = {
-          start_time: +start.timestamp,
-          end_time: +event.timestamp,
+          id: event.event_id,
+          timestamp_start: +start.timestamp,
+          timestamp_end: +event.timestamp,
           duration: +event.timestamp - +start.timestamp,
           plugin_id: event.plugin_id,
           plugin_name: event.plugin_name,
         }
         const module_build_metrics = this.module_build_metrics.get(module_id) ?? { resolve_ids: [], loads: [], transforms: [] }
         if (event.action === 'HookResolveIdCallEnd') {
-          module_build_metrics.resolve_ids.push(info)
+          module_build_metrics.resolve_ids.push({
+            ...info,
+            type: 'resolve',
+            importer: (start as HookResolveIdCallStart).importer,
+            module_request: (start as HookResolveIdCallStart).module_request,
+            import_kind: (start as HookResolveIdCallStart).import_kind,
+            resolved_id: event.resolved_id,
+          })
         }
         else if (event.action === 'HookLoadCallEnd') {
           if (!event.content && info.duration < DURATION_THRESHOLD) {
             return
           }
-          module_build_metrics.loads.push(info)
+          module_build_metrics.loads.push({
+            ...info,
+            type: 'load',
+            content: event.content,
+          })
         }
         else if (event.action === 'HookTransformCallEnd') {
           const _start = start as HookTransformCallStart
@@ -69,6 +81,9 @@ export class RolldownEventsManager {
 
           module_build_metrics.transforms.push({
             ...info,
+            type: 'transform',
+            content_from: _start.content,
+            content_to: _end.content,
             source_code_size: getContentByteSize(_start.content!),
             transformed_code_size: getContentByteSize(_end.content!),
           })
