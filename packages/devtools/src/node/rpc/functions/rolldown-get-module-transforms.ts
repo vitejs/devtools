@@ -1,3 +1,4 @@
+import type { RolldownModuleTransformInfo } from '~~/shared/types'
 import { diffLines } from 'diff'
 import { defineRpcFunction } from '../utils'
 
@@ -12,10 +13,15 @@ export const rolldownGetModuleTransforms = defineRpcFunction({
         const moduleInfo = reader.manager.modules.get(module)
         const transforms = moduleInfo?.build_metrics?.transforms ?? []
 
-        if (!events.length)
-          return transforms
+        if (!events.length) {
+          return transforms.map<RolldownModuleTransformInfo>(transform => ({
+            ...transform,
+            diff_added: 0,
+            diff_removed: 0,
+          }))
+        }
 
-        const normalizedTransforms = transforms.map((transform) => {
+        const normalizedTransforms: RolldownModuleTransformInfo[] = transforms.map((transform) => {
           let diff_added = 0
           let diff_removed = 0
           if (transform.content_from !== transform.content_to && transform.content_from != null && transform.content_to != null) {
