@@ -13,7 +13,7 @@
     "lint": "pnpm -C packages/devtools run dev:prepare && eslint .",
     "test": "vitest",
     "release": "bumpp -r && pnpm publish -r",
-    "typecheck": "vue-tsc -b --noEmit"
+    "typecheck": "pnpm -C packages/devtools run typecheck"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:devtools",

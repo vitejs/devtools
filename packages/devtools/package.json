@@ -32,7 +32,8 @@
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
     "start": "node ./bin.mjs",
     "prepack": "pnpm build",
-    "dev:prepare": "nuxi prepare src"
+    "dev:prepare": "nuxi prepare src",
+    "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {
     "@rolldown/debug": "catalog:deps",
