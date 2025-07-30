@@ -167,7 +167,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
       </div>
     </template>
     <template v-else-if="settings.moduleGraphViewType === 'detailed-list'">
-      <div of-auto max-h-screen pt-45 relative>
+      <div of-auto h-screen pt-45>
         <ModulesDetailedList
           :session="session"
           :modules="searched"
