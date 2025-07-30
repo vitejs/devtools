@@ -57,7 +57,7 @@ const moduleTree = computed(() => {
 </script>
 
 <template>
-  <div of-auto max-h-screen pt-40 relative>
+  <div of-auto max-h-screen pt-45 relative>
     <div flex="~ col gap-2" p4>
       <DisplayTreeNode
         v-if="Object.keys(moduleTree.workspace.children).length"

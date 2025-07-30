@@ -27,7 +27,7 @@ $connectToServer()
     v-else-if="!connectionInfo.connected"
     text="Connecting..."
   />
-  <div v-else>
+  <div v-else h-vh>
     <NuxtPage />
   </div>
 </template>

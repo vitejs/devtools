@@ -8,18 +8,12 @@ defineProps<{
 
 <template>
   <div p4>
-    <div flex="~ col gap-1">
-      <template v-for="asset in assets" :key="asset.id">
-        <NuxtLink
-          :to="{ query: { asset: asset.filename } }"
-          font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active"
-        >
-          <div flex="~ gap-1">
-            <DisplayFileIcon :filename="asset.filename" />
-            {{ asset.filename }}
-          </div>
-        </NuxtLink>
-      </template>
+    <div flex="~ col gap-2">
+      <AssetsListItem
+        v-for="asset in assets"
+        :key="asset.filename"
+        :asset="asset"
+      />
     </div>
   </div>
 </template>

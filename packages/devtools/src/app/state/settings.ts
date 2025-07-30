@@ -13,7 +13,7 @@ export interface ClientSettings {
   flowShowAllTransforms: boolean
   flowShowAllLoads: boolean
   moduleGraphViewType: 'list' | 'detailed-list' | 'graph' | 'folder'
-  assetViewType: 'list' | 'folder' | 'treemap'
+  assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst' | 'flamegraph'
   chartAnimation: boolean
   moduleDetailsViewType: 'flow' | 'charts' | 'imports'
 }
@@ -22,7 +22,7 @@ export const settings = useLocalStorage<ClientSettings>(
   'vite-devtools-settings',
   {
     codeviewerLineWrap: false,
-    codeviewerDiffPanelSize: 200,
+    codeviewerDiffPanelSize: 50,
     flowExpandResolveId: true,
     flowExpandTransforms: true,
     flowExpandLoads: true,

@@ -128,6 +128,11 @@ export default defineNuxtConfig({
   },
 
   typescript: {
+    tsConfig: {
+      compilerOptions: {
+        types: ['chrome'], // for devtools-webext package
+      },
+    },
     includeWorkspace: true,
   },
 

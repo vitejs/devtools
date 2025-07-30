@@ -7,15 +7,15 @@ catalogs:
     '@unocss/nuxt': ^66.3.3
     '@vueuse/nuxt': ^13.5.0
     esbuild: ^0.25.8
-    nitropack: ^2.12.3
+    nitropack: ^2.12.4
     nuxt: ^4.0.1
     nuxt-mcp: ^0.2.3
-    rolldown: https://pkg.pr.new/rolldown@2502d39
+    rolldown: ^1.0.0-beta.30
     tsdown: ^0.13.0
     tsx: ^4.20.3
-    vite: npm:rolldown-vite@^7.0.9
+    vite: npm:rolldown-vite@^7.0.12
   deps:
-    '@rolldown/debug': https://pkg.pr.new/@rolldown/debug@2502d39
+    '@rolldown/debug': ^1.0.0-beta.30
     ansis: ^4.1.0
     birpc: ^2.5.0
     cac: ^6.7.14
@@ -37,19 +37,19 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.18.3
   devtools:
-    '@antfu/eslint-config': ^4.17.0
+    '@antfu/eslint-config': ^5.0.0
     '@nuxt/devtools': ^2.6.2
-    '@nuxt/eslint': ^1.7.0
+    '@nuxt/eslint': ^1.7.1
     '@typescript-eslint/utils': ^8.38.0
     '@unocss/eslint-config': ^66.3.3
     bumpp: ^10.2.0
-    eslint: ^9.31.0
+    eslint: ^9.32.0
     lint-staged: ^16.1.2
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.0
     typescript: ^5.8.3
-    vite-plugin-inspect: ^11.3.0
-    vue-tsc: ^3.0.3
+    vite-plugin-inspect: ^11.3.2
+    vue-tsc: ^3.0.4
   frontend:
     '@vueuse/components': ^13.5.0
     '@vueuse/router': ^13.5.0
@@ -67,12 +67,12 @@ catalogs:
     splitpanes: ^4.0.4
     theme-vitesse: ^0.8.3
     vite-hot-client: ^2.1.0
-    vue: ^3.5.17
+    vue: ^3.5.18
   icons:
     '@iconify-json/carbon': ^1.2.11
     '@iconify-json/catppuccin': ^1.2.11
-    '@iconify-json/codicon': ^1.2.24
-    '@iconify-json/logos': ^1.2.4
+    '@iconify-json/codicon': ^1.2.25
+    '@iconify-json/logos': ^1.2.5
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5
     '@iconify-json/simple-icons': ^1.2.44

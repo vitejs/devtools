@@ -103,7 +103,6 @@ function selectFlowNode(v: boolean) {
     <div of-auto h-full pt-30>
       <FlowmapModuleFlow
         v-if="settings.moduleDetailsViewType === 'flow'"
-        p4
         :info
         :session
         :transforms-loading

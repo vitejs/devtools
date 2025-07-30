@@ -119,7 +119,7 @@ watch(() => props.flowNodeSelected, async () => {
 </script>
 
 <template>
-  <div relative border="t base" pb10 py1>
+  <div relative border="t base" pb10 py1 mt4>
     <Teleport to="body">
       <div
         v-if="hoverNode"

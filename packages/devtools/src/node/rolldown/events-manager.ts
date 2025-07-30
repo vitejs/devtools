@@ -20,6 +20,8 @@ export class RolldownEventsManager {
   source_refs: Map<string, string> = new Map()
   module_build_hook_events: Map<string, ModuleBuildHookEvents> = new Map()
   module_build_metrics: Map<string, ModuleBuildMetrics> = new Map()
+  build_start_time: number = 0
+  build_end_time: number = 0
 
   interpretSourceRefs(event: Event, key: string) {
     if (key in event && typeof event[key as keyof Event] === 'string') {
@@ -84,6 +86,14 @@ export class RolldownEventsManager {
       event_id: `${'timestamp' in raw ? raw.timestamp : 'x'}#${this.events.length}`,
     }
     this.events.push(event)
+
+    if (event.action === 'BuildStart') {
+      this.build_start_time = +event.timestamp
+    }
+
+    if (event.action === 'BuildEnd') {
+      this.build_end_time = +event.timestamp
+    }
 
     if (event.action === 'StringRef') {
       this.source_refs.set(event.id, event.content)

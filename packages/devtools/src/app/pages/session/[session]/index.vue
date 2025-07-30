@@ -10,7 +10,7 @@ const props = defineProps<{
 interface DataTableItem {
   title: string
   value: string | number | Date
-  type?: 'string' | 'badge' | 'number'
+  type?: 'string' | 'badge' | 'number' | 'duration'
   icon: string
 }
 
@@ -26,6 +26,12 @@ const dataTable = computed<DataTableItem[]>(() => {
       // @ts-expect-error missing type
       value: new Date(props.session.meta.timestamp),
       icon: 'i-ph-clock-duotone',
+    },
+    {
+      title: 'Build Duration',
+      value: props.session.buildDuration,
+      icon: 'i-ph-timer-duotone',
+      type: 'duration',
     },
     {
       title: 'Directory',
@@ -79,6 +85,7 @@ const dataTable = computed<DataTableItem[]>(() => {
         <div font-mono>
           <time v-if="(item.value instanceof Date)" :datetime="item.value.toISOString()">{{ item.value.toLocaleString() }}</time>
           <DisplayBadge v-else-if="item.type === 'badge'" :text="String(item.value)" py1 />
+          <DisplayDuration v-else-if="item.type === 'duration'" :duration="+item.value" />
           <DisplayNumberBadge v-else-if="typeof item.value === 'number'" :number="item.value" py1 rounded-full inline-block text-sm />
           <span v-else>{{ item.value }}</span>
         </div>

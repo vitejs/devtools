@@ -21,7 +21,7 @@ const assetTree = computed(() => {
 </script>
 
 <template>
-  <div flex="~ gap-2">
+  <div flex="~ gap-2" p4>
     <DisplayTreeNode
       v-if="assets?.length"
       flex-1

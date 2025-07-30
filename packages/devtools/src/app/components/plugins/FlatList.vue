@@ -13,7 +13,9 @@ defineProps<{
         <div w-8 text-right text-xs op50>
           #{{ plugin.plugin_id }}
         </div>
-        <DisplayPluginName :name="plugin.name" />
+        <span overflow-hidden text-ellipsis break-all line-clamp-2>
+          <DisplayPluginName :name="plugin.name" />
+        </span>
       </div>
     </template>
   </div>

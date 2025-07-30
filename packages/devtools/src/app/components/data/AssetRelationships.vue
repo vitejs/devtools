@@ -1,22 +1,20 @@
 <script setup lang="ts">
+import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
-import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import { linkHorizontal, linkVertical } from 'd3-shape'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
-  module: ModuleInfo
-  session: SessionContext
+  importers?: AssetInfo[]
+  imports?: AssetInfo[]
 }>()
 
 interface Node {
-  module: ModuleListItem
-  import?: ModuleImport
+  asset: AssetInfo
 }
 
 type Link = HierarchyLink<Node> & {
   id: string
-  import?: ModuleImport
 }
 
 type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
@@ -36,30 +34,20 @@ const SPACING = {
 const container = useTemplateRef<HTMLDivElement>('container')
 const links = shallowRef<Link[]>([])
 
-const modulesMap = computed(() => {
-  const map = new Map<string, ModuleListItem>()
-  for (const module of props.session.modulesList) {
-    map.set(module.id, module)
-  }
-  return map
-})
-
-const importers = computed(() => {
-  return props.module.importers?.map(x => modulesMap.value.get(x))
-})
-
 const normalizedMaxLinks = computed(() => {
-  return Math.min(Math.max(props.module.importers?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
+  return Math.min(Math.max(props.importers?.length || 0, props.imports?.length || 0), MAX_LINKS)
 })
 
-const importersMaxLength = computed(() => Math.min(importers.value?.length || 0, MAX_LINKS))
-const importsMaxLength = computed(() => Math.min(props.module.imports?.length || 0, MAX_LINKS))
+const importersMaxLength = computed(() => Math.min(props.importers?.length || 0, MAX_LINKS))
+const importsMaxLength = computed(() => Math.min(props.imports?.length || 0, MAX_LINKS))
 const nodesHeight = computed(() => SPACING.height * normalizedMaxLinks.value + SPACING.padding * (normalizedMaxLinks.value + 1) + SPACING.border * 2)
+
 const importersVerticalOffset = computed(() => {
   const diff = Math.max(0, importsMaxLength.value - importersMaxLength.value)
   const offset = (diff * (SPACING.height + SPACING.padding)) / 2
   return Math.min(offset, nodesHeight.value / 2)
 })
+
 const importsVerticalOffset = computed(() => {
   const diff = Math.max(0, importersMaxLength.value - importsMaxLength.value)
   const offset = (diff * (SPACING.height + SPACING.padding)) / 2
@@ -91,9 +79,9 @@ function getLinkColor(_link: Link) {
   return 'stroke-#8882'
 }
 
-const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${importers.value?.length ? SPACING.dotOffset : 0}px`)
-const linkStartX = computed(() => importers.value?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
-const dotStartX = computed(() => importers.value?.length ? linkStartX.value + SPACING.dotOffset : linkStartX.value)
+const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${props.importers?.length ? SPACING.dotOffset : 0}px`)
+const linkStartX = computed(() => props.importers?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
+const dotStartX = computed(() => props.importers?.length ? linkStartX.value + SPACING.dotOffset : linkStartX.value)
 const dotStartY = computed(() => (SPACING.height * normalizedMaxLinks.value + ((normalizedMaxLinks.value + 1) * SPACING.padding)) / 2)
 
 function calculateLinkX(type: LinkPoint) {
@@ -105,9 +93,10 @@ function calculateLinkX(type: LinkPoint) {
     case 'import-start':
       return dotStartX.value + SPACING.dot
     case 'import-end':
-      return importers.value?.length ? linkStartX.value + SPACING.dotOffset * 2 + SPACING.dot : linkStartX.value + SPACING.dotOffset + SPACING.dot
+      return props.importers?.length ? linkStartX.value + SPACING.dotOffset * 2 + SPACING.dot : linkStartX.value + SPACING.dotOffset + SPACING.dot
   }
 }
+
 function calculateLinkY(type: LinkPoint, i?: number) {
   switch (type) {
     case 'importer-start':
@@ -123,11 +112,11 @@ function calculateLinkY(type: LinkPoint, i?: number) {
 function generateLinks() {
   links.value = []
 
-  // importers (left -> current node)
-  if (importers.value?.length) {
+  // importers (left -> current asset)
+  if (props.importers?.length) {
     const _importersLinks = Array.from({ length: importersMaxLength.value }, (_, i) => {
       return {
-        id: '',
+        id: `importer-${i}`,
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
@@ -140,11 +129,12 @@ function generateLinks() {
     })
     links.value.push(..._importersLinks)
   }
-  // imports (current node -> right)
-  if (props.module?.imports?.length) {
+
+  // imports (current asset -> right)
+  if (props.imports?.length) {
     const _importsLinks = Array.from({ length: importsMaxLength.value }, (_, i) => {
       return {
-        id: '',
+        id: `import-${i}`,
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
@@ -161,7 +151,7 @@ function generateLinks() {
 
 onMounted(() => {
   watch(
-    () => [props.module],
+    () => [props.importers, props.imports],
     generateLinks,
     { immediate: true },
   )
@@ -170,8 +160,9 @@ onMounted(() => {
 
 <template>
   <div
+    v-if="importers?.length || imports?.length"
     ref="container"
-    w-full relative select-none mt4
+    w-full relative select-none
   >
     <!-- nodes -->
     <div flex px2>
@@ -184,25 +175,32 @@ onMounted(() => {
           marginTop: `${importersVerticalOffset}px`,
         }"
       >
-        <template v-for="(importer, i) of importers" :key="importer.id">
-          <DisplayModuleId
-            :id="importer!.id"
+        <template v-for="(importer, i) of importers" :key="importer.filename">
+          <NuxtLink
+            :to="{ query: { asset: importer.filename } }"
             hover="bg-active" block px2 p1 bg-base
             z-graph-node
             border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
+            font-mono text-sm
             :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
               overflow: 'hidden',
               marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
             }"
-          />
+          >
+            <DisplayFileIcon :filename="importer.filename" />
+            <span overflow-hidden text-ellipsis>
+              {{ importer.filename }}
+            </span>
+          </NuxtLink>
         </template>
       </div>
-      <!-- dot: current module -->
+
+      <!-- dot: current asset -->
       <div
         bg-base rounded-full border-3 font-mono border-active :style="{
           margin: dotNodeMargin,
@@ -210,31 +208,38 @@ onMounted(() => {
           height: `${SPACING.dot}px`,
         }"
       />
+
       <!-- imports -->
       <div
-        v-if="module.imports?.length"
+        v-if="imports?.length"
         py1
         :style="{
           width: `${SPACING.width}px`,
           marginTop: `${importsVerticalOffset}px`,
         }"
       >
-        <template v-for="(_import, i) of module.imports" :key="_import.id">
-          <DisplayModuleId
-            :id="_import!.module_id"
+        <template v-for="(_import, i) of imports" :key="_import.filename">
+          <NuxtLink
+            :to="{ query: { asset: _import.filename } }"
             hover="bg-active" block px2 p1 bg-base
             z-graph-node
             border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
+            font-mono text-sm
             :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
               overflow: 'hidden',
-              marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
+              marginBottom: `${i === imports!.length - 1 ? 0 : SPACING.padding}px`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
             }"
-          />
+          >
+            <DisplayFileIcon :filename="_import.filename" />
+            <span overflow-hidden text-ellipsis>
+              {{ _import.filename }}
+            </span>
+          </NuxtLink>
         </template>
       </div>
     </div>
@@ -252,7 +257,6 @@ onMounted(() => {
           :key="link.id"
           :d="generateLink(link)!"
           :class="getLinkColor(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
           fill="none"
         />
       </g>

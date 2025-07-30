@@ -17,6 +17,7 @@ const session = reactive({
   id: computed(() => params.session),
   meta: undefined!,
   modulesList: shallowRef<ModuleListItem[]>([]),
+  buildDuration: 0,
 }) as SessionContext
 
 const rpc = useRpc()
@@ -94,6 +95,7 @@ onMounted(async () => {
     importers: mod.importers ?? [],
     buildMetrics: mod.build_metrics,
   }))
+  session.buildDuration = summary.build_duration
   isLoading.value = false
 })
 </script>
