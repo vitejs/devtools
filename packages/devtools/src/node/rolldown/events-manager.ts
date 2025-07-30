@@ -64,8 +64,7 @@ export class RolldownEventsManager {
           const _start = start as HookTransformCallStart
           const _end = event as HookTransformCallEnd
           const no_changes = _start.content === _end.content
-          // TODO: remove module id check when rolldown fixes the unique call id
-          if ((no_changes && info.duration < DURATION_THRESHOLD) || _start.module_id !== _end.module_id) {
+          if (no_changes && info.duration < DURATION_THRESHOLD) {
             return
           }
 
