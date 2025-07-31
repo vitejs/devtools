@@ -31,7 +31,12 @@ const moduleViewTypes = [
   {
     label: 'List',
     value: 'list',
-    icon: 'i-ph-list-duotone',
+    icon: 'i-carbon-list',
+  },
+  {
+    label: 'DetailedList',
+    value: 'detailed-list',
+    icon: 'i-carbon-list-boxes',
   },
   {
     label: 'Graph',
@@ -151,6 +156,19 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
     <template v-if="settings.moduleGraphViewType === 'list'">
       <div of-auto h-screen pt-45>
         <ModulesFlatList
+          :session="session"
+          :modules="searched"
+        />
+        <div
+          absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+        >
+          <span op50>{{ searched.length }} of {{ session.modulesList.length }}</span>
+        </div>
+      </div>
+    </template>
+    <template v-else-if="settings.moduleGraphViewType === 'detailed-list'">
+      <div of-auto h-screen pt-45>
+        <ModulesDetailedList
           :session="session"
           :modules="searched"
         />
