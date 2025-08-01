@@ -1,5 +1,6 @@
 import type { BirpcGroup, BirpcOptions, ChannelOptions } from 'birpc'
 import type { WebSocket } from 'ws'
+import type { RpcServerPreset } from '..'
 import { parse, stringify } from 'structured-clone-es'
 import { WebSocketServer } from 'ws'
 import { defineRpcServerPreset } from '..'
@@ -12,7 +13,7 @@ export interface WebSocketRpcServerOptions {
 
 function NOOP() {}
 
-export const createWsRpcPreset = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
+export const createWsRpcPreset: RpcServerPreset<(options: WebSocketRpcServerOptions) => <ClientFunctions, ServerFunctions>(rpc: BirpcGroup<ClientFunctions, ServerFunctions>, options?: Pick<BirpcOptions<ClientFunctions>, 'serialize' | 'deserialize'>) => void> = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
   const {
     port,
     onConnected = NOOP,

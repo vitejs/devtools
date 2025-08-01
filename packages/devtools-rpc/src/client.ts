@@ -1,4 +1,4 @@
-import type { BirpcOptions } from 'birpc'
+import type { BirpcOptions, BirpcReturn } from 'birpc'
 import { createBirpc } from 'birpc'
 
 export function createRpcClient<
@@ -10,7 +10,7 @@ export function createRpcClient<
     preset: BirpcOptions<ServerFunctions>
     rpcOptions?: Partial<BirpcOptions<ServerFunctions>>
   },
-) {
+): BirpcReturn<ServerFunctions, ClientFunctions> {
   const { preset, rpcOptions = {} } = options
   return createBirpc<ServerFunctions, ClientFunctions>(functions, {
     ...preset,
