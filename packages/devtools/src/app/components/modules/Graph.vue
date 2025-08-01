@@ -15,6 +15,8 @@ const props = defineProps<{
 interface Node {
   module: ModuleListItem
   import?: ModuleImport
+  expanded?: boolean
+  hasChildren: boolean
 }
 
 type Link = HierarchyLink<Node> & {
@@ -42,6 +44,12 @@ const nodes = shallowRef<HierarchyNode<Node>[]>([])
 const links = shallowRef<Link[]>([])
 const nodesMap = shallowReactive(new Map<string, HierarchyNode<Node>>())
 const linksMap = shallowReactive(new Map<string, Link>())
+
+const collapsedNodes = shallowReactive(new Set<string>())
+
+const isUpdating = ref(false)
+
+const lastActionNodeId = ref<string | null>(null)
 
 const ZOOM_MIN = 0.4
 const ZOOM_MAX = 2
@@ -88,13 +96,32 @@ function calculateGraph() {
   height.value = window.innerHeight
 
   const seen = new Set<ModuleListItem>()
+  const referencedModuleIds = new Set<string>()
+
+  const calculateHasChildren = (x: ModuleListItem) => (x.imports.some((imp) => {
+    const r = !referencedModuleIds.has(imp.module_id)
+    if (r) {
+      referencedModuleIds.add(imp.module_id)
+    }
+    return r && modulesMap.value.has(imp.module_id)
+  }))
+
   const root = hierarchy<Node>(
     { module: { id: '~root' } } as any,
     (parent) => {
       if (parent.module.id === '~root') {
         rootModules.value.forEach(x => seen.add(x))
-        return rootModules.value.map(x => ({ module: x }))
+        return rootModules.value.map(x => ({
+          module: x,
+          expanded: !collapsedNodes.has(x.id), // 简化：未折叠即为展开
+          hasChildren: x.imports.length > 0 && calculateHasChildren(x),
+        }))
       }
+
+      if (collapsedNodes.has(parent.module.id)) {
+        return []
+      }
+
       const modules = parent.module.imports
         .map((x): Node | undefined => {
           const module = modulesMap.value.get(x.module_id)
@@ -104,9 +131,13 @@ function calculateGraph() {
             return undefined
 
           seen.add(module)
+          referencedModuleIds.add(module.id)
+
           return {
             module,
             import: x,
+            expanded: !collapsedNodes.has(module.id), // 简化：未折叠即为展开
+            hasChildren: module.imports.length > 0 && calculateHasChildren(module),
           }
         })
         .filter(x => x !== undefined)
@@ -163,7 +194,7 @@ function calculateGraph() {
     width.value = (container.value!.scrollWidth / scale.value + SPACING.margin)
     height.value = (container.value!.scrollHeight / scale.value + SPACING.margin)
     const moduleId = rootModules.value?.[0]?.id
-    if (moduleId) {
+    if (!lastActionNodeId.value && moduleId) {
       focusOn(moduleId, false)
     }
   })
@@ -176,6 +207,71 @@ function focusOn(id: string, animated = true) {
     inline: 'center',
     behavior: animated ? 'smooth' : 'instant',
   })
+}
+
+function toggleNode(id: string) {
+  if (isUpdating.value)
+    return
+
+  isUpdating.value = true
+
+  const nodeBefore = nodesMap.get(id)
+  const nodePosition = nodeBefore ? { x: nodeBefore.x, y: nodeBefore.y } : null
+
+  lastActionNodeId.value = id
+
+  if (collapsedNodes.has(id)) {
+    collapsedNodes.delete(id)
+  }
+  else {
+    collapsedNodes.add(id)
+  }
+
+  calculateGraph()
+
+  if (nodePosition) {
+    nextTick(() => {
+      focusOn(id, true)
+
+      setTimeout(() => {
+        lastActionNodeId.value = null
+      }, 1000)
+    })
+  }
+
+  isUpdating.value = false
+}
+
+function expandAll() {
+  if (isUpdating.value)
+    return
+
+  isUpdating.value = true
+
+  collapsedNodes.clear()
+  calculateGraph()
+
+  setTimeout(() => {
+    isUpdating.value = false
+  }, 300)
+}
+
+function collapseAll() {
+  if (isUpdating.value)
+    return
+
+  isUpdating.value = true
+
+  props.modules.forEach((module) => {
+    if (module.imports.length > 0) {
+      collapsedNodes.add(module.id)
+    }
+  })
+  calculateGraph()
+
+  setTimeout(() => {
+    isUpdating.value = false
+  }, 300)
 }
 
 function generateLink(link: Link) {
@@ -201,10 +297,14 @@ function handleDragingScroll() {
   const SCROLLBAR_THICKNESS = 20
 
   useEventListener(container, 'mousedown', (e) => {
+    if (e.button === 2) {
+      return
+    }
     // prevent dragging when clicking on scrollbar
     const rect = container.value!.getBoundingClientRect()
     const distRight = rect.right - e.clientX
     const distBottom = rect.bottom - e.clientY
+
     if (distRight <= SCROLLBAR_THICKNESS || distBottom <= SCROLLBAR_THICKNESS) {
       return
     }
@@ -213,6 +313,7 @@ function handleDragingScroll() {
     x = container.value!.scrollLeft + e.pageX
     y = container.value!.scrollTop + e.pageY
   })
+
   useEventListener('mouseleave', () => isGrabbing.value = false)
   useEventListener('mouseup', () => isGrabbing.value = false)
   useEventListener('mousemove', (e) => {
@@ -281,24 +382,66 @@ onMounted(() => {
         :key="node.data.module.id"
       >
         <template v-if="node.data.module.id !== '~root'">
-          <DisplayModuleId
-            :id="node.data.module.id"
-            :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-            absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
+          <div
+            absolute
+            class="group"
             :style="{
               left: `${node.x}px`,
               top: `${node.y}px`,
-              minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
               transform: 'translate(-50%, -50%)',
-              maxWidth: '400px',
-              maxHeight: '50px',
-              overflow: 'hidden',
             }"
-          />
+          >
+            <div
+              flex="~ items-center gap-1"
+              bg-glass
+              class="rounded hover:bg-active block px2 p1 z-graph-node"
+              :class="[
+                node.data.module.id === lastActionNodeId
+                  ? 'border-primary border-2 shadow-[0_0_12px_rgba(59,130,246,0.5)]'
+                  : 'border ~ base rounded',
+              ]"
+              :style="{
+                minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
+                maxWidth: '400px',
+                maxHeight: '50px',
+                overflow: 'hidden',
+                transition: 'all 0.3s ease',
+              }"
+            >
+              <DisplayModuleId
+                :id="node.data.module.id"
+                :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
+                :link="true"
+                :session="session"
+                :minimal="true"
+                flex="1"
+              />
+            </div>
+
+            <!-- Expand/Collapse Button -->
+            <button
+              v-if="node.data.hasChildren"
+              w-4
+              h-4
+              rounded-full
+              flex="items-center justify-center"
+              text-xs
+              border="~ active"
+              class="absolute z-10 hidden group-hover:flex top-1/2 right-0 translate-y-[-50%] cursor-pointer"
+              :disabled="isUpdating"
+              :class="{ 'cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+              :title="node.data.expanded ? 'Collapse' : 'Expand'"
+              @click.stop="toggleNode(node.data.module.id)"
+            >
+              <div
+                class="text-primary"
+                :class="[
+                  node.data.expanded ? 'i-ph-minus' : 'i-ph-plus',
+                ]"
+                transition="transform duration-200"
+              />
+            </button>
+          </div>
         </template>
       </template>
     </div>
@@ -309,7 +452,32 @@ onMounted(() => {
         <DisplayTimeoutView :content="`${Math.round(scale * 100)}%`" class="text-sm" />
       </div>
 
-      <div bg-glass rounded-full border border-base shadow>
+      <div bg-glass rounded-full border border-base shadow flex="~ col gap-1 p1">
+        <button
+          v-tooltip.left="'Expand All'"
+          w-10 h-10 rounded-full hover:bg-active op-fade
+          hover:op100 flex="~ items-center justify-center"
+          :disabled="isUpdating"
+          :class="{ 'op50 cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+          title="Expand All"
+          @click="expandAll()"
+        >
+          <div class="i-carbon:expand-categories" />
+        </button>
+        <button
+          v-tooltip.left="'Collapse All'"
+          w-10 h-10 rounded-full hover:bg-active op-fade
+          hover:op100 flex="~ items-center justify-center"
+          :disabled="isUpdating"
+          :class="{ 'op50 cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+          title="Collapse All"
+          @click="collapseAll()"
+        >
+          <div class="i-carbon:collapse-categories" />
+        </button>
+
+        <div border="t base" my1 />
+
         <button
           v-tooltip.left="'Zoom In (Ctrl + =)'"
           :disabled="scale >= ZOOM_MAX"
