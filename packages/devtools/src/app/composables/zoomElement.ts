@@ -53,8 +53,8 @@ export function useZoomElement(
       // Use touchpad zoom
       event.preventDefault()
 
-      const zoomFactor = 0.03
-      zoom(event.deltaY < 0 ? zoomFactor : zoomFactor * -1, event.clientX, event.clientY)
+      const zoomFactor = 0.004
+      zoom(event.deltaY * zoomFactor * -1, event.clientX, event.clientY)
     }
   }
 
