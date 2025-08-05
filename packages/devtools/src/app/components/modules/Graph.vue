@@ -248,8 +248,8 @@ onMounted(() => {
       <div
         absolute left-0 top-0
         :style="{
-          width: `${width}px`,
-          height: `${height}px`,
+          width: `${width * scale}px`,
+          height: `${height * scale}px`,
         }"
         class="bg-dots"
       />
