@@ -242,30 +242,37 @@ onMounted(() => {
     :class="isGrabbing ? 'cursor-grabbing' : ''"
   >
     <div
-      flex="~ items-center justify-center"
-      :style="{ transform: `scale(${scale})`, transformOrigin: '0 0' }"
+      :style="{
+        width: `${width * scale}px`,
+        height: `${height * scale}px`,
+      }"
     >
+      <!-- Make this <div> in order to expand the scroll bar -->
       <div
-        absolute left-0 top-0
-        :style="{
-          width: `${width * scale}px`,
-          height: `${height * scale}px`,
-        }"
-        class="bg-dots"
-      />
-      <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
-        <g>
-          <path
-            v-for="link of links"
-            :key="link.id"
-            :d="generateLink(link)!"
-            :class="getLinkColor(link)"
-            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-            fill="none"
-          />
-        </g>
-      </svg>
-      <!-- <svg pointer-events-none absolute left-0 top-0 z-graph-link-active :width="width" :height="height">
+        flex="~ items-center justify-center"
+        :style="{ transform: `scale(${scale})`, transformOrigin: '0 0' }"
+      >
+        <div
+          absolute left-0 top-0
+          :style="{
+            width: `${width}px`,
+            height: `${height}px`,
+          }"
+          class="bg-dots"
+        />
+        <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
+          <g>
+            <path
+              v-for="link of links"
+              :key="link.id"
+              :d="generateLink(link)!"
+              :class="getLinkColor(link)"
+              :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+              fill="none"
+            />
+          </g>
+        </svg>
+        <!-- <svg pointer-events-none absolute left-0 top-0 z-graph-link-active :width="width" :height="height">
       <g>
         <path
           v-for="link of links"
@@ -276,31 +283,32 @@ onMounted(() => {
         />
       </g>
     </svg> -->
-      <template
-        v-for="node of nodes"
-        :key="node.data.module.id"
-      >
-        <template v-if="node.data.module.id !== '~root'">
-          <DisplayModuleId
-            :id="node.data.module.id"
-            :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-            absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              left: `${node.x}px`,
-              top: `${node.y}px`,
-              minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
-              transform: 'translate(-50%, -50%)',
-              maxWidth: '400px',
-              maxHeight: '50px',
-              overflow: 'hidden',
-            }"
-          />
+        <template
+          v-for="node of nodes"
+          :key="node.data.module.id"
+        >
+          <template v-if="node.data.module.id !== '~root'">
+            <DisplayModuleId
+              :id="node.data.module.id"
+              :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
+              absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
+              border="~ base rounded"
+              :link="true"
+              :session="session"
+              :minimal="true"
+              :style="{
+                left: `${node.x}px`,
+                top: `${node.y}px`,
+                minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
+                transform: 'translate(-50%, -50%)',
+                maxWidth: '400px',
+                maxHeight: '50px',
+                overflow: 'hidden',
+              }"
+            />
+          </template>
         </template>
-      </template>
+      </div>
     </div>
     <div
       fixed right-6 bottom-6 z-panel-nav flex="~ col gap-2 items-center"
