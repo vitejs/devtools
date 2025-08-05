@@ -195,7 +195,7 @@ function getLinkColor(_link: Link) {
   return 'stroke-#8882'
 }
 
-function handleDragingScroll() {
+function handleDraggingScroll() {
   let x = 0
   let y = 0
   const SCROLLBAR_THICKNESS = 20
@@ -225,7 +225,7 @@ function handleDragingScroll() {
 }
 
 onMounted(() => {
-  handleDragingScroll()
+  handleDraggingScroll()
 
   watch(
     () => [props.modules, graphRender.value],
