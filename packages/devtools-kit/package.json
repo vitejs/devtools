@@ -1,0 +1,41 @@
+{
+  "name": "@vitejs/devtools-kit",
+  "type": "module",
+  "version": "0.0.0-alpha.1",
+  "description": "Vite DevTools Kit",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/devtools-kit",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite",
+    "devtools",
+    "kit"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "prepack": "pnpm build"
+  },
+  "peerDependencies": {
+    "vite": "catalog:build"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:build",
+    "vite": "catalog:build"
+  }
+}

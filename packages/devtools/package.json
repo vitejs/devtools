@@ -2,18 +2,20 @@
   "name": "@vitejs/devtools",
   "type": "module",
   "version": "0.0.0-alpha.1",
-  "description": "DevTools for Vite (work in progress)",
+  "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
-  "homepage": "https://github.com/vitejs/vite-devtools#readme",
+  "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
+    "directory": "packages/devtools",
     "type": "git",
-    "url": "git+https://github.com/vitejs/vite-devtools.git"
+    "url": "git+https://github.com/vitejs/devtools.git"
   },
-  "bugs": "https://github.com/vitejs/vite-devtools/issues",
+  "bugs": "https://github.com/vitejs/devtools/issues",
   "keywords": [
     "vite",
-    "devtools"
+    "devtools",
+    "rpc"
   ],
   "sideEffects": false,
   "exports": {
@@ -21,66 +23,19 @@
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
-  "bin": "bin.mjs",
   "files": [
-    "bin.mjs",
     "dist"
   ],
   "scripts": {
-    "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
-    "build": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
-    "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
-    "start": "node ./bin.mjs",
-    "prepack": "pnpm build",
-    "dev:prepare": "nuxi prepare src",
-    "typecheck": "vue-tsc -b --noEmit"
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "prepack": "pnpm build"
   },
-  "dependencies": {
-    "@rolldown/debug": "catalog:deps",
-    "@vitejs/devtools-rpc": "workspace:*",
-    "ansis": "catalog:deps",
-    "birpc": "catalog:deps",
-    "cac": "catalog:deps",
-    "d3-shape": "catalog:frontend",
-    "diff": "catalog:deps",
-    "get-port-please": "catalog:deps",
-    "h3": "catalog:deps",
-    "launch-editor": "catalog:deps",
-    "mlly": "catalog:deps",
-    "mrmime": "catalog:deps",
-    "ohash": "catalog:deps",
-    "open": "catalog:deps",
-    "p-limit": "catalog:deps",
-    "pathe": "catalog:deps",
-    "publint": "catalog:deps",
-    "structured-clone-es": "catalog:deps",
-    "tinyglobby": "catalog:deps",
-    "unconfig": "catalog:deps",
-    "unstorage": "catalog:deps",
-    "ws": "catalog:deps"
+  "peerDependencies": {
+    "vite": "catalog:build"
   },
   "devDependencies": {
-    "@types/codemirror": "catalog:types",
-    "@types/diff": "catalog:types",
-    "@types/stream-json": "catalog:types",
-    "@unocss/nuxt": "catalog:build",
-    "@vueuse/components": "catalog:frontend",
-    "@vueuse/nuxt": "catalog:build",
-    "@vueuse/router": "catalog:frontend",
-    "codemirror": "catalog:frontend",
-    "codemirror-theme-vars": "catalog:frontend",
-    "comlink": "catalog:frontend",
-    "d3": "catalog:frontend",
-    "d3-hierarchy": "catalog:frontend",
-    "diff-match-patch-es": "catalog:frontend",
-    "floating-vue": "catalog:frontend",
-    "fuse.js": "catalog:frontend",
-    "idb-keyval": "catalog:frontend",
-    "nanovis": "catalog:frontend",
-    "splitpanes": "catalog:frontend",
-    "stream-json": "catalog:inlined",
-    "theme-vitesse": "catalog:frontend",
-    "tsdown": "catalog:build",
-    "vite-hot-client": "catalog:frontend"
+    "@vitejs/devtools-kit": "workspace:*",
+    "tsdown": "catalog:build"
   }
 }

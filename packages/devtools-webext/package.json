@@ -6,12 +6,12 @@
   "description": "DevTools browser extension for Vite (work in progress)",
   "author": "VoidZero Inc.",
   "license": "MIT",
-  "homepage": "https://github.com/vitejs/vite-devtools#readme",
+  "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vitejs/vite-devtools.git"
+    "url": "git+https://github.com/vitejs/devtools.git"
   },
-  "bugs": "https://github.com/vitejs/vite-devtools/issues",
+  "bugs": "https://github.com/vitejs/devtools/issues",
   "keywords": [
     "vite",
     "devtools",

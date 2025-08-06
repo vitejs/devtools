@@ -10,7 +10,7 @@ export function createRpcServer<
     preset: (rpc: BirpcGroup<ClientFunctions, ServerFunctions>) => void
     rpcOptions?: EventOptions<ClientFunctions>
   },
-) {
+): BirpcGroup<ClientFunctions, ServerFunctions> {
   const rpc = createBirpcGroup<ClientFunctions, ServerFunctions>(functions, [], options?.rpcOptions ?? {})
   options?.preset(rpc)
 

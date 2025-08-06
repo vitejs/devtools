@@ -5,12 +5,13 @@
   "description": "DevTools rpc for Vite (work in progress)",
   "author": "VoidZero Inc.",
   "license": "MIT",
-  "homepage": "https://github.com/vitejs/vite-devtools#readme",
+  "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
+    "directory": "packages/devtools-rpc",
     "type": "git",
-    "url": "git+https://github.com/vitejs/vite-devtools.git"
+    "url": "git+https://github.com/vitejs/devtools.git"
   },
-  "bugs": "https://github.com/vitejs/vite-devtools/issues",
+  "bugs": "https://github.com/vitejs/devtools/issues",
   "keywords": [
     "vite",
     "devtools",
@@ -19,9 +20,9 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
-    "./presets/ws/server": "./dist/presets/ws/server.mjs",
+    "./presets": "./dist/presets/index.mjs",
     "./presets/ws/client": "./dist/presets/ws/client.mjs",
-    "./presets": "./dist/presets/index.mjs"
+    "./presets/ws/server": "./dist/presets/ws/server.mjs"
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",

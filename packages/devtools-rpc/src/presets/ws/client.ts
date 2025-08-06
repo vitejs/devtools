@@ -1,3 +1,4 @@
+import type { RpcClientPreset } from '..'
 import { parse, stringify } from 'structured-clone-es'
 import { defineRpcClientPreset } from '..'
 
@@ -10,7 +11,12 @@ export interface WebSocketRpcClientOptions {
 
 function NOOP() {}
 
-export const createWsRpcPreset = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
+export const createWsRpcPreset: RpcClientPreset<(options: WebSocketRpcClientOptions) => {
+  on: (handler: (data: string) => void) => void
+  post: (data: string) => void
+  serialize: (obj: any) => string
+  deserialize: (str: string) => unknown
+}> = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
   const ws = new WebSocket(options.url)
   const {
     onConnected = NOOP,

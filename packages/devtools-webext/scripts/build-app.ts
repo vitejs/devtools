@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { buildNuxt, loadNuxt, useNuxt, writeTypes } from '@nuxt/kit'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
-const root = path.resolve(__dirname, '../../devtools/src')
+const root = path.resolve(__dirname, '../../devtools-vite/src')
 const buildDir = path.resolve(__dirname, '../dist/nuxt')
 const distDir = path.resolve(__dirname, '../dist')
 

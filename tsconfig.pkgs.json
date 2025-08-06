@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "resolveJsonModule": true,
+    "isolatedDeclarations": true
+  },
+  "include": [
+    "packages/devtools/src/**/*.ts",
+    "packages/devtools-rpc/src/**/*.ts"
+  ]
+}

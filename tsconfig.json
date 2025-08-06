@@ -1,10 +1,11 @@
 {
-  "extends": "./packages/devtools/tsconfig.json",
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "noEmit": true
-  }
+  "references": [
+    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.app.json" },
+    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.server.json" },
+    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.shared.json" },
+    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.node.json" },
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.pkgs.json" }
+  ],
+  "files": []
 }
