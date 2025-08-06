@@ -39,7 +39,7 @@ catalogs:
   devtools:
     '@antfu/eslint-config': ^5.2.0
     '@nuxt/devtools': ^2.6.2
-    '@nuxt/eslint': ^1.7.1
+    '@nuxt/eslint': ^1.8.0
     '@typescript-eslint/utils': ^8.39.0
     '@unocss/eslint-config': ^66.4.1
     bumpp: ^10.2.2
