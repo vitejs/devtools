@@ -1,5 +1,5 @@
 {
-  "name": "@vitejs/devtools",
+  "name": "@vitejs/devtools-vite",
   "type": "module",
   "version": "0.0.0-alpha.1",
   "description": "DevTools for Vite (work in progress)",
@@ -27,12 +27,12 @@
     "dist"
   ],
   "scripts": {
-    "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "build": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
-    "start": "node ./bin.mjs",
-    "prepack": "pnpm build",
+    "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
+    "prepack": "pnpm build",
+    "start": "node ./bin.mjs",
     "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {

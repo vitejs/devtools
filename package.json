@@ -7,13 +7,13 @@
     "build": "pnpm -r run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
     "stub": "pnpm -r run stub",
-    "dev": "pnpm -C packages/devtools run dev",
-    "start": "pnpm -C packages/devtools run start",
-    "prepare": "npx simple-git-hooks && pnpm -C packages/devtools run dev:prepare",
-    "lint": "pnpm -C packages/devtools run dev:prepare && eslint .",
+    "dev": "pnpm -C packages/devtools-vite run dev",
+    "start": "pnpm -C packages/devtools-vite run start",
+    "prepare": "npx simple-git-hooks && pnpm -C packages/devtools-vite run dev:prepare",
+    "lint": "pnpm -C packages/devtools-vite run dev:prepare && eslint .",
     "test": "vitest",
     "release": "bumpp -r && pnpm publish -r",
-    "typecheck": "pnpm -C packages/devtools run typecheck"
+    "typecheck": "pnpm -C packages/devtools-vite run typecheck"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:devtools",

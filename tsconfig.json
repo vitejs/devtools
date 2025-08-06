@@ -1,5 +1,5 @@
 {
-  "extends": "./packages/devtools/tsconfig.json",
+  "extends": "./packages/devtools-vite/tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
