@@ -39,6 +39,17 @@ const { state } = useAsyncState(
         imports: AssetInfo[]
       }
     }
+    else {
+      return {
+        chunks: [],
+        importers: [],
+        imports: [],
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
+      }
+    }
   },
   null,
 )
@@ -97,7 +108,7 @@ function openInEditor() {
       </div>
     </template>
 
-    <div flex="~ col gap-4">
+    <div v-if="assetChunks && assetChunks.length > 0" flex="~ col gap-4">
       <div flex="~ col gap-2">
         <div op50>
           Chunks
