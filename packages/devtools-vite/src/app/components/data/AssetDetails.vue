@@ -23,18 +23,21 @@ const { state } = useAsyncState(
   async () => {
     if (!props.lazy)
       return
+
     const res = await rpc.value!['vite:rolldown:get-asset-details']?.({
       session: props.session.id,
       id: props.asset.filename,
     })
-    return {
-      chunks: [{ ...res?.chunk, type: 'chunk' }],
-      importers: res?.importers,
-      imports: res?.imports,
-    } satisfies {
-      chunks: RolldownChunkInfo[]
-      importers: AssetInfo[]
-      imports: AssetInfo[]
+    if ('chunk' in res) {
+      return {
+        chunks: [{ ...res?.chunk, type: 'chunk' }],
+        importers: res?.importers,
+        imports: res?.imports,
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
+      }
     }
   },
   null,

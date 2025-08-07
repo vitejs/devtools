@@ -20,16 +20,25 @@ const { state } = useAsyncState(
       session: props.session.id,
       id: props.asset,
     })
-    return {
-      asset: { ...res?.asset, type: 'asset' },
-      chunks: [{ ...res?.chunk, type: 'chunk' }],
-      importers: res?.importers,
-      imports: res?.imports,
-    } satisfies {
-      asset: RolldownAssetInfo
-      chunks: RolldownChunkInfo[]
-      importers: AssetInfo[]
-      imports: AssetInfo[]
+    if ('chunk' in res) {
+      return {
+        asset: { ...res?.asset, type: 'asset' },
+        chunks: [{ ...res?.chunk, type: 'chunk' }],
+        importers: res?.importers,
+        imports: res?.imports,
+      } as {
+        asset: RolldownAssetInfo
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
+      }
+    }
+    else {
+      return {
+        asset: { ...res?.asset, type: 'asset' },
+      } satisfies {
+        asset: RolldownAssetInfo
+      }
     }
   },
   null,
@@ -42,6 +51,6 @@ const { state } = useAsyncState(
       absolute right-2 top-1.5
       @click="emit('close')"
     />
-    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" :imports="state?.imports" />
+    <DataAssetDetails :asset="state.asset" :session="session" />
   </div>
 </template>
