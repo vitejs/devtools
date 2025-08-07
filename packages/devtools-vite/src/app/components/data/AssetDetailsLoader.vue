@@ -36,8 +36,14 @@ const { state } = useAsyncState(
     else {
       return {
         asset: { ...res?.asset, type: 'asset' },
+        chunks: [],
+        importers: [],
+        imports: [],
       } satisfies {
         asset: RolldownAssetInfo
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
       }
     }
   },
@@ -51,6 +57,6 @@ const { state } = useAsyncState(
       absolute right-2 top-1.5
       @click="emit('close')"
     />
-    <DataAssetDetails :asset="state.asset" :session="session" />
+    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" :imports="state?.imports" />
   </div>
 </template>
