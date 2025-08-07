@@ -133,5 +133,14 @@ function openInEditor() {
         </div>
       </template>
     </div>
+    <div v-else flex="~ col gap-1">
+      <!-- For other situation -->
+      <div op50>
+        [Non-Module Asset]
+      </div>
+      <div v-if="asset.filename.endsWith('.map')" flex="~ items-center gap-2">
+        <span op50>Source Map for</span> <DisplayBadge :text="JSON.parse(asset.content!).file" />
+      </div>
+    </div>
   </div>
 </template>
