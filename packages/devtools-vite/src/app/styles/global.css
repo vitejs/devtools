@@ -91,10 +91,29 @@ summary::-webkit-details-marker {
 
 /* For Scrollbar */
 ::-webkit-scrollbar {
-  width: 9px;
+  width: 11px;
 } 
 
+::-webkit-scrollbar:horizontal {
+  height: 11px;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-  background: #555555;
+  background-color: #8884;
   border-radius: 100px; 
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #8885;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background: transparent;
 }
