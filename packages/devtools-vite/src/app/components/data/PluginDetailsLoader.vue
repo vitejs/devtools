@@ -15,7 +15,7 @@ const emit = defineEmits<{
 
 const route = useRoute()
 const rpc = useRpc()
-const { state } = useAsyncState(
+const { state, isLoading } = useAsyncState(
   async () => {
     const res = await rpc.value!['vite:rolldown:get-plugin-details']?.({
       session: props.session.id,
@@ -28,7 +28,7 @@ const { state } = useAsyncState(
 
 const processedModules = computed(() => {
   const seen = new Set()
-  return state.value?.buildMetrics?.calls?.filter((call) => {
+  return state.value?.calls?.filter((call) => {
     if (seen.has(call.module)) {
       return false
     }
@@ -36,10 +36,43 @@ const processedModules = computed(() => {
     return true
   }) ?? []
 })
+
+const hookLoadDuration = computed(() => {
+  const loadMetrics = state.value?.loadMetrics
+  if (!loadMetrics?.length) {
+    return
+  }
+  return loadMetrics[loadMetrics.length - 1]!.timestamp_end - loadMetrics[0]!.timestamp_start
+})
+
+const hookTransformDuration = computed(() => {
+  const transformMetrics = state.value?.transformMetrics
+  if (!transformMetrics?.length) {
+    return
+  }
+  return transformMetrics[transformMetrics.length - 1]!.timestamp_end - transformMetrics[0]!.timestamp_start
+})
+
+const hookResolveIdDuration = computed(() => {
+  const resolveIdMetrics = state.value?.resolveIdMetrics
+  if (!resolveIdMetrics?.length) {
+    return
+  }
+  return resolveIdMetrics[resolveIdMetrics.length - 1]!.timestamp_end - resolveIdMetrics[0]!.timestamp_start
+})
+
+const totalDuration = computed(() => {
+  const calls = state.value?.calls
+  if (!calls?.length) {
+    return
+  }
+  return calls[calls.length - 1]!.timestamp_end - calls[0]!.timestamp_start
+})
 </script>
 
 <template>
-  <div v-if="state" relative h-full w-full>
+  <VisualLoading v-if="isLoading" />
+  <div v-else-if="state?.calls?.length" relative h-full w-full>
     <DisplayCloseButton
       absolute right-2 top-1.5
       @click="emit('close')"
@@ -49,30 +82,30 @@ const processedModules = computed(() => {
       border="~ base rounded-lg"
       flex="~ col gap-2"
     >
-      <DisplayPluginName :name="state?.name!" />
+      <DisplayPluginName :name="state?.plugin_name!" />
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
-          :duration="10" flex="~ gap-1 items-center"
-          :title="`resolveId hooks cost: ${10}ms`"
+          :duration="hookResolveIdDuration" flex="~ gap-1 items-center"
+          :title="`resolveId hooks cost: ${hookResolveIdDuration}ms`"
         >
           <span i-ph-magnifying-glass-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
-          :duration="10" flex="~ gap-1 items-center"
-          :title="`load hooks cost: ${10}ms`"
+          :duration="hookLoadDuration" flex="~ gap-1 items-center"
+          :title="`load hooks cost: ${hookLoadDuration}ms`"
         >
           <span i-ph-upload-simple-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
-          :duration="10" flex="~ gap-1 items-center"
-          :title="`transform hooks cost: ${10}ms`"
+          :duration="hookTransformDuration" flex="~ gap-1 items-center"
+          :title="`transform hooks cost: ${hookTransformDuration}ms`"
         >
           <span i-ph-magic-wand-duotone inline-block />
         </DisplayDuration>
         <span op40>|</span>
         <DisplayDuration
-          :duration="50" flex="~ gap-1 items-center"
-          :title="`Total build cost: ${50}ms`"
+          :duration="totalDuration" flex="~ gap-1 items-center"
+          :title="`Total build cost: ${totalDuration}ms`"
         >
           <span i-ph-clock-duotone inline-block />
         </DisplayDuration>
@@ -84,9 +117,9 @@ const processedModules = computed(() => {
         />
         <span op40>|</span>
         <DisplayNumberBadge
-          :number="state.buildMetrics?.calls?.length ?? 0" icon="i-ph:arrow-counter-clockwise"
+          :number="state?.calls?.length ?? 0" icon="i-ph:arrow-counter-clockwise"
           color="transparent color-scale-neutral"
-          :title="`Total calls: ${state.buildMetrics?.calls?.length ?? 0}`"
+          :title="`Total calls: ${state?.calls?.length ?? 0}`"
         />
       </div>
       <div flex="~ gap-2">
@@ -115,8 +148,17 @@ const processedModules = computed(() => {
       </div>
     </div>
     <div of-auto h-full pt-30>
-      <DataPluginDetails :session="session" />
+      <FlowmapPluginFlow
+        v-if="settings.pluginDetailsViewType === 'flow'"
+        :session="session"
+        :build-metrics="state"
+      />
     </div>
+  </div>
+  <div v-else flex="~ items-center justify-center" w-full h-full>
+    <span italic op50>
+      No data
+    </span>
   </div>
 </template>
 

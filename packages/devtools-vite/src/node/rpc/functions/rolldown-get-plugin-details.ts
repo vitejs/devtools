@@ -1,3 +1,4 @@
+import type { RolldownPluginBuildMetrics } from '~~/shared/types'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 
@@ -9,21 +10,27 @@ export const rolldownGetPluginDetails = defineRpcFunction({
     return {
       handler: async ({ session, id }: { session: string, id: string }) => {
         const reader = await manager.loadSession(session)
-        const plugins = reader.meta?.plugins || []
-        const pluginBuildMetrics = reader.manager.plugin_build_metrics.get(+id)
-        const plugin = plugins.find(p => p.plugin_id === +id)
-        const resolveIdMetrics = pluginBuildMetrics?.calls.filter(c => c.type === 'resolve')
-        const loadMetrics = pluginBuildMetrics?.calls.filter(c => c.type === 'load')
-        const transformMetrics = pluginBuildMetrics?.calls.filter(c => c.type === 'transform')
-        return {
-          name: plugin?.name,
-          buildMetrics: {
-            ...pluginBuildMetrics,
-            resolveIdMetrics,
-            loadMetrics,
-            transformMetrics,
-          },
+        const pluginBuildMetrics = reader.manager.plugin_build_metrics.get(+id)!
+        if (!pluginBuildMetrics) {
+          const plugin = reader.meta!.plugins!.find(p => p.plugin_id === +id)!
+          return {
+            plugin_name: plugin?.name,
+            plugin_id: +id,
+            calls: [],
+            loadMetrics: [],
+            resolveIdMetrics: [],
+            transformMetrics: [],
+          } satisfies RolldownPluginBuildMetrics
         }
+        const resolveIdMetrics = pluginBuildMetrics.calls.filter(c => c.type === 'resolve')!
+        const loadMetrics = pluginBuildMetrics.calls.filter(c => c.type === 'load')!
+        const transformMetrics = pluginBuildMetrics.calls.filter(c => c.type === 'transform')!
+        return {
+          ...pluginBuildMetrics,
+          resolveIdMetrics,
+          loadMetrics,
+          transformMetrics,
+        } satisfies RolldownPluginBuildMetrics
       },
     }
   },

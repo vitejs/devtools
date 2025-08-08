@@ -28,8 +28,11 @@ export interface PluginBuildMetrics {
     plugin_id: number
     plugin_name: string
     module: string
+    timestamp_start: number
+    timestamp_end: number
   }[]
 }
+
 export type { PluginItem }
 
 export interface ModuleListItem {
@@ -68,6 +71,12 @@ export interface ModuleTreeNode {
   name?: string
   children: Record<string, ModuleTreeNode>
   items: ModuleDest[]
+}
+
+export type RolldownPluginBuildMetrics = PluginBuildMetrics & {
+  resolveIdMetrics: PluginBuildMetrics['calls']
+  loadMetrics: PluginBuildMetrics['calls']
+  transformMetrics: PluginBuildMetrics['calls']
 }
 
 export interface RolldownResolveInfo {

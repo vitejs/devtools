@@ -155,10 +155,9 @@ onMounted(async () => {
     >
       <div
         :key="(route.query.plugin as string)"
-        v-on-click-outside="closePluginPanel"
-        fixed right-0 bottom-0 top-30 z-panel-content of-auto
+        v-on-click-outside="[closePluginPanel, { ignore: ['.module-type-filter'] }]"
+        fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
-        class="left-20 xl:left-100 2xl:left-150"
       >
         <DataPluginDetailsLoader
           :plugin="(route.query.plugin as string)"
