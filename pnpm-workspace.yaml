@@ -13,7 +13,7 @@ catalogs:
     rolldown: ^1.0.0-beta.31
     tsdown: ^0.13.3
     tsx: ^4.20.3
-    vite: npm:rolldown-vite@^7.0.12
+    vite: npm:rolldown-vite@^7.1.0
   deps:
     '@rolldown/debug': ^1.0.0-beta.31
     ansis: ^4.1.0
@@ -22,7 +22,7 @@ catalogs:
     diff: ^8.0.2
     get-port-please: ^3.2.0
     h3: ^1.15.4
-    launch-editor: ^2.11.0
+    launch-editor: ^2.11.1
     mlly: ^1.7.4
     mrmime: ^2.0.1
     ohash: ^2.0.11
@@ -70,7 +70,7 @@ catalogs:
     vue: ^3.5.18
   icons:
     '@iconify-json/carbon': ^1.2.11
-    '@iconify-json/catppuccin': ^1.2.12
+    '@iconify-json/catppuccin': ^1.2.13
     '@iconify-json/codicon': ^1.2.25
     '@iconify-json/logos': ^1.2.5
     '@iconify-json/ph': ^1.2.2
