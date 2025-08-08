@@ -8,6 +8,11 @@ import type { EntriesToObject, Thenable } from './utils'
  */
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
+export interface RpcFunctionsHost {
+  functions: Record<any, any>
+  register: (name: string, handler: (...args: any[]) => any) => void
+}
+
 export interface RpcFunctionSetupResult<
   ARGS extends any[],
   RETURN = void,
@@ -31,6 +36,7 @@ export interface RpcFunctionDefinition<
 export interface RpcContext {
   cwd: string
   mode: 'dev' | 'build'
+  functions: RpcFunctionsHost
   meta?: any
 }
 

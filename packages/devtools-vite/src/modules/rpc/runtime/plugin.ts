@@ -1,6 +1,7 @@
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { BirpcReturn } from 'birpc'
 import type { ServerFunctions } from '../../../node/rpc'
-import type { ClientFunctions, ConnectionMeta } from '../../../shared/types'
+import type { ClientFunctions } from '../../../shared/types'
 import { defineNuxtPlugin } from '#app'
 import { useRuntimeConfig } from '#app/nuxt'
 import { createRpcClient as _createRpcClient } from '@vitejs/devtools-rpc'

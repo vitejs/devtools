@@ -1,25 +1,23 @@
 import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
-import type { CreateServerFunctionsOptions } from './functions'
-import type { ServerFunctions } from './rpc'
+import type { RpcFunctionsHost } from './functions'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
 import { MARK_CHECK } from './constants'
-import { createServerFunctions } from './functions'
 
-export interface CreateWsServerOptions extends CreateServerFunctionsOptions {
+export interface CreateWsServerOptions {
   cwd: string
   port?: number
+  functions: RpcFunctionsHost
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
+  const functions = options.functions
   const port = options.port ?? await getPort({ port: 7812, random: true })
 
   const wsClients = new Set<WebSocket>()
-
-  const serverFunctions = await createServerFunctions(options)
 
   const preset = createWsRpcPreset({
     port: port!,
@@ -33,16 +31,19 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   })
 
-  const rpc = createRpcServer<ServerFunctions, ServerFunctions>(serverFunctions, {
-    preset,
-    rpcOptions: {
-      onError(error, name) {
-        console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
-        console.error(error)
-        throw error
+  const rpc = createRpcServer<any, any>(
+    options.functions.functions,
+    {
+      preset,
+      rpcOptions: {
+        onError(error, name) {
+          console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
+          console.error(error)
+          throw error
+        },
       },
     },
-  })
+  )
 
   const getMetadata = async (): Promise<ConnectionMeta> => {
     return {
@@ -54,7 +55,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   return {
     port,
     rpc,
-    serverFunctions,
+    functions,
     getMetadata,
   }
 }

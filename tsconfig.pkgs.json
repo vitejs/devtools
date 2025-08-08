@@ -7,6 +7,10 @@
   },
   "include": [
     "packages/devtools/src/**/*.ts",
+    "packages/devtools-vite/src/**/*.ts",
     "packages/devtools-rpc/src/**/*.ts"
+  ],
+  "exclude": [
+    "packages/devtools-vite/src/app/**/*.ts"
   ]
 }
