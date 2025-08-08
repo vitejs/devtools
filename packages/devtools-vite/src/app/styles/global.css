@@ -88,3 +88,13 @@ summary::-webkit-details-marker {
 .v-popper__popper--shown {
   overflow: visible !important;
 }
+
+/* For Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+} 
+
+::-webkit-scrollbar-thumb {
+  background: #555555;
+  border-radius: 100px; 
+}
