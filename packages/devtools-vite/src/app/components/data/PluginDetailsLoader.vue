@@ -161,7 +161,3 @@ const totalDuration = computed(() => {
     </span>
   </div>
 </template>
-
-<style scoped>
-
-</style>

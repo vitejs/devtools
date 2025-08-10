@@ -32,7 +32,9 @@ const searchFilterTypes = computed(() => {
 })
 
 const filterModuleTypes = ref<string[]>((route.query.module_types ? (route.query.module_types as string).split(',') : searchFilterTypes.value.map(i => i.name)) as string[])
-const { state: durationSortType, next } = useCycleList(['', 'desc', 'asc'])
+const { state: durationSortType, next } = useCycleList(['', 'desc', 'asc'], {
+  initialValue: route.query.duration_sort ?? '',
+})
 const filtered = computed(() => {
   const sorted = durationSortType.value
     ? [...props.buildMetrics.calls].sort((a, b) => {
@@ -79,10 +81,12 @@ function toggleDurationSortType() {
           Hook name
         </th>
         <th sticky top-0 z10 border="b base" bg-base w160 ws-nowrap p1 text-left font-600>
-          <button flex="~ row gap2 items-center" w-full>
+          <button flex="~ row gap1 items-center" w-full>
             Module
             <VMenu>
-              <div text-xs class=" i-carbon-filter" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op20'" />
+              <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
+                <i text-xs class="i-carbon-filter" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op50'" />
+              </span>
               <template #popper>
                 <div class="p2" flex="~ col gap2">
                   <label
@@ -109,9 +113,11 @@ function toggleDurationSortType() {
           </button>
         </th>
         <th sticky top-0 z10 border="b base" rounded-tr-2 bg-base ws-nowrap p1 text-center font-600>
-          <button flex="~ row gap2 items-center justify-center" w-full @click="toggleDurationSortType">
+          <button flex="~ row gap1 items-center justify-center" w-full @click="toggleDurationSortType">
             Duration
-            <div text-xs :class="[durationSortType !== 'asc' ? 'i-carbon-arrow-down' : 'i-carbon-arrow-up', durationSortType ? 'op100 text-primary' : 'op20']" />
+            <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
+              <i text-xs :class="[durationSortType !== 'asc' ? 'i-carbon-arrow-down' : 'i-carbon-arrow-up', durationSortType ? 'op100 text-primary' : 'op50']" />
+            </span>
           </button>
         </th>
       </tr>
@@ -125,8 +131,8 @@ function toggleDurationSortType() {
           <DisplayModuleId
             :id="item.module"
             w-full border-none
-            :session
-            :link="true"
+            :session="session"
+            :link="`/session/${session.id}/graph?module=${item.module}`"
             hover="bg-active"
             border="~ base rounded" block px2 py1
           />
