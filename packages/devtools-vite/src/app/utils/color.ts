@@ -35,7 +35,7 @@ export function getHsla(
  * - 240: blue
  * - 270: purple
  */
-const predefinedColorMap = {
+export const predefinedColorMap = {
   error: 0,
   client: 60,
   bailout: -1,
