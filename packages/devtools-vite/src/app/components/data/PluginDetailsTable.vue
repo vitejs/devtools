@@ -83,7 +83,7 @@ function toggleDurationSortType() {
 <template>
   <table w-full border-separate border-spacing-0>
     <thead border="b base">
-      <tr px2 class="[&_th]:(sticky top-10 z10 border-b border-base)">
+      <tr px2 class="[&_th]:(sticky top-0 z10 border-b border-base)">
         <th v-if="selectedFields.includes('hookName')" bg-base w32 ws-nowrap p1 text-center font-600>
           Hook name
         </th>

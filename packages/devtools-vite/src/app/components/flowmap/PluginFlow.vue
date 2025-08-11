@@ -70,8 +70,8 @@ watch(() => searchValue.value.selected, (value) => {
           </template>
         </FlowmapPluginFlowTimeline>
       </div>
-      <div flex-1 of-y-auto h-full>
-        <div px2 h10 border="b base" sticky z1 left-0 top-0 bg-base rounded-t-2 of-x-auto ws-nowrap flex="~ items-center">
+      <div flex-1 of-y-auto h-full flex="~ col">
+        <div px2 h10 border="b base" bg-base rounded-t-2 of-x-auto ws-nowrap flex="~ items-center">
           <button v-if="!expanded" w8 h8 rounded-full cursor-pointer mr1 hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(true)">
             <i i-fluent:panel-left-expand-20-regular inline-flex op50 />
           </button>
@@ -83,7 +83,7 @@ watch(() => searchValue.value.selected, (value) => {
             class="[&_[icon-catppuccin]]:(filter-none!)"
           />
         </div>
-        <div>
+        <div flex-1 of-y-auto overscroll-contain>
           <DataPluginDetailsTable
             :session="session"
             :build-metrics="buildMetrics"

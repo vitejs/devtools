@@ -91,11 +91,11 @@ summary::-webkit-details-marker {
 
 /* For Scrollbar */
 ::-webkit-scrollbar {
-  width: 11px;
+  width: 6px;
 } 
 
 ::-webkit-scrollbar:horizontal {
-  height: 11px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-corner {
@@ -104,9 +104,8 @@ summary::-webkit-details-marker {
 
 ::-webkit-scrollbar-thumb {
   background-color: #8884;
-  border-radius: 100px; 
-  border: 2px solid transparent;
-  background-clip: content-box;
+  transition: background 0.2s ease;
+  border-radius: 1px; 
 }
 
 ::-webkit-scrollbar-thumb:hover {

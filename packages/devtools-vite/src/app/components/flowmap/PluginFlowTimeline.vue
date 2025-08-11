@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
-import type { PluginBuildMetrics, RolldownPluginBuildMetrics } from '../../../shared/types/data'
+import type { PluginBuildInfo, RolldownPluginBuildMetrics } from '~~/shared/types/data'
 import { computed } from 'vue'
 import { settings } from '~/state/settings'
 
@@ -9,7 +9,7 @@ const props = defineProps<{
   buildMetrics: RolldownPluginBuildMetrics
 }>()
 
-function normalizeMetrics(metrics: PluginBuildMetrics['calls']) {
+function normalizeMetrics(metrics: PluginBuildInfo[]) {
   const info = {
     duration: 0,
     calls: metrics.length,
@@ -40,7 +40,7 @@ const loadMetricsInfo = computed(() => normalizeMetrics(props.buildMetrics.loadM
 
 const transformMetricsInfo = computed(() => normalizeMetrics(props.buildMetrics.transformMetrics))
 
-const startedAt = computed(() => {
+const startTime = computed(() => {
   const calls = props.buildMetrics.calls
   if (!calls?.length) {
     return
@@ -48,7 +48,7 @@ const startedAt = computed(() => {
   return calls[0]!.timestamp_start
 })
 
-const endedAt = computed(() => {
+const endTime = computed(() => {
   const calls = props.buildMetrics.calls
   if (!calls?.length) {
     return
@@ -89,7 +89,7 @@ const endedAt = computed(() => {
         />
         <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
           <i i-ph:airplane-takeoff-thin text-4 inline-flex />
-          <time v-if="startedAt" :datetime="new Date(startedAt).toISOString()">{{ new Date(startedAt).toLocaleString() }}</time>
+          <time v-if="startTime" :datetime="new Date(startTime).toISOString()">{{ new Date(startTime).toLocaleString() }}</time>
         </span>
       </div>
       <FlowmapNode
@@ -177,7 +177,7 @@ const endedAt = computed(() => {
         />
         <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
           <i i-ph:airplane-landing-thin text-4 inline-flex />
-          <time v-if="endedAt" :datetime="new Date(endedAt).toISOString()">{{ new Date(endedAt).toLocaleString() }}</time>
+          <time v-if="endTime" :datetime="new Date(endTime).toISOString()">{{ new Date(endTime).toLocaleString() }}</time>
         </span>
       </div>
     </div>

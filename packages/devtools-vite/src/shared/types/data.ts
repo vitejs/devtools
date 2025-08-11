@@ -18,19 +18,21 @@ export interface ModuleBuildMetrics {
   transforms: Array<Omit<RolldownModuleTransformInfo, 'diff_added' | 'diff_removed'> & { source_code_size: number, transformed_code_size: number }>
 }
 
+export interface PluginBuildInfo {
+  type: 'resolve' | 'load' | 'transform'
+  id: string
+  duration: number
+  plugin_id: number
+  plugin_name: string
+  module: string
+  timestamp_start: number
+  timestamp_end: number
+}
+
 export interface PluginBuildMetrics {
   plugin_name: string
   plugin_id: number
-  calls: {
-    type: 'resolve' | 'load' | 'transform'
-    id: string
-    duration: number
-    plugin_id: number
-    plugin_name: string
-    module: string
-    timestamp_start: number
-    timestamp_end: number
-  }[]
+  calls: PluginBuildInfo[]
 }
 
 export type { PluginItem }
@@ -74,9 +76,9 @@ export interface ModuleTreeNode {
 }
 
 export type RolldownPluginBuildMetrics = PluginBuildMetrics & {
-  resolveIdMetrics: PluginBuildMetrics['calls']
-  loadMetrics: PluginBuildMetrics['calls']
-  transformMetrics: PluginBuildMetrics['calls']
+  resolveIdMetrics: PluginBuildInfo[]
+  loadMetrics: PluginBuildInfo[]
+  transformMetrics: PluginBuildInfo[]
 }
 
 export interface RolldownResolveInfo {
