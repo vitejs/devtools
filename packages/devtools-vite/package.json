@@ -33,8 +33,7 @@
     "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
     "prepack": "pnpm build",
-    "start": "node ./bin.mjs",
-    "typecheck": "vue-tsc -b --noEmit"
+    "start": "node ./bin.mjs"
   },
   "dependencies": {
     "@rolldown/debug": "catalog:deps",

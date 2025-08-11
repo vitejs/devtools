@@ -134,7 +134,7 @@ export default defineNuxtConfig({
         types: ['chrome'], // for devtools-webext package
       },
     },
-    includeWorkspace: true,
+    typeCheck: true,
   },
 
   compatibilityDate: '2024-07-17',

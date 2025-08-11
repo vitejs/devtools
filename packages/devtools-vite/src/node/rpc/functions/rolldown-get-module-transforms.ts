@@ -1,4 +1,4 @@
-import type { RolldownModuleTransformInfo } from '~~/shared/types'
+import type { RolldownModuleTransformInfo } from '../../../shared/types'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { diffLines } from 'diff'
 import { getLogsManager } from '../utils'

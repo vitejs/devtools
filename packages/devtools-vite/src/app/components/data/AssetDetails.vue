@@ -23,18 +23,32 @@ const { state } = useAsyncState(
   async () => {
     if (!props.lazy)
       return
+
     const res = await rpc.value!['vite:rolldown:get-asset-details']?.({
       session: props.session.id,
       id: props.asset.filename,
     })
-    return {
-      chunks: [{ ...res?.chunk, type: 'chunk' }],
-      importers: res?.importers,
-      imports: res?.imports,
-    } satisfies {
-      chunks: RolldownChunkInfo[]
-      importers: AssetInfo[]
-      imports: AssetInfo[]
+    if ('chunk' in res) {
+      return {
+        chunks: [{ ...res?.chunk, type: 'chunk' }],
+        importers: res?.importers,
+        imports: res?.imports,
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
+      }
+    }
+    else {
+      return {
+        chunks: [],
+        importers: [],
+        imports: [],
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: AssetInfo[]
+        imports: AssetInfo[]
+      }
     }
   },
   null,
@@ -94,7 +108,7 @@ function openInEditor() {
       </div>
     </template>
 
-    <div flex="~ col gap-4">
+    <div v-if="assetChunks && assetChunks.length > 0" flex="~ col gap-4">
       <div flex="~ col gap-2">
         <div op50>
           Chunks
@@ -118,6 +132,15 @@ function openInEditor() {
           />
         </div>
       </template>
+    </div>
+    <div v-else flex="~ col gap-1">
+      <!-- For other situation -->
+      <div op50>
+        [Non-Module Asset]
+      </div>
+      <div v-if="asset.filename.endsWith('.map')" flex="~ items-center gap-2">
+        <span op50>Source Map for</span> <DisplayBadge :text="JSON.parse(asset.content!).file" />
+      </div>
     </div>
   </div>
 </template>

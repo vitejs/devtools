@@ -9,11 +9,19 @@ export const rolldownGetAssetDetails = defineRpcFunction({
     return {
       handler: async ({ session, id }: { session: string, id: string }) => {
         const reader = await manager.loadSession(session)
-        const assets = await reader.manager.assets
-        const chunks = await reader.manager.chunks
+        const assets = reader.manager.assets
+        const chunks = reader.manager.chunks
         const asset = assets.get(id)!
         const assetList = Array.from(assets.values())
         const chunkList = Array.from(chunks.values())
+
+        if (asset.chunk_id === null) {
+          // sourceMap or other
+          return {
+            asset,
+          }
+        }
+
         const assetChunkId = asset.chunk_id!
         const chunk = chunks.get(assetChunkId)!
         const importers = chunkList.filter(mod => mod.imports.some(i => i.chunk_id === assetChunkId)).map(c => assetList.find(a => a.chunk_id === c.chunk_id)!)

@@ -34,8 +34,11 @@
   "peerDependencies": {
     "vite": "catalog:build"
   },
-  "devDependencies": {
+  "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-rpc": "workspace:*"
+  },
+  "devDependencies": {
     "tsdown": "catalog:build"
   }
 }

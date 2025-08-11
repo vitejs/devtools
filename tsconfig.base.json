@@ -3,13 +3,14 @@
     "composite": true,
     "target": "esnext",
     "lib": ["esnext"],
+    "rootDir": ".",
     "module": "esnext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@vitejs/devtools-kit": ["./packages/devtools-kit/src/index.ts"]
+    },
     "resolveJsonModule": true,
     "noEmit": true,
     "skipLibCheck": true
-  },
-  "paths": {
-    "@vitejs/devtools-kit": ["./packages/devtools-kit/src/index.ts"]
   }
 }
