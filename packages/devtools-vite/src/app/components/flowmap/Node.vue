@@ -26,7 +26,7 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
       :style="typeof props.lines?.bottom === 'number' ? `height: ${props.lines.bottom}px` : ''"
     />
     <slot name="before" />
-    <div flex="~" :class="props.classNodeInline">
+    <div flex="~" w-max :class="props.classNodeInline" class="flowmap-node-inline">
       <slot name="inline-before" />
       <div
         :class="[
