@@ -86,19 +86,19 @@ const totalDuration = computed(() => {
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
           :duration="hookResolveIdDuration" flex="~ gap-1 items-center"
-          :title="`resolveId hooks cost: ${hookResolveIdDuration}ms`"
+          :title="`Resolve Id hooks cost: ${hookResolveIdDuration}ms`"
         >
           <span i-ph-magnifying-glass-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookLoadDuration" flex="~ gap-1 items-center"
-          :title="`load hooks cost: ${hookLoadDuration}ms`"
+          :title="`Load hooks cost: ${hookLoadDuration}ms`"
         >
           <span i-ph-upload-simple-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookTransformDuration" flex="~ gap-1 items-center"
-          :title="`transform hooks cost: ${hookTransformDuration}ms`"
+          :title="`Transform hooks cost: ${hookTransformDuration}ms`"
         >
           <span i-ph-magic-wand-duotone inline-block />
         </DisplayDuration>

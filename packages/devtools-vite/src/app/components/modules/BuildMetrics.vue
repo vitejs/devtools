@@ -44,19 +44,19 @@ const transformedCodeSize = computed(() => {
   <div text-xs font-mono flex="~ items-center gap-3" ml2>
     <DisplayDuration
       :duration="durations.resolveIds" flex="~ gap-1 items-center"
-      :title="`resolveId hooks cost: ${durations.resolveIds}ms`"
+      :title="`Resolve Id hooks cost: ${durations.resolveIds}ms`"
     >
       <span i-ph-magnifying-glass-duotone inline-block />
     </DisplayDuration>
     <DisplayDuration
       :duration="durations.loads" flex="~ gap-1 items-center"
-      :title="`load hooks cost: ${durations.loads}ms`"
+      :title="`Load hooks cost: ${durations.loads}ms`"
     >
       <span i-ph-upload-simple-duotone inline-block />
     </DisplayDuration>
     <DisplayDuration
       :duration="durations.transforms" flex="~ gap-1 items-center"
-      :title="`transform hooks cost: ${durations.transforms}ms`"
+      :title="`Transform hooks cost: ${durations.transforms}ms`"
     >
       <span i-ph-magic-wand-duotone inline-block />
     </DisplayDuration>

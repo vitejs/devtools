@@ -2,16 +2,13 @@
 import type { SessionContext } from '~~/shared/types'
 import type { PluginBuildMetrics, RolldownPluginBuildMetrics } from '../../../shared/types/data'
 import { computed } from 'vue'
+import { settings } from '~/state/settings'
 
 const props = defineProps<{
   session: SessionContext
   buildMetrics: RolldownPluginBuildMetrics
-  selected?: PluginBuildMetrics['calls'][0] | null
 }>()
 
-const _emit = defineEmits<{
-  (e: 'select', value: PluginBuildMetrics['calls'][0] | null): void
-}>()
 function normalizeMetrics(metrics: PluginBuildMetrics['calls']) {
   const info = {
     duration: 0,
@@ -62,9 +59,7 @@ const endedAt = computed(() => {
 
 <template>
   <div flex="~ col w-full">
-    <div px2 h8 border="b base" box-content bg-base rounded-t-2 flex="~ items-center justify-end">
-      <slot />
-    </div>
+    <slot name="header" />
     <div select-none h-full of-auto ws-nowrap w-auto of-visible p4 flex="~ col">
       <div flex="~">
         <FlowmapNode
@@ -72,7 +67,7 @@ const endedAt = computed(() => {
           class-node-inner="w60"
         >
           <template #content>
-            <div p2 w-full text-center>
+            <div p2 w-full text-center @click="settings.pluginDetailSelectedHook = ''">
               <DisplayPluginName
                 :name="buildMetrics.plugin_name"
                 class="font-mono text-sm ws-nowrap text-ellipsis line-clamp-1"
@@ -98,15 +93,15 @@ const endedAt = computed(() => {
         </span>
       </div>
       <FlowmapNode
-        :active="false"
         class-node-inner="w60"
-        :class-node-outer="`${!resolveIdMetricsInfo.modules && !resolveIdMetricsInfo.calls ? `b-dashed! cursor-default!` : ''}`"
+        :class-node-outer="`${!resolveIdMetricsInfo.modules && !resolveIdMetricsInfo.calls ? `b-dashed!` : ''}`"
         class-line-bottom="left-50%! translate-x--1/2"
         pb4 w60
         :lines="{ bottom: true }"
+        :active="settings.pluginDetailSelectedHook === 'resolve'"
       >
         <template #content>
-          <div flex="~ col gap1" w-full>
+          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'resolve'">
             <span flex="~ items-center justify-center gap-1">
               <i i-ph-magnifying-glass-duotone /> Resolve Id
             </span>
@@ -122,15 +117,15 @@ const endedAt = computed(() => {
       </FlowmapNode>
 
       <FlowmapNode
-        :active="false"
+        :active="settings.pluginDetailSelectedHook === 'load'"
         class-node-inner="w60"
-        :class-node-outer="`${!loadMetricsInfo.modules && !loadMetricsInfo.calls ? `b-dashed! cursor-default!` : ''}`"
+        :class-node-outer="`${!loadMetricsInfo.modules && !loadMetricsInfo.calls ? `b-dashed!` : ''}`"
         class-line-bottom="left-50%! translate-x--1/2"
         pb4 w60
         :lines="{ bottom: true }"
       >
         <template #content>
-          <div flex="~ col gap1" w-full>
+          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'load'">
             <span flex="~ items-center justify-center gap-1">
               <i i-ph-upload-simple-duotone /> Load
             </span>
@@ -146,12 +141,12 @@ const endedAt = computed(() => {
       </FlowmapNode>
 
       <FlowmapNode
-        :active="false"
+        :active="settings.pluginDetailSelectedHook === 'transform'"
         class-node-inner="w60"
-        :class-node-outer="`${!transformMetricsInfo.modules && !transformMetricsInfo.calls ? `b-dashed! cursor-default!` : ''}`"
+        :class-node-outer="`${!transformMetricsInfo.modules && !transformMetricsInfo.calls ? `b-dashed!` : ''}`"
       >
         <template #content>
-          <div flex="~ col gap1" w-full>
+          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'transform'">
             <span flex="~ items-center justify-center gap-1">
               <i i-ph-magic-wand-duotone /> Transform
             </span>

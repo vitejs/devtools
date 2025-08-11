@@ -3,18 +3,20 @@ import type { FilterMatchRule } from '~/utils/icon'
 import { useVModel } from '@vueuse/core'
 import { withDefaults } from 'vue'
 
-interface ModelValue { search: string, selected?: string[] | null }
+interface ModelValue { search?: string | false, selected?: string[] | null }
 
 const props = withDefaults(
   defineProps<{
     rules: FilterMatchRule[]
     modelValue?: ModelValue
+    selectedContainerClass?: string
   }>(),
   {
     modelValue: () => ({
       search: '',
       selected: null,
     }),
+    selectedContainerClass: '',
   },
 )
 
@@ -71,7 +73,7 @@ function unselectToggle() {
 
 <template>
   <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
-    <div>
+    <div v-if="modelValue.search !== false">
       <input
         v-model="model.search"
         p2 px4
@@ -80,7 +82,7 @@ function unselectToggle() {
         placeholder="Search"
       >
     </div>
-    <div v-if="rules.length" flex="~ gap-2 wrap" p2 border="t base">
+    <div v-if="rules.length" :class="selectedContainerClass" flex="~ gap-2 wrap" p2 border="t base">
       <label
         v-for="rule of rules"
         :key="rule.name"
