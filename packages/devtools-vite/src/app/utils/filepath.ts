@@ -44,7 +44,9 @@ export const parseReadablePath = makeCachedFunction((path: string, root: string)
     }
   }
 
-  if (parsedPath.match(/^\w+:/) && !(/^[a-z]:\\/i.test(path))) {
+  if (parsedPath.match(/^\w+:/)
+    && !(path.match(/^[a-z]:\\/i)) // in order to check if it is Windows' path
+  ) {
     return {
       moduleName: parsedPath,
       path: parsedPath,
