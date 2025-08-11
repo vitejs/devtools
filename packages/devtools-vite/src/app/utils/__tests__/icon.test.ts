@@ -37,8 +37,8 @@ describe('getFileTypeFromModuleId', () => {
   })
 
   it('should match packages', () => {
-    expect(getFileTypeFromModuleId('lodash').name).toBe('package')
-    expect(getFileTypeFromModuleId('@vue/core').name).toBe('package')
+    expect(getFileTypeFromModuleId('vite').name).toBe('package')
+    expect(getFileTypeFromModuleId('@vitejs/devtools').name).toBe('package')
   })
 
   it('should return default for unknown files', () => {
