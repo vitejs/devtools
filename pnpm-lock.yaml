@@ -240,11 +240,11 @@ overrides:
   '@jridgewell/sourcemap-codec': 1.5.0
   '@nuxt/devtools': ^2.6.2
   '@nuxt/kit': ^4.0.3
-  '@rolldown/debug': ^1.0.0-beta.32
+  '@rolldown/debug': https://pkg.pr.new/@rolldown/debug@c09bd00
   esbuild: ^0.25.8
   nitropack: ^2.12.4
   nuxt: ^4.0.3
-  rolldown: ^1.0.0-beta.32
+  rolldown: https://pkg.pr.new/rolldown@c09bd00
   vite: npm:rolldown-vite@^7.1.0
 
 importers:
@@ -328,13 +328,13 @@ importers:
         version: 16.1.5
       nuxt:
         specifier: ^4.0.3
-        version: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
+        version: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
       nuxt-eslint-auto-explicit-import:
         specifier: catalog:devtools
         version: 0.1.1(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(rollup@4.45.1)(typescript@5.9.2)
       nuxt-mcp:
         specifier: catalog:build
-        version: 0.2.4(magicast@0.3.5)(nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32))(nuxi@3.23.0)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))
+        version: 0.2.4(magicast@0.3.5)(nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2))(nuxi@3.23.0)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))
       p-limit:
         specifier: catalog:deps
         version: 6.2.0
@@ -411,8 +411,8 @@ importers:
   packages/devtools-vite:
     dependencies:
       '@rolldown/debug':
-        specifier: ^1.0.0-beta.32
-        version: 1.0.0-beta.32
+        specifier: https://pkg.pr.new/@rolldown/debug@c09bd00
+        version: https://pkg.pr.new/@rolldown/debug@c09bd00
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../devtools-kit
@@ -497,7 +497,7 @@ importers:
         version: 13.6.0(vue@3.5.18(typescript@5.9.2))
       '@vueuse/nuxt':
         specifier: catalog:build
-        version: 13.6.0(magicast@0.3.5)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(vue@3.5.18(typescript@5.9.2))
+        version: 13.6.0(magicast@0.3.5)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(vue@3.5.18(typescript@5.9.2))
       '@vueuse/router':
         specifier: catalog:frontend
         version: 13.6.0(vue-router@4.5.1(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
@@ -1651,84 +1651,103 @@ packages:
     resolution: {integrity: sha512-sx8J1O/+j2lqs8MvsEz6rs/6UAUpCb4fu7C6EqtMqzbS3CmqLkTDTOMK+DrWukvyUuHzl8DhMjfNJzQDTqfGJg==}
     engines: {node: '>=20.18.0'}
 
-  '@rolldown/binding-android-arm64@1.0.0-beta.32':
-    resolution: {integrity: sha512-Gs+313LfR4Ka3hvifdag9r44WrdKQaohya7ZXUXzARF7yx0atzFlVZjsvxtKAw1Vmtr4hB/RjUD1jf73SW7zDw==}
+  '@rolldown/binding-android-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-android-arm64@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-android-arm64@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [android]
 
-  '@rolldown/binding-darwin-arm64@1.0.0-beta.32':
-    resolution: {integrity: sha512-W8oMqzGcI7wKPXUtS3WJNXzbghHfNiuM1UBAGpVb+XlUCgYRQJd2PRGP7D3WGql3rR3QEhUvSyAuCBAftPQw6Q==}
+  '@rolldown/binding-darwin-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-arm64@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-arm64@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [darwin]
 
-  '@rolldown/binding-darwin-x64@1.0.0-beta.32':
-    resolution: {integrity: sha512-pM4c4sKUk37noJrnnDkJknLhCsfZu7aWyfe67bD0GQHfzAPjV16wPeD9CmQg4/0vv+5IfHYaa4VE536xbA+W0Q==}
+  '@rolldown/binding-darwin-x64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-x64@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-x64@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [x64]
     os: [darwin]
 
-  '@rolldown/binding-freebsd-x64@1.0.0-beta.32':
-    resolution: {integrity: sha512-M8SUgFlYb5kJJWcFC8gUMRiX4WLFxPKMed3SJ2YrxontgIrEcpizPU8nLNVsRYEStoSfKHKExpQw3OP6fm+5bw==}
+  '@rolldown/binding-freebsd-x64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-freebsd-x64@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-freebsd-x64@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [x64]
     os: [freebsd]
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-beta.32':
-    resolution: {integrity: sha512-FuQpbNC/hE//bvv29PFnk0AtpJzdPdYl5CMhlWPovd9g3Kc3lw9TrEPIbL7gRPUdhKAiq6rVaaGvOnXxsa0eww==}
+  '@rolldown/binding-linux-arm-gnueabihf@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm-gnueabihf@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm-gnueabihf@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm]
     os: [linux]
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.0-beta.32':
-    resolution: {integrity: sha512-hRZygRlaGCjcNTNY9GV7dDI18sG1dK3cc7ujHq72LoDad23zFDUGMQjiSxHWK+/r92iMV+j2MiHbvzayxqynsg==}
+  '@rolldown/binding-linux-arm64-gnu@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-gnu@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-gnu@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [linux]
 
-  '@rolldown/binding-linux-arm64-musl@1.0.0-beta.32':
-    resolution: {integrity: sha512-HzgT6h+CXLs+GKAU0Wvkt3rvcv0CmDBsDjlPhh4GHysOKbG9NjpKYX2zvjx671E9pGbTvcPpwy7gGsy7xpu+8g==}
+  '@rolldown/binding-linux-arm64-musl@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-musl@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-musl@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [linux]
 
-  '@rolldown/binding-linux-x64-gnu@1.0.0-beta.32':
-    resolution: {integrity: sha512-Ab/wbf6gdzphDbsg51UaxsC93foQ7wxhtg0SVCXd25BrV4MAJ1HoDtKN/f4h0maFmJobkqYub2DlmoasUzkvBg==}
+  '@rolldown/binding-linux-x64-gnu@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-gnu@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-gnu@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [x64]
     os: [linux]
 
-  '@rolldown/binding-linux-x64-musl@1.0.0-beta.32':
-    resolution: {integrity: sha512-VoxqGEfh5A1Yx+zBp/FR5QwAbtzbuvky2SVc+ii4g1gLD4zww6mt/hPi5zG+b88zYPFBKHpxMtsz9cWqXU5V5Q==}
+  '@rolldown/binding-linux-x64-musl@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-musl@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-musl@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [x64]
     os: [linux]
 
-  '@rolldown/binding-openharmony-arm64@1.0.0-beta.32':
-    resolution: {integrity: sha512-qZ1ViyOUDGbiZrSAJ/FIAhYUElDfVxxFW6DLT/w4KeoZN3HsF4jmRP95mXtl51/oGrqzU9l9Q2f7/P4O/o2ZZA==}
+  '@rolldown/binding-openharmony-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-openharmony-arm64@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-openharmony-arm64@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [openharmony]
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-beta.32':
-    resolution: {integrity: sha512-hEkG3wD+f3wytV0lqwb/uCrXc4r4Ny/DWJFJPfQR3VeMWplhWGgSHNwZc2Q7k86Yi36f9NNzzWmrIuvHI9lCVw==}
+  '@rolldown/binding-wasm32-wasi@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-wasm32-wasi@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-wasm32-wasi@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     engines: {node: '>=14.0.0'}
     cpu: [wasm32]
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.0-beta.32':
-    resolution: {integrity: sha512-k3MvDf8SiA7uP2ikP0unNouJ2YCrnwi7xcVW+RDgMp5YXVr3Xu6svmT3HGn0tkCKUuPmf+uy8I5uiHt5qWQbew==}
+  '@rolldown/binding-win32-arm64-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-arm64-msvc@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-arm64-msvc@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [arm64]
     os: [win32]
 
-  '@rolldown/binding-win32-ia32-msvc@1.0.0-beta.32':
-    resolution: {integrity: sha512-wAi/FxGh7arDOUG45UmnXE1sZUa0hY4cXAO2qWAjFa3f7bTgz/BqwJ7XN5SUezvAJPNkME4fEpInfnBvM25a0w==}
+  '@rolldown/binding-win32-ia32-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-ia32-msvc@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-ia32-msvc@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [ia32]
     os: [win32]
 
-  '@rolldown/binding-win32-x64-msvc@1.0.0-beta.32':
-    resolution: {integrity: sha512-Ej0i4PZk8ltblZtzVK8ouaGUacUtxRmTm5S9794mdyU/tYxXjAJNseOfxrnHpMWKjMDrOKbqkPqJ52T9NR4LQQ==}
+  '@rolldown/binding-win32-x64-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-x64-msvc@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-x64-msvc@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     cpu: [x64]
     os: [win32]
 
-  '@rolldown/debug@1.0.0-beta.32':
-    resolution: {integrity: sha512-XK/wDwGkpWY0CrMwUa1zruKAiX1cYoY6MITvAu84ljofIct0i1/kB2DK+7ZZezFZjXn8sl20jn5+zY/ISi6JdA==}
+  '@rolldown/debug@https://pkg.pr.new/@rolldown/debug@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/@rolldown/debug@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
 
   '@rolldown/pluginutils@1.0.0-beta.29':
     resolution: {integrity: sha512-NIJgOsMjbxAXvoGq/X0gD7VPMQ8j9g0BiDaNjVNVjvl+iKXxL3Jre0v31RmBYeLEmkbj2s02v8vFTbUXi5XS2Q==}
 
   '@rolldown/pluginutils@1.0.0-beta.32':
     resolution: {integrity: sha512-QReCdvxiUZAPkvp1xpAg62IeNzykOFA6syH2CnClif4YmALN1XKpB39XneL80008UbtMShthSVDKmrx05N1q/g==}
+
+  '@rolldown/pluginutils@https://pkg.pr.new/rolldown/rolldown/@rolldown/pluginutils@c09bd00':
+    resolution: {tarball: https://pkg.pr.new/rolldown/rolldown/@rolldown/pluginutils@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
 
   '@rollup/plugin-alias@5.1.1':
     resolution: {integrity: sha512-PR9zDb+rOzkRb2VD+EuKB7UC41vU5DIwZ5qqCpk0KJudcWAyi8rvYOhS7+L5aZCspw1stTViLgN5v6FF1p5cgQ==}
@@ -5662,10 +5681,11 @@ packages:
 
   rolldown-plugin-dts@0.15.6:
     resolution: {integrity: sha512-AxQlyx3Nszob5QLmVUjz/VnC5BevtUo0h8tliuE0egddss7IbtCBU7GOe7biRU0fJNRQJmQjPKXFcc7K98j3+w==}
+    version: 0.15.6
     engines: {node: '>=20.18.0'}
     peerDependencies:
       '@typescript/native-preview': '>=7.0.0-dev.20250601.1'
-      rolldown: ^1.0.0-beta.32
+      rolldown: ^1.0.0-beta.9
       typescript: ^5.0.0
       vue-tsc: ~3.0.3
     peerDependenciesMeta:
@@ -5716,8 +5736,9 @@ packages:
       yaml:
         optional: true
 
-  rolldown@1.0.0-beta.32:
-    resolution: {integrity: sha512-vxI2sPN07MMaoYKlFrVva5qZ1Y7DAZkgp7MQwTnyHt4FUMz9Sh+YeCzNFV9JYHI6ZNwoGWLCfCViE3XVsRC1cg==}
+  rolldown@https://pkg.pr.new/rolldown@c09bd00:
+    resolution: {tarball: https://pkg.pr.new/rolldown@c09bd00}
+    version: 1.0.0-beta.32-commit.c09bd00
     hasBin: true
 
   rollup-plugin-visualizer@6.0.3:
@@ -5725,7 +5746,7 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
     peerDependencies:
-      rolldown: ^1.0.0-beta.32
+      rolldown: 1.x || ^1.0.0-beta
       rollup: 2.x || 3.x || 4.x
     peerDependenciesMeta:
       rolldown:
@@ -7770,7 +7791,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/vite-builder@4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)':
+  '@nuxt/vite-builder@4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)':
     dependencies:
       '@nuxt/kit': 4.0.3(magicast@0.3.5)
       '@rollup/plugin-replace': 6.0.2(rollup@4.45.1)
@@ -7793,7 +7814,7 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 2.2.0
       postcss: 8.5.6
-      rollup-plugin-visualizer: 6.0.3(rolldown@1.0.0-beta.32)(rollup@4.45.1)
+      rollup-plugin-visualizer: 6.0.3(rollup@4.45.1)
       std-env: 3.9.0
       ufo: 1.6.1
       unenv: 2.0.0-rc.19
@@ -8063,55 +8084,57 @@ snapshots:
     dependencies:
       quansync: 0.2.10
 
-  '@rolldown/binding-android-arm64@1.0.0-beta.32':
+  '@rolldown/binding-android-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-android-arm64@c09bd00':
     optional: true
 
-  '@rolldown/binding-darwin-arm64@1.0.0-beta.32':
+  '@rolldown/binding-darwin-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-arm64@c09bd00':
     optional: true
 
-  '@rolldown/binding-darwin-x64@1.0.0-beta.32':
+  '@rolldown/binding-darwin-x64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-x64@c09bd00':
     optional: true
 
-  '@rolldown/binding-freebsd-x64@1.0.0-beta.32':
+  '@rolldown/binding-freebsd-x64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-freebsd-x64@c09bd00':
     optional: true
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.0-beta.32':
+  '@rolldown/binding-linux-arm-gnueabihf@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm-gnueabihf@c09bd00':
     optional: true
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.0-beta.32':
+  '@rolldown/binding-linux-arm64-gnu@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-gnu@c09bd00':
     optional: true
 
-  '@rolldown/binding-linux-arm64-musl@1.0.0-beta.32':
+  '@rolldown/binding-linux-arm64-musl@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-musl@c09bd00':
     optional: true
 
-  '@rolldown/binding-linux-x64-gnu@1.0.0-beta.32':
+  '@rolldown/binding-linux-x64-gnu@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-gnu@c09bd00':
     optional: true
 
-  '@rolldown/binding-linux-x64-musl@1.0.0-beta.32':
+  '@rolldown/binding-linux-x64-musl@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-musl@c09bd00':
     optional: true
 
-  '@rolldown/binding-openharmony-arm64@1.0.0-beta.32':
+  '@rolldown/binding-openharmony-arm64@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-openharmony-arm64@c09bd00':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.0-beta.32':
+  '@rolldown/binding-wasm32-wasi@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-wasm32-wasi@c09bd00':
     dependencies:
       '@napi-rs/wasm-runtime': 1.0.3
     optional: true
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.0-beta.32':
+  '@rolldown/binding-win32-arm64-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-arm64-msvc@c09bd00':
     optional: true
 
-  '@rolldown/binding-win32-ia32-msvc@1.0.0-beta.32':
+  '@rolldown/binding-win32-ia32-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-ia32-msvc@c09bd00':
     optional: true
 
-  '@rolldown/binding-win32-x64-msvc@1.0.0-beta.32':
+  '@rolldown/binding-win32-x64-msvc@https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-x64-msvc@c09bd00':
     optional: true
 
-  '@rolldown/debug@1.0.0-beta.32': {}
+  '@rolldown/debug@https://pkg.pr.new/@rolldown/debug@c09bd00': {}
 
   '@rolldown/pluginutils@1.0.0-beta.29': {}
 
   '@rolldown/pluginutils@1.0.0-beta.32': {}
+
+  '@rolldown/pluginutils@https://pkg.pr.new/rolldown/rolldown/@rolldown/pluginutils@c09bd00': {}
 
   '@rollup/plugin-alias@5.1.1(rollup@4.45.1)':
     optionalDependencies:
@@ -9157,13 +9180,13 @@ snapshots:
 
   '@vueuse/metadata@13.6.0': {}
 
-  '@vueuse/nuxt@13.6.0(magicast@0.3.5)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(vue@3.5.18(typescript@5.9.2))':
+  '@vueuse/nuxt@13.6.0(magicast@0.3.5)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(vue@3.5.18(typescript@5.9.2))':
     dependencies:
       '@nuxt/kit': 4.0.3(magicast@0.3.5)
       '@vueuse/core': 13.6.0(vue@3.5.18(typescript@5.9.2))
       '@vueuse/metadata': 13.6.0
       local-pkg: 1.1.1
-      nuxt: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
+      nuxt: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
       vue: 3.5.18(typescript@5.9.2)
     transitivePeerDependencies:
       - magicast
@@ -11801,7 +11824,7 @@ snapshots:
       p-wait-for: 5.0.2
       qs: 6.14.0
 
-  nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32):
+  nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@netlify/functions': 3.1.10(rollup@4.45.1)
@@ -11855,7 +11878,7 @@ snapshots:
       pretty-bytes: 6.1.1
       radix3: 1.1.2
       rollup: 4.45.1
-      rollup-plugin-visualizer: 6.0.3(rolldown@1.0.0-beta.32)(rollup@4.45.1)
+      rollup-plugin-visualizer: 6.0.3(rollup@4.45.1)
       scule: 1.3.0
       semver: 7.7.2
       serve-placeholder: 2.0.2
@@ -11973,7 +11996,7 @@ snapshots:
       - supports-color
       - typescript
 
-  nuxt-mcp@0.2.4(magicast@0.3.5)(nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32))(nuxi@3.23.0)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1)):
+  nuxt-mcp@0.2.4(magicast@0.3.5)(nitropack@2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2))(nuxi@3.23.0)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1))(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1)):
     dependencies:
       '@modelcontextprotocol/sdk': 1.17.1
       '@nuxt/kit': 4.0.3(magicast@0.3.5)
@@ -11981,9 +12004,9 @@ snapshots:
       async-cache-dedupe: 2.2.0
       citty: 0.1.6
       debug: 4.4.1
-      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32)
+      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)
       nuxi: 3.23.0
-      nuxt: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
+      nuxt: 4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1)
       pathe: 2.0.3
       unimport: 5.2.0
       vite: rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1)
@@ -11993,7 +12016,7 @@ snapshots:
       - magicast
       - supports-color
 
-  nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1):
+  nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown-vite@7.1.0(@types/node@24.0.7)(esbuild@0.25.8)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1):
     dependencies:
       '@nuxt/cli': 3.27.0(magicast@0.3.5)
       '@nuxt/devalue': 2.0.2
@@ -12001,7 +12024,7 @@ snapshots:
       '@nuxt/kit': 4.0.3(magicast@0.3.5)
       '@nuxt/schema': 4.0.3
       '@nuxt/telemetry': 2.6.6(magicast@0.3.5)
-      '@nuxt/vite-builder': 4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)
+      '@nuxt/vite-builder': 4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)
       '@unhead/vue': 2.0.14(vue@3.5.18(typescript@5.9.2))
       '@vue/shared': 3.5.18
       c12: 3.2.0(magicast@0.3.5)
@@ -12028,7 +12051,7 @@ snapshots:
       mlly: 1.7.4
       mocked-exports: 0.1.1
       nanotar: 0.2.0
-      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32)
+      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)
       nypm: 0.6.1
       ofetch: 1.4.1
       ohash: 2.0.11
@@ -12115,7 +12138,7 @@ snapshots:
       - xml2js
       - yaml
 
-  nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1):
+  nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.0.7)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(idb-keyval@6.2.2)(ioredis@5.6.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@6.2.6(@types/node@24.0.7)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))(vue-tsc@3.0.5(typescript@5.9.2))(yaml@2.8.1):
     dependencies:
       '@nuxt/cli': 3.27.0(magicast@0.3.5)
       '@nuxt/devalue': 2.0.2
@@ -12123,7 +12146,7 @@ snapshots:
       '@nuxt/kit': 4.0.3(magicast@0.3.5)
       '@nuxt/schema': 4.0.3
       '@nuxt/telemetry': 2.6.6(magicast@0.3.5)
-      '@nuxt/vite-builder': 4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rolldown@1.0.0-beta.32)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)
+      '@nuxt/vite-builder': 4.0.3(@types/node@24.0.7)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(optionator@0.9.4)(rollup@4.45.1)(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))(vue@3.5.18(typescript@5.9.2))(yaml@2.8.1)
       '@unhead/vue': 2.0.14(vue@3.5.18(typescript@5.9.2))
       '@vue/shared': 3.5.18
       c12: 3.2.0(magicast@0.3.5)
@@ -12150,7 +12173,7 @@ snapshots:
       mlly: 1.7.4
       mocked-exports: 0.1.1
       nanotar: 0.2.0
-      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)(rolldown@1.0.0-beta.32)
+      nitropack: 2.12.4(@netlify/blobs@9.1.2)(idb-keyval@6.2.2)
       nypm: 0.6.1
       ofetch: 1.4.1
       ohash: 2.0.11
@@ -12853,7 +12876,7 @@ snapshots:
 
   robust-predicates@3.0.2: {}
 
-  rolldown-plugin-dts@0.15.6(rolldown@1.0.0-beta.32)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2)):
+  rolldown-plugin-dts@0.15.6(rolldown@https://pkg.pr.new/rolldown@c09bd00)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2)):
     dependencies:
       '@babel/generator': 7.28.0
       '@babel/parser': 7.28.0
@@ -12863,7 +12886,7 @@ snapshots:
       debug: 4.4.1
       dts-resolver: 2.1.1
       get-tsconfig: 4.10.1
-      rolldown: 1.0.0-beta.32
+      rolldown: https://pkg.pr.new/rolldown@c09bd00
     optionalDependencies:
       typescript: 5.9.2
       vue-tsc: 3.0.5(typescript@5.9.2)
@@ -12877,7 +12900,7 @@ snapshots:
       lightningcss: 1.30.1
       picomatch: 4.0.3
       postcss: 8.5.6
-      rolldown: 1.0.0-beta.32
+      rolldown: https://pkg.pr.new/rolldown@c09bd00
       tinyglobby: 0.2.14
     optionalDependencies:
       '@types/node': 24.0.7
@@ -12888,36 +12911,35 @@ snapshots:
       tsx: 4.20.3
       yaml: 2.8.1
 
-  rolldown@1.0.0-beta.32:
+  rolldown@https://pkg.pr.new/rolldown@c09bd00:
     dependencies:
       '@oxc-project/runtime': 0.81.0
       '@oxc-project/types': 0.81.0
-      '@rolldown/pluginutils': 1.0.0-beta.32
+      '@rolldown/pluginutils': https://pkg.pr.new/rolldown/rolldown/@rolldown/pluginutils@c09bd00
       ansis: 4.1.0
     optionalDependencies:
-      '@rolldown/binding-android-arm64': 1.0.0-beta.32
-      '@rolldown/binding-darwin-arm64': 1.0.0-beta.32
-      '@rolldown/binding-darwin-x64': 1.0.0-beta.32
-      '@rolldown/binding-freebsd-x64': 1.0.0-beta.32
-      '@rolldown/binding-linux-arm-gnueabihf': 1.0.0-beta.32
-      '@rolldown/binding-linux-arm64-gnu': 1.0.0-beta.32
-      '@rolldown/binding-linux-arm64-musl': 1.0.0-beta.32
-      '@rolldown/binding-linux-x64-gnu': 1.0.0-beta.32
-      '@rolldown/binding-linux-x64-musl': 1.0.0-beta.32
-      '@rolldown/binding-openharmony-arm64': 1.0.0-beta.32
-      '@rolldown/binding-wasm32-wasi': 1.0.0-beta.32
-      '@rolldown/binding-win32-arm64-msvc': 1.0.0-beta.32
-      '@rolldown/binding-win32-ia32-msvc': 1.0.0-beta.32
-      '@rolldown/binding-win32-x64-msvc': 1.0.0-beta.32
+      '@rolldown/binding-android-arm64': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-android-arm64@c09bd00
+      '@rolldown/binding-darwin-arm64': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-arm64@c09bd00
+      '@rolldown/binding-darwin-x64': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-darwin-x64@c09bd00
+      '@rolldown/binding-freebsd-x64': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-freebsd-x64@c09bd00
+      '@rolldown/binding-linux-arm-gnueabihf': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm-gnueabihf@c09bd00
+      '@rolldown/binding-linux-arm64-gnu': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-gnu@c09bd00
+      '@rolldown/binding-linux-arm64-musl': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-arm64-musl@c09bd00
+      '@rolldown/binding-linux-x64-gnu': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-gnu@c09bd00
+      '@rolldown/binding-linux-x64-musl': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-linux-x64-musl@c09bd00
+      '@rolldown/binding-openharmony-arm64': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-openharmony-arm64@c09bd00
+      '@rolldown/binding-wasm32-wasi': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-wasm32-wasi@c09bd00
+      '@rolldown/binding-win32-arm64-msvc': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-arm64-msvc@c09bd00
+      '@rolldown/binding-win32-ia32-msvc': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-ia32-msvc@c09bd00
+      '@rolldown/binding-win32-x64-msvc': https://pkg.pr.new/rolldown/rolldown/@rolldown/binding-win32-x64-msvc@c09bd00
 
-  rollup-plugin-visualizer@6.0.3(rolldown@1.0.0-beta.32)(rollup@4.45.1):
+  rollup-plugin-visualizer@6.0.3(rollup@4.45.1):
     dependencies:
       open: 8.4.2
       picomatch: 4.0.3
       source-map: 0.7.4
       yargs: 17.7.2
     optionalDependencies:
-      rolldown: 1.0.0-beta.32
       rollup: 4.45.1
 
   rollup@4.45.1:
@@ -13375,8 +13397,8 @@ snapshots:
       diff: 8.0.2
       empathic: 2.0.0
       hookable: 5.5.3
-      rolldown: 1.0.0-beta.32
-      rolldown-plugin-dts: 0.15.6(rolldown@1.0.0-beta.32)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))
+      rolldown: https://pkg.pr.new/rolldown@c09bd00
+      rolldown-plugin-dts: 0.15.6(rolldown@https://pkg.pr.new/rolldown@c09bd00)(typescript@5.9.2)(vue-tsc@3.0.5(typescript@5.9.2))
       semver: 7.7.2
       tinyexec: 1.0.1
       tinyglobby: 0.2.14

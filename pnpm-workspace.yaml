@@ -10,12 +10,12 @@ catalogs:
     nitropack: ^2.12.4
     nuxt: ^4.0.3
     nuxt-mcp: ^0.2.4
-    rolldown: ^1.0.0-beta.32
+    rolldown: https://pkg.pr.new/rolldown@c09bd00
     tsdown: ^0.14.1
     tsx: ^4.20.3
     vite: npm:rolldown-vite@^7.1.0
   deps:
-    '@rolldown/debug': ^1.0.0-beta.32
+    '@rolldown/debug': https://pkg.pr.new/@rolldown/debug@c09bd00
     ansis: ^4.1.0
     birpc: ^2.5.0
     cac: ^6.7.14
