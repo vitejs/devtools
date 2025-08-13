@@ -14,8 +14,9 @@ export interface ViteDevtoolsRpcFunctions {}
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
 export interface RpcFunctionsHost {
-  functions: ViteDevtoolsRpcFunctions
-  register: (name: string, handler: (...args: any[]) => any) => void
+  readonly functions: ViteDevtoolsRpcFunctions
+  readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
+  register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
 }
 
 export interface RpcFunctionSetupResult<
@@ -28,7 +29,7 @@ export interface RpcFunctionSetupResult<
 export interface RpcFunctionDefinition<
   NAME extends string,
   TYPE extends RpcFunctionType,
-  ARGS extends any[],
+  ARGS extends any[] = [],
   RETURN = void,
 > {
   name: NAME

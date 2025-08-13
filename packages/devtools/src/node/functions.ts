@@ -1,13 +1,19 @@
-import type { RpcFunctionsHost as RpcFunctionsHostType } from '@vitejs/devtools-kit'
+import type { RpcFunctionDefinition, RpcFunctionsHost as RpcFunctionsHostType, ViteDevtoolsRpcFunctions } from '@vitejs/devtools-kit'
 
 export class RpcFunctionsHost implements RpcFunctionsHostType {
-  public readonly functions: Record<any, any>
+  public readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>> = new Map()
 
-  constructor(functions: Record<any, any> = {}) {
-    this.functions = functions
+  constructor() {
   }
 
-  register(name: string, handler: (...args: any[]) => any): void {
-    this.functions[name] = handler
+  register(fn: RpcFunctionDefinition<string, any, any, any>): void {
+    this.definitions.set(fn.name, fn)
+  }
+
+  get functions(): ViteDevtoolsRpcFunctions {
+    return Object.fromEntries(
+      Array.from(this.definitions.entries())
+        .map(([name, fn]) => [name, fn.handler]),
+    ) as ViteDevtoolsRpcFunctions
   }
 }

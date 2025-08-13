@@ -9,17 +9,17 @@ import { lookup } from 'mrmime'
 import { join } from 'pathe'
 import { distDir } from '../dirs'
 import { RpcFunctionsHost } from './functions'
+import { DevtoolsViewHost } from './views'
 import { createWsServer } from './ws'
 
 export async function resolveDevtoolsConfig(config: ResolvedConfig): Promise<DevToolsSetupContext> {
   const cwd = config.root
 
   const context: DevToolsSetupContext = {
-    rpc: {
-      functions: new RpcFunctionsHost(),
-      cwd,
-      mode: config.command === 'serve' ? 'dev' : 'build',
-    },
+    cwd,
+    mode: config.command === 'serve' ? 'dev' : 'build',
+    rpc: new RpcFunctionsHost(),
+    views: new DevtoolsViewHost(),
   }
 
   const plugins = config.plugins.filter(plugin => 'devtools' in plugin)

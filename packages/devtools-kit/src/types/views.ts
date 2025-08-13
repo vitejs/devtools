@@ -1,15 +1,15 @@
-export interface ViteDevtoolsViewHost {
-  register: (view: ViteDevtoolsViewTab) => void
+export interface DevtoolsViewHost {
+  register: (view: DevtoolsViewTab) => void
 }
 
-export interface ViteDevtoolsViewTab {
+export interface DevtoolsViewTab {
   name: string
   icon: string
   viewId: string
-  view: ViteDevtoolsView
+  view: DevtoolsViewMeta
 }
 
-export interface ViteDevtoolsViewIframe {
+export interface DevtoolsViewIframe {
   type: 'iframe'
   url: string
   /**
@@ -20,10 +20,10 @@ export interface ViteDevtoolsViewIframe {
   frameId?: string
 }
 
-export interface ViteDevtoolsViewWebComponent {
-  type: 'web-component'
+export interface DevtoolsViewWebComponent {
+  type: 'webcomponent'
   from: string
   import: string
 }
 
-export type ViteDevtoolsView = ViteDevtoolsViewIframe | ViteDevtoolsViewWebComponent
+export type DevtoolsViewMeta = DevtoolsViewIframe | DevtoolsViewWebComponent

@@ -1,6 +1,7 @@
 import process from 'node:process'
 import { getPort } from 'get-port-please'
 import { loadConfigFromFile, resolveConfig } from 'vite'
+import { resolveDevtoolsConfig } from './server'
 
 export interface StandaloneDevToolsOptions {
   cwd?: string
@@ -20,11 +21,12 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     undefined,
     cwd,
   )
-  const resolved = await resolveConfig(loaded.config, 'build', 'development')
 
-  const devtoolsPlugins = resolved.plugins.filter(plugin => 'devtools' in plugin)
+  const resolved = await resolveConfig(loaded?.config || {}, 'build', 'development')
 
-  // console.log({ resolved, devtoolsPlugins })
+  const context = await resolveDevtoolsConfig(resolved)
+
+  console.log({ context })
 
   const _port = options.port ?? await getPort({ port: 7812, random: true })
 }
