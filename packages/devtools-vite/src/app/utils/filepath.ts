@@ -34,25 +34,27 @@ export function isBuiltInModule(name: string | undefined) {
 }
 
 export const parseReadablePath = makeCachedFunction((path: string, root: string) => {
-  path = path
+  const parsedPath = path
     .replace(/%2F/g, '/')
     .replace(/\\/g, '/')
-  if (isPackageName(path)) {
+  if (isPackageName(parsedPath)) {
     return {
-      moduleName: path,
-      path,
+      moduleName: parsedPath,
+      path: parsedPath,
     }
   }
 
-  if (path.match(/^\w+:/)) {
+  if (parsedPath.match(/^\w+:/)
+    && !(path.match(/^[a-z]:\\/i)) // in order to check if it is Windows' path
+  ) {
     return {
-      moduleName: path,
-      path,
+      moduleName: parsedPath,
+      path: parsedPath,
     }
   }
 
-  const moduleName = getModuleNameFromPath(path)
-  const subpath = getModuleSubpathFromPath(path)
+  const moduleName = getModuleNameFromPath(parsedPath)
+  const subpath = getModuleSubpathFromPath(parsedPath)
   if (moduleName && subpath) {
     return {
       moduleName,
@@ -61,7 +63,7 @@ export const parseReadablePath = makeCachedFunction((path: string, root: string)
   }
   // Workaround https://github.com/unjs/pathe/issues/113
   try {
-    let result = relative(root, path)
+    let result = relative(root, parsedPath)
     if (!result.startsWith('./') && !result.startsWith('../'))
       result = `./${result}`
     if (result.startsWith('./.nuxt/'))
@@ -69,6 +71,6 @@ export const parseReadablePath = makeCachedFunction((path: string, root: string)
     return { path: result }
   }
   catch {
-    return { path }
+    return { path: parsedPath }
   }
 })

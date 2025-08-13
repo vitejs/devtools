@@ -35,7 +35,7 @@ export function getHsla(
  * - 240: blue
  * - 270: purple
  */
-const predefinedColorMap = {
+export const predefinedColorMap = {
   error: 0,
   client: 60,
   bailout: -1,
@@ -49,7 +49,7 @@ const predefinedColorMap = {
 
 export function getPluginColor(name: string, opacity = 1): string {
   name = name.replace(/[^a-z]+/gi, '').toLowerCase()
-  if (predefinedColorMap[name]) {
+  if (name in predefinedColorMap) {
     const color = predefinedColorMap[name]!
     if (typeof color === 'number') {
       return getHsla(color, opacity)

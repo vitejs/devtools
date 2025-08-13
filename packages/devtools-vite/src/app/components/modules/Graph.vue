@@ -15,6 +15,8 @@ const props = defineProps<{
 interface Node {
   module: ModuleListItem
   import?: ModuleImport
+  expanded?: boolean
+  hasChildren: boolean
 }
 
 type Link = HierarchyLink<Node> & {
@@ -37,6 +39,11 @@ const isGrabbing = ref(false)
 const width = ref(window.innerWidth)
 const height = ref(window.innerHeight)
 const nodesRefMap = shallowReactive(new Map<string, HTMLDivElement>())
+
+const isUpdating = ref(false)
+const isFirstCalculateGraph = ref(true)
+const collapsedNodes = shallowReactive(new Set<string>())
+const childToParentMap = shallowReactive(new Map<string, string>())
 
 const nodes = shallowRef<HierarchyNode<Node>[]>([])
 const links = shallowRef<Link[]>([])
@@ -82,7 +89,7 @@ const createLinkVertical = linkVertical()
   .x(d => d[0])
   .y(d => d[1])
 
-function calculateGraph() {
+function calculateGraph(focusOnFirstRooeNode = true) {
   // Unset the canvas size, and recalculate again after nodes are rendered
   width.value = window.innerWidth
   height.value = window.innerHeight
@@ -92,9 +99,24 @@ function calculateGraph() {
     { module: { id: '~root' } } as any,
     (parent) => {
       if (parent.module.id === '~root') {
-        rootModules.value.forEach(x => seen.add(x))
-        return rootModules.value.map(x => ({ module: x }))
+        rootModules.value.forEach((x) => {
+          seen.add(x)
+
+          if (isFirstCalculateGraph.value) {
+            childToParentMap.set(x.id, '~root')
+          }
+        })
+        return rootModules.value.map(x => ({
+          module: x,
+          expanded: !collapsedNodes.has(x.id),
+          hasChildren: false,
+        }))
       }
+
+      if (collapsedNodes.has(parent.module.id)) {
+        return []
+      }
+
       const modules = parent.module.imports
         .map((x): Node | undefined => {
           const module = modulesMap.value.get(x.module_id)
@@ -103,26 +125,49 @@ function calculateGraph() {
           if (seen.has(module))
             return undefined
 
+          // Check if the module is a child of the current parent
+          if (childToParentMap.has(module.id) && childToParentMap.get(module.id) !== parent.module.id)
+            return undefined
+
           seen.add(module)
+
+          if (isFirstCalculateGraph.value) {
+            childToParentMap.set(module.id, parent.module.id)
+          }
+
           return {
             module,
             import: x,
+            expanded: !collapsedNodes.has(module.id),
+            hasChildren: false,
           }
         })
         .filter(x => x !== undefined)
+
       return modules
     },
   )
+
+  if (isFirstCalculateGraph.value) {
+    isFirstCalculateGraph.value = false
+  }
 
   // Calculate the layout
   const layout = tree<Node>()
     .nodeSize([SPACING.height, SPACING.width + SPACING.gap])
   layout(root)
 
-  // Rotate the graph from top-down to left-right
   const _nodes = root.descendants()
+
   for (const node of _nodes) {
+    // Rotate the graph from top-down to left-right
     [node.x, node.y] = [node.y! - SPACING.width, node.x!]
+
+    if (node.data.module.imports) {
+      node.data.hasChildren = node.data.module.imports
+        ?.filter(subNode => childToParentMap.get(subNode.module_id) === node.data.module.id)
+        .length > 0
+    }
   }
 
   // Offset the graph and adding margin
@@ -163,8 +208,10 @@ function calculateGraph() {
     width.value = (container.value!.scrollWidth / scale.value + SPACING.margin)
     height.value = (container.value!.scrollHeight / scale.value + SPACING.margin)
     const moduleId = rootModules.value?.[0]?.id
-    if (moduleId) {
-      focusOn(moduleId, false)
+    if (focusOnFirstRooeNode && moduleId) {
+      nextTick(() => {
+        focusOn(moduleId, false)
+      })
     }
   })
 }
@@ -176,6 +223,93 @@ function focusOn(id: string, animated = true) {
     inline: 'center',
     behavior: animated ? 'smooth' : 'instant',
   })
+}
+
+function adjustScrollPositionAfterToggle(id: string, beforePosition: { x: number, y: number }) {
+  // Ensure this runs after the nextTick inside calculateGraph completes (width and height are computed)
+  nextTick(() => {
+    nextTick(() => {
+      const newNode = nodesRefMap.get(id)
+
+      if (newNode && beforePosition && container.value) {
+        const containerRect = container.value.getBoundingClientRect()
+        const newRect = newNode.getBoundingClientRect()
+
+        const viewportDiffX = newRect.left - containerRect.left - beforePosition.x
+        const viewportDiffY = newRect.top - containerRect.top - beforePosition.y
+
+        container.value.scrollLeft += viewportDiffX
+        container.value.scrollTop += viewportDiffY
+      }
+    })
+  })
+}
+
+function toggleNode(id: string) {
+  if (isUpdating.value)
+    return
+  isUpdating.value = true
+
+  const node = nodesRefMap.get(id)
+  let beforePosition: null | { x: number, y: number } = null
+
+  // Record position relative to the scroll container to avoid drift after reflow
+  if (node && container.value) {
+    const containerRect = container.value.getBoundingClientRect()
+    const rect = node.getBoundingClientRect()
+    beforePosition = {
+      x: rect.left - containerRect.left,
+      y: rect.top - containerRect.top,
+    }
+  }
+
+  if (collapsedNodes.has(id)) {
+    collapsedNodes.delete(id)
+  }
+  else {
+    collapsedNodes.add(id)
+  }
+
+  calculateGraph(false)
+
+  // Adjust scroll position after layout changes
+  if (beforePosition) {
+    adjustScrollPositionAfterToggle(id, beforePosition)
+  }
+
+  isUpdating.value = false
+}
+
+function expandAll() {
+  if (isUpdating.value)
+    return
+
+  isUpdating.value = true
+
+  collapsedNodes.clear()
+  calculateGraph()
+
+  setTimeout(() => {
+    isUpdating.value = false
+  }, 300)
+}
+
+function collapseAll() {
+  if (isUpdating.value)
+    return
+
+  isUpdating.value = true
+
+  props.modules.forEach((module) => {
+    if (module.imports.length > 0) {
+      collapsedNodes.add(module.id)
+    }
+  })
+  calculateGraph()
+
+  setTimeout(() => {
+    isUpdating.value = false
+  }, 300)
 }
 
 function generateLink(link: Link) {
@@ -192,7 +326,7 @@ function generateLink(link: Link) {
 }
 
 function getLinkColor(_link: Link) {
-  return 'stroke-#8882'
+  return 'stroke-#8885'
 }
 
 function handleDraggingScroll() {
@@ -205,6 +339,7 @@ function handleDraggingScroll() {
     const rect = container.value!.getBoundingClientRect()
     const distRight = rect.right - e.clientX
     const distBottom = rect.bottom - e.clientY
+
     if (distRight <= SCROLLBAR_THICKNESS || distBottom <= SCROLLBAR_THICKNESS) {
       return
     }
@@ -213,6 +348,7 @@ function handleDraggingScroll() {
     x = container.value!.scrollLeft + e.pageX
     y = container.value!.scrollTop + e.pageY
   })
+  useEventListener(container, 'contextmenu', e => e.preventDefault())
   useEventListener('mouseleave', () => isGrabbing.value = false)
   useEventListener('mouseup', () => isGrabbing.value = false)
   useEventListener('mousemove', (e) => {
@@ -228,9 +364,19 @@ onMounted(() => {
   handleDraggingScroll()
 
   watch(
-    () => [props.modules, graphRender.value],
-    calculateGraph,
+    () => props.modules,
+    () => {
+      isFirstCalculateGraph.value = true
+      collapsedNodes.clear()
+      childToParentMap.clear()
+      calculateGraph()
+    },
     { immediate: true },
+  )
+
+  watch(
+    () => graphRender.value,
+    () => calculateGraph(),
   )
 })
 </script>
@@ -272,40 +418,69 @@ onMounted(() => {
             />
           </g>
         </svg>
-        <!-- <svg pointer-events-none absolute left-0 top-0 z-graph-link-active :width="width" :height="height">
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateLink(link)!"
-          fill="none"
-          class="stroke-primary:75"
-        />
-      </g>
-    </svg> -->
         <template
           v-for="node of nodes"
           :key="node.data.module.id"
         >
           <template v-if="node.data.module.id !== '~root'">
-            <DisplayModuleId
-              :id="node.data.module.id"
-              :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-              absolute hover="bg-active" block px2 p1 bg-glass z-graph-node
-              border="~ base rounded"
-              :link="true"
-              :session="session"
-              :minimal="true"
+            <div
+              absolute
+              class="group z-graph-node flex gap-1 items-center"
               :style="{
                 left: `${node.x}px`,
                 top: `${node.y}px`,
-                minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
                 transform: 'translate(-50%, -50%)',
-                maxWidth: '400px',
-                maxHeight: '50px',
-                overflow: 'hidden',
               }"
-            />
+            >
+              <div
+                flex="~ items-center gap-1"
+                bg-glass
+                border="~ base rounded"
+                class="group-hover:bg-active block px2 p1"
+                :style="{
+                  minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
+                  maxWidth: '400px',
+                  maxHeight: '50px',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease',
+                }"
+              >
+                <DisplayModuleId
+                  :id="node.data.module.id"
+                  :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
+                  :link="true"
+                  :session="session"
+                  :minimal="true"
+                  flex="1"
+                />
+              </div>
+
+              <!-- Expand/Collapse Button -->
+              <div class="w-4">
+                <button
+                  v-if="node.data.hasChildren"
+                  w-4
+                  h-4
+                  rounded-full
+                  flex="items-center justify-center"
+                  text-xs
+                  border="~ active"
+                  class="flex cursor-pointer z-graph-node-active bg-base"
+                  :disabled="isUpdating"
+                  :class="{ 'cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+                  :title="node.data.expanded ? 'Collapse' : 'Expand'"
+                  @click.stop="toggleNode(node.data.module.id)"
+                >
+                  <div
+                    class="text-primary"
+                    :class="[
+                      node.data.expanded ? 'i-ph-minus' : 'i-ph-plus',
+                    ]"
+                    transition="transform duration-200"
+                  />
+                </button>
+              </div>
+            </div>
           </template>
         </template>
       </div>
@@ -317,7 +492,32 @@ onMounted(() => {
         <DisplayTimeoutView :content="`${Math.round(scale * 100)}%`" class="text-sm" />
       </div>
 
-      <div bg-glass rounded-full border border-base shadow>
+      <div bg-glass rounded-full border border-base shadow flex="~ col gap-1 p1">
+        <button
+          v-tooltip.left="'Expand All'"
+          w-10 h-10 rounded-full hover:bg-active op-fade
+          hover:op100 flex="~ items-center justify-center"
+          :disabled="isUpdating"
+          :class="{ 'op50 cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+          title="Expand All"
+          @click="expandAll()"
+        >
+          <div class="i-carbon:expand-categories" />
+        </button>
+        <button
+          v-tooltip.left="'Collapse All'"
+          w-10 h-10 rounded-full hover:bg-active op-fade
+          hover:op100 flex="~ items-center justify-center"
+          :disabled="isUpdating"
+          :class="{ 'op50 cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
+          title="Collapse All"
+          @click="collapseAll()"
+        >
+          <div class="i-carbon:collapse-categories" />
+        </button>
+
+        <div border="t base" my1 />
+
         <button
           v-tooltip.left="'Zoom In (Ctrl + =)'"
           :disabled="scale >= ZOOM_MAX"

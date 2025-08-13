@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FixedTupleMap, MaybeWeakMap, TupleMap } from './cache'
+import { FixedTupleMap, MaybeWeakMap, TupleMap } from '../cache'
 
 describe('maybeWeakMap', () => {
   it('should work', () => {

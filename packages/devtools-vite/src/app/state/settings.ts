@@ -16,6 +16,11 @@ export interface ClientSettings {
   assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst' | 'flamegraph'
   chartAnimation: boolean
   moduleDetailsViewType: 'flow' | 'charts' | 'imports'
+  pluginDetailsViewType: 'flow' | 'charts'
+  pluginDetailsTableFields: string[] | null
+  pluginDetailsModuleTypes: string[] | null
+  pluginDetailsDurationSortType: string
+  pluginDetailSelectedHook: string
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -34,6 +39,11 @@ export const settings = useLocalStorage<ClientSettings>(
     assetViewType: 'list',
     chartAnimation: true,
     moduleDetailsViewType: 'flow',
+    pluginDetailsViewType: 'flow',
+    pluginDetailsTableFields: null,
+    pluginDetailsModuleTypes: null,
+    pluginDetailsDurationSortType: '',
+    pluginDetailSelectedHook: '',
   },
   {
     mergeDefaults: true,

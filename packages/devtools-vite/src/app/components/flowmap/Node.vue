@@ -7,6 +7,8 @@ const props = defineProps<{
   classNodeInline?: string
   classNodeOuter?: string
   classNodeInner?: string
+  classLineTop?: string
+  classLineBottom?: string
   active?: boolean
 }>()
 
@@ -17,16 +19,16 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
   <div flex="~ col" relative>
     <div
       v-if="props.lines?.top" absolute top-0 left-10 border="r" h="1/2" max-h-4 z-flowmap-line
-      :class="active ? 'border-flow-line-active' : 'border-flow-line'"
+      :class="[active ? 'border-flow-line-active' : 'border-flow-line', props.classLineTop]"
       :style="typeof props.lines?.top === 'number' ? `height: ${props.lines.top}px` : ''"
     />
     <div
       v-if="props.lines?.bottom" absolute bottom-0 left-10 border="r" h="1/2" max-h-4 z-flowmap-line
-      :class="active ? 'border-flow-line-active' : 'border-flow-line'"
+      :class="[active ? 'border-flow-line-active' : 'border-flow-line', props.classLineBottom]"
       :style="typeof props.lines?.bottom === 'number' ? `height: ${props.lines.bottom}px` : ''"
     />
     <slot name="before" />
-    <div flex="~" :class="props.classNodeInline">
+    <div flex="~" w-max :class="props.classNodeInline" class="flowmap-node-inline">
       <slot name="inline-before" />
       <div
         :class="[

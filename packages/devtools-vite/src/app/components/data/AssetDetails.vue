@@ -99,11 +99,8 @@ function openInEditor() {
         <DisplayCloseButton @click="showSource = false" />
       </div>
       <div class="w-full of-auto px2 py1" border="~ base rounded-lg">
-        <CodeDiffEditor
-          :from="asset.content!"
-          :to="asset.content!"
-          :diff="false"
-          :one-column="true"
+        <CodeViewer
+          :code="asset.content!"
         />
       </div>
     </template>

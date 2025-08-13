@@ -88,3 +88,31 @@ summary::-webkit-details-marker {
 .v-popper__popper--shown {
   overflow: visible !important;
 }
+
+/* For Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+} 
+
+::-webkit-scrollbar:horizontal {
+  height: 6px;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8884;
+  transition: background 0.2s ease;
+  border-radius: 1px; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #8885;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background: transparent;
+}
