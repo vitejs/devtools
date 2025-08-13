@@ -6,7 +6,15 @@ export function DevToolsVite(): Plugin {
     name: 'vite:devtools',
     devtools: {
       setup(ctx) {
-
+        ctx.views.register({
+          name: 'Vite',
+          icon: 'vite',
+          viewId: 'vite',
+          view: {
+            type: 'iframe',
+            url: 'http://localhost:3000',
+          },
+        })
       },
     },
   }

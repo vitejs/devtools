@@ -1,6 +1,11 @@
 import type { EntriesToObject, Thenable } from './utils'
 
 /**
+ * To be extended
+ */
+export interface ViteDevtoolsRpcFunctions {}
+
+/**
  * Type of the RPC function,
  * - static: A function that returns a static data (can be cached and dumped)
  * - action: A function that performs an action (no data returned)
@@ -9,7 +14,7 @@ import type { EntriesToObject, Thenable } from './utils'
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
 export interface RpcFunctionsHost {
-  functions: Record<any, any>
+  functions: ViteDevtoolsRpcFunctions
   register: (name: string, handler: (...args: any[]) => any) => void
 }
 

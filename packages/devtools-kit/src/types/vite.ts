@@ -1,11 +1,15 @@
-import type { RpcContext } from './rpc'
+import type { RpcFunctionsHost } from './rpc'
+import type { ViteDevtoolsViewHost } from './views'
 
 export interface DevToolsPluginOptions {
   setup: (context: DevToolsSetupContext) => void | Promise<void>
 }
 
 export interface DevToolsSetupContext {
-  rpc: RpcContext
+  readonly cwd: string
+  readonly mode: 'dev' | 'build'
+  rpc: RpcFunctionsHost
+  views: ViteDevtoolsViewHost
 }
 
 export interface ConnectionMeta {
