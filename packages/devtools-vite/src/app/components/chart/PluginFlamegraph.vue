@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { TreeNodeInput } from 'nanovis'
-import type { RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types'
+import type { PluginBuildInfo, RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
 import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { parseReadablePath } from '~/utils/filepath'
+import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
@@ -24,7 +25,7 @@ const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
 // filter current module list existed module type
 const existedModuleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
 
-const n = (node: TreeNodeInput<any>) => normalizeTreeNode(node, undefined, false)
+const n = (node: TreeNodeInput<PluginBuildInfo>) => normalizeTreeNode(node, undefined, false)
 
 const tree = computed(() => {
   // build children: module group by module type
@@ -37,6 +38,7 @@ const tree = computed(() => {
       id: `resolveId-${idx}`,
       text: id.module,
       size: id.duration,
+      meta: id,
     })),
   }))
 
@@ -49,6 +51,7 @@ const tree = computed(() => {
       id: `resolveId-${idx}`,
       text: id.module,
       size: id.duration,
+      meta: id,
     })),
   }))
 
@@ -61,6 +64,7 @@ const tree = computed(() => {
       id: `resolveId-${idx}`,
       text: id.module,
       size: id.duration,
+      meta: id,
     })),
   }))
 
@@ -93,11 +97,12 @@ const tree = computed(() => {
 const hoverNode = ref<{
   plugin_name: string
   duration: number
+  meta: PluginBuildInfo | undefined
 } | null>(null)
 const hoverX = ref<number>(0)
 const hoverY = ref<number>(0)
 const el = useTemplateRef<HTMLDivElement>('el')
-const flamegraph = shallowRef<Flamegraph | null>(null)
+const flamegraph = shallowRef<Flamegraph<PluginBuildInfo> | null>(null)
 
 function buildFlamegraph() {
   flamegraph.value = new Flamegraph(tree.value, {
@@ -124,6 +129,7 @@ function buildFlamegraph() {
       hoverNode.value = {
         plugin_name: node.text!,
         duration: node.size,
+        meta: node.meta,
       }
     },
   })
@@ -159,10 +165,24 @@ watch(tree, async () => {
         z-panel-content bg-glass pointer-events-none text-sm
         :style="{ left: `${hoverX}px`, top: `${hoverY}px` }"
       >
-        <div font-bold font-mono>
+        <div flex="~" font-bold font-mono>
+          <DisplayFileIcon v-if="hoverNode.meta" :filename="hoverNode.meta.module" mr1.5 />
           {{ hoverNode.plugin_name }}
         </div>
-        <DisplayDuration :duration="hoverNode.duration" />
+        <div v-if="hoverNode.meta">
+          <div>
+            <label>Start Time: </label>
+            <time :datetime="new Date(hoverNode.meta.timestamp_start).toISOString()">{{ normalizeTimestamp(hoverNode.meta.timestamp_start) }}</time>
+          </div>
+          <div>
+            <label>End Time: </label>
+            <time :datetime="new Date(hoverNode.meta.timestamp_end).toISOString()">{{ normalizeTimestamp(hoverNode.meta.timestamp_end) }}</time>
+          </div>
+        </div>
+        <div flex="~ gap-1">
+          <label>Duration: </label>
+          <DisplayDuration :duration="hoverNode.duration" />
+        </div>
       </div>
     </Teleport>
     <div ref="el" min-h-30 />
