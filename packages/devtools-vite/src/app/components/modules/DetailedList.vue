@@ -19,39 +19,44 @@ const filteredTransformsMap = computed(() => {
 
 <template>
   <div flex="~ col gap-2" p4>
-    <template v-for="mod of modules" :key="mod">
-      <div>
-        <DisplayModuleId
-          :id="mod.id"
-          :session
-          hover="bg-active" block px2 p1
-          border="~ base rounded"
-          :link="true"
-        >
-          <template #detail>
-            <div flex="~ gap-1 wrap" text-xs>
-              <ul flex="~ auto text-xs wrap">
-                <template v-for="(p, i) of filteredTransformsMap.get(mod.id)" :key="i">
-                  <li v-if="p.source_code_size !== p.transformed_code_size && p.transformed_code_size" flex="~ items-center">
-                    <DisplayPluginName
-                      :name="p.plugin_name"
-                      class="font-mono ws-nowrap op-50"
-                    />
-                    <span v-if="i !== filteredTransformsMap.get(mod.id)!.length - 1" op20>|</span>
-                  </li>
-                </template>
-              </ul>
+    <DataVirtualList
+      :items="modules"
+      key-prop="id"
+    >
+      <template #default="{ item }">
+        <div flex pb2>
+          <DisplayModuleId
+            :id="item.id"
+            :session
+            hover="bg-active" block px2 p1 w-full
+            border="~ base rounded"
+            :link="true"
+          >
+            <template #detail>
+              <div flex="~ gap-1 wrap" text-xs>
+                <ul flex="~ auto text-xs wrap">
+                  <template v-for="(p, i) of filteredTransformsMap.get(item.id)" :key="i">
+                    <li v-if="p.source_code_size !== p.transformed_code_size && p.transformed_code_size" flex="~ items-center">
+                      <DisplayPluginName
+                        :name="p.plugin_name"
+                        class="font-mono ws-nowrap op-50"
+                      />
+                      <span v-if="i !== filteredTransformsMap.get(item.id)!.length - 1" op20>|</span>
+                    </li>
+                  </template>
+                </ul>
 
-              <div flex="~ auto gap-1" of-hidden />
-              <div flex="~ none gap-1 wrap justify-end">
-                <span>
-                  <ModulesBuildMetrics v-if="mod.buildMetrics" :metrics="mod.buildMetrics" />
-                </span>
+                <div flex="~ auto gap-1" of-hidden />
+                <div flex="~ none gap-1 wrap justify-end">
+                  <span>
+                    <ModulesBuildMetrics v-if="item.buildMetrics" :metrics="item.buildMetrics" />
+                  </span>
+                </div>
               </div>
-            </div>
-          </template>
-        </DisplayModuleId>
-      </div>
-    </template>
+            </template>
+          </DisplayModuleId>
+        </div>
+      </template>
+    </DataVirtualList>
   </div>
 </template>
