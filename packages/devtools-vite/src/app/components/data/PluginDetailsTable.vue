@@ -6,6 +6,7 @@ import { Menu as VMenu } from 'floating-vue'
 import { computed, ref } from 'vue'
 import { settings } from '~~/app/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
+import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
@@ -61,19 +62,6 @@ function toggleModuleType(rule: FilterMatchRule) {
     filterModuleTypes.value?.push(rule.name)
   }
   settings.value.pluginDetailsModuleTypes = filterModuleTypes.value
-}
-
-function normalizeTimestamp(timestamp: number) {
-  return new Date(timestamp).toLocaleString(undefined, {
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    fractionalSecondDigits: 3,
-  })
 }
 
 function toggleDurationSortType() {
