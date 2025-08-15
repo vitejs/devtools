@@ -8,12 +8,15 @@ defineProps<{
 
 <template>
   <div p4>
-    <div flex="~ col gap-2">
-      <AssetsListItem
-        v-for="asset in assets"
-        :key="asset.filename"
-        :asset="asset"
-      />
-    </div>
+    <DataVirtualList
+      :items="assets"
+      key-prop="filename"
+    >
+      <template #default="{ item }">
+        <div flex pb2>
+          <AssetsListItem :asset="item" />
+        </div>
+      </template>
+    </DataVirtualList>
   </div>
 </template>

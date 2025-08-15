@@ -58,6 +58,7 @@
     "tinyglobby": "catalog:deps",
     "unconfig": "catalog:deps",
     "unstorage": "catalog:deps",
+    "vue-virtual-scroller": "catalog:frontend",
     "ws": "catalog:deps"
   },
   "devDependencies": {

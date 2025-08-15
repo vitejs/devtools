@@ -9,7 +9,7 @@ defineProps<{
 <template>
   <NuxtLink
     :to="{ query: { asset: asset.filename } }"
-    font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active"
+    w-full font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active"
   >
     <div flex="~ gap-1">
       <DisplayFileIcon :filename="asset.filename" />
