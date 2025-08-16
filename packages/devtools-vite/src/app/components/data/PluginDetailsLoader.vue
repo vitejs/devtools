@@ -153,6 +153,11 @@ const totalDuration = computed(() => {
         :session="session"
         :build-metrics="state"
       />
+      <ChartPluginFlamegraph
+        v-if="settings.pluginDetailsViewType === 'charts'"
+        :session="session"
+        :build-metrics="state"
+      />
     </div>
   </div>
   <div v-else flex="~ items-center justify-center" w-full h-full>
