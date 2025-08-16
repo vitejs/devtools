@@ -2,7 +2,6 @@
 import type { TreeNodeInput } from 'nanovis'
 import type { PluginBuildInfo, RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
-import { relative } from 'pathe'
 import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { parseReadablePath } from '~/utils/filepath'
 import { normalizeTimestamp } from '~/utils/format'
@@ -26,29 +25,17 @@ const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.va
 
 const n = (node: TreeNodeInput<PluginBuildInfo>) => normalizeTreeNode(node, undefined, false)
 
-function normalizeModulePath(path: string) {
-  const normalized = path.replace(/%2F/g, '/')
-  const cwd = props.session!.meta.cwd
-  let relate = cwd ? relative(cwd, normalized) : normalized
-  if (!relate.startsWith('.'))
-    relate = `./${relate}`
-  if (relate.startsWith('./'))
-    return relate
-  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
-    return relate
-  return normalized
-}
-
 const tree = computed(() => {
   const resolveIds = moduleTypes.value.map((type, idx) => n({
     id: `resolveId-${type.name}-${idx}`,
     text: type.description,
     children: props.buildMetrics.resolveIdMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
-    }).map((id, idx) => n({
+    }).map((item, idx) => n({
       id: `resolveId-${idx}`,
-      text: normalizeModulePath(id.module),
-      size: id.duration,
+      text: item.module,
+      size: item.duration,
+      meta: item,
     })),
   }))
   const loads = moduleTypes.value.map((type, idx) => n({
@@ -56,10 +43,11 @@ const tree = computed(() => {
     text: type.description,
     children: props.buildMetrics.loadMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
-    }).map((id, idx) => n({
+    }).map((item, idx) => n({
       id: `resolveId-${idx}`,
-      text: normalizeModulePath(id.module),
-      size: id.duration,
+      text: item.module,
+      size: item.duration,
+      meta: item,
     })),
   }))
   const transforms = moduleTypes.value.map((type, idx) => n({
@@ -67,10 +55,11 @@ const tree = computed(() => {
     text: type.description,
     children: props.buildMetrics.transformMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
-    }).map((id, idx) => n({
+    }).map((item, idx) => n({
       id: `resolveId-${idx}`,
-      text: normalizeModulePath(id.module),
-      size: id.duration,
+      text: item.module,
+      size: item.duration,
+      meta: item,
     })),
   }))
 
@@ -101,7 +90,7 @@ const tree = computed(() => {
 })
 
 const hoverNode = ref<{
-  plugin_name: string
+  title: string
   duration: number
   meta: PluginBuildInfo | undefined
 } | null>(null)
@@ -133,7 +122,7 @@ function buildFlamegraph() {
         hoverY.value = e.clientY
       }
       hoverNode.value = {
-        plugin_name: node.text!,
+        title: node.text!,
         duration: node.size,
         meta: node.meta,
       }
@@ -167,26 +156,45 @@ watch(tree, async () => {
     <Teleport to="body">
       <div
         v-if="hoverNode"
-        border="~ base" rounded shadow px2 py1 fixed
-        z-panel-content bg-glass pointer-events-none text-sm
+        border="~ base" rounded-lg shadow-lg px3 py2 fixed
+        z-panel-content bg-glass pointer-events-none text-sm max-w-80
         :style="{ left: `${hoverX}px`, top: `${hoverY}px` }"
       >
-        <div flex="~" font-bold font-mono>
-          <DisplayFileIcon v-if="hoverNode.meta" :filename="hoverNode.meta.module" mr1.5 />
-          {{ hoverNode.plugin_name }}
+        <div v-if="hoverNode.meta?.module" flex="~" font-semibold font-mono text-base mb2>
+          <DisplayModuleId :id="hoverNode.meta.module" :session="session" :link="false" />
         </div>
-        <div v-if="hoverNode.meta">
-          <div>
-            <label>Start Time: </label>
-            <time :datetime="new Date(hoverNode.meta.timestamp_start).toISOString()">{{ normalizeTimestamp(hoverNode.meta.timestamp_start) }}</time>
+        <div v-else font-semibold text-base mb2>
+          {{ hoverNode.title }}
+        </div>
+        <div v-if="hoverNode.meta?.module" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
+          <div flex="~ justify-between items-center" py1>
+            <label text-xs opacity-70>Start Time</label>
+            <time
+              :datetime="new Date(hoverNode.meta.timestamp_start).toISOString()"
+              font-mono text="xs"
+              bg="base/10"
+              px1.5 py0.5 rounded
+            >
+              {{ normalizeTimestamp(hoverNode.meta.timestamp_start) }}
+            </time>
           </div>
-          <div>
-            <label>End Time: </label>
-            <time :datetime="new Date(hoverNode.meta.timestamp_end).toISOString()">{{ normalizeTimestamp(hoverNode.meta.timestamp_end) }}</time>
+          <div flex="~ justify-between items-center" py1>
+            <label text-xs opacity-70>End Time</label>
+            <time
+              :datetime="new Date(hoverNode.meta.timestamp_end).toISOString()"
+              font-mono text="xs"
+              bg="base/10"
+              px1.5 py0.5 rounded
+            >
+              {{ normalizeTimestamp(hoverNode.meta.timestamp_end) }}
+            </time>
+          </div>
+          <div flex="~ justify-between items-center" py1 border="t base dashed" pt2>
+            <label text="xs" op70>Duration</label>
+            <DisplayDuration :duration="hoverNode.duration" />
           </div>
         </div>
-        <div flex="~ gap-1">
-          <label>Duration: </label>
+        <div v-else>
           <DisplayDuration :duration="hoverNode.duration" />
         </div>
       </div>
