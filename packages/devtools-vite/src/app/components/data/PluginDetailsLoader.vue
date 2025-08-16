@@ -42,7 +42,7 @@ const hookLoadDuration = computed(() => {
   if (!loadMetrics?.length) {
     return
   }
-  return loadMetrics[loadMetrics.length - 1]!.timestamp_end - loadMetrics[0]!.timestamp_start
+  return loadMetrics.reduce((arc, item) => arc + item.duration, 0)
 })
 
 const hookTransformDuration = computed(() => {
@@ -50,7 +50,7 @@ const hookTransformDuration = computed(() => {
   if (!transformMetrics?.length) {
     return
   }
-  return transformMetrics[transformMetrics.length - 1]!.timestamp_end - transformMetrics[0]!.timestamp_start
+  return transformMetrics.reduce((arc, item) => arc + item.duration, 0)
 })
 
 const hookResolveIdDuration = computed(() => {
@@ -58,7 +58,7 @@ const hookResolveIdDuration = computed(() => {
   if (!resolveIdMetrics?.length) {
     return
   }
-  return resolveIdMetrics[resolveIdMetrics.length - 1]!.timestamp_end - resolveIdMetrics[0]!.timestamp_start
+  return resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0)
 })
 
 const totalDuration = computed(() => {
@@ -66,7 +66,7 @@ const totalDuration = computed(() => {
   if (!calls?.length) {
     return
   }
-  return calls[calls.length - 1]!.timestamp_end - calls[0]!.timestamp_start
+  return calls.reduce((arc, item) => arc + item.duration, 0)
 })
 </script>
 
@@ -86,26 +86,26 @@ const totalDuration = computed(() => {
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
           :duration="hookResolveIdDuration" flex="~ gap-1 items-center"
-          :title="`Resolve Id hooks cost: ${hookResolveIdDuration}ms`"
+          :title="`Resolve Id hooks cost: ${hookResolveIdDuration ?? 0}ms`"
         >
           <span i-ph-magnifying-glass-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookLoadDuration" flex="~ gap-1 items-center"
-          :title="`Load hooks cost: ${hookLoadDuration}ms`"
+          :title="`Load hooks cost: ${hookLoadDuration ?? 0}ms`"
         >
           <span i-ph-upload-simple-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookTransformDuration" flex="~ gap-1 items-center"
-          :title="`Transform hooks cost: ${hookTransformDuration}ms`"
+          :title="`Transform hooks cost: ${hookTransformDuration ?? 0}ms`"
         >
           <span i-ph-magic-wand-duotone inline-block />
         </DisplayDuration>
         <span op40>|</span>
         <DisplayDuration
           :duration="totalDuration" flex="~ gap-1 items-center"
-          :title="`Total build cost: ${totalDuration}ms`"
+          :title="`Total build cost: ${totalDuration ?? 0}ms`"
         >
           <span i-ph-clock-duotone inline-block />
         </DisplayDuration>

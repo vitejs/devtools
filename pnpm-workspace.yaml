@@ -68,6 +68,7 @@ catalogs:
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
     vue: ^3.5.18
+    vue-virtual-scroller: ^2.0.0-beta.8
   icons:
     '@iconify-json/carbon': ^1.2.13
     '@iconify-json/catppuccin': ^1.2.15

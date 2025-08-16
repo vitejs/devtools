@@ -16,17 +16,12 @@ function normalizeMetrics(metrics: PluginBuildInfo[]) {
     modules: 0,
   }
   const seen = new Set()
-  metrics.forEach((metric, index) => {
+  metrics.forEach((metric) => {
     if (!seen.has(metric.module)) {
       seen.add(metric.module)
       info.modules++
     }
-    if (index === 0) {
-      info.duration = metric.timestamp_start
-    }
-    if (index === metrics.length - 1) {
-      info.duration = metric.timestamp_end - info.duration
-    }
+    info.duration += metric.duration
   })
   if (info.duration === 0) {
     info.duration = null!
