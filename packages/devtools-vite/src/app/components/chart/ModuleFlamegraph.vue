@@ -31,17 +31,17 @@ const tree = computed(() => {
   const children = [
     n({
       id: '~resolves',
-      text: 'resolve',
+      text: 'Resolve Id',
       children: resolveIds,
     }),
     n({
       id: '~loads',
-      text: 'load',
+      text: 'Load',
       children: loads,
     }),
     n({
       id: '~transforms',
-      text: 'transform',
+      text: 'Transform',
       children: transforms,
     }),
   ]

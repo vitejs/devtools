@@ -2,6 +2,7 @@
 import type { TreeNodeInput } from 'nanovis'
 import type { PluginBuildInfo, RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
+import { relative } from 'pathe'
 import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { parseReadablePath } from '~/utils/filepath'
 import { normalizeTimestamp } from '~/utils/format'
@@ -21,50 +22,55 @@ const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
     type,
   }
 }))
-
-// filter current module list existed module type
-const existedModuleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
+const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
 
 const n = (node: TreeNodeInput<PluginBuildInfo>) => normalizeTreeNode(node, undefined, false)
 
+function normalizeModulePath(path: string) {
+  const normalized = path.replace(/%2F/g, '/')
+  const cwd = props.session!.meta.cwd
+  let relate = cwd ? relative(cwd, normalized) : normalized
+  if (!relate.startsWith('.'))
+    relate = `./${relate}`
+  if (relate.startsWith('./'))
+    return relate
+  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
+    return relate
+  return normalized
+}
+
 const tree = computed(() => {
-  // build children: module group by module type
-  const resolveIds = existedModuleTypes.value.map((type, idx) => n({
+  const resolveIds = moduleTypes.value.map((type, idx) => n({
     id: `resolveId-${type.name}-${idx}`,
-    text: type.name,
+    text: type.description,
     children: props.buildMetrics.resolveIdMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
     }).map((id, idx) => n({
       id: `resolveId-${idx}`,
-      text: id.module,
+      text: normalizeModulePath(id.module),
       size: id.duration,
-      meta: id,
     })),
   }))
-
-  const loads = existedModuleTypes.value.map((type, idx) => n({
+  const loads = moduleTypes.value.map((type, idx) => n({
     id: `loads-${type.name}-${idx}`,
-    text: type.name,
+    text: type.description,
     children: props.buildMetrics.loadMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
     }).map((id, idx) => n({
       id: `resolveId-${idx}`,
-      text: id.module,
+      text: normalizeModulePath(id.module),
       size: id.duration,
-      meta: id,
     })),
   }))
-
-  const transforms = existedModuleTypes.value.map((type, idx) => n({
+  const transforms = moduleTypes.value.map((type, idx) => n({
     id: `transforms-${type.name}-${idx}`,
-    text: type.name,
+    text: type.description,
     children: props.buildMetrics.transformMetrics.filter((item) => {
       return getFileTypeFromModuleId(item.module).name === type.name
     }).map((id, idx) => n({
       id: `resolveId-${idx}`,
-      text: id.module,
+      text: normalizeModulePath(id.module),
       size: id.duration,
-      meta: id,
     })),
   }))
 
@@ -72,17 +78,17 @@ const tree = computed(() => {
   const children = [
     n({
       id: '~resolves',
-      text: 'resolve',
+      text: 'Resolve Id',
       children: resolveIds,
     }),
     n({
       id: '~loads',
-      text: 'load',
+      text: 'Load',
       children: loads,
     }),
     n({
       id: '~transforms',
-      text: 'transform',
+      text: 'Transform',
       children: transforms,
     }),
   ]

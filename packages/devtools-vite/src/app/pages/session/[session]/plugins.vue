@@ -90,10 +90,3 @@ debouncedWatch(
     </div>
   </div>
 </template>
-
-<!--
-TODO: plugins framegraph
-  Two different views direction:
-    - plugins -> hooks -> modules
-    - modules -> hooks -> plugins
--->
