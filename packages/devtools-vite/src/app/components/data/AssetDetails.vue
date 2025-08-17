@@ -115,6 +115,7 @@ function openInEditor() {
             :chunk="chunk"
             :session="session"
             :show-modules="false"
+            :show-imports="false"
           />
         </div>
       </div>

@@ -35,6 +35,15 @@ withDefaults(defineProps<{
         Imports
       </div>
       <div flex="~ col gap-1" ws-nowrap>
+        <!-- TODO -->
+        <DisplayChunkImports
+          v-for="(importChunk, index) in chunk.imports"
+          :key="index"
+          :chunk-import="importChunk"
+          :session="session"
+          hover="bg-active"
+          border="~ base rounded" px2 py1 w-full
+        />
         {{ chunk.imports }}
       </div>
     </template>
