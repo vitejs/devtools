@@ -472,7 +472,7 @@ onMounted(() => {
                   @click.stop="toggleNode(node.data.module.id)"
                 >
                   <div
-                    class="text-primary"
+                    class="text-primary h-4"
                     :class="[
                       node.data.expanded ? 'i-ph-minus' : 'i-ph-plus',
                     ]"
