@@ -6,8 +6,10 @@ withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
   showModules?: boolean
+  showImports?: boolean
 }>(), {
   showModules: true,
+  showImports: true,
 })
 </script>
 
@@ -28,12 +30,14 @@ withDefaults(defineProps<{
     </div>
 
     <!-- TODO -->
-    <!-- <div op50>
-      Imports
-    </div>
-    <div flex="~ col gap-1" ws-nowrap>
-      {{ chunk.imports }}
-    </div> -->
+    <template v-if="showImports && chunk.imports.length > 0">
+      <div op50>
+        Imports
+      </div>
+      <div flex="~ col gap-1" ws-nowrap>
+        {{ chunk.imports }}
+      </div>
+    </template>
 
     <template v-if="showModules">
       <div op50>
