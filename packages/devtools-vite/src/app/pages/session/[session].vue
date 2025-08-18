@@ -42,13 +42,16 @@ onKeyDown('Escape', (e) => {
   if (!e.isTrusted || e.repeat)
     return
 
-  const { module, asset } = route.query
+  const { module, asset, plugin } = route.query
 
   if (module)
     closeFlowPanel()
 
   if (asset)
     closeAssetPanel()
+
+  if (plugin)
+    closePluginPanel()
 })
 
 useSideNav(() => {
