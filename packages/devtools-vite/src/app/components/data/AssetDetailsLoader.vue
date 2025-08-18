@@ -52,7 +52,7 @@ const { state } = useAsyncState(
 </script>
 
 <template>
-  <div v-if="state?.asset" p4 relative h-full w-full of-auto pt12>
+  <div v-if="state?.asset" p4 relative h-full w-full of-auto pt12 bg-glass z-panel-content>
     <DisplayCloseButton
       absolute right-2 top-1.5
       @click="emit('close')"

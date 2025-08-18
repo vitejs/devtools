@@ -4,7 +4,7 @@ import type { GraphBase, GraphBaseOptions } from 'nanovis'
 import type { SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import type { AssetChartInfo, AssetChartNode } from '~/types/assets'
-import { useRouter } from '#app/composables/router'
+import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -27,6 +27,7 @@ const searchValue = ref<{ search: string }>({
   search: '',
 })
 const router = useRouter()
+const route = useRoute()
 const assetViewTpyes = [
   {
     label: 'List',
@@ -231,7 +232,7 @@ const options = computed<GraphBaseOptions<AssetChartInfo | undefined>>(() => {
       }
     },
     onHover(node) {
-      if (node)
+      if (node && !route.query.asset)
         nodeHover.value = node
     },
     onLeave() {
