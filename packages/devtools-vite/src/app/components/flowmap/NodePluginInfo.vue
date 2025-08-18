@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { formatDuration } from '~/utils/format'
+
 defineProps<{
   modules: number
   calls: number
@@ -22,7 +24,7 @@ defineProps<{
     <span op40>|</span>
     <DisplayDuration
       :duration="duration" flex="~ gap-1 items-center" px1
-      :title="`Total build cost: ${duration}ms`"
+      :title="`Total build cost: ${formatDuration(duration, true)}`"
     >
       <span i-ph-clock-duotone inline-block />
     </DisplayDuration>

@@ -5,6 +5,7 @@ import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { settings } from '~~/app/state/settings'
+import { formatDuration } from '~/utils/format'
 
 const props = defineProps<{
   session: SessionContext
@@ -37,37 +38,13 @@ const processedModules = computed(() => {
   }) ?? []
 })
 
-const hookLoadDuration = computed(() => {
-  const loadMetrics = state.value?.loadMetrics
-  if (!loadMetrics?.length) {
-    return
-  }
-  return loadMetrics.reduce((arc, item) => arc + item.duration, 0)
-})
+const hookLoadDuration = computed(() => state.value?.loadMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const hookTransformDuration = computed(() => {
-  const transformMetrics = state.value?.transformMetrics
-  if (!transformMetrics?.length) {
-    return
-  }
-  return transformMetrics.reduce((arc, item) => arc + item.duration, 0)
-})
+const hookTransformDuration = computed(() => state.value?.transformMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const hookResolveIdDuration = computed(() => {
-  const resolveIdMetrics = state.value?.resolveIdMetrics
-  if (!resolveIdMetrics?.length) {
-    return
-  }
-  return resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0)
-})
+const hookResolveIdDuration = computed(() => state.value?.resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const totalDuration = computed(() => {
-  const calls = state.value?.calls
-  if (!calls?.length) {
-    return
-  }
-  return calls.reduce((arc, item) => arc + item.duration, 0)
-})
+const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => arc + item.duration, 0))
 </script>
 
 <template>
@@ -86,26 +63,26 @@ const totalDuration = computed(() => {
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
           :duration="hookResolveIdDuration" flex="~ gap-1 items-center"
-          :title="`Resolve Id hooks cost: ${hookResolveIdDuration ?? 0}ms`"
+          :title="`Resolve Id hooks cost: ${formatDuration(hookResolveIdDuration, true)}`"
         >
           <span i-ph-magnifying-glass-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookLoadDuration" flex="~ gap-1 items-center"
-          :title="`Load hooks cost: ${hookLoadDuration ?? 0}ms`"
+          :title="`Load hooks cost: ${formatDuration(hookLoadDuration, true)}`"
         >
           <span i-ph-upload-simple-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookTransformDuration" flex="~ gap-1 items-center"
-          :title="`Transform hooks cost: ${hookTransformDuration ?? 0}ms`"
+          :title="`Transform hooks cost: ${formatDuration(hookTransformDuration, true)}`"
         >
           <span i-ph-magic-wand-duotone inline-block />
         </DisplayDuration>
         <span op40>|</span>
         <DisplayDuration
           :duration="totalDuration" flex="~ gap-1 items-center"
-          :title="`Total build cost: ${totalDuration ?? 0}ms`"
+          :title="`Total build cost: ${formatDuration(totalDuration, true)}`"
         >
           <span i-ph-clock-duotone inline-block />
         </DisplayDuration>

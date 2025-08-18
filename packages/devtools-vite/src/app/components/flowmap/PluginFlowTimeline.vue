@@ -23,9 +23,6 @@ function normalizeMetrics(metrics: PluginBuildInfo[]) {
     }
     info.duration += metric.duration
   })
-  if (info.duration === 0) {
-    info.duration = null!
-  }
   return info
 }
 
