@@ -35,13 +35,11 @@ withDefaults(defineProps<{
       </div>
     </div>
 
-    <!-- TODO -->
     <template v-if="showImports && chunk.imports.length > 0">
       <div op50>
         Imports
       </div>
       <div flex="~ col gap-1" ws-nowrap>
-        <!-- TODO -->
         <DisplayChunkImports
           v-for="(importChunk, index) in chunk.imports"
           :key="index"
