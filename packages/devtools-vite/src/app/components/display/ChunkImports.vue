@@ -29,7 +29,7 @@ const { state: chunk } = useAsyncState(
     v-if="chunk"
     :to="{ path: route.path, query: { a: '1' } }"
   >
-    <div flex="~ gap-3 items-center">
+    <div flex="~ items-center">
       <!-- Icon, Name, Reason -->
       <div flex="~ gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
         <div v-if="chunkImport.kind === 'import-statement'" i-ph-file-duotone />
@@ -44,14 +44,16 @@ const { state: chunk } = useAsyncState(
 
       <div flex-auto />
 
-      <span op50 font-mono>#{{ chunk.chunk_id }}</span>
-      <div flex="~ gap-1 items-center">
-        <div i-carbon-document-import />
-        {{ chunk.imports.length }}
-      </div>
-      <div flex="~ gap-1 items-center">
-        <div i-ph-package-duotone />
-        {{ chunk.modules.length }}
+      <div text-sm flex="~ items-center gap-2">
+        <span op50 font-mono>#{{ chunk.chunk_id }}</span>
+        <div flex="~ gap-1 items-center">
+          <div i-carbon-document-import />
+          {{ chunk.imports.length }}
+        </div>
+        <div flex="~ gap-1 items-center">
+          <div i-ph-package-duotone />
+          {{ chunk.modules.length }}
+        </div>
       </div>
     </div>
   </NuxtLink>
