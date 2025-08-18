@@ -50,7 +50,6 @@ withDefaults(defineProps<{
           hover="bg-active"
           border="~ base rounded" px2 py1 w-full
         />
-        {{ chunk.imports }}
       </div>
     </template>
 
