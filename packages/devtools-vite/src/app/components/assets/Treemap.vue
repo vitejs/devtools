@@ -17,11 +17,13 @@ watchEffect(() => el.value?.append(props.graph.el))
 </script>
 
 <template>
-  <ChartAssetNavBreadcrumb
-    border="b base" py2 min-h-10
-    :selected="selected"
-    :options="graph.options"
-    @select="emit('select', $event)"
-  />
-  <div ref="el" />
+  <div class="px4" flex="~ col gap2">
+    <ChartAssetNavBreadcrumb
+      border="b base" py2 min-h-10
+      :selected="selected"
+      :options="graph.options"
+      @select="emit('select', $event)"
+    />
+    <div ref="el" />
+  </div>
 </template>
