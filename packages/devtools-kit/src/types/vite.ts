@@ -1,3 +1,4 @@
+import type { ResolvedConfig } from 'vite'
 import type { RpcFunctionsHost } from './rpc'
 import type { DevtoolsViewHost } from './views'
 
@@ -8,6 +9,7 @@ export interface DevToolsPluginOptions {
 export interface DevToolsSetupContext {
   readonly cwd: string
   readonly mode: 'dev' | 'build'
+  readonly viteConfig: ResolvedConfig
   rpc: RpcFunctionsHost
   views: DevtoolsViewHost
 }

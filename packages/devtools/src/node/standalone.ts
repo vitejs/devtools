@@ -1,5 +1,6 @@
+import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
+import type { ResolvedConfig } from 'vite'
 import process from 'node:process'
-import { getPort } from 'get-port-please'
 import { loadConfigFromFile, resolveConfig } from 'vite'
 import { resolveDevtoolsConfig } from './server'
 
@@ -8,7 +9,10 @@ export interface StandaloneDevToolsOptions {
   port?: number
 }
 
-export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<void> {
+export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
+  config: ResolvedConfig
+  context: DevToolsSetupContext
+}> {
   const {
     cwd = process.cwd(),
   } = options
@@ -26,7 +30,8 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
 
   const context = await resolveDevtoolsConfig(resolved)
 
-  console.log({ context })
-
-  const _port = options.port ?? await getPort({ port: 7812, random: true })
+  return {
+    config: resolved,
+    context,
+  }
 }

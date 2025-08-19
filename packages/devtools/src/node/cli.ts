@@ -1,18 +1,10 @@
-import { existsSync } from 'node:fs'
-
-import fs from 'node:fs/promises'
-import { join } from 'node:path'
 import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
 import open from 'open'
-import { relative, resolve } from 'pathe'
-import { stringify } from 'structured-clone-es'
-import { glob } from 'tinyglobby'
-import { distDir } from '../dirs'
-import { MARK_CHECK, MARK_NODE } from './constants'
-import { createHostServer } from './server'
+import { MARK_NODE } from './constants'
+import { startStandaloneServer } from './server'
 import { startStandaloneDevTools } from './standalone'
 
 const cli = cac('vite-devtools')
@@ -94,9 +86,20 @@ cli
 
     console.log(c.green`${MARK_NODE} Starting Vite DevTools at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
 
-    const config = await startStandaloneDevTools()
+    const devtools = await startStandaloneDevTools()
 
-    console.log({ config })
+    const { server } = await startStandaloneServer({
+      cwd: devtools.config.root,
+      port,
+      context: devtools.context,
+      functions: devtools.context.rpc,
+    })
+
+    server.listen(port, host, async () => {
+      console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
+      if (options.open)
+        await open(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`)
+    })
 
     // const { server, rpc } = await createHostServer({
     //   cwd: options.root,

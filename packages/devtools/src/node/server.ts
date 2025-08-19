@@ -12,17 +12,18 @@ import { RpcFunctionsHost } from './functions'
 import { DevtoolsViewHost } from './views'
 import { createWsServer } from './ws'
 
-export async function resolveDevtoolsConfig(config: ResolvedConfig): Promise<DevToolsSetupContext> {
-  const cwd = config.root
+export async function resolveDevtoolsConfig(viteConfig: ResolvedConfig): Promise<DevToolsSetupContext> {
+  const cwd = viteConfig.root
 
   const context: DevToolsSetupContext = {
     cwd,
-    mode: config.command === 'serve' ? 'dev' : 'build',
+    viteConfig,
+    mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     rpc: new RpcFunctionsHost(),
     views: new DevtoolsViewHost(),
   }
 
-  const plugins = config.plugins.filter(plugin => 'devtools' in plugin)
+  const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
 
   for (const plugin of plugins) {
     try {
