@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { ChunkImport, Chunk as ChunkInfo } from '@rolldown/debug'
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
-import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
+import type { SessionContext } from '~~/shared/types'
 import { onKeyPressed, useEventListener, useMagicKeys } from '@vueuse/core'
 import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
@@ -8,30 +9,31 @@ import { computed, nextTick, onMounted, reactive, ref, shallowReactive, shallowR
 import { useZoomElement } from '~/composables/zoomElement'
 
 const props = defineProps<{
+  chunks: ChunkInfo[]
   session: SessionContext
-  modules: ModuleListItem[]
 }>()
 
 interface Node {
-  module: ModuleListItem
-  import?: ModuleImport
+  chunk: ChunkInfo
+  import?: ChunkImport
   expanded?: boolean
   hasChildren: boolean
+  end?: boolean
 }
 
 type Link = HierarchyLink<Node> & {
   id: string
-  import?: ModuleImport
+  import?: ChunkImport
 }
 
 const graphRender = ref<'normal' | 'mini'>('normal')
 
 const SPACING = reactive({
-  width: computed(() => graphRender.value === 'normal' ? 400 : 10),
+  width: computed(() => graphRender.value === 'normal' ? 320 : 10),
   height: computed(() => graphRender.value === 'normal' ? 55 : 20),
-  linkOffset: computed(() => graphRender.value === 'normal' ? 20 : 0),
-  margin: 800,
-  gap: computed(() => graphRender.value === 'normal' ? 150 : 100),
+  linkOffset: computed(() => graphRender.value === 'normal' ? 15 : 0),
+  margin: 120,
+  gap: computed(() => graphRender.value === 'normal' ? 80 : 40),
 })
 
 const container = useTemplateRef<HTMLDivElement>('container')
@@ -69,17 +71,15 @@ onKeyPressed(['=', '+'], (e) => {
     zoomIn()
 })
 
-const modulesMap = computed(() => {
-  const map = new Map<string, ModuleListItem>()
-  for (const module of props.modules) {
-    map.set(module.id, module)
+const chunksMap = computed(() => {
+  const map = new Map<string, ChunkInfo>()
+  for (const chunk of props.chunks) {
+    map.set(`${chunk.chunk_id}`, chunk)
   }
   return map
 })
 
-const rootModules = computed(() => {
-  return props.modules.filter(x => x.importers.length === 0)
-})
+const rootNodes = computed(() => props.chunks)
 
 const createLinkHorizontal = linkHorizontal()
   .x(d => d[0])
@@ -89,62 +89,52 @@ const createLinkVertical = linkVertical()
   .x(d => d[0])
   .y(d => d[1])
 
-function calculateGraph(focusOnFirstRooeNode = true) {
+function calculateGraph() {
   // Unset the canvas size, and recalculate again after nodes are rendered
   width.value = window.innerWidth
   height.value = window.innerHeight
 
-  const seen = new Set<ModuleListItem>()
   const root = hierarchy<Node>(
-    { module: { id: '~root' } } as any,
+    { chunk: { chunk_id: '~root' } } as any,
     (parent) => {
-      if (parent.module.id === '~root') {
-        rootModules.value.forEach((x) => {
-          seen.add(x)
-
+      if (`${parent.chunk.chunk_id}` === '~root') {
+        rootNodes.value.forEach((x) => {
           if (isFirstCalculateGraph.value) {
-            childToParentMap.set(x.id, '~root')
+            childToParentMap.set(`${x.chunk_id}`, '~root')
           }
         })
-        return rootModules.value.map(x => ({
-          module: x,
-          expanded: !collapsedNodes.has(x.id),
+        return rootNodes.value.map(x => ({
+          chunk: x,
+          expanded: !collapsedNodes.has(`${x.chunk_id}`),
           hasChildren: false,
         }))
       }
 
-      if (collapsedNodes.has(parent.module.id)) {
+      if (collapsedNodes.has(`${parent.chunk.chunk_id}`) || parent.end) {
         return []
       }
 
-      const modules = parent.module.imports
+      const nodes = parent.chunk.imports
         .map((x): Node | undefined => {
-          const module = modulesMap.value.get(x.module_id)
-          if (!module)
+          const chunk = chunksMap.value.get(`${x.chunk_id}`)
+          if (!chunk)
             return undefined
-          if (seen.has(module))
-            return undefined
-
-          // Check if the module is a child of the current parent
-          if (childToParentMap.has(module.id) && childToParentMap.get(module.id) !== parent.module.id)
-            return undefined
-
-          seen.add(module)
 
           if (isFirstCalculateGraph.value) {
-            childToParentMap.set(module.id, parent.module.id)
+            childToParentMap.set(`${chunk.chunk_id}`, `${parent.chunk.chunk_id}`)
           }
 
           return {
-            module,
+            chunk,
             import: x,
-            expanded: !collapsedNodes.has(module.id),
+            expanded: !collapsedNodes.has(`${chunk.chunk_id}`),
             hasChildren: false,
+            end: true,
           }
         })
         .filter(x => x !== undefined)
 
-      return modules
+      return nodes
     },
   )
 
@@ -163,10 +153,8 @@ function calculateGraph(focusOnFirstRooeNode = true) {
     // Rotate the graph from top-down to left-right
     [node.x, node.y] = [node.y! - SPACING.width, node.x!]
 
-    if (node.data.module.imports) {
-      node.data.hasChildren = node.data.module.imports
-        ?.filter(subNode => childToParentMap.get(subNode.module_id) === node.data.module.id)
-        .length > 0
+    if (node.data.chunk.imports) {
+      node.data.hasChildren = node.data.chunk.imports.length > 0 && !node.data.end
     }
   }
 
@@ -187,15 +175,15 @@ function calculateGraph(focusOnFirstRooeNode = true) {
   nodes.value = _nodes
   nodesMap.clear()
   for (const node of _nodes) {
-    nodesMap.set(node.data.module.id, node)
+    nodesMap.set(`${node.data.chunk.chunk_id}`, node)
   }
   const _links = root.links()
-    .filter(x => x.source.data.module.id !== '~root')
+    .filter(x => `${x.source.data.chunk.chunk_id}` !== '~root')
     .map((x): Link => {
       return {
         ...x,
         import: x.source.data.import,
-        id: `${x.source.data.module.id}|${x.target.data.module.id}`,
+        id: `${x.source.data.chunk.chunk_id}|${x.target.data.chunk.chunk_id}`,
       }
     })
   linksMap.clear()
@@ -207,21 +195,6 @@ function calculateGraph(focusOnFirstRooeNode = true) {
   nextTick(() => {
     width.value = (container.value!.scrollWidth / scale.value + SPACING.margin)
     height.value = (container.value!.scrollHeight / scale.value + SPACING.margin)
-    const moduleId = rootModules.value?.[0]?.id
-    if (focusOnFirstRooeNode && moduleId) {
-      nextTick(() => {
-        focusOn(moduleId, false)
-      })
-    }
-  })
-}
-
-function focusOn(id: string, animated = true) {
-  const el = nodesRefMap.get(id)
-  el?.scrollIntoView({
-    block: 'center',
-    inline: 'center',
-    behavior: animated ? 'smooth' : 'instant',
   })
 }
 
@@ -270,7 +243,7 @@ function toggleNode(id: string) {
     collapsedNodes.add(id)
   }
 
-  calculateGraph(false)
+  calculateGraph()
 
   // Adjust scroll position after layout changes
   if (beforePosition) {
@@ -300,9 +273,9 @@ function collapseAll() {
 
   isUpdating.value = true
 
-  props.modules.forEach((module) => {
-    if (module.imports.length > 0) {
-      collapsedNodes.add(module.id)
+  props.chunks.forEach((chunk) => {
+    if (chunk.imports.length > 0) {
+      collapsedNodes.add(`${chunk.chunk_id}`)
     }
   })
   calculateGraph()
@@ -364,7 +337,7 @@ onMounted(() => {
   handleDraggingScroll()
 
   watch(
-    () => props.modules,
+    () => props.chunks,
     () => {
       isFirstCalculateGraph.value = true
       collapsedNodes.clear()
@@ -420,12 +393,12 @@ onMounted(() => {
         </svg>
         <template
           v-for="node of nodes"
-          :key="node.data.module.id"
+          :key="node.data.chunk.chunk_id"
         >
-          <template v-if="node.data.module.id !== '~root'">
+          <template v-if="`${node.data.chunk.chunk_id}` !== '~root'">
             <div
               absolute
-              class="group z-graph-node flex gap-1 items-center"
+              class="z-graph-node flex gap-1 items-center"
               :style="{
                 left: `${node.x}px`,
                 top: `${node.y}px`,
@@ -433,26 +406,31 @@ onMounted(() => {
               }"
             >
               <div
-                flex="~ items-center gap-1"
+                flex="~ items-center row gap-1"
                 bg-glass
                 border="~ base rounded"
-                class="group-hover:bg-active block px2 p1"
+                class="block px2 p1"
                 :style="{
                   minWidth: graphRender === 'normal' ? `${SPACING.width}px` : undefined,
-                  maxWidth: '400px',
+                  maxWidth: '320px',
                   maxHeight: '50px',
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
                 }"
               >
-                <DisplayModuleId
-                  :id="node.data.module.id"
-                  :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-                  :link="true"
-                  :session="session"
-                  :minimal="true"
-                  flex="1"
-                />
+                <div flex="~ items-center">
+                  <span op50 font-mono w12>#{{ node.data.chunk.chunk_id }}</span>
+                  <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.chunk.chunk_id}`">
+                    <div i-ph-shapes-duotone />
+                    <div>{{ node.data.chunk.name || '[unnamed]' }}</div>
+                    <DisplayBadge :text="node.data.chunk.reason" />
+                  </div>
+                  <div flex-auto />
+                  <div flex="~ gap-1 items-center">
+                    <div i-ph-package-duotone />
+                    {{ node.data.chunk.modules.length }}
+                  </div>
+                </div>
               </div>
 
               <!-- Expand/Collapse Button -->
@@ -469,7 +447,7 @@ onMounted(() => {
                   :disabled="isUpdating"
                   :class="{ 'cursor-not-allowed': isUpdating, 'hover:bg-active': !isUpdating }"
                   :title="node.data.expanded ? 'Collapse' : 'Expand'"
-                  @click.stop="toggleNode(node.data.module.id)"
+                  @click.stop="toggleNode(`${node.data.chunk.chunk_id}`)"
                 >
                   <div
                     class="text-primary h-4"
