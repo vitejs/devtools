@@ -124,38 +124,42 @@ function toggleDurationSortType() {
       </div>
     </div>
 
-    <div v-if="filtered.length">
-      <div
-        v-for="(item, index) in filtered"
-        :key="item.id"
-        flex="~ row"
-        class="border-base border-b-1 border-dashed"
-        :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
-      >
-        <div v-if="selectedFields.includes('hookName')" flex="~ items-center justify-center" flex-none w32 ws-nowrap text-sm op80>
-          {{ HOOK_NAME_MAP[item.type] }}
+    <DataVirtualList
+      v-if="filtered.length"
+      :items="filtered"
+      key-prop="id"
+    >
+      <template #default="{ item, index }">
+        <div
+          flex="~ row"
+          class="border-base border-b-1 border-dashed"
+          :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
+        >
+          <div v-if="selectedFields.includes('hookName')" flex="~ items-center justify-center" flex-none w32 ws-nowrap text-sm op80>
+            {{ HOOK_NAME_MAP[item.type] }}
+          </div>
+          <div v-if="selectedFields.includes('module')" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
+            <DisplayModuleId
+              :id="item.module"
+              w-full border-none
+              :session="session"
+              :link="`/session/${session.id}/graph?module=${item.module}`"
+              hover="bg-active"
+              border="~ base rounded" block px2 py1
+            />
+          </div>
+          <div v-if="selectedFields.includes('startTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+            <time v-if="item.timestamp_start" :datetime="new Date(item.timestamp_start).toISOString()">{{ normalizeTimestamp(item.timestamp_start) }}</time>
+          </div>
+          <div v-if="selectedFields.includes('endTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+            <time v-if="item.timestamp_end" :datetime="new Date(item.timestamp_end).toISOString()">{{ normalizeTimestamp(item.timestamp_end) }}</time>
+          </div>
+          <div v-if="selectedFields.includes('duration')" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
+            <DisplayDuration :duration="item.duration" />
+          </div>
         </div>
-        <div v-if="selectedFields.includes('module')" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
-          <DisplayModuleId
-            :id="item.module"
-            w-full border-none
-            :session="session"
-            :link="`/session/${session.id}/graph?module=${item.module}`"
-            hover="bg-active"
-            border="~ base rounded" block px2 py1
-          />
-        </div>
-        <div v-if="selectedFields.includes('startTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-          <time v-if="item.timestamp_start" :datetime="new Date(item.timestamp_start).toISOString()">{{ normalizeTimestamp(item.timestamp_start) }}</time>
-        </div>
-        <div v-if="selectedFields.includes('endTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-          <time v-if="item.timestamp_end" :datetime="new Date(item.timestamp_end).toISOString()">{{ normalizeTimestamp(item.timestamp_end) }}</time>
-        </div>
-        <div v-if="selectedFields.includes('duration')" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
-          <DisplayDuration :duration="item.duration" />
-        </div>
-      </div>
-    </div>
+      </template>
+    </DataVirtualList>
     <div v-else>
       <div p4>
         <div w-full h-48 flex="~ items-center justify-center" op50 italic>
