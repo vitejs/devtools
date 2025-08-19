@@ -71,11 +71,6 @@ function toggleDurationSortType() {
 </script>
 
 <template>
-  <!--
-    FIXME:
-    when none selected column, the table virtual list will render many empty rows.
-    next time select some columns, the virtual list will have some render issues
-  -->
   <div role="table" w-full>
     <div role="row" class="sticky top-0 z10 border-b border-base" flex="~ row">
       <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
@@ -130,7 +125,7 @@ function toggleDurationSortType() {
     </div>
 
     <DataVirtualList
-      v-if="filtered.length"
+      v-if="filtered.length && selectedFields.length"
       role="rowgroup"
       :items="filtered"
       key-prop="id"
@@ -170,7 +165,12 @@ function toggleDurationSortType() {
     <div v-else>
       <div p4>
         <div w-full h-48 flex="~ items-center justify-center" op50 italic>
-          No data
+          <p v-if="!selectedFields.length">
+            No columns selected
+          </p>
+          <p v-else>
+            No data
+          </p>
         </div>
       </div>
     </div>
