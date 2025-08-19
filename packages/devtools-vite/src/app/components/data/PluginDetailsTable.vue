@@ -71,12 +71,12 @@ function toggleDurationSortType() {
 </script>
 
 <template>
-  <div w-full>
-    <div class="sticky top-0 z10 border-b border-base" flex="~ row">
-      <div v-if="selectedFields.includes('hookName')" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
+  <div role="table" w-full>
+    <div role="row" class="sticky top-0 z10 border-b border-base" flex="~ row">
+      <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
         Hook name
       </div>
-      <div v-if="selectedFields.includes('module')" bg-base flex-1 min-w100 ws-nowrap p1 text-left font-600>
+      <div v-if="selectedFields.includes('module')" role="columnheader" bg-base flex-1 min-w100 ws-nowrap p1 text-left font-600>
         <button flex="~ row gap1 items-center" w-full>
           Module
           <VMenu>
@@ -108,13 +108,13 @@ function toggleDurationSortType() {
           </VMenu>
         </button>
       </div>
-      <div v-if="selectedFields.includes('startTime')" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
+      <div v-if="selectedFields.includes('startTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
         Start Time
       </div>
-      <div v-if="selectedFields.includes('endTime')" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
+      <div v-if="selectedFields.includes('endTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
         End Time
       </div>
-      <div v-if="selectedFields.includes('duration')" rounded-tr-2 bg-base flex-none ws-nowrap p1 text-center font-600 w-27>
+      <div v-if="selectedFields.includes('duration')" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap p1 text-center font-600 w-27>
         <button flex="~ row gap1 items-center justify-center" w-full @click="toggleDurationSortType">
           Duration
           <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
@@ -126,19 +126,21 @@ function toggleDurationSortType() {
 
     <DataVirtualList
       v-if="filtered.length"
+      role="rowgroup"
       :items="filtered"
       key-prop="id"
     >
       <template #default="{ item, index }">
         <div
+          role="row"
           flex="~ row"
           class="border-base border-b-1 border-dashed"
           :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
         >
-          <div v-if="selectedFields.includes('hookName')" flex="~ items-center justify-center" flex-none w32 ws-nowrap text-sm op80>
+          <div v-if="selectedFields.includes('hookName')" role="cell" flex="~ items-center justify-center" flex-none w32 ws-nowrap text-sm op80>
             {{ HOOK_NAME_MAP[item.type] }}
           </div>
-          <div v-if="selectedFields.includes('module')" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
+          <div v-if="selectedFields.includes('module')" role="cell" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
             <DisplayModuleId
               :id="item.module"
               w-full border-none
@@ -148,13 +150,13 @@ function toggleDurationSortType() {
               border="~ base rounded" block px2 py1
             />
           </div>
-          <div v-if="selectedFields.includes('startTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+          <div v-if="selectedFields.includes('startTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
             <time v-if="item.timestamp_start" :datetime="new Date(item.timestamp_start).toISOString()">{{ normalizeTimestamp(item.timestamp_start) }}</time>
           </div>
-          <div v-if="selectedFields.includes('endTime')" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+          <div v-if="selectedFields.includes('endTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
             <time v-if="item.timestamp_end" :datetime="new Date(item.timestamp_end).toISOString()">{{ normalizeTimestamp(item.timestamp_end) }}</time>
           </div>
-          <div v-if="selectedFields.includes('duration')" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
+          <div v-if="selectedFields.includes('duration')" role="cell" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
             <DisplayDuration :duration="item.duration" />
           </div>
         </div>
