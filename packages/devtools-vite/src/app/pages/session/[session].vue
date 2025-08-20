@@ -35,6 +35,10 @@ function closePluginPanel() {
   router.replace({ query: { ...route.query, plugin: undefined } })
 }
 
+function closeChunkPanel() {
+  router.replace({ query: { ...route.query, chunk: undefined } })
+}
+
 onKeyDown('Escape', (e) => {
   e.preventDefault()
 
@@ -165,6 +169,26 @@ onMounted(async () => {
           :plugin="(route.query.plugin as string)"
           :session="session"
           @close="closePluginPanel"
+        />
+      </div>
+    </div>
+
+    <!-- for chunks -->
+    <div
+      v-if="route.query.chunk" fixed inset-0
+      backdrop-blur-8 backdrop-brightness-95 z-panel-content
+    >
+      <div
+        :key="(route.query.chunk as string)"
+        v-on-click-outside="closeChunkPanel"
+        fixed right-0 bottom-0 top-20 z-panel-content
+        bg-glass border="l t base rounded-tl-xl"
+        class="left-20 xl:left-100 2xl:left-150"
+      >
+        <DataChunkDetailsLoader
+          :chunk="(Number(route.query.chunk))"
+          :session="session"
+          @close="closeChunkPanel"
         />
       </div>
     </div>

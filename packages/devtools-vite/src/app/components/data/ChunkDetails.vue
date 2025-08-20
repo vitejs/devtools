@@ -45,6 +45,7 @@ withDefaults(defineProps<{
           :key="index"
           :chunk-import="importChunk"
           :session="session"
+          :importer="chunk"
           hover="bg-active"
           border="~ base rounded" px2 py1 w-full
         />
