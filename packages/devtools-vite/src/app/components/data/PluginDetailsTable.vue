@@ -71,7 +71,7 @@ function toggleDurationSortType() {
 </script>
 
 <template>
-  <div role="table" w-full>
+  <div role="table" min-w-max>
     <div role="row" class="sticky top-0 z10 border-b border-base" flex="~ row">
       <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
         Hook name
