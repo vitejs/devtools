@@ -1,13 +1,17 @@
 <script lang="ts" setup>
-import type { ChunkImport } from '@rolldown/debug'
+import type { ChunkImport, Chunk as ChunkInfo } from '@rolldown/debug'
 import type { SessionContext } from '../../../shared/types/data'
+import { useRoute } from '#app/composables/router'
 import { useAsyncState } from '@vueuse/core'
 import { useRpc } from '../../../modules/rpc/runtime/composables/rpc'
 
 const props = defineProps<{
   chunkImport: ChunkImport
   session: SessionContext
+  importer: ChunkInfo
 }>()
+
+const route = useRoute()
 
 const rpc = useRpc()
 const { state: chunk } = useAsyncState(
@@ -23,7 +27,7 @@ const { state: chunk } = useAsyncState(
 
 <template>
   <!-- <VisualLoading /> -->
-  <div v-if="chunk" flex="~ items-center">
+  <NuxtLink v-if="chunk" flex="~ items-center" :to="{ path: route.path, query: { chunk: chunk.chunk_id } }">
     <!-- Icon, Name, Reason -->
     <div flex="~ gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
       <div v-if="chunkImport.kind === 'import-statement'" i-ph-file-duotone />
@@ -49,7 +53,7 @@ const { state: chunk } = useAsyncState(
         {{ chunk.modules.length }}
       </div>
     </div>
-  </div>
+  </NuxtLink>
 </template>
 
 <style>
