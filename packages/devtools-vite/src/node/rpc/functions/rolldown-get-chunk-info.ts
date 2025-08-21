@@ -1,8 +1,8 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 
-export const rolldownGetChunkByID = defineRpcFunction({
-  name: 'vite:rolldown:get-chunk-by-id',
+export const rolldownGetChunkInfo = defineRpcFunction({
+  name: 'vite:rolldown:get-chunk-info',
   type: 'query',
   setup: (context) => {
     const manager = getLogsManager(context)
