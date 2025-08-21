@@ -27,17 +27,11 @@ const { state, isLoading } = useAsyncState(
 <template>
   <VisualLoading v-if="isLoading" />
 
-  <div v-if="state" p4 pt-0 relative h-full w-full of-auto z-panel-content>
+  <div v-if="state" p4 pt-12 relative h-full w-full of-auto z-panel-content>
     <DisplayCloseButton
       absolute right-2 top-1.5
       @click="emit('close')"
     />
-    <span op50 min-h-12 flex="~ items-center">
-      Import by
-      <NuxtLink font-mono :to="{ query: { chunk: 1 } }">
-        #1
-      </NuxtLink>
-    </span>
     <DataChunkDetails :session="session" :chunk="state" />
   </div>
 </template>
