@@ -57,17 +57,17 @@ createModuleGraph<ChunkInfo, ChunkImport>({
     margin: 120,
     gap: 80,
   },
-  buildGraphFn: (options) => {
+  generateGraph: (options) => {
     const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap } = options
     const rootNodes = computed(() => normalizedChunks.value)
-    return function () {
+    return () => {
       width.value = window.innerWidth
       height.value = window.innerHeight
 
       const root = hierarchy<ModuleGraphNode<ChunkInfo, ChunkImport> & { end?: boolean }>(
         { module: { id: '~root' } } as any,
         (parent) => {
-          if (`${parent.module.id}` === '~root') {
+          if (`${parent.module?.id}` === '~root') {
             rootNodes.value.forEach((x) => {
               if (isFirstCalculateGraph.value) {
                 childToParentMap.set(x.id, '~root')
@@ -80,7 +80,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
             }))
           }
 
-          if (collapsedNodes.has(`${parent.module.id}`) || parent.end) {
+          if (collapsedNodes.has(`${parent.module?.id}`) || parent.end) {
             return []
           }
 

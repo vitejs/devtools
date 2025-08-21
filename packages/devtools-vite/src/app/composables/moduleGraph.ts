@@ -10,7 +10,7 @@ export interface ModuleGraphNode<M, I> {
   module: M
   import?: I
   expanded?: boolean
-  hasChildren: boolean
+  hasChildren?: boolean
 }
 
 export interface ModuleGraphSpacing {
@@ -26,76 +26,79 @@ export type ModuleGraphLink<M, I> = HierarchyLink<ModuleGraphNode<M, I>> & {
   import?: I
 }
 
+interface ModuleGraphGenerateBaseOptions {
+  spacing: ModuleGraphSpacing
+  isFirstCalculateGraph: Ref<boolean>
+  container: Ref<HTMLDivElement>
+  nodesRefMap: ShallowReactive<Map<string, HTMLDivElement>>
+  width: Ref<number>
+  height: Ref<number>
+  scale: Ref<number, number>
+  childToParentMap: ShallowReactive<Map<string, string>>
+  collapsedNodes: ShallowReactive<Set<string>>
+}
+
 interface ModuleGraphOptions<M, I> {
   spacing: ModuleGraphSpacing
   modules: Ref<M[]> | ComputedRef<M[]>
-  buildGraphFn: (options: {
-    isFirstCalculateGraph: Ref<boolean>
-    hierarchy: typeof hierarchy
-    tree: typeof tree
-    nodesRefMap: ShallowReactive<Map<string, HTMLDivElement>>
-    container: Ref<HTMLDivElement>
-    modulesMap: ComputedRef<Map<string, M>>
+  generateGraph: (options: ModuleGraphGenerateBaseOptions & {
     nodes: ShallowRef<HierarchyNode<ModuleGraphNode<M, I>>[], HierarchyNode<ModuleGraphNode<M, I>>[]>
     links: ShallowRef<ModuleGraphLink<M, I>[], ModuleGraphLink<M, I>[]>
+    hierarchy: typeof hierarchy
+    tree: typeof tree
+    modulesMap: ComputedRef<Map<string, M>>
     nodesMap: ShallowReactive<Map<string, HierarchyNode<ModuleGraphNode<M, I>>>>
     linksMap: ShallowReactive<Map<string, ModuleGraphLink<M, I>>>
-    width: Ref<number>
-    height: Ref<number>
-    childToParentMap: ShallowReactive<Map<string, string>>
-    collapsedNodes: ShallowReactive<Set<string>>
-    spacing: ModuleGraphSpacing
-    scale: Ref<number, number>
+
     focusOn: (id: string, animated?: boolean) => void
   }) => (focusOnFirstRootNode?: boolean) => void
 }
 
-const ViteDevToolsModuleGraphStateSymbol: InjectionKey<{
-  spacing: {
-    width: MaybeRef<number>
-    height: MaybeRef<number>
-    linkOffset: MaybeRef<number>
-    margin: MaybeRef<number>
-    gap: MaybeRef<number>
-  }
-  isFirstCalculateGraph: Ref<boolean>
-  calculateGraph: (focusOnFirstRootNode?: boolean) => void
-  container: Ref<HTMLDivElement>
-  width: Ref<number>
-  height: Ref<number>
-  scale: Ref<number>
+const ViteDevToolsModuleGraphStateSymbol: InjectionKey<ModuleGraphGenerateBaseOptions & {
   nodes: ShallowRef<HierarchyNode<ModuleGraphNode<any, any>>[], HierarchyNode<ModuleGraphNode<any, any>>[]>
   links: ShallowRef<ModuleGraphLink<any, any>[], ModuleGraphLink<any, any>[]>
-  nodesRefMap: ShallowReactive<Map<string, HTMLDivElement>>
-  collapsedNodes: ShallowReactive<Set<string>>
-  childToParentMap: ShallowReactive<Map<string, string>>
+  calculateGraph: (focusOnFirstRootNode?: boolean) => void
   ZOOM_MIN: number
   ZOOM_MAX: number
   zoomIn: (factor?: number) => void
   zoomOut: (factor?: number) => void
 }> = Symbol.for('ViteDevToolsModuleGraphState')
 
-const createLinkHorizontal = linkHorizontal()
+export const createLinkHorizontal = linkHorizontal()
   .x(d => d[0])
   .y(d => d[1])
 
-const createLinkVertical = linkVertical()
+export const createLinkVertical = linkVertical()
   .x(d => d[0])
   .y(d => d[1])
 
-export function generateLink<M, I>(link: ModuleGraphLink<M, I>, spacing: ModuleGraphSpacing) {
-  if (link.target.x! <= link.source.x!) {
-    return createLinkVertical({
+export function generateModuleGraphLink<M, I>(link: ModuleGraphLink<M, I>, spacing?: ModuleGraphSpacing) {
+  if (!spacing) {
+    if (link.target.x! <= link.source.x!) {
+      return createLinkVertical({
+        source: [link.source.x!, link.source.y!],
+        target: [link.target.x!, link.target.y!],
+      })
+    }
+    return createLinkHorizontal({
+      source: [link.source.x!, link.source.y!],
+      target: [link.target.x!, link.target.y!],
+    })
+  }
+  else {
+    if (link.target.x! <= link.source.x!) {
+      return createLinkVertical({
+        source: [link.source.x! + unref(spacing.width) / 2 - unref(spacing.linkOffset), link.source.y!],
+        target: [link.target.x! - unref(spacing.width) / 2 + unref(spacing.linkOffset), link.target.y!],
+      })
+    }
+    return createLinkHorizontal({
       source: [link.source.x! + unref(spacing.width) / 2 - unref(spacing.linkOffset), link.source.y!],
       target: [link.target.x! - unref(spacing.width) / 2 + unref(spacing.linkOffset), link.target.y!],
     })
   }
-  return createLinkHorizontal({
-    source: [link.source.x! + unref(spacing.width) / 2 - unref(spacing.linkOffset), link.source.y!],
-    target: [link.target.x! - unref(spacing.width) / 2 + unref(spacing.linkOffset), link.target.y!],
-  })
 }
-
+// @unocss-include
 export function getModuleGraphLinkColor<M, I>(_link: ModuleGraphLink<M, I>) {
   return 'stroke-#8885'
 }
@@ -140,7 +143,7 @@ export function createModuleGraph<M extends { id: string }, I>(options: ModuleGr
     })
   }
 
-  const _calculateGraph = options.buildGraphFn({
+  const _calculateGraph = options.generateGraph({
     isFirstCalculateGraph,
     hierarchy,
     tree,

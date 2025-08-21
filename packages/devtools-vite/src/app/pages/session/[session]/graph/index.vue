@@ -143,13 +143,13 @@ createModuleGraph<ModuleListItem, ModuleImport>({
     margin: 800,
     gap: 150,
   },
-  buildGraphFn: (options) => {
+  generateGraph: (options) => {
     const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap, focusOn } = options
     const rootModules = computed(() => {
       return searched.value.filter(x => x.importers.length === 0)
     })
 
-    return function (focusOnFirstRootNode = true) {
+    return (focusOnFirstRootNode = true) => {
       width.value = window.innerWidth
       height.value = window.innerHeight
 

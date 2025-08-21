@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends { id: string, imports: unknown[] }, I">
 import type { SessionContext } from '~~/shared/types'
 import { onMounted, unref, watch } from 'vue'
-import { generateLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/moduleGraph'
+import { generateModuleGraphLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/moduleGraph'
 
 const props = defineProps<{
   modules: T[]
@@ -58,10 +58,10 @@ onMounted(() => {
         <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
           <g>
             <template v-for="link of links" :key="link.id">
-              <slot name="link" :link="link" :d="generateLink<T, I>(link, spacing)!" :link-class="getModuleGraphLinkColor<T, I>(link)">
+              <slot name="link" :link="link" :d="generateModuleGraphLink<T, I>(link, spacing)!" :link-class="getModuleGraphLinkColor<T, I>(link)">
                 <path
                   :key="link.id"
-                  :d="generateLink<T, I>(link, spacing)!"
+                  :d="generateModuleGraphLink<T, I>(link, spacing)!"
                   :class="getModuleGraphLinkColor<T, I>(link)"
                   fill="none"
                 />
