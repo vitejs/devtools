@@ -16,7 +16,7 @@ const route = useRoute()
 const rpc = useRpc()
 const { state: chunk } = useAsyncState(
   async () => {
-    return await rpc.value!['vite:rolldown:get-chunk-by-id']?.({
+    return await rpc.value!['vite:rolldown:get-chunk-info']?.({
       session: props.session.id,
       id: props.chunkImport.chunk_id,
     })

@@ -28,7 +28,7 @@ export const rpcFunctions = [
   rolldownGetAssetsList,
   rolldownGetAssetDetails,
   rolldownGetPluginDetails,
-  rolldownGetChunkByID,
+  rolldownGetChunkInfo,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
