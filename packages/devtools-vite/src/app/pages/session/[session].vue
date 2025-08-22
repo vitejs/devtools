@@ -45,7 +45,7 @@ onKeyDown('Escape', (e) => {
   if (!e.isTrusted || e.repeat)
     return
 
-  const { module, asset, plugin } = route.query
+  const { module, asset, plugin, chunk } = route.query
 
   if (module)
     closeFlowPanel()
@@ -55,6 +55,9 @@ onKeyDown('Escape', (e) => {
 
   if (plugin)
     closePluginPanel()
+
+  if (chunk)
+    closeChunkPanel()
 })
 
 useSideNav(() => {
