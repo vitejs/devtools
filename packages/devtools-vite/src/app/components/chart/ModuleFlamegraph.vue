@@ -135,11 +135,11 @@ watch(() => props.flowNodeSelected, async () => {
     <Teleport to="body">
       <div
         v-if="hoverNode"
-        border="~ base" rounded shadow px2 py1 fixed
-        z-panel-content bg-glass pointer-events-none text-sm
+        border="~ base" rounded-lg shadow-lg px3 py2 fixed
+        z-panel-content bg-glass pointer-events-none text-sm max-w-80
         :style="{ left: `${hoverX}px`, top: `${hoverY}px` }"
       >
-        <div font-bold font-mono>
+        <div font-semibold font-mono text-base mb2>
           {{ hoverNode.plugin_name }}
         </div>
         <div v-if="hoverNode.meta" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
