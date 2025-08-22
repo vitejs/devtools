@@ -2,7 +2,6 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
-import { vOnClickOutside } from '@vueuse/components'
 import { onKeyDown } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
 import { useSideNav } from '~/state/nav'
@@ -118,10 +117,10 @@ onMounted(async () => {
     <div
       v-if="route.query.module" fixed inset-0
       backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      @click.self="closeFlowPanel"
     >
       <div
         :key="(route.query.module as string)"
-        v-on-click-outside="closeFlowPanel"
         fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
       >
@@ -137,10 +136,10 @@ onMounted(async () => {
     <div
       v-if="route.query.asset" fixed inset-0
       backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      @click.self="closeAssetPanel"
     >
       <div
         :key="(route.query.asset as string)"
-        v-on-click-outside="closeAssetPanel"
         fixed right-0 bottom-0 top-30 z-panel-content of-hidden
         bg-glass border="l t base rounded-tl-xl"
         class="left-20 xl:left-100 2xl:left-150"
@@ -155,10 +154,10 @@ onMounted(async () => {
     <div
       v-if="route.query.plugin" fixed inset-0
       backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      @click.self="closePluginPanel"
     >
       <div
         :key="(route.query.plugin as string)"
-        v-on-click-outside="[closePluginPanel, { ignore: ['.module-type-filter'] }]"
         fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
       >
