@@ -234,6 +234,8 @@ const options = computed<GraphBaseOptions<AssetChartInfo | undefined>>(() => {
     onHover(node) {
       if (node && !route.query.asset)
         nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
     },
     onLeave() {
       nodeHover.value = undefined

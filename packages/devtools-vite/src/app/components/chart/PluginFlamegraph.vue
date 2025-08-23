@@ -127,6 +127,9 @@ function buildFlamegraph() {
         meta: node.meta,
       }
     },
+    onLeave() {
+      hoverNode.value = null
+    },
   })
   el.value!.appendChild(flamegraph.value!.el)
 }
