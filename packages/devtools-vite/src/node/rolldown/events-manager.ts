@@ -86,6 +86,7 @@ export class RolldownEventsManager {
             ...info,
             type: 'load',
             module: event.module_id,
+            unchanged: !event.content,
           })
         }
         else if (event.action === 'HookTransformCallEnd') {
@@ -108,6 +109,7 @@ export class RolldownEventsManager {
             ...info,
             type: 'transform',
             module: event.module_id,
+            unchanged: _start.content === _end.content,
           })
         }
         this.plugin_build_metrics.set(pluginId, plugin_build_metrics)

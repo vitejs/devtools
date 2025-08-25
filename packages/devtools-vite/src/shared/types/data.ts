@@ -32,7 +32,7 @@ export interface PluginBuildInfo {
 export interface PluginBuildMetrics {
   plugin_name: string
   plugin_id: number
-  calls: PluginBuildInfo[]
+  calls: (PluginBuildInfo & { unchanged?: boolean })[]
 }
 
 export type { PluginItem }
