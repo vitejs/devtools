@@ -135,12 +135,11 @@ watch(() => props.flowNodeSelected, async () => {
 
 <template>
   <div relative border="t base" pb10 py1 mt4>
-    <Teleport to="body">
+    <DisplayGraphHoverView :hover-x="hoverX" :hover-y="hoverY">
       <div
         v-if="hoverNode"
-        border="~ base" rounded-lg shadow-lg px3 py2 fixed
-        z-panel-content bg-glass pointer-events-none text-sm max-w-80
-        :style="{ left: `${hoverX}px`, top: `${hoverY}px` }"
+        border="~ base" rounded-lg shadow-lg px3 py2
+        bg-glass pointer-events-none text-sm max-w-80
       >
         <div font-semibold font-mono text-base mb2>
           {{ hoverNode.plugin_name }}
@@ -177,7 +176,7 @@ watch(() => props.flowNodeSelected, async () => {
           <DisplayDuration :duration="hoverNode.duration" />
         </div>
       </div>
-    </Teleport>
+    </DisplayGraphHoverView>
     <div ref="el" min-h-30 />
   </div>
 </template>
