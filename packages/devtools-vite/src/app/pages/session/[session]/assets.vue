@@ -362,21 +362,19 @@ onUnmounted(() => {
         />
       </template>
     </div>
-    <div
-      v-if="nodeHover?.meta"
-      bg-glass fixed z-panel-nav border="~ base rounded" p2 text-sm
-      flex="~ col gap-2"
-      :style="{
-        left: `${mouse.x + 10}px`,
-        top: `${mouse.y + 10}px`,
-      }"
-    >
-      <div flex="~ gap-1 items-center">
-        {{ nodeHover.text }}
+    <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+      <div
+        v-if="nodeHover?.meta"
+        bg-glass border="~ base rounded" p2 text-sm
+        flex="~ col gap-2"
+      >
+        <div flex="~ gap-1 items-center">
+          {{ nodeHover.text }}
+        </div>
+        <div flex="~ gap-1 items-center">
+          <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
+        </div>
       </div>
-      <div flex="~ gap-1 items-center">
-        <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
-      </div>
-    </div>
+    </DisplayGraphHoverView>
   </div>
 </template>

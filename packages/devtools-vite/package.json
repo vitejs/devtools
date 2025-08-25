@@ -36,6 +36,7 @@
     "start": "node ./bin.mjs"
   },
   "dependencies": {
+    "@floating-ui/dom": "catalog:frontend",
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
