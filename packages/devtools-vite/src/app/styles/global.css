@@ -63,7 +63,7 @@ summary::-webkit-details-marker {
   --at-apply: text-sm;
 }
 
-.v-popper--theme-dropdown {
+.v-popper--theme-dropdown .v-popper__inner {
   max-width: 50vw;
   max-height: 50vh;
   overflow: auto;
