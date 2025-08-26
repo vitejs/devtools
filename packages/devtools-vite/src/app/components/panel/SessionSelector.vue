@@ -13,12 +13,7 @@ const sessions = await rpc.value!['vite:rolldown:list-sessions']()
 <template>
   <div flex="~ col gap-2">
     <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
-      <input
-        v-if="sessionMode === 'compare'"
-        class="absolute top-50% translate-y--50% left--5"
-        type="checkbox"
-        mr1
-      >
+      <slot name="left" :session="session" />
       <component
         :is="sessionMode === 'list' ? NuxtLink : 'div'"
         :to="`/session/${session.id}`"
