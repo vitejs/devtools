@@ -46,12 +46,20 @@ const filtered = computed(() => {
         return b.duration - a.duration
       })
     : props.buildMetrics.calls
-  return sorted.filter((i) => {
-    if (!i.module)
-      return false
-    const matched = getFileTypeFromModuleId(i.module)
-    return filterModuleTypes.value.includes(matched.name)
-  }).filter(settings.value.pluginDetailSelectedHook ? i => i.type === settings.value.pluginDetailSelectedHook : Boolean)
+  return sorted
+    .filter((i) => {
+      if (!i.module)
+        return false
+      const matched = getFileTypeFromModuleId(i.module)
+      return filterModuleTypes.value.includes(matched.name)
+    })
+    .filter(settings.value.pluginDetailSelectedHook ? i => i.type === settings.value.pluginDetailSelectedHook : Boolean)
+    .filter((i) => {
+      if (settings.value.pluginDetailsShowType === 'all' || !['load', 'transform'].includes(settings.value.pluginDetailSelectedHook))
+        return true
+
+      return settings.value.pluginDetailsShowType === 'changed' ? !i.unchanged : i.unchanged
+    })
 })
 
 function toggleModuleType(rule: FilterMatchRule) {
@@ -71,7 +79,7 @@ function toggleDurationSortType() {
 </script>
 
 <template>
-  <div role="table" w-full>
+  <div role="table" min-w-max>
     <div role="row" class="sticky top-0 z10 border-b border-base" flex="~ row">
       <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
         Hook name

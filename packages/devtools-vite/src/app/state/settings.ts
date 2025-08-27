@@ -22,6 +22,7 @@ export interface ClientSettings {
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
   chunkViewType: 'list' | 'graph'
+  pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -46,6 +47,7 @@ export const settings = useLocalStorage<ClientSettings>(
     pluginDetailsDurationSortType: '',
     pluginDetailSelectedHook: '',
     chunkViewType: 'list',
+    pluginDetailsShowType: 'all',
   },
   {
     mergeDefaults: true,

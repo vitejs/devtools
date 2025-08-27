@@ -89,6 +89,9 @@ function buildFlamegraph() {
         duration: node.size,
       }
     },
+    onLeave() {
+      hoverNode.value = null
+    },
   })
   el.value!.appendChild(flamegraph.value!.el)
 }
