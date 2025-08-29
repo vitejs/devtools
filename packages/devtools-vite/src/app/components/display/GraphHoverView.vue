@@ -32,7 +32,11 @@ watch([hoverX, hoverY], ([x, y]) => {
 
   computePosition(virtualEl, hoverElement.value!, {
     placement: 'bottom-start',
-    middleware: [flip(), shift(), offset(10)],
+    middleware: [flip(), shift(), offset({
+      mainAxis: 8,
+      crossAxis: 8,
+    },
+    )],
   }).then(({ x, y }) => {
     left.value = x
     top.value = y
