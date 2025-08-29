@@ -34,7 +34,7 @@ watch([hoverX, hoverY], ([x, y]) => {
     placement: 'bottom-start',
     middleware: [flip(), shift(), offset({
       mainAxis: 8,
-      crossAxis: 8,
+      alignmentAxis: 8,
     },
     )],
   }).then(({ x, y }) => {
