@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computePosition, flip, shift } from '@floating-ui/dom'
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { ref, toRefs, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
@@ -31,8 +31,8 @@ watch([hoverX, hoverY], ([x, y]) => {
   }
 
   computePosition(virtualEl, hoverElement.value!, {
-    placement: 'right-start',
-    middleware: [flip(), shift()],
+    placement: 'bottom-start',
+    middleware: [flip(), shift(), offset(10)],
   }).then(({ x, y }) => {
     left.value = x
     top.value = y
