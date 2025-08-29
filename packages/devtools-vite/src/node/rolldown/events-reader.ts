@@ -33,8 +33,6 @@ export class RolldownEventsReader {
     const stream = fs.createReadStream(this.filepath, {
       start: this.lastBytes,
     })
-    this.lastTimestamp = mtime.getTime()
-    this.lastBytes = size
     await parseJsonStreamWithConcatArrays<Event>(
       stream,
       (event) => {
@@ -42,6 +40,9 @@ export class RolldownEventsReader {
         return event
       },
     )
+    // set fields after read
+    this.lastTimestamp = mtime.getTime()
+    this.lastBytes = size
   }
 
   dispose() {
