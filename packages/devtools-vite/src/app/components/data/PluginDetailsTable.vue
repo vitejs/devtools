@@ -46,12 +46,20 @@ const filtered = computed(() => {
         return b.duration - a.duration
       })
     : props.buildMetrics.calls
-  return sorted.filter((i) => {
-    if (!i.module)
-      return false
-    const matched = getFileTypeFromModuleId(i.module)
-    return filterModuleTypes.value.includes(matched.name)
-  }).filter(settings.value.pluginDetailSelectedHook ? i => i.type === settings.value.pluginDetailSelectedHook : Boolean)
+  return sorted
+    .filter((i) => {
+      if (!i.module)
+        return false
+      const matched = getFileTypeFromModuleId(i.module)
+      return filterModuleTypes.value.includes(matched.name)
+    })
+    .filter(settings.value.pluginDetailSelectedHook ? i => i.type === settings.value.pluginDetailSelectedHook : Boolean)
+    .filter((i) => {
+      if (settings.value.pluginDetailsShowType === 'all' || !['load', 'transform'].includes(settings.value.pluginDetailSelectedHook))
+        return true
+
+      return settings.value.pluginDetailsShowType === 'changed' ? !i.unchanged : i.unchanged
+    })
 })
 
 function toggleModuleType(rule: FilterMatchRule) {
