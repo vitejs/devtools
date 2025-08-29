@@ -30,6 +30,7 @@ catalogs:
     p-limit: ^7.1.0
     pathe: ^2.0.3
     publint: ^0.3.12
+    split2: ^4.2.0
     structured-clone-es: ^1.0.0
     tinyglobby: ^0.2.14
     unconfig: ^7.3.3
@@ -92,6 +93,7 @@ catalogs:
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/diff': ^8.0.0
+    '@types/split2': ^4.2.3
     '@types/stream-json': ^1.7.8
     '@types/ws': ^8.18.1
 onlyBuiltDependencies:
