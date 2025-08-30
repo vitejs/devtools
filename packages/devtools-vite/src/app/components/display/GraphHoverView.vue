@@ -31,7 +31,7 @@ watch([hoverX, hoverY], ([x, y]) => {
   }
 
   computePosition(virtualEl, hoverElement.value!, {
-    placement: 'bottom-start',
+    placement: 'right-start',
     middleware: [flip(), shift(), offset({
       mainAxis: 8,
       alignmentAxis: 8,
