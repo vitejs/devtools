@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computePosition, flip, shift } from '@floating-ui/dom'
+import { computePosition, flip, offset, shift } from '@floating-ui/dom'
 import { ref, toRefs, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
@@ -32,7 +32,11 @@ watch([hoverX, hoverY], ([x, y]) => {
 
   computePosition(virtualEl, hoverElement.value!, {
     placement: 'right-start',
-    middleware: [flip(), shift()],
+    middleware: [flip(), shift(), offset({
+      mainAxis: 8,
+      alignmentAxis: 8,
+    },
+    )],
   }).then(({ x, y }) => {
     left.value = x
     top.value = y
@@ -42,7 +46,7 @@ watch([hoverX, hoverY], ([x, y]) => {
 
 <template>
   <Teleport to="body">
-    <div ref="hoverElement" fixed z-panel-content :style="{ left: `${left + 10}px`, top: `${top + 10}px` }">
+    <div ref="hoverElement" fixed z-panel-content :style="{ left: `${left}px`, top: `${top}px` }">
       <slot />
     </div>
   </Teleport>
