@@ -20,7 +20,6 @@ export function parseJsonStream<T>(
 
   return new Promise<T>((resolve) => {
     parser.on('data', (chunk) => {
-      // @ts-expect-error casting
       assembler[chunk.name]?.(chunk.value)
     })
     stream.pipe(parser)
@@ -51,8 +50,8 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
 
         try {
           const parsed = JSON.parse(line) as T
-          const out = processor ? processor(parsed) : (parsed as unknown as K)
-          values.push(out)
+          const result = processor ? processor(parsed) : (parsed as unknown as K)
+          values.push(result)
         }
         catch (e) {
           const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line

@@ -40,7 +40,6 @@ export class RolldownEventsReader {
         return event
       },
     )
-    // set fields after read
     this.lastTimestamp = mtime.getTime()
     this.lastBytes = size
   }
