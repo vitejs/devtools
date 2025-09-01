@@ -36,6 +36,7 @@
     "start": "node ./bin.mjs"
   },
   "dependencies": {
+    "@floating-ui/dom": "catalog:frontend",
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
@@ -54,6 +55,7 @@
     "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
     "publint": "catalog:deps",
+    "split2": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "tinyglobby": "catalog:deps",
     "unconfig": "catalog:deps",
@@ -64,6 +66,7 @@
   "devDependencies": {
     "@types/codemirror": "catalog:types",
     "@types/diff": "catalog:types",
+    "@types/split2": "catalog:types",
     "@types/stream-json": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/components": "catalog:frontend",

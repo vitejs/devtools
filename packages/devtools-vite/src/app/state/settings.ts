@@ -21,6 +21,7 @@ export interface ClientSettings {
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
+  pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -44,6 +45,7 @@ export const settings = useLocalStorage<ClientSettings>(
     pluginDetailsModuleTypes: null,
     pluginDetailsDurationSortType: '',
     pluginDetailSelectedHook: '',
+    pluginDetailsShowType: 'all',
   },
   {
     mergeDefaults: true,

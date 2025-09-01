@@ -4,18 +4,18 @@ catalog:
 catalogs:
   build:
     '@nuxt/kit': ^4.0.3
-    '@unocss/nuxt': ^66.4.2
-    '@vueuse/nuxt': ^13.7.0
+    '@unocss/nuxt': ^66.5.0
+    '@vueuse/nuxt': ^13.9.0
     esbuild: ^0.25.9
     nitropack: ^2.12.4
     nuxt: ^4.0.3
     nuxt-mcp: ^0.2.4
-    rolldown: ^1.0.0-beta.33
-    tsdown: ^0.14.1
+    rolldown: ^1.0.0-beta.34
+    tsdown: ^0.14.2
     tsx: ^4.20.5
-    vite: npm:rolldown-vite@^7.1.4
+    vite: npm:rolldown-vite@^7.1.5
   deps:
-    '@rolldown/debug': ^1.0.0-beta.33
+    '@rolldown/debug': ^1.0.0-beta.34
     ansis: ^4.1.0
     birpc: ^2.5.0
     cac: ^6.7.14
@@ -27,9 +27,10 @@ catalogs:
     mrmime: ^2.0.1
     ohash: ^2.0.11
     open: ^10.2.0
-    p-limit: ^7.1.0
+    p-limit: ^7.1.1
     pathe: ^2.0.3
     publint: ^0.3.12
+    split2: ^4.2.0
     structured-clone-es: ^1.0.0
     tinyglobby: ^0.2.14
     unconfig: ^7.3.3
@@ -40,19 +41,20 @@ catalogs:
     '@antfu/eslint-config': ^5.2.1
     '@nuxt/devtools': ^2.6.3
     '@nuxt/eslint': ^1.9.0
-    '@typescript-eslint/utils': ^8.40.0
-    '@unocss/eslint-config': ^66.4.2
+    '@typescript-eslint/utils': ^8.41.0
+    '@unocss/eslint-config': ^66.5.0
     bumpp: ^10.2.3
     eslint: ^9.34.0
     lint-staged: ^16.1.5
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.2
-    vite-plugin-inspect: ^11.3.2
+    vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.0.6
   frontend:
-    '@vueuse/components': ^13.7.0
-    '@vueuse/router': ^13.7.0
+    '@floating-ui/dom': ^1.7.4
+    '@vueuse/components': ^13.9.0
+    '@vueuse/router': ^13.9.0
     codemirror: ^5.65.20
     codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
@@ -67,17 +69,17 @@ catalogs:
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
-    vue: ^3.5.19
+    vue: ^3.5.20
     vue-virtual-scroller: ^2.0.0-beta.8
   icons:
     '@iconify-json/carbon': ^1.2.13
     '@iconify-json/catppuccin': ^1.2.16
-    '@iconify-json/codicon': ^1.2.26
-    '@iconify-json/fluent': ^1.2.29
+    '@iconify-json/codicon': ^1.2.27
+    '@iconify-json/fluent': ^1.2.30
     '@iconify-json/logos': ^1.2.9
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5
-    '@iconify-json/simple-icons': ^1.2.48
+    '@iconify-json/simple-icons': ^1.2.50
     '@iconify-json/svg-spinners': ^1.2.4
   inlined:
     '@antfu/utils': ^9.2.0
@@ -91,6 +93,7 @@ catalogs:
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/diff': ^8.0.0
+    '@types/split2': ^4.2.3
     '@types/stream-json': ^1.7.8
     '@types/ws': ^8.18.1
 onlyBuiltDependencies:
