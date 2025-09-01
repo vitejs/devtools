@@ -20,6 +20,7 @@ export function parseJsonStream<T>(
 
   return new Promise<T>((resolve) => {
     parser.on('data', (chunk) => {
+      // @ts-expect-error casting
       assembler[chunk.name]?.(chunk.value)
     })
     stream.pipe(parser)
