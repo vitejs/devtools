@@ -1,18 +1,26 @@
 <script setup lang="ts">
 import { NuxtLink } from '#components'
 import { useRpc } from '#imports'
+import { computed } from 'vue'
+import { parseReadablePath } from '~/utils/filepath'
 
-defineProps<{
+const props = defineProps<{
   sessionMode: 'list' | 'compare'
+  selectedEntries: string[]
+  selectedSessionIds: string[]
 }>()
 
 const rpc = useRpc()
 const sessions = await rpc.value!['vite:rolldown:list-sessions']()
+const filteredSessions = computed(() =>
+  props.selectedEntries.length === 2
+    ? sessions.filter(session => props.selectedSessionIds.includes(session.id ?? ''))
+    : sessions.filter(session => props.selectedEntries.length ? parseReadablePath(session.meta.inputs[0]?.filename ?? '', session.meta.cwd).path === parseReadablePath(props.selectedEntries[0] ?? '', session.meta.cwd).path : true))
 </script>
 
 <template>
   <div flex="~ col gap-2">
-    <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
+    <div v-for="session of filteredSessions" :key="session.id" flex="~ row gap-2" relative>
       <slot name="left" :session="session" />
       <component
         :is="sessionMode === 'list' ? NuxtLink : 'div'"
