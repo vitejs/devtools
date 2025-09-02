@@ -38,13 +38,51 @@ const processedModules = computed(() => {
   }) ?? []
 })
 
-const hookLoadDuration = computed(() => state.value?.loadMetrics.reduce((arc, item) => arc + item.duration, 0))
+type Interval = [number, number]
 
-const hookTransformDuration = computed(() => state.value?.transformMetrics.reduce((arc, item) => arc + item.duration, 0))
+function calculateTotalDuration(intervals: Interval[]): number {
+  if (!intervals?.length)
+    return 0
 
-const hookResolveIdDuration = computed(() => state.value?.resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0))
+  const arr = intervals
+    .sort((a, b) => a[0] - b[0])
 
-const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => arc + item.duration, 0))
+  let total = 0
+  let [currentStart, currentEnd] = arr[0]!
+
+  for (let i = 1; i < arr.length; i++) {
+    const [start, end] = arr[i]!
+    // Non-overlapping time intervals, add the time to the total duration, and update the current time interval
+    if (start > currentEnd) {
+      total += (currentEnd - currentStart)
+      currentStart = start
+      currentEnd = end
+    }
+    else {
+      // Overlap time intervals are directly merged
+      currentEnd = Math.max(currentEnd, end)
+    }
+  }
+  // Add the last time interval to the total duration
+  total += (currentEnd - currentStart)
+  return total
+}
+
+const hookLoadDuration = computed(() =>
+  calculateTotalDuration(state.value?.loadMetrics.map(item => [item.timestamp_start, item.timestamp_end]) ?? []),
+)
+
+const hookTransformDuration = computed(() =>
+  calculateTotalDuration(state.value?.transformMetrics.map(item => [item.timestamp_start, item.timestamp_end]) ?? []),
+)
+
+const hookResolveIdDuration = computed(() =>
+  calculateTotalDuration(state.value?.resolveIdMetrics.map(item => [item.timestamp_start, item.timestamp_end]) ?? []),
+)
+
+const totalDuration = computed(() =>
+  calculateTotalDuration(state.value?.calls?.map(item => [item.timestamp_start, item.timestamp_end]) ?? []),
+)
 </script>
 
 <template>
