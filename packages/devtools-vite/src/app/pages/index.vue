@@ -40,7 +40,7 @@ function selectSession(session: BuildInfo) {
     <VisualLogoBanner />
     <div fixed top-5 right-5 flex="~ col gap2">
       <div flex="~ row justify-around" w20 h8 border="~ base rounded-8" of-hidden>
-        <button v-for="mode in modeList" :key="mode.value" :title="mode.label" flex-1 op50 flex="~ items-center justify-center" :class="{ 'bg-active text-white op100!': sessionMode === mode.value }" hover="bg-active text-white op100!" @click="sessionMode = mode.value">
+        <button v-for="mode in modeList" :key="mode.value" :title="mode.label" flex-1 op50 flex="~ items-center justify-center" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" hover="bg-active text-base op100!" @click="sessionMode = mode.value">
           <span :class="mode.icon" class="text-sm" />
         </button>
       </div>
