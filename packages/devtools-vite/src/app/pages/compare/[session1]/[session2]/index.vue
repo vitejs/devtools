@@ -17,6 +17,8 @@ const session1 = reactive({
   meta: undefined!,
   modulesList: shallowRef<ModuleListItem[]>([]),
   buildDuration: 0,
+  assets: [],
+  chunks: [],
 }) as SessionContext
 
 const session2 = reactive({
@@ -24,6 +26,8 @@ const session2 = reactive({
   meta: undefined!,
   modulesList: shallowRef<ModuleListItem[]>([]),
   buildDuration: 0,
+  assets: [],
+  chunks: [],
 }) as SessionContext
 
 async function getSessionInfo(session: string) {
@@ -40,7 +44,7 @@ async function getSessionInfo(session: string) {
   }))
 
   return {
-    meta: summary.meta,
+    ...summary,
     modulesList,
     buildDuration: summary.build_duration,
   }
@@ -53,10 +57,14 @@ onMounted(async () => {
   session1.meta = session1Info.meta!
   session1.modulesList = session1Info.modulesList
   session1.buildDuration = session1Info.buildDuration
+  session1.assets = session1Info.assets
+  session1.chunks = session1Info.chunks
 
   session2.meta = session2Info.meta!
   session2.modulesList = session2Info.modulesList
   session2.buildDuration = session2Info.buildDuration
+  session2.assets = session2Info.assets
+  session2.chunks = session2Info.chunks
 
   isLoading.value = false
 })
@@ -84,23 +92,27 @@ const basicComparisonMetrics = computed(() => {
   return [
     {
       title: 'Modules',
+      icon: 'i-ph-graph-duotone',
       current: session2.modulesList.length,
       previous: session1.modulesList.length,
     },
     {
       title: 'Plugins',
+      icon: 'i-ph-plugs-duotone',
       current: session2.meta?.plugins.length ?? 0,
       previous: session1.meta?.plugins.length ?? 0,
     },
     {
-      title: 'Assets',
-      current: 180,
-      previous: 200,
+      title: 'Chunks',
+      icon: 'i-ph-shapes-duotone',
+      current: session2.chunks.length ?? 0,
+      previous: session1.chunks.length ?? 0,
     },
     {
-      title: 'Chunks',
-      current: 100,
-      previous: 120,
+      title: 'Assets',
+      icon: 'i-ph-package-duotone',
+      current: session2.assets.length ?? 0,
+      previous: session1.assets.length ?? 0,
     },
   ]
 })
@@ -142,9 +154,10 @@ const basicComparisonMetrics = computed(() => {
       </div>
       <div flex="~ gap5" w-full pt3>
         <div v-for="item of basicComparisonMetrics" :key="item.title" flex-1 border="~ base rounded" p4 flex="~ col" gap2>
-          <h6 font-500 op50 text-4>
+          <div font-500 op50 text-4 flex="~ items-center gap-2">
+            <div :class="item.icon" class="text-xl" />
             {{ item.title }}
-          </h6>
+          </div>
           <div flex="~ gap-2" items-center>
             <span font-semibold text-5 font-mono>{{ item.current }}</span>
             <DisplayComparisonMetric :current="item.current" :previous="item.previous" />

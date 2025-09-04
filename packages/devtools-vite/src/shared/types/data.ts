@@ -50,6 +50,8 @@ export interface SessionContext {
   id: string
   meta: SessionMeta
   modulesList: ModuleListItem[]
+  assets: AssetInfo[]
+  chunks: ChunkInfo[]
   buildDuration: number
 }
 

@@ -16,6 +16,8 @@ export const rolldownGetSessionSummary = defineRpcFunction({
           build_duration: reader.manager.build_end_time - reader.manager.build_start_time,
           modules: Array.from(reader.manager.modules.values())
             .sort((a, b) => a.id.localeCompare(b.id)),
+          chunks: Array.from(reader.manager.chunks.values()),
+          assets: Array.from(reader.manager.assets.values()),
         }
       },
     }

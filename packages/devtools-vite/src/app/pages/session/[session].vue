@@ -17,6 +17,8 @@ const session = reactive({
   meta: undefined!,
   modulesList: shallowRef<ModuleListItem[]>([]),
   buildDuration: 0,
+  assets: [],
+  chunks: [],
 }) as SessionContext
 
 const rpc = useRpc()
