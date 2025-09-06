@@ -1,26 +1,25 @@
 <script setup lang="ts">
+import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { NuxtLink } from '#components'
-import { useRpc } from '#imports'
-import { computed } from 'vue'
-import { parseReadablePath } from '~/utils/filepath'
 
 const props = defineProps<{
   sessionMode: 'list' | 'compare'
-  selectedEntries: string[]
-  selectedSessionIds: string[]
+  sessions: BuildInfo[]
+}>()
+const emit = defineEmits<{
+  (e: 'select', session: BuildInfo): void
 }>()
 
-const rpc = useRpc()
-const sessions = await rpc.value!['vite:rolldown:list-sessions']()
-const filteredSessions = computed(() =>
-  props.selectedEntries.length === 2
-    ? sessions.filter(session => props.selectedSessionIds.includes(session.id ?? ''))
-    : sessions.filter(session => props.selectedEntries.length ? parseReadablePath(session.meta.inputs[0]?.filename ?? '', session.meta.cwd).path === parseReadablePath(props.selectedEntries[0] ?? '', session.meta.cwd).path : true))
+function select(session: BuildInfo) {
+  if (props.sessionMode === 'compare') {
+    emit('select', session)
+  }
+}
 </script>
 
 <template>
   <div flex="~ col gap-2">
-    <div v-for="session of filteredSessions" :key="session.id" flex="~ row gap-2" relative>
+    <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
       <slot name="left" :session="session" />
       <component
         :is="sessionMode === 'list' ? NuxtLink : 'div'"
@@ -29,6 +28,7 @@ const filteredSessions = computed(() =>
         :class="sessionMode === 'list' ? 'hover:bg-active' : ''"
         flex="~ col gap-1"
         px4 py3
+        @click="select(session)"
       >
         <div flex="~ gap-1 items-center" font-mono op50 text-sm>
           <div i-ph-hash-duotone />
