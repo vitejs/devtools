@@ -64,7 +64,7 @@ function selectSession(session: BuildInfo) {
           >
         </template>
       </PanelSessionSelector>
-      <NuxtLink v-if="selectedSessions.length === 2 && sessionMode === 'compare'" tag="button" :to="`/compare/${selectedSessionIds.join('/')}`" btn-action rounded-8 text-3 flex="~ justify-center" w30 h8>
+      <NuxtLink v-if="selectedSessions.length === 2 && sessionMode === 'compare'" tag="button" :to="`/compare/${selectedSessionIds.join(',')}`" btn-action rounded-8 text-3 flex="~ justify-center" w30 h8>
         Compare
       </NuxtLink>
     </div>

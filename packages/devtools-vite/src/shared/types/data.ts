@@ -50,9 +50,16 @@ export interface SessionContext {
   id: string
   meta: SessionMeta
   modulesList: ModuleListItem[]
-  assets: AssetInfo[]
-  chunks: ChunkInfo[]
   buildDuration: number
+}
+
+export interface SessionCompareContext {
+  id: string
+  meta: SessionMeta
+  build_duration: number
+  modules: number
+  chunks: number
+  assets: number
 }
 
 export interface ModuleInfo {
