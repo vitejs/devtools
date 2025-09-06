@@ -60,6 +60,8 @@ export interface SessionCompareContext {
   modules: number
   chunks: number
   assets: number
+  bundle_size: number
+  initial_js: number
 }
 
 export interface ModuleInfo {

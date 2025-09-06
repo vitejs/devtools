@@ -33,9 +33,23 @@ const normalizedSessions = computed<Array<SessionCompareContext & { createdAt: D
   }))
 })
 
-const basicComparisonMetrics = computed(() => {
+const comparisonMetrics = computed(() => {
   const [sessionA, sessionB] = normalizedSessions.value
   return [
+    {
+      title: 'Bundle Size',
+      icon: 'i-ph-package-duotone',
+      current: sessionB?.bundle_size ?? 0,
+      previous: sessionA?.bundle_size ?? 0,
+      format: 'bytes',
+    },
+    {
+      title: 'Initial JS',
+      icon: 'i-ph:file-js-duotone',
+      current: sessionB?.initial_js ?? 0,
+      previous: sessionA?.initial_js ?? 0,
+      format: 'bytes',
+    },
     {
       title: 'Modules',
       icon: 'i-ph-graph-duotone',
@@ -98,16 +112,9 @@ const basicComparisonMetrics = computed(() => {
           </div>
         </div>
       </div>
-      <div flex="~ gap5" w-full pt3>
-        <div v-for="item of basicComparisonMetrics" :key="item.title" flex-1 border="~ base rounded" p4 flex="~ col" gap2>
-          <div font-500 op50 text-4 flex="~ items-center gap-2">
-            <div :class="item.icon" class="text-xl" />
-            {{ item.title }}
-          </div>
-          <div flex="~ gap-2" items-center>
-            <span font-semibold text-5 font-mono>{{ item.current }}</span>
-            <DisplayComparisonMetric :current="item.current" :previous="item.previous" />
-          </div>
+      <div grid="~ cols-4 gap5" w-full pt3>
+        <div v-for="(item, index) of comparisonMetrics" :key="item.title" :class="index < 2 ? 'col-span-2' : 'col-span-1'" border="~ base rounded" p4 flex="~ col" gap2>
+          <CompareMetricCard v-bind="item" />
         </div>
       </div>
     </div>
