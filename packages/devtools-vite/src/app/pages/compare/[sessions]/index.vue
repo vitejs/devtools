@@ -37,39 +37,45 @@ const comparisonMetrics = computed(() => {
   const [sessionA, sessionB] = normalizedSessions.value
   return [
     {
-      title: 'Bundle Size',
+      name: 'Bundle Size',
+      description: 'Total file size of the assets',
       icon: 'i-ph-package-duotone',
       current: sessionB?.bundle_size ?? 0,
       previous: sessionA?.bundle_size ?? 0,
       format: 'bytes',
     },
     {
-      title: 'Initial JS',
+      name: 'Initial JS',
+      description: 'Total file size of the initial JS chunks',
       icon: 'i-ph:file-js-duotone',
       current: sessionB?.initial_js ?? 0,
       previous: sessionA?.initial_js ?? 0,
       format: 'bytes',
     },
     {
-      title: 'Modules',
+      name: 'Modules',
+      description: 'Total number of modules',
       icon: 'i-ph-graph-duotone',
       current: sessionB?.modules ?? 0,
       previous: sessionA?.modules ?? 0,
     },
     {
-      title: 'Plugins',
+      name: 'Plugins',
+      description: 'Total number of plugins',
       icon: 'i-ph-plugs-duotone',
       current: sessionB?.meta?.plugins.length ?? 0,
       previous: sessionA?.meta?.plugins.length ?? 0,
     },
     {
-      title: 'Chunks',
+      name: 'Chunks',
+      description: 'Total number of chunks',
       icon: 'i-ph-shapes-duotone',
       current: sessionB?.chunks ?? 0,
       previous: sessionA?.chunks ?? 0,
     },
     {
-      title: 'Assets',
+      name: 'Assets',
+      description: 'Total number of assets',
       icon: 'i-ph-package-duotone',
       current: sessionB?.assets ?? 0,
       previous: sessionA?.assets ?? 0,
@@ -113,7 +119,7 @@ const comparisonMetrics = computed(() => {
         </div>
       </div>
       <div grid="~ cols-4 gap5" w-full pt3>
-        <div v-for="(item, index) of comparisonMetrics" :key="item.title" :class="index < 2 ? 'col-span-2' : 'col-span-1'" border="~ base rounded" p4 flex="~ col" gap2>
+        <div v-for="(item, index) of comparisonMetrics" :key="item.name" :class="index < 2 ? 'col-span-2' : 'col-span-1'" border="~ base rounded" p4 flex="~ col" gap2>
           <CompareMetricCard v-bind="item" />
         </div>
       </div>

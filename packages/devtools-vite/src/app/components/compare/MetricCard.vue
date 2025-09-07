@@ -3,7 +3,8 @@ import { computed } from 'vue'
 import { bytesToHumanSize } from '~/utils/format'
 
 const props = defineProps<{
-  title: string
+  name: string
+  description: string
   icon: string
   current: number
   previous: number
@@ -18,9 +19,9 @@ const formattedCurrent = computed(() => {
 </script>
 
 <template>
-  <div font-500 op50 text-4 flex="~ items-center gap-2">
+  <div font-500 op50 text-4 flex="~ items-center gap-2" :title="description">
     <div :class="icon" class="text-xl" />
-    {{ title }}
+    {{ name }}
   </div>
   <div flex="~ gap-2" items-center>
     <div v-if="format === 'bytes'">
