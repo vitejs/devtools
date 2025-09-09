@@ -1,23 +1,14 @@
 <script setup lang="ts">
-import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
+import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
-import { linkHorizontal, linkVertical } from 'd3-shape'
+import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
 const props = defineProps<{
   module: ModuleInfo
   session: SessionContext
 }>()
-
-interface Node {
-  module: ModuleListItem
-  import?: ModuleImport
-}
-
-type Link = HierarchyLink<Node> & {
-  id: string
-  import?: ModuleImport
-}
 
 type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
 
@@ -31,10 +22,11 @@ const SPACING = {
   margin: 8,
   dot: 16,
   dotOffset: 80,
+  linkOffset: 0,
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
-const links = shallowRef<Link[]>([])
+const links = shallowRef<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
 
 const modulesMap = computed(() => {
   const map = new Map<string, ModuleListItem>()
@@ -65,31 +57,6 @@ const importsVerticalOffset = computed(() => {
   const offset = (diff * (SPACING.height + SPACING.padding)) / 2
   return Math.min(offset, nodesHeight.value / 2)
 })
-
-const createLinkHorizontal = linkHorizontal()
-  .x(d => d[0])
-  .y(d => d[1])
-
-const createLinkVertical = linkVertical()
-  .x(d => d[0])
-  .y(d => d[1])
-
-function generateLink(link: Link) {
-  if (link.target.x! <= link.source.x!) {
-    return createLinkVertical({
-      source: [link.source.x!, link.source.y!],
-      target: [link.target.x!, link.target.y!],
-    })
-  }
-  return createLinkHorizontal({
-    source: [link.source.x!, link.source.y!],
-    target: [link.target.x!, link.target.y!],
-  })
-}
-
-function getLinkColor(_link: Link) {
-  return 'stroke-#8882'
-}
 
 const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${importers.value?.length ? SPACING.dotOffset : 0}px`)
 const linkStartX = computed(() => importers.value?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
@@ -131,11 +98,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
         target: {
           x: calculateLinkX('importer-end'),
           y: calculateLinkY('importer-end'),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
       }
     })
     links.value.push(..._importersLinks)
@@ -148,11 +115,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
         target: {
           x: calculateLinkX('import-end'),
           y: calculateLinkY('import-end', i),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
       }
     })
     links.value.push(..._importsLinks)
@@ -250,8 +217,8 @@ onMounted(() => {
         <path
           v-for="link of links"
           :key="link.id"
-          :d="generateLink(link)!"
-          :class="getLinkColor(link)"
+          :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
+          :class="getModuleGraphLinkColor<ModuleListItem, ModuleImport>(link)"
           :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
           fill="none"
         />
