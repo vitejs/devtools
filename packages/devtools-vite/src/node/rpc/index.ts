@@ -10,6 +10,7 @@ import { rolldownGetModuleRawEvents } from './functions/rolldown-get-module-raw-
 import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-transforms'
 import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
 import { rolldownGetRawEvents } from './functions/rolldown-get-raw-events'
+import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
 
@@ -27,6 +28,7 @@ export const rpcFunctions = [
   rolldownGetAssetsList,
   rolldownGetAssetDetails,
   rolldownGetPluginDetails,
+  rolldownGetSessionCompareSummary,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
