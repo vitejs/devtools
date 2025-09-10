@@ -1,17 +1,34 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { NuxtLink } from '#components'
+import { computed } from 'vue'
+import { parseReadablePath } from '~/utils/filepath'
 
 const props = defineProps<{
   sessionMode: 'list' | 'compare'
   sessions: BuildInfo[]
+  selectedSessionIds: string[]
+  selectedSessions: BuildInfo[]
 }>()
 const emit = defineEmits<{
   (e: 'select', session: BuildInfo): void
 }>()
 
+function parseEntryPath(session: BuildInfo) {
+  return parseReadablePath(session.meta.inputs[0]?.filename ?? '', session.meta.cwd).path
+}
+
+const selectedSessionEntry = computed(() => {
+  const session = props.selectedSessions?.[0]
+  return session ? parseEntryPath(session) : ''
+})
+
+function checkIsDifferentEntry(session: BuildInfo) {
+  return selectedSessionEntry.value && selectedSessionEntry.value !== parseEntryPath(session)
+}
+
 function select(session: BuildInfo) {
-  if (props.sessionMode === 'compare') {
+  if (props.sessionMode === 'compare' && !checkIsDifferentEntry(session)) {
     emit('select', session)
   }
 }
@@ -20,12 +37,11 @@ function select(session: BuildInfo) {
 <template>
   <div flex="~ col gap-2">
     <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
-      <slot name="left" :session="session" />
       <component
         :is="sessionMode === 'list' ? NuxtLink : 'div'"
         :to="`/session/${session.id}`"
-        border="~ base rounded-md"
-        :class="sessionMode === 'list' ? 'hover:bg-active' : ''"
+        border="~ rounded-md"
+        :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
         flex="~ col gap-1"
         px4 py3
         @click="select(session)"
