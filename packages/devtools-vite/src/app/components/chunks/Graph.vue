@@ -2,6 +2,7 @@
 import type { Chunk, ChunkImport } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types/data'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import { useRoute } from '#app/composables/router'
 import { computed, nextTick, unref } from 'vue'
 import { createModuleGraph } from '~/composables/moduleGraph'
 
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const chunks = computed(() => props.chunks)
+const route = useRoute()
 
 type ChunkInfo = Chunk & {
   id: string
@@ -143,7 +145,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
     :modules="chunks"
   >
     <template #default="{ node }">
-      <div flex="~ items-center">
+      <NuxtLink class="flex items-center" :to="{ path: route.path, query: { chunk: node.data.module.chunk_id } }">
         <span op50 font-mono w12>#{{ node.data.module.id }}</span>
         <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
           <div i-ph-shapes-duotone />
@@ -155,7 +157,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
           <div i-ph-package-duotone />
           {{ node.data.module.modules.length }}
         </div>
-      </div>
+      </NuxtLink>
     </template>
   </DisplayModuleGraph>
 </template>
