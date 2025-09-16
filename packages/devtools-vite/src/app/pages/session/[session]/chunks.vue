@@ -61,7 +61,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
       </div>
     </div>
     <template v-if="settings.chunkViewType === 'list'">
-      <div class="px5 pt24" flex="~ col gap-4">
+      <div class="px5 pt24 of-auto h-screen" flex="~ col gap-4">
         <template v-for="chunk of chunks" :key="chunk.id">
           <DataChunkDetails
             border="~ base rounded-lg"
