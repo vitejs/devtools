@@ -27,11 +27,11 @@ const { state, isLoading } = useAsyncState(
 <template>
   <VisualLoading v-if="isLoading" />
 
-  <div v-if="state" p4 pt-12 relative h-full w-full of-auto z-panel-content>
-    <DisplayCloseButton
-      absolute right-2 top-1.5
-      @click="emit('close')"
-    />
-    <DataChunkDetails :session="session" :chunk="state" />
+  <div v-if="state" p4 relative h-full w-full of-auto z-panel-content>
+    <DataChunkDetails :session="session" :chunk="state">
+      <DisplayCloseButton
+        @click="emit('close')"
+      />
+    </DataChunkDetails>
   </div>
 </template>

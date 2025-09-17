@@ -33,6 +33,7 @@ withDefaults(defineProps<{
         <div i-ph-package-duotone />
         {{ chunk.modules.length }}
       </div>
+      <slot />
     </div>
 
     <template v-if="showImports && chunk.imports.length > 0">
