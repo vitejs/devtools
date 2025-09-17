@@ -81,6 +81,7 @@ function openInEditor() {
           <div i-ph-file-text />
           View source
         </button>
+        <slot />
       </div>
     </div>
 

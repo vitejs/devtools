@@ -52,11 +52,11 @@ const { state } = useAsyncState(
 </script>
 
 <template>
-  <div v-if="state?.asset" p4 relative h-full w-full of-auto pt12 bg-glass z-panel-content>
-    <DisplayCloseButton
-      absolute right-2 top-1.5
-      @click="emit('close')"
-    />
-    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" :imports="state?.imports" />
+  <div v-if="state?.asset" p4 relative h-full w-full of-auto bg-glass z-panel-content>
+    <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" :imports="state?.imports">
+      <DisplayCloseButton
+        @click="emit('close')"
+      />
+    </DataAssetDetails>
   </div>
 </template>
