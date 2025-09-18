@@ -1,21 +1,14 @@
 <script setup lang="ts">
 import type { Asset as AssetInfo } from '@rolldown/debug'
-import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
-import { linkHorizontal, linkVertical } from 'd3-shape'
+import type { HierarchyNode } from 'd3-hierarchy'
+import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
 const props = defineProps<{
   importers?: AssetInfo[]
   imports?: AssetInfo[]
 }>()
-
-interface Node {
-  asset: AssetInfo
-}
-
-type Link = HierarchyLink<Node> & {
-  id: string
-}
 
 type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
 
@@ -32,7 +25,7 @@ const SPACING = {
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
-const links = shallowRef<Link[]>([])
+const links = shallowRef<ModuleGraphLink<AssetInfo, AssetInfo>[]>([])
 
 const normalizedMaxLinks = computed(() => {
   return Math.min(Math.max(props.importers?.length || 0, props.imports?.length || 0), MAX_LINKS)
@@ -53,31 +46,6 @@ const importsVerticalOffset = computed(() => {
   const offset = (diff * (SPACING.height + SPACING.padding)) / 2
   return Math.min(offset, nodesHeight.value / 2)
 })
-
-const createLinkHorizontal = linkHorizontal()
-  .x(d => d[0])
-  .y(d => d[1])
-
-const createLinkVertical = linkVertical()
-  .x(d => d[0])
-  .y(d => d[1])
-
-function generateLink(link: Link) {
-  if (link.target.x! <= link.source.x!) {
-    return createLinkVertical({
-      source: [link.source.x!, link.source.y!],
-      target: [link.target.x!, link.target.y!],
-    })
-  }
-  return createLinkHorizontal({
-    source: [link.source.x!, link.source.y!],
-    target: [link.target.x!, link.target.y!],
-  })
-}
-
-function getLinkColor(_link: Link) {
-  return 'stroke-#8882'
-}
 
 const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${props.importers?.length ? SPACING.dotOffset : 0}px`)
 const linkStartX = computed(() => props.importers?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
@@ -120,11 +88,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
         target: {
           x: calculateLinkX('importer-end'),
           y: calculateLinkY('importer-end'),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
       }
     })
     links.value.push(..._importersLinks)
@@ -138,11 +106,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
         target: {
           x: calculateLinkX('import-end'),
           y: calculateLinkY('import-end', i),
-        } as HierarchyNode<Node>,
+        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
       }
     })
     links.value.push(..._importsLinks)
@@ -255,8 +223,8 @@ onMounted(() => {
         <path
           v-for="link of links"
           :key="link.id"
-          :d="generateLink(link)!"
-          :class="getLinkColor(link)"
+          :d="generateModuleGraphLink<AssetInfo, AssetInfo>(link)!"
+          :class="getModuleGraphLinkColor<AssetInfo, AssetInfo>(link)"
           fill="none"
         />
       </g>

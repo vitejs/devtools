@@ -39,12 +39,12 @@ const transforms = computed((): (RolldownModuleNoChanges | RolldownModuleNoChang
   if (flowShowAllTransforms.value && unchanged?.length) {
     return [
       ...(info.value.transforms ?? []),
-      ({
+      {
         type: 'no_changes_hide',
         id: 'no_changes_hide',
         count: unchanged?.length ?? 0,
         duration: unchanged?.reduce((acc, t) => acc + t.duration, 0) ?? 0,
-      } satisfies RolldownModuleNoChangesHide),
+      } satisfies RolldownModuleNoChangesHide,
     ]
   }
 
@@ -52,12 +52,12 @@ const transforms = computed((): (RolldownModuleNoChanges | RolldownModuleNoChang
     return changed ?? []
 
   return [
-    ({
+    {
       type: 'no_changes_collapsed',
       id: 'no_changes_collapsed',
       count: unchanged?.length ?? 0,
       duration: unchanged?.reduce((acc, t) => acc + t.duration, 0) ?? 0,
-    } satisfies RolldownModuleNoChanges),
+    } satisfies RolldownModuleNoChanges,
     ...(changed ?? []),
   ]
 })
@@ -72,12 +72,12 @@ const loads = computed(() => {
   if (flowShowAllLoads.value && unchanged?.length) {
     return [
       ...(info.value.loads ?? []),
-      ({
+      {
         type: 'no_changes_hide',
         id: 'no_changes_hide',
         count: unchanged?.length ?? 0,
         duration: unchanged?.reduce((acc, t) => acc + t.duration, 0) ?? 0,
-      } satisfies RolldownModuleNoChangesHide),
+      } satisfies RolldownModuleNoChangesHide,
     ]
   }
 
@@ -85,12 +85,12 @@ const loads = computed(() => {
     return changed ?? []
 
   return [
-    ({
+    {
       type: 'no_changes_collapsed',
       id: 'no_changes_collapsed',
       count: unchanged?.length ?? 0,
       duration: unchanged?.reduce((acc, t) => acc + t.duration, 0) ?? 0,
-    } satisfies RolldownModuleNoChanges),
+    } satisfies RolldownModuleNoChanges,
     ...(changed ?? []),
   ]
 })

@@ -21,6 +21,7 @@ export interface ClientSettings {
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
+  chunkViewType: 'list' | 'graph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
 }
 
@@ -45,6 +46,7 @@ export const settings = useLocalStorage<ClientSettings>(
     pluginDetailsModuleTypes: null,
     pluginDetailsDurationSortType: '',
     pluginDetailSelectedHook: '',
+    chunkViewType: 'list',
     pluginDetailsShowType: 'all',
   },
   {

@@ -4,6 +4,7 @@ import { openInEditor } from './functions/open-in-editor'
 import { openInFinder } from './functions/open-in-finder'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
+import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
 import { rolldownGetChunksGraph } from './functions/rolldown-get-chunks-graph'
 import { rolldownGetModuleInfo } from './functions/rolldown-get-module-info'
 import { rolldownGetModuleRawEvents } from './functions/rolldown-get-module-raw-events'
@@ -29,6 +30,7 @@ export const rpcFunctions = [
   rolldownGetAssetDetails,
   rolldownGetPluginDetails,
   rolldownGetSessionCompareSummary,
+  rolldownGetChunkInfo,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
