@@ -49,7 +49,7 @@ const containerClass = computed(() => {
 <template>
   <component
     :is="link ? NuxtLink : 'div'"
-    :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: id }, hash: location.hash }) : undefined"
+    :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: id, chunk: undefined }, hash: location.hash }) : undefined"
   >
     <Tooltip
       my-auto text-sm font-mono block w-full

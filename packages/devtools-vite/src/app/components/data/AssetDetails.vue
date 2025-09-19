@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -18,6 +19,7 @@ const props = withDefaults(defineProps<{
 })
 
 const rpc = useRpc()
+const route = useRoute()
 const showSource = ref(false)
 const { state } = useAsyncState(
   async () => {
@@ -81,6 +83,7 @@ function openInEditor() {
           <div i-ph-file-text />
           View source
         </button>
+        <slot />
       </div>
     </div>
 
@@ -110,14 +113,17 @@ function openInEditor() {
         <div op50>
           Chunks
         </div>
-        <div v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1>
+        <NuxtLink
+          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1
+          :to="{ path: route.path, query: { chunk: chunk.chunk_id } }"
+        >
           <DataChunkDetails
             :chunk="chunk"
             :session="session"
             :show-modules="false"
             :show-imports="false"
           />
-        </div>
+        </NuxtLink>
       </div>
       <template v-if="_importers?.length || _imports?.length">
         <div flex="~ col gap-2">
