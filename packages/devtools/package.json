@@ -24,9 +24,10 @@
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "bin": {
-    "vite-devtools": "./dist/cli.mjs"
+    "vite-devtools": "./bin.mjs"
   },
   "files": [
+    "bin.mjs",
     "dist"
   ],
   "scripts": {

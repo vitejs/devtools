@@ -22,9 +22,7 @@
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
-  "bin": "bin.mjs",
   "files": [
-    "bin.mjs",
     "dist"
   ],
   "scripts": {
@@ -32,8 +30,7 @@
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
     "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
-    "prepack": "pnpm build",
-    "start": "node ./bin.mjs"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:frontend",
