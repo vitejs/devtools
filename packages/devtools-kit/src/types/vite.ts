@@ -2,7 +2,16 @@ import type { ResolvedConfig } from 'vite'
 import type { RpcFunctionsHost } from './rpc'
 import type { DevtoolsViewHost } from './views'
 
+export interface DevToolsCapabilities {
+  rpc?: boolean
+  views?: boolean
+}
+
 export interface DevToolsPluginOptions {
+  capabilities?: {
+    dev?: DevToolsCapabilities | boolean
+    build?: DevToolsCapabilities | boolean
+  }
   setup: (context: DevToolsSetupContext) => void | Promise<void>
 }
 

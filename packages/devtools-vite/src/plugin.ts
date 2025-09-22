@@ -1,7 +1,6 @@
-import type { Plugin } from 'vite'
-import '@vitejs/devtools-kit'
+import type { PluginWithDevtools } from '@vitejs/devtools-kit'
 
-export function DevToolsVite(): Plugin {
+export function DevToolsVite(): PluginWithDevtools {
   return {
     name: 'vite:devtools',
     devtools: {

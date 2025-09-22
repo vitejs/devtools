@@ -1,5 +1,5 @@
+/* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsSetupContext } from '@vitejs/devtools-kit'
-import type { ResolvedConfig } from 'vite'
 import type { WebSocket } from 'ws'
 import type { RpcFunctionsHost } from './functions'
 import { createRpcServer } from '@vitejs/devtools-rpc'

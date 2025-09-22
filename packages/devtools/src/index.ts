@@ -7,7 +7,11 @@ export function ViteDevTools(): Plugin {
     name: 'vite:devtools',
     enforce: 'post',
     configureServer(server) {
-      startStandaloneServer(server.config)
+      startStandaloneServer({
+        cwd: server.config.root,
+        context: server.context,
+        functions: server.context.rpc,
+      })
       // console.log(server)
     },
   }

@@ -1,5 +1,4 @@
-import './extend'
-
+export * from './extend'
 export * from './rpc'
 export * from './utils'
 export * from './views'
