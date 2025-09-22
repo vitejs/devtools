@@ -5,6 +5,7 @@ import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { settings } from '~~/app/state/settings'
+import { formatDuration } from '~/utils/format'
 
 const props = defineProps<{
   session: SessionContext
@@ -37,37 +38,13 @@ const processedModules = computed(() => {
   }) ?? []
 })
 
-const hookLoadDuration = computed(() => {
-  const loadMetrics = state.value?.loadMetrics
-  if (!loadMetrics?.length) {
-    return
-  }
-  return loadMetrics[loadMetrics.length - 1]!.timestamp_end - loadMetrics[0]!.timestamp_start
-})
+const hookLoadDuration = computed(() => state.value?.loadMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const hookTransformDuration = computed(() => {
-  const transformMetrics = state.value?.transformMetrics
-  if (!transformMetrics?.length) {
-    return
-  }
-  return transformMetrics[transformMetrics.length - 1]!.timestamp_end - transformMetrics[0]!.timestamp_start
-})
+const hookTransformDuration = computed(() => state.value?.transformMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const hookResolveIdDuration = computed(() => {
-  const resolveIdMetrics = state.value?.resolveIdMetrics
-  if (!resolveIdMetrics?.length) {
-    return
-  }
-  return resolveIdMetrics[resolveIdMetrics.length - 1]!.timestamp_end - resolveIdMetrics[0]!.timestamp_start
-})
+const hookResolveIdDuration = computed(() => state.value?.resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0))
 
-const totalDuration = computed(() => {
-  const calls = state.value?.calls
-  if (!calls?.length) {
-    return
-  }
-  return calls[calls.length - 1]!.timestamp_end - calls[0]!.timestamp_start
-})
+const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => arc + item.duration, 0))
 </script>
 
 <template>
@@ -86,26 +63,26 @@ const totalDuration = computed(() => {
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
           :duration="hookResolveIdDuration" flex="~ gap-1 items-center"
-          :title="`Resolve Id hooks cost: ${hookResolveIdDuration}ms`"
+          :title="`Resolve Id hooks cost: ${formatDuration(hookResolveIdDuration, true)}`"
         >
           <span i-ph-magnifying-glass-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookLoadDuration" flex="~ gap-1 items-center"
-          :title="`Load hooks cost: ${hookLoadDuration}ms`"
+          :title="`Load hooks cost: ${formatDuration(hookLoadDuration, true)}`"
         >
           <span i-ph-upload-simple-duotone inline-block />
         </DisplayDuration>
         <DisplayDuration
           :duration="hookTransformDuration" flex="~ gap-1 items-center"
-          :title="`Transform hooks cost: ${hookTransformDuration}ms`"
+          :title="`Transform hooks cost: ${formatDuration(hookTransformDuration, true)}`"
         >
           <span i-ph-magic-wand-duotone inline-block />
         </DisplayDuration>
         <span op40>|</span>
         <DisplayDuration
           :duration="totalDuration" flex="~ gap-1 items-center"
-          :title="`Total build cost: ${totalDuration}ms`"
+          :title="`Total build cost: ${formatDuration(totalDuration, true)}`"
         >
           <span i-ph-clock-duotone inline-block />
         </DisplayDuration>
@@ -150,6 +127,11 @@ const totalDuration = computed(() => {
     <div of-auto h-full pt-30>
       <FlowmapPluginFlow
         v-if="settings.pluginDetailsViewType === 'flow'"
+        :session="session"
+        :build-metrics="state"
+      />
+      <ChartPluginFlamegraph
+        v-if="settings.pluginDetailsViewType === 'charts'"
         :session="session"
         :build-metrics="state"
       />

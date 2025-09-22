@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ModuleBuildMetrics } from '~~/shared/types'
 import { computed } from 'vue'
+import { formatDuration } from '~/utils/format'
 
 const props = defineProps<{
   metrics: ModuleBuildMetrics
@@ -11,15 +12,15 @@ const durations = computed(() => {
   const _resolveIds = data?.resolve_ids.reduce((t, node) => {
     t += node.duration
     return t
-  }, 0) ?? 0
+  }, 0)
   const _loads = data?.loads?.reduce((t, node) => {
     t += node.duration
     return t
-  }, 0) ?? 0
+  }, 0)
   const _transforms = data?.transforms.reduce((t, node) => {
     t += node.duration
     return t
-  }, 0) ?? 0
+  }, 0)
   const total = _resolveIds + _loads + _transforms
   return {
     resolveIds: _resolveIds,
@@ -44,26 +45,26 @@ const transformedCodeSize = computed(() => {
   <div text-xs font-mono flex="~ items-center gap-3" ml2>
     <DisplayDuration
       :duration="durations.resolveIds" flex="~ gap-1 items-center"
-      :title="`Resolve Id hooks cost: ${durations.resolveIds}ms`"
+      :title="`Resolve Id hooks cost: ${formatDuration(durations.resolveIds, true)}`"
     >
       <span i-ph-magnifying-glass-duotone inline-block />
     </DisplayDuration>
     <DisplayDuration
       :duration="durations.loads" flex="~ gap-1 items-center"
-      :title="`Load hooks cost: ${durations.loads}ms`"
+      :title="`Load hooks cost: ${formatDuration(durations.loads, true)}`"
     >
       <span i-ph-upload-simple-duotone inline-block />
     </DisplayDuration>
     <DisplayDuration
       :duration="durations.transforms" flex="~ gap-1 items-center"
-      :title="`Transform hooks cost: ${durations.transforms}ms`"
+      :title="`Transform hooks cost: ${formatDuration(durations.transforms, true)}`"
     >
       <span i-ph-magic-wand-duotone inline-block />
     </DisplayDuration>
     <span op40>|</span>
     <DisplayDuration
       :duration="durations.total" flex="~ gap-1 items-center"
-      :title="`Total build cost: ${durations.total}ms`"
+      :title="`Total build cost: ${formatDuration(durations.total, true)}`"
     >
       <span i-ph-clock-duotone inline-block />
     </DisplayDuration>

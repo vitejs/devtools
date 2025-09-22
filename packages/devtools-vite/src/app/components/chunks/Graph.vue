@@ -1,71 +1,62 @@
 <script setup lang="ts">
-import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
+import type { Chunk, ChunkImport } from '@rolldown/debug'
+import type { SessionContext } from '~~/shared/types/data'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import { useRoute } from '#app/composables/router'
 import { computed, nextTick, unref } from 'vue'
 import { createModuleGraph } from '~/composables/moduleGraph'
 
 const props = defineProps<{
-  modules: ModuleListItem[]
   session: SessionContext
+  chunks: ChunkInfo[]
 }>()
 
-const modules = computed(() => props.modules)
+const chunks = computed(() => props.chunks)
+const route = useRoute()
 
-createModuleGraph<ModuleListItem, ModuleImport>({
-  modules,
+type ChunkInfo = Chunk & {
+  id: string
+}
+createModuleGraph<ChunkInfo, ChunkImport>({
+  modules: chunks,
   spacing: {
-    width: 400,
+    width: 320,
     height: 55,
-    linkOffset: 20,
-    margin: 800,
-    gap: 150,
+    linkOffset: 15,
+    margin: 120,
+    gap: 80,
   },
   generateGraph: (options) => {
-    const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap, focusOn } = options
-    const rootModules = computed(() => {
-      return modules.value.filter(x => x.importers.length === 0)
-    })
-
-    return (focusOnFirstRootNode = true) => {
+    const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap } = options
+    return () => {
       width.value = window.innerWidth
       height.value = window.innerHeight
 
-      const seen = new Set<ModuleListItem>()
-      const root = hierarchy<ModuleGraphNode<ModuleListItem, ModuleImport>>(
+      const root = hierarchy<ModuleGraphNode<ChunkInfo, ChunkImport> & { end?: boolean }>(
         { module: { id: '~root' } } as any,
         (parent) => {
-          if (parent.module.id === '~root') {
-            rootModules.value.forEach((x) => {
-              seen.add(x)
-
+          if (`${parent.module?.id}` === '~root') {
+            chunks.value.forEach((x) => {
               if (isFirstCalculateGraph.value) {
                 childToParentMap.set(x.id, '~root')
               }
             })
-            return rootModules.value.map(x => ({
+            return chunks.value.map(x => ({
               module: x,
               expanded: !collapsedNodes.has(x.id),
               hasChildren: false,
             }))
           }
 
-          if (collapsedNodes.has(parent.module.id)) {
+          if (collapsedNodes.has(`${parent.module?.id}`) || parent.end) {
             return []
           }
 
-          const modules = parent.module.imports
-            .map((x): ModuleGraphNode<ModuleListItem, ModuleImport> | undefined => {
-              const module = modulesMap.value.get(x.module_id)
+          const nodes = parent.module.imports
+            .map((x): ModuleGraphNode<ChunkInfo, ChunkImport> & { end: boolean } | undefined => {
+              const module = modulesMap.value.get(`${x.chunk_id}`)
               if (!module)
                 return undefined
-              if (seen.has(module))
-                return undefined
-
-              // Check if the module is a child of the current parent
-              if (childToParentMap.has(module.id) && childToParentMap.get(module.id) !== parent.module.id)
-                return undefined
-
-              seen.add(module)
 
               if (isFirstCalculateGraph.value) {
                 childToParentMap.set(module.id, parent.module.id)
@@ -76,11 +67,12 @@ createModuleGraph<ModuleListItem, ModuleImport>({
                 import: x,
                 expanded: !collapsedNodes.has(module.id),
                 hasChildren: false,
+                end: true,
               }
             })
             .filter(x => x !== undefined)
 
-          return modules
+          return nodes
         },
       )
 
@@ -89,7 +81,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       }
 
       // Calculate the layout
-      const layout = tree<ModuleGraphNode<ModuleListItem, ModuleImport>>()
+      const layout = tree<ModuleGraphNode<ChunkInfo, ChunkImport> & { end?: boolean }>()
         .nodeSize([unref(spacing.height), unref(spacing.width) + unref(spacing.gap)])
       layout(root)
 
@@ -100,9 +92,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
         [node.x, node.y] = [node.y! - unref(spacing.width), node.x!]
 
         if (node.data.module.imports) {
-          node.data.hasChildren = node.data.module.imports
-            ?.filter(subNode => childToParentMap.get(subNode.module_id) === node.data.module.id)
-            .length > 0
+          node.data.hasChildren = node.data.module.imports.length > 0 && !node.data.end
         }
       }
 
@@ -123,18 +113,17 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       nodes.value = _nodes
       nodesMap.clear()
       for (const node of _nodes) {
-        nodesMap.set(node.data.module.id, node)
+        nodesMap.set(`${node.data.module.id}`, node)
       }
       const _links = root.links()
-        .filter(x => x.source.data.module.id !== '~root')
-        .map((x): ModuleGraphLink<ModuleListItem, ModuleImport> => {
+        .filter(x => `${x.source.data.module.id}` !== '~root')
+        .map((x): ModuleGraphLink<ChunkInfo, ChunkImport> => {
           return {
             ...x,
             import: x.source.data.import,
             id: `${x.source.data.module.id}|${x.target.data.module.id}`,
           }
         })
-
       linksMap.clear()
       for (const link of _links) {
         linksMap.set(link.id, link)
@@ -144,12 +133,6 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       nextTick(() => {
         width.value = (container.value!.scrollWidth / scale.value + unref(spacing.margin))
         height.value = (container.value!.scrollHeight / scale.value + unref(spacing.margin))
-        const moduleId = rootModules.value?.[0]?.id
-        if (focusOnFirstRootNode && moduleId) {
-          nextTick(() => {
-            focusOn(moduleId, false)
-          })
-        }
       })
     }
   },
@@ -159,25 +142,22 @@ createModuleGraph<ModuleListItem, ModuleImport>({
 <template>
   <DisplayModuleGraph
     :session="session"
-    :modules="modules"
+    :modules="chunks"
   >
-    <template #default="{ node, nodesRefMap }">
-      <DisplayModuleId
-        :id="node.data.module.id"
-        :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
-        :link="true"
-        :session="session"
-        :minimal="true"
-        flex="1"
-      />
-    </template>
-    <template #link="{ link, d, linkClass }">
-      <path
-        :d="d"
-        :class="linkClass"
-        :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-        fill="none"
-      />
+    <template #default="{ node }">
+      <NuxtLink class="flex items-center" :to="{ path: route.path, query: { chunk: node.data.module.chunk_id } }">
+        <span op50 font-mono w12>#{{ node.data.module.id }}</span>
+        <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
+          <div i-ph-shapes-duotone />
+          <div>{{ node.data.module.name || '[unnamed]' }}</div>
+          <DisplayBadge :text="node.data.module.reason" />
+        </div>
+        <div flex-auto />
+        <div flex="~ gap-1 items-center">
+          <div i-ph-package-duotone />
+          {{ node.data.module.modules.length }}
+        </div>
+      </NuxtLink>
     </template>
   </DisplayModuleGraph>
 </template>

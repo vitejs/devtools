@@ -1,3 +1,5 @@
+import { pipeline } from 'node:stream/promises'
+import split2 from 'split2'
 import StreamJSON from 'stream-json'
 import Assembler from 'stream-json/Assembler'
 
@@ -28,28 +30,39 @@ export function parseJsonStream<T>(
   })
 }
 
-export function parseJsonStreamWithConcatArrays<T, K = T>(
+export async function parseJsonStreamWithConcatArrays<T, K = T>(
   stream: NodeJS.ReadableStream,
   processor?: (value: T) => K,
 ): Promise<K[]> {
-  const assembler = new Assembler()
-  const parser = StreamJSON.parser({
-    jsonStreaming: true,
-  })
-
   const values: K[] = []
 
-  return new Promise<K[]>((resolve) => {
-    parser.on('data', (chunk) => {
-      // @ts-expect-error casting
-      assembler[chunk.name]?.(chunk.value)
-      if (assembler.done) {
-        values.push(processor ? processor(assembler.current) : assembler.current)
+  let lineNumber = 0
+
+  await pipeline(
+    stream,
+    split2(),
+    async (source: AsyncIterable<string>) => {
+      for await (const line of source) {
+        lineNumber += 1
+
+        if (!line) {
+          continue
+        }
+
+        try {
+          const parsed = JSON.parse(line) as T
+          const result = processor ? processor(parsed) : (parsed as unknown as K)
+          values.push(result)
+        }
+        catch (e) {
+          const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line
+          console.warn(
+            `[vite-devtools] JSON parse stream skip bad line ${lineNumber}: ${(e as Error).message}\n${preview}`,
+          )
+        }
       }
-    })
-    stream.pipe(parser)
-    parser.on('end', () => {
-      resolve(values)
-    })
-  })
+    },
+  )
+
+  return values
 }

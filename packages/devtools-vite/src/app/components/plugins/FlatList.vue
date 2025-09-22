@@ -11,15 +11,22 @@ const route = useRoute()
 
 <template>
   <div flex="~ col gap-2" p4>
-    <template v-for="plugin of plugins" :key="plugin.id">
-      <NuxtLink :to="{ path: route.path, query: { plugin: plugin.plugin_id } }" font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active" flex="~ gap-4 items-center">
-        <div w-8 text-right text-xs op50>
-          #{{ plugin.plugin_id }}
+    <DataVirtualList
+      :items="plugins"
+      key-prop="plugin_id"
+    >
+      <template #default="{ item }">
+        <div flex pb2>
+          <NuxtLink :to="{ path: route.path, query: { plugin: item.plugin_id } }" font-mono border="~ rounded base" w-full px2 py1 text-sm hover="bg-active" flex="~ gap-4 items-center">
+            <div w-8 text-right text-xs op50>
+              #{{ item.plugin_id }}
+            </div>
+            <span overflow-hidden text-ellipsis break-all line-clamp-2>
+              <DisplayPluginName :name="item.name" />
+            </span>
+          </NuxtLink>
         </div>
-        <span overflow-hidden text-ellipsis break-all line-clamp-2>
-          <DisplayPluginName :name="plugin.name" />
-        </span>
-      </NuxtLink>
-    </template>
+      </template>
+    </DataVirtualList>
   </div>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { formatDuration } from '~/utils/format'
 
 const props = withDefaults(
   defineProps<{
@@ -42,17 +43,7 @@ function getDurationColor(ms: number | undefined) {
   return 'color-scale-neutral'
 }
 
-const units = computed(() => {
-  if (ms.value == null)
-    return ['', '-']
-  if (ms.value < 1)
-    return ['<1', 'ms']
-  if (ms.value < 1000)
-    return [ms.value.toFixed(0), 'ms']
-  if (ms.value < 1000 * 60)
-    return [(ms.value / 1000).toFixed(1), 's']
-  return [(ms.value / 1000 / 60).toFixed(1), 'min']
-})
+const units = computed(() => formatDuration(ms.value))
 </script>
 
 <template>

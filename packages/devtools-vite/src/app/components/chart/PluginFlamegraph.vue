@@ -1,43 +1,69 @@
 <script setup lang="ts">
 import type { TreeNodeInput } from 'nanovis'
-import type {
-  ModuleInfo,
-  RolldownModuleLoadInfo,
-  RolldownModuleTransformInfo,
-  RolldownResolveInfo,
-  SessionContext,
-} from '~~/shared/types'
+import type { PluginBuildInfo, RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
-import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { parseReadablePath } from '~/utils/filepath'
 import { normalizeTimestamp } from '~/utils/format'
+import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
-  info: ModuleInfo
   session: SessionContext
-  flowNodeSelected: boolean
+  buildMetrics: RolldownPluginBuildMetrics
 }>()
 
-const n = (node: TreeNodeInput<any>) => normalizeTreeNode(node, undefined, false)
+const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
+  const path = parseReadablePath(mod.id, props.session.meta.cwd)
+  const type = getFileTypeFromModuleId(mod.id)
+  return {
+    mod,
+    path,
+    type,
+  }
+}))
+const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
+
+const n = (node: TreeNodeInput<PluginBuildInfo>) => normalizeTreeNode(node, undefined, false)
 
 const tree = computed(() => {
-  const resolveIds = props.info.resolve_ids.map((id, idx) => n({
-    id: `resolveId-${idx}`,
-    text: id.plugin_name,
-    size: id.duration,
-    meta: id,
+  const resolveIds = moduleTypes.value.map((type, idx) => n({
+    id: `resolveId-${type.name}-${idx}`,
+    text: type.description,
+    children: props.buildMetrics.resolveIdMetrics.filter((item) => {
+      return getFileTypeFromModuleId(item.module).name === type.name
+    }).map((item, idx) => n({
+      id: `resolveId-${idx}`,
+      text: item.module,
+      size: item.duration,
+      meta: item,
+    })),
   }))
-  const loads = props.info.loads.map((load, idx) => n({
-    id: `load-${idx}`,
-    text: load.plugin_name,
-    size: load.duration,
-    meta: load,
+  const loads = moduleTypes.value.map((type, idx) => n({
+    id: `loads-${type.name}-${idx}`,
+    text: type.description,
+    children: props.buildMetrics.loadMetrics.filter((item) => {
+      return getFileTypeFromModuleId(item.module).name === type.name
+    }).map((item, idx) => n({
+      id: `resolveId-${idx}`,
+      text: item.module,
+      size: item.duration,
+      meta: item,
+    })),
   }))
-  const transforms = props.info.transforms.map((transform, idx) => n({
-    id: `transform-${idx}`,
-    text: transform.plugin_name,
-    size: transform.duration,
-    meta: transform,
+  const transforms = moduleTypes.value.map((type, idx) => n({
+    id: `transforms-${type.name}-${idx}`,
+    text: type.description,
+    children: props.buildMetrics.transformMetrics.filter((item) => {
+      return getFileTypeFromModuleId(item.module).name === type.name
+    }).map((item, idx) => n({
+      id: `resolveId-${idx}`,
+      text: item.module,
+      size: item.duration,
+      meta: item,
+    })),
   }))
+
+  // resolve/load/transform -> module type -> module
   const children = [
     n({
       id: '~resolves',
@@ -58,20 +84,20 @@ const tree = computed(() => {
 
   return n({
     id: '~root',
-    text: 'Module Flamegraph',
+    text: 'Plugin Flamegraph',
     children,
   })
 })
 
 const hoverNode = ref<{
-  plugin_name: string
+  title: string
   duration: number
-  meta: RolldownResolveInfo | RolldownModuleLoadInfo | RolldownModuleTransformInfo | undefined
+  meta: PluginBuildInfo | undefined
 } | null>(null)
 const hoverX = ref<number>(0)
 const hoverY = ref<number>(0)
 const el = useTemplateRef<HTMLDivElement>('el')
-const flamegraph = shallowRef<Flamegraph | null>(null)
+const flamegraph = shallowRef<Flamegraph<PluginBuildInfo> | null>(null)
 
 function buildFlamegraph() {
   flamegraph.value = new Flamegraph(tree.value, {
@@ -96,7 +122,7 @@ function buildFlamegraph() {
         hoverY.value = e.clientY
       }
       hoverNode.value = {
-        plugin_name: node.text!,
+        title: node.text!,
         duration: node.size,
         meta: node.meta,
       }
@@ -126,11 +152,6 @@ watch(tree, async () => {
 }, {
   deep: true,
 })
-
-watch(() => props.flowNodeSelected, async () => {
-  await nextTick()
-  flamegraph.value?.resize()
-})
 </script>
 
 <template>
@@ -141,10 +162,13 @@ watch(() => props.flowNodeSelected, async () => {
         border="~ base" rounded-lg shadow-lg px3 py2
         bg-glass pointer-events-none text-sm max-w-80
       >
-        <div font-semibold font-mono text-base mb2>
-          {{ hoverNode.plugin_name }}
+        <div v-if="hoverNode.meta?.module" flex="~" font-semibold font-mono text-base mb2>
+          <DisplayModuleId :id="hoverNode.meta.module" :session="session" :link="false" />
         </div>
-        <div v-if="hoverNode.meta" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
+        <div v-else font-semibold text-base mb2>
+          {{ hoverNode.title }}
+        </div>
+        <div v-if="hoverNode.meta?.module" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
           <div flex="~ justify-between items-center" py1>
             <label text-xs opacity-70>Start Time</label>
             <time

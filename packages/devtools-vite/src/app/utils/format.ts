@@ -57,3 +57,33 @@ export function toTree(modules: ModuleDest[], name: string) {
 
   return node
 }
+
+export function normalizeTimestamp(timestamp: number) {
+  return new Date(timestamp).toLocaleString(undefined, {
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    fractionalSecondDigits: 3,
+  })
+}
+
+export function formatDuration(ms: number | null | undefined, stringify?: boolean) {
+  let duration = []
+
+  if (ms == null)
+    duration = ['', '-']
+  else if (ms < 1)
+    duration = ['<1', 'ms']
+  else if (ms < 1000)
+    duration = [ms.toFixed(0), 'ms']
+  else if (ms < 1000 * 60)
+    duration = [(ms / 1000).toFixed(1), 's']
+  else
+    duration = [(ms / 1000 / 60).toFixed(1), 'min']
+
+  return stringify ? duration.join(' ') : duration
+}

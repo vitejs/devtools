@@ -4,7 +4,7 @@ import type { GraphBase, GraphBaseOptions } from 'nanovis'
 import type { SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import type { AssetChartInfo, AssetChartNode } from '~/types/assets'
-import { useRouter } from '#app/composables/router'
+import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -27,6 +27,7 @@ const searchValue = ref<{ search: string }>({
   search: '',
 })
 const router = useRouter()
+const route = useRoute()
 const assetViewTpyes = [
   {
     label: 'List',
@@ -231,8 +232,10 @@ const options = computed<GraphBaseOptions<AssetChartInfo | undefined>>(() => {
       }
     },
     onHover(node) {
-      if (node)
+      if (node && !route.query.asset)
         nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
     },
     onLeave() {
       nodeHover.value = undefined
@@ -359,21 +362,19 @@ onUnmounted(() => {
         />
       </template>
     </div>
-    <div
-      v-if="nodeHover?.meta"
-      bg-glass fixed z-panel-nav border="~ base rounded" p2 text-sm
-      flex="~ col gap-2"
-      :style="{
-        left: `${mouse.x + 10}px`,
-        top: `${mouse.y + 10}px`,
-      }"
-    >
-      <div flex="~ gap-1 items-center">
-        {{ nodeHover.text }}
+    <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+      <div
+        v-if="nodeHover?.meta"
+        bg-glass border="~ base rounded" p2 text-sm
+        flex="~ col gap-2"
+      >
+        <div flex="~ gap-1 items-center">
+          {{ nodeHover.text }}
+        </div>
+        <div flex="~ gap-1 items-center">
+          <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
+        </div>
       </div>
-      <div flex="~ gap-1 items-center">
-        <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
-      </div>
-    </div>
+    </DisplayGraphHoverView>
   </div>
 </template>
