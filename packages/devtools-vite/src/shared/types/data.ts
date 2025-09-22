@@ -53,6 +53,17 @@ export interface SessionContext {
   buildDuration: number
 }
 
+export interface SessionCompareContext {
+  id: string
+  meta: SessionMeta
+  build_duration: number
+  modules: number
+  chunks: number
+  assets: number
+  bundle_size: number
+  initial_js: number
+}
+
 export interface ModuleInfo {
   id: string
   loads: RolldownModuleLoadInfo[]
