@@ -19,10 +19,12 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": "./dist/index.js",
+    "./webcomponents": "./dist/webcomponents/index.js",
+    "./client-inject": "./dist/client-inject/index.js"
   },
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "vite-devtools": "./bin.mjs"
   },
@@ -33,7 +35,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "play": "pnpm -C playground run dev"
   },
   "peerDependencies": {
     "vite": "catalog:build"
@@ -44,6 +47,8 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
-    "tsdown": "catalog:build"
+    "@vitejs/devtools": "workspace:*",
+    "tsdown": "catalog:build",
+    "unplugin-vue": "catalog:build"
   }
 }

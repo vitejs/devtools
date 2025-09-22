@@ -11,6 +11,7 @@ import { MARK_CHECK } from './constants'
 export interface CreateWsServerOptions {
   cwd: string
   port?: number
+  base?: string
   context: DevToolsSetupContext
   functions: RpcFunctionsHost
 }

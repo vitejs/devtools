@@ -1,6 +1,4 @@
-import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
 import type { Buffer } from 'node:buffer'
-import type { ResolvedConfig } from 'vite'
 import type { CreateWsServerOptions } from './ws'
 import { readFile, stat } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -8,35 +6,7 @@ import { createApp, eventHandler, serveStatic, toNodeListener } from 'h3'
 import { lookup } from 'mrmime'
 import { join } from 'pathe'
 import { distDir } from '../dirs'
-import { RpcFunctionsHost } from './functions'
-import { DevtoolsViewHost } from './views'
 import { createWsServer } from './ws'
-
-export async function resolveDevtoolsConfig(viteConfig: ResolvedConfig): Promise<DevToolsSetupContext> {
-  const cwd = viteConfig.root
-
-  const context: DevToolsSetupContext = {
-    cwd,
-    viteConfig,
-    mode: viteConfig.command === 'serve' ? 'dev' : 'build',
-    rpc: new RpcFunctionsHost(),
-    views: new DevtoolsViewHost(),
-  }
-
-  const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
-
-  for (const plugin of plugins) {
-    try {
-      await plugin.devtools?.setup?.(context)
-    }
-    catch (error) {
-      console.error(`[Vite DevTools] Error setting up plugin ${plugin.name}:`, error)
-      throw error
-    }
-  }
-
-  return context
-}
 
 export async function createDevtoolsMiddleware(options: CreateWsServerOptions) {
   const app = createApp()

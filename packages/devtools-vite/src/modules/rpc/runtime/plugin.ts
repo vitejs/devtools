@@ -37,7 +37,7 @@ export default defineNuxtPlugin({
     async function connectToServer() {
       const metadata = await getMetadata()
       if (metadata.backend === 'static') {
-      // TODO (hold-off): static server
+        // TODO (hold-off): static server
       }
       else {
         const url = isNumeric(metadata.websocket) ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}` : metadata.websocket

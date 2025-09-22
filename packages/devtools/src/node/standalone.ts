@@ -2,7 +2,7 @@ import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig } from 'vite'
 import process from 'node:process'
 import { loadConfigFromFile, resolveConfig } from 'vite'
-import { resolveDevtoolsConfig } from './server'
+import { createDevToolsContext } from './context'
 
 export interface StandaloneDevToolsOptions {
   cwd?: string
@@ -28,7 +28,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
 
   const resolved = await resolveConfig(loaded?.config || {}, 'build', 'development')
 
-  const context = await resolveDevtoolsConfig(resolved)
+  const context = await createDevToolsContext(resolved)
 
   return {
     config: resolved,

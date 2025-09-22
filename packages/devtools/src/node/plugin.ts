@@ -1,0 +1,36 @@
+import type { Plugin } from 'vite'
+import { join } from 'node:path'
+import { normalizePath } from 'vite'
+import { distDir } from '../dirs'
+import { createDevToolsContext } from './context'
+import { startStandaloneServer } from './server'
+import '@vitejs/devtools-kit'
+
+export function ViteDevTools(): Plugin {
+  return {
+    name: 'vite:devtools',
+    enforce: 'post',
+    async configureServer(vite) {
+      const context = await createDevToolsContext(vite.config)
+      const { middleware } = await startStandaloneServer({
+        cwd: vite.config.root,
+        context,
+        functions: context.rpc,
+      })
+      vite.middlewares.use('/__vite_devtools__', middleware)
+    },
+    transformIndexHtml() {
+      const fileUrl = normalizePath(join(distDir, 'client-inject/index.js'))
+      return [
+        {
+          tag: 'script',
+          attrs: {
+            src: `/@fs/${fileUrl}`,
+            type: 'module',
+          },
+          injectTo: 'body',
+        },
+      ]
+    },
+  }
+}
