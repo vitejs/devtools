@@ -18,7 +18,7 @@ catalogs:
   deps:
     '@rolldown/debug': ^1.0.0-beta.39
     ansis: ^4.1.0
-    birpc: ^2.6.0
+    birpc: ^2.6.1
     cac: ^6.7.14
     diff: ^8.0.2
     get-port-please: ^3.2.0
@@ -80,7 +80,7 @@ catalogs:
     '@iconify-json/logos': ^1.2.9
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5
-    '@iconify-json/simple-icons': ^1.2.52
+    '@iconify-json/simple-icons': ^1.2.53
     '@iconify-json/svg-spinners': ^1.2.4
   inlined:
     '@antfu/utils': ^9.2.1

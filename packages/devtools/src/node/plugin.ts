@@ -23,7 +23,7 @@ export function DevTools(): Plugin {
       vite.middlewares.use('/__vite_devtools__', middleware)
     },
     transformIndexHtml() {
-      const fileUrl = normalizePath(join(distDir, 'client-inject/index.js'))
+      const fileUrl = normalizePath(join(distDir, 'client-inject.js'))
       return [
         {
           tag: 'script',

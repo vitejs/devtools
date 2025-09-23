@@ -1,3 +1,2 @@
-export * from './components/NuxtDevtoolsFrame'
-export * from './components/NuxtDevtoolsInspectPanel'
+export * from './components/FloatingPanel'
 export * from './components/Props'

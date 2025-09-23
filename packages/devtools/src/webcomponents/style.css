@@ -2,18 +2,18 @@
   --un-text-opacity: 100%;
 }
 
-@property --nuxt-devtools-inspect-border-angle {
+@property --vite-devtools-inspect-border-angle {
   syntax: '<angle>';
   inherits: false;
   initial-value: 90deg;
 }
 
-.nuxt-devtools-inspect-running-border {
+.vite-devtools-inspect-running-border {
   transition: all 0.5s;
   filter: blur(10px);
-  --nuxt-devtools-inspect-border-angle: 0deg;
+  --vite-devtools-inspect-border-angle: 0deg;
   background: conic-gradient(
-      from var(--nuxt-devtools-inspect-border-angle),
+      from var(--vite-devtools-inspect-border-angle),
       #00dc82,
       #00e6e8,
       #42e200,
@@ -32,7 +32,7 @@
   animation: color-rotate-background 1s linear infinite;
 }
 
-.nuxt-devtools-inspect-neon {
+.vite-devtools-inspect-neon {
   background-image: linear-gradient(
     90deg,
     #00dc82,
@@ -49,7 +49,7 @@
   background-position: 0 50%;
 }
 
-.nuxt-devtools-inspect-neon.running {
+.vite-devtools-inspect-neon.running {
   animation: neon-background 3s linear infinite;
 }
 
@@ -67,7 +67,7 @@
 
 /* NuxtDevtoolsBox */
 
-.nuxt-devtools-frame {
+.vite-devtools-frame {
   width: 100%;
   height: 100%;
   position: fixed;
@@ -75,16 +75,16 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.nuxt-devtools-frame iframe {
+.vite-devtools-frame iframe {
   width: 100%;
   height: 100%;
   outline: none;
-  background: var(--nuxt-devtools-widget-bg);
+  background: var(--vite-devtools-widget-bg);
   border: 1px solid rgba(125, 125, 125, 0.2);
   border-radius: 10px;
 }
 
-.nuxt-devtools-resize-handle-horizontal {
+.vite-devtools-resize-handle-horizontal {
   position: absolute;
   left: 6px;
   right: 6px;
@@ -93,7 +93,7 @@
   cursor: ns-resize;
   border-radius: 5px;
 }
-.nuxt-devtools-resize-handle-vertical {
+.vite-devtools-resize-handle-vertical {
   position: absolute;
   top: 6px;
   bottom: 0;
@@ -102,20 +102,20 @@
   cursor: ew-resize;
   border-radius: 5px;
 }
-.nuxt-devtools-resize-handle-corner {
+.vite-devtools-resize-handle-corner {
   position: absolute;
   width: 14px;
   height: 14px;
   margin: -6px;
   border-radius: 6px;
 }
-.nuxt-devtools-resize-handle:hover {
+.vite-devtools-resize-handle:hover {
   background: rgba(125, 125, 125, 0.1);
 }
 
 /* NuxtDevtoolsMainFrame */
 
-#nuxt-devtools-anchor {
+#vite-devtools-anchor {
   width: 0;
   z-index: 2147483645;
   position: fixed;
@@ -126,11 +126,11 @@
   box-sizing: border-box;
 }
 
-#nuxt-devtools-anchor * {
+#vite-devtools-anchor * {
   box-sizing: border-box;
 }
 
-#nuxt-devtools-anchor button {
+#vite-devtools-anchor button {
   border: none;
   background: none;
   padding: 0;
@@ -140,7 +140,7 @@
   color: inherit;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-label {
+#vite-devtools-anchor .vite-devtools-label {
   padding: 0 7px 0 8px;
   font-size: 0.8em;
   line-height: 1em;
@@ -150,34 +150,34 @@
   align-items: center;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-label .nuxt-devtools-label-main {
+#vite-devtools-anchor .vite-devtools-label .vite-devtools-label-main {
   opacity: 0.8;
   white-space: nowrap;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-label .nuxt-devtools-label-secondary {
+#vite-devtools-anchor .vite-devtools-label .vite-devtools-label-secondary {
   font-size: 0.8em;
   line-height: 0.6em;
   opacity: 0.5;
   white-space: nowrap;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-nuxt-button {
+#vite-devtools-anchor .vite-devtools-nuxt-button {
   flex: none;
 }
 
-#nuxt-devtools-anchor.nuxt-devtools-vertical .nuxt-devtools-nuxt-button {
+#vite-devtools-anchor.vite-devtools-vertical .vite-devtools-nuxt-button {
   transform: rotate(-90deg);
 }
 
-#nuxt-devtools-anchor.nuxt-devtools-vertical .nuxt-devtools-label {
+#vite-devtools-anchor.vite-devtools-vertical .vite-devtools-label {
   transform: rotate(-90deg);
   flex-direction: column;
   gap: 2px;
   padding: 0 10px;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-panel {
+#vite-devtools-anchor .vite-devtools-panel {
   position: absolute;
   left: 0;
   top: 0;
@@ -189,12 +189,12 @@
   gap: 2px;
   height: 30px;
   padding: 2px 2px 2px 2.5px;
-  border: 1px solid var(--nuxt-devtools-widget-border);
+  border: 1px solid var(--vite-devtools-widget-border);
   border-radius: 100px;
-  background-color: var(--nuxt-devtools-widget-bg);
+  background-color: var(--vite-devtools-widget-bg);
   backdrop-filter: blur(10px);
-  color: var(--nuxt-devtools-widget-fg);
-  box-shadow: 2px 2px 8px var(--nuxt-devtools-widget-shadow);
+  color: var(--vite-devtools-widget-fg);
+  box-shadow: 2px 2px 8px var(--vite-devtools-widget-shadow);
   user-select: none;
   touch-action: none;
   max-width: 150px;
@@ -206,25 +206,25 @@
     opacity 0.2s ease;
 }
 
-#nuxt-devtools-anchor.nuxt-devtools-hide .nuxt-devtools-panel {
+#vite-devtools-anchor.vite-devtools-hide .vite-devtools-panel {
   max-width: 32px;
   padding: 2px 0;
 }
 
-#nuxt-devtools-anchor.nuxt-devtools-vertical .nuxt-devtools-panel {
+#vite-devtools-anchor.vite-devtools-vertical .vite-devtools-panel {
   transform: translate(-50%, -50%) rotate(90deg);
-  box-shadow: 2px -2px 8px var(--nuxt-devtools-widget-shadow);
+  box-shadow: 2px -2px 8px var(--vite-devtools-widget-shadow);
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-panel-content {
+#vite-devtools-anchor .vite-devtools-panel-content {
   transition: opacity 0.4s ease;
 }
 
-#nuxt-devtools-anchor.nuxt-devtools-hide .nuxt-devtools-panel-content {
+#vite-devtools-anchor.vite-devtools-hide .vite-devtools-panel-content {
   opacity: 0;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-icon-button {
+#vite-devtools-anchor .vite-devtools-icon-button {
   border-radius: 100%;
   border-width: 0;
   width: 30px;
@@ -235,15 +235,15 @@
   opacity: 0.8;
   transition: opacity 0.2s ease-in-out;
 }
-#nuxt-devtools-anchor .nuxt-devtools-icon-button:hover {
+#vite-devtools-anchor .vite-devtools-icon-button:hover {
   opacity: 1;
 }
 
-#nuxt-devtools-anchor:hover .nuxt-devtools-glowing {
+#vite-devtools-anchor:hover .vite-devtools-glowing {
   opacity: 0.6;
 }
 
-#nuxt-devtools-anchor .nuxt-devtools-glowing {
+#vite-devtools-anchor .vite-devtools-glowing {
   position: absolute;
   left: 0;
   top: 0;
@@ -260,7 +260,7 @@
 }
 
 @media print {
-  #nuxt-devtools-anchor {
+  #vite-devtools-anchor {
     display: none;
   }
 }

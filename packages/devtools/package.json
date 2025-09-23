@@ -20,8 +20,8 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
-    "./webcomponents": "./dist/webcomponents/index.js",
-    "./client-inject": "./dist/client-inject/index.js"
+    "./webcomponents": "./dist/webcomponents.js",
+    "./client-inject": "./dist/client-inject.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -1,7 +1,7 @@
-import type { ElementTraceInfo } from 'vite-plugin-vue-tracer/client/record'
-
-export interface NuxtDevToolsInspectorProps {
-  matched?: ElementTraceInfo
-  hasParent?: boolean
-  mouse: { x: number, y: number }
+export interface DevToolsFrameState {
+  width: number
+  height: number
+  top: number
+  left: number
+  position: 'left' | 'right' | 'bottom' | 'top'
 }

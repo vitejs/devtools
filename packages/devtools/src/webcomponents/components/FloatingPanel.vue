@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import type { DevToolsFrameState, NuxtDevtoolsHostClient, NuxtDevToolsOptions } from '@nuxt/devtools/types'
 import type { CSSProperties } from 'vue'
-import { toRefs, useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
+import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
-import FrameBox from './NuxtDevtoolsFrameBox.vue'
+// import FrameBox from './NuxtDevtoolsFrameBox.vue'
 
-const props = defineProps<{
-  client: NuxtDevtoolsHostClient
-  settings: {
-    ui: NuxtDevToolsOptions['ui']
-  }
-  state: DevToolsFrameState
-}>()
+// const props = defineProps<{
+// }>()
 
-const {
-  state,
-  settings,
-} = toRefs(props)
+const state = ref({
+  width: 0,
+  height: 0,
+  top: 0,
+  left: 0,
+  position: 'left',
+  open: false,
+  minimizePanelInactive: 3_000,
+})
 
-function millisecondToHumanreadable(ms: number): [number, string] {
-  if (ms < 1000)
-    return [+ms.toFixed(0), 'ms']
-  if (ms < 1000 * 60)
-    return [+(ms / 1000).toFixed(1), 's']
-  if (ms < 1000 * 60 * 60)
-    return [+(ms / 1000 / 60).toFixed(1), 'min']
-  return [+(ms / 1000 / 60 / 60).toFixed(1), 'hour']
-}
+const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
 const panelMargins = reactive({
   left: 10,
@@ -36,7 +27,6 @@ const panelMargins = reactive({
 })
 
 const safeArea = useScreenSafeArea()
-const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
 function toNumber(value: string) {
   const num = +value
@@ -55,12 +45,13 @@ watchEffect(() => {
 const SNAP_THRESHOLD = 2
 
 const vars = computed(() => {
-  const dark = props.client.app.colorMode.value === 'dark'
+  const isDark = false // TODO
+  // const dark = props.client.app.colorMode.value === 'dark'
   return {
-    '--nuxt-devtools-widget-bg': dark ? '#111' : '#ffffff',
-    '--nuxt-devtools-widget-fg': dark ? '#F5F5F5' : '#111',
-    '--nuxt-devtools-widget-border': dark ? '#3336' : '#efefef',
-    '--nuxt-devtools-widget-shadow': dark ? 'rgba(0,0,0,0.3)' : 'rgba(128,128,128,0.1)',
+    '--vite-devtools-widget-bg': isDark ? '#111' : '#ffffff',
+    '--vite-devtools-widget-fg': isDark ? '#F5F5F5' : '#111',
+    '--vite-devtools-widget-border': isDark ? '#3336' : '#efefef',
+    '--vite-devtools-widget-shadow': isDark ? 'rgba(0,0,0,0.3)' : 'rgba(128,128,128,0.1)',
   }
 })
 
@@ -198,16 +189,7 @@ function bringUp() {
   }, +state.value.minimizePanelInactive || 0)
 }
 
-const isHidden = computed(() => {
-  if (state.value.open)
-    return false
-  if (settings.value.ui.showPanel === true)
-    return false
-  if (settings.value.ui.showPanel === false)
-    return true
-  // If not explicitly set, show the panel
-  return false
-})
+const isHidden = computed(() => false)
 
 const isMinimized = computed(() => {
   if (state.value.minimizePanelInactive < 0)
@@ -262,7 +244,7 @@ const panelStyle = computed(() => {
 
 const { width: frameWidth, height: frameHeight } = useElementBounding(frameBox)
 
-const popupWindow = ref<Window | null>(null)
+// const popupWindow = ref<Window | null>(null)
 
 const iframeStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
@@ -286,7 +268,7 @@ const iframeStyle = computed(() => {
   const style: CSSProperties = {
     position: 'fixed',
     zIndex: -1,
-    pointerEvents: (isDragging.value || !state.value.open || props.client.inspector?.isEnabled.value) ? 'none' : 'auto',
+    pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
   }
@@ -335,44 +317,8 @@ const iframeStyle = computed(() => {
       break
   }
 
-  if (props.client.inspector?.isEnabled.value) {
-    style.opacity = 0
-  }
-
   return style
 })
-
-const time = computed(() => {
-  let type = ''
-  const metric = props.client.metrics.loading()
-  let time = -1
-  if (metric.pageEnd && metric.pageStart) {
-    time = metric.pageEnd - metric.pageStart
-    type = 'Page'
-  }
-  else if (metric.appLoad && metric.appInit) {
-    time = metric.appLoad - metric.appInit
-    type = 'App'
-  }
-  bringUp()
-  if (time < 0)
-    return [type, '', '-']
-  return [type, ...millisecondToHumanreadable(time)]
-})
-
-function toggleInspector() {
-  const isDevToolsOpen = state.value.open
-  if (!isDevToolsOpen)
-    props.client.devtools.open()
-
-  props.client.inspector?.enable()
-
-  if (!isDevToolsOpen) {
-    setTimeout(() => {
-      props.client.devtools.close()
-    }, 500)
-  }
-}
 
 onMounted(() => {
   bringUp()
@@ -381,31 +327,31 @@ onMounted(() => {
 
 <template>
   <div
-    id="nuxt-devtools-anchor"
+    id="vite-devtools-anchor"
     ref="anchorEl"
     :style="[anchorStyle, vars]"
     :class="{
-      'nuxt-devtools-vertical': isVertical,
-      'nuxt-devtools-hide': isMinimized,
+      'vite-devtools-vertical': isVertical,
+      'vite-devtools-hide': isMinimized,
     }"
     @mousemove="bringUp"
   >
     <div
       v-if="!isSafari"
-      class="nuxt-devtools-glowing"
+      class="vite-devtools-glowing"
       :style="isDragging ? 'opacity: 0.6 !important' : ''"
     />
     <div
       ref="panelEl"
-      class="nuxt-devtools-panel"
+      class="vite-devtools-panel"
       :style="panelStyle"
       @pointerdown="onPointerDown"
     >
       <button
-        class="nuxt-devtools-icon-button nuxt-devtools-nuxt-button"
+        class="vite-devtools-icon-button vite-devtools-nuxt-button"
         title="Toggle Nuxt DevTools"
         :style="state.open ? '' : 'filter:saturate(0)'"
-        @click="client.devtools.toggle()"
+        @click="state.open = !state.open"
       >
         <svg
           viewBox="0 0 324 324" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -416,47 +362,21 @@ onMounted(() => {
       </button>
       <div
         style="border-left: 1px solid #8883;width:1px;height:10px;"
-        class="nuxt-devtools-panel-content"
+        class="vite-devtools-panel-content"
       />
-      <div
-        class="nuxt-devtools-panel-content nuxt-devtools-label"
-        :title="`${time[0]} load time`"
-      >
-        <div class="nuxt-devtools-label-main">
-          {{ time[1] }}
-        </div>
-        <span class="nuxt-devtools-label-secondary">
-          {{ time[2] }}
-        </span>
-      </div>
-      <template v-if="client.inspector?.isAvailable">
-        <div
-          style="border-left: 1px solid #8883;width:1px;height:10px;"
-          class="nuxt-devtools-panel-content"
-        />
-        <button class="nuxt-devtools-icon-button nuxt-devtools-panel-content" title="Toggle Component Inspector" @click.prevent.stop="toggleInspector">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            style="height: 1.2em; width: 1.2em; opacity:0.5;"
-            :style="client.inspector.isEnabled.value ? 'opacity:1;color:#00dc82' : ''"
-            viewBox="0 0 24 24"
-          >
-            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r=".5" fill="currentColor" /><path d="M5 12a7 7 0 1 0 14 0a7 7 0 1 0-14 0m7-9v2m-9 7h2m7 7v2m7-9h2" /></g>
-          </svg>
-        </button>
-      </template>
     </div>
 
     <div
       ref="frameBox"
       :style="iframeStyle"
     >
-      <FrameBox
+      TODO: FRAME BOX
+      <!-- <FrameBox
         v-model:popup-window="popupWindow"
         :state
         :client="client"
         :is-dragging="isDragging"
-      />
+      /> -->
     </div>
   </div>
 </template>

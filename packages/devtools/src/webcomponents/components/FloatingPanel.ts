@@ -1,9 +1,9 @@
 import type { VueElementConstructor } from 'vue'
 import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
-import Component from './NuxtDevtoolsFrame.vue'
+import Component from './FloatingPanel.vue'
 
-export const NuxtDevtoolsFrame = defineCustomElement(
+export const FloatingPanel = defineCustomElement(
   Component,
   {
     shadowRoot: true,
@@ -11,4 +11,4 @@ export const NuxtDevtoolsFrame = defineCustomElement(
   },
 ) as VueElementConstructor
 
-customElements.define('nuxt-devtools-frame', NuxtDevtoolsFrame)
+customElements.define('vite-devtools-floating-panel', FloatingPanel)

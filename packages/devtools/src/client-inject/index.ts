@@ -31,7 +31,9 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
 
-  // rpc['vite:list-rpc-functions']().then(console.log)
+  const { FloatingPanel } = await import('@vitejs/devtools/webcomponents')
+  const floatingPanel = new FloatingPanel()
+  document.body.appendChild(floatingPanel)
 }
 
 init()
