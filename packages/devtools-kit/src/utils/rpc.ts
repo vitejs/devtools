@@ -23,6 +23,15 @@ export async function getRpcHandler<
   if (definition.handler) {
     return definition.handler
   }
-  const result = definition.__resolved ??= await definition.setup(context)
+  if (definition.__resolved?.handler) {
+    return definition.__resolved.handler
+  }
+  definition.__promise ??= Promise.resolve(definition.setup(context))
+    .then((r) => {
+      definition.__resolved = r
+      definition.__promise = undefined
+      return r
+    })
+  const result = definition.__resolved ??= await definition.__promise
   return result.handler
 }

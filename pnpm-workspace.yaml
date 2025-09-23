@@ -3,7 +3,7 @@ packages:
 catalogs:
   build:
     '@nuxt/kit': ^4.1.2
-    '@unocss/nuxt': ^66.5.1
+    '@unocss/nuxt': ^66.5.2
     '@vitejs/plugin-vue': ^6.0.1
     '@vueuse/nuxt': ^13.9.0
     esbuild: ^0.25.10
@@ -18,7 +18,7 @@ catalogs:
   deps:
     '@rolldown/debug': ^1.0.0-beta.39
     ansis: ^4.1.0
-    birpc: ^2.5.0
+    birpc: ^2.6.0
     cac: ^6.7.14
     diff: ^8.0.2
     get-port-please: ^3.2.0
@@ -43,7 +43,7 @@ catalogs:
     '@nuxt/devtools': ^2.6.5
     '@nuxt/eslint': ^1.9.0
     '@typescript-eslint/utils': ^8.44.1
-    '@unocss/eslint-config': ^66.5.1
+    '@unocss/eslint-config': ^66.5.2
     bumpp: ^10.2.3
     eslint: ^9.36.0
     lint-staged: ^16.2.0
@@ -103,5 +103,3 @@ onlyBuiltDependencies:
   - rolldown
   - simple-git-hooks
   - unrs-resolver
-catalog:
-  '@vitejs/devtools': ''

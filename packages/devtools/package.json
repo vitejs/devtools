@@ -50,7 +50,12 @@
   "devDependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:build",
     "tsdown": "catalog:build",
-    "unplugin-vue": "catalog:build"
+    "typescript": "catalog:devtools",
+    "unplugin-vue": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:frontend",
+    "vue-tsc": "catalog:devtools"
   }
 }

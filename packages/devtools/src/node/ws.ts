@@ -17,7 +17,7 @@ export interface CreateWsServerOptions {
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
-  const functions = options.functions
+  const rpcHost = options.functions
   const port = options.port ?? await getPort({ port: 7812, random: true })
 
   const wsClients = new Set<WebSocket>()
@@ -34,8 +34,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   })
 
+  console.log('functions', rpcHost.functions)
+
   const rpc = createRpcServer<any, any>(
-    options.functions.functions,
+    rpcHost.functions,
     {
       preset,
       rpcOptions: {
@@ -58,7 +60,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   return {
     port,
     rpc,
-    functions,
+    functions: rpcHost,
     getMetadata,
   }
 }

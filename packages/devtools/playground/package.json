@@ -6,14 +6,5 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && vite-devtools"
-  },
-  "dependencies": {
-    "vue": "catalog:frontend"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "catalog:build",
-    "typescript": "catalog:devtools",
-    "vite": "catalog:build",
-    "vue-tsc": "catalog:devtools"
   }
 }

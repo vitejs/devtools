@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { normalizePath } from 'vite'
 import { distDir } from '../dirs'
 import { createDevToolsContext } from './context'
-import { startStandaloneServer } from './server'
+import { createDevtoolsMiddleware } from './server'
 import '@vitejs/devtools-kit'
 
 /**
@@ -15,7 +15,7 @@ export function DevTools(): Plugin {
     enforce: 'post',
     async configureServer(vite) {
       const context = await createDevToolsContext(vite.config)
-      const { middleware } = await startStandaloneServer({
+      const { middleware } = await createDevtoolsMiddleware({
         cwd: vite.config.root,
         context,
         functions: context.rpc,

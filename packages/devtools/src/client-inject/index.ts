@@ -30,6 +30,8 @@ export async function init(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
+
+  // rpc['vite:list-rpc-functions']().then(console.log)
 }
 
 init()

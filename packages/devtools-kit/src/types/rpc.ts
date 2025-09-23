@@ -26,6 +26,8 @@ export interface RpcFunctionSetupResult<
   handler: (...args: ARGS) => RETURN
 }
 
+// TODO: maybe we should introduce schema system with vailbot
+
 export interface RpcFunctionDefinition<
   NAME extends string,
   TYPE extends RpcFunctionType,
@@ -37,6 +39,7 @@ export interface RpcFunctionDefinition<
   setup: (context: RpcContext) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
   handler?: (...args: ARGS) => RETURN
   __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
+  __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
 }
 
 export interface RpcContext {
