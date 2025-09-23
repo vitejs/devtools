@@ -1,4 +1,5 @@
-import { ViteDevTools } from '@vitejs/devtools'
+import { DevTools } from '@vitejs/devtools'
+import { DevToolsVite } from '@vitejs/devtools-vite'
 import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
@@ -7,6 +8,7 @@ export default defineConfig({
   plugins: [
     Vue(),
     // For local playground only. As a user you don't install this plugin directly.
-    ViteDevTools(),
+    DevTools(),
+    DevToolsVite(),
   ],
 })

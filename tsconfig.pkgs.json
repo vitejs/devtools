@@ -7,10 +7,10 @@
   },
   "include": [
     "packages/devtools/src/**/*.ts",
+    "packages/devtools/src/webcomponents/.generated/*.ts",
+    "packages/devtools-vite/src/**/*.ts",
+    "packages/devtools/src/**/*.vue",
     "packages/devtools-kit/src/**/*.ts",
     "packages/devtools-rpc/src/**/*.ts"
-  ],
-  "exclude": [
-    "packages/devtools-vite/src/app/**/*.ts"
   ]
 }

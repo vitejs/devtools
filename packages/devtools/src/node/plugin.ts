@@ -6,7 +6,10 @@ import { createDevToolsContext } from './context'
 import { startStandaloneServer } from './server'
 import '@vitejs/devtools-kit'
 
-export function ViteDevTools(): Plugin {
+/**
+ * Core plugin for enabling Vite DevTools
+ */
+export function DevTools(): Plugin {
   return {
     name: 'vite:devtools',
     enforce: 'post',

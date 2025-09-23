@@ -1,4 +1,4 @@
-import type { RolldownPluginBuildMetrics } from '~~/shared/types'
+import type { RolldownPluginBuildMetrics } from '../../../shared/types'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 

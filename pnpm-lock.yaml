@@ -399,6 +399,9 @@ importers:
       '@vitejs/devtools':
         specifier: workspace:*
         version: 'link:'
+      '@vitejs/devtools-vite':
+        specifier: workspace:*
+        version: link:../devtools-vite
       tsdown:
         specifier: catalog:build
         version: 0.15.4(publint@0.3.13)(typescript@5.9.2)(vue-tsc@3.0.8(typescript@5.9.2))
