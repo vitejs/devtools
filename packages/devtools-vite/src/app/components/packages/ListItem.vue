@@ -14,7 +14,7 @@ defineProps<{
     <div flex="~ gap-1">
       <DisplayFileIcon :filename="package.name" />
       <span overflow-hidden text-ellipsis break-all line-clamp-2>
-        <DisplayHighlightedPackageName :name="package.name" />
+        {{ package.name }}
         {{ package.version }}
       </span>
     </div>

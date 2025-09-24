@@ -199,6 +199,9 @@ catalogs:
     '@iconify-json/logos':
       specifier: ^1.2.9
       version: 1.2.9
+    '@iconify-json/octicon':
+      specifier: ^1.2.14
+      version: 1.2.14
     '@iconify-json/ph':
       specifier: ^1.2.2
       version: 1.2.2
@@ -211,6 +214,9 @@ catalogs:
     '@iconify-json/svg-spinners':
       specifier: ^1.2.4
       version: 1.2.4
+    '@iconify-json/tabler':
+      specifier: ^1.2.23
+      version: 1.2.23
   inlined:
     '@antfu/utils':
       specifier: ^9.2.1
@@ -287,6 +293,9 @@ importers:
       '@iconify-json/logos':
         specifier: catalog:icons
         version: 1.2.9
+      '@iconify-json/octicon':
+        specifier: catalog:icons
+        version: 1.2.14
       '@iconify-json/ph':
         specifier: catalog:icons
         version: 1.2.2
@@ -299,6 +308,9 @@ importers:
       '@iconify-json/svg-spinners':
         specifier: catalog:icons
         version: 1.2.4
+      '@iconify-json/tabler':
+        specifier: catalog:icons
+        version: 1.2.23
       '@nuxt/devtools':
         specifier: ^2.6.5
         version: 2.6.5(rolldown-vite@7.1.11(@types/node@24.0.7)(esbuild@0.25.10)(jiti@2.5.1)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1))(vue@3.5.21(typescript@5.9.2))
@@ -1124,6 +1136,9 @@ packages:
   '@iconify-json/logos@1.2.9':
     resolution: {integrity: sha512-G6VCdFnwZcrT6Eveq3m43oJfLw/CX8plwFcE+2jgv3fiGB64pTmnU7Yd1MNZ/eA+/Re2iEDhuCfSNOWTHwwK8w==}
 
+  '@iconify-json/octicon@1.2.14':
+    resolution: {integrity: sha512-EVP0wcWrJW8L9jLm5JxUiNWAhjm+WeEVxR1/do9ChCx7QRBbNTdaV5u5d9l8H+u3liTgcIijPU8wpc9N7TQG1w==}
+
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
 
@@ -1135,6 +1150,9 @@ packages:
 
   '@iconify-json/svg-spinners@1.2.4':
     resolution: {integrity: sha512-ayn0pogFPwJA1WFZpDnoq9/hjDxN+keeCMyThaX4d3gSJ3y0mdKUxIA/b1YXWGtY9wVtZmxwcvOIeEieG4+JNg==}
+
+  '@iconify-json/tabler@1.2.23':
+    resolution: {integrity: sha512-Knb8ykgMwB5uSoqrDv1xIdJYM03OP06OXjN6QvGXaTNtdHkW9ciKA+aftz6lwM2jwJA+bsUWeDzLBlPt2uJm4w==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -7349,6 +7367,10 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/octicon@1.2.14':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/ph@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
@@ -7362,6 +7384,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/svg-spinners@1.2.4':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/tabler@1.2.23':
     dependencies:
       '@iconify/types': 2.0.0
 

@@ -24,6 +24,7 @@ export interface ClientSettings {
   chunkViewType: 'list' | 'graph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
   packageViewType: 'list'
+  packageSizeSortType: string
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -50,6 +51,7 @@ export const settings = useLocalStorage<ClientSettings>(
     chunkViewType: 'list',
     pluginDetailsShowType: 'all',
     packageViewType: 'list',
+    packageSizeSortType: '',
   },
   {
     mergeDefaults: true,
