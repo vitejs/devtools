@@ -75,6 +75,17 @@ export interface ModuleTreeNode {
   items: ModuleDest[]
 }
 
+export interface PackageInfo {
+  name: string
+  version: string
+  dir: string
+  transformedCodeSize: number
+  files: {
+    path: string
+    transformedCodeSize: number
+  }[]
+}
+
 export type RolldownPluginBuildMetrics = PluginBuildMetrics & {
   resolveIdMetrics: PluginBuildInfo[]
   loadMetrics: PluginBuildInfo[]
