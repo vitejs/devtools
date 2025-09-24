@@ -30,11 +30,6 @@ const { state: packages, isLoading } = useAsyncState(
   null,
 )
 
-const normalizedPackages = computed(() => {
-  // console.log('filtered', packages.value)
-  return packages.value
-})
-
 const fuse = computedWithControl(
   () => packages.value,
   () => new Fuse(packages.value!, {
@@ -45,14 +40,12 @@ const fuse = computedWithControl(
   }),
 )
 
-const searched = computed(() => {
-  if (!searchValue.value.search) {
-    return packages.value!
-  }
-  return fuse.value
-    .search(searchValue.value.search)
-    .map(r => r.item)
-})
+const searched = computed(() => (
+  searchValue.value.search
+    ? fuse.value.search(searchValue.value.search).map(r => r.item)
+    : [...(packages.value || [])])
+  .sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+)
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
   settings.value.packageViewType = type
@@ -60,7 +53,6 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
 </script>
 
 <template>
-  {{ normalizedPackages }}
   <VisualLoading v-if="isLoading" />
   <div v-else relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
@@ -80,9 +72,9 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
         </div>
       </DataSearchPanel>
     </div>
-    <div of-auto h-screen flex="~ col gap-2" pt32>
+    <div of-auto h-screen flex="~ col gap-2" pt32 px4 pb4>
       <template v-if="settings.packageViewType === 'list'">
-        <PackagesList :packages="searched" />
+        <PackagesTable :packages="searched" />
         <div
           absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
         >

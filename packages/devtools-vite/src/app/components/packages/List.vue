@@ -10,7 +10,7 @@ defineProps<{
   <div p4>
     <DataVirtualList
       :items="packages"
-      key-prop="name"
+      key-prop="dir"
     >
       <template #default="{ item }">
         <div flex pb2>
