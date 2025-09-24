@@ -9,7 +9,7 @@ export function DevToolsViteUI(): PluginWithDevtools {
         console.log('Vite DevTools Vite plugin setup')
         ctx.views.register({
           name: 'Vite',
-          icon: 'vite',
+          icon: 'https://vite.dev/logo.svg',
           viewId: 'vite',
           view: {
             type: 'iframe',

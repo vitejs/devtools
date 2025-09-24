@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { CSSProperties } from 'vue'
 import type { FloatingPanelProps } from './FloatingPanelProps'
-import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
+import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 // import FrameBox from './NuxtDevtoolsFrameBox.vue'
 
@@ -328,13 +327,16 @@ onMounted(() => {
       :style="panelStyle"
       @pointerdown="onPointerDown"
     >
-      <slot name="content">
-        <div class="flex items-center justify-center px2 gap-2 transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
-          <div v-for="view in views" :key="view.name" class="flex items-center justify-center">
-            {{ view.name }}
-          </div>
-        </div>
-      </slot>
+      <div class="flex items-center w-full h-full justify-center px2 gap-2 transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
+        <button
+          v-for="view in views"
+          :key="view.name"
+          :title="view.name"
+          class="flex items-center justify-center p1 rounded-full hover:bg-[#8881]"
+        >
+          <img :src="view.icon" :alt="view.name" class="w-6 h-6">
+        </button>
+      </div>
       <!-- <button
         class="vite-devtools-icon-button vite-devtools-nuxt-button"
         title="Toggle Nuxt DevTools"
