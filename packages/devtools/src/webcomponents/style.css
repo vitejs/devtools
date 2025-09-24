@@ -206,8 +206,9 @@
     opacity 0.2s ease;
 }
 
-#vite-devtools-anchor.vite-devtools-hide .vite-devtools-panel {
-  max-width: 32px;
+#vite-devtools-anchor.vite-devtools-minimized .vite-devtools-panel {
+  width: 52px;
+  height: 8px;
   padding: 2px 0;
 }
 
@@ -220,7 +221,7 @@
   transition: opacity 0.4s ease;
 }
 
-#vite-devtools-anchor.vite-devtools-hide .vite-devtools-panel-content {
+#vite-devtools-anchor.vite-devtools-minimized .vite-devtools-panel-content {
   opacity: 0;
 }
 

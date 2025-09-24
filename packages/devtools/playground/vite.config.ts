@@ -10,5 +10,21 @@ export default defineConfig({
     // For local playground only. As a user you don't install this plugin directly.
     DevTools(),
     DevToolsViteUI(),
+    {
+      name: 'local',
+      devtools: {
+        setup(ctx) {
+          ctx.views.register({
+            name: 'Local',
+            icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
+            viewId: 'local',
+            view: {
+              type: 'iframe',
+              url: 'http://localhost:3000',
+            },
+          })
+        },
+      },
+    },
   ],
 })

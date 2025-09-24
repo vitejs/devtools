@@ -1,9 +1,9 @@
-import type { RpcContext, RpcFunctionDefinition, RpcFunctionsHost as RpcFunctionsHostType, ViteDevtoolsRpcFunctions } from '@vitejs/devtools-kit'
+import type { DevtoolsRpcServerFunctions, RpcContext, RpcFunctionDefinition, RpcFunctionsHost as RpcFunctionsHostType } from '@vitejs/devtools-kit'
 import { getRpcHandler } from '@vitejs/devtools-kit'
 
 export class RpcFunctionsHost implements RpcFunctionsHostType {
   public readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>> = new Map()
-  public readonly functions: ViteDevtoolsRpcFunctions
+  public readonly functions: DevtoolsRpcServerFunctions
   public readonly context: RpcContext
 
   constructor(_context: Omit<RpcContext, 'functions'>) {
@@ -32,7 +32,7 @@ export class RpcFunctionsHost implements RpcFunctionsHostType {
       ownKeys() {
         return Array.from(definitions.keys())
       },
-    })
+    }) as DevtoolsRpcServerFunctions
   }
 
   register(fn: RpcFunctionDefinition<string, any, any, any>): void {

@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import type { CSSProperties } from 'vue'
+import type { FloatingPanelProps } from './FloatingPanelProps'
 import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
+import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 // import FrameBox from './NuxtDevtoolsFrameBox.vue'
 
 // const props = defineProps<{
 // }>()
 
-const state = ref({
-  width: 0,
-  height: 0,
-  top: 0,
-  left: 0,
-  position: 'left',
-  open: false,
-  minimizePanelInactive: 3_000,
-})
+const props = defineProps<FloatingPanelProps>()
+
+const { state, views } = toRefs(props)
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
@@ -35,17 +30,8 @@ function toNumber(value: string) {
   return num
 }
 
-watchEffect(() => {
-  panelMargins.left = toNumber(safeArea.left.value) + 10
-  panelMargins.top = toNumber(safeArea.top.value) + 10
-  panelMargins.right = toNumber(safeArea.right.value) + 10
-  panelMargins.bottom = toNumber(safeArea.bottom.value) + 10
-})
-
-const SNAP_THRESHOLD = 2
-
 const vars = computed(() => {
-  const isDark = false // TODO
+  const isDark = true // TODO
   // const dark = props.client.app.colorMode.value === 'dark'
   return {
     '--vite-devtools-widget-bg': isDark ? '#111' : '#ffffff',
@@ -55,7 +41,16 @@ const vars = computed(() => {
   }
 })
 
-const frameBox = useTemplateRef<HTMLDivElement>('frameBox')
+watchEffect(() => {
+  panelMargins.left = toNumber(safeArea.left.value) + 10
+  panelMargins.top = toNumber(safeArea.top.value) + 10
+  panelMargins.right = toNumber(safeArea.right.value) + 10
+  panelMargins.bottom = toNumber(safeArea.bottom.value) + 10
+})
+
+const SNAP_THRESHOLD = 2
+
+// const frameBox = useTemplateRef<HTMLDivElement>('frameBox')
 const panelEl = useTemplateRef<HTMLDivElement>('panelEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
 
@@ -223,102 +218,88 @@ const panelStyle = computed(() => {
     style.opacity = 0
     style.pointerEvents = 'none'
   }
-  if (isMinimized.value) {
-    switch (state.value.position) {
-      case 'top':
-      case 'right':
-        style.borderTopLeftRadius = '0'
-        style.borderTopRightRadius = '0'
-        break
-      case 'bottom':
-      case 'left':
-        style.borderBottomLeftRadius = '0'
-        style.borderBottomRightRadius = '0'
-        break
-    }
-  }
   if (isDragging.value)
     style.transition = 'none !important'
   return style
 })
 
-const { width: frameWidth, height: frameHeight } = useElementBounding(frameBox)
+// const { width: frameWidth, height: frameHeight } = useElementBounding(frameBox)
 
 // const popupWindow = ref<Window | null>(null)
 
-const iframeStyle = computed(() => {
-  // eslint-disable-next-line no-sequences, ts/no-unused-expressions
-  mousePosition.x, mousePosition.y
+// const iframeStyle = computed(() => {
+//   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
+//   mousePosition.x, mousePosition.y
 
-  const halfHeight = (panelEl.value?.clientHeight || 0) / 2
+//   const halfHeight = (panelEl.value?.clientHeight || 0) / 2
 
-  const frameMargin = {
-    left: panelMargins.left + halfHeight,
-    top: panelMargins.top + halfHeight,
-    right: panelMargins.right + halfHeight,
-    bottom: panelMargins.bottom + halfHeight,
-  }
+//   const frameMargin = {
+//     left: panelMargins.left + halfHeight,
+//     top: panelMargins.top + halfHeight,
+//     right: panelMargins.right + halfHeight,
+//     bottom: panelMargins.bottom + halfHeight,
+//   }
 
-  const marginHorizontal = frameMargin.left + frameMargin.right
-  const marginVertical = frameMargin.top + frameMargin.bottom
+//   const marginHorizontal = frameMargin.left + frameMargin.right
+//   const marginVertical = frameMargin.top + frameMargin.bottom
 
-  const maxWidth = windowSize.width - marginHorizontal
-  const maxHeight = windowSize.height - marginVertical
+//   const maxWidth = windowSize.width - marginHorizontal
+//   const maxHeight = windowSize.height - marginVertical
 
-  const style: CSSProperties = {
-    position: 'fixed',
-    zIndex: -1,
-    pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
-    width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
-    height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
-  }
+//   const style: CSSProperties = {
+//     position: 'fixed',
+//     zIndex: -1,
+//     pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
+//     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
+//     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
+//   }
 
-  const anchor = anchorPos.value
-  const width = Math.min(maxWidth, state.value.width * windowSize.width / 100)
-  const height = Math.min(maxHeight, state.value.height * windowSize.height / 100)
+//   const anchor = anchorPos.value
+//   const width = Math.min(maxWidth, state.value.width * windowSize.width / 100)
+//   const height = Math.min(maxHeight, state.value.height * windowSize.height / 100)
 
-  const anchorX = anchor?.left || 0
-  const anchorY = anchor?.top || 0
+//   const anchorX = anchor?.left || 0
+//   const anchorY = anchor?.top || 0
 
-  switch (state.value.position) {
-    case 'top':
-    case 'bottom':
-      style.left = `${-frameWidth.value / 2}px`
-      style.transform = 'translate(0, 0)'
-      if ((anchorX - frameMargin.left) < width / 2)
-        style.left = `${width / 2 - anchorX + frameMargin.left - frameWidth.value / 2}px`
-      else if ((windowSize.width - anchorX - frameMargin.right) < width / 2)
-        style.left = `${windowSize.width - anchorX - width / 2 - frameMargin.right - frameWidth.value / 2}px`
-      break
-    case 'right':
-    case 'left':
-      style.top = `${-frameHeight.value / 2}px`
-      style.transform = 'translate(0, 0)'
-      if ((anchorY - frameMargin.top) < height / 2)
-        style.top = `${height / 2 - anchorY + frameMargin.top - frameHeight.value / 2}px`
-      else if ((windowSize.height - anchorY - frameMargin.bottom) < height / 2)
-        style.top = `${windowSize.height - anchorY - height / 2 - frameMargin.bottom - frameHeight.value / 2}px`
-      break
-  }
+//   switch (state.value.position) {
+//     case 'top':
+//     case 'bottom':
+//       style.left = `${-frameWidth.value / 2}px`
+//       style.transform = 'translate(0, 0)'
+//       if ((anchorX - frameMargin.left) < width / 2)
+//         style.left = `${width / 2 - anchorX + frameMargin.left - frameWidth.value / 2}px`
+//       else if ((windowSize.width - anchorX - frameMargin.right) < width / 2)
+//         style.left = `${windowSize.width - anchorX - width / 2 - frameMargin.right - frameWidth.value / 2}px`
+//       break
+//     case 'right':
+//     case 'left':
+//       style.top = `${-frameHeight.value / 2}px`
+//       style.transform = 'translate(0, 0)'
+//       if ((anchorY - frameMargin.top) < height / 2)
+//         style.top = `${height / 2 - anchorY + frameMargin.top - frameHeight.value / 2}px`
+//       else if ((windowSize.height - anchorY - frameMargin.bottom) < height / 2)
+//         style.top = `${windowSize.height - anchorY - height / 2 - frameMargin.bottom - frameHeight.value / 2}px`
+//       break
+//   }
 
-  switch (state.value.position) {
-    case 'top':
-      style.top = 0
-      break
-    case 'right':
-      style.right = 0
-      break
-    case 'left':
-      style.left = 0
-      break
-    case 'bottom':
-    default:
-      style.bottom = 0
-      break
-  }
+//   switch (state.value.position) {
+//     case 'top':
+//       style.top = 0
+//       break
+//     case 'right':
+//       style.right = 0
+//       break
+//     case 'left':
+//       style.left = 0
+//       break
+//     case 'bottom':
+//     default:
+//       style.bottom = 0
+//       break
+//   }
 
-  return style
-})
+//   return style
+// })
 
 onMounted(() => {
   bringUp()
@@ -332,7 +313,7 @@ onMounted(() => {
     :style="[anchorStyle, vars]"
     :class="{
       'vite-devtools-vertical': isVertical,
-      'vite-devtools-hide': isMinimized,
+      'vite-devtools-minimized': isMinimized,
     }"
     @mousemove="bringUp"
   >
@@ -347,7 +328,14 @@ onMounted(() => {
       :style="panelStyle"
       @pointerdown="onPointerDown"
     >
-      <button
+      <slot name="content">
+        <div class="flex items-center justify-center px2 gap-2 transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
+          <div v-for="view in views" :key="view.name" class="flex items-center justify-center">
+            {{ view.name }}
+          </div>
+        </div>
+      </slot>
+      <!-- <button
         class="vite-devtools-icon-button vite-devtools-nuxt-button"
         title="Toggle Nuxt DevTools"
         :style="state.open ? '' : 'filter:saturate(0)'"
@@ -363,20 +351,21 @@ onMounted(() => {
       <div
         style="border-left: 1px solid #8883;width:1px;height:10px;"
         class="vite-devtools-panel-content"
-      />
+      /> -->
     </div>
 
-    <div
+    <slot name="frame" />
+    <!-- <div
       ref="frameBox"
       :style="iframeStyle"
     >
       TODO: FRAME BOX
-      <!-- <FrameBox
+      <FrameBox
         v-model:popup-window="popupWindow"
         :state
         :client="client"
         :is-dragging="isDragging"
-      /> -->
-    </div>
+      />
+    </div> -->
   </div>
 </template>

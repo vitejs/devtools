@@ -5,12 +5,16 @@ import { buildCSS } from './src/webcomponents/scripts/build-css'
 export default defineConfig([
   {
     entry: {
-      webcomponents: 'src/webcomponents/index.ts',
+      'client-inject': 'src/client-inject/index.ts',
+      'webcomponents': 'src/webcomponents/index.ts',
     },
     plugins: [
       Vue({
         isProduction: true,
       }),
+    ],
+    external: [
+      '@vitejs/devtools/webcomponents',
     ],
     clean: true,
     platform: 'neutral',
@@ -23,17 +27,14 @@ export default defineConfig([
   },
   {
     entry: {
-      'index': 'src/index.ts',
-      'dirs': 'src/dirs.ts',
-      'cli': 'src/node/cli.ts',
-      'client-inject': 'src/client-inject/index.ts',
+      index: 'src/index.ts',
+      dirs: 'src/dirs.ts',
+      cli: 'src/node/cli.ts',
     },
     clean: false,
     tsconfig: '../../tsconfig.pkgs.json',
     dts: true,
-    external: [
-      '@vitejs/devtools/webcomponents',
-    ],
+
     inputOptions: {
       experimental: {
         resolveNewUrlToAsset: false,

@@ -13,6 +13,7 @@
     },
     "resolveJsonModule": true,
     "noEmit": true,
+    "isolatedDeclarations": false,
     "skipLibCheck": true
   }
 }

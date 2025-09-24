@@ -1,9 +1,5 @@
+import type { DevtoolsRpcServerFunctions } from './rpc-augments'
 import type { EntriesToObject, Thenable } from './utils'
-
-/**
- * To be extended
- */
-export interface ViteDevtoolsRpcFunctions {}
 
 /**
  * Type of the RPC function,
@@ -14,7 +10,7 @@ export interface ViteDevtoolsRpcFunctions {}
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
 export interface RpcFunctionsHost {
-  readonly functions: ViteDevtoolsRpcFunctions
+  readonly functions: DevtoolsRpcServerFunctions
   readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
   register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
 }

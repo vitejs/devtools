@@ -48,7 +48,7 @@ export async function buildCSS() {
       code: Buffer.from(input, 'utf-8'),
       filename: 'style.css',
       targets: {
-        chrome: 100,
+        chrome: 140,
       },
       minify: MINIFY,
     })
