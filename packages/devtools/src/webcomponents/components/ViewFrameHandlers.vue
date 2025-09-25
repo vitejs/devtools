@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import type { DevToolsFrameState, NuxtDevtoolsHostClient } from '@nuxt/devtools/types'
+import type { DevToolsFrameState } from './FloatingPanelProps'
 import { toRefs, useEventListener } from '@vueuse/core'
 import { ref, watchEffect } from 'vue'
 
 const props = defineProps<{
-  client: NuxtDevtoolsHostClient
   isDragging: boolean
   state: DevToolsFrameState
 }>()
@@ -30,7 +29,7 @@ watchEffect(() => {
     if (!iframe)
       return
 
-    iframe.style.pointerEvents = (isResizing.value || props.isDragging || props.client.inspector?.isEnabled.value)
+    iframe.style.pointerEvents = (isResizing.value || props.isDragging)
       ? 'none'
       : 'auto'
 
@@ -41,32 +40,24 @@ watchEffect(() => {
   }
 })
 
-useEventListener(window, 'keydown', (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && props.client.inspector?.isEnabled.value) {
-    e.preventDefault()
-    props.client.inspector?.disable()
-    props.client.devtools.close()
-  }
-})
-
 // Close panel on outside click (when enabled)
-useEventListener(window, 'mousedown', (e: MouseEvent) => {
-  if (!state.value.closeOnOutsideClick)
-    return
-  if (popupWindow.value)
-    return
-  if (!state.value.open || isResizing.value || props.client.inspector?.isEnabled.value)
-    return
+// useEventListener(window, 'mousedown', (e: MouseEvent) => {
+//   if (!state.value.closeOnOutsideClick)
+//     return
+//   if (popupWindow.value)
+//     return
+//   if (!state.value.open || isResizing.value || props.client.inspector?.isEnabled.value)
+//     return
 
-  const matched = e.composedPath().find((_el) => {
-    const el = _el as HTMLElement
-    return Array.from(el.classList || []).some(c => c.startsWith('nuxt-devtools-'))
-      || el.tagName?.toLowerCase() === 'iframe'
-  })
+//   const matched = e.composedPath().find((_el) => {
+//     const el = _el as HTMLElement
+//     return Array.from(el.classList || []).some(c => c.startsWith('nuxt-devtools-'))
+//       || el.tagName?.toLowerCase() === 'iframe'
+//   })
 
-  if (!matched)
-    state.value.open = false
-})
+//   if (!matched)
+//     state.value.open = false
+// })
 
 function handleResize(e: MouseEvent | TouchEvent) {
   if (!isResizing.value || !state.value.open)
@@ -107,63 +98,63 @@ useEventListener(window, 'mouseleave', () => isResizing.value = false)
 
 <template>
   <div
-    v-show="state.open && !client.inspector?.isEnabled.value && !popupWindow"
+    v-show="state.open"
     ref="container"
-    class="nuxt-devtools-frame"
+    class="vite-devtools-frame"
   >
     <!-- Handlers -->
     <div
       v-show="state.position !== 'top'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-horizontal"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
       :style="{ top: 0 }"
       @mousedown.prevent="isResizing = { top: true }"
       @touchstart.passive="() => isResizing = { top: true }"
     />
     <div
       v-show="state.position !== 'bottom'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-horizontal"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
       :style="{ bottom: 0 }"
       @mousedown.prevent="() => isResizing = { bottom: true }"
       @touchstart.passive="() => isResizing = { bottom: true }"
     />
     <div
       v-show="state.position !== 'left'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-vertical"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
       :style="{ left: 0 }"
       @mousedown.prevent="() => isResizing = { left: true }"
       @touchstart.passive="() => isResizing = { left: true }"
     />
     <div
       v-show="state.position !== 'right'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-vertical"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
       :style="{ right: 0 }"
       @mousedown.prevent="() => isResizing = { right: true }"
       @touchstart.passive="() => isResizing = { right: true }"
     />
     <div
       v-show="state.position !== 'top' && state.position !== 'left'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-corner"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ top: 0, left: 0, cursor: 'nwse-resize' }"
       @mousedown.prevent="() => isResizing = { top: true, left: true }"
       @touchstart.passive="() => isResizing = { top: true, left: true }"
     />
     <div
       v-show="state.position !== 'top' && state.position !== 'right'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-corner"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ top: 0, right: 0, cursor: 'nesw-resize' }"
       @mousedown.prevent="() => isResizing = { top: true, right: true }"
       @touchstart.passive="() => isResizing = { top: true, right: true }"
     />
     <div
       v-show="state.position !== 'bottom' && state.position !== 'left'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-corner"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ bottom: 0, left: 0, cursor: 'nesw-resize' }"
       @mousedown.prevent="() => isResizing = { bottom: true, left: true }"
       @touchstart.passive="() => isResizing = { bottom: true, left: true }"
     />
     <div
       v-show="state.position !== 'bottom' && state.position !== 'right'"
-      class="nuxt-devtools-resize-handle nuxt-devtools-resize-handle-corner"
+      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ bottom: 0, right: 0, cursor: 'nwse-resize' }"
       @mousedown.prevent="() => isResizing = { bottom: true, right: true }"
       @touchstart.passive="() => isResizing = { bottom: true, right: true }"

@@ -2,6 +2,7 @@
 import type { FloatingPanelProps } from './FloatingPanelProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import ViewFrame from './ViewFrame.vue'
 // import FrameBox from './NuxtDevtoolsFrameBox.vue'
 
 // const props = defineProps<{
@@ -49,7 +50,6 @@ watchEffect(() => {
 
 const SNAP_THRESHOLD = 2
 
-// const frameBox = useTemplateRef<HTMLDivElement>('frameBox')
 const panelEl = useTemplateRef<HTMLDivElement>('panelEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
 
@@ -356,18 +356,8 @@ onMounted(() => {
       /> -->
     </div>
 
-    <slot name="frame" />
-    <!-- <div
-      ref="frameBox"
-      :style="iframeStyle"
-    >
-      TODO: FRAME BOX
-      <FrameBox
-        v-model:popup-window="popupWindow"
-        :state
-        :client="client"
-        :is-dragging="isDragging"
-      />
-    </div> -->
+    <ViewFrame
+      :view="views[0]"
+    />
   </div>
 </template>
