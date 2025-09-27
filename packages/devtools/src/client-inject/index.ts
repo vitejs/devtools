@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { ConnectionMeta, DevtoolsRpcClientFunctions, DevtoolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 import { useLocalStorage } from '@vueuse/core'
@@ -21,7 +21,7 @@ export async function init(): Promise<void> {
     ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}`
     : metadata.websocket as string
 
-  const rpc = createRpcClient<DevtoolsRpcServerFunctions, DevtoolsRpcClientFunctions>({}, {
+  const rpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({}, {
     preset: createWsRpcPreset({
       url,
     }),
@@ -30,9 +30,9 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
 
-  const views = await rpc['vite:core:list-views']()
+  const docks = await rpc['vite:core:list-dock-entries']()
   // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] Views', views)
+  console.log('[VITE DEVTOOLS] Docks', docks)
 
   const state = useLocalStorage(
     'vite-devtools-panel-state',
@@ -51,7 +51,7 @@ export async function init(): Promise<void> {
   const { FloatingPanel } = await import('@vitejs/devtools/webcomponents')
   const floatingPanel = new FloatingPanel({
     state,
-    views,
+    docks,
   })
   document.body.appendChild(floatingPanel)
 }

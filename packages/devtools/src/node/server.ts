@@ -8,7 +8,7 @@ import { join } from 'pathe'
 import { distDir } from '../dirs'
 import { createWsServer } from './ws'
 
-export async function createDevtoolsMiddleware(options: CreateWsServerOptions) {
+export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
   const app = createApp()
 
   const { rpc, getMetadata } = await createWsServer(options)
@@ -52,7 +52,7 @@ export async function createDevtoolsMiddleware(options: CreateWsServerOptions) {
 }
 
 export async function startStandaloneServer(options: CreateWsServerOptions) {
-  const { middleware, rpc } = await createDevtoolsMiddleware(options)
+  const { middleware, rpc } = await createDevToolsMiddleware(options)
 
   const server = createServer(middleware)
 

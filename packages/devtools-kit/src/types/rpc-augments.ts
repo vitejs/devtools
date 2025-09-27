@@ -1,9 +1,9 @@
 /**
  * To be extended
  */
-export interface DevtoolsRpcClientFunctions {}
+export interface DevToolsRpcClientFunctions {}
 
 /**
  * To be extended
  */
-export interface DevtoolsRpcServerFunctions {}
+export interface DevToolsRpcServerFunctions {}

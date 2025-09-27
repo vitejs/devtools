@@ -1,15 +1,14 @@
-export interface DevtoolsViewHost {
-  register: (view: DevtoolsViewTab) => void
+export interface DevToolsDockHost {
+  register: (entry: DevToolsDockEntry) => void
 }
 
-export interface DevtoolsViewTab {
-  name: string
+export interface DevToolsDockEntryBase {
+  id: string
+  title: string
   icon: string
-  viewId: string
-  view: DevtoolsViewMeta
 }
 
-export interface DevtoolsViewIframe {
+export interface DevToolsViewIframe extends DevToolsDockEntryBase {
   type: 'iframe'
   url: string
   /**
@@ -20,10 +19,19 @@ export interface DevtoolsViewIframe {
   frameId?: string
 }
 
-export interface DevtoolsViewWebComponent {
+export interface DevToolsViewWebComponent extends DevToolsDockEntryBase {
   type: 'webcomponent'
   from: string
   import: string
 }
 
-export type DevtoolsViewMeta = DevtoolsViewIframe | DevtoolsViewWebComponent
+export interface DevToolsViewAction extends DevToolsDockEntryBase {
+  type: 'action'
+  importFrom: string
+  /**
+   * @default 'default'
+   */
+  importName?: string
+}
+
+export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewWebComponent | DevToolsViewAction

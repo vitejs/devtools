@@ -7,7 +7,7 @@ describe('getHashColorFromString', () => {
     expect(getHashColorFromString('Vite')).toBe(getHashColorFromString('Vite'))
   })
   it('should get different colors with different strings', () => {
-    expect(getHashColorFromString('Vite')).not.toBe(getHashColorFromString('Devtools'))
+    expect(getHashColorFromString('Vite')).not.toBe(getHashColorFromString('DevTools'))
   })
 })
 

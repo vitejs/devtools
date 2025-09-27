@@ -1,7 +1,7 @@
 import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig } from 'vite'
 import { RpcFunctionsHost } from './functions'
-import { DevtoolsViewHost } from './views'
+import { DevToolsViewHost } from './views'
 
 export async function createDevToolsContext(viteConfig: ResolvedConfig): Promise<DevToolsSetupContext> {
   const cwd = viteConfig.root
@@ -11,13 +11,13 @@ export async function createDevToolsContext(viteConfig: ResolvedConfig): Promise
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     meta: {},
   })
-  const viewsHost = new DevtoolsViewHost()
+  const viewsHost = new DevToolsViewHost()
   const context: DevToolsSetupContext = {
     cwd,
     viteConfig,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     rpc: rpcHost,
-    views: viewsHost,
+    docks: viewsHost,
   }
 
   // Build-in function to list all RPC functions
@@ -36,7 +36,7 @@ export async function createDevToolsContext(viteConfig: ResolvedConfig): Promise
     },
   })
   rpcHost.register({
-    name: 'vite:core:list-views',
+    name: 'vite:core:list-dock-entries',
     type: 'query',
     setup: () => {
       return {

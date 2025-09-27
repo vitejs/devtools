@@ -44,5 +44,5 @@ export type ServerFunctionsDump = {
 }
 
 declare module '@vitejs/devtools-kit' {
-  export interface DevtoolsRpcServerFunctions extends ServerFunctions {}
+  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
 }

@@ -1,4 +1,4 @@
-import type { DevtoolsRpcServerFunctions } from './rpc-augments'
+import type { DevToolsRpcServerFunctions } from './rpc-augments'
 import type { EntriesToObject, Thenable } from './utils'
 
 /**
@@ -10,7 +10,7 @@ import type { EntriesToObject, Thenable } from './utils'
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
 export interface RpcFunctionsHost {
-  readonly functions: DevtoolsRpcServerFunctions
+  readonly functions: DevToolsRpcServerFunctions
   readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
   register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
 }

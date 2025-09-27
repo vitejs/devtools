@@ -3,14 +3,14 @@ import type { FloatingPanelProps } from './FloatingPanelProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import ViewFrame from './ViewFrame.vue'
-// import FrameBox from './NuxtDevtoolsFrameBox.vue'
+// import FrameBox from './NuxtDevToolsFrameBox.vue'
 
 // const props = defineProps<{
 // }>()
 
 const props = defineProps<FloatingPanelProps>()
 
-const { state, views } = toRefs(props)
+const { state, docks } = toRefs(props)
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
@@ -329,12 +329,12 @@ onMounted(() => {
     >
       <div class="flex items-center w-full h-full justify-center px2 gap-2 transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
         <button
-          v-for="view in views"
-          :key="view.name"
-          :title="view.name"
+          v-for="dock in docks"
+          :key="dock.id"
+          :title="dock.title"
           class="flex items-center justify-center p1 rounded-full hover:bg-[#8881]"
         >
-          <img :src="view.icon" :alt="view.name" class="w-6 h-6">
+          <img :src="dock.icon" :alt="dock.title" class="w-6 h-6">
         </button>
       </div>
       <!-- <button
@@ -357,7 +357,7 @@ onMounted(() => {
     </div>
 
     <ViewFrame
-      :view="views[0]"
+      :view="docks[0]"
     />
   </div>
 </template>

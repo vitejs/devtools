@@ -1,4 +1,4 @@
-import type { DevtoolsViewTab } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 
 export interface DevToolsFrameState {
   width: number
@@ -12,5 +12,5 @@ export interface DevToolsFrameState {
 
 export interface FloatingPanelProps {
   state: DevToolsFrameState
-  views: DevtoolsViewTab[]
+  docks: DevToolsDockEntry[]
 }

@@ -1,6 +1,6 @@
 import type { ResolvedConfig } from 'vite'
 import type { RpcFunctionsHost } from './rpc'
-import type { DevtoolsViewHost } from './views'
+import type { DevToolsDockHost } from './views'
 
 export interface DevToolsCapabilities {
   rpc?: boolean
@@ -20,7 +20,7 @@ export interface DevToolsSetupContext {
   readonly mode: 'dev' | 'build'
   readonly viteConfig: ResolvedConfig
   rpc: RpcFunctionsHost
-  views: DevtoolsViewHost
+  docks: DevToolsDockHost
 }
 
 export interface ConnectionMeta {

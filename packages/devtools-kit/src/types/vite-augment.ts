@@ -8,6 +8,6 @@ declare module 'vite' {
   }
 }
 
-export interface PluginWithDevtools extends Plugin {
+export interface PluginWithDevTools extends Plugin {
   devtools?: DevToolsPluginOptions
 }

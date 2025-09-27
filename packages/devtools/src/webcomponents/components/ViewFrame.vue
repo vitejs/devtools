@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { DevtoolsViewTab } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 
 const props = defineProps<{
-  view: DevtoolsViewTab
+  view: DevToolsDockEntry
 }>()
 </script>
 

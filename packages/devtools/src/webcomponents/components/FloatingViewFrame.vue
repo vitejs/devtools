@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevtoolsViewTab } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
 import type { DevToolsFrameState } from './FloatingPanelProps'
 import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
@@ -8,7 +8,7 @@ import ViewFrameHandlers from './ViewFrameHandlers.vue'
 
 const props = defineProps<{
   state: DevToolsFrameState
-  view: DevtoolsViewTab
+  view: DevToolsDockEntry
 }>()
 
 const { state, view } = toRefs(props)

@@ -1,11 +1,11 @@
-import type { DevtoolsViewHost as DevtoolsViewHostType, DevtoolsViewTab } from '@vitejs/devtools-kit'
+import type { DevToolsDockHost as DevToolsViewHostType, DevToolsDockEntry } from '@vitejs/devtools-kit'
 
-export class DevtoolsViewHost implements DevtoolsViewHostType {
-  public readonly views: Map<string, DevtoolsViewTab> = new Map()
+export class DevToolsViewHost implements DevToolsViewHostType {
+  public readonly views: Map<string, DevToolsDockEntry> = new Map()
   constructor() {
   }
 
-  register(view: DevtoolsViewTab): void {
-    this.views.set(view.viewId, view)
+  register(view: DevToolsDockEntry): void {
+    this.views.set(view.id, view)
   }
 }
