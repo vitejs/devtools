@@ -14,9 +14,11 @@ export const rolldownGetPackages = defineRpcFunction({
         const reader = await manager.loadSession(session)
         const chunks = Array.from(reader.manager.chunks.values())
         const modulesMap = reader.manager.modules
+        const duplicatePackagesMap = new Map<string, number>()
         const packagesManifest = new Map<string, PackageInfo>()
         const packages = chunks.map(chunk => chunk.modules.map(module => module)).flat().filter(isNodeModulePath).map((p) => {
-          const moduleBuildMetrics = modulesMap.get(p)?.build_metrics
+          const module = modulesMap.get(p)
+          const moduleBuildMetrics = module?.build_metrics
           return {
             path: p,
             dir: getPackageDirPath(p),
@@ -27,12 +29,14 @@ export const rolldownGetPackages = defineRpcFunction({
           const manifest = await readProjectManifestOnly(p.dir)
           const packageKey = `${manifest.name!}@${manifest.version!}`
           const packageInfo = packagesManifest.get(packageKey)
+          const module = modulesMap.get(p.path)
           if (packageInfo) {
             packagesManifest.set(packageKey, {
               ...packageInfo,
               files: [...packageInfo.files, {
                 path: p.path,
                 transformedCodeSize: p.transformedCodeSize,
+                importers: module?.importers ?? [],
               }],
               transformedCodeSize: packageInfo.transformedCodeSize + p.transformedCodeSize,
             })
@@ -45,12 +49,28 @@ export const rolldownGetPackages = defineRpcFunction({
               files: [{
                 path: p.path,
                 transformedCodeSize: p.transformedCodeSize,
+                importers: module?.importers ?? [],
               }],
               transformedCodeSize: p.transformedCodeSize,
             })
           }
         }))
-        return Array.from(packagesManifest.values()) satisfies PackageInfo[]
+        return Array.from<PackageInfo>(packagesManifest.values())
+          .map((p) => {
+            duplicatePackagesMap.set(p.name, (duplicatePackagesMap.get(p.name) ?? 0) + 1)
+            return {
+              ...p,
+              type: p.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
+            }
+          })
+          .map((p) => {
+            const duplicated = duplicatePackagesMap.get(p.name)!
+            return {
+              ...p,
+              duplicated: duplicated > 1,
+            }
+          })
+          .filter(i => !!i.transformedCodeSize)
       },
     }
   },

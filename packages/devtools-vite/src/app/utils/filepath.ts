@@ -1,5 +1,5 @@
 import { relative } from 'pathe'
-import { getModuleNameFromPath, isPackageName } from '~~/shared/utils/filepath'
+import { getModuleNameFromPath, isPackageName } from '../../shared/utils/filepath'
 import { makeCachedFunction } from './cache'
 
 function getModuleSubpathFromPath(path: string) {

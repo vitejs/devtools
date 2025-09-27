@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import type { PackageInfo } from '~~/shared/types'
+import type { PackageInfo, SessionContext } from '~~/shared/types'
 import { useCycleList } from '@vueuse/core'
+import { Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'
 
 defineProps<{
   packages: PackageInfo[]
+  session: SessionContext
 }>()
 
 const { state: sizeSortType, next } = useCycleList(['', 'desc', 'asc'], {
@@ -34,6 +36,9 @@ function toggleSizeSortType() {
           </span>
         </button>
       </div>
+      <div title="Importers" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl2 font-600 min-w50>
+        Importers
+      </div>
     </div>
 
     <DataVirtualList
@@ -49,17 +54,30 @@ function toggleSizeSortType() {
           class="border-base border-b-1 border-dashed"
           :class="[index === packages.length - 1 ? 'border-b-0' : '']"
         >
-          <div role="cell" flex="~ items-center" flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
+          <div role="cell" flex="~ items-center gap1" flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
             {{ item.name }}
+            <i v-if="item.duplicated" text-xs op50 i-tabler:packages title="Duplicate package" />
           </div>
           <div role="cell" flex="~ items-center justify-center" flex-none font-mono py1.5 px2 text-sm min-w50 op80>
             {{ item.version }}
           </div>
           <div role="cell" flex="~ items-center justify-center" flex-none font-mono py1.5 px2 text-sm min-w50 op80>
-            <template v-if="item.transformedCodeSize">
+            <VMenu :delay="{ show: 200, hide: 0 }">
               <DisplayFileSizeBadge :bytes="item.transformedCodeSize" />
-            </template>
-            <span v-else op50>0</span>
+              <template #popper>
+                <div p2 flex="~ col gap-1">
+                  <div v-for="file of item.files.filter(f => !!f.transformedCodeSize)" :key="file.path" flex="~ row gap-1 items-center nowrap" w-max>
+                    <span w24 inline-flex>
+                      <DisplayFileSizeBadge :bytes="file.transformedCodeSize" />
+                    </span>
+                    <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+                  </div>
+                </div>
+              </template>
+            </VMenu>
+          </div>
+          <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 px2 text-sm op80>
+            <PackagesImporters :package="item" :session="session" />
           </div>
         </div>
       </template>

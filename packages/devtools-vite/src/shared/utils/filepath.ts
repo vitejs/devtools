@@ -7,6 +7,8 @@ export function isPackageName(name: string) {
 }
 
 export function getModuleNameFromPath(path: string) {
+  if (isPackageName(path))
+    return path
   const match = path.replace(/\\/g, '/').match(/.*\/node_modules\/(.*)$/)?.[1]
   if (!match)
     return undefined

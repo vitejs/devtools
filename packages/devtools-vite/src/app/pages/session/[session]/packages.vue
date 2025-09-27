@@ -12,9 +12,9 @@ const props = defineProps<{
 }>()
 const packageViewTpyes = [
   {
-    label: 'List',
-    value: 'list',
-    icon: 'i-ph-list-duotone',
+    label: 'Table',
+    value: 'table',
+    icon: 'i-ph:table-thin',
   },
 ] as const
 
@@ -22,13 +22,13 @@ const packageTypeRules = [
   {
     match: /.*/,
     name: 'direct',
-    description: 'Direct Packages',
+    description: 'Direct Dependencies',
     icon: 'i-octicon:package-dependencies-24 light:filter-invert-30!',
   },
   {
     match: /.*/,
     name: 'transitive',
-    description: 'Transitive Packages',
+    description: 'Transitive Dependencies',
     icon: 'i-octicon:package-24  light:filter-invert-30!',
   },
   {
@@ -63,18 +63,32 @@ const fuse = computedWithControl(
 )
 
 const searched = computed(() => (
-  (searchValue.value.search
+  searchValue.value.search
     ? fuse.value.search(searchValue.value.search).map(r => r.item)
-    : [...(packages.value || [])]).filter(i => !!i.transformedCodeSize)),
+    : [...(packages.value || [])]),
 )
 
-const sortedSearched = computed(() => {
+const normalizedPackages = computed(() => {
   const packagesSizeSortType = settings.value.packageSizeSortType
   const data = [...searched.value].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
 
-  return packagesSizeSortType
+  const sortedPackages = packagesSizeSortType
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)
     : data
+
+  return sortedPackages.filter((item) => {
+    const selected = searchValue.value.selected
+
+    if (!selected || (selected.includes('duplicate') && selected.length === 1)) {
+      return !!item.duplicated
+    }
+
+    const typeRules = selected.filter(rule => rule !== 'duplicate')
+    const typeMatches = typeRules.some(rule => rule.match(item.type!))
+    const duplicateMatches = !selected.includes('duplicate') || item.duplicated
+
+    return typeMatches && duplicateMatches
+  })
 })
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
@@ -103,8 +117,8 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
       </DataSearchPanel>
     </div>
     <div of-auto h-screen flex="~ col gap-2" pt44 px4 pb4>
-      <template v-if="settings.packageViewType === 'list'">
-        <PackagesTable :packages="sortedSearched" />
+      <template v-if="settings.packageViewType === 'table'">
+        <PackagesTable :packages="normalizedPackages" :session="session" />
         <div
           absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
         >

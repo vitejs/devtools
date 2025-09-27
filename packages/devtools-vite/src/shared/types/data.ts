@@ -79,10 +79,13 @@ export interface PackageInfo {
   name: string
   version: string
   dir: string
+  type?: string
   transformedCodeSize: number
+  duplicated?: boolean
   files: {
     path: string
     transformedCodeSize: number
+    importers: string[]
   }[]
 }
 
