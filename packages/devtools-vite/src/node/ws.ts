@@ -1,5 +1,5 @@
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
-import type { ConnectionMeta } from '../shared/types'
 import type { CreateServerFunctionsOptions } from './functions'
 import type { ServerFunctions } from './rpc'
 import { createRpcServer } from '@vitejs/devtools-rpc'

@@ -1,5 +1,7 @@
-import './extend'
-
 export * from './rpc'
+export * from './rpc-augments'
+export * from './rpc-core-functions'
 export * from './utils'
-export * from './vite'
+export * from './views'
+export * from './vite-augment'
+export * from './vite-plugin'

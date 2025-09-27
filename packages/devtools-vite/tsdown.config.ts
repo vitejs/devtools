@@ -10,6 +10,10 @@ export default defineConfig({
   tsconfig: '../../tsconfig.pkgs.json',
   clean: false,
   target: 'esnext',
-  fixedExtension: true,
   dts: true,
+  inputOptions: {
+    experimental: {
+      resolveNewUrlToAsset: false,
+    },
+  },
 })

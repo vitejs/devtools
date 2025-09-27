@@ -19,26 +19,43 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": "./dist/index.js",
+    "./webcomponents": "./dist/webcomponents.js",
+    "./client-inject": "./dist/client-inject.js"
   },
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "vite-devtools": "./bin.mjs"
+  },
   "files": [
+    "bin.mjs",
     "dist"
   ],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build",
+    "play": "pnpm -C playground run dev",
+    "play:build": "pnpm -C playground run build"
   },
   "peerDependencies": {
     "vite": "catalog:build"
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*"
+    "@vitejs/devtools-rpc": "workspace:*",
+    "ws": "catalog:deps"
   },
   "devDependencies": {
-    "tsdown": "catalog:build"
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:build",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:devtools",
+    "unplugin-vue": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:frontend",
+    "vue-tsc": "catalog:devtools"
   }
 }

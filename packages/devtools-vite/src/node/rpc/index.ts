@@ -42,3 +42,7 @@ export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
 export type ServerFunctionsDump = {
   [K in keyof ServerFunctionsStatic]: Awaited<ReturnType<ServerFunctionsStatic[K]>>
 }
+
+declare module '@vitejs/devtools-kit' {
+  export interface DevtoolsRpcServerFunctions extends ServerFunctions {}
+}

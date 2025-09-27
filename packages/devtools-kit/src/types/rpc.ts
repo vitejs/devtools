@@ -1,3 +1,4 @@
+import type { DevtoolsRpcServerFunctions } from './rpc-augments'
 import type { EntriesToObject, Thenable } from './utils'
 
 /**
@@ -8,6 +9,12 @@ import type { EntriesToObject, Thenable } from './utils'
  */
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
+export interface RpcFunctionsHost {
+  readonly functions: DevtoolsRpcServerFunctions
+  readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
+  register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
+}
+
 export interface RpcFunctionSetupResult<
   ARGS extends any[],
   RETURN = void,
@@ -15,10 +22,12 @@ export interface RpcFunctionSetupResult<
   handler: (...args: ARGS) => RETURN
 }
 
+// TODO: maybe we should introduce schema system with vailbot
+
 export interface RpcFunctionDefinition<
   NAME extends string,
   TYPE extends RpcFunctionType,
-  ARGS extends any[],
+  ARGS extends any[] = [],
   RETURN = void,
 > {
   name: NAME
@@ -26,11 +35,13 @@ export interface RpcFunctionDefinition<
   setup: (context: RpcContext) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
   handler?: (...args: ARGS) => RETURN
   __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
+  __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
 }
 
 export interface RpcContext {
   cwd: string
   mode: 'dev' | 'build'
+  functions: RpcFunctionsHost
   meta?: any
 }
 

@@ -1,6 +1,7 @@
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { BirpcReturn } from 'birpc'
 import type { ServerFunctions } from '../../../node/rpc'
-import type { ClientFunctions, ConnectionMeta } from '../../../shared/types'
+import type { ClientFunctions } from '../../../shared/types'
 import { defineNuxtPlugin } from '#app'
 import { useRuntimeConfig } from '#app/nuxt'
 import { createRpcClient as _createRpcClient } from '@vitejs/devtools-rpc'
@@ -36,7 +37,7 @@ export default defineNuxtPlugin({
     async function connectToServer() {
       const metadata = await getMetadata()
       if (metadata.backend === 'static') {
-      // TODO (hold-off): static server
+        // TODO (hold-off): static server
       }
       else {
         const url = isNumeric(metadata.websocket) ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}` : metadata.websocket
