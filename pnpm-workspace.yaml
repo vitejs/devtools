@@ -1,5 +1,11 @@
 packages:
   - packages/*
+
+shamefullyHoist: true
+strictPeerDependencies: false
+shellEmulator: true
+ignoreWorkspaceRootCheck: true
+
 catalogs:
   build:
     '@nuxt/kit': ^4.1.2
