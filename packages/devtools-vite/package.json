@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:frontend",
+    "@pnpm/read-project-manifest": "catalog:deps",
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",

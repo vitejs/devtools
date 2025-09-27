@@ -1,6 +1,5 @@
 packages:
   - packages/*
-catalog:
 catalogs:
   build:
     '@nuxt/kit': ^4.1.2
@@ -15,6 +14,7 @@ catalogs:
     tsx: ^4.20.5
     vite: npm:rolldown-vite@^7.1.11
   deps:
+    '@pnpm/read-project-manifest': ^1001.1.2
     '@rolldown/debug': ^1.0.0-beta.38
     ansis: ^4.1.0
     birpc: ^2.5.0
@@ -77,10 +77,12 @@ catalogs:
     '@iconify-json/codicon': ^1.2.30
     '@iconify-json/fluent': ^1.2.31
     '@iconify-json/logos': ^1.2.9
+    '@iconify-json/octicon': ^1.2.14
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5
     '@iconify-json/simple-icons': ^1.2.52
     '@iconify-json/svg-spinners': ^1.2.4
+    '@iconify-json/tabler': ^1.2.23
   inlined:
     '@antfu/utils': ^9.2.1
     stream-json: ^1.9.1
