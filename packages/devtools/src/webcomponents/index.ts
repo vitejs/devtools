@@ -1,2 +1,2 @@
-export * from './components/FloatingPanel'
-export * from './components/FloatingPanelProps'
+export * from './components/Dock'
+export * from './components/DockProps'

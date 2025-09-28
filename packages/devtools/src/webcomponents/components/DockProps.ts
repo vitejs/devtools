@@ -1,6 +1,6 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 
-export interface DevToolsFrameState {
+export interface DevToolsDockState {
   width: number
   height: number
   top: number
@@ -10,7 +10,7 @@ export interface DevToolsFrameState {
   minimizePanelInactive: number
 }
 
-export interface FloatingPanelProps {
-  state: DevToolsFrameState
+export interface DockProps {
+  state: DevToolsDockState
   docks: DevToolsDockEntry[]
 }

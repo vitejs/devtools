@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FloatingPanelProps } from './FloatingPanelProps'
+import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import ViewFrame from './ViewFrame.vue'
@@ -8,7 +8,7 @@ import ViewFrame from './ViewFrame.vue'
 // const props = defineProps<{
 // }>()
 
-const props = defineProps<FloatingPanelProps>()
+const props = defineProps<DockProps>()
 
 const { state, docks } = toRefs(props)
 

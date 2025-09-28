@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DevToolsFrameState } from './FloatingPanelProps'
+import type { DevToolsDockState } from './DockProps'
 import { toRefs, useEventListener } from '@vueuse/core'
 import { ref, watchEffect } from 'vue'
 
 const props = defineProps<{
   isDragging: boolean
-  state: DevToolsFrameState
+  state: DevToolsDockState
 }>()
 
 const PANEL_MIN = 20

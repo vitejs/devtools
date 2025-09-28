@@ -14,14 +14,12 @@ export default defineConfig({
       name: 'local',
       devtools: {
         setup(ctx) {
-          ctx.views.register({
-            name: 'Local',
+          ctx.docks.register({
+            title: 'Local',
             icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
-            viewId: 'local',
-            view: {
-              type: 'iframe',
-              url: 'http://localhost:3000',
-            },
+            id: 'local',
+            type: 'iframe',
+            url: 'http://localhost:3000',
           })
         },
       },

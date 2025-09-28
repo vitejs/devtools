@@ -16,13 +16,13 @@ catalogs:
     nitropack: ^2.12.6
     nuxt: ^4.1.2
     nuxt-mcp: ^0.2.4
-    rolldown: ^1.0.0-beta.39
-    tsdown: ^0.15.4
-    tsx: ^4.20.5
+    rolldown: ^1.0.0-beta.40
+    tsdown: ^0.15.5
+    tsx: ^4.20.6
     unplugin-vue: ^7.0.1
-    vite: npm:rolldown-vite@^7.1.12
+    vite: npm:rolldown-vite@^7.1.13
   deps:
-    '@rolldown/debug': ^1.0.0-beta.39
+    '@rolldown/debug': ^1.0.0-beta.40
     ansis: ^4.1.0
     birpc: ^2.6.1
     cac: ^6.7.14
@@ -52,7 +52,7 @@ catalogs:
     '@unocss/eslint-config': ^66.5.2
     bumpp: ^10.2.3
     eslint: ^9.36.0
-    lint-staged: ^16.2.0
+    lint-staged: ^16.2.1
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.2
@@ -76,13 +76,13 @@ catalogs:
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
-    vue: ^3.5.21
+    vue: ^3.5.22
     vue-virtual-scroller: ^2.0.0-beta.8
   icons:
     '@iconify-json/carbon': ^1.2.13
     '@iconify-json/catppuccin': ^1.2.17
     '@iconify-json/codicon': ^1.2.30
-    '@iconify-json/fluent': ^1.2.31
+    '@iconify-json/fluent': ^1.2.32
     '@iconify-json/logos': ^1.2.9
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.5

@@ -2,7 +2,7 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 
 const props = defineProps<{
-  view: DevToolsDockEntry
+  entry: DevToolsDockEntry
 }>()
 </script>
 

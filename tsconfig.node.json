@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "include": [
-    "**/tsdown.config.ts"
+    "**/tsdown.config.ts",
+    "packages/devtools/src/webcomponents/scripts/*.ts"
   ]
 }

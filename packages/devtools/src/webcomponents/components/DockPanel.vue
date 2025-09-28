@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsFrameState } from './FloatingPanelProps'
+import type { DevToolsDockState } from './DockProps'
 import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import ViewFrameHandlers from './ViewFrameHandlers.vue'
 
 const props = defineProps<{
-  state: DevToolsFrameState
-  view: DevToolsDockEntry
+  state: DevToolsDockState
+  entry: DevToolsDockEntry
 }>()
 
-const { state, view } = toRefs(props)
+const { state, entry } = toRefs(props)
 
 const panelMargins = reactive({
   left: 10,

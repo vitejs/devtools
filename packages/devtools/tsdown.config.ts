@@ -34,7 +34,6 @@ export default defineConfig([
     clean: false,
     tsconfig: '../../tsconfig.pkgs.json',
     dts: true,
-
     inputOptions: {
       experimental: {
         resolveNewUrlToAsset: false,

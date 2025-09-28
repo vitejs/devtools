@@ -48,12 +48,12 @@ export async function init(): Promise<void> {
     { mergeDefaults: true },
   )
 
-  const { FloatingPanel } = await import('@vitejs/devtools/webcomponents')
-  const floatingPanel = new FloatingPanel({
+  const { Dock } = await import('@vitejs/devtools/webcomponents')
+  const dockEl = new Dock({
     state,
     docks,
   })
-  document.body.appendChild(floatingPanel)
+  document.body.appendChild(dockEl)
 }
 
 init()
