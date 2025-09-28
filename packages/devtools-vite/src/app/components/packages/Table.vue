@@ -4,10 +4,15 @@ import { useCycleList } from '@vueuse/core'
 import { Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'
 
-defineProps<{
+withDefaults(defineProps<{
   packages: PackageInfo[]
   session: SessionContext
-}>()
+  disableSizeSort?: boolean
+  groupView?: boolean
+}>(), {
+  disableSizeSort: false,
+  groupView: false,
+})
 
 const { state: sizeSortType, next } = useCycleList(['', 'desc', 'asc'], {
   initialValue: settings.value.packageSizeSortType,
@@ -22,21 +27,26 @@ function toggleSizeSortType() {
 <template>
   <div role="table" min-w-max border="~ base rounded">
     <div role="row" class="border-b border-base" flex="~ row">
-      <div title="Bundled packages" role="columnheader" rounded-tl-2 bg-base flex-none min-w80 ws-nowrap py1.5 px2 font-600>
-        Package
+      <div :title="groupView ? 'Package' : 'Bundled packages'" role="columnheader" rounded-tl-2 bg-base flex-none ws-nowrap py1.5 px2 font-600 :class="[groupView ? 'min-w40' : 'min-w80']">
+        <template v-if="groupView">
+          <DisplayHighlightedPackageName :name="packages?.[0]?.name!" />
+        </template>
+        <template v-else>
+          Package
+        </template>
       </div>
-      <div title="Package version" role="columnheader" rounded-tr-2 bg-base flex-none min-w50 ws-nowrap text-center py1.5 px2 font-600>
+      <div v-if="!groupView" title="Package version" role="columnheader" rounded-tr-2 bg-base flex-none min-w40 ws-nowrap text-left py1.5 px2 font-600>
         Version
       </div>
-      <div title="Transformed code size" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl2 text-center font-600 min-w50>
-        <button flex="~ row gap1 items-center justify-center" w-full relative>
+      <div title="Transformed code size" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl2 font-600 min-w40>
+        <button flex="~ row gap1 items-center justify-end" w-full relative pr2>
           Size
-          <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" right-0 top-0 @click="toggleSizeSortType">
+          <span v-if="!disableSizeSort" w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleSizeSortType">
             <i text-xs :class="[sizeSortType !== 'asc' ? 'i-carbon-arrow-down' : 'i-carbon-arrow-up', sizeSortType ? 'op100 text-primary' : 'op50']" />
           </span>
         </button>
       </div>
-      <div title="Importers" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl2 font-600 min-w50>
+      <div title="Importers" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl20 pr2 font-600 min-w50>
         Importers
       </div>
     </div>
@@ -54,14 +64,13 @@ function toggleSizeSortType() {
           class="border-base border-b-1 border-dashed"
           :class="[index === packages.length - 1 ? 'border-b-0' : '']"
         >
-          <div role="cell" flex="~ items-center gap1" flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
-            {{ item.name }}
-            <i v-if="item.duplicated" text-xs op50 i-tabler:packages title="Duplicate package" />
+          <div v-if="!groupView" role="cell" flex="~ items-center gap1" flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
+            <DisplayHighlightedPackageName :name="item.name" />
           </div>
-          <div role="cell" flex="~ items-center justify-center" flex-none font-mono py1.5 px2 text-sm min-w50 op80>
+          <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80>
             {{ item.version }}
           </div>
-          <div role="cell" flex="~ items-center justify-center" flex-none font-mono py1.5 px2 text-sm min-w50 op80>
+          <div role="cell" flex="~ items-center justify-end" flex-none font-mono py1.5 px2 text-sm min-w40 op80>
             <VMenu :delay="{ show: 200, hide: 0 }">
               <DisplayFileSizeBadge :bytes="item.transformedCodeSize" />
               <template #popper>
@@ -76,8 +85,8 @@ function toggleSizeSortType() {
               </template>
             </VMenu>
           </div>
-          <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 px2 text-sm op80>
-            <PackagesImporters :package="item" :session="session" />
+          <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 pl20 pr2 text-sm op80>
+            <PackagesImporters :package="item" :session="session" :show-version="groupView" />
           </div>
         </div>
       </template>

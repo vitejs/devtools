@@ -6,23 +6,28 @@ import { computed } from 'vue'
 const props = defineProps<{
   package: PackageInfo
   session: SessionContext
+  showVersion: boolean
 }>()
 
 const importers = computed(() => [...new Set(props.package.files.filter(f => !!f.importers).flatMap(f => f.importers))])
 </script>
 
 <template>
-  <div v-if="importers.length === 1">
-    <DisplayModuleId :id="importers[0]!" :session="session" link />
-  </div>
-  <VMenu v-else :delay="{ show: 200, hide: 0 }">
-    <DisplayNumberBadge :number="importers.length" class="text-blue dark:text-blue" />
-    <template #popper>
-      <div p2 flex="~ col gap-1">
-        <div v-for="importer of importers" :key="importer" flex="~ row gap-1 items-center nowrap" w-max>
-          <DisplayModuleId :id="importer" :session="session" ws-nowrap flex-1 disable-tooltip link />
+  <div flex="~ row gap-1">
+    <div flex="~ row gap-1">
+      <DisplayModuleId :id="importers[0]!.path" :session="session" link />
+      <DisplayBadge v-if="importers[0]!.version && showVersion" :text="importers[0]!.version" as="span" />
+    </div>
+    <VMenu v-if="importers.length > 1" :delay="{ show: 200, hide: 0 }">
+      <DisplayNumberBadge :number="importers.length" class="text-blue dark:text-blue" />
+      <template #popper>
+        <div p2 flex="~ col gap-1">
+          <div v-for="importer of importers" :key="importer.path" flex="~ row gap-1 items-center nowrap" w-max>
+            <DisplayModuleId :id="importer.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+            <DisplayBadge v-if="importer.version && showVersion" :text="importer.version" as="span" />
+          </div>
         </div>
-      </div>
-    </template>
-  </VMenu>
+      </template>
+    </VMenu>
+  </div>
 </template>

@@ -85,7 +85,7 @@ export interface PackageInfo {
   files: {
     path: string
     transformedCodeSize: number
-    importers: string[]
+    importers: Array<{ path: string, version: string }>
   }[]
 }
 

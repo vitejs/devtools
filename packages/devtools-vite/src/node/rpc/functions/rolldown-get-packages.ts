@@ -36,7 +36,7 @@ export const rolldownGetPackages = defineRpcFunction({
               files: [...packageInfo.files, {
                 path: p.path,
                 transformedCodeSize: p.transformedCodeSize,
-                importers: module?.importers ?? [],
+                importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
               }],
               transformedCodeSize: packageInfo.transformedCodeSize + p.transformedCodeSize,
             })
@@ -49,28 +49,41 @@ export const rolldownGetPackages = defineRpcFunction({
               files: [{
                 path: p.path,
                 transformedCodeSize: p.transformedCodeSize,
-                importers: module?.importers ?? [],
+                importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
               }],
               transformedCodeSize: p.transformedCodeSize,
             })
           }
         }))
-        return Array.from<PackageInfo>(packagesManifest.values())
-          .map((p) => {
-            duplicatePackagesMap.set(p.name, (duplicatePackagesMap.get(p.name) ?? 0) + 1)
-            return {
-              ...p,
-              type: p.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
-            }
-          })
-          .map((p) => {
-            const duplicated = duplicatePackagesMap.get(p.name)!
-            return {
-              ...p,
-              duplicated: duplicated > 1,
-            }
-          })
-          .filter(i => !!i.transformedCodeSize)
+        const normalizedPackages = await Promise.all(
+          Array.from<PackageInfo>(packagesManifest.values())
+            .map((p) => {
+              duplicatePackagesMap.set(p.name, (duplicatePackagesMap.get(p.name) ?? 0) + 1)
+              return {
+                ...p,
+                type: p.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
+              }
+            })
+            .map(async (p) => {
+              const duplicated = duplicatePackagesMap.get(p.name)! > 1
+              let files = p.files
+              if (duplicated) {
+                files = await Promise.all(files.map(async (f) => {
+                  const importers = await Promise.all(f.importers.map(async (i) => {
+                    const manifest = isNodeModulePath(i.path) ? await readProjectManifestOnly(getPackageDirPath(i.path)) : null
+                    return { ...i, version: manifest?.version ?? '' }
+                  }))
+                  return { ...f, importers }
+                }))
+              }
+              return {
+                ...p,
+                duplicated,
+                files,
+              }
+            }),
+        )
+        return normalizedPackages.filter(i => !!i.transformedCodeSize)
       },
     }
   },

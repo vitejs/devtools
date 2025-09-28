@@ -10,13 +10,6 @@ import { settings } from '~/state/settings'
 const props = defineProps<{
   session: SessionContext
 }>()
-const packageViewTpyes = [
-  {
-    label: 'Table',
-    value: 'table',
-    icon: 'i-ph:table-thin',
-  },
-] as const
 
 const packageTypeRules = [
   {
@@ -30,12 +23,6 @@ const packageTypeRules = [
     name: 'transitive',
     description: 'Transitive Dependencies',
     icon: 'i-octicon:package-24  light:filter-invert-30!',
-  },
-  {
-    match: /.*/,
-    name: 'duplicate',
-    description: 'Duplicate Packages',
-    icon: 'i-tabler:packages light:filter-invert-30!',
   },
 ]
 const rpc = useRpc()
@@ -62,6 +49,29 @@ const fuse = computedWithControl(
   }),
 )
 
+const duplicatePackagesCount = computed(() => {
+  if (!packages.value) {
+    return 0
+  }
+  return Object.values(packages.value!.reduce((acc, p) => {
+    acc[p.name] = (acc[p.name] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)).filter(count => count > 1).length
+})
+
+const packageViewTpyes = computed(() => [
+  {
+    label: 'Table',
+    value: 'table',
+    icon: 'i-ph:table-thin',
+  },
+  {
+    label: `Duplicate Packages${duplicatePackagesCount.value > 0 ? ` (${duplicatePackagesCount.value})` : ''}`,
+    value: 'duplicate-packages',
+    icon: 'i-tabler:packages',
+  },
+] as const)
+
 const searched = computed(() => (
   searchValue.value.search
     ? fuse.value.search(searchValue.value.search).map(r => r.item)
@@ -76,19 +86,7 @@ const normalizedPackages = computed(() => {
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)
     : data
 
-  return sortedPackages.filter((item) => {
-    const selected = searchValue.value.selected
-
-    if (!selected || (selected.includes('duplicate') && selected.length === 1)) {
-      return !!item.duplicated
-    }
-
-    const typeRules = selected.filter(rule => rule !== 'duplicate')
-    const typeMatches = typeRules.some(rule => rule.match(item.type!))
-    const duplicateMatches = !selected.includes('duplicate') || item.duplicated
-
-    return typeMatches && duplicateMatches
-  })
+  return sortedPackages.filter(item => !searchValue.value.selected || searchValue.value.selected.some(rule => rule.match(item.type!)))
 })
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
@@ -124,6 +122,9 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
         >
           <span op50>{{ searched.length }} of {{ packages?.length || 0 }}</span>
         </div>
+      </template>
+      <template v-else-if="settings.packageViewType === 'duplicate-packages'">
+        <PackagesDuplicated :packages="normalizedPackages" :session="session" />
       </template>
     </div>
   </div>
