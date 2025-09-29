@@ -51,6 +51,7 @@ export async function init(): Promise<void> {
   const { Dock } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
     ? await import('../webcomponents')
     : await import('@vitejs/devtools/webcomponents')
+
   const dockEl = new Dock({
     state,
     docks,

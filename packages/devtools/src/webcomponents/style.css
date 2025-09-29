@@ -2,10 +2,6 @@
   --un-text-opacity: 100%;
 }
 
-.vite-devtools-resize-container {
-  --uno: w-full h-full absolute relative z-[2147483645] antialiased;
-}
-
 .vite-devtools-resize-handle-horizontal {
   --uno: absolute left-[6px] right-[6px] h-[10px] -my-[5px] cursor-ns-resize rounded-md;
 }
@@ -25,7 +21,7 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock-container {
-  --uno: absolute left-0 top-0 h-[46px] min-w-[100px];
+  --uno: absolute left-0 top-0 h-[44px] min-w-[100px];
   transform: translate(-50%, -50%);
 }
 

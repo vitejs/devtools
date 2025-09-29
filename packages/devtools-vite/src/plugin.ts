@@ -12,7 +12,7 @@ export function DevToolsViteUI(): PluginWithDevTools {
           title: 'Vite',
           icon: 'https://vite.dev/logo.svg',
           type: 'iframe',
-          url: 'http://localhost:3000',
+          url: 'https://antfu.me',
         })
       },
     },

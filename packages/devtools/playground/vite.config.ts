@@ -33,7 +33,7 @@ export default defineConfig({
             icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
             id: 'local',
             type: 'iframe',
-            url: 'http://localhost:3000',
+            url: 'https://antfu.me',
           })
         },
       },

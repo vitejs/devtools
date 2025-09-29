@@ -2,115 +2,33 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
 import type { DevToolsDockState } from './DockProps'
-import { useElementBounding, useEventListener, useScreenSafeArea } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { useElementBounding, useWindowSize } from '@vueuse/core'
+import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { IframeManager } from './IframeManager'
+import ViewFrame from './ViewFrame.vue'
 import ViewFrameHandlers from './ViewFrameHandlers.vue'
 
 const props = defineProps<{
   state: DevToolsDockState
   entry: DevToolsDockEntry
+  dockEl?: HTMLDivElement
+  panelMargins: { left: number, top: number, right: number, bottom: number }
 }>()
 
-const { state, entry } = toRefs(props)
+const { state, entry, panelMargins } = toRefs(props)
 
-const panelMargins = reactive({
-  left: 10,
-  top: 10,
-  right: 10,
-  bottom: 10,
-})
+const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
+const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
 
-const frameBox = useTemplateRef<HTMLDivElement>('frameBox')
-const safeArea = useScreenSafeArea()
-
-function toNumber(value: string) {
-  const num = +value
-  if (Number.isNaN(num))
-    return 0
-  return num
-}
+const iframes = markRaw(new IframeManager())
 
 watchEffect(() => {
-  panelMargins.left = toNumber(safeArea.left.value) + 10
-  panelMargins.top = toNumber(safeArea.top.value) + 10
-  panelMargins.right = toNumber(safeArea.right.value) + 10
-  panelMargins.bottom = toNumber(safeArea.bottom.value) + 10
-})
+  iframes.setContainer(iframesContainer.value!)
+}, { flush: 'sync' })
 
-const SNAP_THRESHOLD = 2
-
-// const frameBox = useTemplateRef<HTMLDivElement>('frameBox')
-const panelEl = useTemplateRef<HTMLDivElement>('panelEl')
-
-const windowSize = reactive({
-  width: window.innerWidth,
-  height: window.innerHeight,
-})
+const windowSize = reactive(useWindowSize())
 const isDragging = ref(false)
-const draggingOffset = reactive({ x: 0, y: 0 })
 const mousePosition = reactive({ x: 0, y: 0 })
-
-onMounted(() => {
-  windowSize.width = window.innerWidth
-  windowSize.height = window.innerHeight
-
-  useEventListener(window, 'resize', () => {
-    windowSize.width = window.innerWidth
-    windowSize.height = window.innerHeight
-  })
-
-  useEventListener(window, 'pointermove', (e: PointerEvent) => {
-    if (!isDragging.value)
-      return
-
-    const centerX = window.innerWidth / 2
-    const centerY = window.innerHeight / 2
-
-    const x = e.clientX - draggingOffset.x
-    const y = e.clientY - draggingOffset.y
-
-    if (Number.isNaN(x) || Number.isNaN(y))
-      return
-
-    mousePosition.x = x
-    mousePosition.y = y
-
-    // Get position
-    const deg = Math.atan2(y - centerY, x - centerX)
-    const HORIZONTAL_MARGIN = 70
-    const TL = Math.atan2(0 - centerY + HORIZONTAL_MARGIN, 0 - centerX)
-    const TR = Math.atan2(0 - centerY + HORIZONTAL_MARGIN, window.innerWidth - centerX)
-    const BL = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, 0 - centerX)
-    const BR = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, window.innerWidth - centerX)
-
-    state.value.position = deg >= TL && deg <= TR
-      ? 'top'
-      : deg >= TR && deg <= BR
-        ? 'right'
-        : deg >= BR && deg <= BL
-          ? 'bottom'
-          : 'left'
-
-    state.value.left = snapToPoints(x / window.innerWidth * 100)
-    state.value.top = snapToPoints(y / window.innerHeight * 100)
-  })
-  useEventListener(window, 'pointerup', () => {
-    isDragging.value = false
-  })
-  useEventListener(window, 'pointerleave', () => {
-    isDragging.value = false
-  })
-})
-
-function snapToPoints(value: number) {
-  if (value < 5)
-    return 0
-  if (value > 95)
-    return 100
-  if (Math.abs(value - 50) < SNAP_THRESHOLD)
-    return 50
-  return value
-}
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -119,8 +37,8 @@ function clamp(value: number, min: number, max: number) {
 const isHovering = ref(false)
 
 const anchorPos = computed(() => {
-  const halfWidth = (panelEl.value?.clientWidth || 0) / 2
-  const halfHeight = (panelEl.value?.clientHeight || 0) / 2
+  const halfWidth = (props.dockEl?.clientWidth || 0) / 2
+  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
 
   const left = state.value.left * windowSize.width / 100
   const top = state.value.top * windowSize.height / 100
@@ -128,24 +46,24 @@ const anchorPos = computed(() => {
   switch (state.value.position) {
     case 'top':
       return {
-        left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
-        top: panelMargins.top + halfHeight,
+        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
+        top: panelMargins.value.top + halfHeight,
       }
     case 'right':
       return {
-        left: windowSize.width - panelMargins.right - halfHeight,
-        top: clamp(top, halfWidth + panelMargins.top, windowSize.height - halfWidth - panelMargins.bottom),
+        left: windowSize.width - panelMargins.value.right - halfHeight,
+        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
       }
     case 'left':
       return {
-        left: panelMargins.left + halfHeight,
-        top: clamp(top, halfWidth + panelMargins.top, windowSize.height - halfWidth - panelMargins.bottom),
+        left: panelMargins.value.left + halfHeight,
+        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
       }
     case 'bottom':
     default:
       return {
-        left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
-        top: windowSize.height - panelMargins.bottom - halfHeight,
+        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
+        top: windowSize.height - panelMargins.value.bottom - halfHeight,
       }
   }
 })
@@ -162,19 +80,19 @@ function bringUp() {
   }, +state.value.minimizePanelInactive || 0)
 }
 
-const { width: frameWidth, height: frameHeight } = useElementBounding(frameBox)
+const { width: frameWidth, height: frameHeight } = useElementBounding(dockPanel)
 
 const iframeStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
   mousePosition.x, mousePosition.y
 
-  const halfHeight = (panelEl.value?.clientHeight || 0) / 2
+  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
 
   const frameMargin = {
-    left: panelMargins.left + halfHeight,
-    top: panelMargins.top + halfHeight,
-    right: panelMargins.right + halfHeight,
-    bottom: panelMargins.bottom + halfHeight,
+    left: panelMargins.value.left + halfHeight,
+    top: panelMargins.value.top + halfHeight,
+    right: panelMargins.value.right + halfHeight,
+    bottom: panelMargins.value.bottom + halfHeight,
   }
 
   const marginHorizontal = frameMargin.left + frameMargin.right
@@ -186,7 +104,7 @@ const iframeStyle = computed(() => {
   const style: CSSProperties = {
     position: 'fixed',
     zIndex: -1,
-    // pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
+    pointerEvents: isDragging.value ? 'none' : 'auto',
     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
   }
@@ -246,14 +164,28 @@ onMounted(() => {
 <template>
   <div
     id="vite-devtools-dock-panel"
-    ref="frameBox"
+    ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
   >
     <ViewFrameHandlers
+      v-model:is-dragging="isDragging"
       :state
       :entry
+    />
+    <ViewFrame
+      v-if="entry && iframesContainer"
+      :key="entry?.id"
+      :state="state"
       :is-dragging="isDragging"
+      :entry="entry"
+      :iframes="iframes"
+      rounded
+    />
+    <div
+      id="vite-devtools-iframe-container"
+      ref="iframesContainer"
+      class="absolute inset-0"
     />
   </div>
 </template>

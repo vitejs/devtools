@@ -8,6 +8,7 @@ export interface DevToolsDockState {
   position: 'left' | 'right' | 'bottom' | 'top'
   open: boolean
   minimizePanelInactive: number
+  dockEntry?: DevToolsDockEntry
 }
 
 export interface DockProps {

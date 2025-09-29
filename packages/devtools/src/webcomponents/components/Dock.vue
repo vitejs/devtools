@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
@@ -10,11 +11,12 @@ const { state, docks } = toRefs(props)
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
+const PANEL_MARGIN = 5
 const panelMargins = reactive({
-  left: 10,
-  top: 10,
-  right: 10,
-  bottom: 10,
+  left: PANEL_MARGIN,
+  top: PANEL_MARGIN,
+  right: PANEL_MARGIN,
+  bottom: PANEL_MARGIN,
 })
 
 const safeArea = useScreenSafeArea()
@@ -27,15 +29,15 @@ function toNumber(value: string) {
 }
 
 watchEffect(() => {
-  panelMargins.left = toNumber(safeArea.left.value) + 10
-  panelMargins.top = toNumber(safeArea.top.value) + 10
-  panelMargins.right = toNumber(safeArea.right.value) + 10
-  panelMargins.bottom = toNumber(safeArea.bottom.value) + 10
+  panelMargins.left = toNumber(safeArea.left.value) + PANEL_MARGIN
+  panelMargins.top = toNumber(safeArea.top.value) + PANEL_MARGIN
+  panelMargins.right = toNumber(safeArea.right.value) + PANEL_MARGIN
+  panelMargins.bottom = toNumber(safeArea.bottom.value) + PANEL_MARGIN
 })
 
 const SNAP_THRESHOLD = 2
 
-const panelEl = useTemplateRef<HTMLDivElement>('panelEl')
+const dockEl = useTemplateRef<HTMLDivElement>('dockEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
 
 const windowSize = reactive({
@@ -47,10 +49,10 @@ const draggingOffset = reactive({ x: 0, y: 0 })
 const mousePosition = reactive({ x: 0, y: 0 })
 
 function onPointerDown(e: PointerEvent) {
-  if (!panelEl.value)
+  if (!dockEl.value)
     return
   isDragging.value = true
-  const { left, top, width, height } = panelEl.value!.getBoundingClientRect()
+  const { left, top, width, height } = dockEl.value!.getBoundingClientRect()
   draggingOffset.x = e.clientX - left - width / 2
   draggingOffset.y = e.clientY - top - height / 2
 }
@@ -121,6 +123,13 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function toggleDockEntry(entry: DevToolsDockEntry) {
+  if (state.value.dockEntry?.id === entry.id)
+    state.value.dockEntry = undefined
+  else
+    state.value.dockEntry = entry
+}
+
 const recalculateCounter = ref(0)
 const isHovering = ref(false)
 const isVertical = computed(() => state.value.position === 'left' || state.value.position === 'right')
@@ -129,8 +138,8 @@ const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
   recalculateCounter.value
 
-  const halfWidth = (panelEl.value?.clientWidth || 0) / 2
-  const halfHeight = (panelEl.value?.clientHeight || 0) / 2
+  const halfWidth = (dockEl.value?.clientWidth || 0) / 2
+  const halfHeight = (dockEl.value?.clientHeight || 0) / 2
 
   const left = state.value.left * windowSize.width / 100
   const top = state.value.top * windowSize.height / 100
@@ -235,7 +244,7 @@ onMounted(() => {
     />
     <div
       id="vite-devtools-dock-container"
-      ref="panelEl"
+      ref="dockEl"
       :style="panelStyle"
     >
       <div
@@ -247,8 +256,12 @@ onMounted(() => {
             v-for="dock of docks"
             :key="dock.id"
             :title="dock.title"
-            :class="isVertical ? 'rotate-270' : ''"
+            :class="[
+              isVertical ? 'rotate-270' : '',
+              state.dockEntry && state.dockEntry.id !== dock.id ? 'op50 saturate-0' : '',
+            ]"
             class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881]"
+            @click="toggleDockEntry(dock)"
           >
             <img
               :src="dock.icon"
@@ -261,9 +274,12 @@ onMounted(() => {
       </div>
     </div>
 
-    <DockPanel :state="state" :entry="docks[0]" />
-    <!-- <ViewFrame
-      :entry="docks[0]"
-    /> -->
+    <DockPanel
+      v-if="state.dockEntry"
+      :state="state"
+      :dock-el="dockEl"
+      :panel-margins="panelMargins"
+      :entry="state.dockEntry"
+    />
   </div>
 </template>
