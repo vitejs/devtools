@@ -199,8 +199,8 @@ const anchorStyle = computed(() => {
 const panelStyle = computed(() => {
   const style: any = {
     transform: isVertical.value
-      ? `translate(${isMinimized.value ? `calc(-50% ${state.value.position === 'right' ? '+' : '-'} 15px)` : '-50%'}, -50%) rotate(90deg)`
-      : `translate(-50%, ${isMinimized.value ? `calc(-50% ${state.value.position === 'top' ? '-' : '+'} 15px)` : '-50%'})`,
+      ? `translate(-50%, -50%) rotate(90deg)`
+      : `translate(-50%, -50%)`,
   }
   if (isHidden.value) {
     style.opacity = 0
@@ -214,9 +214,6 @@ const panelStyle = computed(() => {
 onMounted(() => {
   bringUp()
   recalculateCounter.value++
-  setTimeout(() => {
-    recalculateCounter.value++
-  }, 1000)
 })
 </script>
 
@@ -237,26 +234,30 @@ onMounted(() => {
       :style="isDragging ? 'opacity: 0.6 !important' : ''"
     />
     <div
-      id="vite-devtools-dock"
+      id="vite-devtools-dock-container"
       ref="panelEl"
       :style="panelStyle"
-      @pointerdown="onPointerDown"
     >
-      <div class="flex items-center w-full h-full justify-center transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
-        <button
-          v-for="dock of docks"
-          :key="dock.id"
-          :title="dock.title"
-          :class="isVertical ? 'rotate-270' : ''"
-          class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881]"
-        >
-          <img
-            :src="dock.icon"
-            :alt="dock.title"
-            class="w-5 h-5 select-none"
-            draggable="false"
+      <div
+        id="vite-devtools-dock"
+        @pointerdown="onPointerDown"
+      >
+        <div class="flex items-center w-full h-full justify-center transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
+          <button
+            v-for="dock of docks"
+            :key="dock.id"
+            :title="dock.title"
+            :class="isVertical ? 'rotate-270' : ''"
+            class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881]"
           >
-        </button>
+            <img
+              :src="dock.icon"
+              :alt="dock.title"
+              class="w-5 h-5 select-none"
+              draggable="false"
+            >
+          </button>
+        </div>
       </div>
     </div>
 
