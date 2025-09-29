@@ -2,202 +2,72 @@
   --un-text-opacity: 100%;
 }
 
-@property --vite-devtools-inspect-border-angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 90deg;
-}
-
-.vite-devtools-inspect-running-border {
-  transition: all 0.5s;
-  filter: blur(10px);
-  --vite-devtools-inspect-border-angle: 0deg;
-  background: conic-gradient(
-      from var(--vite-devtools-inspect-border-angle),
-      #00dc82,
-      #00e6e8,
-      #42e200,
-      #0086e2,
-      #00dc82
-    )
-    border-box;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
-  animation: color-rotate-background 1s linear infinite;
-}
-
-.vite-devtools-inspect-neon {
-  background-image: linear-gradient(
-    90deg,
-    #00dc82,
-    #00e6e8,
-    #42e200,
-    #00dc82,
-    #00e6e8,
-    #42e200,
-    #00dc82,
-    #00e6e8,
-    #42e200
-  );
-  background-size: 400% 400%;
-  background-position: 0 50%;
-}
-
-.vite-devtools-inspect-neon.running {
-  animation: neon-background 3s linear infinite;
-}
-
-@keyframes neon-background {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* NuxtDevToolsBox */
-
 .vite-devtools-frame {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  z-index: 2147483645;
-  -webkit-font-smoothing: antialiased;
+  --uno: w-full h-full fixed z-[2147483645] antialiased;
 }
 
 .vite-devtools-frame iframe {
-  width: 100%;
-  height: 100%;
-  outline: none;
+  --uno: w-full h-full outline-none rounded-xl border border-solid border-gray-300;
   background: var(--vite-devtools-widget-bg);
-  border: 1px solid rgba(125, 125, 125, 0.2);
-  border-radius: 10px;
 }
 
 .vite-devtools-resize-handle-horizontal {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  height: 10px;
-  margin: -5px 0;
-  cursor: ns-resize;
-  border-radius: 5px;
+  --uno: absolute left-[6px] right-[6px] h-[10px] -my-[5px] cursor-ns-resize rounded-md;
 }
 .vite-devtools-resize-handle-vertical {
-  position: absolute;
-  top: 6px;
-  bottom: 0;
-  width: 10px;
-  margin: 0 -5px;
-  cursor: ew-resize;
-  border-radius: 5px;
+  --uno: absolute top-[6px] bottom-0 w-[10px] -mx-[5px] cursor-ew-resize rounded-md;
 }
 .vite-devtools-resize-handle-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  margin: -6px;
-  border-radius: 6px;
+  --uno: absolute w-[14px] h-[14px] -m-[6px] rounded-md;
 }
 .vite-devtools-resize-handle:hover {
-  background: rgba(125, 125, 125, 0.1);
+  --uno: bg-gray-400/10;
 }
 
-/* NuxtDevToolsMainFrame */
-
 #vite-devtools-anchor {
-  width: 0;
-  z-index: 2147483645;
-  position: fixed;
-  transform-origin: center center;
+  --uno: w-0 z-[2147483645] fixed origin-center font-sans text-[15px] box-border;
   transform: translate(-50%, -50%) rotate(0);
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px !important;
-  box-sizing: border-box;
 }
 
 #vite-devtools-anchor * {
-  box-sizing: border-box;
+  --uno: box-border;
 }
 
 #vite-devtools-anchor button {
-  border: none;
-  background: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  outline: none;
-  color: inherit;
+  --uno: border-none bg-none p-0 m-0 cursor-pointer outline-none text-inherit;
 }
 
 #vite-devtools-anchor .vite-devtools-label {
-  padding: 0 7px 0 8px;
-  font-size: 0.8em;
-  line-height: 1em;
-  display: flex;
-  gap: 3px;
-  justify-items: center;
-  align-items: center;
+  --uno: px-[7px] pl-[8px] text-[0.8em] leading-[1em] flex gap-[3px] justify-items-center items-center;
 }
 
 #vite-devtools-anchor .vite-devtools-label .vite-devtools-label-main {
-  opacity: 0.8;
-  white-space: nowrap;
+  --uno: opacity-80 whitespace-nowrap;
 }
 
 #vite-devtools-anchor .vite-devtools-label .vite-devtools-label-secondary {
-  font-size: 0.8em;
-  line-height: 0.6em;
-  opacity: 0.5;
-  white-space: nowrap;
+  --uno: text-[0.8em] leading-[0.6em] opacity-50 whitespace-nowrap;
 }
 
 #vite-devtools-anchor .vite-devtools-nuxt-button {
-  flex: none;
+  --uno: flex-none;
 }
 
 #vite-devtools-anchor.vite-devtools-vertical .vite-devtools-nuxt-button {
-  transform: rotate(-90deg);
+  --uno: rotate-[90deg];
 }
 
 #vite-devtools-anchor.vite-devtools-vertical .vite-devtools-label {
-  transform: rotate(-90deg);
-  flex-direction: column;
-  gap: 2px;
-  padding: 0 10px;
+  --uno: rotate-[90deg] flex-col gap-[2px] px-[10px];
 }
 
 #vite-devtools-anchor .vite-devtools-panel {
-  position: absolute;
-  left: 0;
-  top: 0;
+  --uno: absolute left-0 top-0 flex justify-start overflow-hidden items-center gap-[2px] h-[50px] min-w-[100px] pl-[2.5px] px-[2px] py-[2px] rounded-full shadow-[2px_2px_8px_var(--vite-devtools-widget-shadow)] select-none touch-none;
   transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: flex-start;
-  overflow: hidden;
-  align-items: center;
-  gap: 2px;
-  height: 50px;
-  min-width: 100px;
-  padding: 2px 2px 2px 2.5px;
   border: 1px solid var(--vite-devtools-widget-border);
-  border-radius: 100px;
   background-color: var(--vite-devtools-widget-bg);
   backdrop-filter: blur(10px);
   color: var(--vite-devtools-widget-fg);
-  box-shadow: 2px 2px 8px var(--vite-devtools-widget-shadow);
-  user-select: none;
-  touch-action: none;
   transition:
     all 0.6s ease,
     max-width 0.6s ease,
@@ -207,61 +77,41 @@
 }
 
 #vite-devtools-anchor.vite-devtools-minimized .vite-devtools-panel {
-  width: 52px;
-  height: 8px;
-  padding: 2px 0;
+  --uno: w-[52px] h-[8px] px-0 py-[2px];
 }
 
 #vite-devtools-anchor.vite-devtools-vertical .vite-devtools-panel {
   transform: translate(-50%, -50%) rotate(90deg);
-  box-shadow: 2px -2px 8px var(--vite-devtools-widget-shadow);
+  --uno: shadow-[2px_-2px_8px_var(--vite-devtools-widget-shadow)];
 }
 
 #vite-devtools-anchor .vite-devtools-panel-content {
-  transition: opacity 0.4s ease;
+  --uno: transition-opacity duration-[400ms] ease-out;
 }
 
 #vite-devtools-anchor.vite-devtools-minimized .vite-devtools-panel-content {
-  opacity: 0;
+  --uno: opacity-0;
 }
 
 #vite-devtools-anchor .vite-devtools-icon-button {
-  border-radius: 100%;
-  border-width: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0.8;
-  transition: opacity 0.2s ease-in-out;
+  --uno: rounded-full border-0 w-[30px] h-[30px] flex justify-center items-center opacity-80 transition-opacity duration-[200ms] ease-in-out;
 }
 #vite-devtools-anchor .vite-devtools-icon-button:hover {
-  opacity: 1;
+  --uno: opacity-100;
 }
 
 #vite-devtools-anchor:hover .vite-devtools-glowing {
-  opacity: 0.6;
+  --uno: opacity-60;
 }
 
 #vite-devtools-anchor .vite-devtools-glowing {
-  position: absolute;
-  left: 0;
-  top: 0;
+  --uno: absolute left-0 top-0 w-[160px] h-[160px] opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full blur-[60px];
   transform: translate(-50%, -50%);
-  width: 160px;
-  height: 160px;
-  opacity: 0;
-  transition: all 1s ease;
-  pointer-events: none;
-  z-index: -1;
-  border-radius: 9999px;
   background-image: linear-gradient(45deg, #00dc82, #00dc82, #00dc82);
-  filter: blur(60px);
 }
 
 @media print {
   #vite-devtools-anchor {
-    display: none;
+    --uno: hidden;
   }
 }

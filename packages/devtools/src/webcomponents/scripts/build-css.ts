@@ -6,6 +6,7 @@ import c from 'ansis'
 import chokidar from 'chokidar'
 import { resolveModulePath } from 'exsolve'
 import { transform } from 'lightningcss'
+import MagicString from 'magic-string'
 import { glob } from 'tinyglobby'
 import { createGenerator } from 'unocss'
 import config from '../uno.config'
@@ -33,12 +34,18 @@ export async function buildCSS() {
   }
 
   // Read user style
-  const userStyle = await fs.readFile(USER_STYLE, 'utf-8').catch(() => '')
+  const userStyle = new MagicString(await fs.readFile(USER_STYLE, 'utf-8').catch(() => ''))
+
+  for (const transformer of generater.config.transformers) {
+    await transformer.transform(userStyle, USER_STYLE, {
+      uno: generater,
+    } as any)
+  }
 
   const unoResult = await generater.generate(tokens)
   const input = [
     reset,
-    userStyle,
+    userStyle.toString(),
     unoResult.css,
   ].join('\n')
 

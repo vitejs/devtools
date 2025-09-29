@@ -18,10 +18,10 @@ html, body , #__nuxt{
 }
 
 html {
-  --at-apply: bg-base font-sans;
+  --uno: bg-base font-sans;
 }
 body {
-  --at-apply: color-base;
+  --uno: color-base;
 }
 
 summary::-webkit-details-marker {
@@ -55,12 +55,12 @@ summary::-webkit-details-marker {
 /* Overrides Floating Vue */
 .v-popper--theme-dropdown .v-popper__inner,
 .v-popper--theme-tooltip .v-popper__inner {
-  --at-apply: bg-tooltip color-base font-sans rounded border border-base shadow dark:shadow-2xl;
+  --uno: bg-tooltip color-base font-sans rounded border border-base shadow dark:shadow-2xl;
   box-shadow: 0 6px 30px #0000001a;
 }
 
 .v-popper--theme-tooltip .v-popper__inner {
-  --at-apply: text-sm;
+  --uno: text-sm;
 }
 
 .v-popper--theme-dropdown .v-popper__inner {
@@ -72,12 +72,12 @@ summary::-webkit-details-marker {
 .v-popper--theme-tooltip .v-popper__arrow-inner,
 .v-popper--theme-dropdown .v-popper__arrow-inner {
   visibility: visible;
-  --at-apply: border-solid border-white dark:border-#111;
+  --uno: border-solid border-white dark:border-#111;
 }
 
 .v-popper--theme-tooltip .v-popper__arrow-outer,
 .v-popper--theme-dropdown .v-popper__arrow-outer {
-  --at-apply: border-solid border-base;
+  --uno: border-solid border-base;
 }
 
 .v-popper--theme-tooltip.v-popper--shown,

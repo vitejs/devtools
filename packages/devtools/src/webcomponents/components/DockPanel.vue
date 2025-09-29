@@ -262,6 +262,7 @@ onMounted(() => {
   >
     <ViewFrameHandlers
       :state
+      :entry
       :is-dragging="isDragging"
     />
   </div>

@@ -151,15 +151,15 @@ function onUpdate(size: number) {
 
 <style lang="postcss">
 .diff-added {
-  --at-apply: bg-green-400/15;
+  --uno: bg-green-400/15;
 }
 .diff-removed {
-  --at-apply: bg-red-400/15;
+  --uno: bg-red-400/15;
 }
 .diff-added-inline {
-  --at-apply: bg-green-400/30;
+  --uno: bg-green-400/30;
 }
 .diff-removed-inline {
-  --at-apply: bg-red-400/30;
+  --uno: bg-red-400/30;
 }
 </style>

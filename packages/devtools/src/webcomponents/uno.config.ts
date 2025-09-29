@@ -2,6 +2,7 @@ import {
   defineConfig,
   presetIcons,
   presetWind3,
+  transformerDirectives,
 } from 'unocss'
 
 export default defineConfig({
@@ -14,6 +15,9 @@ export default defineConfig({
       'ring-base': 'ring-#8882',
     },
     [/^bg-glass(:\d+)?$/, ([, opacity = ':75']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
+  ],
+  transformers: [
+    transformerDirectives(),
   ],
   presets: [
     presetWind3({

@@ -9,6 +9,7 @@ const props = defineProps<{
 <template>
   <div>
     <!-- TODO: -->
+    Hello
     <slot />
   </div>
 </template>
