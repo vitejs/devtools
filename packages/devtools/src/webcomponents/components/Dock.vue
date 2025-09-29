@@ -2,11 +2,7 @@
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
-import ViewFrame from './ViewFrame.vue'
-// import FrameBox from './NuxtDevToolsFrameBox.vue'
-
-// const props = defineProps<{
-// }>()
+import DockPanel from './DockPanel.vue'
 
 const props = defineProps<DockProps>()
 
@@ -29,17 +25,6 @@ function toNumber(value: string) {
     return 0
   return num
 }
-
-const vars = computed(() => {
-  const isDark = true // TODO
-  // const dark = props.client.app.colorMode.value === 'dark'
-  return {
-    '--vite-devtools-widget-bg': isDark ? '#111' : '#ffffff',
-    '--vite-devtools-widget-fg': isDark ? '#F5F5F5' : '#111',
-    '--vite-devtools-widget-border': isDark ? '#3336' : '#efefef',
-    '--vite-devtools-widget-shadow': isDark ? 'rgba(0,0,0,0.3)' : 'rgba(128,128,128,0.1)',
-  }
-})
 
 watchEffect(() => {
   panelMargins.left = toNumber(safeArea.left.value) + 10
@@ -136,10 +121,14 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+const recalculateCounter = ref(0)
 const isHovering = ref(false)
 const isVertical = computed(() => state.value.position === 'left' || state.value.position === 'right')
 
 const anchorPos = computed(() => {
+  // eslint-disable-next-line ts/no-unused-expressions
+  recalculateCounter.value
+
   const halfWidth = (panelEl.value?.clientWidth || 0) / 2
   const halfHeight = (panelEl.value?.clientHeight || 0) / 2
 
@@ -222,86 +211,12 @@ const panelStyle = computed(() => {
   return style
 })
 
-// const { width: frameWidth, height: frameHeight } = useElementBounding(frameBox)
-
-// const popupWindow = ref<Window | null>(null)
-
-// const iframeStyle = computed(() => {
-//   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
-//   mousePosition.x, mousePosition.y
-
-//   const halfHeight = (panelEl.value?.clientHeight || 0) / 2
-
-//   const frameMargin = {
-//     left: panelMargins.left + halfHeight,
-//     top: panelMargins.top + halfHeight,
-//     right: panelMargins.right + halfHeight,
-//     bottom: panelMargins.bottom + halfHeight,
-//   }
-
-//   const marginHorizontal = frameMargin.left + frameMargin.right
-//   const marginVertical = frameMargin.top + frameMargin.bottom
-
-//   const maxWidth = windowSize.width - marginHorizontal
-//   const maxHeight = windowSize.height - marginVertical
-
-//   const style: CSSProperties = {
-//     position: 'fixed',
-//     zIndex: -1,
-//     pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
-//     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
-//     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
-//   }
-
-//   const anchor = anchorPos.value
-//   const width = Math.min(maxWidth, state.value.width * windowSize.width / 100)
-//   const height = Math.min(maxHeight, state.value.height * windowSize.height / 100)
-
-//   const anchorX = anchor?.left || 0
-//   const anchorY = anchor?.top || 0
-
-//   switch (state.value.position) {
-//     case 'top':
-//     case 'bottom':
-//       style.left = `${-frameWidth.value / 2}px`
-//       style.transform = 'translate(0, 0)'
-//       if ((anchorX - frameMargin.left) < width / 2)
-//         style.left = `${width / 2 - anchorX + frameMargin.left - frameWidth.value / 2}px`
-//       else if ((windowSize.width - anchorX - frameMargin.right) < width / 2)
-//         style.left = `${windowSize.width - anchorX - width / 2 - frameMargin.right - frameWidth.value / 2}px`
-//       break
-//     case 'right':
-//     case 'left':
-//       style.top = `${-frameHeight.value / 2}px`
-//       style.transform = 'translate(0, 0)'
-//       if ((anchorY - frameMargin.top) < height / 2)
-//         style.top = `${height / 2 - anchorY + frameMargin.top - frameHeight.value / 2}px`
-//       else if ((windowSize.height - anchorY - frameMargin.bottom) < height / 2)
-//         style.top = `${windowSize.height - anchorY - height / 2 - frameMargin.bottom - frameHeight.value / 2}px`
-//       break
-//   }
-
-//   switch (state.value.position) {
-//     case 'top':
-//       style.top = 0
-//       break
-//     case 'right':
-//       style.right = 0
-//       break
-//     case 'left':
-//       style.left = 0
-//       break
-//     case 'bottom':
-//     default:
-//       style.bottom = 0
-//       break
-//   }
-
-//   return style
-// })
-
 onMounted(() => {
   bringUp()
+  recalculateCounter.value++
+  setTimeout(() => {
+    recalculateCounter.value++
+  }, 1000)
 })
 </script>
 
@@ -309,7 +224,7 @@ onMounted(() => {
   <div
     id="vite-devtools-anchor"
     ref="anchorEl"
-    :style="[anchorStyle, vars]"
+    :style="[anchorStyle]"
     :class="{
       'vite-devtools-vertical': isVertical,
       'vite-devtools-minimized': isMinimized,
@@ -318,30 +233,36 @@ onMounted(() => {
   >
     <div
       v-if="!isSafari"
-      class="vite-devtools-glowing"
+      id="vite-devtools-glowing"
       :style="isDragging ? 'opacity: 0.6 !important' : ''"
     />
     <div
+      id="vite-devtools-dock"
       ref="panelEl"
-      class="vite-devtools-panel"
       :style="panelStyle"
       @pointerdown="onPointerDown"
     >
-      <div class="flex items-center w-full h-full justify-center px2 gap-2 transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
+      <div class="flex items-center w-full h-full justify-center transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
         <button
-          v-for="dock in docks"
+          v-for="dock of docks"
           :key="dock.id"
           :title="dock.title"
           :class="isVertical ? 'rotate-270' : ''"
-          class="flex items-center justify-center p1 rounded-full hover:bg-[#8881]"
+          class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881]"
         >
-          <img :src="dock.icon" :alt="dock.title" class="w-6 h-6 select-none" draggable="false">
+          <img
+            :src="dock.icon"
+            :alt="dock.title"
+            class="w-5 h-5 select-none"
+            draggable="false"
+          >
         </button>
       </div>
     </div>
 
-    <ViewFrame
+    <DockPanel :state="state" :entry="docks[0]" />
+    <!-- <ViewFrame
       :entry="docks[0]"
-    />
+    /> -->
   </div>
 </template>

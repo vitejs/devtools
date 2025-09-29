@@ -35,10 +35,10 @@ export async function init(): Promise<void> {
   console.log('[VITE DEVTOOLS] Docks', docks)
 
   const state = useLocalStorage(
-    'vite-devtools-panel-state',
+    'vite-devtools-dock-state',
     {
-      width: 0,
-      height: 0,
+      width: 80,
+      height: 80,
       top: 0,
       left: 0,
       position: 'left',

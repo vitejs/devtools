@@ -15,7 +15,7 @@ export default defineConfig({
     {
       name: 'build-css',
       handleHotUpdate({ file }) {
-        if (file.endsWith('.vue')) {
+        if (file.endsWith('.vue') || file.endsWith('.css')) {
           buildCSS().catch(console.error)
         }
       },

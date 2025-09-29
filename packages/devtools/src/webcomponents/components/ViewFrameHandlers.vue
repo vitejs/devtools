@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockState } from './DockProps'
 import { toRefs, useEventListener } from '@vueuse/core'
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
   isDragging: boolean
@@ -11,34 +11,12 @@ const props = defineProps<{
 const PANEL_MIN = 20
 const PANEL_MAX = 100
 
-const popupWindow = defineModel<Window | null>('popupWindow')
-
 const {
   state,
 } = toRefs(props)
 
 const container = ref<HTMLElement>()
 const isResizing = ref<false | { top?: boolean, left?: boolean, right?: boolean, bottom?: boolean }>(false)
-
-watchEffect(() => {
-  if (!container.value)
-    return
-
-  if (state.value.open) {
-    const iframe = props.client.getIframe()
-    if (!iframe)
-      return
-
-    iframe.style.pointerEvents = (isResizing.value || props.isDragging)
-      ? 'none'
-      : 'auto'
-
-    if (!popupWindow.value) {
-      if (Array.from(container.value.children).every(el => el !== iframe))
-        container.value.appendChild(iframe)
-    }
-  }
-})
 
 // Close panel on outside click (when enabled)
 // useEventListener(window, 'mousedown', (e: MouseEvent) => {
@@ -60,14 +38,12 @@ watchEffect(() => {
 // })
 
 function handleResize(e: MouseEvent | TouchEvent) {
-  if (!isResizing.value || !state.value.open)
+  if (!isResizing.value)
     return
 
-  const iframe = props.client.getIframe()
-  if (!iframe)
+  const box = container.value?.getBoundingClientRect()
+  if (!box)
     return
-
-  const box = iframe.getBoundingClientRect()
 
   let widthPx: number, heightPx: number
   if (isResizing.value.right) {
@@ -98,9 +74,8 @@ useEventListener(window, 'mouseleave', () => isResizing.value = false)
 
 <template>
   <div
-    v-show="state.open"
     ref="container"
-    class="vite-devtools-frame"
+    class="vite-devtools-resize-container"
   >
     <!-- Handlers -->
     <div

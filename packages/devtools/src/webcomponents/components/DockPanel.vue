@@ -30,17 +30,6 @@ function toNumber(value: string) {
   return num
 }
 
-const vars = computed(() => {
-  const isDark = true // TODO
-  // const dark = props.client.app.colorMode.value === 'dark'
-  return {
-    '--vite-devtools-widget-bg': isDark ? '#111' : '#ffffff',
-    '--vite-devtools-widget-fg': isDark ? '#F5F5F5' : '#111',
-    '--vite-devtools-widget-border': isDark ? '#3336' : '#efefef',
-    '--vite-devtools-widget-shadow': isDark ? 'rgba(0,0,0,0.3)' : 'rgba(128,128,128,0.1)',
-  }
-})
-
 watchEffect(() => {
   panelMargins.left = toNumber(safeArea.left.value) + 10
   panelMargins.top = toNumber(safeArea.top.value) + 10
@@ -128,7 +117,6 @@ function clamp(value: number, min: number, max: number) {
 }
 
 const isHovering = ref(false)
-const isVertical = computed(() => state.value.position === 'left' || state.value.position === 'right')
 
 const anchorPos = computed(() => {
   const halfWidth = (panelEl.value?.clientWidth || 0) / 2
@@ -198,7 +186,7 @@ const iframeStyle = computed(() => {
   const style: CSSProperties = {
     position: 'fixed',
     zIndex: -1,
-    pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
+    // pointerEvents: (isDragging.value || !state.value.open) ? 'none' : 'auto',
     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
   }
@@ -257,7 +245,9 @@ onMounted(() => {
 
 <template>
   <div
+    id="vite-devtools-dock-panel"
     ref="frameBox"
+    class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
   >
     <ViewFrameHandlers
