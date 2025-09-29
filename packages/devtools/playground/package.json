@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "VITE_DEVTOOLS_LOCAL_DEV=true vite",
     "build": "vite build && vite-devtools"
   }
 }

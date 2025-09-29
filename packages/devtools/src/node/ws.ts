@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsSetupContext } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
-import type { RpcFunctionsHost } from './functions'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
@@ -13,11 +12,10 @@ export interface CreateWsServerOptions {
   port?: number
   base?: string
   context: DevToolsSetupContext
-  functions: RpcFunctionsHost
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
-  const rpcHost = options.functions
+  const rpcHost = options.context.rpc
   const port = options.port ?? await getPort({ port: 7812, random: true })
 
   const wsClients = new Set<WebSocket>()

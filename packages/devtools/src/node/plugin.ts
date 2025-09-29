@@ -1,5 +1,6 @@
 import type { Plugin } from 'vite'
 import { join } from 'node:path'
+import process from 'node:process'
 import { normalizePath } from 'vite'
 import { distDir } from '../dirs'
 import { createDevToolsContext } from './context'
@@ -18,12 +19,13 @@ export function DevTools(): Plugin {
       const { middleware } = await createDevToolsMiddleware({
         cwd: vite.config.root,
         context,
-        functions: context.rpc,
       })
       vite.middlewares.use('/__vite_devtools__', middleware)
     },
     transformIndexHtml() {
-      const fileUrl = normalizePath(join(distDir, 'client-inject.js'))
+      const fileUrl = process.env.VITE_DEVTOOLS_LOCAL_DEV
+        ? normalizePath(join(distDir, '..', 'src', 'client-inject', 'index.ts'))
+        : normalizePath(join(distDir, 'client-inject.js'))
       return [
         {
           tag: 'script',

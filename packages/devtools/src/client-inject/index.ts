@@ -48,7 +48,9 @@ export async function init(): Promise<void> {
     { mergeDefaults: true },
   )
 
-  const { Dock } = await import('@vitejs/devtools/webcomponents')
+  const { Dock } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
+    ? await import('../webcomponents')
+    : await import('@vitejs/devtools/webcomponents')
   const dockEl = new Dock({
     state,
     docks,

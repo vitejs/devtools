@@ -2,6 +2,11 @@ import { defineConfig } from 'tsdown'
 import Vue from 'unplugin-vue/rolldown'
 import { buildCSS } from './src/webcomponents/scripts/build-css'
 
+const define = {
+  'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
+  'process.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
+}
+
 export default defineConfig([
   {
     entry: {
@@ -24,6 +29,7 @@ export default defineConfig([
         await buildCSS()
       },
     },
+    define,
   },
   {
     entry: {
@@ -39,5 +45,6 @@ export default defineConfig([
         resolveNewUrlToAsset: false,
       },
     },
+    define,
   },
 ])
