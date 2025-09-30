@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "dev": "tsdown --watch",
+    "watch": "tsdown --watch",
     "prepack": "pnpm build"
   },
   "peerDependenciesMeta": {

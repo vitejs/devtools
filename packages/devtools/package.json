@@ -40,7 +40,7 @@
     "build": "pnpm build:js && pnpm build:standalone",
     "build:js": "tsdown --config-loader=tsx",
     "build:standalone": "cd src/client/standalone && vite build",
-    "dev": "tsdown --watch --config-loader=tsx",
+    "watch": "tsdown --watch --config-loader=tsx",
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "pnpm -C playground run dev",
@@ -53,6 +53,10 @@
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
     "cac": "catalog:deps",
+    "launch-editor": "catalog:deps",
+    "open": "catalog:deps",
+    "pathe": "catalog:deps",
+    "sirv": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {
