@@ -23,6 +23,8 @@ export interface ClientSettings {
   pluginDetailSelectedHook: string
   chunkViewType: 'list' | 'graph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
+  packageViewType: 'table' | 'duplicate-packages'
+  packageSizeSortType: string
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -48,6 +50,8 @@ export const settings = useLocalStorage<ClientSettings>(
     pluginDetailSelectedHook: '',
     chunkViewType: 'list',
     pluginDetailsShowType: 'all',
+    packageViewType: 'table',
+    packageSizeSortType: '',
   },
   {
     mergeDefaults: true,

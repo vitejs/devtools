@@ -9,6 +9,7 @@ import { rolldownGetChunksGraph } from './functions/rolldown-get-chunks-graph'
 import { rolldownGetModuleInfo } from './functions/rolldown-get-module-info'
 import { rolldownGetModuleRawEvents } from './functions/rolldown-get-module-raw-events'
 import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-transforms'
+import { rolldownGetPackages } from './functions/rolldown-get-packages'
 import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
 import { rolldownGetRawEvents } from './functions/rolldown-get-raw-events'
 import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
@@ -31,6 +32,7 @@ export const rpcFunctions = [
   rolldownGetPluginDetails,
   rolldownGetSessionCompareSummary,
   rolldownGetChunkInfo,
+  rolldownGetPackages,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
