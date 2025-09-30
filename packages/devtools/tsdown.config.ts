@@ -24,11 +24,6 @@ export default defineConfig({
   clean: true,
   platform: 'neutral',
   tsconfig: '../../tsconfig.pkgs.json',
-  hooks: {
-    'build:before': async function () {
-      await buildCSS()
-    },
-  },
   entry: {
     'index': 'src/index.ts',
     'dirs': 'src/dirs.ts',
@@ -43,4 +38,9 @@ export default defineConfig({
     },
   },
   define,
+  hooks: {
+    'build:before': async function () {
+      await buildCSS()
+    },
+  },
 })

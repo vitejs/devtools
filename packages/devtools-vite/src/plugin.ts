@@ -1,4 +1,5 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import { rpcFunctions } from './node/rpc/index'
 
 export function DevToolsViteUI(): PluginWithDevTools {
   return {
@@ -14,6 +15,10 @@ export function DevToolsViteUI(): PluginWithDevTools {
           type: 'iframe',
           url: 'https://antfu.me',
         })
+
+        for (const fn of rpcFunctions) {
+          ctx.rpc.register(fn)
+        }
       },
     },
   }

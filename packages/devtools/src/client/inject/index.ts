@@ -1,31 +1,14 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
-import { createRpcClient } from '@vitejs/devtools-rpc'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { getDevToolsRpc } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] Client injected')
 
-function isNumeric(str: string | number) {
-  return `${+str}` === `${str}`
-}
-
 export async function init(): Promise<void> {
-  const metadata = await fetch('/__vite_devtools__/api/metadata.json')
-    .then(r => r.json()) as ConnectionMeta
-
-  const url = isNumeric(metadata.websocket)
-    ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}`
-    : metadata.websocket as string
-
-  const rpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({}, {
-    preset: createWsRpcPreset({
-      url,
-    }),
-  })
+  const rpc = await getDevToolsRpc()
 
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
@@ -33,6 +16,10 @@ export async function init(): Promise<void> {
   const docks = await rpc['vite:core:list-dock-entries']()
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Docks', docks)
+
+  const rpcFunctions = await rpc['vite:core:list-rpc-functions']()
+  // eslint-disable-next-line no-console
+  console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 
   const state = useLocalStorage(
     'vite-devtools-dock-state',

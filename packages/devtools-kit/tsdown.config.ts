@@ -1,11 +1,12 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: [
-    'src/index.ts',
-  ],
+  entry: {
+    index: 'src/index.ts',
+    client: 'src/client/index.ts',
+  },
+  exports: true,
   clean: true,
   tsconfig: '../../tsconfig.pkgs.json',
-  fixedExtension: true,
   dts: true,
 })

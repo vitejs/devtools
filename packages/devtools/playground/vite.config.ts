@@ -1,7 +1,7 @@
 import process from 'node:process'
-import { DevToolsViteUI } from '@vitejs/devtools-vite'
 import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import { DevToolsViteUI } from '../../devtools-vite/src/plugin'
 import { DevTools } from '../src'
 import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 

@@ -37,7 +37,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown --config-loader=tsx",
+    "build": "pnpm build:js && pnpm build:standalone",
+    "build:js": "tsdown --config-loader=tsx",
+    "build:standalone": "cd src/client/standalone && vite build",
     "dev": "tsdown --watch --config-loader=tsx",
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
