@@ -1,4 +1,4 @@
-import type { RpcContext, RpcFunctionDefinition, RpcFunctionType } from '../types'
+import type { DevToolsNodeContext, RpcFunctionDefinition, RpcFunctionType } from '../types'
 
 export function defineRpcFunction<
   NAME extends string,
@@ -18,7 +18,7 @@ export async function getRpcHandler<
   RETURN = void,
 >(
   definition: RpcFunctionDefinition<NAME, TYPE, ARGS, RETURN>,
-  context: RpcContext,
+  context: DevToolsNodeContext,
 ): Promise<(...args: ARGS) => RETURN> {
   if (definition.handler) {
     return definition.handler

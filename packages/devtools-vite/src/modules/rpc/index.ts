@@ -8,7 +8,7 @@ export default defineNuxtModule({
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
     addServerHandler({
-      route: '/api/metadata.json',
+      route: '/api/connection.json',
       method: 'get',
       handler: resolver.resolve('./runtime/server/metadata.ts'),
       env: 'dev',

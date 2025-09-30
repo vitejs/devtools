@@ -1,5 +1,8 @@
 import type { DevToolsRpcServerFunctions } from './rpc-augments'
 import type { EntriesToObject, Thenable } from './utils'
+import type { DevToolsNodeContext } from './vite-plugin'
+
+export type { BirpcFn, BirpcReturn } from 'birpc'
 
 /**
  * Type of the RPC function,
@@ -10,6 +13,7 @@ import type { EntriesToObject, Thenable } from './utils'
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
 export interface RpcFunctionsHost {
+  context: DevToolsNodeContext
   readonly functions: DevToolsRpcServerFunctions
   readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
   register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
@@ -32,17 +36,10 @@ export interface RpcFunctionDefinition<
 > {
   name: NAME
   type: TYPE
-  setup: (context: RpcContext) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
+  setup: (context: DevToolsNodeContext) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
   handler?: (...args: ARGS) => RETURN
   __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
   __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
-}
-
-export interface RpcContext {
-  cwd: string
-  mode: 'dev' | 'build'
-  functions: RpcFunctionsHost
-  meta?: any
 }
 
 export type RpcDefinitionsToFunctions<T extends readonly RpcFunctionDefinition<any, any, any>[]> = EntriesToObject<{

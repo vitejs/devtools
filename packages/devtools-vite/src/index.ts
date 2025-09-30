@@ -1,2 +1,2 @@
 export * from './node/index'
-export * from './plugin'
+export * from './node/plugin'

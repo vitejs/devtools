@@ -19,13 +19,15 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs",
-    "./presets": "./dist/presets/index.mjs",
-    "./presets/ws/client": "./dist/presets/ws/client.mjs",
-    "./presets/ws/server": "./dist/presets/ws/server.mjs"
+    ".": "./dist/index.js",
+    "./presets": "./dist/presets/index.js",
+    "./presets/ws/client": "./dist/presets/ws/client.js",
+    "./presets/ws/server": "./dist/presets/ws/server.js",
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],

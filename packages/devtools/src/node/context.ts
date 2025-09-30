@@ -1,49 +1,31 @@
-import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
-import type { ResolvedConfig } from 'vite'
-import { RpcFunctionsHost } from './functions'
-import { DevToolsViewHost } from './views'
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { DevToolsDockHost } from './host-docks'
+import { RpcFunctionsHost } from './host-functions'
+import { builtinRpcFunctions } from './rpc'
 
-export async function createDevToolsContext(viteConfig: ResolvedConfig): Promise<DevToolsSetupContext> {
+export async function createDevToolsContext(
+  viteConfig: ResolvedConfig,
+  viteServer?: ViteDevServer,
+): Promise<DevToolsNodeContext> {
   const cwd = viteConfig.root
 
-  const rpcHost = new RpcFunctionsHost({
-    cwd,
-    mode: viteConfig.command === 'serve' ? 'dev' : 'build',
-    meta: {},
-  })
-  const viewsHost = new DevToolsViewHost()
-  const context: DevToolsSetupContext = {
+  const rpcHost = new RpcFunctionsHost()
+  const docksHost = new DevToolsDockHost()
+  const context: DevToolsNodeContext = {
     cwd,
     viteConfig,
+    viteServer,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     rpc: rpcHost,
-    docks: viewsHost,
+    docks: docksHost,
   }
+  rpcHost.context = context
 
   // Build-in function to list all RPC functions
-  rpcHost.register({
-    name: 'vite:core:list-rpc-functions',
-    type: 'query',
-    setup: () => {
-      return {
-        handler: () => Object.fromEntries(
-          Array.from(rpcHost.definitions.entries())
-            .map(([name, fn]) => [name, {
-              type: fn.type,
-            }]),
-        ),
-      }
-    },
-  })
-  rpcHost.register({
-    name: 'vite:core:list-dock-entries',
-    type: 'query',
-    setup: () => {
-      return {
-        handler: () => Array.from(viewsHost.views.values()),
-      }
-    },
-  })
+  for (const fn of builtinRpcFunctions) {
+    rpcHost.register(fn)
+  }
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)

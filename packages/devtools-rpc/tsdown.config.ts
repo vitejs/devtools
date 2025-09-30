@@ -1,21 +1,14 @@
 import { defineConfig } from 'tsdown'
 
-export default defineConfig([
-  {
-    entry: [
-      'src/index.ts',
-    ],
-    tsconfig: '../../tsconfig.pkgs.json',
-    clean: true,
-    fixedExtension: true,
-    dts: true,
+export default defineConfig({
+  entry: {
+    'index': 'src/index.ts',
+    'presets/ws/client': 'src/presets/ws/client.ts',
+    'presets/ws/server': 'src/presets/ws/server.ts',
+    'presets/index': 'src/presets/index.ts',
   },
-  {
-    entry: ['src/presets/ws/client.ts', 'src/presets/ws/server.ts', 'src/presets/index.ts'],
-    tsconfig: '../../tsconfig.pkgs.json',
-    clean: true,
-    fixedExtension: true,
-    outDir: 'dist/presets',
-    dts: true,
-  },
-])
+  tsconfig: '../../tsconfig.pkgs.json',
+  clean: true,
+  dts: true,
+  exports: true,
+})

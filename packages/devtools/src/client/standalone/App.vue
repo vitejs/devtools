@@ -1,30 +1,13 @@
 <script setup lang="ts">
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { DevToolsDockState } from '../webcomponents/components/DockProps'
-import { createRpcClient } from '@vitejs/devtools-rpc'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
 import Dock from '../webcomponents/components/Dock.vue'
 import { IframeManager } from '../webcomponents/components/IframeManager'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 
-function isNumber(str: string | number) {
-  return `${+str}` === `${str}`
-}
-
-const metadata = await fetch('/__vite_devtools__/api/metadata.json')
-  .then(r => r.json()) as ConnectionMeta
-
-const url = isNumber(metadata.websocket)
-  ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}`
-  : metadata.websocket as string
-
-const rpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({}, {
-  preset: createWsRpcPreset({
-    url,
-  }),
-})
+const { rpc } = await getDevToolsRpcClient()
 
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)

@@ -1,5 +1,6 @@
 export interface DevToolsDockHost {
   register: (entry: DevToolsDockEntry) => void
+  values: () => DevToolsDockEntry[]
 }
 
 export interface DevToolsDockEntryBase {

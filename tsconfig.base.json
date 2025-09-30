@@ -13,6 +13,7 @@
       "@vitejs/devtools": ["./packages/devtools/src/index.ts"]
     },
     "resolveJsonModule": true,
+    "strict": true,
     "noEmit": true,
     "isolatedDeclarations": false,
     "skipLibCheck": true

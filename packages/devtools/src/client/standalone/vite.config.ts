@@ -29,13 +29,13 @@ export default defineConfig({
     },
     {
       name: 'setup',
-      async configureServer(vite) {
-        const context = await createDevToolsContext(vite.config)
+      async configureServer(viteDevServer) {
+        const context = await createDevToolsContext(viteDevServer.config, viteDevServer)
         const { middleware } = await createDevToolsMiddleware({
-          cwd: vite.config.root,
+          cwd: viteDevServer.config.root,
           context,
         })
-        vite.middlewares.use('/__vite_devtools__', middleware)
+        viteDevServer.middlewares.use('/__vite_devtools__', middleware)
       },
     },
   ],

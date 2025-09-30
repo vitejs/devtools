@@ -1,4 +1,4 @@
-import type { DevToolsSetupContext } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig } from 'vite'
 import process from 'node:process'
 import { loadConfigFromFile, resolveConfig } from 'vite'
@@ -11,7 +11,7 @@ export interface StandaloneDevToolsOptions {
 
 export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
   config: ResolvedConfig
-  context: DevToolsSetupContext
+  context: DevToolsNodeContext
 }> {
   const {
     cwd = process.cwd(),

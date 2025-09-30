@@ -6,6 +6,7 @@ import { distDir } from '../dirs'
 import { createDevToolsContext } from './context'
 import { createDevToolsMiddleware } from './server'
 import '@vitejs/devtools-kit'
+import './rpc'
 
 /**
  * Core plugin for enabling Vite DevTools
@@ -14,13 +15,13 @@ export function DevTools(): Plugin {
   return {
     name: 'vite:devtools',
     enforce: 'post',
-    async configureServer(vite) {
-      const context = await createDevToolsContext(vite.config)
+    async configureServer(viteDevServer) {
+      const context = await createDevToolsContext(viteDevServer.config, viteDevServer)
       const { middleware } = await createDevToolsMiddleware({
-        cwd: vite.config.root,
+        cwd: viteDevServer.config.root,
         context,
       })
-      vite.middlewares.use('/__vite_devtools__', middleware)
+      viteDevServer.middlewares.use('/__vite_devtools__', middleware)
     },
     transformIndexHtml() {
       const fileUrl = process.env.VITE_DEVTOOLS_LOCAL_DEV

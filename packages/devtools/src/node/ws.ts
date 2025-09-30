@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { ConnectionMeta, DevToolsSetupContext } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
@@ -11,7 +11,7 @@ export interface CreateWsServerOptions {
   cwd: string
   port?: number
   base?: string
-  context: DevToolsSetupContext
+  context: DevToolsNodeContext
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
@@ -31,8 +31,6 @@ export async function createWsServer(options: CreateWsServerOptions) {
       console.log(c.red`${MARK_CHECK} Websocket client disconnected`)
     },
   })
-
-  console.log('functions', rpcHost.functions)
 
   const rpc = createRpcServer<any, any>(
     rpcHost.functions,

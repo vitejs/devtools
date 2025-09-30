@@ -18,9 +18,12 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./dirs": "./dist/dirs.js",
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -52,6 +55,7 @@
     "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
     "publint": "catalog:deps",
+    "sirv": "catalog:",
     "split2": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "tinyglobby": "catalog:deps",

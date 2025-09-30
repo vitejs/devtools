@@ -1,25 +1,10 @@
-import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { BirpcReturn } from 'birpc'
 import type { ServerFunctions } from '../../../node/rpc'
 import type { ClientFunctions } from '../../../shared/types'
 import { defineNuxtPlugin } from '#app'
 import { useRuntimeConfig } from '#app/nuxt'
-import { createRpcClient as _createRpcClient } from '@vitejs/devtools-rpc'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { ref } from 'vue'
-import { isNumeric } from '../../../app/utils/is'
-
-async function getMetadata() {
-  const config = useRuntimeConfig()
-  const baseURL = config.app.baseURL
-  if (config.app.metadata) {
-    return config.app.metadata
-  }
-  const metadata: ConnectionMeta = await fetch(`${baseURL}api/metadata.json`)
-    .then(r => r.json())
-
-  return metadata
-}
 
 export default defineNuxtPlugin({
   name: 'devtools-rpc',
@@ -35,17 +20,15 @@ export default defineNuxtPlugin({
     const rpc = ref<BirpcReturn<ServerFunctions, ClientFunctions>>()
 
     async function connectToServer() {
-      const metadata = await getMetadata()
-      if (metadata.backend === 'static') {
-        // TODO (hold-off): static server
-      }
-      else {
-        const url = isNumeric(metadata.websocket) ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${metadata.websocket}` : metadata.websocket
-        const clientFunctions = {} as ClientFunctions
-
-        try {
-          const preset = createWsRpcPreset({
-            url,
+      const runtimeConfig = useRuntimeConfig()
+      try {
+        const result = await getDevToolsRpcClient({
+          baseURL: [
+            runtimeConfig.app.baseURL,
+            '/__vite_devtools__/api/',
+          ],
+          connectionMeta: runtimeConfig.app.connection,
+          wsOptions: {
             onConnected: () => {
               serverConnectionInfo.value.connected = true
             },
@@ -55,21 +38,19 @@ export default defineNuxtPlugin({
             onDisconnected: () => {
               serverConnectionInfo.value.connected = false
             },
-          })
-
-          rpc.value = _createRpcClient<ServerFunctions, ClientFunctions>(clientFunctions, {
-            preset,
-            rpcOptions: {
-              onError: (e, name) => {
-                serverConnectionInfo.value.error = e
-                console.error(`[vite-devtools] RPC error on executing "${name}":`)
-              },
+          },
+          rpcOptions: {
+            onError: (e, name) => {
+              serverConnectionInfo.value.error = e
+              console.error(`[vite-devtools] RPC error on executing "${name}":`)
             },
-          })
-        }
-        catch (e) {
-          serverConnectionInfo.value.error = e as Error
-        }
+          },
+        })
+
+        rpc.value = result.rpc
+      }
+      catch (e) {
+        serverConnectionInfo.value.error = e as Error
       }
     }
 

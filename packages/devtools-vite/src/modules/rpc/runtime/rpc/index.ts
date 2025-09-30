@@ -8,10 +8,10 @@ import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 export async function getMetadata() {
   const config = useRuntimeConfig()
   const baseURL = config.app.baseURL
-  const metadata: ConnectionMeta = await fetch(`${baseURL}api/metadata.json`)
+  const connection: ConnectionMeta = await fetch(`${baseURL}api/connection.json`)
     .then(r => r.json())
 
-  return metadata
+  return connection
 }
 
 export function createRpcClient(url: string) {

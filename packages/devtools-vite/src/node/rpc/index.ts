@@ -1,7 +1,5 @@
 import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { getPayload } from './functions/get-payload'
-import { openInEditor } from './functions/open-in-editor'
-import { openInFinder } from './functions/open-in-finder'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
 import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
@@ -16,8 +14,6 @@ import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summ
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
 
 export const rpcFunctions = [
-  openInEditor,
-  openInFinder,
   getPayload,
   rolldownListSessions,
   rolldownGetRawEvents,

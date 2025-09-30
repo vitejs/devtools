@@ -1,6 +1,5 @@
 export * from './rpc'
 export * from './rpc-augments'
-export * from './rpc-core-functions'
 export * from './utils'
 export * from './views'
 export * from './vite-augment'

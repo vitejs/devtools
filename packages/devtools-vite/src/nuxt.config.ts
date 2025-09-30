@@ -7,7 +7,8 @@ import '@nuxt/eslint'
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
 const backend = process.env.NMI_BACKEND ?? 'dev'
 const isWebContainer = backend === 'webcontainer'
-const isDev = process.env.NODE_ENV === 'development'
+
+const BASE = '/__vite_devtools_ui__/'
 
 const headers: Record<string, string> = isWebContainer
   ? {
@@ -75,7 +76,7 @@ export default defineNuxtConfig({
   },
 
   app: {
-    baseURL: isDev ? '/' : './',
+    baseURL: BASE,
     head: {
       title: 'Vite DevTools',
       charset: 'utf-8',
@@ -96,7 +97,7 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    base: './',
+    base: BASE,
     define: {
       'import.meta.env.BACKEND': JSON.stringify(backend),
     },

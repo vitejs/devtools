@@ -63,7 +63,7 @@ cli
     // }
 
     // await fs.mkdir(resolve(outDir, 'api'), { recursive: true })
-    // await fs.writeFile(resolve(outDir, 'api/metadata.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
+    // await fs.writeFile(resolve(outDir, 'api/connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
     // await fs.writeFile(resolve(outDir, 'api/rpc-dump.json'), stringify(rpcDump), 'utf-8')
 
     // console.log(c.green`${MARK_CHECK} Built to ${relative(cwd, outDir)}`)
@@ -92,7 +92,6 @@ cli
       cwd: devtools.config.root,
       port,
       context: devtools.context,
-      functions: devtools.context.rpc,
     })
 
     server.listen(port, host, async () => {
