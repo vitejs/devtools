@@ -11,6 +11,9 @@
 .vite-devtools-resize-handle-corner {
   --uno: absolute w-[14px] h-[14px] -m-[6px] rounded-md;
 }
+.vite-devtools-resize-handle {
+  --uno: z-[2147483645];
+}
 .vite-devtools-resize-handle:hover {
   --uno: bg-gray-400:10;
 }

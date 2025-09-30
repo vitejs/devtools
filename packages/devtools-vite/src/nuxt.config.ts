@@ -8,7 +8,7 @@ const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
 const backend = process.env.NMI_BACKEND ?? 'dev'
 const isWebContainer = backend === 'webcontainer'
 
-const BASE = '/__vite_devtools_ui__/'
+const BASE = '/__vite_devtools_vite__/'
 
 const headers: Record<string, string> = isWebContainer
   ? {

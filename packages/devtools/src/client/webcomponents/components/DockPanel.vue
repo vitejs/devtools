@@ -170,6 +170,12 @@ onMounted(() => {
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
   >
+    <DockPanelResizer
+      v-model:is-resizing="isResizing"
+      :is-dragging="isDragging"
+      :state
+      :entry
+    />
     <ViewEntry
       v-if="entry && iframesContainer"
       :key="entry.id"
@@ -184,12 +190,6 @@ onMounted(() => {
       id="vite-devtools-iframe-container"
       ref="iframesContainer"
       class="absolute inset-0"
-    />
-    <DockPanelResizer
-      v-model:is-resizing="isResizing"
-      :is-dragging="isDragging"
-      :state
-      :entry
     />
   </div>
 </template>
