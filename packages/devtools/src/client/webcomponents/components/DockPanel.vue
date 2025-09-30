@@ -4,9 +4,9 @@ import type { CSSProperties } from 'vue'
 import type { DevToolsDockState } from './DockProps'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import DockPanelResizer from './DockPanelResizer.vue'
 import { IframeManager } from './IframeManager'
-import ViewFrame from './ViewFrame.vue'
-import ViewFrameHandlers from './ViewFrameHandlers.vue'
+import ViewEntry from './ViewEntry.vue'
 
 const props = defineProps<{
   state: DevToolsDockState
@@ -170,13 +170,13 @@ onMounted(() => {
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
   >
-    <ViewFrameHandlers
+    <DockPanelResizer
       v-model:is-resizing="isResizing"
       :is-dragging="isDragging"
       :state
       :entry
     />
-    <ViewFrame
+    <ViewEntry
       v-if="entry && iframesContainer"
       :key="entry.id"
       :state="state"

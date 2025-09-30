@@ -7,7 +7,7 @@ import { useLocalStorage } from '@vueuse/core'
 import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
 import Dock from '../webcomponents/components/Dock.vue'
 import { IframeManager } from '../webcomponents/components/IframeManager'
-import ViewFrame from '../webcomponents/components/ViewFrame.vue'
+import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 
 function isNumber(str: string | number) {
   return `${+str}` === `${str}`
@@ -65,7 +65,7 @@ const entry = computed(() => state.value.dockEntry || docks[0])
     :state="state"
     :docks="docks"
   />
-  <ViewFrame
+  <ViewEntry
     v-if="iframesContainer"
     :key="entry.id"
     :state="state"
