@@ -28,18 +28,13 @@ onMounted(() => {
 
     holder.mount(viewFrame.value!)
     nextTick(() => {
-      holder.show()
+      holder.update()
     })
 
     watch(
       () => props.state,
       () => {
-        nextTick(() => {
-          if (props.state.dockEntry?.id === props.entry.id)
-            holder.show()
-          else
-            holder.hide()
-        })
+        holder.update()
       },
       { deep: true },
     )

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import DockEntries from './DockEntries.vue'
-import DockPanel from './DockPanel.vue'
 
 const props = defineProps<DockProps>()
 
 const { state, docks } = toRefs(props)
+
+const isDragging = defineModel<boolean>('isDragging', { default: false })
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
@@ -45,7 +45,6 @@ const windowSize = reactive({
   width: window.innerWidth,
   height: window.innerHeight,
 })
-const isDragging = ref(false)
 const draggingOffset = reactive({ x: 0, y: 0 })
 const mousePosition = reactive({ x: 0, y: 0 })
 

@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockState } from '../webcomponents/components/DockProps'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 import { useLocalStorage } from '@vueuse/core'
+import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
+import Dock from '../webcomponents/components/Dock.vue'
+import { IframeManager } from '../webcomponents/components/IframeManager'
+import ViewFrame from '../webcomponents/components/ViewFrame.vue'
 
 function isNumber(str: string | number) {
   return `${+str}` === `${str}`
@@ -28,7 +33,7 @@ const docks = await rpc['vite:core:list-dock-entries']()
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] Docks', docks)
 
-const state = useLocalStorage(
+const state = useLocalStorage<DevToolsDockState>(
   'vite-devtools-dock-state',
   {
     width: 80,
@@ -41,10 +46,32 @@ const state = useLocalStorage(
   },
   { mergeDefaults: true },
 )
+
+const iframes = markRaw(new IframeManager())
+const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
+
+watchEffect(() => {
+  iframes.setContainer(iframesContainer.value!)
+}, { flush: 'sync' })
+
+const isDragging = ref(false)
+const entry = computed(() => state.value.dockEntry || docks[0])
 </script>
 
 <template>
-  <div>
-    <Dock :state="state" :docks="docks" />
-  </div>
+  <div id="iframes-container" ref="iframesContainer" />
+  <Dock
+    v-model:is-dragging="isDragging"
+    :state="state"
+    :docks="docks"
+  />
+  <ViewFrame
+    v-if="iframesContainer"
+    :key="entry.id"
+    :state="state"
+    :entry="entry"
+    :is-dragging="isDragging"
+    :is-resizing="false"
+    :iframes="iframes"
+  />
 </template>
