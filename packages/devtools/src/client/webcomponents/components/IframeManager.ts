@@ -41,13 +41,17 @@ export class IframeHolder {
   }
 
   mount(parent: Element) {
+    if (this.parent === parent) {
+      this.show()
+      return
+    }
+
     this.cleanup()
     this.parent = parent
 
     const func = () => this.update()
     window.addEventListener('resize', func)
     this._cleanups.push(() => window.removeEventListener('resize', func))
-    this.update()
     this.show()
   }
 
@@ -57,6 +61,7 @@ export class IframeHolder {
 
   show() {
     this.iframe.style.display = 'block'
+    this.update()
   }
 
   update() {
@@ -71,5 +76,6 @@ export class IframeHolder {
   unmount() {
     this.cleanup()
     this.hide()
+    this.parent = undefined
   }
 }

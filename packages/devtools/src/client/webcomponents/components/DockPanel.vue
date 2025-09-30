@@ -10,7 +10,7 @@ import ViewFrameHandlers from './ViewFrameHandlers.vue'
 
 const props = defineProps<{
   state: DevToolsDockState
-  entry: DevToolsDockEntry
+  entry?: DevToolsDockEntry
   dockEl?: HTMLDivElement
   panelMargins: { left: number, top: number, right: number, bottom: number }
 }>()
@@ -28,13 +28,14 @@ watchEffect(() => {
 
 const windowSize = reactive(useWindowSize())
 const isDragging = ref(false)
+const isResizing = ref(false)
+const isHovering = ref(false)
+
 const mousePosition = reactive({ x: 0, y: 0 })
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
-
-const isHovering = ref(false)
 
 const anchorPos = computed(() => {
   const halfWidth = (props.dockEl?.clientWidth || 0) / 2
@@ -104,7 +105,7 @@ const iframeStyle = computed(() => {
   const style: CSSProperties = {
     position: 'fixed',
     zIndex: -1,
-    pointerEvents: isDragging.value ? 'none' : 'auto',
+    pointerEvents: (isDragging.value || isResizing.value) ? 'none' : 'auto',
     width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
     height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
   }
@@ -163,21 +164,24 @@ onMounted(() => {
 
 <template>
   <div
+    v-show="entry"
     id="vite-devtools-dock-panel"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
   >
     <ViewFrameHandlers
-      v-model:is-dragging="isDragging"
+      v-model:is-resizing="isResizing"
+      :is-dragging="isDragging"
       :state
       :entry
     />
     <ViewFrame
       v-if="entry && iframesContainer"
-      :key="entry?.id"
+      :key="entry.id"
       :state="state"
       :is-dragging="isDragging"
+      :is-resizing="isResizing"
       :entry="entry"
       :iframes="iframes"
       rounded

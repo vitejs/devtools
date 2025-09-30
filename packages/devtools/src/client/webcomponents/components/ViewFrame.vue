@@ -7,6 +7,7 @@ import { nextTick, onMounted, onUnmounted, useTemplateRef, watch, watchEffect } 
 const props = defineProps<{
   state?: DevToolsDockState
   isDragging: boolean
+  isResizing: boolean
   entry: DevToolsDockEntry
   iframes: IframeManager
 }>()
@@ -25,14 +26,19 @@ onMounted(() => {
     if (!holder.iframe.src)
       holder.iframe.src = props.entry.url
 
-    holder.show()
     holder.mount(viewFrame.value!)
+    nextTick(() => {
+      holder.show()
+    })
 
     watch(
       () => props.state,
       () => {
         nextTick(() => {
-          holder.update()
+          if (props.state.dockEntry?.id === props.entry.id)
+            holder.show()
+          else
+            holder.hide()
         })
       },
       { deep: true },
@@ -40,7 +46,7 @@ onMounted(() => {
 
     watchEffect(
       () => {
-        holder.iframe.style.pointerEvents = props.isDragging ? 'none' : 'auto'
+        holder.iframe.style.pointerEvents = (props.isDragging || props.isResizing) ? 'none' : 'auto'
       },
     )
   }

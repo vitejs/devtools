@@ -73,9 +73,13 @@ useEventListener(window, 'mouseup', () => resizingState.value = false)
 useEventListener(window, 'touchend', () => resizingState.value = false)
 useEventListener(window, 'mouseleave', () => resizingState.value = false)
 
-watch(resizingState, (value) => {
-  isResizing.value = !!value
-})
+watch(
+  resizingState,
+  (value) => {
+    isResizing.value = !!value
+  },
+  { flush: 'sync' },
+)
 </script>
 
 <template>

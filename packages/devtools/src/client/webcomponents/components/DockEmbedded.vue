@@ -17,7 +17,6 @@ defineProps<{
   >
     <template #default="{ dockEl, entry, panelMargins }">
       <DockPanel
-        v-if="entry"
         :dock-el="dockEl!"
         :state="state"
         :panel-margins="panelMargins"
