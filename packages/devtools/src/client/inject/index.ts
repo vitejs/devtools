@@ -4,10 +4,10 @@
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 
-// eslint-disable-next-line no-console
-console.log('[VITE DEVTOOLS] Client injected')
-
 export async function init(): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.log('[VITE DEVTOOLS] Client injected')
+
   const { rpc } = await getDevToolsRpcClient()
 
   // eslint-disable-next-line no-console
@@ -46,4 +46,8 @@ export async function init(): Promise<void> {
   document.body.appendChild(dockEl)
 }
 
-init()
+if (window.parent !== window)
+  // eslint-disable-next-line no-console
+  console.log('[VITE DEVTOOLS] Skipping in iframe')
+else
+  init()

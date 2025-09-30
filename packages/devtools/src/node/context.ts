@@ -1,5 +1,6 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { existsSync } from 'node:fs'
 import sirv from 'sirv'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -26,6 +27,10 @@ export async function createDevToolsContext(
 
   // Helper functions
   function hostStatic(baseUrl: string, distDir: string) {
+    if (!existsSync(distDir)) {
+      throw new Error(`[Vite DevTools] distDir ${distDir} does not exist`)
+    }
+
     if (viteConfig.command === 'serve') {
       if (!viteServer)
         throw new Error('[Vite DevTools] viteServer is required in dev mode')

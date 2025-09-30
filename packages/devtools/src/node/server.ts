@@ -1,6 +1,7 @@
 import type { CreateWsServerOptions } from './ws'
-import { createServer } from 'node:http'
-import { createApp, eventHandler, toNodeListener } from 'h3'
+import { createApp, eventHandler, fromNodeMiddleware, toNodeListener } from 'h3'
+import sirv from 'sirv'
+import { dirClientStandalone } from '../dirs'
 import { createWsServer } from './ws'
 
 export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
@@ -13,20 +14,14 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
     return event.node.res.end(JSON.stringify(await getMetadata()))
   }))
 
+  app.use(fromNodeMiddleware(sirv(dirClientStandalone, {
+    dev: true,
+    single: true,
+  })))
+
   return {
+    h3: app,
     middleware: toNodeListener(app),
-    rpc,
-  }
-}
-
-export async function startStandaloneServer(options: CreateWsServerOptions) {
-  const { middleware, rpc } = await createDevToolsMiddleware(options)
-
-  const server = createServer(middleware)
-
-  return {
-    server,
-    middleware,
     rpc,
   }
 }

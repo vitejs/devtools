@@ -10,6 +10,7 @@ export default defineConfig({
   define: {
     'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': JSON.stringify(process.env.VITE_DEVTOOLS_LOCAL_DEV),
   },
+  base: './',
   plugins: [
     Vue(),
     {

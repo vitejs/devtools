@@ -2,7 +2,7 @@ import type { Plugin } from 'vite'
 import { join } from 'node:path'
 import process from 'node:process'
 import { normalizePath } from 'vite'
-import { distDir } from '../dirs'
+import { dirDist } from '../dirs'
 import { createDevToolsContext } from './context'
 import { createDevToolsMiddleware } from './server'
 import '@vitejs/devtools-kit'
@@ -21,12 +21,12 @@ export function DevTools(): Plugin {
         cwd: viteDevServer.config.root,
         context,
       })
-      viteDevServer.middlewares.use('/__vite_devtools__', middleware)
+      viteDevServer.middlewares.use('/__vite_devtools__/', middleware)
     },
     transformIndexHtml() {
       const fileUrl = process.env.VITE_DEVTOOLS_LOCAL_DEV
-        ? normalizePath(join(distDir, '..', 'src/client/inject/index.ts'))
-        : normalizePath(join(distDir, 'client/inject.js'))
+        ? normalizePath(join(dirDist, '..', 'src/client/inject/index.ts'))
+        : normalizePath(join(dirDist, 'client/inject.js'))
       return [
         {
           tag: 'script',

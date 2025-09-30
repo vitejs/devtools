@@ -1,5 +1,5 @@
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-export const distDir: string = fileURLToPath(new URL('../dist', import.meta.url))
-export const distPublicDir: string = join(distDir, 'public')
+export const dirDist: string = fileURLToPath(new URL('../dist', import.meta.url))
+export const dirClientStandalone: string = join(dirDist, 'client/standalone')

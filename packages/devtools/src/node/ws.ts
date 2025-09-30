@@ -9,14 +9,14 @@ import { MARK_CHECK } from './constants'
 
 export interface CreateWsServerOptions {
   cwd: string
-  port?: number
+  portWebSocket?: number
   base?: string
   context: DevToolsNodeContext
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc
-  const port = options.port ?? await getPort({ port: 7812, random: true })
+  const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })
 
   const wsClients = new Set<WebSocket>()
 

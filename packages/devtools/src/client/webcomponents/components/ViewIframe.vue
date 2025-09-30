@@ -16,7 +16,7 @@ const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 
 onMounted(() => {
   const holder = props.iframes.getIframeHolder(props.entry.id)
-  holder.iframe.style.border = 'none'
+  holder.iframe.style.border = '1px solid #8885'
   holder.iframe.style.borderRadius = '0.5rem'
   holder.iframe.style.boxShadow = 'none'
   holder.iframe.style.outline = 'none'

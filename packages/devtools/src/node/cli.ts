@@ -1,13 +1,19 @@
+import { createServer } from 'node:http'
 import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
+import { createApp, eventHandler, sendRedirect, toNodeListener } from 'h3'
 import open from 'open'
 import { MARK_NODE } from './constants'
-import { startStandaloneServer } from './server'
+import { createDevToolsMiddleware } from './server'
 import { startStandaloneDevTools } from './standalone'
 
 const cli = cac('vite-devtools')
+
+process.on('SIGINT', () => {
+  process.exit(0)
+})
 
 cli
   .command('build', 'Build devtools with current config file for static hosting')
@@ -82,42 +88,32 @@ cli
   // Action
   .action(async (options) => {
     const host = options.host
-    const port = await getPort({ port: options.port, portRange: [9999, 15000], host })
-
-    console.log(c.green`${MARK_NODE} Starting Vite DevTools at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
+    const port = await getPort({
+      port: options.port,
+      portRange: [9999, 15000],
+      host,
+    })
 
     const devtools = await startStandaloneDevTools()
 
-    const { server } = await startStandaloneServer({
+    const { h3 } = await createDevToolsMiddleware({
       cwd: devtools.config.root,
-      port,
       context: devtools.context,
     })
+
+    const app = createApp()
+    app.use('/__vite_devtools__', h3.handler)
+    app.use('/', eventHandler(async (event) => {
+      return sendRedirect(event, '/__vite_devtools__/')
+    }))
+
+    const server = createServer(toNodeListener(app))
 
     server.listen(port, host, async () => {
       console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
       if (options.open)
         await open(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`)
     })
-
-    // const { server, rpc } = await createHostServer({
-    //   cwd: options.root,
-    //   mode: 'dev',
-    //   // TODO: redesign how the manager is passed
-    //   meta: {
-    //     manager: new RolldownLogsManager(join(options.root, '.rolldown')),
-    //   },
-    // })
-
-    // // Warm up the payload
-    // setTimeout(() => {
-    //   rpc.functions['vite:get-payload']()
-    // }, 1)
-
-    // server.listen(port, host, async () => {
-    //   if (options.open)
-    //     await open(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`)
-    // })
   })
 
 cli.help()

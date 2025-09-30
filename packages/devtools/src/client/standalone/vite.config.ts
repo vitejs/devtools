@@ -10,6 +10,7 @@ export default defineConfig({
     outDir: fileURLToPath(new URL('../../../dist/client/standalone', import.meta.url)),
     emptyOutDir: true,
   },
+  base: './',
   plugins: [
     Vue(),
     UnoCSS(),
