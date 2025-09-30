@@ -1,10 +1,13 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { existsSync } from 'node:fs'
+import Debug from 'debug'
 import sirv from 'sirv'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
 import { builtinRpcFunctions } from './rpc'
+
+const debug = Debug('vite:devtools:context')
 
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
@@ -22,6 +25,7 @@ export async function createDevToolsContext(
     rpc: rpcHost,
     docks: docksHost,
     hostStatic,
+    staticDirs: [],
   }
   rpcHost.context = context
 
@@ -43,8 +47,7 @@ export async function createDevToolsContext(
       )
     }
     else {
-      // COPY DIST DIR TO OUT DIR
-      throw new Error('[Vite DevTools] [TODO] Not implemented yet')
+      context.staticDirs.push({ baseUrl, distDir })
     }
   }
 
@@ -57,7 +60,10 @@ export async function createDevToolsContext(
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
 
   for (const plugin of plugins) {
+    if (!plugin.devtools?.setup)
+      continue
     try {
+      debug(`Setting up plugin ${plugin.name}`)
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {

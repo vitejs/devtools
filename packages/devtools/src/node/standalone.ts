@@ -7,6 +7,9 @@ import { createDevToolsContext } from './context'
 export interface StandaloneDevToolsOptions {
   cwd?: string
   port?: number
+  config?: string
+  command?: 'build' | 'serve'
+  mode?: 'development' | 'production'
 }
 
 export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
@@ -15,18 +18,24 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
 }> {
   const {
     cwd = process.cwd(),
+    command = 'build',
+    mode = 'production',
   } = options
 
   const loaded = await loadConfigFromFile(
     {
-      command: 'build',
-      mode: 'development',
+      command,
+      mode,
     },
-    undefined,
+    options.config,
     cwd,
   )
 
-  const resolved = await resolveConfig(loaded?.config || {}, 'build', 'development')
+  const resolved = await resolveConfig(
+    loaded?.config || {},
+    command,
+    mode,
+  )
 
   const context = await createDevToolsContext(resolved)
 

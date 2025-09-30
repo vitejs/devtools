@@ -1,4 +1,6 @@
-import { addPlugin, addServerHandler, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { addVitePlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { DevTools } from '@vitejs/devtools'
+import { rpcFunctions } from '../../node/rpc'
 
 export default defineNuxtModule({
   meta: {
@@ -7,17 +9,18 @@ export default defineNuxtModule({
   },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
-    addServerHandler({
-      route: '/api/connection.json',
-      method: 'get',
-      handler: resolver.resolve('./runtime/server/metadata.ts'),
-      env: 'dev',
-    })
 
-    addPlugin({
-      src: resolver.resolve('./runtime/plugin.ts'),
-      mode: 'client',
+    addVitePlugin({
+      name: 'vite:devtools',
+      devtools: {
+        setup(ctx) {
+          for (const fn of rpcFunctions) {
+            ctx.rpc.register(fn)
+          }
+        },
+      },
     })
+    addVitePlugin(DevTools())
 
     nuxt.hook('imports:dirs', (dirs) => {
       dirs.push(resolver.resolve('./runtime/composables'))

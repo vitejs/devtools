@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '#app/composables/head'
-import { useNuxtApp } from '#app/nuxt'
-import { useServerConnectionInfo } from '#imports'
 
+import { connect, connectionState } from './composables/rpc'
 import 'floating-vue/dist/style.css'
 import './styles/cm.css'
 import './styles/splitpanes.css'
@@ -13,18 +12,15 @@ useHead({
   title: 'Vite DevTools',
 })
 
-const connectionInfo = useServerConnectionInfo()
-const { $connectToServer } = useNuxtApp()
-
-$connectToServer()
+connect()
 </script>
 
 <template>
-  <div v-if="connectionInfo.error" text-red>
-    {{ connectionInfo.error }}
+  <div v-if="connectionState.error" text-red>
+    {{ connectionState.error }}
   </div>
   <VisualLoading
-    v-else-if="!connectionInfo.connected"
+    v-else-if="!connectionState.connected"
     text="Connecting..."
   />
   <div v-else h-vh>

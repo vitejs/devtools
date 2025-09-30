@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs'
+import fs from 'node:fs/promises'
 import { createServer } from 'node:http'
 import process from 'node:process'
 import c from 'ansis'
@@ -5,6 +7,8 @@ import cac from 'cac'
 import { getPort } from 'get-port-please'
 import { createApp, eventHandler, sendRedirect, toNodeListener } from 'h3'
 import open from 'open'
+import { join, relative, resolve } from 'pathe'
+import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
 import { createDevToolsMiddleware } from './server'
 import { startStandaloneDevTools } from './standalone'
@@ -18,69 +22,54 @@ process.on('SIGINT', () => {
 cli
   .command('build', 'Build devtools with current config file for static hosting')
   .option('--root <root>', 'Root directory', { default: process.cwd() })
-  .option('--config <config>', 'Config file')
-  .option('--depth <depth>', 'Max depth to list dependencies', { default: 8 })
+  .option('--config <config>', 'Vite config file')
   // Build specific options
   .option('--base <baseURL>', 'Base URL for deployment', { default: '/' })
   .option('--outDir <dir>', 'Output directory', { default: '.vite-devtools' })
   // Action
-  .action(async (_options) => {
+  .action(async (options) => {
     console.log(c.cyan`${MARK_NODE} Building static Vite DevTools...`)
 
-    throw new Error('Not implemented')
+    const devtools = await startStandaloneDevTools({
+      cwd: options.root,
+      config: options.config,
+    })
 
-    // const cwd = process.cwd()
-    // const outDir = resolve(cwd, options.outDir)
+    const outDir = resolve(devtools.config.root, options.outDir)
 
-    // const rpc = await import('./functions')
-    //   .then(async r => await r.createServerFunctions({
-    //     cwd,
-    //     mode: 'build',
-    //     // TODO: redesign how the manager is passed
-    //     meta: {
-    //       manager: new RolldownLogsManager(join(cwd, '.rolldown')),
-    //     },
-    //   }))
-    // const rpcDump: ServerFunctionsDump = {
-    //   'vite:get-payload': await rpc['vite:get-payload'](),
-    // }
+    if (existsSync(outDir))
+      await fs.rm(outDir, { recursive: true })
 
-    // let baseURL = options.base
-    // if (!baseURL.endsWith('/'))
-    //   baseURL += '/'
-    // if (!baseURL.startsWith('/'))
-    //   baseURL = `/${baseURL}`
-    // baseURL = baseURL.replace(/\/+/g, '/')
+    const devToolsRoot = join(outDir, '__vite_devtools__')
+    await fs.mkdir(devToolsRoot, { recursive: true })
+    await fs.cp(dirClientStandalone, devToolsRoot, { recursive: true })
 
-    // if (existsSync(outDir))
-    //   await fs.rm(outDir, { recursive: true })
-    // await fs.mkdir(outDir, { recursive: true })
-    // await fs.cp(distDir, outDir, { recursive: true })
-    // const htmlFiles = await glob('**/*.html', { cwd: distDir, onlyFiles: true, dot: true, expandDirectories: false })
-    // // Rewrite HTML files with base URL
-    // if (baseURL !== '/') {
-    //   for (const file of htmlFiles) {
-    //     const content = await fs.readFile(resolve(distDir, file), 'utf-8')
-    //     const newContent = content
-    //       .replaceAll(/\s(href|src)="\//g, ` $1="${baseURL}`)
-    //       .replaceAll('baseURL:"/"', `baseURL:"${baseURL}"`)
-    //     await fs.writeFile(resolve(outDir, file), newContent, 'utf-8')
-    //   }
-    // }
+    for (const { baseUrl, distDir } of devtools.context.staticDirs) {
+      console.log(c.cyan`${MARK_NODE} Copying static files from ${distDir} to ${join(outDir, baseUrl)}`)
+      await fs.mkdir(join(outDir, baseUrl), { recursive: true })
+      await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })
+    }
 
-    // await fs.mkdir(resolve(outDir, 'api'), { recursive: true })
-    // await fs.writeFile(resolve(outDir, 'api/connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
-    // await fs.writeFile(resolve(outDir, 'api/rpc-dump.json'), stringify(rpcDump), 'utf-8')
+    await fs.mkdir(resolve(devToolsRoot, 'api'), { recursive: true })
+    await fs.writeFile(resolve(devToolsRoot, 'api/connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
 
-    // console.log(c.green`${MARK_CHECK} Built to ${relative(cwd, outDir)}`)
-    // console.log(c.blue`${MARK_NODE} You can use static server like \`npx serve ${relative(cwd, outDir)}\` to serve the devtools`)
+    console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, 'api/rpc-dump.json')}`)
+    const dump: Record<string, any> = {}
+    for (const [key, value] of Object.entries(devtools.context.rpc.functions)) {
+      if (value.type === 'static')
+        dump[key] = await value.handler?.()
+    }
+    await fs.writeFile(resolve(devToolsRoot, 'api/rpc-dump.json'), JSON.stringify(dump, null, 2), 'utf-8')
+
+    console.log(c.green`${MARK_NODE} Built to ${relative(devtools.config.root, outDir)}`)
+
+    throw new Error('[Vite DevTools] Build mode of Vite DevTools is not yet complete')
   })
 
 cli
   .command('', 'Start devtools')
   .option('--root <root>', 'Root directory', { default: process.cwd() })
-  .option('--config <config>', 'Config file')
-  .option('--depth <depth>', 'Max depth to list dependencies', { default: 8 })
+  .option('--config <config>', 'Vite config file')
   // Dev specific options
   .option('--host <host>', 'Host', { default: process.env.HOST || '127.0.0.1' })
   .option('--port <port>', 'Port', { default: process.env.PORT || 9999 })
@@ -94,7 +83,9 @@ cli
       host,
     })
 
-    const devtools = await startStandaloneDevTools()
+    const devtools = await startStandaloneDevTools({
+      cwd: options.root,
+    })
 
     const { h3 } = await createDevToolsMiddleware({
       cwd: devtools.config.root,

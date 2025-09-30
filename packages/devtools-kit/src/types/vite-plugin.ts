@@ -29,6 +29,7 @@ export interface DevToolsNodeContext {
    * - In `build` mode, it will copy the static files to the dist directory
    */
   hostStatic: (baseUrl: string, distDir: string) => void
+  staticDirs: { baseUrl: string, distDir: string }[]
 }
 
 export interface ConnectionMeta {
