@@ -3,6 +3,7 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import DockEntries from './DockEntries.vue'
 import DockPanel from './DockPanel.vue'
 
 const props = defineProps<DockProps>()
@@ -121,13 +122,6 @@ function snapToPoints(value: number) {
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
-}
-
-function toggleDockEntry(entry: DevToolsDockEntry) {
-  if (state.value.dockEntry?.id === entry.id)
-    state.value.dockEntry = undefined
-  else
-    state.value.dockEntry = entry
 }
 
 const recalculateCounter = ref(0)
@@ -251,34 +245,19 @@ onMounted(() => {
         id="vite-devtools-dock"
         @pointerdown="onPointerDown"
       >
-        <div class="flex items-center w-full h-full justify-center transition-opacity duration-300" :class="isMinimized ? 'opacity-0' : 'opacity-100'">
-          <button
-            v-for="dock of docks"
-            :key="dock.id"
-            :title="dock.title"
-            :class="[
-              isVertical ? 'rotate-270' : '',
-              state.dockEntry && state.dockEntry.id !== dock.id ? 'op50 saturate-0' : '',
-            ]"
-            class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881]"
-            @click="toggleDockEntry(dock)"
-          >
-            <img
-              :src="dock.icon"
-              :alt="dock.title"
-              class="w-5 h-5 select-none"
-              draggable="false"
-            >
-          </button>
-        </div>
+        <DockEntries
+          :entries="docks"
+          :class="isMinimized ? 'opacity-0' : 'opacity-100'"
+          :is-vertical="isVertical"
+          :selected="state.dockEntry"
+          @select="s => state.dockEntry = s"
+        />
       </div>
     </div>
-
-    <DockPanel
-      v-if="state.dockEntry"
-      :state="state"
+    <slot
       :dock-el="dockEl"
       :panel-margins="panelMargins"
+      :state="state"
       :entry="state.dockEntry"
     />
   </div>

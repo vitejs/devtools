@@ -24,8 +24,8 @@ export function DevTools(): Plugin {
     },
     transformIndexHtml() {
       const fileUrl = process.env.VITE_DEVTOOLS_LOCAL_DEV
-        ? normalizePath(join(distDir, '..', 'src', 'client-inject', 'index.ts'))
-        : normalizePath(join(distDir, 'client-inject.js'))
+        ? normalizePath(join(distDir, '..', 'src/client/inject/index.ts'))
+        : normalizePath(join(distDir, 'client/inject.js'))
       return [
         {
           tag: 'script',

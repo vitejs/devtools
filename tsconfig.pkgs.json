@@ -6,7 +6,7 @@
   },
   "include": [
     "packages/devtools/src/**/*.ts",
-    "packages/devtools/src/webcomponents/.generated/*.ts",
+    "packages/devtools/src/client/webcomponents/.generated/*.ts",
     "packages/devtools-vite/src/**/*.ts",
     "packages/devtools/src/**/*.vue",
     "packages/devtools-kit/src/**/*.ts",

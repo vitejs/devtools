@@ -1,50 +1,46 @@
 import { defineConfig } from 'tsdown'
 import Vue from 'unplugin-vue/rolldown'
-import { buildCSS } from './src/webcomponents/scripts/build-css'
+import pkg from './package.json'
+import { buildCSS } from './src/client/webcomponents/scripts/build-css'
 
 const define = {
   'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
   'process.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
 }
 
-export default defineConfig([
-  {
-    entry: {
-      'client-inject': 'src/client-inject/index.ts',
-      'webcomponents': 'src/webcomponents/index.ts',
+export default defineConfig({
+
+  exports: true,
+  plugins: [
+    Vue({
+      isProduction: true,
+    }),
+  ],
+  external: [
+    '@vitejs/devtools/client/webcomponents',
+    /^node:/,
+    ...Object.keys(pkg.dependencies),
+  ],
+  clean: true,
+  platform: 'neutral',
+  tsconfig: '../../tsconfig.pkgs.json',
+  hooks: {
+    'build:before': async function () {
+      await buildCSS()
     },
-    plugins: [
-      Vue({
-        isProduction: true,
-      }),
-    ],
-    external: [
-      '@vitejs/devtools/webcomponents',
-    ],
-    clean: true,
-    platform: 'neutral',
-    tsconfig: '../../tsconfig.pkgs.json',
-    hooks: {
-      'build:before': async function () {
-        await buildCSS()
-      },
-    },
-    define,
   },
-  {
-    entry: {
-      index: 'src/index.ts',
-      dirs: 'src/dirs.ts',
-      cli: 'src/node/cli.ts',
-    },
-    clean: false,
-    tsconfig: '../../tsconfig.pkgs.json',
-    dts: true,
-    inputOptions: {
-      experimental: {
-        resolveNewUrlToAsset: false,
-      },
-    },
-    define,
+  entry: {
+    'index': 'src/index.ts',
+    'dirs': 'src/dirs.ts',
+    'cli': 'src/node/cli.ts',
+    'client/inject': 'src/client/inject/index.ts',
+    'client/webcomponents': 'src/client/webcomponents/index.ts',
   },
-])
+  dts: true,
+  inputOptions: {
+    experimental: {
+      resolveNewUrlToAsset: false,
+    },
+  },
+  define,
+})

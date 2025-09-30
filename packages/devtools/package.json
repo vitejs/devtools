@@ -20,10 +20,14 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
-    "./webcomponents": "./dist/webcomponents.js",
-    "./client-inject": "./dist/client-inject.js"
+    "./cli": "./dist/cli.js",
+    "./client/inject": "./dist/client/inject.js",
+    "./client/webcomponents": "./dist/client/webcomponents.js",
+    "./dirs": "./dist/dirs.js",
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "vite-devtools": "./bin.mjs"
@@ -35,6 +39,7 @@
   "scripts": {
     "build": "tsdown --config-loader=tsx",
     "dev": "tsdown --watch --config-loader=tsx",
+    "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "pnpm -C playground run dev",
     "play:build": "pnpm -C playground run build"
@@ -45,6 +50,7 @@
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
+    "cac": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {

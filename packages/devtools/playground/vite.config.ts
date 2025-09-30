@@ -3,7 +3,7 @@ import { DevTools } from '@vitejs/devtools'
 import { DevToolsViteUI } from '@vitejs/devtools-vite'
 import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
-import { buildCSS } from '../src/webcomponents/scripts/build-css'
+import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 
 // https://vite.dev/config/
 export default defineConfig({
