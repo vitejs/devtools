@@ -7,7 +7,7 @@ export default defineConfig({
     'presets/ws/server': 'src/presets/ws/server.ts',
     'presets/index': 'src/presets/index.ts',
   },
-  tsconfig: '../../tsconfig.pkgs.json',
+  tsconfig: '../../tsconfig.base.json',
   clean: true,
   dts: true,
   exports: true,

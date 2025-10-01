@@ -36,7 +36,7 @@ export async function buildCSS() {
   // Read user style
   const userStyle = new MagicString(await fs.readFile(USER_STYLE, 'utf-8').catch(() => ''))
 
-  for (const transformer of generater.config.transformers) {
+  for (const transformer of generater.config.transformers ?? []) {
     await transformer.transform(userStyle, USER_STYLE, {
       uno: generater,
     } as any)

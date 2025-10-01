@@ -5,7 +5,7 @@ export class RpcFunctionsHost implements RpcFunctionsHostType {
   public readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>> = new Map()
   public readonly functions: DevToolsRpcServerFunctions
 
-  public context: DevToolsNodeContext
+  public context: DevToolsNodeContext = undefined!
 
   constructor() {
     const definitions = this.definitions

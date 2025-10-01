@@ -5,7 +5,7 @@ export default defineConfig({
     index: 'src/index.ts',
     dirs: 'src/dirs.ts',
   },
-  tsconfig: '../../tsconfig.pkgs.json',
+  tsconfig: '../../tsconfig.base.json',
   target: 'esnext',
   exports: true,
   dts: true,

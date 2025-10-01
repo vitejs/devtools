@@ -7,6 +7,6 @@ export default defineConfig({
   },
   exports: true,
   clean: true,
-  tsconfig: '../../tsconfig.pkgs.json',
+  tsconfig: '../../tsconfig.base.json',
   dts: true,
 })

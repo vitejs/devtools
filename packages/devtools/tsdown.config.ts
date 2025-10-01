@@ -23,7 +23,7 @@ export default defineConfig({
   ],
   clean: true,
   platform: 'neutral',
-  tsconfig: '../../tsconfig.pkgs.json',
+  tsconfig: '../../tsconfig.base.json',
   entry: {
     'index': 'src/index.ts',
     'dirs': 'src/dirs.ts',

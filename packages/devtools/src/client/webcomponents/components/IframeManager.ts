@@ -1,6 +1,6 @@
 export class IframeManager {
   readonly iframes: Record<string, IframeHolder> = {}
-  container: Element
+  container: Element = undefined!
 
   constructor() {
   }
@@ -13,7 +13,7 @@ export class IframeManager {
     let iframe: IframeHolder
     if (!this.iframes[id]) {
       const el = document.createElement('iframe')
-      this.iframes[id] = new IframeHolder(el)
+      this.iframes[id] = new IframeHolder(id, el)
       this.container.appendChild(el)
       iframe = this.iframes[id]
     }
@@ -31,7 +31,8 @@ export class IframeHolder {
 
   _cleanups: (() => void)[] = []
 
-  constructor(iframe: HTMLIFrameElement) {
+  constructor(id: string, iframe: HTMLIFrameElement) {
+    this.id = id
     this.iframe = iframe
   }
 

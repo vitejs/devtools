@@ -49,7 +49,7 @@ const entry = computed(() => state.value.dockEntry || docks[0])
     :docks="docks"
   />
   <ViewEntry
-    v-if="iframesContainer"
+    v-if="entry && iframesContainer"
     :key="entry.id"
     :state="state"
     :entry="entry"

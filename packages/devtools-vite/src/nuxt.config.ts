@@ -29,8 +29,11 @@ export default defineNuxtConfig({
   ],
 
   alias: {
-    '@vitejs/devtools-rpc': fileURLToPath(new URL('../../devtools-rpc/src', import.meta.url)),
-    '@vitejs/devtools-kit': fileURLToPath(new URL('../../devtools-kit/src', import.meta.url)),
+    '@vitejs/devtools-rpc': fileURLToPath(new URL('../../devtools-rpc/src/index.ts', import.meta.url)),
+    '@vitejs/devtools-kit/client': fileURLToPath(new URL('../../devtools-kit/src/client/index.ts', import.meta.url)),
+    '@vitejs/devtools-kit': fileURLToPath(new URL('../../devtools-kit/src/index.ts', import.meta.url)),
+    '@vitejs/devtools-vite': fileURLToPath(new URL('../../devtools-vite/src/index.ts', import.meta.url)),
+    '@vitejs/devtools': fileURLToPath(new URL('../../devtools/src/index.ts', import.meta.url)),
   },
 
   logLevel: 'verbose',
@@ -138,7 +141,10 @@ export default defineNuxtConfig({
       },
     },
     typeCheck: true,
+    includeWorkspace: true,
   },
+
+  workspaceDir: '../../',
 
   compatibilityDate: '2024-07-17',
 })
