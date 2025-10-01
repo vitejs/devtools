@@ -31,6 +31,8 @@ export default defineNuxtConfig({
     '@vitejs/devtools-kit/client': fileURLToPath(new URL('../../devtools-kit/src/client/index.ts', import.meta.url)),
     '@vitejs/devtools-kit': fileURLToPath(new URL('../../devtools-kit/src/index.ts', import.meta.url)),
     '@vitejs/devtools-vite': fileURLToPath(new URL('../../devtools-vite/src/index.ts', import.meta.url)),
+    '@vitejs/devtools/client/inject': fileURLToPath(new URL('../../devtools/src/client/inject/index.ts', import.meta.url)),
+    '@vitejs/devtools/client/webcomponents': fileURLToPath(new URL('../../devtools/src/client/webcomponents/index.ts', import.meta.url)),
     '@vitejs/devtools': fileURLToPath(new URL('../../devtools/src/index.ts', import.meta.url)),
   },
 
