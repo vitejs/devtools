@@ -23,7 +23,7 @@ export interface ClientSettings {
   pluginDetailSelectedHook: string
   chunkViewType: 'list' | 'graph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
-  packageViewType: 'table' | 'duplicate-packages'
+  packageViewType: 'table' | 'treemap' | 'duplicate-packages'
   packageSizeSortType: string
 }
 

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { GraphBaseOptions } from 'nanovis'
-import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
+import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
 import NavBreadcrumb from './NavBreadcrumb.vue'
 
 defineProps<{
-  selected?: AssetChartNode
-  options: GraphBaseOptions<AssetChartInfo | undefined>
+  selected?: PackageChartNode
+  options: GraphBaseOptions<PackageChartInfo | undefined>
 }>()
 
 const emit = defineEmits<{
-  (e: 'select', node: AssetChartNode | null): void
+  (e: 'select', node: PackageChartNode | null): void
 }>()
 </script>
 
