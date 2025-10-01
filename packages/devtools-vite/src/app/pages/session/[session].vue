@@ -23,20 +23,11 @@ const rpc = useRpc()
 const router = useRouter()
 const route = useRoute()
 
-function closeFlowPanel() {
-  router.replace({ query: { ...route.query, module: undefined } })
-}
-
-function closeAssetPanel() {
-  router.replace({ query: { ...route.query, asset: undefined } })
-}
-
-function closePluginPanel() {
-  router.replace({ query: { ...route.query, plugin: undefined } })
-}
-
-function closeChunkPanel() {
-  router.replace({ query: { ...route.query, chunk: undefined } })
+const currentPanelType = computed(() => ['module', 'asset', 'plugin', 'chunk'].find(key => typeof route.query[key] !== 'undefined'))
+function closeCurrentPanel() {
+  if (currentPanelType.value) {
+    router.replace({ query: { ...route.query, [currentPanelType.value]: undefined } })
+  }
 }
 
 onKeyDown('Escape', (e) => {
@@ -45,19 +36,7 @@ onKeyDown('Escape', (e) => {
   if (!e.isTrusted || e.repeat)
     return
 
-  const { module, asset, plugin, chunk } = route.query
-
-  if (module)
-    closeFlowPanel()
-
-  if (asset)
-    closeAssetPanel()
-
-  if (plugin)
-    closePluginPanel()
-
-  if (chunk)
-    closeChunkPanel()
+  closeCurrentPanel()
 })
 
 useSideNav(() => {
@@ -90,13 +69,13 @@ useSideNav(() => {
     {
       title: 'Assets',
       to: `/session/${session.id}/assets`,
-      icon: 'i-ph-package-duotone',
+      icon: 'i-ph-files-duotone',
       category: 'session',
     },
     {
       title: 'Packages',
       to: `/session/${session.id}/packages`,
-      icon: 'i-catppuccin-npm',
+      icon: 'i-ph-package-duotone',
       category: 'session',
     },
   ]
@@ -128,11 +107,12 @@ onMounted(async () => {
     </div>
 
     <div
-      v-if="route.query.module" fixed inset-0
+      v-if="currentPanelType" fixed inset-0
       backdrop-blur-8 backdrop-brightness-95 z-panel-content
-      @click.self="closeFlowPanel"
+      @click.self="closeCurrentPanel"
     >
       <div
+        v-if="currentPanelType === 'module'"
         :key="(route.query.module as string)"
         fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
@@ -140,18 +120,11 @@ onMounted(async () => {
         <DataModuleDetailsLoader
           :module="(route.query.module as string)"
           :session="session"
-          @close="closeFlowPanel"
+          @close="closeCurrentPanel"
         />
       </div>
-    </div>
-
-    <!-- for assets -->
-    <div
-      v-if="route.query.asset" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
-      @click.self="closeAssetPanel"
-    >
       <div
+        v-if="currentPanelType === 'asset'"
         :key="(route.query.asset as string)"
         fixed right-0 bottom-0 top-30 z-panel-content of-hidden
         bg-glass border="l t base rounded-tl-xl"
@@ -160,16 +133,11 @@ onMounted(async () => {
         <DataAssetDetailsLoader
           :asset="(route.query.asset as string)"
           :session="session"
-          @close="closeAssetPanel"
+          @close="closeCurrentPanel"
         />
       </div>
-    </div>
-    <div
-      v-if="route.query.plugin" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
-      @click.self="closePluginPanel"
-    >
       <div
+        v-if="currentPanelType === 'plugin'"
         :key="(route.query.plugin as string)"
         fixed right-0 bottom-0 top-20 left-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
@@ -177,18 +145,11 @@ onMounted(async () => {
         <DataPluginDetailsLoader
           :plugin="(route.query.plugin as string)"
           :session="session"
-          @close="closePluginPanel"
+          @close="closeCurrentPanel"
         />
       </div>
-    </div>
-
-    <!-- for chunks -->
-    <div
-      v-if="route.query.chunk" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
-      @click.self="closeChunkPanel"
-    >
       <div
+        v-if="currentPanelType === 'chunk'"
         :key="(route.query.chunk as string)"
         fixed right-0 bottom-0 top-20 z-panel-content
         bg-glass border="l t base rounded-tl-xl"
@@ -197,7 +158,7 @@ onMounted(async () => {
         <DataChunkDetailsLoader
           :chunk="(Number(route.query.chunk))"
           :session="session"
-          @close="closeChunkPanel"
+          @close="closeCurrentPanel"
         />
       </div>
     </div>
