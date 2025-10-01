@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-vite",
   "type": "module",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.3",
   "description": "DevTools for Vite (work in progress)",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -18,22 +18,22 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs"
+    ".": "./dist/index.js",
+    "./dirs": "./dist/dirs.js",
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
-  "bin": "bin.mjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "bin.mjs",
     "dist"
   ],
   "scripts": {
     "build": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
-    "dev": "pnpm run -r stub && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
+    "dev": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
-    "prepack": "pnpm build",
-    "start": "node ./bin.mjs"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:frontend",
@@ -48,14 +48,13 @@
     "diff": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
-    "launch-editor": "catalog:deps",
     "mlly": "catalog:deps",
     "mrmime": "catalog:deps",
     "ohash": "catalog:deps",
-    "open": "catalog:deps",
     "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
     "publint": "catalog:deps",
+    "sirv": "catalog:deps",
     "split2": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "tinyglobby": "catalog:deps",

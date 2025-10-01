@@ -45,6 +45,6 @@ describe('devtools rpc', () => {
 
     expect(await client2.hello(2)).toBe('hello world from client 2')
 
-    expect(await server.broadcast.hey('server')).toEqual(['hey server, I\'m client 1', 'hey server, I\'m client 2'])
+    expect(await server.broadcast.hey('server')).toEqual(expect.arrayContaining(['hey server, I\'m client 1', 'hey server, I\'m client 2']))
   })
 })

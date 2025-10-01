@@ -1,4 +1,5 @@
 import type { SessionMeta } from '@rolldown/debug'
+import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { join } from 'pathe'
 import { RolldownEventsReader } from './events-reader'
@@ -16,6 +17,9 @@ export class RolldownLogsManager {
   }
 
   async list() {
+    if (!existsSync(this.dir)) {
+      return []
+    }
     const sessions = await fs.readdir(this.dir, {
       withFileTypes: true,
     })

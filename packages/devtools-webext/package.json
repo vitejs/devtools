@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-webext",
   "type": "module",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.3",
   "private": true,
   "description": "DevTools browser extension for Vite (work in progress)",
   "author": "VoidZero Inc.",
@@ -20,7 +20,7 @@
   "sideEffects": false,
   "scripts": {
     "build:extension": "tsx scripts/build-app.ts && tsdown",
-    "dev": "tsdown --watch",
+    "watch": "tsdown --watch",
     "prepack": "pnpm build:extension"
   },
   "dependencies": {

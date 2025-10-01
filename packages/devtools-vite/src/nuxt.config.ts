@@ -1,18 +1,19 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { defineNuxtConfig } from 'nuxt/config'
 import Inspect from 'vite-plugin-inspect'
+import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const backend = process.env.NMI_BACKEND ?? 'dev'
-const isWebContainer = backend === 'webcontainer'
-const isDev = process.env.NODE_ENV === 'development'
 
-const headers: Record<string, string> = isWebContainer
-  ? {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    }
-  : {}
+const BASE = '/__vite_devtools_vite__/'
+
+// const headers: Record<string, string> = isWebContainer
+//   ? {
+//       'Cross-Origin-Embedder-Policy': 'require-corp',
+//       'Cross-Origin-Opener-Policy': 'same-origin',
+//     }
+//   : {}
 
 export default defineNuxtConfig({
   ssr: false,
@@ -22,12 +23,17 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@nuxt/eslint',
     'nuxt-eslint-auto-explicit-import',
-    ...isWebContainer ? ['./app/modules/webcontainer'] : [],
+    './modules/rpc',
   ],
 
   alias: {
     '@vitejs/devtools-rpc': fileURLToPath(new URL('../../devtools-rpc/src', import.meta.url)),
-    '@vitejs/devtools-kit': fileURLToPath(new URL('../../devtools-kit/src', import.meta.url)),
+    '@vitejs/devtools-kit/client': fileURLToPath(new URL('../../devtools-kit/src/client/index.ts', import.meta.url)),
+    '@vitejs/devtools-kit': fileURLToPath(new URL('../../devtools-kit/src/index.ts', import.meta.url)),
+    '@vitejs/devtools-vite': fileURLToPath(new URL('../../devtools-vite/src/index.ts', import.meta.url)),
+    '@vitejs/devtools/client/inject': fileURLToPath(new URL('../../devtools/src/client/inject/index.ts', import.meta.url)),
+    '@vitejs/devtools/client/webcomponents': fileURLToPath(new URL('../../devtools/src/client/webcomponents/index.ts', import.meta.url)),
+    '@vitejs/devtools': fileURLToPath(new URL('../../devtools/src/index.ts', import.meta.url)),
   },
 
   logLevel: 'verbose',
@@ -66,14 +72,14 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        headers,
+        // headers,
       },
     },
     sourceMap: false,
   },
 
   app: {
-    baseURL: isDev ? '/' : './',
+    baseURL: BASE,
     head: {
       title: 'Vite DevTools',
       charset: 'utf-8',
@@ -94,15 +100,12 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    base: './',
-    define: {
-      'import.meta.env.BACKEND': JSON.stringify(backend),
-    },
-    server: {
-      headers,
-    },
+    base: BASE,
+    // server: {
+    //   headers,
+    // },
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         debug: {},
       },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
@@ -135,7 +138,10 @@ export default defineNuxtConfig({
       },
     },
     typeCheck: true,
+    includeWorkspace: true,
   },
+
+  workspaceDir: '../../',
 
   compatibilityDate: '2024-07-17',
 })

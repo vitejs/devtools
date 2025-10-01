@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import type {} from '../../../../../devtools/src/node/rpc'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
@@ -60,7 +61,7 @@ const _importers = computed(() => props.lazy ? state.value?.importers : props.im
 const _imports = computed(() => props.lazy ? state.value?.imports : props.imports)
 
 function openInEditor() {
-  rpc.value!['vite:open-in-editor'](`${props.session.meta.dir}/${props.asset.filename}`)
+  rpc.value!['vite:core:open-in-editor'](`${props.session.meta.dir}/${props.asset.filename}`)
 }
 </script>
 

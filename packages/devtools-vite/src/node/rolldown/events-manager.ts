@@ -1,5 +1,5 @@
 import type { Asset as AssetInfo, Chunk as ChunkInfo, Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
-import type { ModuleBuildMetrics, PluginBuildMetrics } from '~~/shared/types'
+import type { ModuleBuildMetrics, PluginBuildMetrics } from '../../shared/types'
 import { getContentByteSize } from '../utils/format'
 
 export type RolldownEvent = Event & {

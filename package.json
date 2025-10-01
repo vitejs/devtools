@@ -1,18 +1,20 @@
 {
   "type": "module",
-  "version": "0.0.0-alpha.1",
+  "version": "0.0.0-alpha.3",
   "private": true,
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "pnpm -r run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
-    "stub": "pnpm -r run stub",
+    "watch": "pnpm -r run watch",
     "dev": "pnpm -C packages/devtools-vite run dev",
-    "start": "pnpm -C packages/devtools-vite run start",
+    "play:devtools": "pnpm -C packages/devtools run play",
+    "play:devtools:standalone": "pnpm -C packages/devtools run play:standalone",
+    "play:ui": "pnpm -C packages/devtools-vite run dev",
     "prepare": "npx simple-git-hooks && pnpm -C packages/devtools-vite run dev:prepare",
     "lint": "pnpm -C packages/devtools-vite run dev:prepare && eslint .",
     "test": "vitest",
-    "release": "bumpp -r && pnpm publish -r",
+    "release": "bumpp -r",
     "typecheck": "vue-tsc -b --noEmit"
   },
   "devDependencies": {

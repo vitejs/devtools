@@ -1,7 +1,5 @@
 import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { getPayload } from './functions/get-payload'
-import { openInEditor } from './functions/open-in-editor'
-import { openInFinder } from './functions/open-in-finder'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
 import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
@@ -12,12 +10,11 @@ import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-tra
 import { rolldownGetPackages } from './functions/rolldown-get-packages'
 import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
 import { rolldownGetRawEvents } from './functions/rolldown-get-raw-events'
+import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
 
 export const rpcFunctions = [
-  openInEditor,
-  openInFinder,
   getPayload,
   rolldownListSessions,
   rolldownGetRawEvents,
@@ -29,6 +26,7 @@ export const rpcFunctions = [
   rolldownGetAssetsList,
   rolldownGetAssetDetails,
   rolldownGetPluginDetails,
+  rolldownGetSessionCompareSummary,
   rolldownGetChunkInfo,
   rolldownGetPackages,
 ] as const
@@ -41,4 +39,8 @@ export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
 
 export type ServerFunctionsDump = {
   [K in keyof ServerFunctionsStatic]: Awaited<ReturnType<ServerFunctionsStatic[K]>>
+}
+
+declare module '@vitejs/devtools-kit' {
+  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
 }
