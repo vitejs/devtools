@@ -106,7 +106,7 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
 }
 
 const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<PackageInfo, PackageChartInfo, PackageChartNode>({
-  data: searched,
+  data: normalizedPackages,
   nameKey: 'name',
   sizeKey: 'transformedCodeSize',
   rootText: 'Packages',
@@ -172,7 +172,7 @@ watch(() => settings.value.packageViewType, () => {
       </template>
       <template v-else-if="settings.packageViewType === 'treemap'">
         <ChartTreemap
-          v-if="graph"
+          v-if="graph && normalizedPackages.length"
           :graph="graph"
           :selected="nodeSelected"
           @select="x => selectNode(x)"
@@ -186,6 +186,9 @@ watch(() => settings.value.packageViewType, () => {
             />
           </template>
         </ChartTreemap>
+        <span v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+          No Data
+        </span>
       </template>
       <template v-else-if="settings.packageViewType === 'duplicate-packages'">
         <PackagesDuplicated :packages="normalizedPackages" :session="session" />
