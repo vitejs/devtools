@@ -1,4 +1,0 @@
-- `@vitejs/devtools` the entry point of the project. It provides the core functionality of Vite DevTools, including the CLI.
-- `@vitejs/devtools-kit` the utility library for integration authors to extend Vite DevTools. Which include types and utilities for the project.
-- `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which would enable by default.
-- `@vitejs/devtools-rpc` the rpc layer of the project.
