@@ -17,9 +17,11 @@ const props = withDefaults(
     kind?: ModuleImport['kind']
     session?: SessionContext
     cwd?: string
+    disableTooltip?: boolean
   }>(),
   {
     icon: true,
+    disableTooltip: false,
   },
 )
 
@@ -55,7 +57,7 @@ const containerClass = computed(() => {
       my-auto text-sm font-mono block w-full
       :triggers="['hover']"
       :delay="1200"
-      :disabled="(props.id?.length || 0) < 30"
+      :disabled="disableTooltip || (props.id?.length || 0) < 30"
       placement="bottom-start"
     >
       <div

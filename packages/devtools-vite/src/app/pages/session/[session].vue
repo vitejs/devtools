@@ -93,6 +93,12 @@ useSideNav(() => {
       icon: 'i-ph-package-duotone',
       category: 'session',
     },
+    {
+      title: 'Packages',
+      to: `/session/${session.id}/packages`,
+      icon: 'i-catppuccin-npm',
+      category: 'session',
+    },
   ]
 })
 
