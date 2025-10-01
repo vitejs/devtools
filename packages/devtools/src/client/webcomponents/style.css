@@ -69,3 +69,12 @@
     --uno: hidden;
   }
 }
+
+.vite-devtools-dock-label {
+  --uno: translate-x--1/2 bottom--7 left-1/2;
+}
+
+.vite-devtools-vertical .vite-devtools-dock-label {
+  --uno: rotate-270 bottom--10;
+}
+

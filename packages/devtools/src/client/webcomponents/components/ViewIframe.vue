@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
+import type { CSSProperties } from 'vue'
 import type { DevToolsDockState } from './DockProps'
 import type { IframeManager } from './IframeManager'
 import { nextTick, onMounted, onUnmounted, useTemplateRef, watch, watchEffect } from 'vue'
@@ -10,17 +11,16 @@ const props = defineProps<{
   isResizing: boolean
   entry: DevToolsViewIframe
   iframes: IframeManager
+  iframeStyle?: CSSProperties
 }>()
 
 const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 
 onMounted(() => {
   const holder = props.iframes.getIframeHolder(props.entry.id)
-  holder.iframe.style.border = '1px solid #8885'
-  holder.iframe.style.borderRadius = '0.5rem'
   holder.iframe.style.boxShadow = 'none'
   holder.iframe.style.outline = 'none'
-  holder.iframe.style.zIndex = '2147483645'
+  Object.assign(holder.iframe.style, props.iframeStyle)
 
   if (!holder.iframe.src)
     holder.iframe.src = props.entry.url
@@ -42,6 +42,7 @@ onMounted(() => {
     () => {
       holder.iframe.style.pointerEvents = (props.isDragging || props.isResizing) ? 'none' : 'auto'
     },
+    { flush: 'sync' },
   )
 })
 

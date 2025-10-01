@@ -184,6 +184,11 @@ onMounted(() => {
       :is-resizing="isResizing"
       :entry="entry"
       :iframes="iframes"
+      :iframe-style="{
+        border: '1px solid #8885',
+        borderRadius: '0.5rem',
+        zIndex: '2147483645',
+      }"
       rounded
     />
     <div

@@ -93,10 +93,11 @@ cli
     })
 
     const app = createApp()
-    app.use('/__vite_devtools__', h3.handler)
     app.use('/', eventHandler(async (event) => {
-      return sendRedirect(event, '/__vite_devtools__/')
+      if (event.node.req.url === '/')
+        return sendRedirect(event, '/__vite_devtools__/')
     }))
+    app.use('/__vite_devtools__', h3.handler)
 
     const server = createServer(toNodeListener(app))
 

@@ -225,6 +225,7 @@ onMounted(() => {
     ref="anchorEl"
     :style="[anchorStyle]"
     :class="{
+      'vite-devtools-horizontal': !isVertical,
       'vite-devtools-vertical': isVertical,
       'vite-devtools-minimized': isMinimized,
     }"
