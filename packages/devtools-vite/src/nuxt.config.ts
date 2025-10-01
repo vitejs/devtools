@@ -105,7 +105,7 @@ export default defineNuxtConfig({
     //   headers,
     // },
     build: {
-      rollupOptions: {
+      rolldownOptions: {
         debug: {},
       },
       minify: NUXT_DEBUG_BUILD ? false : undefined,

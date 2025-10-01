@@ -15,9 +15,9 @@ export function getLogsManager(context: DevToolsNodeContext): RolldownLogsManage
     ]
     const dir = dirs.find(dir => existsSync(dir))
     if (!dir) {
-      throw new Error('Rolldown logs directory not found')
+      console.warn('[Vite DevTools] Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.debug` enabled first.')
     }
-    manager = new RolldownLogsManager(dir)
+    manager = new RolldownLogsManager(dir ?? dirs[0]!)
   }
   return manager
 }
