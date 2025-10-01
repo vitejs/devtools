@@ -4,7 +4,7 @@ import { rpcFunctions } from './rpc/index'
 
 export function DevToolsViteUI(): PluginWithDevTools {
   return {
-    name: 'vite:devtools',
+    name: 'vite:devtools:vite-ui',
     devtools: {
       setup(ctx) {
         console.log('Vite DevTools Vite plugin setup')

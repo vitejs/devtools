@@ -1,7 +1,6 @@
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
-import { DevToolsViteUI } from '../../devtools-vite/src/node'
 import { DevTools } from '../src'
 import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 
@@ -24,7 +23,6 @@ export default defineConfig({
 
     // For local playground only. As a user you don't install this plugin directly.
     DevTools(),
-    DevToolsViteUI(),
     {
       name: 'local',
       devtools: {

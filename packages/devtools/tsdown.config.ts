@@ -9,7 +9,6 @@ const define = {
 }
 
 export default defineConfig({
-
   exports: true,
   plugins: [
     Vue({

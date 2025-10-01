@@ -30,10 +30,10 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "vite-devtools": "./bin.mjs"
+    "vite-devtools": "./bin.js"
   },
   "files": [
-    "bin.mjs",
+    "bin.js",
     "dist"
   ],
   "scripts": {
@@ -53,6 +53,7 @@
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
     "cac": "catalog:deps",
     "debug": "catalog:deps",
     "launch-editor": "catalog:deps",
