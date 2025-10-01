@@ -90,13 +90,13 @@ useSideNav(() => {
     {
       title: 'Assets',
       to: `/session/${session.id}/assets`,
-      icon: 'i-ph-package-duotone',
+      icon: 'i-ph-files-duotone',
       category: 'session',
     },
     {
       title: 'Packages',
       to: `/session/${session.id}/packages`,
-      icon: 'i-catppuccin-npm',
+      icon: 'i-ph-package-duotone',
       category: 'session',
     },
   ]
