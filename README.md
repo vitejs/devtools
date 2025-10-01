@@ -15,6 +15,13 @@ We are currently focusing on get the basic data visualization working for **Vite
 
 You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excluding `hold-off`) if you are interested in helping out.
 
+## 📦 Packages
+
+- `@vitejs/devtools` the entry point of the project. It provides the core functionality of Vite DevTools, including the CLI.
+- `@vitejs/devtools-kit` the utility library for integration authors to extend Vite DevTools. Which include types and utilities for the project.
+- `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which would enable by default.
+- `@vitejs/devtools-rpc` the rpc layer of the project.
+
 ## 💡 Contributing Guide
 
 We're really excited that you're interested in contributing to Vite DevTools! Before submitting your contribution, please take a moment to read through the following guidelines:

@@ -1,15 +1,18 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: [
-    'src/node/cli.ts', // Workaround for empty chunk
-    'src/index.ts',
-    'src/cli.ts',
-    'src/dirs.ts',
-  ],
-  tsconfig: '../../tsconfig.pkgs.json',
-  clean: false,
+  entry: {
+    index: 'src/index.ts',
+    dirs: 'src/dirs.ts',
+  },
+  tsconfig: '../../tsconfig.base.json',
   target: 'esnext',
-  fixedExtension: true,
+  exports: true,
   dts: true,
+  clean: false,
+  inputOptions: {
+    experimental: {
+      resolveNewUrlToAsset: false,
+    },
+  },
 })

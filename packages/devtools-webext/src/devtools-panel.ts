@@ -33,7 +33,7 @@ async function getMetadata() {
   return await sendMessage(ViteDevToolsEvent.GET_METADATA, {}, 'content-script')
 }
 
-async function connectToDevtoolsApp() {
+async function connectToDevToolsApp() {
   const metadata = await getMetadata()
   window.__NUXT__ = {}
   window.__NUXT__.config = { public: {}, app: { baseURL: '/', buildAssetsDir: '/_nuxt/', cdnURL: '', metadata } }
@@ -45,7 +45,7 @@ async function connectToDevtoolsApp() {
 function init() {
   // inject script to window
   injectScript(chrome.runtime.getURL('dist/window.js'), async () => {
-    connectToDevtoolsApp()
+    connectToDevToolsApp()
   })
 
   chrome.devtools.network.onNavigated.addListener(() => {

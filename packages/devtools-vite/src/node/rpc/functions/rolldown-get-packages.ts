@@ -1,7 +1,7 @@
-import type { PackageInfo } from '~~/shared/types'
+import type { PackageInfo } from '../../../shared/types'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { getPackageDirPath, isNodeModulePath } from '~~/shared/utils/filepath'
+import { getPackageDirPath, isNodeModulePath } from '../../../shared/utils/filepath'
 import { getLogsManager } from '../utils'
 
 export const rolldownGetPackages = defineRpcFunction({
