@@ -11,7 +11,7 @@
     "prepare": "npx simple-git-hooks && pnpm -C packages/devtools-vite run dev:prepare",
     "lint": "pnpm -C packages/devtools-vite run dev:prepare && eslint .",
     "test": "vitest",
-    "release": "bumpp -r && pnpm publish -r",
+    "release": "bumpp -r",
     "typecheck": "vue-tsc -b --noEmit"
   },
   "devDependencies": {
