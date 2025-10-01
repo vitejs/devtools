@@ -5,17 +5,15 @@ import Inspect from 'vite-plugin-inspect'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const backend = process.env.NMI_BACKEND ?? 'dev'
-const isWebContainer = backend === 'webcontainer'
 
 const BASE = '/__vite_devtools_vite__/'
 
-const headers: Record<string, string> = isWebContainer
-  ? {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    }
-  : {}
+// const headers: Record<string, string> = isWebContainer
+//   ? {
+//       'Cross-Origin-Embedder-Policy': 'require-corp',
+//       'Cross-Origin-Opener-Policy': 'same-origin',
+//     }
+//   : {}
 
 export default defineNuxtConfig({
   ssr: false,
@@ -25,7 +23,7 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@nuxt/eslint',
     'nuxt-eslint-auto-explicit-import',
-    ...isWebContainer ? ['./app/modules/webcontainer'] : [],
+    './modules/rpc',
   ],
 
   alias: {
@@ -72,7 +70,7 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        headers,
+        // headers,
       },
     },
     sourceMap: false,
@@ -101,12 +99,9 @@ export default defineNuxtConfig({
 
   vite: {
     base: BASE,
-    define: {
-      'import.meta.env.BACKEND': JSON.stringify(backend),
-    },
-    server: {
-      headers,
-    },
+    // server: {
+    //   headers,
+    // },
     build: {
       rollupOptions: {
         debug: {},
