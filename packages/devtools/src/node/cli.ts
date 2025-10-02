@@ -44,7 +44,7 @@ cli
     await fs.mkdir(devToolsRoot, { recursive: true })
     await fs.cp(dirClientStandalone, devToolsRoot, { recursive: true })
 
-    for (const { baseUrl, distDir } of devtools.context.staticDirs) {
+    for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs) {
       console.log(c.cyan`${MARK_NODE} Copying static files from ${distDir} to ${join(outDir, baseUrl)}`)
       await fs.mkdir(join(outDir, baseUrl), { recursive: true })
       await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })

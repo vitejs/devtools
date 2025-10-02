@@ -1,9 +1,11 @@
-import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
   public readonly views: Map<string, DevToolsDockEntry> = new Map()
 
-  constructor() {
+  constructor(
+    public readonly context: DevToolsNodeContext,
+  ) {
   }
 
   values(): DevToolsDockEntry[] {

@@ -13,7 +13,10 @@ export function DevToolsViteUI(): PluginWithDevTools {
           ctx.rpc.register(fn)
         }
 
-        ctx.hostStatic('/.devtools-vite', clientPublicDir)
+        ctx.views.hostStatic(
+          '/.devtools-vite',
+          clientPublicDir,
+        )
 
         ctx.docks.register({
           id: 'vite',

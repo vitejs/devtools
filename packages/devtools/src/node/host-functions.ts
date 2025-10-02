@@ -5,9 +5,9 @@ export class RpcFunctionsHost implements RpcFunctionsHostType {
   public readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>> = new Map()
   public readonly functions: DevToolsRpcServerFunctions
 
-  public context: DevToolsNodeContext = undefined!
-
-  constructor() {
+  constructor(
+    public readonly context: DevToolsNodeContext,
+  ) {
     const definitions = this.definitions
     // eslint-disable-next-line ts/no-this-alias
     const self = this
