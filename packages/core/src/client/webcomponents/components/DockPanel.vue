@@ -185,7 +185,7 @@ onMounted(() => {
       :entry="entry"
       :iframes="iframes"
       :iframe-style="{
-        border: '1px solid #8885',
+        border: '1px solid #8883',
         borderRadius: '0.5rem',
         zIndex: '2147483645',
       }"
