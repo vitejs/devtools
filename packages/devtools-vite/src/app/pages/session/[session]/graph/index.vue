@@ -82,14 +82,14 @@ const searchFilterTypes = computed(() => {
   })
 })
 
-// const allNodeModules = computed(() => {
-//   const nodeModules = new Set<string>()
-//   for (const mod of parsedPaths.value) {
-//     if (mod.path.moduleName)
-//       nodeModules.add(mod.path.moduleName)
-//   }
-//   return nodeModules
-// })
+const allNodeModules = computed(() => {
+  const nodeModules = new Set<string>()
+  for (const mod of parsedPaths.value) {
+    if (mod.path.moduleName)
+      nodeModules.add(mod.path.moduleName)
+  }
+  return Array.from(nodeModules).sort()
+})
 
 const filtered = computed(() => {
   let modules = parsedPaths.value
@@ -130,12 +130,46 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   }
   settings.value.moduleGraphViewType = type
 }
+
+function toggleNodeModule(moduleName: string) {
+  if (!searchValue.value.node_modules) {
+    searchValue.value.node_modules = allNodeModules.value.filter((m: string) => m !== moduleName)
+  }
+  else if (searchValue.value.node_modules.includes(moduleName)) {
+    searchValue.value.node_modules = searchValue.value.node_modules.filter((m: string) => m !== moduleName)
+  }
+  else {
+    searchValue.value.node_modules.push(moduleName)
+  }
+  if (searchValue.value.node_modules.length === allNodeModules.value.length) {
+    searchValue.value.node_modules = null
+  }
+}
 </script>
 
 <template>
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
+        <div v-if="allNodeModules.length" flex="~ gap-2 wrap" p2 border="t base">
+          <span op50 pl2 text-sm>Node Modules</span>
+          <label
+            v-for="moduleName of allNodeModules"
+            :key="moduleName"
+            border="~ base rounded-md" px2 py1
+            flex="~ items-center gap-1"
+            select-none
+            :class="!searchValue.node_modules || searchValue.node_modules.includes(moduleName) ? 'bg-active' : 'grayscale op50'"
+          >
+            <input
+              type="checkbox"
+              mr1
+              :checked="!searchValue.node_modules || searchValue.node_modules.includes(moduleName)"
+              @change="toggleNodeModule(moduleName)"
+            >
+            <div text-sm>{{ moduleName }}</div>
+          </label>
+        </div>
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
@@ -151,8 +185,6 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
         </div>
       </DataSearchPanel>
     </div>
-    <!-- TODO: should we add filters for node_modules? -->
-    <!-- {{ allNodeModules }} -->
     <template v-if="settings.moduleGraphViewType === 'list'">
       <div of-auto h-screen pt-45>
         <ModulesFlatList
