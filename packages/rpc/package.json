@@ -1,0 +1,52 @@
+{
+  "name": "@vitejs/devtools-rpc",
+  "type": "module",
+  "version": "0.0.0-alpha.3",
+  "description": "DevTools rpc for Vite (work in progress)",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/rpc",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite",
+    "devtools",
+    "rpc"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./presets": "./dist/presets/index.js",
+    "./presets/ws/client": "./dist/presets/ws/client.js",
+    "./presets/ws/server": "./dist/presets/ws/server.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "watch": "tsdown --watch",
+    "prepack": "pnpm build"
+  },
+  "peerDependenciesMeta": {
+    "ws": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "birpc": "catalog:deps",
+    "structured-clone-es": "catalog:deps"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:build",
+    "ws": "catalog:deps"
+  }
+}

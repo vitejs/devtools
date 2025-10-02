@@ -1,0 +1,76 @@
+{
+  "name": "@vitejs/devtools",
+  "type": "module",
+  "version": "0.0.0-alpha.3",
+  "description": "Vite DevTools",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/core",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite",
+    "devtools",
+    "rpc"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.js",
+    "./cli": "./dist/cli.js",
+    "./client/inject": "./dist/client/inject.js",
+    "./client/webcomponents": "./dist/client/webcomponents.js",
+    "./dirs": "./dist/dirs.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "vite-devtools": "./bin.js"
+  },
+  "files": [
+    "bin.js",
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm build:js && pnpm build:standalone",
+    "build:js": "tsdown --config-loader=tsx",
+    "build:standalone": "cd src/client/standalone && vite build",
+    "watch": "tsdown --watch --config-loader=tsx",
+    "dev:standalone": "cd src/client/standalone && vite dev",
+    "prepack": "pnpm build",
+    "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
+    "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
+    "play:build": "pnpm -C playground run build"
+  },
+  "peerDependencies": {
+    "vite": "catalog:build"
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-rpc": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "cac": "catalog:deps",
+    "debug": "catalog:deps",
+    "launch-editor": "catalog:deps",
+    "open": "catalog:deps",
+    "pathe": "catalog:deps",
+    "sirv": "catalog:deps",
+    "ws": "catalog:deps"
+  },
+  "devDependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:build",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:devtools",
+    "unplugin-vue": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:frontend",
+    "vue-tsc": "catalog:devtools"
+  }
+}

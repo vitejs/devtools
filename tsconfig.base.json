@@ -7,10 +7,10 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-kit": ["./packages/devtools-kit/src/index.ts"],
-      "@vitejs/devtools-kit/client": ["./packages/devtools-kit/src/client/index.ts"],
-      "@vitejs/devtools-vite": ["./packages/devtools-vite/src/index.ts"],
-      "@vitejs/devtools": ["./packages/devtools/src/index.ts"]
+      "@vitejs/devtools-kit/client": ["./packages/kit/src/client/index"],
+      "@vitejs/devtools-kit": ["./packages/kit/src/index"],
+      "@vitejs/devtools-vite": ["./packages/vite/src/index"],
+      "@vitejs/devtools": ["./packages/core/src/index"]
     },
     "resolveJsonModule": true,
     "strict": true,

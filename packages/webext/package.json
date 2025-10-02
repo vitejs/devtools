@@ -1,0 +1,34 @@
+{
+  "name": "@vitejs/devtools-webext",
+  "type": "module",
+  "version": "0.0.0-alpha.3",
+  "private": true,
+  "description": "DevTools browser extension for Vite (work in progress)",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/webext",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite",
+    "devtools",
+    "chrome extension"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build:extension": "tsx scripts/build-app.ts && tsdown",
+    "watch": "tsdown --watch",
+    "prepack": "pnpm build:extension"
+  },
+  "dependencies": {
+    "webext-bridge": "catalog:deps"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:build",
+    "tsx": "catalog:build"
+  }
+}

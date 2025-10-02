@@ -1,9 +1,9 @@
 {
   "references": [
-    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.app.json" },
-    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.server.json" },
-    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.shared.json" },
-    { "path": "./packages/devtools-vite/src/.nuxt/tsconfig.node.json" }
+    { "path": "./packages/vite/src/.nuxt/tsconfig.app.json" },
+    { "path": "./packages/vite/src/.nuxt/tsconfig.server.json" },
+    { "path": "./packages/vite/src/.nuxt/tsconfig.shared.json" },
+    { "path": "./packages/vite/src/.nuxt/tsconfig.node.json" }
   ],
   "files": []
 }

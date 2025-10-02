@@ -17,10 +17,10 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## 📦 Packages
 
-- `@vitejs/devtools` the entry point of the project. It provides the core functionality of Vite DevTools, including the CLI.
-- `@vitejs/devtools-kit` the utility library for integration authors to extend Vite DevTools. Which include types and utilities for the project.
-- `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which would enable by default.
-- `@vitejs/devtools-rpc` the rpc layer of the project.
+- `packages/core`: `@vitejs/devtools` the entry point of the project. It provides the core functionality of Vite DevTools, including the CLI.
+- `packages/kit`: `@vitejs/devtools-kit` the utility library for integration authors to extend Vite DevTools. Which include types and utilities for the project.
+- `packages/vite`: `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which would enable by default.
+- `packages/rpc`: `@vitejs/devtools-rpc` the rpc layer of the project.
 
 ## 💡 Contributing Guide
 
@@ -34,12 +34,12 @@ We're really excited that you're interested in contributing to Vite DevTools! Be
 Currently Vite DevTools only supports build time inspection, to develop this project, you first need to build itself to get the Rolldown meta for testing.
 
 - `pnpm install` to install dependencies
-- `pnpm build` first to get the Rolldown logs under `./packages/devtools-vite/.rolldown` folder
+- `pnpm build` first to get the Rolldown logs under `./packages/vite/.rolldown` folder
 - `pnpm dev` to start the dev server
 
 As the data interface between Rolldown is not yet stable, and breaking changes are expected. We locked the Rolldown version in our `pnpm-workspace.yaml`, which means the published version may not work with the latest Rolldown.
 
-When pulling the latest commits, it's recommended to remove the `./packages/devtools-vite/.rolldown` folder and run `pnpm build` again to get the latest data format.
+When pulling the latest commits, it's recommended to remove the `./packages/vite/.rolldown` folder and run `pnpm build` again to get the latest data format.
 
 ## 📄 Licenses
 
