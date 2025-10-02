@@ -24,7 +24,7 @@ export async function getDevToolsRpcClient(
   rpc: BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>
 }> {
   const {
-    baseURL = '/__vite_devtools__/api/',
+    baseURL = '/.devtools/',
   } = options
   const urls = Array.isArray(baseURL) ? baseURL : [baseURL]
   let connectionMeta: ConnectionMeta | undefined = options.connectionMeta
@@ -33,7 +33,7 @@ export async function getDevToolsRpcClient(
     const errors: Error[] = []
     for (const url of urls) {
       try {
-        connectionMeta = await fetch(`${url}connection.json`)
+        connectionMeta = await fetch(`${url}.vdt-connection.json`)
           .then(r => r.json()) as ConnectionMeta
         break
       }

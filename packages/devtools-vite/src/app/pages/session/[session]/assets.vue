@@ -9,6 +9,7 @@ import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Flamegraph, Sunburst, Treemap } from 'nanovis'
 import { computed, reactive, ref, watch } from 'vue'
+import ChartTreemap from '~/components/chart/Treemap.vue'
 import { useChartGraph } from '~/composables/chart'
 import { settings } from '~/state/settings'
 
@@ -22,7 +23,7 @@ const searchValue = ref<{ search: string }>({
 })
 const router = useRouter()
 const route = useRoute()
-const assetViewTpyes = [
+const assetViewTypes = [
   {
     label: 'List',
     value: 'list',
@@ -141,7 +142,7 @@ watch(() => settings.value.assetViewType, () => {
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
-            v-for="viewType of assetViewTpyes"
+            v-for="viewType of assetViewTypes"
             :key="viewType.value"
             btn-action
             :class="settings.assetViewType === viewType.value ? 'bg-active' : 'grayscale op50'"

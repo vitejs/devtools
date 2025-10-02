@@ -13,14 +13,14 @@ export function DevToolsViteUI(): PluginWithDevTools {
           ctx.rpc.register(fn)
         }
 
-        ctx.hostStatic('/__vite_devtools_vite__/', clientPublicDir)
+        ctx.hostStatic('/.devtools-vite', clientPublicDir)
 
         ctx.docks.register({
           id: 'vite',
           title: 'Vite',
           icon: 'https://vite.dev/logo.svg',
           type: 'iframe',
-          url: '/__vite_devtools_vite__/',
+          url: '/.devtools-vite/',
         })
       },
     },

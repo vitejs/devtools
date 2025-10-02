@@ -8,6 +8,7 @@ import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Treemap } from 'nanovis'
 import { computed, reactive, ref, watch } from 'vue'
+import ChartTreemap from '~/components/chart/Treemap.vue'
 import { useChartGraph } from '~/composables/chart'
 import { settings } from '~/state/settings'
 

@@ -6,7 +6,7 @@ import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
 
-const BASE = '/__vite_devtools_vite__/'
+const BASE = '/.devtools-vite/'
 
 // const headers: Record<string, string> = isWebContainer
 //   ? {

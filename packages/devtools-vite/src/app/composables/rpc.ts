@@ -20,8 +20,8 @@ export async function connect() {
   try {
     const result = await getDevToolsRpcClient({
       baseURL: [
+        '/.devtools/',
         runtimeConfig.app.baseURL,
-        '/__vite_devtools__/api/',
       ],
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {

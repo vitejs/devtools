@@ -9,7 +9,7 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
 
   const { rpc, getMetadata } = await createWsServer(options)
 
-  app.use('/api/connection.json', eventHandler(async (event) => {
+  app.use('/.vdt-connection.json', eventHandler(async (event) => {
     event.node.res.setHeader('Content-Type', 'application/json')
     return event.node.res.end(JSON.stringify(await getMetadata()))
   }))

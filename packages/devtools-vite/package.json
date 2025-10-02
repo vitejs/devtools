@@ -29,7 +29,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
+    "build": "nr dev:prepare && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
     "dev": "ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",

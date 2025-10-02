@@ -22,6 +22,7 @@ export default defineConfig({
   presets: [
     presetWind3({
       dark: 'media',
+      variablePrefix: 'vdt-',
     }),
     presetIcons({
       warn: true,

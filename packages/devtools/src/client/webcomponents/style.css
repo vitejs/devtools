@@ -61,7 +61,7 @@
 #vite-devtools-anchor #vite-devtools-glowing {
   --uno: absolute left-0 top-0 w-[160px] h-[160px] opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full blur-[60px];
   transform: translate(-50%, -50%);
-  background-image: linear-gradient(45deg, #00dc82, #00dc82, #00dc82);
+  background-image: linear-gradient(45deg, #61d9ff, #7a23a1, #715ebd);
 }
 
 @media print {

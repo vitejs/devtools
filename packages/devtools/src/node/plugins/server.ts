@@ -17,7 +17,7 @@ export function DevToolsServer(): Plugin {
         cwd: viteDevServer.config.root,
         context,
       })
-      viteDevServer.middlewares.use('/__vite_devtools__/', middleware)
+      viteDevServer.middlewares.use('/.devtools/', middleware)
     },
   }
 }

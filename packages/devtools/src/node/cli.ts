@@ -40,7 +40,7 @@ cli
     if (existsSync(outDir))
       await fs.rm(outDir, { recursive: true })
 
-    const devToolsRoot = join(outDir, '__vite_devtools__')
+    const devToolsRoot = join(outDir, '.devtools')
     await fs.mkdir(devToolsRoot, { recursive: true })
     await fs.cp(dirClientStandalone, devToolsRoot, { recursive: true })
 
@@ -51,15 +51,15 @@ cli
     }
 
     await fs.mkdir(resolve(devToolsRoot, 'api'), { recursive: true })
-    await fs.writeFile(resolve(devToolsRoot, 'api/connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
+    await fs.writeFile(resolve(devToolsRoot, '.vdt-connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
 
-    console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, 'api/rpc-dump.json')}`)
+    console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, '.vdt-rpc-dump.json')}`)
     const dump: Record<string, any> = {}
     for (const [key, value] of Object.entries(devtools.context.rpc.functions)) {
       if (value.type === 'static')
         dump[key] = await value.handler?.()
     }
-    await fs.writeFile(resolve(devToolsRoot, 'api/rpc-dump.json'), JSON.stringify(dump, null, 2), 'utf-8')
+    await fs.writeFile(resolve(devToolsRoot, '.vdt-rpc-dump.json'), JSON.stringify(dump, null, 2), 'utf-8')
 
     console.log(c.green`${MARK_NODE} Built to ${relative(devtools.config.root, outDir)}`)
 
@@ -95,9 +95,9 @@ cli
     const app = createApp()
     app.use('/', eventHandler(async (event) => {
       if (event.node.req.url === '/')
-        return sendRedirect(event, '/__vite_devtools__/')
+        return sendRedirect(event, '/.devtools/')
     }))
-    app.use('/__vite_devtools__', h3.handler)
+    app.use('/.devtools', h3.handler)
 
     const server = createServer(toNodeListener(app))
 
