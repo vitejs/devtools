@@ -37,6 +37,61 @@ const codeDisplay = computed(() => {
   return null
 })
 
+const nodeDetails = computed(() => {
+  if (!props.selected || !('type' in props.selected))
+    return null
+
+  const node = props.selected
+  const type = node.type
+
+  if (type === 'resolve') {
+    return {
+      title: 'Resolve',
+      fields: [
+        { label: 'Plugin', value: node.plugin_name },
+        { label: 'Module Request', value: node.module_request },
+        { label: 'Resolved ID', value: node.resolved_id || 'Not resolved' },
+        { label: 'Importer', value: node.importer || 'None' },
+        { label: 'Import Kind', value: node.import_kind },
+        { label: 'Duration', value: `${node.duration.toFixed(2)}ms` },
+      ],
+    }
+  }
+  else if (type === 'no_changes_collapsed' || type === 'no_changes_hide') {
+    return {
+      title: 'No Changes',
+      fields: [
+        { label: 'Type', value: type === 'no_changes_collapsed' ? 'Collapsed' : 'Hidden' },
+        { label: 'Count', value: node.count.toString() },
+        { label: 'Total Duration', value: `${node.duration.toFixed(2)}ms` },
+      ],
+    }
+  }
+  else if (type === 'load') {
+    return {
+      title: 'Load',
+      fields: [
+        { label: 'Plugin', value: node.plugin_name },
+        { label: 'Duration', value: `${node.duration.toFixed(2)}ms` },
+        { label: 'Has Content', value: node.content ? 'Yes' : 'No' },
+      ],
+    }
+  }
+  else if (type === 'transform') {
+    return {
+      title: 'Transform',
+      fields: [
+        { label: 'Plugin', value: node.plugin_name },
+        { label: 'Duration', value: `${node.duration.toFixed(2)}ms` },
+        { label: 'Lines Added', value: node.diff_added?.toString() || '0' },
+        { label: 'Lines Removed', value: node.diff_removed?.toString() || '0' },
+      ],
+    }
+  }
+
+  return null
+})
+
 function handleClose() {
   emit('close')
 }
@@ -87,7 +142,31 @@ function handleClose() {
         :one-column="false"
       />
     </template>
-    <!-- TODO: show more info with selected node -->
+    <template v-else-if="nodeDetails">
+      <div flex="~ col" h-full of-auto p4>
+        <div flex="~ items-center gap-2" mb4 pb2 border="b base">
+          <h3 text-lg font-semibold>
+            {{ nodeDetails.title }}
+          </h3>
+          <div flex-auto />
+          <DisplayCloseButton @click.stop="handleClose" />
+        </div>
+        <div flex="~ col gap-3">
+          <div
+            v-for="field in nodeDetails.fields"
+            :key="field.label"
+            flex="~ col gap-1"
+          >
+            <div text-sm op50>
+              {{ field.label }}
+            </div>
+            <div font-mono text-sm break-all>
+              {{ field.value }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
     <span v-else op50 italic ma>
       No data
     </span>
