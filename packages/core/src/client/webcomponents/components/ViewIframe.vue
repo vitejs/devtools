@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsViewIframe } from '../../../../../kit/src'
 import type { DevToolsDockState } from './DockProps'
 import type { IframeManager } from './IframeManager'
 import { nextTick, onMounted, onUnmounted, useTemplateRef, watch, watchEffect } from 'vue'

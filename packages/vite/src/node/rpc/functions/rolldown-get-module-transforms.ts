@@ -1,6 +1,6 @@
 import type { RolldownModuleTransformInfo } from '../../../shared/types'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { diffLines } from 'diff'
-import { defineRpcFunction } from '../../../../../kit/src'
 import { getLogsManager } from '../utils'
 
 export const rolldownGetModuleTransforms = defineRpcFunction({

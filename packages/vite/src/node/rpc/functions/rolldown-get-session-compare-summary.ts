@@ -1,4 +1,4 @@
-import { defineRpcFunction } from '../../../../../kit/src'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 
 export const rolldownGetSessionCompareSummary = defineRpcFunction({

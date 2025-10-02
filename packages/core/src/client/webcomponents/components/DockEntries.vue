@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '../../../../../kit/src'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import { toRefs } from 'vue'
 
 const props = defineProps<{

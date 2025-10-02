@@ -1,5 +1,5 @@
 import type { RolldownPluginBuildMetrics } from '../../../shared/types'
-import { defineRpcFunction } from '../../../../../kit/src'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 
 export const rolldownGetPluginDetails = defineRpcFunction({

@@ -1,9 +1,9 @@
-import type {} from '../../../../core/src'
-import type { BirpcReturn, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../../../../kit/src'
+import type {} from '@vitejs/devtools'
+import type { BirpcReturn, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type {} from '../../node/rpc'
 import { useRuntimeConfig } from '#app/nuxt'
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { reactive, shallowRef } from 'vue'
-import { getDevToolsRpcClient } from '../../../../kit/src/client'
 
 export const connectionState = reactive<{
   connected: boolean

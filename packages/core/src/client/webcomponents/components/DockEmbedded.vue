@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '../../../../../kit/src'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsDockState } from './DockProps'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'

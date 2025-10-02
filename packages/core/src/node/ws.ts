@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
+import type { ConnectionMeta, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
-import type { ConnectionMeta, DevToolsNodeContext } from '../../../kit/src'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'

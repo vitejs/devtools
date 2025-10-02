@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Asset as AssetInfo } from '@rolldown/debug'
+import type {} from '@vitejs/devtools'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import type {} from '../../../../../core/src/node/rpc'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'

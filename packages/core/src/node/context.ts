@@ -1,5 +1,5 @@
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
-import type { DevToolsNodeContext } from '../../../kit/src'
 import Debug from 'debug'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'

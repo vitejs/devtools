@@ -1,4 +1,4 @@
-import type { PluginWithDevTools } from '../../../kit/src'
+import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import { clientPublicDir } from '../dirs'
 import { rpcFunctions } from './rpc/index'
 

@@ -1,4 +1,4 @@
-import { defineRpcFunction } from '../../../../kit/src'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const listRpcFunctions = defineRpcFunction({
   name: 'vite:core:list-rpc-functions',

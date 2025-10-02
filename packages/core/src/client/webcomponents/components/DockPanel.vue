@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockEntry } from '../../../../../kit/src'
 import type { DevToolsDockState } from './DockProps'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'

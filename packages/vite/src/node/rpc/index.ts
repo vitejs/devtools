@@ -1,4 +1,4 @@
-import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '../../../../kit/src'
+import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { getPayload } from './functions/get-payload'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
@@ -13,6 +13,7 @@ import { rolldownGetRawEvents } from './functions/rolldown-get-raw-events'
 import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
+import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
   getPayload,

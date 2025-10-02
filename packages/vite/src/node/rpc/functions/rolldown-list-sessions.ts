@@ -1,5 +1,5 @@
 import type { BuildInfo } from '../../rolldown/logs-manager'
-import { defineRpcFunction } from '../../../../../kit/src'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getLogsManager } from '../utils'
 
 export const rolldownListSessions = defineRpcFunction({

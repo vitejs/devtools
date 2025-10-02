@@ -1,6 +1,6 @@
 import type { PackageInfo } from '../../../shared/types'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
-import { defineRpcFunction } from '../../../../../kit/src'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getPackageDirPath, isNodeModulePath } from '../../../shared/utils/filepath'
 import { getLogsManager } from '../utils'
 

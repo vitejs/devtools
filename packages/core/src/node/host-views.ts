@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext, DevToolsViewHost as DevToolsViewHostType } from '../../../kit/src'
+import type { DevToolsNodeContext, DevToolsViewHost as DevToolsViewHostType } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import sirv from 'sirv'
 

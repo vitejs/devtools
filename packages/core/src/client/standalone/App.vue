@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsDockState } from '../webcomponents/components/DockProps'
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
-import { getDevToolsRpcClient } from '../../../../kit/src/client'
 import Dock from '../webcomponents/components/Dock.vue'
 import { IframeManager } from '../webcomponents/components/IframeManager'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'

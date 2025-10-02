@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry } from '../../../../../kit/src'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 
 export interface DevToolsDockState {
   width: number

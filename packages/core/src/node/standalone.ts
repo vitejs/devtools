@@ -1,5 +1,5 @@
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
-import type { DevToolsNodeContext } from '../../../kit/src'
 import process from 'node:process'
 import { loadConfigFromFile, resolveConfig } from 'vite'
 import { createDevToolsContext } from './context'

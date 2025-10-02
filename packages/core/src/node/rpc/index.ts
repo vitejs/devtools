@@ -1,4 +1,4 @@
-import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '../../../../kit/src'
+import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { listDockEntries } from './list-dock-entries'
 import { listRpcFunctions } from './list-rpc-functions'
 import { openInEditor } from './open-in-editor'

@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { getDevToolsRpcClient } from '../../../../kit/src/client'
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-console

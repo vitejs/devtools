@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '../../../../kit/src'
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 import { join } from 'pathe'

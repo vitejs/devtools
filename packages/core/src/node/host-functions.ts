@@ -1,5 +1,5 @@
-import type { DevToolsNodeContext, DevToolsRpcServerFunctions, RpcFunctionDefinition, RpcFunctionsHost as RpcFunctionsHostType } from '../../../kit/src'
-import { getRpcHandler } from '../../../kit/src'
+import type { DevToolsNodeContext, DevToolsRpcServerFunctions, RpcFunctionDefinition, RpcFunctionsHost as RpcFunctionsHostType } from '@vitejs/devtools-kit'
+import { getRpcHandler } from '@vitejs/devtools-kit'
 
 export class RpcFunctionsHost implements RpcFunctionsHostType {
   public readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>> = new Map()
