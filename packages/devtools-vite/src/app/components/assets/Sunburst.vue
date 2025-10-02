@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { GraphBase, GraphBaseOptions } from 'nanovis'
-import type { AssetChartInfo, AssetChartNode } from '~/types/assets'
+import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
 import { colorToCssBackground } from 'nanovis'
 import { useTemplateRef, watchEffect } from 'vue'
 

@@ -1,15 +1,22 @@
 <script setup lang="ts">
-import type { SessionContext } from '~~/shared/types/data'
+import type { PackageInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
+import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
+import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
-import { computedWithControl, useAsyncState } from '@vueuse/core'
+import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, ref } from 'vue'
+import { Treemap } from 'nanovis'
+import { computed, reactive, ref, watch } from 'vue'
+import { useChartGraph } from '~/composables/chart'
 import { settings } from '~/state/settings'
 
 const props = defineProps<{
   session: SessionContext
 }>()
+
+const mouse = reactive(useMouse())
+const route = useRoute()
 
 const packageTypeRules = [
   {
@@ -66,6 +73,11 @@ const packageViewTpyes = computed(() => [
     icon: 'i-ph:table-thin',
   },
   {
+    label: 'Treemap',
+    value: 'treemap',
+    icon: 'i-ph-checkerboard-duotone',
+  },
+  {
     label: `Duplicate Packages${duplicatePackagesCount.value > 0 ? ` (${duplicatePackagesCount.value})` : ''}`,
     value: 'duplicate-packages',
     icon: 'i-tabler:packages',
@@ -92,6 +104,41 @@ const normalizedPackages = computed(() => {
 function toggleDisplay(type: ClientSettings['packageViewType']) {
   settings.value.packageViewType = type
 }
+
+const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<PackageInfo, PackageChartInfo, PackageChartNode>({
+  data: normalizedPackages,
+  nameKey: 'name',
+  sizeKey: 'transformedCodeSize',
+  rootText: 'Packages',
+  nodeType: 'package',
+  graphOptions: {
+    onHover(node) {
+      if (node && !route.query.package)
+        nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
+    },
+    onLeave() {
+      nodeHover.value = undefined
+    },
+    onSelect(node) {
+      nodeSelected.value = node || tree.value.root
+      selectedNode.value = node?.meta
+    },
+  },
+  onUpdate() {
+    if (settings.value.packageViewType === 'treemap') {
+      graph.value = new Treemap(tree.value.root, {
+        ...chartOptions.value,
+        selectedPaddingRatio: 0,
+      })
+    }
+  },
+})
+
+watch(() => settings.value.packageViewType, () => {
+  buildGraph()
+})
 </script>
 
 <template>
@@ -123,9 +170,43 @@ function toggleDisplay(type: ClientSettings['packageViewType']) {
           <span op50>{{ searched.length }} of {{ packages?.length || 0 }}</span>
         </div>
       </template>
+      <template v-else-if="settings.packageViewType === 'treemap'">
+        <ChartTreemap
+          v-if="graph && normalizedPackages.length"
+          :graph="graph"
+          :selected="nodeSelected"
+          @select="x => selectNode(x)"
+        >
+          <template #default="{ selected, options, onSelect }">
+            <ChartPackageNavBreadcrumb
+              border="b base" py2 min-h-10
+              :selected="selected"
+              :options="options"
+              @select="onSelect"
+            />
+          </template>
+        </ChartTreemap>
+        <span v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+          No Data
+        </span>
+      </template>
       <template v-else-if="settings.packageViewType === 'duplicate-packages'">
         <PackagesDuplicated :packages="normalizedPackages" :session="session" />
       </template>
     </div>
+    <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+      <div
+        v-if="nodeHover?.meta"
+        bg-glass border="~ base rounded" p2 text-sm
+        flex="~ col gap-2"
+      >
+        <div flex="~ gap-1 items-center">
+          {{ nodeHover.text }}
+        </div>
+        <div flex="~ gap-1 items-center">
+          <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
+        </div>
+      </div>
+    </DisplayGraphHoverView>
   </div>
 </template>
