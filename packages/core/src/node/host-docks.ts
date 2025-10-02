@@ -13,6 +13,16 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   }
 
   register(view: DevToolsDockEntry): void {
+    if (this.views.has(view.id)) {
+      throw new Error(`Dock with id "${view.id}" is already registered`)
+    }
+    this.views.set(view.id, view)
+  }
+
+  update(view: DevToolsDockEntry): void {
+    if (!this.views.has(view.id)) {
+      throw new Error(`Dock with id "${view.id}" is not registered. Use register() to add new docks.`)
+    }
     this.views.set(view.id, view)
   }
 }

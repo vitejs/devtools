@@ -17,6 +17,7 @@ export interface RpcFunctionsHost {
   readonly functions: DevToolsRpcServerFunctions
   readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
   register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
+  update: (fn: RpcFunctionDefinition<string, any, any, any>) => void
 }
 
 export interface RpcFunctionSetupResult<
