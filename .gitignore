@@ -7,8 +7,8 @@ dist
 .idea/
 .DS_Store
 .vite-devtools
-/vite/src/public/fonts
-/vite/src/app/public/fonts
-/vite/runtime
+packages/vite/src/public/fonts
+packages/vite/src/app/public/fonts
+packages/vite/runtime
 .rolldown
 *.tsbuildinfo
