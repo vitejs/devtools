@@ -58,6 +58,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
           <div :class="viewType.icon" />
           {{ viewType.label }}
         </button>
+        <!-- TODO: add graph views -->
       </div>
     </div>
     <template v-if="settings.chunkViewType === 'list'">
@@ -73,6 +74,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
       </div>
     </template>
     <template v-else-if="settings.chunkViewType === 'graph'">
+      <!-- TODO: We should draw a deep-first graph instead of flat graph -->
       <ChunksGraph
         :session="session"
         :chunks="normalizedChunks"

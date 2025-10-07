@@ -102,28 +102,25 @@ function unselectToggle() {
         <div text-sm>{{ rule.description || rule.name }}</div>
       </label>
       <button
-        rounded-md px2 py1
+        rounded-md p1
         flex="~ items-center gap-1"
         select-none
         hover="bg-active"
         title="Reverse Selection"
         @click="reverseSelect"
       >
-        <div text-xs op50>
-          Reverse
-        </div>
+        <div op75 i-ph-selection-background-duotone />
       </button>
       <button
-        rounded-md px2 py1
+        rounded-md p1
         flex="~ items-center gap-1"
         select-none
         hover="bg-active"
         :title="model.selected?.length === 0 ? 'Select All' : 'Unselect All'"
         @click="unselectToggle"
       >
-        <div text-xs op50>
-          {{ model.selected?.length === 0 ? 'Select All' : 'Unselect All' }}
-        </div>
+        <div v-if="model.selected?.length === 0" op75 i-ph-selection-slash-duotone />
+        <div v-else op75 i-ph-selection-plus-duotone />
       </button>
     </div>
     <slot />

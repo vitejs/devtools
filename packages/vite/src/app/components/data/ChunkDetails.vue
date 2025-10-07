@@ -20,6 +20,7 @@ withDefaults(defineProps<{
         <div i-ph-shapes-duotone />
         <div>{{ chunk.name || '[unnamed]' }}</div>
         <DisplayBadge :text="chunk.reason" />
+        <!-- TODO: Estimated Chunk Size -->
       </div>
 
       <div flex-auto />
@@ -54,6 +55,8 @@ withDefaults(defineProps<{
       </div>
     </details>
 
+    <!-- TODO: imports seems to be "imported-by" instead of "imports", maybe something wrong on Rolldown side? -->
+    <!-- TODO: We might want to display both "imports" and "imported-by" relationship -->
     <details v-if="showImports && chunk.imports.length > 0" open="true">
       <summary op50>
         <span>Imports ({{ chunk.imports.length }})</span>
