@@ -74,7 +74,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
       </div>
     </template>
     <template v-else-if="settings.chunkViewType === 'graph'">
-      <!-- TODO: We should draw a deep-first graph instead of flat graph -->
+      <!-- WIP: We should draw a deep-first graph instead of flat graph -->
       <ChunksGraph
         :session="session"
         :chunks="normalizedChunks"
