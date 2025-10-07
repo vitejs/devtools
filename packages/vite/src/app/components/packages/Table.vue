@@ -42,7 +42,7 @@ function toggleSizeSortType() {
         <button flex="~ row gap1 items-center justify-end" w-full relative pr2>
           Size
           <span v-if="!disableSizeSort" w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleSizeSortType">
-            <i text-xs :class="[sizeSortType !== 'asc' ? 'i-carbon-arrow-down' : 'i-carbon-arrow-up', sizeSortType ? 'op100 text-primary' : 'op50']" />
+            <i text-xs :class="[sizeSortType !== 'asc' ? 'i-ph-arrow-down-duotone' : 'i-ph-arrow-up-duotone', sizeSortType ? 'op100 text-primary' : 'op50']" />
           </span>
         </button>
       </div>

@@ -43,7 +43,7 @@ function select(node: ModuleDest) {
       px2 py1 rounded
       hover="bg-active "
     >
-      <div class="i-ph:caret-right-duotone transition op50" :class="open ? 'rotate-90' : ''" />
+      <div class="i-ph-caret-right-duotone transition op50" :class="open ? 'rotate-90' : ''" />
       <div :class="open ? iconOpen || icon : icon" inline-block vertical-text-bottom />
       <div font-mono>
         <DisplayHighlightedPath :path="node.name || ''" />

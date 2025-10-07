@@ -89,7 +89,7 @@ function toggleDurationSortType() {
           Module
           <VMenu>
             <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
-              <i text-xs class="i-carbon-filter" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op50'" />
+              <i text-xs class="i-ph-funnel-duotone" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op50'" />
             </span>
             <template #popper>
               <div class="p2" flex="~ col gap2">
@@ -126,7 +126,7 @@ function toggleDurationSortType() {
         <button flex="~ row gap1 items-center justify-center" w-full @click="toggleDurationSortType">
           Duration
           <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
-            <i text-xs :class="[durationSortType !== 'asc' ? 'i-carbon-arrow-down' : 'i-carbon-arrow-up', durationSortType ? 'op100 text-primary' : 'op50']" />
+            <i text-xs :class="[durationSortType !== 'asc' ? 'i-ph-arrow-down-duotone' : 'i-ph-arrow-up-duotone', durationSortType ? 'op100 text-primary' : 'op50']" />
           </span>
         </button>
       </div>

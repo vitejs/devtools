@@ -72,7 +72,7 @@ const transformedCodeSize = computed(() => {
       <span op40>|</span>
       <div flex="~ gap-1 items-center">
         <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
-        <span i-carbon-arrow-right op50 />
+        <span i-ph-arrow-right-duotone op50 />
         <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
       </div>
     </template>

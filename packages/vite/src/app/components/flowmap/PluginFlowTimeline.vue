@@ -80,7 +80,7 @@ const endTime = computed(() => {
           h4
         />
         <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
-          <i i-ph:airplane-takeoff-thin text-4 inline-flex />
+          <i i-ph-airplane-takeoff-thin text-4 inline-flex />
           <time v-if="startTime" :datetime="new Date(startTime).toISOString()">{{ new Date(startTime).toLocaleString() }}</time>
         </span>
       </div>
@@ -168,7 +168,7 @@ const endTime = computed(() => {
           absolute top-14 w-2 h-2 border="4" rounded-full
         />
         <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
-          <i i-ph:airplane-landing-thin text-4 inline-flex />
+          <i i-ph-airplane-landing-thin text-4 inline-flex />
           <time v-if="endTime" :datetime="new Date(endTime).toISOString()">{{ new Date(endTime).toLocaleString() }}</time>
         </span>
       </div>

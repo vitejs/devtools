@@ -14,7 +14,7 @@ const chunkViewTypes = [
   {
     label: 'List',
     value: 'list',
-    icon: 'i-carbon-list',
+    icon: 'i-ph-list-bullets-duotone',
   },
   {
     label: 'Graph',

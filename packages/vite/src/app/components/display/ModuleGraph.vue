@@ -146,7 +146,7 @@ onMounted(() => {
           title="Expand All"
           @click="expandAll()"
         >
-          <div class="i-carbon:expand-categories" />
+          <div class="i-ph-arrows-out-simple-duotone" />
         </button>
         <button
           v-tooltip.left="'Collapse All'"
@@ -157,7 +157,7 @@ onMounted(() => {
           title="Collapse All"
           @click="collapseAll()"
         >
-          <div class="i-carbon:collapse-categories" />
+          <div class="i-ph-arrows-in-simple-duotone" />
         </button>
 
         <div border="t base" my1 />

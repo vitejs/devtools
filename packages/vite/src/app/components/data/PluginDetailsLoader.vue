@@ -94,7 +94,7 @@ const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => a
         />
         <span op40>|</span>
         <DisplayNumberBadge
-          :number="state?.calls?.length ?? 0" icon="i-ph:arrow-counter-clockwise"
+          :number="state?.calls?.length ?? 0" icon="i-ph-arrow-counter-clockwise"
           color="transparent color-scale-neutral"
           :title="`Total calls: ${state?.calls?.length ?? 0}`"
         />

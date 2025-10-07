@@ -16,31 +16,31 @@ const tableFieldFilterRules = [
     match: /hookName/,
     name: 'hookName',
     description: 'Hook name',
-    icon: 'i-carbon:function',
+    icon: 'i-ph-function-duotone',
   },
   {
     match: /module/,
     name: 'module',
     description: 'Module',
-    icon: 'i-ph:package-duotone',
+    icon: 'i-ph-package-duotone',
   },
   {
     match: /startTime/,
     name: 'startTime',
     description: 'Start Time',
-    icon: 'i-carbon:time',
+    icon: 'i-ph-clock-duotone',
   },
   {
     match: /endTime/,
     name: 'endTime',
     description: 'End Time',
-    icon: 'i-carbon:time',
+    icon: 'i-ph-clock-duotone',
   },
   {
     match: /duration/,
     name: 'duration',
     description: 'Duration',
-    icon: 'i-ph:clock-duotone',
+    icon: 'i-ph-clock-countdown-duotone',
   },
 ]
 const searchValue = ref<{ selected: string[] | null, search: false }>({

@@ -47,7 +47,7 @@ const comparisonMetrics = computed(() => {
     {
       name: 'Initial JS',
       description: 'Total file size of the initial JS chunks',
-      icon: 'i-ph:file-js-duotone',
+      icon: 'i-ph-file-js-duotone',
       current: sessionB?.initial_js ?? 0,
       previous: sessionA?.initial_js ?? 0,
       format: 'bytes',
