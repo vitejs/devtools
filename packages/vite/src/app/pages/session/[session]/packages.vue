@@ -67,7 +67,7 @@ const duplicatePackagesCount = computed(() => {
   }, {} as Record<string, number>)).filter(count => count > 1).length
 })
 
-const packageViewTpyes = computed(() => [
+const packageViewTypes = computed(() => [
   {
     label: 'Table',
     value: 'table',
@@ -150,7 +150,7 @@ watch(() => settings.value.packageViewType, () => {
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
-            v-for="viewType of packageViewTpyes"
+            v-for="viewType of packageViewTypes"
             :key="viewType.value"
             btn-action
             :class="settings.packageViewType === viewType.value ? 'bg-active' : 'grayscale op50'"

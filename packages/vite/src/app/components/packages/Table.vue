@@ -25,20 +25,22 @@ function toggleSizeSortType() {
 </script>
 
 <template>
-  <div role="table" min-w-max border="~ base rounded">
+  <div role="table" min-w-max border="~ base rounded-xl">
     <div role="row" class="border-b border-base" flex="~ row">
-      <div :title="groupView ? 'Package' : 'Bundled packages'" role="columnheader" rounded-tl-2 bg-base flex-none ws-nowrap py1.5 px2 font-600 :class="[groupView ? 'min-w40' : 'min-w80']">
+      <div :title="groupView ? 'Package' : 'Bundled packages'" role="columnheader" rounded-tl-2 flex-none ws-nowrap py1.5 px2 font-600 :class="[groupView ? 'min-w40' : 'min-w80']">
         <template v-if="groupView">
-          <DisplayHighlightedPackageName :name="packages?.[0]?.name!" />
+          <div font-mono>
+            <DisplayHighlightedPackageName :name="packages?.[0]?.name!" />
+          </div>
         </template>
         <template v-else>
           Package
         </template>
       </div>
-      <div v-if="!groupView" title="Package version" role="columnheader" rounded-tr-2 bg-base flex-none min-w40 ws-nowrap text-left py1.5 px2 font-600>
+      <div v-if="!groupView" title="Package version" role="columnheader" rounded-tr-2 flex-none min-w40 ws-nowrap text-left py1.5 px2 font-600>
         Version
       </div>
-      <div title="Transformed code size" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl2 font-600 min-w40>
+      <div title="Transformed code size" role="columnheader" rounded-tr-2 flex-none ws-nowrap py1.5 pl2 font-600 min-w40>
         <button flex="~ row gap1 items-center justify-end" w-full relative pr2>
           Size
           <span v-if="!disableSizeSort" w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleSizeSortType">
@@ -46,7 +48,7 @@ function toggleSizeSortType() {
           </span>
         </button>
       </div>
-      <div title="Importers" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap py1.5 pl20 pr2 font-600 min-w50>
+      <div title="Importers" role="columnheader" rounded-tr-2 flex-none ws-nowrap py1.5 pl20 pr2 font-600 min-w50>
         Importers
       </div>
     </div>
@@ -64,11 +66,12 @@ function toggleSizeSortType() {
           class="border-base border-b-1 border-dashed"
           :class="[index === packages.length - 1 ? 'border-b-0' : '']"
         >
-          <div v-if="!groupView" role="cell" flex="~ items-center gap1" flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
+          <div v-if="!groupView" role="cell" font-mono flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
             <DisplayHighlightedPackageName :name="item.name" />
           </div>
           <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80>
             {{ item.version }}
+            <!-- TODO: color this if the package is duplicated -->
           </div>
           <div role="cell" flex="~ items-center justify-end" flex-none font-mono py1.5 px2 text-sm min-w40 op80>
             <VMenu :delay="{ show: 200, hide: 0 }">
