@@ -36,28 +36,11 @@ withDefaults(defineProps<{
       <slot />
     </div>
 
-    <template v-if="showImports && chunk.imports.length > 0">
-      <div op50>
-        Imports
-      </div>
-      <div flex="~ col gap-1" ws-nowrap>
-        <DisplayChunkImports
-          v-for="(importChunk, index) in chunk.imports"
-          :key="index"
-          :chunk-import="importChunk"
-          :session="session"
-          :importer="chunk"
-          hover="bg-active"
-          border="~ base rounded" px2 py1 w-full
-        />
-      </div>
-    </template>
-
-    <template v-if="showModules">
-      <div op50>
-        Modules
-      </div>
-      <div flex="~ col gap-1" ws-nowrap>
+    <details v-if="showModules" open="true">
+      <summary op50>
+        <span>Modules ({{ chunk.modules.length }})</span>
+      </summary>
+      <div flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayModuleId
           v-for="module of chunk.modules"
           :id="module"
@@ -69,6 +52,23 @@ withDefaults(defineProps<{
           border="~ base rounded" px2 py1 w-full
         />
       </div>
-    </template>
+    </details>
+
+    <details v-if="showImports && chunk.imports.length > 0" open="true">
+      <summary op50>
+        <span>Imports ({{ chunk.imports.length }})</span>
+      </summary>
+      <div flex="~ col gap-1" mt2 ws-nowrap>
+        <DisplayChunkImports
+          v-for="(importChunk, index) in chunk.imports"
+          :key="index"
+          :chunk-import="importChunk"
+          :session="session"
+          :importer="chunk"
+          hover="bg-active"
+          border="~ base rounded" px2 py1 w-full
+        />
+      </div>
+    </details>
   </div>
 </template>

@@ -1,4 +1,5 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { guessChunkName } from '../../../shared/utils/guess-chunk-name'
 import { getLogsManager } from '../utils'
 
 export const rolldownGetChunksGraph = defineRpcFunction({
@@ -9,7 +10,12 @@ export const rolldownGetChunksGraph = defineRpcFunction({
     return {
       handler: async ({ session }: { session: string }) => {
         const reader = await manager.loadSession(session)
-        return Array.from(reader.manager.chunks.values())
+        const chunks = Array.from(reader.manager.chunks.values())
+        chunks.forEach((chunk) => {
+          if (chunk && !chunk.name)
+            chunk.name = guessChunkName(chunk)
+        })
+        return chunks
       },
     }
   },
