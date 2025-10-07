@@ -59,7 +59,9 @@ const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => a
       border="~ base rounded-lg"
       flex="~ col gap-2"
     >
-      <DisplayPluginName :name="state?.plugin_name!" />
+      <div font-mono px1>
+        <DisplayPluginName :name="state?.plugin_name!" />
+      </div>
       <div text-xs font-mono flex="~ items-center gap-3" ml2>
         <DisplayDuration
           :duration="hookResolveIdDuration" flex="~ gap-1 items-center"

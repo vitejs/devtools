@@ -25,6 +25,12 @@ const tableFieldFilterRules = [
     icon: 'i-ph-package-duotone',
   },
   {
+    match: /duration/,
+    name: 'duration',
+    description: 'Duration',
+    icon: 'i-ph-clock-countdown-duotone',
+  },
+  {
     match: /startTime/,
     name: 'startTime',
     description: 'Start Time',
@@ -36,22 +42,24 @@ const tableFieldFilterRules = [
     description: 'End Time',
     icon: 'i-ph-clock-duotone',
   },
-  {
-    match: /duration/,
-    name: 'duration',
-    description: 'Duration',
-    icon: 'i-ph-clock-countdown-duotone',
-  },
 ]
 const searchValue = ref<{ selected: string[] | null, search: false }>({
   selected: settings.value.pluginDetailsTableFields,
   search: false,
 })
 
-const selectedFields = computed(() => settings.value.pluginDetailsTableFields ? settings.value.pluginDetailsTableFields : tableFieldFilterRules.map(rule => rule.name))
-const { state: showTypeState, next: _toggleShowType } = useCycleList<ClientSettings['pluginDetailsShowType']>(['changed', 'unchanged', 'all'], {
+const selectedFields = computed(() =>
+  settings.value.pluginDetailsTableFields
+    ? settings.value.pluginDetailsTableFields
+    : tableFieldFilterRules.map(rule => rule.name))
+
+const {
+  state: showTypeState,
+  next: _toggleShowType,
+} = useCycleList<ClientSettings['pluginDetailsShowType']>(['changed', 'unchanged', 'all'], {
   initialValue: settings.value.pluginDetailsShowType,
 })
+
 const showTypeText = computed(() => {
   if (showTypeState.value === 'all')
     return 'Show Changed'
@@ -97,7 +105,7 @@ function toggleShowType() {
           <template #header>
             <div px2 h10 border="b base" bg-base rounded-t-2 flex="~ items-center justify-end">
               <button w8 h8 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(false)">
-                <i i-fluent:panel-right-expand-20-regular inline-flex op50 />
+                <i i-ph-sidebar-simple-duotone inline-flex op50 />
               </button>
             </div>
           </template>
@@ -107,7 +115,7 @@ function toggleShowType() {
         <div flex="~ items-center justify-between" border="b base" px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap>
           <div flex="~ items-center" h-full>
             <button v-if="!expanded" w8 h8 rounded-full cursor-pointer mr1 hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(true)">
-              <i i-fluent:panel-left-expand-20-regular inline-flex op50 />
+              <i i-ph-sidebar-duotone inline-flex op50 />
             </button>
             <DataSearchPanel
               v-model="searchValue"
