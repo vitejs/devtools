@@ -24,7 +24,7 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock-container {
-  --uno: absolute left-0 top-0 h-[44px] min-w-[100px];
+  --uno: absolute left-0 top-0 h-[44px] min-w-[100px] w-max;
   transform: translate(-50%, -50%);
 }
 
@@ -39,7 +39,7 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock {
-  --uno: h-full min-w-full rounded-full select-none touch-none;
+  --uno: h-full min-w-full rounded-full select-none touch-none px4;
   --uno: shadow text-white bg-glass border border-base;
   transition:
     all 0.6s ease,
