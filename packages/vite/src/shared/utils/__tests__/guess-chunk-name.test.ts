@@ -10,8 +10,6 @@ describe('simplifyModuleName', () => {
     expect(simplifyModuleName('foo/bar/index')).toBe('foo_bar')
     expect(simplifyModuleName('foo/bar/index/')).toBe('foo_bar')
     expect(simplifyModuleName('foo/bar/index.ts')).toBe('foo_bar')
-    expect(simplifyModuleName('node_modules/foo/bar/index.tsx')).toBe('foo_bar')
-    expect(simplifyModuleName('node_modules/foo/bar/index.jsx')).toBe('foo_bar')
     expect(simplifyModuleName('foo/bar/index.mjs')).toBe('foo_bar')
     expect(simplifyModuleName('foo/bar/index.cjs')).toBe('foo_bar')
     expect(simplifyModuleName('node_modules/foo/bar/index.tsx')).toBe('foo_bar')
