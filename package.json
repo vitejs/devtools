@@ -11,7 +11,7 @@
     "play:devtools": "pnpm -C packages/core run play",
     "play:devtools:standalone": "pnpm -C packages/core run play:standalone",
     "play:ui": "pnpm -C packages/vite run dev",
-    "prepare": "npx simple-git-hooks && pnpm -C packages/vite run dev:prepare",
+    "prepare": "npx simple-git-hooks && pnpm -r --filter='./packages/{kit,rpc}' build && pnpm -C packages/vite run dev:prepare",
     "lint": "pnpm -C packages/vite run dev:prepare && eslint .",
     "test": "vitest",
     "release": "bumpp -r",
