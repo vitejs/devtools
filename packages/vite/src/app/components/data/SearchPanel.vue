@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FilterMatchRule } from '~/utils/icon'
 import { useVModel } from '@vueuse/core'
-import { withDefaults } from 'vue'
 
 interface ModelValue { search?: string | false, selected?: string[] | null }
 
