@@ -1,6 +1,6 @@
 import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { TreeNode } from 'nanovis'
-import type { PackageInfo } from '~~/shared/types'
+import type { PackageInfo, PluginBuildInfo } from '~~/shared/types'
 
 export type AssetChartInfo = AssetInfo & {
   path: string
@@ -15,3 +15,12 @@ export type PackageChartInfo = PackageInfo & {
 }
 
 export type PackageChartNode = TreeNode<PackageChartInfo | undefined>
+
+export type PluginChartInfo = Omit<PluginBuildInfo, 'type' | 'plugin_id' | 'plugin_name'> & {
+  type: 'module' | 'hook'
+  title: string
+  text: string
+  children?: any[]
+}
+
+export type PluginChartNode = TreeNode<PluginChartInfo | undefined>

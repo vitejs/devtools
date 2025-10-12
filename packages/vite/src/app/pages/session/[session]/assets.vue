@@ -173,7 +173,7 @@ watch(() => settings.value.assetViewType, () => {
           @select="x => selectNode(x)"
         >
           <template #default="{ selected, options, onSelect }">
-            <ChartAssetNavBreadcrumb
+            <ChartNavBreadcrumb
               border="b base" py2 min-h-10
               :selected="selected"
               :options="options"
