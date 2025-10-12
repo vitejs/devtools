@@ -26,7 +26,7 @@ export interface RpcFunctionSetupResult<
   handler: (...args: ARGS) => RETURN
 }
 
-// TODO: maybe we should introduce schema system with vailbot
+// TODO: maybe we should introduce schema system with valibot
 
 export interface RpcFunctionDefinition<
   NAME extends string,
