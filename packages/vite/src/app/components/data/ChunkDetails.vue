@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
+import { computed } from 'vue'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
   showModules?: boolean
@@ -11,6 +12,20 @@ withDefaults(defineProps<{
   showModules: true,
   showImports: true,
 })
+
+const modulesMap = computed(() => {
+  const map = new Map()
+  for (const module of props.session.modulesList) {
+    map.set(module.id, module)
+  }
+  return map
+})
+
+const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) => {
+  const moduleInfo = modulesMap.value.get(moduleId)
+  const transforms = moduleInfo?.buildMetrics?.transforms
+  return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
+}, 0))
 </script>
 
 <template>
@@ -20,7 +35,7 @@ withDefaults(defineProps<{
         <div i-ph-shapes-duotone />
         <div>{{ chunk.name || '[unnamed]' }}</div>
         <DisplayBadge :text="chunk.reason" />
-        <!-- TODO: Estimated Chunk Size -->
+        <DisplayFileSizeBadge :bytes="chunkSize" text-sm />
       </div>
 
       <div flex-auto />
