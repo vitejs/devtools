@@ -69,9 +69,8 @@ function toggleSizeSortType() {
           <div v-if="!groupView" role="cell" font-mono flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
             <DisplayHighlightedPackageName :name="item.name" />
           </div>
-          <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80>
+          <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80 :class="{ 'text-primary': item.duplicated }">
             {{ item.version }}
-            <!-- TODO: color this if the package is duplicated -->
           </div>
           <div role="cell" flex="~ items-center justify-end" flex-none font-mono py1.5 px2 text-sm min-w40 op80>
             <VMenu :delay="{ show: 200, hide: 0 }">
