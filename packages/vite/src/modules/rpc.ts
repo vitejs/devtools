@@ -12,9 +12,7 @@ export default defineNuxtModule({
 
     addVitePlugin({
       name: 'vite:devtools',
-      // @ts-expect-error TODO: fix types
       devtools: {
-        // @ts-expect-error TODO: fix types
         setup(ctx) {
           for (const fn of rpcFunctions) {
             ctx.rpc.register(fn)
@@ -23,7 +21,6 @@ export default defineNuxtModule({
       },
     })
 
-    // @ts-expect-error TODO: fix types
     addVitePlugin(DevToolsServer())
 
     nuxt.hook('imports:dirs', (dirs) => {
