@@ -20,11 +20,11 @@ type ChunkInfo = Chunk & {
 createModuleGraph<ChunkInfo, ChunkImport>({
   modules: chunks,
   spacing: {
-    width: 320,
+    width: 450,
     height: 55,
     linkOffset: 15,
     margin: 120,
-    gap: 80,
+    gap: 150,
   },
   generateGraph: (options) => {
     const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap } = options
@@ -32,42 +32,47 @@ createModuleGraph<ChunkInfo, ChunkImport>({
       width.value = window.innerWidth
       height.value = window.innerHeight
 
-      const root = hierarchy<ModuleGraphNode<ChunkInfo, ChunkImport> & { end?: boolean }>(
+      const entryChunks = chunks.value.filter(chunk => chunk.reason === 'entry')
+
+      const seen = new Set<ChunkInfo>()
+      const root = hierarchy<ModuleGraphNode<ChunkInfo, ChunkImport>>(
         { module: { id: '~root' } } as any,
         (parent) => {
           if (`${parent.module?.id}` === '~root') {
-            chunks.value.forEach((x) => {
+            entryChunks.forEach((x) => {
+              seen.add(x)
+
               if (isFirstCalculateGraph.value) {
                 childToParentMap.set(x.id, '~root')
               }
             })
-            return chunks.value.map(x => ({
+            return entryChunks.map(x => ({
               module: x,
               expanded: !collapsedNodes.has(x.id),
               hasChildren: false,
             }))
           }
 
-          if (collapsedNodes.has(`${parent.module?.id}`) || parent.end) {
+          if (collapsedNodes.has(`${parent.module?.id}`)) {
             return []
           }
 
           const nodes = parent.module.imports
-            .map((x): ModuleGraphNode<ChunkInfo, ChunkImport> & { end: boolean } | undefined => {
+            ?.map((x): ModuleGraphNode<ChunkInfo, ChunkImport> | undefined => {
               const module = modulesMap.value.get(`${x.chunk_id}`)
-              if (!module)
+              if (!module || seen.has(module))
                 return undefined
 
               if (isFirstCalculateGraph.value) {
                 childToParentMap.set(module.id, parent.module.id)
               }
 
+              seen.add(module)
+
               return {
                 module,
-                import: x,
                 expanded: !collapsedNodes.has(module.id),
                 hasChildren: false,
-                end: true,
               }
             })
             .filter(x => x !== undefined)
@@ -90,10 +95,6 @@ createModuleGraph<ChunkInfo, ChunkImport>({
       for (const node of _nodes) {
         // Rotate the graph from top-down to left-right
         [node.x, node.y] = [node.y! - unref(spacing.width), node.x!]
-
-        if (node.data.module.imports) {
-          node.data.hasChildren = node.data.module.imports.length > 0 && !node.data.end
-        }
       }
 
       // Offset the graph and adding margin
@@ -115,20 +116,33 @@ createModuleGraph<ChunkInfo, ChunkImport>({
       for (const node of _nodes) {
         nodesMap.set(`${node.data.module.id}`, node)
       }
+
       const _links = root.links()
         .filter(x => `${x.source.data.module.id}` !== '~root')
         .map((x): ModuleGraphLink<ChunkInfo, ChunkImport> => {
           return {
             ...x,
-            import: x.source.data.import,
             id: `${x.source.data.module.id}|${x.target.data.module.id}`,
           }
         })
+
+      const _additionalLinks = chunks.value.flatMap(chunk =>
+        chunk.imports
+          .filter(_import => !_links.find(x => x.id === `${chunk.chunk_id}|${_import.chunk_id}`))
+          .map(_import => ({
+            source: nodesMap.get(`${chunk.chunk_id}`)!,
+            target: nodesMap.get(`${_import.chunk_id}`)!,
+            id: `${chunk.chunk_id}|${_import.chunk_id}`,
+          })),
+      )
+
+      const normalizedLinks = [..._links, ..._additionalLinks]
+
       linksMap.clear()
-      for (const link of _links) {
+      for (const link of normalizedLinks) {
         linksMap.set(link.id, link)
       }
-      links.value = _links
+      links.value = normalizedLinks
 
       nextTick(() => {
         width.value = (container.value!.scrollWidth / scale.value + unref(spacing.margin))
@@ -143,12 +157,12 @@ createModuleGraph<ChunkInfo, ChunkImport>({
   <DisplayModuleGraph
     :session="session"
     :modules="chunks"
+    :expand-controls="false"
   >
     <template #default="{ node }">
       <NuxtLink class="flex items-center" :to="{ path: route.path, query: { chunk: node.data.module.chunk_id } }">
         <span op50 font-mono w12>#{{ node.data.module.id }}</span>
         <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
-          <div i-ph-shapes-duotone />
           <div>{{ node.data.module.name || '[unnamed]' }}</div>
           <DisplayBadge :text="node.data.module.reason" />
         </div>
