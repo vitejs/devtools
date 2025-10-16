@@ -1,5 +1,7 @@
 export interface DevToolsDockHost {
+  views: Map<string, DevToolsDockEntry>
   register: (entry: DevToolsDockEntry) => void
+  update: (entry: DevToolsDockEntry) => void
   values: () => DevToolsDockEntry[]
 }
 
