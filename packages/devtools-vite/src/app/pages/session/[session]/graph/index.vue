@@ -3,7 +3,7 @@ import type { SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
-import { computedWithControl, debouncedWatch } from '@vueuse/core'
+import { computedWithControl, debouncedWatch, onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { settings } from '~/state/settings'
@@ -145,30 +145,103 @@ function toggleNodeModule(moduleName: string) {
     searchValue.value.node_modules = null
   }
 }
+
+function isNodeModuleSelected(moduleName: string) {
+  return !searchValue.value.node_modules || searchValue.value.node_modules.includes(moduleName)
+}
+
+function reverseNodeModules() {
+  if (searchValue.value.node_modules?.length === allNodeModules.value.length) {
+    searchValue.value.node_modules = null
+  }
+  else if (searchValue.value.node_modules == null) {
+    searchValue.value.node_modules = []
+  }
+  else {
+    searchValue.value.node_modules = allNodeModules.value.filter(m => !searchValue.value.node_modules?.includes(m))
+  }
+}
+
+function unselectAllNodeModules() {
+  if (searchValue.value.node_modules?.length === 0) {
+    searchValue.value.node_modules = null
+  }
+  else {
+    searchValue.value.node_modules = []
+  }
+}
+
+const showNodeModulesDropdown = ref(false)
+const dropdownRef = ref<HTMLElement>()
+
+onClickOutside(dropdownRef, () => {
+  showNodeModulesDropdown.value = false
+})
 </script>
 
 <template>
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
-        <div v-if="allNodeModules.length" flex="~ gap-2 wrap" p2 border="t base">
-          <span op50 pl2 text-sm>Node Modules</span>
-          <label
-            v-for="moduleName of allNodeModules"
-            :key="moduleName"
-            border="~ base rounded-md" px2 py1
+        <div v-if="allNodeModules.length" ref="dropdownRef" flex="~ gap-2 items-center" p2 border="t base" relative>
+          <span op50 pl2 text-sm>Packages</span>
+          <button
+            btn-action
             flex="~ items-center gap-1"
-            select-none
-            :class="!searchValue.node_modules || searchValue.node_modules.includes(moduleName) ? 'bg-active' : 'grayscale op50'"
+            @click="showNodeModulesDropdown = !showNodeModulesDropdown"
           >
-            <input
-              type="checkbox"
-              mr1
-              :checked="!searchValue.node_modules || searchValue.node_modules.includes(moduleName)"
-              @change="toggleNodeModule(moduleName)"
-            >
-            <div text-sm>{{ moduleName }}</div>
-          </label>
+            <div i-ph-package-duotone />
+            <span text-sm>
+              {{ searchValue.node_modules ? `${searchValue.node_modules.length} selected` : 'All' }}
+            </span>
+            <div :class="showNodeModulesDropdown ? 'i-ph-caret-up' : 'i-ph-caret-down'" text-xs />
+          </button>
+          <div
+            v-if="showNodeModulesDropdown"
+            absolute top-full left-0 mt-1 z-100
+            border="~ base rounded-xl" bg-glass
+            max-h-80 of-auto
+            min-w-60 max-w-90vw
+            shadow-lg
+          >
+            <div flex="~ col gap-2" p2>
+              <div flex="~ gap-2 items-center" border="b base" pb2>
+                <button
+                  text-xs op50 px2 py1
+                  hover="bg-active"
+                  rounded-md
+                  @click="reverseNodeModules"
+                >
+                  Reverse
+                </button>
+                <button
+                  text-xs op50 px2 py1
+                  hover="bg-active"
+                  rounded-md
+                  @click="unselectAllNodeModules"
+                >
+                  {{ searchValue.node_modules?.length === 0 ? 'Select All' : 'Unselect All' }}
+                </button>
+              </div>
+              <label
+                v-for="moduleName of allNodeModules"
+                :key="moduleName"
+                border="~ base rounded-md" px2 py1
+                flex="~ items-center gap-1"
+                select-none cursor-pointer
+                hover="bg-active"
+                :class="isNodeModuleSelected(moduleName) ? 'bg-active' : 'grayscale op50'"
+              >
+                <input
+                  type="checkbox"
+                  mr1
+                  :checked="isNodeModuleSelected(moduleName)"
+                  @change="toggleNodeModule(moduleName)"
+                >
+                <div text-sm>{{ moduleName }}</div>
+              </label>
+            </div>
+          </div>
         </div>
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
