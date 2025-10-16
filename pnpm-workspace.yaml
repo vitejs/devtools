@@ -10,21 +10,21 @@ catalogs:
   build:
     '@antfu/ni': ^26.1.0
     '@nuxt/kit': ^4.1.2
-    '@unocss/nuxt': ^66.5.2
+    '@unocss/nuxt': ^66.5.3
     '@vitejs/plugin-vue': ^6.0.1
     '@vueuse/nuxt': ^13.9.0
     esbuild: ^0.25.10
-    nitropack: ^2.12.6
+    nitropack: ^2.12.7
     nuxt: ^4.1.2
     nuxt-mcp: ^0.2.4
-    rolldown: ^1.0.0-beta.41
+    rolldown: ^1.0.0-beta.42
     tsdown: ^0.15.6
     tsx: ^4.20.6
-    unplugin-vue: ^7.0.1
-    vite: npm:rolldown-vite@^7.1.14
+    unplugin-vue: ^7.0.2
+    vite: npm:rolldown-vite@^7.1.16
   deps:
     '@pnpm/read-project-manifest': ^1001.1.3
-    '@rolldown/debug': ^1.0.0-beta.41
+    '@rolldown/debug': ^1.0.0-beta.42
     ansis: ^4.2.0
     birpc: ^2.6.1
     cac: ^6.7.14
@@ -39,7 +39,7 @@ catalogs:
     open: ^10.2.0
     p-limit: ^7.1.1
     pathe: ^2.0.3
-    publint: ^0.3.13
+    publint: ^0.3.14
     sirv: ^3.0.2
     split2: ^4.2.0
     structured-clone-es: ^1.0.0
@@ -52,16 +52,16 @@ catalogs:
     '@antfu/eslint-config': ^5.4.1
     '@nuxt/devtools': ^2.6.5
     '@nuxt/eslint': ^1.9.0
-    '@typescript-eslint/utils': ^8.45.0
-    '@unocss/eslint-config': ^66.5.2
-    bumpp: ^10.2.3
-    eslint: ^9.36.0
+    '@typescript-eslint/utils': ^8.46.0
+    '@unocss/eslint-config': ^66.5.3
+    bumpp: ^10.3.1
+    eslint: ^9.37.0
     lint-staged: ^16.2.3
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
-    vue-tsc: ^3.1.0
+    vue-tsc: ^3.1.1
   frontend:
     '@floating-ui/dom': ^1.7.4
     '@vueuse/components': ^13.9.0
@@ -83,24 +83,24 @@ catalogs:
     vue: ^3.5.22
     vue-virtual-scroller: ^2.0.0-beta.8
   icons:
-    '@iconify-json/carbon': ^1.2.13
+    '@iconify-json/carbon': ^1.2.14
     '@iconify-json/catppuccin': ^1.2.17
     '@iconify-json/codicon': ^1.2.31
     '@iconify-json/fluent': ^1.2.32
     '@iconify-json/logos': ^1.2.9
-    '@iconify-json/octicon': ^1.2.14
+    '@iconify-json/octicon': ^1.2.16
     '@iconify-json/ph': ^1.2.2
-    '@iconify-json/ri': ^1.2.5
-    '@iconify-json/simple-icons': ^1.2.53
+    '@iconify-json/ri': ^1.2.6
+    '@iconify-json/simple-icons': ^1.2.54
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/tabler': ^1.2.23
   inlined:
-    '@antfu/utils': ^9.2.1
+    '@antfu/utils': ^9.3.0
     stream-json: ^1.9.1
   testing:
     vitest: ^3.2.4
   types:
-    '@types/chrome': ^0.1.16
+    '@types/chrome': ^0.1.22
     '@types/codemirror': ^5.60.16
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3

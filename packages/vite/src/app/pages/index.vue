@@ -8,12 +8,12 @@ const sessionMode = ref<'list' | 'compare'>('list')
 const modeList = [
   {
     label: 'Session List',
-    icon: 'i-carbon-list',
+    icon: 'i-ph-list-bullets-duotone',
     value: 'list',
   },
   {
     label: 'Session Compare',
-    icon: 'i-carbon-compare',
+    icon: 'i-ph-git-diff-duotone',
     value: 'compare',
   },
 ] as const

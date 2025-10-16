@@ -74,7 +74,7 @@ function handleClose() {
         <div flex-auto />
         <DisplayIconButton
           title="Line Wrapping"
-          class-icon="i-carbon-text-wrap"
+          class-icon="i-ph-arrow-u-down-left-duotone"
           :active="settings.codeviewerLineWrap"
           @click="settings.codeviewerLineWrap = !settings.codeviewerLineWrap"
         />

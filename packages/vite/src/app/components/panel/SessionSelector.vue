@@ -43,7 +43,7 @@ function select(session: BuildInfo) {
         border="~ rounded-md"
         :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
         flex="~ col gap-1"
-        px4 py3
+        px4 py3 w-full
         @click="select(session)"
       >
         <div flex="~ gap-1 items-center" font-mono op50 text-sm>

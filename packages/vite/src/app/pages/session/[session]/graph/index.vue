@@ -31,12 +31,12 @@ const moduleViewTypes = [
   {
     label: 'List',
     value: 'list',
-    icon: 'i-carbon-list',
+    icon: 'i-ph-list-bullets-duotone',
   },
   {
     label: 'Detailed List',
     value: 'detailed-list',
-    icon: 'i-carbon-list-boxes',
+    icon: 'i-ph-list-magnifying-glass-duotone',
   },
   {
     label: 'Graph',

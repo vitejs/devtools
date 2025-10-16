@@ -45,7 +45,7 @@ const { state: chunk } = useAsyncState(
     <div text-sm flex="~ items-center gap-2">
       <span op50 font-mono>#{{ chunk.chunk_id }}</span>
       <div flex="~ gap-1 items-center">
-        <div i-carbon-document-import />
+        <div i-ph-file-arrow-up-duotone />
         {{ chunk.imports.length }}
       </div>
       <div flex="~ gap-1 items-center">

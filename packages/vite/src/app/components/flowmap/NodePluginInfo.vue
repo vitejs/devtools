@@ -17,7 +17,7 @@ defineProps<{
     />
     <span op40>|</span>
     <DisplayNumberBadge
-      :number="calls" icon="i-ph:arrow-counter-clockwise"
+      :number="calls" icon="i-ph-arrow-counter-clockwise"
       color="transparent color-scale-neutral"
       :title="`Total calls: ${calls}`"
     />

@@ -7,6 +7,8 @@ import { parseReadablePath } from '~/utils/filepath'
 import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
+// TODO: maybe better use SunburstChart instead of Flamegraph?
+
 const props = defineProps<{
   session: SessionContext
   buildMetrics: RolldownPluginBuildMetrics
@@ -25,6 +27,7 @@ const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.va
 
 const n = (node: TreeNodeInput<PluginBuildInfo>) => normalizeTreeNode(node, undefined, false)
 
+// TODO: We need to sort the graph (so the color will be consistent)
 const tree = computed(() => {
   const resolveIds = moduleTypes.value.map((type, idx) => n({
     id: `resolveId-${type.name}-${idx}`,

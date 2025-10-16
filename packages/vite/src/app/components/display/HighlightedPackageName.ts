@@ -25,7 +25,7 @@ export default defineComponent({
         const [scope, name] = packageName.split('/')
         return [
           h('span', { style: `color: ${color}` }, scope),
-          h('span', { style: `color: ${color}` }, '/'),
+          h('span', { style: `color: ${color}`, class: 'op50' }, '/'),
           h('span', { style: `color: ${color}` }, name),
         ]
       }

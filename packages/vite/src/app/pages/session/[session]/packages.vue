@@ -67,11 +67,11 @@ const duplicatePackagesCount = computed(() => {
   }, {} as Record<string, number>)).filter(count => count > 1).length
 })
 
-const packageViewTpyes = computed(() => [
+const packageViewTypes = computed(() => [
   {
     label: 'Table',
     value: 'table',
-    icon: 'i-ph:table-thin',
+    icon: 'i-ph-table-duotone',
   },
   {
     label: 'Treemap',
@@ -81,7 +81,7 @@ const packageViewTpyes = computed(() => [
   {
     label: `Duplicate Packages${duplicatePackagesCount.value > 0 ? ` (${duplicatePackagesCount.value})` : ''}`,
     value: 'duplicate-packages',
-    icon: 'i-tabler:packages',
+    icon: 'i-ph-package-duotone',
   },
 ] as const)
 
@@ -150,7 +150,7 @@ watch(() => settings.value.packageViewType, () => {
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
-            v-for="viewType of packageViewTpyes"
+            v-for="viewType of packageViewTypes"
             :key="viewType.value"
             btn-action
             :class="settings.packageViewType === viewType.value ? 'bg-active' : 'grayscale op50'"

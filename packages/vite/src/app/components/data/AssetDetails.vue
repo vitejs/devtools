@@ -77,7 +77,7 @@ function openInEditor() {
       <div flex-auto />
       <div flex="~ gap-2">
         <button btn-action @click="openInEditor">
-          <div i-carbon-launch />
+          <div i-ph-arrow-square-out-duotone />
           Open in editor
         </button>
         <button btn-action @click="showSource = true">
@@ -96,7 +96,7 @@ function openInEditor() {
         <span flex-auto />
         <DisplayIconButton
           title="Line Wrapping"
-          class-icon="i-carbon-text-wrap"
+          class-icon="i-ph-arrow-u-down-left-duotone"
           :active="settings.codeviewerLineWrap"
           @click="settings.codeviewerLineWrap = !settings.codeviewerLineWrap"
         />

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
+import { computed } from 'vue'
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
   showModules?: boolean
@@ -11,6 +12,20 @@ withDefaults(defineProps<{
   showModules: true,
   showImports: true,
 })
+
+const modulesMap = computed(() => {
+  const map = new Map()
+  for (const module of props.session.modulesList) {
+    map.set(module.id, module)
+  }
+  return map
+})
+
+const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) => {
+  const moduleInfo = modulesMap.value.get(moduleId)
+  const transforms = moduleInfo?.buildMetrics?.transforms
+  return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
+}, 0))
 </script>
 
 <template>
@@ -20,13 +35,14 @@ withDefaults(defineProps<{
         <div i-ph-shapes-duotone />
         <div>{{ chunk.name || '[unnamed]' }}</div>
         <DisplayBadge :text="chunk.reason" />
+        <DisplayFileSizeBadge :bytes="chunkSize" text-sm />
       </div>
 
       <div flex-auto />
 
       <span op50 font-mono>#{{ chunk.chunk_id }}</span>
       <div flex="~ gap-1 items-center">
-        <div i-carbon-document-import />
+        <div i-ph-file-arrow-up-duotone />
         {{ chunk.imports.length }}
       </div>
       <div flex="~ gap-1 items-center">
@@ -36,28 +52,11 @@ withDefaults(defineProps<{
       <slot />
     </div>
 
-    <template v-if="showImports && chunk.imports.length > 0">
-      <div op50>
-        Imports
-      </div>
-      <div flex="~ col gap-1" ws-nowrap>
-        <DisplayChunkImports
-          v-for="(importChunk, index) in chunk.imports"
-          :key="index"
-          :chunk-import="importChunk"
-          :session="session"
-          :importer="chunk"
-          hover="bg-active"
-          border="~ base rounded" px2 py1 w-full
-        />
-      </div>
-    </template>
-
-    <template v-if="showModules">
-      <div op50>
-        Modules
-      </div>
-      <div flex="~ col gap-1" ws-nowrap>
+    <details v-if="showModules" open="true">
+      <summary op50>
+        <span>Modules ({{ chunk.modules.length }})</span>
+      </summary>
+      <div flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayModuleId
           v-for="module of chunk.modules"
           :id="module"
@@ -69,6 +68,25 @@ withDefaults(defineProps<{
           border="~ base rounded" px2 py1 w-full
         />
       </div>
-    </template>
+    </details>
+
+    <!-- TODO: imports seems to be "imported-by" instead of "imports", maybe something wrong on Rolldown side? -->
+    <!-- TODO: We might want to display both "imports" and "imported-by" relationship -->
+    <details v-if="showImports && chunk.imports.length > 0" open="true">
+      <summary op50>
+        <span>Imports ({{ chunk.imports.length }})</span>
+      </summary>
+      <div flex="~ col gap-1" mt2 ws-nowrap>
+        <DisplayChunkImports
+          v-for="(importChunk, index) in chunk.imports"
+          :key="index"
+          :chunk-import="importChunk"
+          :session="session"
+          :importer="chunk"
+          hover="bg-active"
+          border="~ base rounded" px2 py1 w-full
+        />
+      </div>
+    </details>
   </div>
 </template>

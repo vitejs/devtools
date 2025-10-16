@@ -11,7 +11,7 @@ Vite DevTools is a set of tools for visualizing the internal state and build ana
 
 State: **🚧 Work in progress**
 
-We are currently focusing on get the basic data visualization working for **Vite-Rolldown's build mode**. Dev mode will be delayed for later until Vite get the full-bundler dev mode.
+We are currently focusing on getting the basic data visualization working for **Vite-Rolldown's build mode**. Dev mode will be delayed for later until Vite get the full-bundler dev mode.
 
 You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excluding `hold-off`) if you are interested in helping out.
 
@@ -19,7 +19,7 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 - `packages/core`: `@vitejs/devtools` the entry point of the project. It provides the core functionality of Vite DevTools, including the CLI.
 - `packages/kit`: `@vitejs/devtools-kit` the utility library for integration authors to extend Vite DevTools. Which include types and utilities for the project.
-- `packages/vite`: `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which would enable by default.
+- `packages/vite`: `@vitejs/devtools-vite` the built-in UI panel for Vite/Rolldown, it's presented as a Vite plugin which is enabled by default.
 - `packages/rpc`: `@vitejs/devtools-rpc` the rpc layer of the project.
 
 ## 💡 Contributing Guide

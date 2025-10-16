@@ -14,7 +14,7 @@ const chunkViewTypes = [
   {
     label: 'List',
     value: 'list',
-    icon: 'i-carbon-list',
+    icon: 'i-ph-list-bullets-duotone',
   },
   {
     label: 'Graph',
@@ -58,6 +58,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
           <div :class="viewType.icon" />
           {{ viewType.label }}
         </button>
+        <!-- TODO: add graph views -->
       </div>
     </div>
     <template v-if="settings.chunkViewType === 'list'">
