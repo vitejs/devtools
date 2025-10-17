@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
 import type { RolldownChunkImport, SessionContext } from '~~/shared/types'
+import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
+import { useRpc } from '../../composables/rpc'
 
 const props = withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
   showModules?: boolean
-  showImports?: boolean | RolldownChunkImport[]
+  showImports?: boolean
+  chunks?: ChunkInfo[]
 }>(), {
   showModules: true,
   showImports: true,
@@ -27,8 +30,31 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
   return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
 }, 0))
 
-const imports = computed(() => {
-  return [] as any[]
+const rpc = useRpc()
+const { state, isLoading } = useAsyncState(
+  async () => {
+    if (props.chunks)
+      return
+
+    return await rpc.value!['vite:rolldown:get-chunks-graph']?.({
+      session: props.session.id,
+    })
+  },
+  null,
+)
+
+const imports = computed((): RolldownChunkImport[] => {
+  return props.chunk.imports.map((importChunk) => {
+    const chunk = (props.chunks || state.value)?.find(c => c.chunk_id === importChunk.chunk_id)
+
+    return {
+      ...importChunk,
+      name: chunk?.name || '[unnamed]',
+      reason: chunk?.reason || 'common',
+      imports: chunk?.imports.length || 0,
+      modules: chunk?.modules.length || 0,
+    }
+  })
 })
 </script>
 
@@ -80,7 +106,8 @@ const imports = computed(() => {
       <summary op50>
         <span>Imports ({{ chunk.imports.length }})</span>
       </summary>
-      <div flex="~ col gap-1" mt2 ws-nowrap>
+      <VisualLoading v-if="isLoading" />
+      <div v-else flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayChunkImports
           v-for="chunk in imports"
           :key="chunk.chunk_id"

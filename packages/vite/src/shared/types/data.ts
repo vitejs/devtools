@@ -177,7 +177,6 @@ export type RolldownModuleFlowNode
     | RolldownAssetInfo
 
 export interface RolldownChunkImport extends ChunkImport {
-  type: 'chunk_import'
   imports: number
   modules: number
   name: ChunkInfo['name']
