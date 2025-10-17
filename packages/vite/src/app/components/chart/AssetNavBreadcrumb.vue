@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GraphBaseOptions } from 'nanovis'
 import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
-import NavBreadcrumb from './NavBreadcrumb.vue'
+import NavBreadcrumb from '~/components/chart/NavBreadcrumb.vue'
 
 defineProps<{
   selected?: AssetChartNode

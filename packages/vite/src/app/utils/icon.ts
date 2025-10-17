@@ -1,4 +1,4 @@
-import { makeCachedFunction } from './cache'
+import { makeCachedFunction } from '~/utils/cache'
 
 export interface FilterMatchRule {
   match: RegExp

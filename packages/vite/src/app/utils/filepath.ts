@@ -1,6 +1,6 @@
 import { relative } from 'pathe'
-import { getModuleNameFromPath, isPackageName } from '../../shared/utils/filepath'
-import { makeCachedFunction } from './cache'
+import { getModuleNameFromPath, isPackageName } from '~~/shared/utils/filepath'
+import { makeCachedFunction } from '~/utils/cache'
 
 function getModuleSubpathFromPath(path: string) {
   const match = path.match(/.*\/node_modules\/(.*)$/)?.[1]

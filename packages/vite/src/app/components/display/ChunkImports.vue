@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ChunkImport, Chunk as ChunkInfo } from '@rolldown/debug'
-import type { SessionContext } from '../../../shared/types/data'
+import type { SessionContext } from '~~/shared/types/data'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'

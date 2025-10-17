@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useHead } from '#app/composables/head'
 
-import { connect, connectionState } from './composables/rpc'
+import { connect, connectionState } from '~/composables/rpc'
 import 'floating-vue/dist/style.css'
-import './styles/cm.css'
-import './styles/splitpanes.css'
-import './styles/global.css'
-import './composables/dark'
+import '~/styles/cm.css'
+import '~/styles/splitpanes.css'
+import '~/styles/global.css'
+import '~/composables/dark'
 
 useHead({
   title: 'Vite DevTools',
