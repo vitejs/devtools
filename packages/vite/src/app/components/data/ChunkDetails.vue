@@ -109,9 +109,9 @@ const imports = computed((): RolldownChunkImport[] => {
       <VisualLoading v-if="isLoading" />
       <div v-else flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayChunkImports
-          v-for="chunk in imports"
-          :key="chunk.chunk_id"
-          :chunk="chunk"
+          v-for="chunkImport in imports"
+          :key="chunkImport.chunk_id"
+          :chunk="chunkImport"
           hover="bg-active"
           border="~ base rounded" px2 py1 w-full
         />
