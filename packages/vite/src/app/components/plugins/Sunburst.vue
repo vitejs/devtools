@@ -36,7 +36,12 @@ watchEffect(() => el.value?.append(props.graph.el))
             hover="bg-active" rounded px2
             @click="emit('select', child)"
           >
-            <span v-if="child.meta && child.meta === selected?.meta" text-primary>(self)</span>
+            <div v-if="child.meta?.type === 'hook'" hover="bg-active" class="flex gap2 items-center pl2">
+              <i class="i-ph-function-duotone inline-flex" />
+              <span font-mono text-sm>
+                {{ child.text }}
+              </span>
+            </div>
             <DisplayModuleId
               v-else
               :id="child.text!"

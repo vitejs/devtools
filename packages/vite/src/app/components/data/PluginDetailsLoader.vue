@@ -93,25 +93,45 @@ const _tree = computed(() => {
   }
 
   function createMetricsNodes(prefix: string, metrics: PluginBuildInfo[]) {
-    return moduleTypes.value.map((type, idx) => {
-      const filteredMetrics = metrics.filter(item => getFileTypeFromModuleId(item.module!).name === type.name)
-      return createNode({
-        id: `${prefix}-${type.name}-${idx}`,
-        text: type.description,
-        children: filteredMetrics.map((item, idx) => createNode({
-          id: `${prefix}-${idx}`,
+    const otherTypes = metrics.filter(item => !moduleTypes.value.some(type => getFileTypeFromModuleId(item.module!).name === type.name))
+    return [
+      ...moduleTypes.value.map((type, idx) => {
+        const filteredMetrics = metrics.filter(item => getFileTypeFromModuleId(item.module!).name === type.name)
+        return createNode({
+          id: `${prefix}-${type.name}-${idx}`,
+          text: type.description,
+          children: filteredMetrics.map((item, idx) => createNode({
+            id: `${prefix}-${idx}`,
+            text: item.module,
+            size: item.duration,
+            meta: item as unknown as PluginChartInfo,
+          })),
+          meta: {
+            type: 'module',
+            title: type.description,
+            id: `${prefix}-${type.name}-${idx}`,
+            duration: filteredMetrics.reduce((arc, item) => arc + item.duration, 0),
+          } as unknown as PluginChartInfo,
+        })
+      }),
+      // other types node
+      createNode({
+        id: `${prefix}-other`,
+        text: 'Other',
+        children: otherTypes.map((item, idx) => createNode({
+          id: `${prefix}-other-${idx}`,
           text: item.module,
           size: item.duration,
           meta: item as unknown as PluginChartInfo,
         })),
         meta: {
           type: 'module',
-          title: type.description,
-          id: `${prefix}-${type.name}-${idx}`,
-          duration: filteredMetrics.reduce((arc, item) => arc + item.duration, 0),
+          title: 'Other',
+          id: `${prefix}-other`,
+          duration: otherTypes.reduce((arc, item) => arc + item.duration, 0),
         } as unknown as PluginChartInfo,
-      })
-    })
+      }),
+    ]
   }
 
   const resolveIds = createMetricsNodes('resolveId', state.value!.resolveIdMetrics)
@@ -127,7 +147,11 @@ const _tree = computed(() => {
         id,
         type: 'hook',
         title: text,
-        duration: children.reduce((arc, item) => arc + item.size, 0),
+        duration: {
+          '~loads': hookLoadDuration.value,
+          '~resolves': hookResolveIdDuration.value,
+          '~transforms': hookTransformDuration.value,
+        }[id],
       } as unknown as PluginChartInfo,
     })
   }
@@ -177,6 +201,9 @@ const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, select
     onSelect(node) {
       nodeSelected.value = node || tree.value.root
       selectedNode.value = node?.meta
+    },
+    getSubtext(node) {
+      return formatDuration(node.size, true)
     },
   },
   onUpdate() {
