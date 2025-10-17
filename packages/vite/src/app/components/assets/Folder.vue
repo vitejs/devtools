@@ -2,7 +2,7 @@
 import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { ModuleDest, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
-import { toTree } from '../../utils/format'
+import { toTree } from '~/utils/format'
 
 const props = defineProps<{
   assets: AssetInfo[]

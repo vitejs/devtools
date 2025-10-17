@@ -3,8 +3,8 @@ import type { ModuleInfo, RolldownChunkInfo, RolldownModuleFlowNode, SessionCont
 import { vOnClickOutside } from '@vueuse/components'
 import { Pane, Splitpanes } from 'splitpanes'
 import { shallowRef, toRefs, watch } from 'vue'
-import ModuleFlowDetails from './ModuleFlowDetails.vue'
-import ModuleFlowTimeline from './ModuleFlowTimeline.vue'
+import ModuleFlowDetails from '~/components/flowmap/ModuleFlowDetails.vue'
+import ModuleFlowTimeline from '~/components/flowmap/ModuleFlowTimeline.vue'
 
 const props = defineProps<{
   info: ModuleInfo

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleDest, ModuleListItem, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
-import { toTree } from '../../utils/format'
+import { toTree } from '~/utils/format'
 
 const props = defineProps<{
   session: SessionContext
