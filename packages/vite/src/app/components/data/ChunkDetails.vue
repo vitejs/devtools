@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types'
+import type { RolldownChunkImport, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
   chunk: ChunkInfo
   session: SessionContext
   showModules?: boolean
-  showImports?: boolean
+  showImports?: boolean | RolldownChunkImport[]
 }>(), {
   showModules: true,
   showImports: true,
@@ -26,6 +26,10 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
   const transforms = moduleInfo?.buildMetrics?.transforms
   return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
 }, 0))
+
+const imports = computed(() => {
+  return [] as any[]
+})
 </script>
 
 <template>
@@ -78,11 +82,9 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
       </summary>
       <div flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayChunkImports
-          v-for="(importChunk, index) in chunk.imports"
-          :key="index"
-          :chunk-import="importChunk"
-          :session="session"
-          :importer="chunk"
+          v-for="chunk in imports"
+          :key="chunk.chunk_id"
+          :chunk="chunk"
           hover="bg-active"
           border="~ base rounded" px2 py1 w-full
         />
