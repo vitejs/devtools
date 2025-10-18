@@ -46,7 +46,7 @@ watch([hoverX, hoverY], ([x, y]) => {
 
 <template>
   <Teleport to="body">
-    <div ref="hoverElement" fixed z-panel-content :style="{ left: `${left}px`, top: `${top}px` }">
+    <div ref="hoverElement" fixed z-panel-content pointer-events-none :style="{ left: `${left}px`, top: `${top}px` }">
       <slot />
     </div>
   </Teleport>
