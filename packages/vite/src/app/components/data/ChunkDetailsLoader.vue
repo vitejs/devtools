@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SessionContext } from '../../../shared/types/data'
+import type { SessionContext } from '~~/shared/types/data'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 

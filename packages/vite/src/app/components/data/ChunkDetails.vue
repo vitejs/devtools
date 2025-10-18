@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types'
+import type { RolldownChunkImport, SessionContext } from '~~/shared/types'
+import { useRpc } from '#imports'
+import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
@@ -8,6 +10,7 @@ const props = withDefaults(defineProps<{
   session: SessionContext
   showModules?: boolean
   showImports?: boolean
+  chunks?: ChunkInfo[]
 }>(), {
   showModules: true,
   showImports: true,
@@ -26,6 +29,33 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
   const transforms = moduleInfo?.buildMetrics?.transforms
   return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
 }, 0))
+
+const rpc = useRpc()
+const { state, isLoading } = useAsyncState(
+  async () => {
+    if (props.chunks)
+      return
+
+    return await rpc.value!['vite:rolldown:get-chunks-graph']?.({
+      session: props.session.id,
+    })
+  },
+  null,
+)
+
+const imports = computed((): RolldownChunkImport[] => {
+  return props.chunk.imports.map((importChunk) => {
+    const chunk = (props.chunks || state.value)?.find(c => c.chunk_id === importChunk.chunk_id)
+
+    return {
+      ...importChunk,
+      name: chunk?.name || '[unnamed]',
+      reason: chunk?.reason || 'common',
+      imports: chunk?.imports.length || 0,
+      modules: chunk?.modules.length || 0,
+    }
+  })
+})
 </script>
 
 <template>
@@ -76,13 +106,12 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
       <summary op50>
         <span>Imports ({{ chunk.imports.length }})</span>
       </summary>
-      <div flex="~ col gap-1" mt2 ws-nowrap>
+      <VisualLoading v-if="isLoading" />
+      <div v-else flex="~ col gap-1" mt2 ws-nowrap>
         <DisplayChunkImports
-          v-for="(importChunk, index) in chunk.imports"
-          :key="index"
-          :chunk-import="importChunk"
-          :session="session"
-          :importer="chunk"
+          v-for="chunkImport in imports"
+          :key="chunkImport.chunk_id"
+          :chunk="chunkImport"
           hover="bg-active"
           border="~ base rounded" px2 py1 w-full
         />
