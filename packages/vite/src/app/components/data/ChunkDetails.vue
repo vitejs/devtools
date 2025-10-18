@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Chunk as ChunkInfo } from '@rolldown/debug'
 import type { RolldownChunkImport, SessionContext } from '~~/shared/types'
+import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
-import { useRpc } from '../../composables/rpc'
 
 const props = withDefaults(defineProps<{
   chunk: ChunkInfo
