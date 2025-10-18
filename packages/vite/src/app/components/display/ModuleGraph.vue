@@ -3,10 +3,13 @@ import type { SessionContext } from '~~/shared/types'
 import { onMounted, unref, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/moduleGraph'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   modules: T[]
   session: SessionContext
-}>()
+  expandControls?: boolean
+}>(), {
+  expandControls: true,
+})
 
 const { isFirstCalculateGraph, childToParentMap, collapsedNodes, calculateGraph, container, width, height, scale, nodes, links, spacing, nodesRefMap } = useModuleGraph()
 const { isGrabbing, init: initGraphDraggingScroll } = useGraphDraggingScroll()
@@ -137,30 +140,32 @@ onMounted(() => {
       </div>
 
       <div bg-glass rounded-full border border-base shadow flex="~ col gap-1 p1">
-        <button
-          v-tooltip.left="'Expand All'"
-          w-10 h-10 rounded-full hover:bg-active op-fade
-          hover:op100 flex="~ items-center justify-center"
-          :disabled="isGraphNodeToggling"
-          :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
-          title="Expand All"
-          @click="expandAll()"
-        >
-          <div class="i-ph-arrows-out-simple-duotone" />
-        </button>
-        <button
-          v-tooltip.left="'Collapse All'"
-          w-10 h-10 rounded-full hover:bg-active op-fade
-          hover:op100 flex="~ items-center justify-center"
-          :disabled="isGraphNodeToggling"
-          :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
-          title="Collapse All"
-          @click="collapseAll()"
-        >
-          <div class="i-ph-arrows-in-simple-duotone" />
-        </button>
+        <template v-if="expandControls">
+          <button
+            v-tooltip.left="'Expand All'"
+            w-10 h-10 rounded-full hover:bg-active op-fade
+            hover:op100 flex="~ items-center justify-center"
+            :disabled="isGraphNodeToggling"
+            :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
+            title="Expand All"
+            @click="expandAll()"
+          >
+            <div class="i-ph-arrows-out-simple-duotone" />
+          </button>
+          <button
+            v-tooltip.left="'Collapse All'"
+            w-10 h-10 rounded-full hover:bg-active op-fade
+            hover:op100 flex="~ items-center justify-center"
+            :disabled="isGraphNodeToggling"
+            :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
+            title="Collapse All"
+            @click="collapseAll()"
+          >
+            <div class="i-ph-arrows-in-simple-duotone" />
+          </button>
 
-        <div border="t base" my1 />
+          <div border="t base" my1 />
+        </template>
 
         <button
           v-tooltip.left="'Zoom In (Ctrl + =)'"

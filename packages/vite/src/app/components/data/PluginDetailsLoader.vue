@@ -8,10 +8,10 @@ import { useAsyncState, useMouse } from '@vueuse/core'
 import { normalizeTreeNode, Sunburst } from 'nanovis'
 import { computed, reactive, watch } from 'vue'
 import { settings } from '~~/app/state/settings'
+import { useChartGraph } from '~/composables/chart'
 import { parseReadablePath } from '~/utils/filepath'
 import { formatDuration, normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
-import { useChartGraph } from '../../composables/chart'
 
 const props = defineProps<{
   plugin: string

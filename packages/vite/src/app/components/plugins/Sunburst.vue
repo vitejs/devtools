@@ -66,7 +66,7 @@ watchEffect(() => el.value?.append(props.graph.el))
             />
             <DisplayDuration :duration="child.size" text-xs />
             <div
-              v-if="child.children.length > 0"
+              v-if="child.children.length > 0 && child.meta?.type !== 'hook'"
               v-tooltip="`${child.children.length} dependencies`"
               :title="`${child.children.length} dependencies`"
               text-xs op-fade

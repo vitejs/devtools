@@ -17,6 +17,7 @@ export interface RpcFunctionsHost {
   readonly functions: DevToolsRpcServerFunctions
   readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
   register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
+  update: (fn: RpcFunctionDefinition<string, any, any, any>) => void
 }
 
 export interface RpcFunctionSetupResult<
@@ -26,7 +27,7 @@ export interface RpcFunctionSetupResult<
   handler: (...args: ARGS) => RETURN
 }
 
-// TODO: maybe we should introduce schema system with vailbot
+// TODO: maybe we should introduce schema system with valibot
 
 export interface RpcFunctionDefinition<
   NAME extends string,

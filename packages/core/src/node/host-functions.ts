@@ -35,6 +35,16 @@ export class RpcFunctionsHost implements RpcFunctionsHostType {
   }
 
   register(fn: RpcFunctionDefinition<string, any, any, any>): void {
+    if (this.definitions.has(fn.name)) {
+      throw new Error(`RPC function "${fn.name}" is already registered`)
+    }
+    this.definitions.set(fn.name, fn)
+  }
+
+  update(fn: RpcFunctionDefinition<string, any, any, any>): void {
+    if (!this.definitions.has(fn.name)) {
+      throw new Error(`RPC function "${fn.name}" is not registered. Use register() to add new functions.`)
+    }
     this.definitions.set(fn.name, fn)
   }
 }
