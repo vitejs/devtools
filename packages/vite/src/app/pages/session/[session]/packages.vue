@@ -179,7 +179,7 @@ watch(() => settings.value.packageViewType, () => {
           @select="x => selectNode(x)"
         >
           <template #default="{ selected, options, onSelect }">
-            <ChartPackageNavBreadcrumb
+            <ChartNavBreadcrumb
               border="b base" py2 min-h-10
               :selected="selected"
               :options="options"

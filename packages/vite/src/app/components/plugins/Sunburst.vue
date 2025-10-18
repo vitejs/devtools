@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import type { GraphBase, GraphBaseOptions } from 'nanovis'
-import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
+import type { SessionContext } from '~~/shared/types'
+import type { PluginChartInfo, PluginChartNode } from '~/types/chart'
 import { colorToCssBackground } from 'nanovis'
 import { useTemplateRef, watchEffect } from 'vue'
 
 const props = defineProps<{
-  graph: GraphBase<AssetChartInfo | undefined, GraphBaseOptions<AssetChartInfo | undefined>>
-  selected?: AssetChartNode | undefined
+  graph: GraphBase<PluginChartInfo | undefined, GraphBaseOptions<PluginChartInfo | undefined>>
+  selected?: PluginChartNode | undefined
+  session: SessionContext
 }>()
 
 const emit = defineEmits<{
-  (e: 'select', node: AssetChartNode | null): void
+  (e: 'select', node: PluginChartNode | null): void
 }>()
 
 const el = useTemplateRef<HTMLDivElement>('el')
@@ -27,15 +29,27 @@ watchEffect(() => el.value?.append(props.graph.el))
         :options="graph.options"
         @select="emit('select', $event)"
       />
-      <div v-if="selected" grid="~ cols-[250px_1fr] gap-1">
+      <div v-if="selected" grid="~ cols-[300px_1fr] gap-1">
         <template v-for="child of selected.children" :key="child.id">
           <button
             ws-nowrap text-nowrap text-left overflow-hidden text-ellipsis text-sm
             hover="bg-active" rounded px2
             @click="emit('select', child)"
           >
-            <span v-if="child.meta && child.meta === selected?.meta" text-primary>(self)</span>
-            <span v-else>{{ child.id }}</span>
+            <div v-if="child.meta?.type === 'hook'" hover="bg-active" class="flex gap2 items-center pl2">
+              <i class="i-ph-function-duotone inline-flex" />
+              <span font-mono text-sm>
+                {{ child.text }}
+              </span>
+            </div>
+            <DisplayModuleId
+              v-else
+              :id="child.text!"
+              w-full border-none ws-nowrap
+              :session="session"
+              hover="bg-active"
+              border="~ base rounded" block px2 py1
+            />
           </button>
 
           <button
@@ -50,9 +64,9 @@ watchEffect(() => el.value?.append(props.graph.el))
                 width: `${child.size / selected.size * 100}%`,
               }"
             />
-            <DisplayFileSizeBadge text-xs :bytes="child.size" :total="selected.size" :percent-ratio="3" />
+            <DisplayDuration :duration="child.size" text-xs />
             <div
-              v-if="child.children.length > 0"
+              v-if="child.children.length > 0 && child.meta?.type !== 'hook'"
               v-tooltip="`${child.children.length} dependencies`"
               :title="`${child.children.length} dependencies`"
               text-xs op-fade
