@@ -82,15 +82,6 @@ const searchFilterTypes = computed(() => {
   })
 })
 
-// const allNodeModules = computed(() => {
-//   const nodeModules = new Set<string>()
-//   for (const mod of parsedPaths.value) {
-//     if (mod.path.moduleName)
-//       nodeModules.add(mod.path.moduleName)
-//   }
-//   return nodeModules
-// })
-
 const filtered = computed(() => {
   let modules = parsedPaths.value
   if (searchValue.value.selected) {
@@ -151,8 +142,6 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
         </div>
       </DataSearchPanel>
     </div>
-    <!-- TODO: should we add filters for node_modules? -->
-    <!-- {{ allNodeModules }} -->
     <template v-if="settings.moduleGraphViewType === 'list'">
       <div of-auto h-screen pt-45>
         <ModulesFlatList
