@@ -68,6 +68,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
             border="~ base rounded-lg"
             p3
             :chunk="chunk"
+            :chunks="chunks!"
             :session="session"
           />
         </template>

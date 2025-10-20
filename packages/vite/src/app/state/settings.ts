@@ -16,7 +16,7 @@ export interface ClientSettings {
   assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst' | 'flamegraph'
   chartAnimation: boolean
   moduleDetailsViewType: 'flow' | 'charts' | 'imports'
-  pluginDetailsViewType: 'flow' | 'charts'
+  pluginDetailsViewType: 'flow' | 'sunburst'
   pluginDetailsTableFields: string[] | null
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string

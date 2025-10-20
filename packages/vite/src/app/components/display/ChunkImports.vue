@@ -1,28 +1,12 @@
 <script lang="ts" setup>
-import type { ChunkImport, Chunk as ChunkInfo } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types/data'
+import type { RolldownChunkImport } from '~~/shared/types/data'
 import { useRoute } from '#app/composables/router'
-import { useRpc } from '#imports'
-import { useAsyncState } from '@vueuse/core'
 
-const props = defineProps<{
-  chunkImport: ChunkImport
-  session: SessionContext
-  importer: ChunkInfo
+const { chunk } = defineProps<{
+  chunk: RolldownChunkImport
 }>()
 
 const route = useRoute()
-
-const rpc = useRpc()
-const { state: chunk } = useAsyncState(
-  async () => {
-    return await rpc.value!['vite:rolldown:get-chunk-info']?.({
-      session: props.session.id,
-      id: props.chunkImport.chunk_id,
-    })
-  },
-  null,
-)
 </script>
 
 <template>
@@ -30,14 +14,13 @@ const { state: chunk } = useAsyncState(
   <NuxtLink v-if="chunk" flex="~ items-center" :to="{ path: route.path, query: { chunk: chunk.chunk_id } }">
     <!-- Icon, Name, Reason -->
     <div flex="~ gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
-      <div v-if="chunkImport.kind === 'import-statement'" i-ph-file-duotone />
-      <div v-if="chunkImport.kind === 'dynamic-import'" i-ph-lightning-duotone />
+      <div v-if="chunk.kind === 'import-statement'" i-ph-file-duotone />
+      <div v-if="chunk.kind === 'dynamic-import'" i-ph-lightning-duotone />
       <div>{{ chunk.name || '[unnamed]' }}</div>
       <DisplayBadge :text="chunk.reason" />
 
       <!-- Import Kind -->
-      <DisplayBadge v-if="chunkImport.kind === 'import-statement'" text="statement" :color="210" />
-      <DisplayBadge v-if="chunkImport.kind === 'dynamic-import'" text="dynamic" :color="30" />
+      <DisplayBadge :text="chunk.kind" />
     </div>
 
     <div flex-auto />
@@ -46,11 +29,11 @@ const { state: chunk } = useAsyncState(
       <span op50 font-mono>#{{ chunk.chunk_id }}</span>
       <div flex="~ gap-1 items-center">
         <div i-ph-file-arrow-up-duotone />
-        {{ chunk.imports.length }}
+        {{ chunk.imports }}
       </div>
       <div flex="~ gap-1 items-center">
         <div i-ph-package-duotone />
-        {{ chunk.modules.length }}
+        {{ chunk.modules }}
       </div>
     </div>
   </NuxtLink>

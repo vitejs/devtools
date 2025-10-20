@@ -71,7 +71,10 @@ export function normalizeTimestamp(timestamp: number) {
   })
 }
 
-export function formatDuration(ms: number | null | undefined, stringify?: boolean) {
+export function formatDuration(ms: number | null | undefined): string[]
+export function formatDuration(ms: number | null | undefined, stringify: true): string
+export function formatDuration(ms: number | null | undefined, stringify: false): string[]
+export function formatDuration(ms: number | null | undefined, stringify?: boolean): string | string[] {
   let duration = []
 
   if (ms == null)

@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import type { SessionContext } from '~~/shared/types'
+import type { TreeNodeInput } from 'nanovis'
+import type { PluginBuildInfo, SessionContext } from '~~/shared/types'
+import type { PluginChartInfo, PluginChartNode } from '~/types/chart'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
-import { useAsyncState } from '@vueuse/core'
-import { computed } from 'vue'
+import { useAsyncState, useMouse } from '@vueuse/core'
+import { normalizeTreeNode, Sunburst } from 'nanovis'
+import { computed, reactive, watch } from 'vue'
 import { settings } from '~~/app/state/settings'
-import { formatDuration } from '~/utils/format'
+import { useChartGraph } from '~/composables/chart'
+import { parseReadablePath } from '~/utils/filepath'
+import { formatDuration, normalizeTimestamp } from '~/utils/format'
+import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
+  plugin: string
   session: SessionContext
 }>()
 const emit = defineEmits<{
@@ -45,6 +52,168 @@ const hookTransformDuration = computed(() => state.value?.transformMetrics.reduc
 const hookResolveIdDuration = computed(() => state.value?.resolveIdMetrics.reduce((arc, item) => arc + item.duration, 0))
 
 const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => arc + item.duration, 0))
+
+const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
+  const path = parseReadablePath(mod.id, props.session.meta.cwd)
+  const type = getFileTypeFromModuleId(mod.id)
+  return {
+    mod,
+    path,
+    type,
+  }
+}))
+const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
+
+const _tree = computed(() => {
+  const map = new Map<string, TreeNodeInput<PluginChartInfo | undefined>>()
+  const maxDepth = 3
+  if (!state.value) {
+    return {
+      root: createNode({
+        id: '~root',
+        text: 'Project',
+        children: [],
+      }),
+      map: new Map(),
+      maxDepth,
+    }
+  }
+
+  function createNode(node: TreeNodeInput<PluginChartInfo | undefined>, parent?: PluginChartNode) {
+    map.set(node.id!, node)
+    const normalizedNode = normalizeTreeNode(node, parent, (a, b) => (b?.meta?.duration ?? 0) - (a?.meta?.duration ?? 0))
+
+    if (normalizedNode.children) {
+      normalizedNode.children.forEach((child) => {
+        child.parent = normalizedNode
+      })
+    }
+
+    return normalizedNode
+  }
+
+  function createMetricsNodes(prefix: string, metrics: PluginBuildInfo[]) {
+    const otherTypes = metrics.filter(item => !moduleTypes.value.some(type => getFileTypeFromModuleId(item.module!).name === type.name))
+    return [
+      ...moduleTypes.value.map((type, idx) => {
+        const filteredMetrics = metrics.filter(item => getFileTypeFromModuleId(item.module!).name === type.name)
+        return createNode({
+          id: `${prefix}-${type.name}-${idx}`,
+          text: type.description,
+          children: filteredMetrics.map((item, idx) => createNode({
+            id: `${prefix}-${idx}`,
+            text: item.module,
+            size: item.duration,
+            meta: item as unknown as PluginChartInfo,
+          })),
+          meta: {
+            type: 'module',
+            title: type.description,
+            id: `${prefix}-${type.name}-${idx}`,
+            duration: filteredMetrics.reduce((arc, item) => arc + item.duration, 0),
+          } as unknown as PluginChartInfo,
+        })
+      }),
+      // other types node
+      createNode({
+        id: `${prefix}-other`,
+        text: 'Other',
+        children: otherTypes.map((item, idx) => createNode({
+          id: `${prefix}-other-${idx}`,
+          text: item.module,
+          size: item.duration,
+          meta: item as unknown as PluginChartInfo,
+        })),
+        meta: {
+          type: 'module',
+          title: 'Other',
+          id: `${prefix}-other`,
+          duration: otherTypes.reduce((arc, item) => arc + item.duration, 0),
+        } as unknown as PluginChartInfo,
+      }),
+    ]
+  }
+
+  const resolveIds = createMetricsNodes('resolveId', state.value!.resolveIdMetrics)
+  const loads = createMetricsNodes('loads', state.value!.loadMetrics)
+  const transforms = createMetricsNodes('transforms', state.value!.transformMetrics)
+
+  function createHookNode(id: string, text: string, children: PluginChartNode[]) {
+    return createNode({
+      id,
+      text,
+      children: children.sort((a, b) => b.size - a.size),
+      meta: {
+        id,
+        type: 'hook',
+        title: text,
+        duration: {
+          '~loads': hookLoadDuration.value,
+          '~resolves': hookResolveIdDuration.value,
+          '~transforms': hookTransformDuration.value,
+        }[id],
+      } as unknown as PluginChartInfo,
+    })
+  }
+
+  // resolve/load/transform -> module type -> module
+  const children = [
+    createHookNode('~resolves', 'Resolve Id', resolveIds),
+    createHookNode('~loads', 'Load', loads),
+    createHookNode('~transforms', 'Transform', transforms),
+  ]
+
+  const root = createNode({
+    id: '~root',
+    text: 'Project',
+    children,
+  })
+
+  return {
+    root,
+    map,
+    maxDepth,
+  }
+})
+
+const mouse = reactive(useMouse())
+const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<PluginChartInfo, PluginChartInfo, PluginChartNode>({
+  data: [],
+  tree: _tree,
+  nameKey: 'id',
+  sizeKey: 'duration',
+  rootText: 'Project',
+  graphOptions: {
+    onClick(node) {
+      if (node)
+        nodeHover.value = node
+      selectedNode.value = node.meta
+    },
+    onHover(node) {
+      if (node)
+        nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
+    },
+    onLeave() {
+      nodeHover.value = undefined
+    },
+    onSelect(node) {
+      nodeSelected.value = node || tree.value.root
+      selectedNode.value = node?.meta
+    },
+    getSubtext(node) {
+      return formatDuration(node.size, true)
+    },
+  },
+  onUpdate() {
+    graph.value = new Sunburst(tree.value.root, chartOptions.value)
+  },
+})
+
+watch(() => settings.value.pluginDetailsViewType, () => {
+  buildGraph()
+})
 </script>
 
 <template>
@@ -114,15 +283,15 @@ const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => a
           Build Flow
         </button>
         <button
-          :class="settings.pluginDetailsViewType === 'charts' ? 'text-primary' : ''"
+          :class="settings.pluginDetailsViewType === 'sunburst' ? 'text-primary' : ''"
           flex="~ gap-2 items-center justify-center"
           px2 py1 w-40
           border="~ base rounded-lg"
           hover="bg-active"
-          @click="settings.pluginDetailsViewType = 'charts'"
+          @click="settings.pluginDetailsViewType = 'sunburst'"
         >
-          <div i-ph-chart-donut-duotone />
-          Charts
+          <div i-ph-chart-sunburst-duotone />
+          Sunburst
         </button>
       </div>
     </div>
@@ -132,10 +301,12 @@ const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => a
         :session="session"
         :build-metrics="state"
       />
-      <ChartPluginFlamegraph
-        v-if="settings.pluginDetailsViewType === 'charts'"
+      <PluginsSunburst
+        v-if="settings.pluginDetailsViewType === 'sunburst' && graph"
+        :graph="graph"
         :session="session"
-        :build-metrics="state"
+        :selected="nodeSelected"
+        @select="selectNode"
       />
     </div>
   </div>
@@ -144,4 +315,53 @@ const totalDuration = computed(() => state.value?.calls?.reduce((arc, item) => a
       No data
     </span>
   </div>
+  <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+    <div
+      v-if="nodeHover"
+      border="~ base" rounded-lg shadow-lg px3 py2
+      bg-glass pointer-events-none text-sm max-w-80
+    >
+      <div v-if="nodeHover.meta?.title" flex="~ items-center gap2">
+        {{ nodeHover.meta.title }}
+        <DisplayDuration :duration="nodeHover.meta.duration" />
+      </div>
+      <template v-else>
+        <div v-if="nodeHover.meta?.module" flex="~" font-semibold font-mono text-base mb2>
+          <DisplayModuleId :id="nodeHover.meta.module" :session="session" :link="false" />
+        </div>
+        <div v-if="nodeHover.meta?.module" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
+          <div flex="~ justify-between items-center" py1>
+            <label text-xs opacity-70>Start Time</label>
+            <time
+              :datetime="new Date(nodeHover.meta.timestamp_start).toISOString()"
+              font-mono text="xs"
+              bg="base/10"
+              px1.5 py0.5 rounded
+            >
+              {{ normalizeTimestamp(nodeHover.meta.timestamp_start) }}
+            </time>
+          </div>
+          <div flex="~ justify-between items-center" py1>
+            <label text-xs opacity-70>End Time</label>
+            <time
+              :datetime="new Date(nodeHover.meta.timestamp_end).toISOString()"
+              font-mono text="xs"
+              bg="base/10"
+              px1.5 py0.5 rounded
+            >
+              {{ normalizeTimestamp(nodeHover.meta.timestamp_end) }}
+            </time>
+          </div>
+          <div flex="~ justify-between items-center" py1 border="t base dashed" pt2>
+            <label text="xs" op70>Duration</label>
+            <DisplayDuration :duration="nodeHover.meta.duration" />
+          </div>
+        </div>
+
+        <div v-else>
+          <DisplayDuration :duration="nodeHover.meta?.duration" />
+        </div>
+      </template>
+    </div>
+  </DisplayGraphHoverView>
 </template>

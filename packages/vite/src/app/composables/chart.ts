@@ -6,7 +6,7 @@ import { isDark } from '~/composables/dark'
 import { settings } from '~/state/settings'
 import { bytesToHumanSize } from '~/utils/format'
 
-export interface ChartGraphOptions<T, I> {
+export interface ChartGraphOptions<T, I, N> {
   data: ComputedRef<T[]> | MaybeRef<T[]>
   nameKey: string
   sizeKey: string
@@ -14,9 +14,14 @@ export interface ChartGraphOptions<T, I> {
   nodeType?: string
   graphOptions?: GraphBaseOptions<I | undefined>
   onUpdate?: () => void
+  tree?: ComputedRef<{
+    map: Map<string, N>
+    root: N
+    maxDepth: number
+  }>
 }
 
-export function useChartGraph<T extends Record<string, any>, I extends T & Record<string, any>, N extends TreeNode<any>>(options: ChartGraphOptions<T, I>) {
+export function useChartGraph<T extends Record<string, any>, I extends T & Record<string, any>, N extends TreeNode<any>>(options: ChartGraphOptions<T, I, N>) {
   const { data, nameKey, sizeKey, rootText, nodeType, graphOptions, onUpdate } = options
   const nodeHover = shallowRef<N | undefined>(undefined)
   const nodeSelected = shallowRef<N | undefined>(undefined)
@@ -25,6 +30,9 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
   let dispose: () => void | undefined
 
   const tree = computed(() => {
+    if (options.tree) {
+      return options.tree.value
+    }
     const _data = unref(data)
     const map = new Map<string, N>()
     let maxDepth = 0
@@ -194,21 +202,22 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
     dispose = () => {
       graph.value?.dispose()
       graph.value = undefined
+      selectedNode.value = undefined
     }
   }
 
-  watch(
-    () => [tree.value, chartOptions.value],
-    () => {
-      buildGraph()
-    },
-    {
-      deep: true,
-      immediate: false,
-    },
-  )
-
   nextTick(() => {
+    watch(
+      () => [tree.value, chartOptions.value],
+      () => {
+        buildGraph()
+      },
+      {
+        deep: true,
+        immediate: false,
+      },
+    )
+
     buildGraph()
   })
 
