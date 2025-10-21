@@ -2,7 +2,7 @@
 import type { PackageInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
-import { useRoute } from '#app/composables/router'
+import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -18,6 +18,7 @@ const props = defineProps<{
 
 const mouse = reactive(useMouse())
 const route = useRoute()
+const router = useRouter()
 
 const packageTypeRules = [
   {
@@ -118,6 +119,11 @@ const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, select
         nodeHover.value = node
       if (node === null)
         nodeHover.value = undefined
+    },
+    onClick(node) {
+      if (node.meta?.type === 'package') {
+        router.replace({ query: { ...route.query, package: `${node.meta?.name}@${node.meta?.version}` } })
+      }
     },
     onLeave() {
       nodeHover.value = undefined

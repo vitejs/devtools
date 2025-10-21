@@ -28,6 +28,11 @@ const { state, isLoading } = useAsyncState(
 )
 
 const importers = computed(() => [...new Set(state.value?.files.filter(f => !!f.importers).flatMap(f => f.importers))])
+
+function openInNpm() {
+  const url = `https://www.npmjs.com/package/${parsedPackage.value.name}`
+  window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -36,10 +41,15 @@ const importers = computed(() => [...new Set(state.value?.files.filter(f => !!f.
   <div v-if="state" p4 relative h-full w-full of-auto z-panel-content>
     <div flex="~ col gap-3">
       <div flex="~ gap-3 items-center" :title="package">
-        <div>
+        <div flex="~ items-center gap-1">
           <DisplayHighlightedPackageName :name="parsedPackage.name!" />
+          <DisplayFileSizeBadge :bytes="state.transformedCodeSize" />
         </div>
         <div flex-auto />
+        <button btn-action flex="~ items-center" @click="openInNpm">
+          <div i-ph-arrow-square-out-duotone />
+          Open in npm
+        </button>
         <DisplayCloseButton
           @click="emit('close')"
         />

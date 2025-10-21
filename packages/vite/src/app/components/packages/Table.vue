@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PackageInfo, SessionContext } from '~~/shared/types'
+import { useRoute } from '#app/composables/router'
 import { useCycleList } from '@vueuse/core'
 import { Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'
@@ -14,6 +15,7 @@ withDefaults(defineProps<{
   groupView: false,
 })
 
+const route = useRoute()
 const { state: sizeSortType, next } = useCycleList(['', 'desc', 'asc'], {
   initialValue: settings.value.packageSizeSortType,
 })
@@ -60,11 +62,12 @@ function toggleSizeSortType() {
       key-prop="dir"
     >
       <template #default="{ item, index }">
-        <div
+        <NuxtLink
           role="row"
           flex="~ row"
           class="border-base border-b-1 border-dashed"
           :class="[index === packages.length - 1 ? 'border-b-0' : '']"
+          :to="{ path: route.path, query: { package: `${item.name}@${item.version}` } }"
         >
           <div v-if="!groupView" role="cell" font-mono flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
             <DisplayHighlightedPackageName :name="item.name" />
@@ -90,7 +93,7 @@ function toggleSizeSortType() {
           <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 pl20 pr2 text-sm op80>
             <PackagesImporters :package="item" :session="session" :show-version="groupView" />
           </div>
-        </div>
+        </NuxtLink>
       </template>
     </DataVirtualList>
     <div v-else>
