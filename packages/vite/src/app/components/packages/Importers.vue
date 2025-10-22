@@ -8,7 +8,13 @@ const props = defineProps<{
   showVersion: boolean
 }>()
 
-const importers = computed(() => [...new Set(props.package.files.filter(f => !!f.importers).flatMap(f => f.importers))])
+const importers = computed(() => {
+  const pathMap = new Map()
+  props.package.files.filter(f => !!f.importers).flatMap(f => f.importers).filter(i => !i.path.startsWith(props.package?.dir ?? '')).forEach((importer) => {
+    pathMap.set(importer.path, importer)
+  })
+  return Array.from(pathMap.values())
+})
 </script>
 
 <template>

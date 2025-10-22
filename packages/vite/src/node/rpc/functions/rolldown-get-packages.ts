@@ -9,6 +9,29 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
   const modulesMap = reader.manager.modules
   const chunks = Array.from(reader.manager.chunks.values())
   const packagesManifest = new Map<string, PackageInfo>()
+
+  const getImporters = (path: string, packageDir: string, visited = new Set<string>()): string[] => {
+    const importers = modulesMap.get(path)?.importers || []
+    const result: string[] = []
+
+    for (const importer of importers) {
+      if (visited.has(importer))
+        continue
+
+      visited.add(importer)
+      const module = modulesMap.get(importer)
+      const imports = module?.imports?.map(i => i.module_id) || []
+
+      if (imports.some(i => getPackageDirPath(i) === packageDir)) {
+        result.push(importer)
+      }
+
+      result.push(...getImporters(importer, packageDir, visited))
+    }
+
+    return result
+  }
+
   const packages = chunks.map(chunk => chunk.modules.map(module => module)).flat().filter(isNodeModulePath).map((p) => {
     const module = modulesMap.get(p)
     const moduleBuildMetrics = module?.build_metrics
@@ -22,14 +45,14 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
     const manifest = await readProjectManifestOnly(p.dir)
     const packageKey = `${manifest.name!}@${manifest.version!}`
     const packageInfo = packagesManifest.get(packageKey)
-    const module = modulesMap.get(p.path)
+    const importers = getImporters(p.path, p.dir).map(i => ({ path: i, version: '' }))
     if (packageInfo) {
       packagesManifest.set(packageKey, {
         ...packageInfo,
         files: [...packageInfo.files, {
           path: p.path,
           transformedCodeSize: p.transformedCodeSize,
-          importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
+          importers,
         }],
         transformedCodeSize: packageInfo.transformedCodeSize + p.transformedCodeSize,
       })
@@ -42,7 +65,7 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
         files: [{
           path: p.path,
           transformedCodeSize: p.transformedCodeSize,
-          importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
+          importers,
         }],
         transformedCodeSize: p.transformedCodeSize,
       })

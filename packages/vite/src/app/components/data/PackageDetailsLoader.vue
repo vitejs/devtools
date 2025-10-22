@@ -27,7 +27,13 @@ const { state, isLoading } = useAsyncState(
   null,
 )
 
-const importers = computed(() => [...new Set(state.value?.files.filter(f => !!f.importers).flatMap(f => f.importers))])
+const importers = computed(() => {
+  const pathMap = new Map()
+  state.value?.files.filter(f => !!f.importers).flatMap(f => f.importers).filter(i => !i.path.startsWith(state.value?.dir ?? '')).forEach((importer) => {
+    pathMap.set(importer.path, importer)
+  })
+  return Array.from(pathMap.values())
+})
 
 function openInNpm() {
   const url = `https://www.npmjs.com/package/${parsedPackage.value.name}`
@@ -42,7 +48,9 @@ function openInNpm() {
     <div flex="~ col gap-3">
       <div flex="~ gap-3 items-center" :title="package">
         <div flex="~ items-center gap-1">
-          <DisplayHighlightedPackageName :name="parsedPackage.name!" />
+          <div>
+            <DisplayHighlightedPackageName :name="parsedPackage.name!" />
+          </div>
           <DisplayFileSizeBadge :bytes="state.transformedCodeSize" />
         </div>
         <div flex-auto />
@@ -61,7 +69,7 @@ function openInNpm() {
         </summary>
         <div flex="~ col gap-1" mt2 ws-nowrap>
           <div v-for="file of state.files.filter(f => !!f.transformedCodeSize)" :key="file.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
-            <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+            <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link :cwd="state.dir" />
             <span inline-flex>
               <DisplayFileSizeBadge :bytes="file.transformedCodeSize" text-xs />
             </span>

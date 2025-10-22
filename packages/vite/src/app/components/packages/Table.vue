@@ -84,7 +84,7 @@ function toggleSizeSortType() {
                     <span w24 inline-flex>
                       <DisplayFileSizeBadge :bytes="file.transformedCodeSize" />
                     </span>
-                    <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+                    <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link :cwd="item.dir" />
                   </div>
                 </div>
               </template>
