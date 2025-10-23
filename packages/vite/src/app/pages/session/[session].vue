@@ -23,7 +23,7 @@ const rpc = useRpc()
 const router = useRouter()
 const route = useRoute()
 
-const currentPanelType = computed(() => ['module', 'asset', 'plugin', 'chunk'].find(key => typeof route.query[key] !== 'undefined'))
+const currentPanelType = computed(() => ['module', 'asset', 'plugin', 'chunk', 'package'].find(key => typeof route.query[key] !== 'undefined'))
 function closeCurrentPanel() {
   if (currentPanelType.value) {
     router.replace({ query: { ...route.query, [currentPanelType.value]: undefined } })
@@ -157,6 +157,19 @@ onMounted(async () => {
       >
         <DataChunkDetailsLoader
           :chunk="(Number(route.query.chunk))"
+          :session="session"
+          @close="closeCurrentPanel"
+        />
+      </div>
+      <div
+        v-if="currentPanelType === 'package'"
+        :key="(route.query.package as string)"
+        fixed right-0 bottom-0 top-20 z-panel-content
+        bg-glass border="l t base rounded-tl-xl"
+        class="left-20 xl:left-100 2xl:left-150"
+      >
+        <DataPackageDetailsLoader
+          :package="(route.query.package as string)"
           :session="session"
           @close="closeCurrentPanel"
         />

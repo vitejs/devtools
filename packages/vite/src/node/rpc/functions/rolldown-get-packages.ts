@@ -1,8 +1,78 @@
 import type { PackageInfo } from '../../../shared/types'
+import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { getPackageDirPath, isNodeModulePath } from '../../../shared/utils/filepath'
 import { getLogsManager } from '../utils'
+
+export async function getPackagesManifest(reader: RolldownEventsReader) {
+  const modulesMap = reader.manager.modules
+  const chunks = Array.from(reader.manager.chunks.values())
+  const packagesManifest = new Map<string, PackageInfo>()
+
+  const getImporters = (path: string, packageDir: string, visited = new Set<string>()): string[] => {
+    const importers = modulesMap.get(path)?.importers || []
+    const result: string[] = []
+
+    for (const importer of importers) {
+      if (visited.has(importer))
+        continue
+
+      visited.add(importer)
+      const module = modulesMap.get(importer)
+      const imports = module?.imports?.map(i => i.module_id) || []
+
+      if (imports.some(i => getPackageDirPath(i) === packageDir)) {
+        result.push(importer)
+      }
+
+      result.push(...getImporters(importer, packageDir, visited))
+    }
+
+    return result
+  }
+
+  const packages = chunks.map(chunk => chunk.modules.map(module => module)).flat().filter(isNodeModulePath).map((p) => {
+    const module = modulesMap.get(p)
+    const moduleBuildMetrics = module?.build_metrics
+    return {
+      path: p,
+      dir: getPackageDirPath(p),
+      transformedCodeSize: moduleBuildMetrics?.transforms[moduleBuildMetrics?.transforms.length - 1]?.transformed_code_size ?? 0,
+    }
+  })
+  await Promise.all(packages.map(async (p) => {
+    const manifest = await readProjectManifestOnly(p.dir)
+    const packageKey = `${manifest.name!}@${manifest.version!}`
+    const packageInfo = packagesManifest.get(packageKey)
+    const importers = getImporters(p.path, p.dir).map(i => ({ path: i, version: '' }))
+    if (packageInfo) {
+      packagesManifest.set(packageKey, {
+        ...packageInfo,
+        files: [...packageInfo.files, {
+          path: p.path,
+          transformedCodeSize: p.transformedCodeSize,
+          importers,
+        }],
+        transformedCodeSize: packageInfo.transformedCodeSize + p.transformedCodeSize,
+      })
+    }
+    else {
+      packagesManifest.set(packageKey, {
+        name: manifest.name!,
+        version: manifest.version!,
+        dir: p.dir,
+        files: [{
+          path: p.path,
+          transformedCodeSize: p.transformedCodeSize,
+          importers,
+        }],
+        transformedCodeSize: p.transformedCodeSize,
+      })
+    }
+  }))
+  return packagesManifest
+}
 
 export const rolldownGetPackages = defineRpcFunction({
   name: 'vite:rolldown:get-packages',
@@ -12,49 +82,10 @@ export const rolldownGetPackages = defineRpcFunction({
     return {
       handler: async ({ session }: { session: string }) => {
         const reader = await manager.loadSession(session)
-        const chunks = Array.from(reader.manager.chunks.values())
         const modulesMap = reader.manager.modules
         const duplicatePackagesMap = new Map<string, number>()
-        const packagesManifest = new Map<string, PackageInfo>()
-        const packages = chunks.map(chunk => chunk.modules.map(module => module)).flat().filter(isNodeModulePath).map((p) => {
-          const module = modulesMap.get(p)
-          const moduleBuildMetrics = module?.build_metrics
-          return {
-            path: p,
-            dir: getPackageDirPath(p),
-            transformedCodeSize: moduleBuildMetrics?.transforms[moduleBuildMetrics?.transforms.length - 1]?.transformed_code_size ?? 0,
-          }
-        })
-        await Promise.all(packages.map(async (p) => {
-          const manifest = await readProjectManifestOnly(p.dir)
-          const packageKey = `${manifest.name!}@${manifest.version!}`
-          const packageInfo = packagesManifest.get(packageKey)
-          const module = modulesMap.get(p.path)
-          if (packageInfo) {
-            packagesManifest.set(packageKey, {
-              ...packageInfo,
-              files: [...packageInfo.files, {
-                path: p.path,
-                transformedCodeSize: p.transformedCodeSize,
-                importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
-              }],
-              transformedCodeSize: packageInfo.transformedCodeSize + p.transformedCodeSize,
-            })
-          }
-          else {
-            packagesManifest.set(packageKey, {
-              name: manifest.name!,
-              version: manifest.version!,
-              dir: p.dir,
-              files: [{
-                path: p.path,
-                transformedCodeSize: p.transformedCodeSize,
-                importers: module?.importers?.map(i => ({ path: i, version: '' })) ?? [],
-              }],
-              transformedCodeSize: p.transformedCodeSize,
-            })
-          }
-        }))
+        const packagesManifest = await getPackagesManifest(reader)
+
         const normalizedPackages = await Promise.all(
           Array.from<PackageInfo>(packagesManifest.values())
             .map((p) => {
