@@ -20,7 +20,7 @@ async function prepareTypes() {
   await writeTypes(nuxt)
 }
 
-export async function buildDevToolsApp(buildDir: string) {
+export async function buildDevToolsApp(buildDir: string): Promise<void> {
   fs.rmSync(distDir, { recursive: true, force: true })
   await prepareTypes()
 
@@ -67,6 +67,7 @@ export async function buildDevToolsApp(buildDir: string) {
 
   return new Promise<void>((resolve, reject) => {
     nuxt.hooks.hook('vite:extendConfig', (config) => {
+      // @ts-expect-error skip type check
       config.build = {
         ...config.build,
         lib: {
@@ -74,6 +75,7 @@ export async function buildDevToolsApp(buildDir: string) {
           entry: config.build.rollupOptions.input.entry,
           name: 'devtools-app',
           fileName: () => `devtools-app.js`,
+          cssFileName: `devtools-app.css`,
           formats: ['es'],
         },
         rollupOptions: {
