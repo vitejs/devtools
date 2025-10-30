@@ -66,8 +66,7 @@ export async function buildDevToolsApp(buildDir: string): Promise<void> {
   })
 
   return new Promise<void>((resolve, reject) => {
-    nuxt.hooks.hook('vite:extendConfig', (config) => {
-      // @ts-expect-error skip type check
+    nuxt.hooks.hook('vite:extend', ({ config }) => {
       config.build = {
         ...config.build,
         lib: {
