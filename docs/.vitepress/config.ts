@@ -31,6 +31,10 @@ export default defineConfig({
       light: '/logo.svg',
       dark: '/logo_dark.svg',
     },
+    footer: {
+      message: `Released under the MIT License.`,
+      copyright: 'Copyright © 2025-present VoidZero Inc. & Vite Contributors',
+    },
 
     editLink: {
       pattern: 'https://github.com/vitejs/devtools/edit/main/docs/:path',
