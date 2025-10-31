@@ -15,7 +15,8 @@ catalogs:
     '@vueuse/nuxt': ^14.0.0
     esbuild: ^0.25.11
     nitropack: ^2.12.8
-    nuxt: ^4.2.0
+    # https://github.com/nuxt/nuxt/issues/33418
+    nuxt: 4.1.2
     nuxt-mcp: ^0.2.5
     rolldown: ^1.0.0-beta.45
     tsdown: ^0.15.11
