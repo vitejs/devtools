@@ -1,7 +1,4 @@
 import type { Plugin } from 'vite'
-// eslint-disable-next-line ts/ban-ts-comment
-// @ts-ignore ignore the type error
-import { DevToolsViteUI } from '@vitejs/devtools-vite'
 import { DevToolsInjection } from './injection'
 import { DevToolsServer } from './server'
 
@@ -14,7 +11,7 @@ export interface DevToolsOptions {
   builtinDevTools?: boolean
 }
 
-export function DevTools(options: DevToolsOptions = {}): Plugin[] {
+export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
   const {
     builtinDevTools = true,
   } = options
@@ -25,7 +22,9 @@ export function DevTools(options: DevToolsOptions = {}): Plugin[] {
   ]
 
   if (builtinDevTools) {
-    plugins.push(DevToolsViteUI())
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-ignore ignore the type error
+    plugins.push(await import('@vitejs/devtools-vite').then(m => m.DevToolsViteUI()))
   }
 
   return plugins
@@ -34,5 +33,4 @@ export function DevTools(options: DevToolsOptions = {}): Plugin[] {
 export {
   DevToolsInjection,
   DevToolsServer,
-  DevToolsViteUI,
 }

@@ -1,6 +1,9 @@
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+// eslint-disable-next-line ts/ban-ts-comment
+// @ts-ignore ignore the type error
+import { DevToolsViteUI } from '../../vite/src/node'
 import { DevTools } from '../src'
 import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 
@@ -22,7 +25,10 @@ export default defineConfig({
     },
 
     // For local playground only. As a user you don't install this plugin directly.
-    DevTools(),
+    DevTools({
+      builtinDevTools: false,
+    }),
+    DevToolsViteUI(),
     {
       name: 'local',
       devtools: {
