@@ -15,19 +15,19 @@ import { createDevToolsMiddleware } from './server'
 import { startStandaloneDevTools } from './standalone'
 
 export interface StartOptions {
-  root: string
+  root?: string
   config?: string
   host: string
-  port: string | number
+  port?: string | number
   open?: boolean
 }
 
 export async function start(options: StartOptions) {
-  const host = options.host
+  const { host } = options
   const port = await getPort({
-    port: +options.port,
-    portRange: [9999, 15000],
     host,
+    port: options.port == null ? undefined : +options.port,
+    portRange: [9999, 15000],
   })
 
   const devtools = await startStandaloneDevTools({
