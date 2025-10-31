@@ -57,7 +57,7 @@ onUnmounted(() => {
     ref="viewFrame"
     class="vite-devtools-view-iframe w-full h-full flex items-center justify-center"
   >
-    <div class="op50">
+    <div class="op50 z--1">
       Loading iframe...
     </div>
   </div>

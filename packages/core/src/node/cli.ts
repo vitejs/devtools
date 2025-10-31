@@ -5,9 +5,10 @@ import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
-import { createApp, eventHandler, sendRedirect, toNodeListener } from 'h3'
+import { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } from 'h3'
 import open from 'open'
 import { join, relative, resolve } from 'pathe'
+import sirv from 'sirv'
 import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
 import { createDevToolsMiddleware } from './server'
@@ -93,11 +94,19 @@ cli
     })
 
     const app = createApp()
+
+    for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs) {
+      app.use(baseUrl, fromNodeMiddleware(sirv(distDir, {
+        dev: true,
+        single: true,
+      })))
+    }
+
+    app.use('/.devtools/', h3.handler)
     app.use('/', eventHandler(async (event) => {
       if (event.node.req.url === '/')
         return sendRedirect(event, '/.devtools/')
     }))
-    app.use('/.devtools', h3.handler)
 
     const server = createServer(toNodeListener(app))
 

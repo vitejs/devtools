@@ -14,7 +14,7 @@ export function DevToolsViteUI(): PluginWithDevTools {
         }
 
         ctx.views.hostStatic(
-          '/.devtools-vite',
+          '/.devtools-vite/',
           clientPublicDir,
         )
 

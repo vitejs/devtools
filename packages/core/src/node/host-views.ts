@@ -18,6 +18,8 @@ export class DevToolsViewHost implements DevToolsViewHostType {
       throw new Error(`[Vite DevTools] distDir ${distDir} does not exist`)
     }
 
+    this.buildStaticDirs.push({ baseUrl, distDir })
+
     if (this.context.viteConfig.command === 'serve') {
       if (!this.context.viteServer)
         throw new Error('[Vite DevTools] viteServer is required in dev mode')
@@ -28,9 +30,6 @@ export class DevToolsViewHost implements DevToolsViewHostType {
           single: true,
         }),
       )
-    }
-    else {
-      this.buildStaticDirs.push({ baseUrl, distDir })
     }
   }
 }
