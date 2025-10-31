@@ -12,3 +12,4 @@ packages/vite/src/app/public/fonts
 packages/vite/runtime
 .rolldown
 *.tsbuildinfo
+docs/.vitepress/cache
