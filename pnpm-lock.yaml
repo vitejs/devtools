@@ -431,6 +431,9 @@ importers:
       launch-editor:
         specifier: catalog:deps
         version: 2.12.0
+      mlly:
+        specifier: catalog:deps
+        version: 1.8.0
       open:
         specifier: catalog:deps
         version: 10.2.0
@@ -14072,7 +14075,7 @@ snapshots:
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.15.0
-      browserslist: 4.25.1
+      browserslist: 4.27.0
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.2
       es-module-lexer: 1.7.0
