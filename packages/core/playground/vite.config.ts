@@ -35,7 +35,7 @@ export default defineConfig({
         setup(ctx) {
           ctx.docks.register({
             title: 'Local',
-            icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
+            icon: 'logos:vue',
             id: 'local',
             type: 'iframe',
             url: 'https://antfu.me',
@@ -50,7 +50,7 @@ export default defineConfig({
             }),
             id: 'local2',
             title: 'Local2',
-            icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
+            icon: 'material-symbols-light:add-alert',
           })
         },
       },

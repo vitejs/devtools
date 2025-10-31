@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import { toRefs } from 'vue'
+import DockIcon from './DockIcon.vue'
 
 const props = defineProps<{
   selected?: DevToolsDockEntry
@@ -40,12 +41,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
         class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-120 transition-all duration-300 relative"
         @click="toggleDockEntry(dock)"
       >
-        <img
-          :src="dock.icon"
-          :alt="dock.title"
-          class="w-5 h-5 select-none"
-          draggable="false"
-        >
+        <DockIcon :icon="dock.icon" :title="dock.title" class="w-5 h-5 select-none" />
       </button>
       <div class="vite-devtools-dock-label text-xs group-hover:opacity-100 opacity-0 transition-opacity duration-300 w-max bg-glass border border-base z-10 rounded px2 absolute p1">
         {{ dock.title }}
