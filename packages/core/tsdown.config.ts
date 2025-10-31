@@ -1,6 +1,5 @@
 import { defineConfig } from 'tsdown'
 import Vue from 'unplugin-vue/rolldown'
-import pkg from './package.json'
 import { buildCSS } from './src/client/webcomponents/scripts/build-css'
 
 const define = {
@@ -18,7 +17,6 @@ export default defineConfig({
   external: [
     '@vitejs/devtools/client/webcomponents',
     /^node:/,
-    ...Object.keys(pkg.dependencies),
   ],
   clean: true,
   platform: 'neutral',
