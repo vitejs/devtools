@@ -13,8 +13,8 @@ hero:
       text: View on GitHub
       link: https://github.com/vitejs/devtools
   image:
-    light: /logo.svg
-    dark: /logo_dark.svg
+    light: /logo_devtools.svg
+    dark: /logo_devtools_dark.svg
     alt: Vite Devtools
 
 features:
