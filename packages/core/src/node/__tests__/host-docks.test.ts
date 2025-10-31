@@ -51,8 +51,10 @@ describe('devToolsDockHost', () => {
         id: 'my-special-panel',
         title: 'Special Panel',
         icon: 'special',
-        from: './component.js',
-        import: 'MyComponent',
+        import: {
+          importFrom: './component.js',
+          importName: 'MyComponent',
+        },
       }
 
       host.register(dock)
