@@ -21,6 +21,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./cli": "./dist/cli.js",
+    "./cli-commands": "./dist/cli-commands.js",
     "./client/inject": "./dist/client/inject.js",
     "./client/webcomponents": "./dist/client/webcomponents.js",
     "./dirs": "./dist/dirs.js",
