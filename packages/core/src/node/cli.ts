@@ -1,6 +1,6 @@
 import process from 'node:process'
 import cac from 'cac'
-import { build, start } from './commands'
+import { build, start } from './cli-commands'
 
 const cli = cac('vite-devtools')
 
