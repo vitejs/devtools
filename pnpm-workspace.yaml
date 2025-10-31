@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - docs
 
 shamefullyHoist: true
 strictPeerDependencies: false
@@ -63,6 +64,10 @@ catalogs:
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.1.2
+  docs:
+    '@shikijs/vitepress-twoslash': ^3.14.0
+    vitepress: ^2.0.0-alpha.12
+    vitepress-plugin-group-icons: ^1.6.5
   frontend:
     '@floating-ui/dom': ^1.7.4
     '@vueuse/components': ^14.0.0
