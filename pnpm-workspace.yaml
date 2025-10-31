@@ -14,14 +14,14 @@ catalogs:
     '@vitejs/plugin-vue': ^6.0.1
     '@vueuse/nuxt': ^14.0.0
     esbuild: ^0.25.11
-    nitropack: ^2.12.8
+    nitropack: ^2.12.9
     # https://github.com/nuxt/nuxt/issues/33418
     nuxt: 4.1.2
     nuxt-mcp: ^0.2.5
     rolldown: ^1.0.0-beta.45
-    tsdown: ^0.15.11
+    tsdown: ^0.15.12
     tsx: ^4.20.6
-    unplugin-vue: ^7.0.3
+    unplugin-vue: ^7.0.4
     vite: npm:rolldown-vite@^7.1.20
   deps:
     '@pnpm/read-project-manifest': ^1001.1.4
@@ -50,9 +50,9 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.18.3
   devtools:
-    '@antfu/eslint-config': ^6.1.0
+    '@antfu/eslint-config': ^6.2.0
     '@nuxt/devtools': ^3.0.0
-    '@nuxt/eslint': ^1.9.0
+    '@nuxt/eslint': ^1.10.0
     '@typescript-eslint/utils': ^8.46.2
     '@unocss/eslint-config': ^66.5.4
     bumpp: ^10.3.1
@@ -99,7 +99,7 @@ catalogs:
     '@antfu/utils': ^9.3.0
     stream-json: ^1.9.1
   testing:
-    vitest: ^4.0.4
+    vitest: ^4.0.5
   types:
     '@types/chrome': ^0.1.27
     '@types/codemirror': ^5.60.17
