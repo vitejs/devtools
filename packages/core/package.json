@@ -57,6 +57,7 @@
     "cac": "catalog:deps",
     "debug": "catalog:deps",
     "launch-editor": "catalog:deps",
+    "mlly": "catalog:deps",
     "open": "catalog:deps",
     "pathe": "catalog:deps",
     "sirv": "catalog:deps",

@@ -1,6 +1,7 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import Debug from 'debug'
+import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
 import { DevToolsViewHost } from './host-views'
@@ -22,6 +23,7 @@ export async function createDevToolsContext(
     rpc: undefined!,
     docks: undefined!,
     views: undefined!,
+    utils: ContextUtils,
   }
   const rpcHost = new RpcFunctionsHost(context)
   const docksHost = new DevToolsDockHost(context)

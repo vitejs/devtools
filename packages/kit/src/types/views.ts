@@ -24,6 +24,19 @@ export interface DevToolsDockEntryBase {
   icon: string
 }
 
+export interface ClientScriptEntry {
+  /**
+   * The filepath or module name to import from
+   */
+  importFrom: string
+  /**
+   * The name to import the module as
+   *
+   * @default 'default'
+   */
+  importName?: string
+}
+
 export interface DevToolsViewIframe extends DevToolsDockEntryBase {
   type: 'iframe'
   url: string
@@ -33,21 +46,25 @@ export interface DevToolsViewIframe extends DevToolsDockEntryBase {
    * When not provided, it would be treated as a unique frame.
    */
   frameId?: string
+  /**
+   * Optional script to import into the iframe
+   */
+  import?: ClientScriptEntry
 }
 
 export interface DevToolsViewWebComponent extends DevToolsDockEntryBase {
   type: 'webcomponent'
-  from: string
-  import: string
+  import: ClientScriptEntry
 }
 
 export interface DevToolsViewAction extends DevToolsDockEntryBase {
   type: 'action'
-  importFrom: string
-  /**
-   * @default 'default'
-   */
-  importName?: string
+  import: ClientScriptEntry
 }
 
-export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewWebComponent | DevToolsViewAction
+export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
+  type: 'custom-render'
+  import: ClientScriptEntry
+}
+
+export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewWebComponent | DevToolsViewAction | DevToolsViewCustomRender

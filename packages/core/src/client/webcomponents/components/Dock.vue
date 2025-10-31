@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ClientScriptEntry, DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
@@ -213,6 +214,32 @@ const panelStyle = computed(() => {
   return style
 })
 
+// TODO: use a visual module to host all the imports
+function importScript(entry: ClientScriptEntry) {
+  return import(/* @vite-ignore */ entry.importFrom)
+    .then((module) => {
+      return module[entry.importName || 'default']
+    })
+    .catch((error) => {
+      // TODO: maybe popup a error toast here?
+      console.error('[VITE DEVTOOLS] Error importing action', error)
+      return Promise.reject(error)
+    })
+}
+
+function onSelected(entry: DevToolsDockEntry) {
+  if (entry?.type === 'action') {
+    return importScript(entry.import).then(fn => fn())
+  }
+
+  state.value.dockEntry = entry
+
+  // TODO: handle for each type of entry
+  if ('import' in entry && entry.import) {
+    importScript(entry.import)
+  }
+}
+
 onMounted(() => {
   bringUp()
   recalculateCounter.value++
@@ -250,7 +277,7 @@ onMounted(() => {
           :class="isMinimized ? 'opacity-0' : 'opacity-100'"
           :is-vertical="isVertical"
           :selected="state.dockEntry"
-          @select="s => state.dockEntry = s"
+          @select="onSelected"
         />
       </div>
     </div>

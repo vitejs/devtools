@@ -1,6 +1,6 @@
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { RpcFunctionsHost } from './rpc'
-import type { DevToolsDockHost, DevToolsViewHost } from './views'
+import type { ClientScriptEntry, DevToolsDockHost, DevToolsViewHost } from './views'
 
 export interface DevToolsCapabilities {
   rpc?: boolean
@@ -23,6 +23,11 @@ export interface DevToolsNodeContext {
   rpc: RpcFunctionsHost
   docks: DevToolsDockHost
   views: DevToolsViewHost
+  utils: DevToolsNodeUtils
+}
+
+export interface DevToolsNodeUtils {
+  clientEntryFromSimpleFunction: (fn: () => void) => ClientScriptEntry
 }
 
 export interface ConnectionMeta {

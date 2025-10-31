@@ -39,6 +39,18 @@ export default defineConfig({
             id: 'local',
             type: 'iframe',
             url: 'https://antfu.me',
+
+          })
+
+          ctx.docks.register({
+            type: 'action',
+            import: ctx.utils.clientEntryFromSimpleFunction(() => {
+              // eslint-disable-next-line no-alert
+              alert('Hello, world!')
+            }),
+            id: 'local2',
+            title: 'Local2',
+            icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
           })
         },
       },
