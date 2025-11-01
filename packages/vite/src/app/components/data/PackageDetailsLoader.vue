@@ -27,6 +27,8 @@ const { state, isLoading } = useAsyncState(
   null,
 )
 
+const normalizedBundledFiles = computed(() => state.value?.files?.filter(f => !!f.transformedCodeSize) ?? [])
+
 const importers = computed(() => {
   const pathMap = new Map()
   state.value?.files.filter(f => !!f.importers).flatMap(f => f.importers).filter(i => !i.path.startsWith(state.value?.dir ?? '')).forEach((importer) => {
@@ -65,28 +67,32 @@ function openInNpm() {
 
       <details open="true">
         <summary op50>
-          <span>Bundled Files ({{ state.files.length }})</span>
+          <span>Bundled Files ({{ normalizedBundledFiles.length }})</span>
         </summary>
-        <div flex="~ col gap-1" mt2 ws-nowrap>
-          <div v-for="file of state.files.filter(f => !!f.transformedCodeSize)" :key="file.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
-            <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link :cwd="state.dir" />
-            <span inline-flex>
-              <DisplayFileSizeBadge :bytes="file.transformedCodeSize" text-xs />
-            </span>
-          </div>
-        </div>
+        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="normalizedBundledFiles">
+          <template #default="{ items }">
+            <div v-for="file of items" :key="file.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
+              <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link :cwd="state.dir" />
+              <span inline-flex>
+                <DisplayFileSizeBadge :bytes="file.transformedCodeSize" text-xs />
+              </span>
+            </div>
+          </template>
+        </DisplayExpandableContainer>
       </details>
 
       <details open="true">
         <summary op50>
           <span>Importers ({{ importers.length }})</span>
         </summary>
-        <div flex="~ col gap-1" mt2 ws-nowrap>
-          <div v-for="importer of importers" :key="importer.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
-            <DisplayModuleId :id="importer.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
-            <DisplayBadge v-if="importer.version" :text="`v${importer.version}`" as="span" />
-          </div>
-        </div>
+        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="importers">
+          <template #default="{ items }">
+            <div v-for="importer of items" :key="importer.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
+              <DisplayModuleId :id="importer.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+              <DisplayBadge v-if="importer.version" :text="`v${importer.version}`" as="span" />
+            </div>
+          </template>
+        </DisplayExpandableContainer>
       </details>
     </div>
   </div>
