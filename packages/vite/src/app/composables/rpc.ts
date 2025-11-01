@@ -1,6 +1,6 @@
 import type {} from '@vitejs/devtools'
 import type { BirpcReturn, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
-import type {} from '../../node/rpc'
+import type {} from '~~/node/rpc'
 import { useRuntimeConfig } from '#app/nuxt'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { reactive, shallowRef } from 'vue'

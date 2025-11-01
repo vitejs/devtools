@@ -2,7 +2,7 @@
 import type { RolldownChunkInfo, RolldownModuleFlowNode, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 import { settings } from '~~/app/state/settings'
-import PluginName from '../display/PluginName.vue'
+import PluginName from '~/components/display/PluginName.vue'
 
 const props = defineProps<{
   selected: RolldownChunkInfo | RolldownModuleFlowNode | null

@@ -4,7 +4,7 @@ import { onKeyPressed, useEventListener, useMagicKeys } from '@vueuse/core'
 import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
 import { computed, inject, nextTick, provide, ref, shallowReactive, shallowRef, unref } from 'vue'
-import { useZoomElement } from './zoomElement'
+import { useZoomElement } from '~/composables/zoomElement'
 
 export interface ModuleGraphNode<M, I> {
   module: M

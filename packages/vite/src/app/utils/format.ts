@@ -1,4 +1,4 @@
-import type { ModuleDest, ModuleTreeNode } from '../../shared/types'
+import type { ModuleDest, ModuleTreeNode } from '~~/shared/types'
 
 export function bytesToHumanSize(bytes: number, digits = 2) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']

@@ -1,4 +1,4 @@
-import { isDark } from '../composables/dark'
+import { isDark } from '~/composables/dark'
 
 export function getHashColorFromString(
   name: string,
