@@ -43,9 +43,11 @@ const { state, isLoading } = useAsyncState(
   null,
 )
 
+const normalizedChunks = computed(() => props.chunks || state.value)
+
 const imports = computed((): RolldownChunkImport[] => {
   return props.chunk.imports.map((importChunk) => {
-    const chunk = (props.chunks || state.value)?.find(c => c.chunk_id === importChunk.chunk_id)
+    const chunk = normalizedChunks.value?.find(c => c.chunk_id === importChunk.chunk_id)
 
     return {
       ...importChunk,
@@ -55,6 +57,20 @@ const imports = computed((): RolldownChunkImport[] => {
       modules: chunk?.modules.length || 0,
     }
   })
+})
+
+const importers = computed((): RolldownChunkImport[] => {
+  return normalizedChunks.value?.filter(c => c.imports.some(i => i.chunk_id === props.chunk.chunk_id)).map((chunk) => {
+    const importChunk = chunk.imports.find(i => i.chunk_id === props.chunk.chunk_id)!
+
+    return {
+      ...importChunk,
+      name: chunk.name || '[unnamed]',
+      reason: chunk.reason || 'common',
+      imports: chunk.imports.length || 0,
+      modules: chunk.modules.length || 0,
+    }
+  }) || []
 })
 </script>
 
@@ -100,22 +116,22 @@ const imports = computed((): RolldownChunkImport[] => {
       </div>
     </details>
 
-    <!-- TODO: imports seems to be "imported-by" instead of "imports", maybe something wrong on Rolldown side? -->
-    <!-- TODO: We might want to display both "imports" and "imported-by" relationship -->
-    <details v-if="showImports && chunk.imports.length > 0" open="true">
-      <summary op50>
-        <span>Imports ({{ chunk.imports.length }})</span>
-      </summary>
-      <VisualLoading v-if="isLoading" />
-      <div v-else flex="~ col gap-1" mt2 ws-nowrap>
-        <DisplayChunkImports
-          v-for="chunkImport in imports"
-          :key="chunkImport.chunk_id"
-          :chunk="chunkImport"
-          hover="bg-active"
-          border="~ base rounded" px2 py1 w-full
-        />
-      </div>
-    </details>
+    <VisualLoading v-if="isLoading" />
+
+    <template v-else-if="showImports">
+      <details v-if="chunk.imports.length" open="true">
+        <summary op50>
+          <span>Imports ({{ chunk.imports.length }})</span>
+        </summary>
+        <ChunksImports :imports="imports" />
+      </details>
+
+      <details v-if="importers.length" open="true">
+        <summary op50>
+          <span>Importers ({{ importers.length }})</span>
+        </summary>
+        <ChunksImports :imports="importers" />
+      </details>
+    </template>
   </div>
 </template>

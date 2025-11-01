@@ -38,7 +38,3 @@ const route = useRoute()
     </div>
   </NuxtLink>
 </template>
-
-<style>
-
-</style>

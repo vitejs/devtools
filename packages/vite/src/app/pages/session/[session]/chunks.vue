@@ -58,7 +58,6 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
           <div :class="viewType.icon" />
           {{ viewType.label }}
         </button>
-        <!-- TODO: add graph views -->
       </div>
     </div>
     <template v-if="settings.chunkViewType === 'list'">
