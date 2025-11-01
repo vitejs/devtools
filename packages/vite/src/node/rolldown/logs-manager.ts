@@ -25,6 +25,7 @@ export class RolldownLogsManager {
     })
     return await Promise.all(sessions
       .filter(d => d.isDirectory())
+      .filter(d => existsSync(join(this.dir, d.name, 'meta.json')))
       .map(async (d): Promise<BuildInfo> => {
         const reader = RolldownEventsReader.get(join(this.dir, d.name, 'meta.json'))
         await reader.read()
