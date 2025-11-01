@@ -2,11 +2,11 @@
 
 ## Overview
 
-Vite Devtools is...
+Vite DevTools is...
 
-## Try Vite Devtools Online
+## Try Vite DevTools Online
 
-You can try Vite Devtools online on [StackBlitz](https://vite.new).
+You can try Vite DevTools online on [StackBlitz](https://vite.new).
 
 ## Installation
 

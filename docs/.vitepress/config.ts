@@ -7,7 +7,7 @@ import {
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'Vite Devtools',
+  title: 'Vite DevTools',
   description: 'DevTools for Vite',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
@@ -23,7 +23,7 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/guide/' },
-          { text: 'Why Vite Devtools', link: '/guide/why' },
+          { text: 'Why Vite DevTools', link: '/guide/why' },
         ],
       },
     ],

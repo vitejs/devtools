@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: Vite Devtools
+  name: Vite DevTools
   text: DevTools for Vite.
   tagline: Working in Progress
   actions:
@@ -15,7 +15,7 @@ hero:
   image:
     light: /logo_devtools.svg
     dark: /logo_devtools_dark.svg
-    alt: Vite Devtools
+    alt: Vite DevTools
 
 features:
   - icon: 🚀
