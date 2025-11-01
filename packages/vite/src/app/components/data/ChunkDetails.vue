@@ -102,18 +102,20 @@ const importers = computed((): RolldownChunkImport[] => {
       <summary op50>
         <span>Modules ({{ chunk.modules.length }})</span>
       </summary>
-      <div flex="~ col gap-1" mt2 ws-nowrap>
-        <DisplayModuleId
-          v-for="module of chunk.modules"
-          :id="module"
-          :key="module"
-          :session
-          :link="true"
-          :minimal="true"
-          hover="bg-active"
-          border="~ base rounded" px2 py1 w-full
-        />
-      </div>
+      <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="chunk.modules">
+        <template #default="{ items }">
+          <DisplayModuleId
+            v-for="module of items"
+            :id="module"
+            :key="module"
+            :session
+            :link="true"
+            :minimal="true"
+            hover="bg-active"
+            border="~ base rounded" px2 py1 w-full
+          />
+        </template>
+      </DisplayExpandableContainer>
     </details>
 
     <VisualLoading v-if="isLoading" />
