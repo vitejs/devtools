@@ -65,6 +65,7 @@ const importers = computed((): RolldownChunkImport[] => {
 
     return {
       ...importChunk,
+      chunk_id: chunk.chunk_id,
       name: chunk.name || '[unnamed]',
       reason: chunk.reason || 'common',
       imports: chunk.imports.length || 0,
