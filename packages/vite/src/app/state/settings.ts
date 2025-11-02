@@ -21,7 +21,7 @@ export interface ClientSettings {
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
-  chunkViewType: 'list' | 'graph'
+  chunkViewType: 'list' | 'detailed-list' | 'graph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
   packageViewType: 'table' | 'treemap' | 'duplicate-packages'
   packageSizeSortType: string
