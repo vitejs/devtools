@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import type { Chunk, ChunkImport } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types/data'
+import type { ChunkImport } from '@rolldown/debug'
+import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { useRoute } from '#app/composables/router'
 import { computed, nextTick, unref } from 'vue'
 import { createModuleGraph } from '~/composables/moduleGraph'
 
+type ChunkInfo = RolldownChunkInfo & {
+  id: string
+}
 const props = defineProps<{
   session: SessionContext
   chunks: ChunkInfo[]
@@ -14,9 +17,6 @@ const props = defineProps<{
 const chunks = computed(() => props.chunks)
 const route = useRoute()
 
-type ChunkInfo = Chunk & {
-  id: string
-}
 createModuleGraph<ChunkInfo, ChunkImport>({
   modules: chunks,
   spacing: {
