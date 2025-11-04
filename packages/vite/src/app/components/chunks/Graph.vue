@@ -165,6 +165,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
         <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
           <div>{{ node.data.module.name || '[unnamed]' }}</div>
           <DisplayBadge :text="node.data.module.reason" />
+          <DisplayBadge v-if="node.data.module.is_initial" text="initial" />
         </div>
         <div flex-auto />
         <div flex="~ gap-1 items-center">
