@@ -15,6 +15,7 @@ catalogs:
     '@vitejs/plugin-vue': ^6.0.1
     '@vueuse/nuxt': ^14.0.0
     esbuild: ^0.25.11
+    magic-string: ^0.30.21
     nitropack: ^2.12.9
     # https://github.com/nuxt/nuxt/issues/33418
     nuxt: 4.1.2

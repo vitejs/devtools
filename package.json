@@ -49,6 +49,7 @@
     "esbuild": "catalog:build",
     "eslint": "catalog:devtools",
     "lint-staged": "catalog:devtools",
+    "magic-string": "catalog:build",
     "nuxt": "catalog:build",
     "nuxt-eslint-auto-explicit-import": "catalog:devtools",
     "nuxt-mcp": "catalog:build",
