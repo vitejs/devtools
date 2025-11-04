@@ -32,6 +32,7 @@ const icon = computed(() => {
     <img
       :src="icon.light"
       :alt="title"
+      class="w-full h-full m-auto"
       draggable="false"
     >
   </picture>

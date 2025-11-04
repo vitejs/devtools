@@ -5,6 +5,8 @@ import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import DockEntries from './DockEntries.vue'
+import BracketLeft from './icons/BracketLeft.vue'
+import BracketRight from './icons/BracketRight.vue'
 
 const props = defineProps<DockProps>()
 
@@ -215,10 +217,9 @@ const panelStyle = computed(() => {
   return style
 })
 
-// TODO: use a visual module to host all the imports
 function importScript(entry: DevToolsDockEntry): Promise<(context: ImportScriptContext) => void | Promise<void>> {
   const id = entry.id
-  return import(/* vite-ignore */ ['/.devtools', 'imports'].join('-'))
+  return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
     .then((module) => {
       const importsMap = module.importsMap as Record<string, () => Promise<() => void>>
       const importFn = importsMap[id]
@@ -229,13 +230,20 @@ function importScript(entry: DevToolsDockEntry): Promise<(context: ImportScriptC
     })
     .catch((error) => {
       // TODO: maybe popup a error toast here?
+      // TODO: A unified logger API
       console.error('[VITE DEVTOOLS] Error executing import action', error)
       return Promise.reject(error)
     })
 }
 
-function onSelected(entry: DevToolsDockEntry) {
-  const context: ImportScriptContext = reactive({
+function onSelected(entry?: DevToolsDockEntry) {
+  if (!entry) {
+    state.value.open = false
+    state.value.dockEntry = undefined
+    return
+  }
+
+  const scriptContext: ImportScriptContext = reactive({
     dockEntry: entry,
     // @ts-expect-error cast for unwraping
     dockState: computed<'active' | 'inactive'>({
@@ -254,8 +262,17 @@ function onSelected(entry: DevToolsDockEntry) {
     },
   })
 
+  // If it's an action, run and return (early exit)
   if (entry?.type === 'action') {
-    return importScript(entry).then(fn => fn(context))
+    return importScript(entry).then(fn => fn(scriptContext))
+  }
+
+  state.value.dockEntry = entry
+  state.value.open = true
+
+  // If has import script, run it
+  if (entry.import) {
+    importScript(entry).then(fn => fn(scriptContext))
   }
 }
 
@@ -291,9 +308,17 @@ onMounted(() => {
         id="vite-devtools-dock"
         @pointerdown="onPointerDown"
       >
+        <BracketLeft
+          class="vite-devtools-dock-bracket absolute left--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75"
+        />
+        <BracketRight
+          class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75"
+          :class="isVertical ? 'scale-y--100' : ''"
+        />
         <DockEntries
           :entries="docks"
-          :class="isMinimized ? 'opacity-0' : 'opacity-100'"
+          class="transition duration-200"
+          :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="isVertical"
           :selected="state.dockEntry"
           @select="onSelected"
@@ -304,7 +329,7 @@ onMounted(() => {
       :dock-el="dockEl"
       :panel-margins="panelMargins"
       :state="state"
-      :entry="state.dockEntry"
+      :entry="state.dockEntry?.type === 'action' ? undefined : state.dockEntry"
     />
   </div>
 </template>

@@ -36,7 +36,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
         :title="dock.title"
         :class="[
           isVertical ? 'rotate-270' : '',
-          selected ? selected.id !== dock.id ? 'op50 saturate-0' : 'scale-120' : '',
+          selected ? selected.id !== dock.id ? 'op50 saturate-0' : 'scale-120 text-purple' : '',
         ]"
         class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-120 transition-all duration-300 relative"
         @click="toggleDockEntry(dock)"
