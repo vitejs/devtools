@@ -7,6 +7,7 @@ import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
+import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<DockProps>()
 
@@ -309,11 +310,15 @@ onMounted(() => {
         @pointerdown="onPointerDown"
       >
         <BracketLeft
-          class="vite-devtools-dock-bracket absolute left--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75"
+          class="vite-devtools-dock-bracket absolute left--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
         />
         <BracketRight
-          class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75"
+          class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
           :class="isVertical ? 'scale-y--100' : ''"
+        />
+        <VitePlusCore
+          class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
+          :class="isMinimized ? 'op100' : 'op0'"
         />
         <DockEntries
           :entries="docks"

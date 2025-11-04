@@ -41,11 +41,11 @@
 }
 
 #vite-devtools-anchor.vite-devtools-minimized #vite-devtools-dock {
-  --uno: w-[20px] h-[20px] px-0 py-[2px];
+  --uno: w-[22px] h-[22px] px-0 py-[2px];
 }
 
 #vite-devtools-anchor.vite-devtools-minimized .vite-devtools-dock-bracket {
-  --uno: w-2 op50;
+  --uno: w-1.5 op50;
 }
 
 #vite-devtools-anchor:hover #vite-devtools-glowing {
