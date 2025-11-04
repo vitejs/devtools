@@ -39,7 +39,6 @@ export default defineConfig({
             id: 'local',
             type: 'iframe',
             url: 'https://antfu.me',
-
           })
 
           ctx.docks.register({

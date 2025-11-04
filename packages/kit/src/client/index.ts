@@ -1,6 +1,6 @@
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../types'
+import type { ConnectionMeta, DevToolsDockEntry, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../types'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 
@@ -15,6 +15,25 @@ export interface DevToolsRpcClientOptions {
   baseURL?: string[]
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions>>
+}
+
+export interface ImportScriptContext {
+  /**
+   * The dock entry info of the current dock item
+   */
+  dockEntry: DevToolsDockEntry
+  /**
+   * The current state of the dock
+   */
+  dockState: 'active' | 'inactive'
+  /**
+   * Function to hide the panel, if applicable
+   */
+  hidePanel: () => void
+  /**
+   * The panel element to mount into, if applicable
+   */
+  elPanel?: HTMLElement | null
 }
 
 export async function getDevToolsRpcClient(

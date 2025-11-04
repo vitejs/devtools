@@ -1,5 +1,7 @@
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   icon: string
   title?: string
 }>()
@@ -14,12 +16,23 @@ function getIconUrl(str: string, color: 'dark' | 'light') {
   }
   return str
 }
+
+const icon = computed(() => {
+  return {
+    dark: getIconUrl(props.icon, 'dark'),
+    light: getIconUrl(props.icon, 'light'),
+  }
+})
 </script>
 
 <template>
-  <img
-    :src="getIconUrl(icon, 'dark')"
-    :alt="title"
-    draggable="false"
-  >
+  <picture>
+    <source :srcset="icon.dark" media="(prefers-color-scheme: dark)">
+    <source :srcset="icon.light" media="(prefers-color-scheme: light)">
+    <img
+      :src="icon.light"
+      :alt="title"
+      draggable="false"
+    >
+  </picture>
 </template>

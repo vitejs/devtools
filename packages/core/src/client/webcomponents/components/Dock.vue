@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { ClientScriptEntry, DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { ImportScriptContext } from '@vitejs/devtools-kit/client'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
@@ -215,28 +216,46 @@ const panelStyle = computed(() => {
 })
 
 // TODO: use a visual module to host all the imports
-function importScript(entry: ClientScriptEntry) {
-  return import(/* @vite-ignore */ entry.importFrom)
+function importScript(entry: DevToolsDockEntry): Promise<(context: ImportScriptContext) => void | Promise<void>> {
+  const id = entry.id
+  return import(/* vite-ignore */ ['/.devtools', 'imports'].join('-'))
     .then((module) => {
-      return module[entry.importName || 'default']
+      const importsMap = module.importsMap as Record<string, () => Promise<() => void>>
+      const importFn = importsMap[id]
+      if (!importFn) {
+        return Promise.reject(new Error(`[VITE DEVTOOLS] No import found for id: ${id}`))
+      }
+      return importFn()
     })
     .catch((error) => {
       // TODO: maybe popup a error toast here?
-      console.error('[VITE DEVTOOLS] Error importing action', error)
+      console.error('[VITE DEVTOOLS] Error executing import action', error)
       return Promise.reject(error)
     })
 }
 
 function onSelected(entry: DevToolsDockEntry) {
+  const context: ImportScriptContext = reactive({
+    dockEntry: entry,
+    // @ts-expect-error cast for unwraping
+    dockState: computed<'active' | 'inactive'>({
+      get() {
+        return state.value.dockEntry?.id === entry.id ? 'active' : 'inactive'
+      },
+      set(val) {
+        if (val === 'active')
+          state.value.dockEntry = entry
+        else if (state.value.dockEntry?.id === entry.id)
+          state.value.dockEntry = undefined
+      },
+    }),
+    hidePanel() {
+      state.value.open = false
+    },
+  })
+
   if (entry?.type === 'action') {
-    return importScript(entry.import).then(fn => fn())
-  }
-
-  state.value.dockEntry = entry
-
-  // TODO: handle for each type of entry
-  if ('import' in entry && entry.import) {
-    importScript(entry.import)
+    return importScript(entry).then(fn => fn(context))
   }
 }
 
