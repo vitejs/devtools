@@ -12,14 +12,14 @@
   --uno: absolute w-[14px] h-[14px] -m-[6px] rounded-md;
 }
 .vite-devtools-resize-handle {
-  --uno: z-[2147483645];
+  --uno: z-[2147483644];
 }
 .vite-devtools-resize-handle:hover {
   --uno: bg-gray-400:10;
 }
 
 #vite-devtools-anchor {
-  --uno: w-0 z-[2147483645] fixed origin-center font-sans text-[15px] box-border;
+  --uno: w-0 z-[2147483644] fixed origin-center font-sans text-[15px] box-border;
   transform: translate(-50%, -50%) rotate(0);
 }
 
@@ -63,12 +63,3 @@
     --uno: hidden;
   }
 }
-
-.vite-devtools-dock-label {
-  --uno: translate-x--1/2 bottom--7 left-1/2;
-}
-
-.vite-devtools-vertical .vite-devtools-dock-label {
-  --uno: rotate-270 bottom--10;
-}
-

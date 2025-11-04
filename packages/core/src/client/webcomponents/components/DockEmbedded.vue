@@ -3,6 +3,7 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsDockState } from './DockProps'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
+import FloatingTooltip from './FloatingTooltip.vue'
 
 defineProps<{
   state: DevToolsDockState
@@ -24,4 +25,5 @@ defineProps<{
       />
     </template>
   </Dock>
+  <FloatingTooltip />
 </template>
