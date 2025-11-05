@@ -47,7 +47,6 @@ const normalizedChunks = computed(() => props.chunks || state.value)
 const imports = computed((): RolldownChunkImport[] => {
   return props.chunk.imports.map((importChunk) => {
     const chunk = normalizedChunks.value?.find(c => c.chunk_id === importChunk.chunk_id)
-
     return {
       ...importChunk,
       name: chunk?.name || '[unnamed]',
@@ -76,28 +75,13 @@ const importers = computed((): RolldownChunkImport[] => {
 
 <template>
   <div flex="~ col gap-3">
-    <div flex="~ gap-3 items-center">
-      <div flex="~ gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
-        <div i-ph-shapes-duotone />
-        <div>{{ chunk.name || '[unnamed]' }}</div>
-        <DisplayBadge :text="chunk.reason" />
+    <ChunksBaseInfo :chunk="chunk">
+      <template #left-after>
         <DisplayBadge v-if="chunk.is_initial" text="initial" />
         <DisplayFileSizeBadge :bytes="chunkSize" text-sm />
-      </div>
-
-      <div flex-auto />
-
-      <span op50 font-mono>#{{ chunk.chunk_id }}</span>
-      <div flex="~ gap-1 items-center">
-        <div i-ph-file-arrow-up-duotone />
-        {{ chunk.imports.length }}
-      </div>
-      <div flex="~ gap-1 items-center">
-        <div i-ph-package-duotone />
-        {{ chunk.modules.length }}
-      </div>
+      </template>
       <slot />
-    </div>
+    </ChunksBaseInfo>
 
     <details v-if="showModules" open="true">
       <summary op50>

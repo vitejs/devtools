@@ -17,6 +17,11 @@ const chunkViewTypes = [
     icon: 'i-ph-list-bullets-duotone',
   },
   {
+    label: 'Detailed List',
+    value: 'detailed-list',
+    icon: 'i-ph-list-magnifying-glass-duotone',
+  },
+  {
     label: 'Graph',
     value: 'graph',
     icon: 'i-ph-graph-duotone',
@@ -61,6 +66,14 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
       </div>
     </div>
     <template v-if="settings.chunkViewType === 'list'">
+      <div class="px5 pt24 of-auto h-screen" flex="~ col gap-4">
+        <ChunksFlatList
+          :session="session"
+          :chunks="normalizedChunks"
+        />
+      </div>
+    </template>
+    <template v-if="settings.chunkViewType === 'detailed-list'">
       <div class="px5 pt24 of-auto h-screen" flex="~ col gap-4">
         <template v-for="chunk of chunks" :key="chunk.id">
           <DataChunkDetails
