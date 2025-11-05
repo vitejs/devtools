@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { Chunk as ChunkInfo } from '@rolldown/debug'
-import type { RolldownChunkImport } from '~~/shared/types/data'
+import type { RolldownChunkImport, RolldownChunkInfo } from '~~/shared/types/data'
 import { useRoute } from '#app/composables/router'
 import { NuxtLink } from '#components'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
-  chunk: ChunkInfo | RolldownChunkImport
+  chunk: RolldownChunkInfo | RolldownChunkImport
   link?: boolean
 }>(), {
   link: false,

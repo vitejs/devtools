@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import type { Chunk as ChunkInfo } from '@rolldown/debug'
-import type { RolldownChunkImport, SessionContext } from '~~/shared/types'
+import type { RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
-  chunk: ChunkInfo
+  chunk: RolldownChunkInfo
   session: SessionContext
   showModules?: boolean
   showImports?: boolean
-  chunks?: ChunkInfo[]
+  chunks?: RolldownChunkInfo[]
 }>(), {
   showModules: true,
   showImports: true,
@@ -78,6 +77,7 @@ const importers = computed((): RolldownChunkImport[] => {
   <div flex="~ col gap-3">
     <ChunksBaseInfo :chunk="chunk">
       <template #left-after>
+        <DisplayBadge v-if="chunk.is_initial" text="initial" />
         <DisplayFileSizeBadge :bytes="chunkSize" text-sm />
       </template>
       <slot />

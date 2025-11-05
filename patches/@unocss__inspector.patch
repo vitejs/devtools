@@ -1,0 +1,57 @@
+diff --git a/dist/index.d.cts b/dist/index.d.cts
+new file mode 100644
+index 0000000000000000000000000000000000000000..dfda43ac9d13b9797ecf6ba74f37372095adbd47
+--- /dev/null
++++ b/dist/index.d.cts
+@@ -0,0 +1,2 @@
++export * from "/Users/antfu/i/unocss/packages-integrations/inspector/src/index.js";
++export { default } from "/Users/antfu/i/unocss/packages-integrations/inspector/src/index.js";
+\ No newline at end of file
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 0fb5d8feb0c3924850e0d1b01489aaf7099ec1e9..7dd9d9e00daf2ffc0e415f100d734fccfd28b622 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -820,9 +820,9 @@ async function analyzer(modules, ctx) {
+ 
+ const _dirname = typeof __dirname !== "undefined" ? __dirname : dirname(fileURLToPath(import.meta.url));
+ function UnocssInspector(ctx) {
++  const baseUrl = "__unocss";
+   async function configureServer(server) {
+     await ctx.ready;
+-    const baseUrl = "__unocss";
+     server.middlewares.use(`/${baseUrl}`, sirv(resolve(_dirname, "../dist/client"), {
+       single: true,
+       dev: true
+@@ -915,7 +915,18 @@ function UnocssInspector(ctx) {
+   return {
+     name: "unocss:inspector",
+     apply: "serve",
+-    configureServer
++    configureServer,
++    devtools: {
++      setup(ctx2) {
++        ctx2.docks.register({
++          id: "unocss",
++          title: "UnoCSS",
++          icon: "https://unocss.dev/logo.svg",
++          type: "iframe",
++          url: `/${baseUrl}`
++        });
++      }
++    }
+   };
+ }
+ function getCircularReplacer() {
+diff --git a/package.json b/package.json
+index 7fcf740ef248ff716df3588302aa49e68839d9e3..28a9a284073fc89a17e5597813483424b4a2d8d0 100644
+--- a/package.json
++++ b/package.json
+@@ -48,5 +48,8 @@
+     "dev": "nr stub && vite",
+     "update-post": "vite build",
+     "test:attw": "attw --pack --config-path ../../.attw-esm-only.json"
++  },
++  "devDependencies": {
++    "@vitejs/devtools-kit": "^0.0.0-alpha.10"
+   }
+ }

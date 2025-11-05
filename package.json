@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "0.0.0-alpha.8",
+  "version": "0.0.0-alpha.11",
   "private": true,
   "packageManager": "pnpm@10.20.0",
   "scripts": {
@@ -49,6 +49,7 @@
     "esbuild": "catalog:build",
     "eslint": "catalog:devtools",
     "lint-staged": "catalog:devtools",
+    "magic-string": "catalog:build",
     "nuxt": "catalog:build",
     "nuxt-eslint-auto-explicit-import": "catalog:devtools",
     "nuxt-mcp": "catalog:build",
@@ -59,6 +60,7 @@
     "unstorage": "catalog:deps",
     "vite": "catalog:build",
     "vite-plugin-inspect": "catalog:devtools",
+    "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
     "vue": "catalog:frontend",
     "vue-tsc": "catalog:devtools"

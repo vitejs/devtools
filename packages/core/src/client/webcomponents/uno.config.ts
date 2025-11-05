@@ -13,8 +13,14 @@ export default defineConfig({
       'bg-secondary': 'bg-#eee dark:bg-#222',
       'border-base': 'border-#8882',
       'ring-base': 'ring-#8882',
+
+      'z-viewframe': 'z-20',
+      'z-viewframe-resizer': 'z-30',
+      'z-floating-dock': 'z-50',
+      'z-floating-anchor': 'z-[2147483644]',
+      'z-floating-tooltip': 'z-[2147483645]',
     },
-    [/^bg-glass(:\d+)?$/, ([, opacity = ':75']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
+    [/^bg-glass(:\d+)?$/, ([, opacity = ':50']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
   ],
   transformers: [
     transformerDirectives(),

@@ -3,7 +3,7 @@ import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
 import type { DevToolsDockState } from './DockProps'
 import type { IframeManager } from './IframeManager'
-import { nextTick, onMounted, onUnmounted, useTemplateRef, watch, watchEffect } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 const props = defineProps<{
   state?: DevToolsDockState
@@ -14,6 +14,7 @@ const props = defineProps<{
   iframeStyle?: CSSProperties
 }>()
 
+const isLoading = ref(true)
 const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 
 onMounted(() => {
@@ -26,6 +27,7 @@ onMounted(() => {
     holder.iframe.src = props.entry.url
 
   holder.mount(viewFrame.value!)
+  isLoading.value = false
   nextTick(() => {
     holder.update()
   })
@@ -57,7 +59,7 @@ onUnmounted(() => {
     ref="viewFrame"
     class="vite-devtools-view-iframe w-full h-full flex items-center justify-center"
   >
-    <div class="op50 z--1">
+    <div v-if="isLoading" class="op50 z--1">
       Loading iframe...
     </div>
   </div>

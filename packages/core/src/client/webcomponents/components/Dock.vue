@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import type { ClientScriptEntry, DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { useStateHandlers } from '../state/state'
 import DockEntries from './DockEntries.vue'
+import BracketLeft from './icons/BracketLeft.vue'
+import BracketRight from './icons/BracketRight.vue'
+import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<DockProps>()
 
@@ -214,31 +217,7 @@ const panelStyle = computed(() => {
   return style
 })
 
-// TODO: use a visual module to host all the imports
-function importScript(entry: ClientScriptEntry) {
-  return import(/* @vite-ignore */ entry.importFrom)
-    .then((module) => {
-      return module[entry.importName || 'default']
-    })
-    .catch((error) => {
-      // TODO: maybe popup a error toast here?
-      console.error('[VITE DEVTOOLS] Error importing action', error)
-      return Promise.reject(error)
-    })
-}
-
-function onSelected(entry: DevToolsDockEntry) {
-  if (entry?.type === 'action') {
-    return importScript(entry.import).then(fn => fn())
-  }
-
-  state.value.dockEntry = entry
-
-  // TODO: handle for each type of entry
-  if ('import' in entry && entry.import) {
-    importScript(entry.import)
-  }
-}
+const { selectDockEntry } = useStateHandlers(state)
 
 onMounted(() => {
   bringUp()
@@ -261,7 +240,7 @@ onMounted(() => {
     <div
       v-if="!isSafari"
       id="vite-devtools-glowing"
-      :style="isDragging ? 'opacity: 0.6 !important' : ''"
+      :class="isDragging ? 'op60!' : ''"
     />
     <div
       id="vite-devtools-dock-container"
@@ -272,12 +251,24 @@ onMounted(() => {
         id="vite-devtools-dock"
         @pointerdown="onPointerDown"
       >
+        <BracketLeft
+          class="vite-devtools-dock-bracket absolute left--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
+        />
+        <BracketRight
+          class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
+          :class="isVertical ? 'scale-y--100' : ''"
+        />
+        <VitePlusCore
+          class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
+          :class="isMinimized ? 'op100' : 'op0'"
+        />
         <DockEntries
           :entries="docks"
-          :class="isMinimized ? 'opacity-0' : 'opacity-100'"
+          class="transition duration-200 flex items-center w-full h-full justify-center"
+          :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="isVertical"
           :selected="state.dockEntry"
-          @select="onSelected"
+          @select="selectDockEntry"
         />
       </div>
     </div>
@@ -285,7 +276,8 @@ onMounted(() => {
       :dock-el="dockEl"
       :panel-margins="panelMargins"
       :state="state"
-      :entry="state.dockEntry"
+      :is-dragging="isDragging"
+      :entry="state.dockEntry?.type === 'action' ? undefined : state.dockEntry"
     />
   </div>
 </template>

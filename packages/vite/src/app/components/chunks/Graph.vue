@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import type { Chunk, ChunkImport } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types/data'
+import type { ChunkImport } from '@rolldown/debug'
+import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { useRoute } from '#app/composables/router'
 import { computed, nextTick, unref } from 'vue'
 import { createModuleGraph } from '~/composables/moduleGraph'
 
+type ChunkInfo = RolldownChunkInfo & {
+  id: string
+}
 const props = defineProps<{
   session: SessionContext
   chunks: ChunkInfo[]
@@ -14,9 +17,6 @@ const props = defineProps<{
 const chunks = computed(() => props.chunks)
 const route = useRoute()
 
-type ChunkInfo = Chunk & {
-  id: string
-}
 createModuleGraph<ChunkInfo, ChunkImport>({
   modules: chunks,
   spacing: {
@@ -165,6 +165,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
         <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
           <div>{{ node.data.module.name || '[unnamed]' }}</div>
           <DisplayBadge :text="node.data.module.reason" />
+          <DisplayBadge v-if="node.data.module.is_initial" text="initial" />
         </div>
         <div flex-auto />
         <div flex="~ gap-1 items-center">

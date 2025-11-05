@@ -1,6 +1,8 @@
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
+import Tracer from 'vite-plugin-vue-tracer'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsViteUI } from '../../vite/src/node'
@@ -29,6 +31,8 @@ export default defineConfig({
       builtinDevTools: false,
     }),
     DevToolsViteUI(),
+    UnoCSS(),
+    Tracer(),
     {
       name: 'local',
       devtools: {
@@ -39,18 +43,17 @@ export default defineConfig({
             id: 'local',
             type: 'iframe',
             url: 'https://antfu.me',
-
           })
 
           ctx.docks.register({
             type: 'action',
-            import: ctx.utils.clientEntryFromSimpleFunction(() => {
+            action: ctx.utils.clientEntryFromSimpleFunction(() => {
               // eslint-disable-next-line no-alert
               alert('Hello, world!')
             }),
             id: 'local2',
             title: 'Local2',
-            icon: 'material-symbols-light:add-alert',
+            icon: 'ph:bell-simple-ringing-duotone',
           })
         },
       },

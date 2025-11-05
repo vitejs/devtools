@@ -2,10 +2,8 @@ packages:
   - packages/*
   - docs
 
-shamefullyHoist: true
-strictPeerDependencies: false
-shellEmulator: true
-ignoreWorkspaceRootCheck: true
+patchedDependencies:
+  '@unocss/inspector': patches/@unocss__inspector.patch
 
 catalogs:
   build:
@@ -15,8 +13,8 @@ catalogs:
     '@vitejs/plugin-vue': ^6.0.1
     '@vueuse/nuxt': ^14.0.0
     esbuild: ^0.25.11
+    magic-string: ^0.30.21
     nitropack: ^2.12.9
-    # https://github.com/nuxt/nuxt/issues/33418
     nuxt: 4.1.2
     nuxt-mcp: ^0.2.5
     rolldown: ^1.0.0-beta.45
@@ -103,6 +101,8 @@ catalogs:
   inlined:
     '@antfu/utils': ^9.3.0
     stream-json: ^1.9.1
+  playground:
+    vite-plugin-vue-tracer: ^1.1.0
   testing:
     vitest: ^4.0.5
   types:
@@ -115,9 +115,18 @@ catalogs:
     '@types/split2': ^4.2.3
     '@types/stream-json': ^1.7.8
     '@types/ws': ^8.18.1
+
+ignoreWorkspaceRootCheck: true
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
   - rolldown
   - simple-git-hooks
   - unrs-resolver
+
+shamefullyHoist: true
+
+shellEmulator: true
+
+strictPeerDependencies: false

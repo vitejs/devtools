@@ -1,5 +1,6 @@
-import type { Asset as AssetInfo, Chunk as ChunkInfo, Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
-import type { ModuleBuildMetrics, PluginBuildMetrics } from '../../shared/types'
+import type { Asset as AssetInfo, Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
+import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownChunkInfo } from '../../shared/types'
+import { getInitialChunkIds } from '../utils/chunk'
 import { getContentByteSize } from '../utils/format'
 
 export type RolldownEvent = Event & {
@@ -14,7 +15,7 @@ const MODULE_BUILD_END_HOOKS = ['HookResolveIdCallEnd', 'HookLoadCallEnd', 'Hook
 
 export class RolldownEventsManager {
   events: RolldownEvent[] = []
-  chunks: Map<number, ChunkInfo> = new Map()
+  chunks: Map<number, RolldownChunkInfo> = new Map()
   assets: Map<string, AssetInfo> = new Map()
   modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
   source_refs: Map<string, string> = new Map()
@@ -139,8 +140,9 @@ export class RolldownEventsManager {
     }
 
     if (event.action === 'ChunkGraphReady') {
+      const initialChunkIds = getInitialChunkIds(event.chunks)
       for (const chunk of event.chunks) {
-        this.chunks.set(chunk.chunk_id, chunk)
+        this.chunks.set(chunk.chunk_id, { ...chunk, is_initial: initialChunkIds.has(chunk.chunk_id) })
       }
       return
     }

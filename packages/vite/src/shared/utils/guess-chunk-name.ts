@@ -1,6 +1,6 @@
-import type { Chunk as ChunkInfo } from '@rolldown/debug'
+import type { RolldownChunkInfo } from '../types'
 
-export function guessChunkName(chunk: ChunkInfo) {
+export function guessChunkName(chunk: RolldownChunkInfo) {
   if (chunk.name)
     return chunk.name
   if (chunk.modules.length === 1)

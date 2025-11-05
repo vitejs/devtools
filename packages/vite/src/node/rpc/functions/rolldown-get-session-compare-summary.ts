@@ -14,31 +14,7 @@ export const rolldownGetSessionCompareSummary = defineRpcFunction({
           const _reader = reader[index]!
           const assets = Array.from(_reader.manager.assets.values())
           const chunks = Array.from(_reader.manager.chunks.values())
-
-          function getInitialChunkIds(chunkIds: number[], visited = new Set<number>()): number[] {
-            const initialChunkIds: number[] = []
-
-            for (const chunkId of chunkIds) {
-              if (visited.has(chunkId))
-                continue
-              visited.add(chunkId)
-
-              const chunk = chunks.find(c => c.chunk_id === chunkId)
-              if (chunk?.imports) {
-                const importChunkIds = chunk.imports.map(imp => imp.chunk_id)
-                initialChunkIds.push(...importChunkIds)
-
-                const nestedImports = getInitialChunkIds(importChunkIds, visited)
-                initialChunkIds.push(...nestedImports)
-              }
-            }
-
-            return initialChunkIds
-          }
-
-          const entryChunkIds = chunks.filter(chunk => !!chunk.is_user_defined_entry).map(chunk => chunk.chunk_id)
-          // initial chunks = user-defined entry chunk (initial entry chunk) + user-defined entry chunk's imports (initial common chunk)
-          const initialChunkIds = [...new Set([...entryChunkIds, ...getInitialChunkIds(entryChunkIds)])]
+          const initialChunkIds = chunks.filter(chunk => chunk.is_initial).map(chunk => chunk.chunk_id)
 
           return {
             id: s,
