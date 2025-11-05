@@ -47,7 +47,7 @@ describe('devToolsDockHost', () => {
     it('should include the duplicate ID in error message', () => {
       const host = new DevToolsDockHost(mockContext)
       const dock: DevToolsDockEntry = {
-        type: 'webcomponent',
+        type: 'custom-render',
         id: 'my-special-panel',
         title: 'Special Panel',
         icon: 'special',

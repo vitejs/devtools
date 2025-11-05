@@ -53,7 +53,7 @@ export default defineConfig({
             }),
             id: 'local2',
             title: 'Local2',
-            icon: 'material-symbols-light:add-alert',
+            icon: 'ph:bell-simple-ringing-duotone',
           })
         },
       },
