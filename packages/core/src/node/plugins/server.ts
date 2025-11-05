@@ -36,7 +36,9 @@ export function DevToolsServer(): Plugin {
         for (const dock of docks) {
           const id = `${dock.type}:${dock.id}`
           if (dock.type === 'action') {
-            map.set(id, dock.action)
+            // TODO: backward compatibility, remove later
+            // @ts-expect-error ignore
+            map.set(id, dock.action || dock.import)
           }
           else if (dock.type === 'custom-render') {
             map.set(id, dock.renderer)
@@ -44,11 +46,17 @@ export function DevToolsServer(): Plugin {
           else if (dock.type === 'iframe' && dock.clientScript) {
             map.set(id, dock.clientScript)
           }
+          else if ('import' in dock) {
+            // TODO: backward compatibility, remove later
+            // @ts-expect-error ignore
+            map.set(id, dock.import)
+          }
         }
         return [
           `export const importsMap = {`,
-          ...[...Object.entries(map)]
-            .map(([id, { importFrom, importName }]) => `  ${JSON.stringify(id)}: () => import(${JSON.stringify(importFrom)}).then(r => r[${JSON.stringify(importName)}]),`),
+          ...[...map.entries()]
+            .filter(([, entry]) => entry != null)
+            .map(([id, { importFrom, importName }]) => `  [${JSON.stringify(id)}]: () => import(${JSON.stringify(importFrom)}).then(r => r[${JSON.stringify(importName)}]),`),
           '}',
         ].join('\n')
       }

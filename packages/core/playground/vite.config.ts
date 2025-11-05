@@ -47,7 +47,7 @@ export default defineConfig({
 
           ctx.docks.register({
             type: 'action',
-            import: ctx.utils.clientEntryFromSimpleFunction(() => {
+            action: ctx.utils.clientEntryFromSimpleFunction(() => {
               // eslint-disable-next-line no-alert
               alert('Hello, world!')
             }),
