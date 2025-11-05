@@ -2,24 +2,8 @@
   --un-text-opacity: 100%;
 }
 
-.vite-devtools-resize-handle-horizontal {
-  --uno: absolute left-[6px] right-[6px] h-[10px] -my-[5px] cursor-ns-resize rounded-md;
-}
-.vite-devtools-resize-handle-vertical {
-  --uno: absolute top-[6px] bottom-0 w-[10px] -mx-[5px] cursor-ew-resize rounded-md;
-}
-.vite-devtools-resize-handle-corner {
-  --uno: absolute w-[14px] h-[14px] -m-[6px] rounded-md;
-}
-.vite-devtools-resize-handle {
-  --uno: z-[2147483644];
-}
-.vite-devtools-resize-handle:hover {
-  --uno: bg-gray-400:10;
-}
-
 #vite-devtools-anchor {
-  --uno: w-0 z-[2147483644] fixed origin-center font-sans text-[15px] box-border;
+  --uno: w-0 z-floating-anchor fixed origin-center font-sans text-[15px] box-border;
   transform: translate(-50%, -50%) rotate(0);
 }
 
@@ -62,4 +46,20 @@
   #vite-devtools-anchor {
     --uno: hidden;
   }
+}
+
+.vite-devtools-resize-handle-horizontal {
+  --uno: absolute left-[6px] right-[6px] h-[10px] -my-[5px] cursor-ns-resize rounded-md;
+}
+.vite-devtools-resize-handle-vertical {
+  --uno: absolute top-[6px] bottom-0 w-[10px] -mx-[5px] cursor-ew-resize rounded-md;
+}
+.vite-devtools-resize-handle-corner {
+  --uno: absolute w-[14px] h-[14px] -m-[6px] rounded-md;
+}
+.vite-devtools-resize-handle {
+  --uno: z-viewframe-resizer;
+}
+.vite-devtools-resize-handle:hover {
+  --uno: bg-gray-400:10;
 }

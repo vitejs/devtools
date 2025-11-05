@@ -76,7 +76,7 @@ watchEffect(() => {
 <template>
   <div
     v-if="box.text"
-    class="vite-devtools-floating-title z-[2147483645] text-xs transition-all duration-300 w-max bg-glass border border-base rounded px2 fixed p1"
+    class="z-floating-tooltip text-xs transition-all duration-300 w-max bg-glass border border-base rounded px2 fixed p1"
     :class="current ? 'op100' : 'op0 pointer-events-none'"
     :style="style"
   >

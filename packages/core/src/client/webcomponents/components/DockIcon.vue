@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<{
   icon: string
@@ -7,7 +8,7 @@ const props = defineProps<{
 }>()
 
 function getIconUrl(str: string, color: 'dark' | 'light') {
-  if (str.includes('/'))
+  if (str.includes('/') || str.startsWith('data:') || str.startsWith('builtin:'))
     return str
   const match = str.match(/^([\w-]+):([\w-]+)$/)
   if (match) {
@@ -26,7 +27,8 @@ const icon = computed(() => {
 </script>
 
 <template>
-  <picture>
+  <VitePlusCore v-if="icon.light === 'builtin:vite-plus-core'" />
+  <picture v-else>
     <source :srcset="icon.dark" media="(prefers-color-scheme: dark)">
     <source :srcset="icon.light" media="(prefers-color-scheme: light)">
     <img

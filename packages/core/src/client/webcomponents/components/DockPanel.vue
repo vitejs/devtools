@@ -16,6 +16,11 @@ const props = defineProps<{
 }>()
 
 const { state, entry, panelMargins } = toRefs(props)
+const windowSize = reactive(useWindowSize())
+const isResizing = ref(false)
+const isHovering = ref(false)
+const isDragging = defineModel<boolean>('isDragging', { default: false })
+const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
@@ -25,13 +30,6 @@ const iframes = markRaw(new IframeManager())
 watchEffect(() => {
   iframes.setContainer(iframesContainer.value!)
 }, { flush: 'sync' })
-
-const windowSize = reactive(useWindowSize())
-const isDragging = ref(false)
-const isResizing = ref(false)
-const isHovering = ref(false)
-
-const mousePosition = reactive({ x: 0, y: 0 })
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -165,7 +163,6 @@ onMounted(() => {
 <template>
   <div
     v-show="entry"
-    id="vite-devtools-dock-panel"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
@@ -187,7 +184,6 @@ onMounted(() => {
       :iframe-style="{
         border: '1px solid #8883',
         borderRadius: '0.5rem',
-        zIndex: '2147483645',
       }"
       rounded
     />

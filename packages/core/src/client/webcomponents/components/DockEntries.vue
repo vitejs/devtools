@@ -24,9 +24,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
 </script>
 
 <template>
-  <div
-    class="vite-devtools-dock-entries flex items-center w-full h-full justify-center transition-opacity duration-300"
-  >
+  <div>
     <DockEntry
       v-for="dock of entries"
       :key="dock.id"

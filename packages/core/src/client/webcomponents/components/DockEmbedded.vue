@@ -16,10 +16,11 @@ defineProps<{
     :state="state"
     :docks="docks"
   >
-    <template #default="{ dockEl, entry, panelMargins }">
+    <template #default="{ dockEl, entry, panelMargins, isDragging }">
       <DockPanel
         :dock-el="dockEl!"
         :state="state"
+        :is-dragging="isDragging"
         :panel-margins="panelMargins"
         :entry="entry"
       />

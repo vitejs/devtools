@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { ImportScriptContext } from '@vitejs/devtools-kit/client'
 import type { DockProps } from './DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { useStateHandlers } from '../state/state'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
@@ -218,64 +217,7 @@ const panelStyle = computed(() => {
   return style
 })
 
-function importScript(entry: DevToolsDockEntry): Promise<(context: ImportScriptContext) => void | Promise<void>> {
-  const id = entry.id
-  return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
-    .then((module) => {
-      const importsMap = module.importsMap as Record<string, () => Promise<() => void>>
-      const importFn = importsMap[id]
-      if (!importFn) {
-        return Promise.reject(new Error(`[VITE DEVTOOLS] No import found for id: ${id}`))
-      }
-      return importFn()
-    })
-    .catch((error) => {
-      // TODO: maybe popup a error toast here?
-      // TODO: A unified logger API
-      console.error('[VITE DEVTOOLS] Error executing import action', error)
-      return Promise.reject(error)
-    })
-}
-
-function onSelected(entry?: DevToolsDockEntry) {
-  if (!entry) {
-    state.value.open = false
-    state.value.dockEntry = undefined
-    return
-  }
-
-  const scriptContext: ImportScriptContext = reactive({
-    dockEntry: entry,
-    // @ts-expect-error cast for unwraping
-    dockState: computed<'active' | 'inactive'>({
-      get() {
-        return state.value.dockEntry?.id === entry.id ? 'active' : 'inactive'
-      },
-      set(val) {
-        if (val === 'active')
-          state.value.dockEntry = entry
-        else if (state.value.dockEntry?.id === entry.id)
-          state.value.dockEntry = undefined
-      },
-    }),
-    hidePanel() {
-      state.value.open = false
-    },
-  })
-
-  // If it's an action, run and return (early exit)
-  if (entry?.type === 'action') {
-    return importScript(entry).then(fn => fn(scriptContext))
-  }
-
-  state.value.dockEntry = entry
-  state.value.open = true
-
-  // If has import script, run it
-  if (entry.import) {
-    importScript(entry).then(fn => fn(scriptContext))
-  }
-}
+const { selectDockEntry } = useStateHandlers(state)
 
 onMounted(() => {
   bringUp()
@@ -298,7 +240,7 @@ onMounted(() => {
     <div
       v-if="!isSafari"
       id="vite-devtools-glowing"
-      :style="isDragging ? 'opacity: 0.6 !important' : ''"
+      :class="isDragging ? 'op60!' : ''"
     />
     <div
       id="vite-devtools-dock-container"
@@ -322,11 +264,11 @@ onMounted(() => {
         />
         <DockEntries
           :entries="docks"
-          class="transition duration-200"
+          class="transition duration-200 flex items-center w-full h-full justify-center"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="isVertical"
           :selected="state.dockEntry"
-          @select="onSelected"
+          @select="selectDockEntry"
         />
       </div>
     </div>
@@ -334,6 +276,7 @@ onMounted(() => {
       :dock-el="dockEl"
       :panel-margins="panelMargins"
       :state="state"
+      :is-dragging="isDragging"
       :entry="state.dockEntry?.type === 'action' ? undefined : state.dockEntry"
     />
   </div>

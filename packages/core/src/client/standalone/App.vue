@@ -3,9 +3,11 @@ import type { DevToolsDockState } from '../webcomponents/components/DockProps'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
-import Dock from '../webcomponents/components/Dock.vue'
+import DockEntries from '../webcomponents/components/DockEntries.vue'
+import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import { IframeManager } from '../webcomponents/components/IframeManager'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
+import { useStateHandlers } from '../webcomponents/state/state'
 
 const { rpc } = await getDevToolsRpcClient()
 
@@ -39,22 +41,35 @@ watchEffect(() => {
 
 const isDragging = ref(false)
 const entry = computed(() => state.value.dockEntry || docks[0])
+
+const { selectDockEntry } = useStateHandlers(state)
 </script>
 
 <template>
-  <div id="iframes-container" ref="iframesContainer" />
-  <Dock
-    v-model:is-dragging="isDragging"
-    :state="state"
-    :docks="docks"
-  />
-  <ViewEntry
-    v-if="entry && iframesContainer"
-    :key="entry.id"
-    :state="state"
-    :entry="entry"
-    :is-dragging="isDragging"
-    :is-resizing="false"
-    :iframes="iframes"
-  />
+  <div class="h-screen w-screen of-hidden grid cols-[max-content_1fr]">
+    <div class="border-r border-base flex flex-col">
+      <div class="p2 border-b border-base flex">
+        <VitePlus class="w-7 h-7 ma" />
+      </div>
+      <DockEntries
+        :entries="docks"
+        class="transition duration-200 p2"
+        :is-vertical="false"
+        :selected="state.dockEntry"
+        @select="selectDockEntry"
+      />
+    </div>
+    <div>
+      <div id="iframes-container" ref="iframesContainer" />
+      <ViewEntry
+        v-if="entry && iframesContainer"
+        :key="entry.id"
+        :state="state"
+        :entry="entry"
+        :is-dragging="isDragging"
+        :is-resizing="false"
+        :iframes="iframes"
+      />
+    </div>
+  </div>
 </template>
