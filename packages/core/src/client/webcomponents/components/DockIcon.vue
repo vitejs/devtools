@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<{
-  icon: string
+  icon: string | { dark: string, light: string }
   title?: string
 }>()
 
@@ -19,9 +19,15 @@ function getIconUrl(str: string, color: 'dark' | 'light') {
 }
 
 const icon = computed(() => {
+  if (typeof props.icon === 'string') {
+    return {
+      dark: getIconUrl(props.icon, 'dark'),
+      light: getIconUrl(props.icon, 'light'),
+    }
+  }
   return {
-    dark: getIconUrl(props.icon, 'dark'),
-    light: getIconUrl(props.icon, 'light'),
+    dark: getIconUrl(props.icon.dark, 'dark'),
+    light: getIconUrl(props.icon.light, 'light'),
   }
 })
 </script>

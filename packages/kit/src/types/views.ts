@@ -18,10 +18,24 @@ export interface DevToolsViewHost {
   hostStatic: (baseUrl: string, distDir: string) => void
 }
 
+// TODO: refine categories more clearly
+export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default'
+
 export interface DevToolsDockEntryBase {
   id: string
   title: string
-  icon: string
+  icon: string | { light: string, dark: string }
+  /**
+   * The default order of the entry in the dock.
+   * The higher the number the earlier it appears.
+   * @default 0
+   */
+  defaultOrder?: number
+  /**
+   * The category of the entry
+   * @default 'default'
+   */
+  category?: DevToolsDockEntryCategory
 }
 
 export interface ClientScriptEntry {
@@ -52,11 +66,6 @@ export interface DevToolsViewIframe extends DevToolsDockEntryBase {
   import?: ClientScriptEntry
 }
 
-export interface DevToolsViewWebComponent extends DevToolsDockEntryBase {
-  type: 'webcomponent'
-  import: ClientScriptEntry
-}
-
 export interface DevToolsViewAction extends DevToolsDockEntryBase {
   type: 'action'
   import: ClientScriptEntry
@@ -67,4 +76,4 @@ export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
   import: ClientScriptEntry
 }
 
-export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewWebComponent | DevToolsViewAction | DevToolsViewCustomRender
+export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender

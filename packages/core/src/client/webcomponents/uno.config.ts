@@ -20,7 +20,7 @@ export default defineConfig({
       'z-floating-anchor': 'z-[2147483644]',
       'z-floating-tooltip': 'z-[2147483645]',
     },
-    [/^bg-glass(:\d+)?$/, ([, opacity = ':75']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
+    [/^bg-glass(:\d+)?$/, ([, opacity = ':50']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
   ],
   transformers: [
     transformerDirectives(),
