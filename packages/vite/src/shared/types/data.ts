@@ -160,7 +160,8 @@ export interface RolldownModuleNoChangesHide {
 }
 
 export interface RolldownChunkInfo extends ChunkInfo {
-  type: 'chunk'
+  type?: 'chunk'
+  is_initial?: boolean
 }
 
 export interface RolldownAssetInfo extends AssetInfo {
