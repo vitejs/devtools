@@ -17,7 +17,10 @@ export interface DevToolsRpcClientOptions {
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions>>
 }
 
-export interface ImportScriptContext {
+/**
+ * Context for client scripts running in dock entries
+ */
+export interface DockClientScriptContext {
   /**
    * The dock entry info of the current dock item
    */
@@ -26,6 +29,13 @@ export interface ImportScriptContext {
    * The current state of the dock
    */
   dockState: 'active' | 'inactive'
+  /**
+   * Type of the client environment
+   *
+   * 'embedded' - running inside an embedded floating panel
+   * 'standalone' - running inside a standlone window (no user app)
+   */
+  clientType: 'embedded' | 'standalone'
   /**
    * Function to hide the panel, if applicable
    */

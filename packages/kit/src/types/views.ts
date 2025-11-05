@@ -61,19 +61,19 @@ export interface DevToolsViewIframe extends DevToolsDockEntryBase {
    */
   frameId?: string
   /**
-   * Optional script to import into the iframe
+   * Optional client script to import into the iframe
    */
-  import?: ClientScriptEntry
+  clientScript?: ClientScriptEntry
 }
 
 export interface DevToolsViewAction extends DevToolsDockEntryBase {
   type: 'action'
-  import: ClientScriptEntry
+  action: ClientScriptEntry
 }
 
 export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
   type: 'custom-render'
-  import: ClientScriptEntry
+  renderer: ClientScriptEntry
 }
 
 export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender

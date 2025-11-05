@@ -1,12 +1,12 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { ImportScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
 import type { DevToolsDockState } from '../components/DockProps'
 import { computed, reactive } from 'vue'
 
 export function useStateHandlers(state: Ref<DevToolsDockState>) {
-  function importScript(entry: DevToolsDockEntry): Promise<(context: ImportScriptContext) => void | Promise<void>> {
-    const id = entry.id
+  function importScript(entry: DevToolsDockEntry): Promise<(context: DockClientScriptContext) => void | Promise<void>> {
+    const id = `${entry.type}:${entry.id}`
     return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
       .then((module) => {
         const importsMap = module.importsMap as Record<string, () => Promise<() => void>>
@@ -17,21 +17,21 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
         return importFn()
       })
       .catch((error) => {
-      // TODO: maybe popup a error toast here?
-      // TODO: A unified logger API
+        // TODO: maybe popup a error toast here?
+        // TODO: A unified logger API
         console.error('[VITE DEVTOOLS] Error executing import action', error)
         return Promise.reject(error)
       })
   }
 
-  function selectDockEntry(entry?: DevToolsDockEntry) {
+  async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
       state.value.open = false
       state.value.dockEntry = undefined
       return
     }
 
-    const scriptContext: ImportScriptContext = reactive({
+    const scriptContext: DockClientScriptContext = reactive({
       dockEntry: entry,
       // @ts-expect-error cast for unwraping
       dockState: computed<'active' | 'inactive'>({
@@ -52,16 +52,14 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
 
     // If it's an action, run and return (early exit)
     if (entry?.type === 'action') {
-      return importScript(entry).then(fn => fn(scriptContext))
+      return await importScript(entry).then(fn => fn(scriptContext))
     }
 
     state.value.dockEntry = entry
     state.value.open = true
 
     // If has import script, run it
-    if (entry.import) {
-      importScript(entry).then(fn => fn(scriptContext))
-    }
+    await importScript(entry).then(fn => fn?.(scriptContext))
   }
 
   return {

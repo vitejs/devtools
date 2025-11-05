@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ClientScriptEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import { createDevToolsContext } from '../context'
 import { createDevToolsMiddleware } from '../server'
@@ -32,10 +32,23 @@ export function DevToolsServer(): Plugin {
           throw new Error('DevTools context is not initialized')
         }
         const docks = Array.from(context.docks.values())
-        const imports = docks.map(i => i.import ? { id: i.id, ...i.import } : undefined).filter(x => !!x)
+        const map = new Map<string, ClientScriptEntry>()
+        for (const dock of docks) {
+          const id = `${dock.type}:${dock.id}`
+          if (dock.type === 'action') {
+            map.set(id, dock.action)
+          }
+          else if (dock.type === 'custom-render') {
+            map.set(id, dock.renderer)
+          }
+          else if (dock.type === 'iframe' && dock.clientScript) {
+            map.set(id, dock.clientScript)
+          }
+        }
         return [
           `export const importsMap = {`,
-          ...imports.map(i => `  ${JSON.stringify(i.id)}: () => import(${JSON.stringify(i.importFrom)}).then(r => r[${JSON.stringify(i.importName)}]),`),
+          ...[...Object.entries(map)]
+            .map(([id, { importFrom, importName }]) => `  ${JSON.stringify(id)}: () => import(${JSON.stringify(importFrom)}).then(r => r[${JSON.stringify(importName)}]),`),
           '}',
         ].join('\n')
       }
