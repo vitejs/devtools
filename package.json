@@ -60,6 +60,7 @@
     "unstorage": "catalog:deps",
     "vite": "catalog:build",
     "vite-plugin-inspect": "catalog:devtools",
+    "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
     "vue": "catalog:frontend",
     "vue-tsc": "catalog:devtools"

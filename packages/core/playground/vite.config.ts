@@ -1,6 +1,8 @@
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
+import Tracer from 'vite-plugin-vue-tracer'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsViteUI } from '../../vite/src/node'
@@ -29,6 +31,8 @@ export default defineConfig({
       builtinDevTools: false,
     }),
     DevToolsViteUI(),
+    UnoCSS(),
+    Tracer(),
     {
       name: 'local',
       devtools: {
