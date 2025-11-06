@@ -1,0 +1,11 @@
+[build]
+publish = "docs/.vitepress/dist"
+command = "pnpm run docs:build"
+
+[build.environment]
+NODE_VERSION = "24"
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

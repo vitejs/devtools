@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "docs": "vitepress dev",
-    "docs-build": "vitepress build",
-    "docs-serve": "vitepress serve"
+    "docs:build": "vitepress build",
+    "docs:serve": "vitepress serve"
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "catalog:docs",
