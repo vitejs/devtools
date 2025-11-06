@@ -26,7 +26,7 @@ catalogs:
     '@pnpm/read-project-manifest': ^1001.1.4
     '@rolldown/debug': ^1.0.0-beta.45
     ansis: ^4.2.0
-    birpc: ^2.6.1
+    birpc: ^2.7.0
     cac: ^6.7.14
     debug: ^4.4.3
     diff: ^8.0.2

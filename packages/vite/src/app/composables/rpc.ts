@@ -14,6 +14,7 @@ export const connectionState = reactive<{
 })
 
 const rpc = shallowRef<BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>>(undefined!)
+const responseCacheMap = new Map<string, unknown>()
 
 export async function connect() {
   const runtimeConfig = useRuntimeConfig()
@@ -39,6 +40,15 @@ export async function connect() {
         onError: (e, name) => {
           connectionState.error = e
           console.error(`[vite-devtools] RPC error on executing "${name}":`)
+        },
+        onRequest: async (req, next, resolve) => {
+          const cacheKey = `${req.m}-${JSON.stringify(req.a)}`
+          if (responseCacheMap.has(cacheKey)) {
+            resolve(responseCacheMap.get(cacheKey))
+          }
+          else {
+            responseCacheMap.set(cacheKey, await next(req))
+          }
         },
       },
     })
