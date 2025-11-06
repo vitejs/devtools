@@ -54,6 +54,7 @@ export async function getDevToolsRpcClient(
 }> {
   const {
     baseURL = '/.devtools/',
+    rpcOptions = {},
   } = options
   const urls = Array.isArray(baseURL) ? baseURL : [baseURL]
   let connectionMeta: ConnectionMeta | undefined = options.connectionMeta
@@ -86,7 +87,7 @@ export async function getDevToolsRpcClient(
       url,
       ...options.wsOptions,
     }),
-    ...options.rpcOptions,
+    rpcOptions,
   })
 
   return {
