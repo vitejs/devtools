@@ -49,7 +49,7 @@
     "play:build": "pnpm -C playground run build"
   },
   "peerDependencies": {
-    "vite": "catalog:build"
+    "vite": "*"
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
