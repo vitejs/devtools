@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DockContext } from '../state/dock'
+import type { DocksContext } from '../state/dock'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 const props = defineProps<{
-  context: DockContext
+  context: DocksContext
   entry: DevToolsViewIframe
   presistedDoms: PresistedDomViewsManager
   iframeStyle?: CSSProperties
@@ -31,7 +31,7 @@ onMounted(() => {
   })
 
   watch(
-    () => props.context.state,
+    () => props.context.panel,
     () => {
       holder.update()
     },
@@ -40,7 +40,7 @@ onMounted(() => {
 
   watchEffect(
     () => {
-      holder.element.style.pointerEvents = (props.context.isDragging || props.context.isResizing) ? 'none' : 'auto'
+      holder.element.style.pointerEvents = (props.context.panel.isDragging || props.context.panel.isResizing) ? 'none' : 'auto'
     },
     { flush: 'sync' },
   )

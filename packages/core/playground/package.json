@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "VITE_DEVTOOLS_LOCAL_DEV=true vite",
+    "dev:standlone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../src/node/cli.ts",
     "build": "vite build && vite-devtools"
   }
 }

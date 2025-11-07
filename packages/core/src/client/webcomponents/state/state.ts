@@ -1,10 +1,10 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
-import type { DockContext } from './dock'
+import type { DocksContext } from './dock'
 import { computed, reactive } from 'vue'
 
 export function useStateHandlers(
-  context: DockContext,
+  context: DocksContext,
 ) {
   const docks: DockClientScriptDocks = reactive({
     switchEntry: async (id: string | null) => {
@@ -20,10 +20,10 @@ export function useStateHandlers(
       return true
     },
     minimize: async () => {
-      context.state.open = false
+      context.panel.store.open = false
     },
     reveal: async () => {
-      context.state.open = true
+      context.panel.store.open = true
     },
   })
 
@@ -48,7 +48,7 @@ export function useStateHandlers(
 
   async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
-      context.state.open = false
+      context.panel.store.open = false
       context.selected = null
       return
     }
@@ -81,7 +81,7 @@ export function useStateHandlers(
     }
 
     context.selected = entry
-    context.state.open = true
+    context.panel.store.open = true
 
     // If has import script, run it
     if (

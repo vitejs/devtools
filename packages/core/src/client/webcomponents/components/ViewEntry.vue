@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DockContext } from '../state/dock'
+import type { DocksContext } from '../state/dock'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
 
 defineProps<{
-  context: DockContext
+  context: DocksContext
   entry: DevToolsDockEntry
   presistedDoms: PresistedDomViewsManager
   iframeStyle?: CSSProperties

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DockContext } from '../state/dock'
+import type { DocksContext } from '../state/dock'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
 import FloatingTooltip from './FloatingTooltip.vue'
 
 defineProps<{
-  context: DockContext
+  context: DocksContext
 }>()
 </script>
 

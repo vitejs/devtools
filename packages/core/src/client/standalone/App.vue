@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DockContext } from '../webcomponents/state/dock'
+import type { DocksContext } from '../webcomponents/state/dock'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
-import { createDockContext } from '../webcomponents/state/dock'
+import { createDocksContext } from '../webcomponents/state/dock'
 import { useStateHandlers } from '../webcomponents/state/state'
 import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
@@ -17,7 +17,7 @@ console.log('[VITE DEVTOOLS] RPC', rpc)
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
 const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
-const context: DockContext = await createDockContext(
+const context: DocksContext = await createDocksContext(
   'standalone',
   rpc,
 )

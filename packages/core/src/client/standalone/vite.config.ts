@@ -15,20 +15,6 @@ export default defineConfig({
     Vue(),
     UnoCSS(),
     {
-      name: 'local',
-      devtools: {
-        setup(ctx) {
-          ctx.docks.register({
-            title: 'Local',
-            icon: 'https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg',
-            id: 'local',
-            type: 'iframe',
-            url: 'https://antfu.me',
-          })
-        },
-      },
-    },
-    {
       name: 'setup',
       async configureServer(viteDevServer) {
         const context = await createDevToolsContext(viteDevServer.config, viteDevServer)

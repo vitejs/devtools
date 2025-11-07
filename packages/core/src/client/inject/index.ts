@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelState } from '../webcomponents'
+import type { DockPanelStorage } from '../webcomponents'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { createDockContext } from '../webcomponents'
+import { createDocksContext } from '../webcomponents'
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
@@ -19,7 +19,7 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 
-  const state = useLocalStorage<DockPanelState>(
+  const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',
     {
       width: 80,
@@ -28,12 +28,12 @@ export async function init(): Promise<void> {
       left: 0,
       position: 'left',
       open: false,
-      minimizePanelInactive: 3_000,
+      inactiveTimeout: 3_000,
     },
     { mergeDefaults: true },
   )
 
-  const context = await createDockContext(
+  const context = await createDocksContext(
     'embedded',
     rpc,
     state,

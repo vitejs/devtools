@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DockContext } from '../state/dock'
+import type { DocksContext } from '../state/dock'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { useStateHandlers } from '../state/state'
@@ -10,7 +10,7 @@ import VitePlusCore from './icons/VitePlusCore.vue'
 
 // Here we directly destructure is as we don't expect context to be changed
 const props = defineProps<{
-  context: DockContext
+  context: DocksContext
 }>()
 const context = props.context
 
@@ -76,6 +76,7 @@ onMounted(() => {
     if (!isDragging.value)
       return
 
+    const store = context.panel.store
     const centerX = window.innerWidth / 2
     const centerY = window.innerHeight / 2
 
@@ -96,7 +97,7 @@ onMounted(() => {
     const BL = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, 0 - centerX)
     const BR = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, window.innerWidth - centerX)
 
-    context.state.position = deg >= TL && deg <= TR
+    store.position = deg >= TL && deg <= TR
       ? 'top'
       : deg >= TR && deg <= BR
         ? 'right'
@@ -104,8 +105,8 @@ onMounted(() => {
           ? 'bottom'
           : 'left'
 
-    context.state.left = snapToPoints(x / window.innerWidth * 100)
-    context.state.top = snapToPoints(y / window.innerHeight * 100)
+    store.left = snapToPoints(x / window.innerWidth * 100)
+    store.top = snapToPoints(y / window.innerHeight * 100)
   })
   useEventListener(window, 'pointerup', () => {
     isDragging.value = false
@@ -131,19 +132,20 @@ function clamp(value: number, min: number, max: number) {
 
 const recalculateCounter = ref(0)
 const isHovering = ref(false)
-const isVertical = computed(() => context.state.position === 'left' || context.state.position === 'right')
 
 const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
   recalculateCounter.value
 
+  const store = context.panel.store
+
   const halfWidth = (dockEl.value?.clientWidth || 0) / 2
   const halfHeight = (dockEl.value?.clientHeight || 0) / 2
 
-  const left = context.state.left * windowSize.width / 100
-  const top = context.state.top * windowSize.height / 100
+  const left = store.left * windowSize.width / 100
+  const top = store.top * windowSize.height / 100
 
-  switch (context.state.position) {
+  switch (store.position) {
     case 'top':
       return {
         left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
@@ -171,29 +173,29 @@ const anchorPos = computed(() => {
 let _timer: ReturnType<typeof setTimeout> | null = null
 function bringUp() {
   isHovering.value = true
-  if (context.state.minimizePanelInactive < 0)
+  if (context.panel.store.inactiveTimeout < 0)
     return
   if (_timer)
     clearTimeout(_timer)
   _timer = setTimeout(() => {
     isHovering.value = false
-  }, +context.state.minimizePanelInactive || 0)
+  }, +context.panel.store.inactiveTimeout || 0)
 }
 
 const isHidden = computed(() => false)
 
 const isMinimized = computed(() => {
-  if (context.state.minimizePanelInactive < 0)
+  if (context.panel.store.inactiveTimeout < 0)
     return false
-  if (context.state.minimizePanelInactive === 0)
+  if (context.panel.store.inactiveTimeout === 0)
     return true
   // @ts-expect-error compatibility
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
   return !isDragging.value
-    && !context.state.open
+    && !context.panel.store.open
     && !isHovering.value
     && !isTouchDevice
-    && context.state.minimizePanelInactive
+    && context.panel.store.inactiveTimeout
 })
 
 const anchorStyle = computed(() => {
@@ -206,7 +208,7 @@ const anchorStyle = computed(() => {
 
 const panelStyle = computed(() => {
   const style: any = {
-    transform: isVertical.value
+    transform: context.panel.isVertical
       ? `translate(-50%, -50%) rotate(90deg)`
       : `translate(-50%, -50%)`,
   }
@@ -233,8 +235,8 @@ onMounted(() => {
     ref="anchorEl"
     :style="[anchorStyle]"
     :class="{
-      'vite-devtools-horizontal': !isVertical,
-      'vite-devtools-vertical': isVertical,
+      'vite-devtools-horizontal': !context.panel.isVertical,
+      'vite-devtools-vertical': context.panel.isVertical,
       'vite-devtools-minimized': isMinimized,
     }"
     @mousemove="bringUp"
@@ -258,7 +260,7 @@ onMounted(() => {
         />
         <BracketRight
           class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
-          :class="isVertical ? 'scale-y--100' : ''"
+          :class="context.panel.isVertical ? 'scale-y--100' : ''"
         />
         <VitePlusCore
           class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
@@ -268,7 +270,7 @@ onMounted(() => {
           :entries="context.dockEntries"
           class="transition duration-200 flex items-center w-full h-full justify-center"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
-          :is-vertical="isVertical"
+          :is-vertical="context.panel.isVertical"
           :selected="context.selected"
           @select="selectDockEntry"
         />
