@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelStorage } from '../webcomponents'
+import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 import { createDocksContext } from '../webcomponents'

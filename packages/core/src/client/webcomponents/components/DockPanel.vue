@@ -78,7 +78,7 @@ function bringUp() {
 
 const { width: frameWidth, height: frameHeight } = useElementBounding(dockPanel)
 
-const iframeStyle = computed(() => {
+const panelStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
   mousePosition.x, mousePosition.y
 
@@ -162,14 +162,12 @@ onMounted(() => {
 
 <template>
   <div
-    v-show="context.docks.selected"
+    v-show="context.docks.selected && context.docks.selected.type === 'action'"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
-    :style="iframeStyle"
+    :style="panelStyle"
   >
-    <DockPanelResizer
-      :panel="context.panel"
-    />
+    <DockPanelResizer :panel="context.panel" />
     <ViewEntry
       v-if="selected && viewsContainer"
       :key="selected.id"
