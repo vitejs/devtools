@@ -1,14 +1,10 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DevToolsRpcClient, DockClientScriptClientType, DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
-import type { Ref } from 'vue'
-import type { DevToolsDockState } from '../types/DockProps'
+import type { DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
+import type { DockContext } from './dock'
 import { computed, reactive } from 'vue'
 
 export function useStateHandlers(
-  state: Ref<DevToolsDockState>,
-  dockEntries: Ref<DevToolsDockEntry[]>,
-  rpc: DevToolsRpcClient,
-  clientType: DockClientScriptClientType,
+  context: DockContext,
 ) {
   const docks: DockClientScriptDocks = reactive({
     switchEntry: async (id: string | null) => {
@@ -16,7 +12,7 @@ export function useStateHandlers(
         selectDockEntry(undefined)
         return true
       }
-      const entry = dockEntries.value.find((d: DevToolsDockEntry) => d.id === id)
+      const entry = context.dockEntries.find((d: DevToolsDockEntry) => d.id === id)
       if (!entry) {
         return false
       }
@@ -24,10 +20,10 @@ export function useStateHandlers(
       return true
     },
     minimize: async () => {
-      state.value.open = false
+      context.state.open = false
     },
     reveal: async () => {
-      state.value.open = true
+      context.state.open = true
     },
   })
 
@@ -52,8 +48,8 @@ export function useStateHandlers(
 
   async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
-      state.value.open = false
-      state.value.dockEntry = undefined
+      context.state.open = false
+      context.selected = null
       return
     }
 
@@ -61,22 +57,22 @@ export function useStateHandlers(
       entryMeta: entry,
       state: computed<'active' | 'inactive'>({
         get() {
-          return state.value.dockEntry?.id === entry.id ? 'active' : 'inactive'
+          return context.selected?.id === entry.id ? 'active' : 'inactive'
         },
         set(val) {
           if (val === 'active')
-            state.value.dockEntry = entry
-          else if (state.value.dockEntry?.id === entry.id)
-            state.value.dockEntry = undefined
+            context.selected = entry
+          else if (context.selected?.id === entry.id)
+            context.selected = null
         },
       }),
     })
 
     const scriptContext: DockClientScriptContext = reactive({
-      rpc,
+      rpc: context.rpc,
       docks,
       current,
-      clientType,
+      clientType: context.clientType,
     })
 
     // If it's an action, run and return (early exit)
@@ -84,11 +80,16 @@ export function useStateHandlers(
       return await importScript(entry).then(fn => fn(scriptContext))
     }
 
-    state.value.dockEntry = entry
-    state.value.open = true
+    context.selected = entry
+    context.state.open = true
 
     // If has import script, run it
-    await importScript(entry).then(fn => fn?.(scriptContext))
+    if (
+      (entry.type === 'custom-render')
+      || (entry.type === 'iframe' && entry.clientScript)
+    ) {
+      await importScript(entry).then(fn => fn(scriptContext))
+    }
   }
 
   return {

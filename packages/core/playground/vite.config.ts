@@ -47,13 +47,37 @@ export default defineConfig({
 
           ctx.docks.register({
             type: 'action',
-            action: ctx.utils.clientEntryFromSimpleFunction(() => {
+            action: ctx.utils.createSimpleClientScript(() => {
               // eslint-disable-next-line no-alert
               alert('Hello, world!')
             }),
             id: 'local2',
             title: 'Local2',
             icon: 'ph:bell-simple-ringing-duotone',
+          })
+
+          ctx.docks.register({
+            type: 'custom-render',
+            renderer: ctx.utils.createSimpleClientScript((ctx) => {
+              if (!ctx.current.elPanel) {
+                // eslint-disable-next-line no-alert
+                alert('No panel element found!')
+              }
+              const el = document.createElement('div')
+              el.textContent = 'Hello from custom render dock!'
+
+              const btn = document.createElement('button')
+              btn.textContent = 'Click me'
+              btn.onclick = () => {
+                // eslint-disable-next-line no-alert
+                alert('Button clicked in custom render dock!')
+              }
+              el.appendChild(btn)
+              ctx.current.elPanel?.appendChild(el)
+            }),
+            id: 'custom-render',
+            title: 'Custom',
+            icon: 'ph:newspaper-clipping-duotone',
           })
         },
       },

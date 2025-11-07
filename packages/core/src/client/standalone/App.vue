@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from '../webcomponents/types/DockProps'
+import type { DockContext } from '../webcomponents/state/dock'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { useLocalStorage } from '@vueuse/core'
-import { computed, markRaw, ref, shallowRef, useTemplateRef } from 'vue'
+import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
+import { createDockContext } from '../webcomponents/state/dock'
 import { useStateHandlers } from '../webcomponents/state/state'
 import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
@@ -14,31 +14,17 @@ const { rpc } = await getDevToolsRpcClient()
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
 
-const docks = shallowRef(await rpc['vite:core:list-dock-entries']())
-// eslint-disable-next-line no-console
-console.log('[VITE DEVTOOLS] Docks', docks)
-
-const state = useLocalStorage<DevToolsDockState>(
-  'vite-devtools-dock-state',
-  {
-    width: 80,
-    height: 80,
-    top: 0,
-    left: 0,
-    position: 'left',
-    open: false,
-    minimizePanelInactive: 3_000,
-  },
-  { mergeDefaults: true },
-)
-
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
 const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
-const isDragging = ref(false)
-const entry = computed(() => state.value.dockEntry || docks.value[0])
+const context: DockContext = await createDockContext(
+  'standalone',
+  rpc,
+)
 
-const { selectDockEntry } = useStateHandlers(state, docks, rpc, 'standalone')
+context.selected ||= context.dockEntries[0] || null
+
+const { selectDockEntry } = useStateHandlers(context)
 </script>
 
 <template>
@@ -48,22 +34,20 @@ const { selectDockEntry } = useStateHandlers(state, docks, rpc, 'standalone')
         <VitePlus class="w-7 h-7 ma" />
       </div>
       <DockEntries
-        :entries="docks"
+        :entries="context.dockEntries"
         class="transition duration-200 p2"
         :is-vertical="false"
-        :selected="state.dockEntry"
+        :selected="context.selected"
         @select="selectDockEntry"
       />
     </div>
     <div>
       <div id="vite-devtools-views-container" ref="viewsContainer" />
       <ViewEntry
-        v-if="entry && viewsContainer"
-        :key="entry.id"
-        :state="state"
-        :entry="entry"
-        :is-dragging="isDragging"
-        :is-resizing="false"
+        v-if="context.selected && viewsContainer"
+        :key="context.selected.id"
+        :entry="context.selected"
+        :context
         :presisted-doms="presistedDoms"
       />
     </div>

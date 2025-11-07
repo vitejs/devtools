@@ -4,9 +4,9 @@ import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
-  selected?: DevToolsDockEntry
-  isVertical: boolean
   entries: DevToolsDockEntry[]
+  selected: DevToolsDockEntry | null
+  isVertical: boolean
 }>()
 
 const emit = defineEmits<{
@@ -30,7 +30,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
       :key="dock.id"
       :dock
       :is-selected="selected?.id === dock.id"
-      :is-dimmed="selected && (selected.id !== dock.id)"
+      :is-dimmed="selected ? (selected.id !== dock.id) : false"
       :is-vertical="isVertical"
       @click="toggleDockEntry(dock)"
     />

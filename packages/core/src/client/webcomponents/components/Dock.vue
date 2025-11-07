@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import type { DockProps } from '../types/DockProps'
+import type { DockContext } from '../state/dock'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { useStateHandlers } from '../state/state'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
 
-const props = defineProps<DockProps>()
-
-const { state, docks } = toRefs(props)
+// Here we directly destructure is as we don't expect context to be changed
+const props = defineProps<{
+  context: DockContext
+}>()
+const context = props.context
 
 const isDragging = defineModel<boolean>('isDragging', { default: false })
 
@@ -94,7 +96,7 @@ onMounted(() => {
     const BL = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, 0 - centerX)
     const BR = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, window.innerWidth - centerX)
 
-    state.value.position = deg >= TL && deg <= TR
+    context.state.position = deg >= TL && deg <= TR
       ? 'top'
       : deg >= TR && deg <= BR
         ? 'right'
@@ -102,8 +104,8 @@ onMounted(() => {
           ? 'bottom'
           : 'left'
 
-    state.value.left = snapToPoints(x / window.innerWidth * 100)
-    state.value.top = snapToPoints(y / window.innerHeight * 100)
+    context.state.left = snapToPoints(x / window.innerWidth * 100)
+    context.state.top = snapToPoints(y / window.innerHeight * 100)
   })
   useEventListener(window, 'pointerup', () => {
     isDragging.value = false
@@ -129,7 +131,7 @@ function clamp(value: number, min: number, max: number) {
 
 const recalculateCounter = ref(0)
 const isHovering = ref(false)
-const isVertical = computed(() => state.value.position === 'left' || state.value.position === 'right')
+const isVertical = computed(() => context.state.position === 'left' || context.state.position === 'right')
 
 const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
@@ -138,10 +140,10 @@ const anchorPos = computed(() => {
   const halfWidth = (dockEl.value?.clientWidth || 0) / 2
   const halfHeight = (dockEl.value?.clientHeight || 0) / 2
 
-  const left = state.value.left * windowSize.width / 100
-  const top = state.value.top * windowSize.height / 100
+  const left = context.state.left * windowSize.width / 100
+  const top = context.state.top * windowSize.height / 100
 
-  switch (state.value.position) {
+  switch (context.state.position) {
     case 'top':
       return {
         left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
@@ -169,29 +171,29 @@ const anchorPos = computed(() => {
 let _timer: ReturnType<typeof setTimeout> | null = null
 function bringUp() {
   isHovering.value = true
-  if (state.value.minimizePanelInactive < 0)
+  if (context.state.minimizePanelInactive < 0)
     return
   if (_timer)
     clearTimeout(_timer)
   _timer = setTimeout(() => {
     isHovering.value = false
-  }, +state.value.minimizePanelInactive || 0)
+  }, +context.state.minimizePanelInactive || 0)
 }
 
 const isHidden = computed(() => false)
 
 const isMinimized = computed(() => {
-  if (state.value.minimizePanelInactive < 0)
+  if (context.state.minimizePanelInactive < 0)
     return false
-  if (state.value.minimizePanelInactive === 0)
+  if (context.state.minimizePanelInactive === 0)
     return true
   // @ts-expect-error compatibility
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
   return !isDragging.value
-    && !state.value.open
+    && !context.state.open
     && !isHovering.value
     && !isTouchDevice
-    && state.value.minimizePanelInactive
+    && context.state.minimizePanelInactive
 })
 
 const anchorStyle = computed(() => {
@@ -217,7 +219,7 @@ const panelStyle = computed(() => {
   return style
 })
 
-const { selectDockEntry } = useStateHandlers(state, docks, props.rpc, 'embedded')
+const { selectDockEntry } = useStateHandlers(context)
 
 onMounted(() => {
   bringUp()
@@ -263,21 +265,20 @@ onMounted(() => {
           :class="isMinimized ? 'op100' : 'op0'"
         />
         <DockEntries
-          :entries="docks"
+          :entries="context.dockEntries"
           class="transition duration-200 flex items-center w-full h-full justify-center"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="isVertical"
-          :selected="state.dockEntry"
+          :selected="context.selected"
           @select="selectDockEntry"
         />
       </div>
     </div>
     <slot
+      :context="context"
       :dock-el="dockEl"
+      :selected="context.selected"
       :panel-margins="panelMargins"
-      :state="state"
-      :is-dragging="isDragging"
-      :entry="state.dockEntry?.type === 'action' ? undefined : state.dockEntry"
     />
   </div>
 </template>

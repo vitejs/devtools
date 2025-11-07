@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
+import type { DockPanelState } from '../webcomponents'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
+import { createDockContext } from '../webcomponents'
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
@@ -13,15 +15,11 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
 
-  const docks = await rpc['vite:core:list-dock-entries']()
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] Docks', docks)
-
   const rpcFunctions = await rpc['vite:core:list-rpc-functions']()
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 
-  const state = useLocalStorage(
+  const state = useLocalStorage<DockPanelState>(
     'vite-devtools-dock-state',
     {
       width: 80,
@@ -35,15 +33,17 @@ export async function init(): Promise<void> {
     { mergeDefaults: true },
   )
 
+  const context = await createDockContext(
+    'embedded',
+    rpc,
+    state,
+  )
+
   const { DockEmbedded } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
     ? await import('../webcomponents')
     : await import('@vitejs/devtools/client/webcomponents')
 
-  const dockEl = new DockEmbedded({
-    state,
-    docks,
-    rpc,
-  })
+  const dockEl = new DockEmbedded({ context })
   document.body.appendChild(dockEl)
 }
 

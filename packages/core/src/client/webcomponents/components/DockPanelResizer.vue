@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from '../types/DockProps'
+import type { DockPanelState } from '../state/dock'
 import { toRefs, useEventListener } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{
-  state: DevToolsDockState
-  isDragging: boolean
+  state: DockPanelState
 }>()
 
 const isResizing = defineModel<boolean>('isResizing', { default: false })

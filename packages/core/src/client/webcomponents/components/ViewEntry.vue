@@ -1,29 +1,35 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockState } from '../types/DockProps'
+import type { DockContext } from '../state/dock'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
+import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
 
 defineProps<{
-  state?: DevToolsDockState
-  isDragging: boolean
-  isResizing: boolean
+  context: DockContext
   entry: DevToolsDockEntry
   presistedDoms: PresistedDomViewsManager
   iframeStyle?: CSSProperties
+  divStyle?: CSSProperties
 }>()
 </script>
 
 <template>
+  <template v-if="entry.type === 'action'" />
   <ViewIframe
-    v-if="entry.type === 'iframe'"
-    :state="state"
-    :is-dragging="isDragging"
-    :is-resizing="isResizing"
-    :entry="entry"
+    v-else-if="entry.type === 'iframe'"
+    :context
+    :entry
     :presisted-doms="presistedDoms"
     :iframe-style="iframeStyle"
+  />
+  <ViewCustomRenderer
+    v-else-if="entry.type === 'custom-render'"
+    :context
+    :entry
+    :presisted-doms="presistedDoms"
+    :div-style="divStyle"
   />
   <div v-else>
     Unknown entry: {{ entry }}
