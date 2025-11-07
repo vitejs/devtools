@@ -27,6 +27,8 @@ catalogs:
     '@rolldown/debug': ^1.0.0-beta.45
     ansis: ^4.2.0
     birpc: ^2.6.1
+    # Unstable API, lock the version
+    birpc-x: 0.0.1
     cac: ^6.7.14
     debug: ^4.4.3
     diff: ^8.0.2

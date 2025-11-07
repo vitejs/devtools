@@ -55,6 +55,7 @@
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
     "@vitejs/devtools-vite": "workspace:*",
+    "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
     "debug": "catalog:deps",
     "launch-editor": "catalog:deps",

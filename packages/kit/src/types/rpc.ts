@@ -1,3 +1,4 @@
+import type { RpcFunctionsCollectorBase } from 'birpc-x'
 import type { DevToolsRpcServerFunctions } from './rpc-augments'
 import type { EntriesToObject, Thenable } from './utils'
 import type { DevToolsNodeContext } from './vite-plugin'
@@ -12,13 +13,7 @@ export type { BirpcFn, BirpcReturn } from 'birpc'
  */
 export type RpcFunctionType = 'static' | 'action' | 'query'
 
-export interface RpcFunctionsHost {
-  context: DevToolsNodeContext
-  readonly functions: DevToolsRpcServerFunctions
-  readonly definitions: Map<string, RpcFunctionDefinition<string, any, any, any>>
-  register: (fn: RpcFunctionDefinition<string, any, any, any>) => void
-  update: (fn: RpcFunctionDefinition<string, any, any, any>) => void
-}
+export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext>
 
 export interface RpcFunctionSetupResult<
   ARGS extends any[],
