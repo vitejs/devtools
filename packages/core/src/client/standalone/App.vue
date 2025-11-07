@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '../webcomponents/state/dock'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
@@ -22,7 +22,7 @@ const context: DocksContext = await createDocksContext(
   rpc,
 )
 
-context.selected ||= context.dockEntries[0] || null
+context.docks.selected ||= context.docks.entries[0] || null
 
 const { selectDockEntry } = useStateHandlers(context)
 </script>
@@ -34,19 +34,19 @@ const { selectDockEntry } = useStateHandlers(context)
         <VitePlus class="w-7 h-7 ma" />
       </div>
       <DockEntries
-        :entries="context.dockEntries"
+        :entries="context.docks.entries"
         class="transition duration-200 p2"
         :is-vertical="false"
-        :selected="context.selected"
+        :selected="context.docks.selected"
         @select="selectDockEntry"
       />
     </div>
     <div>
       <div id="vite-devtools-views-container" ref="viewsContainer" />
       <ViewEntry
-        v-if="context.selected && viewsContainer"
-        :key="context.selected.id"
-        :entry="context.selected"
+        v-if="context.docks.selected && viewsContainer"
+        :key="context.docks.selected.id"
+        :entry="context.docks.selected"
         :context
         :presisted-doms="presistedDoms"
       />

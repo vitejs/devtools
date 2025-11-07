@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { DocksContext } from '../state/dock'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
@@ -23,6 +23,10 @@ onMounted(() => {
 
   if (!holder.element.src)
     holder.element.src = props.entry.url
+
+  const entryState = props.context.docks.getStateById(props.entry.id)
+  if (entryState)
+    entryState.domElements.iframe = holder.element
 
   holder.mount(viewFrame.value!)
   isLoading.value = false

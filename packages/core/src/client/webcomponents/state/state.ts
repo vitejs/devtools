@@ -1,32 +1,10 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
-import type { DocksContext } from './dock'
-import { computed, reactive } from 'vue'
+import type { DockClientScriptContext, DocksContext } from '@vitejs/devtools-kit/client'
+import { reactive, toRefs } from 'vue'
 
 export function useStateHandlers(
   context: DocksContext,
 ) {
-  const docks: DockClientScriptDocks = reactive({
-    switchEntry: async (id: string | null) => {
-      if (id === null) {
-        selectDockEntry(undefined)
-        return true
-      }
-      const entry = context.dockEntries.find((d: DevToolsDockEntry) => d.id === id)
-      if (!entry) {
-        return false
-      }
-      selectDockEntry(entry)
-      return true
-    },
-    minimize: async () => {
-      context.panel.store.open = false
-    },
-    reveal: async () => {
-      context.panel.store.open = true
-    },
-  })
-
   function importScript(entry: DevToolsDockEntry): Promise<(context: DockClientScriptContext) => void | Promise<void>> {
     const id = `${entry.type}:${entry.id}`
     return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
@@ -49,30 +27,18 @@ export function useStateHandlers(
   async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
       context.panel.store.open = false
-      context.selected = null
+      context.docks.selected = null
+      return
+    }
+    if (context.docks.selected?.id === entry.id) {
       return
     }
 
-    const current: DockClientScriptCurrent = reactive({
-      entryMeta: entry,
-      state: computed<'active' | 'inactive'>({
-        get() {
-          return context.selected?.id === entry.id ? 'active' : 'inactive'
-        },
-        set(val) {
-          if (val === 'active')
-            context.selected = entry
-          else if (context.selected?.id === entry.id)
-            context.selected = null
-        },
-      }),
-    })
+    const current = context.docks.getStateById(entry.id)!
 
     const scriptContext: DockClientScriptContext = reactive({
-      rpc: context.rpc,
-      docks,
+      ...toRefs(context),
       current,
-      clientType: context.clientType,
     })
 
     // If it's an action, run and return (early exit)
@@ -80,7 +46,7 @@ export function useStateHandlers(
       return await importScript(entry).then(fn => fn(scriptContext))
     }
 
-    context.selected = entry
+    context.docks.selected = entry
     context.panel.store.open = true
 
     // If has import script, run it
@@ -93,7 +59,6 @@ export function useStateHandlers(
   }
 
   return {
-    docks,
     selectDockEntry,
   }
 }

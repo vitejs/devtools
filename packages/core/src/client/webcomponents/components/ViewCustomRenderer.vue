@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsViewCustomRender } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { DocksContext } from '../state/dock'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
@@ -21,7 +21,9 @@ onMounted(() => {
   holder.element.style.outline = 'none'
   Object.assign(holder.element.style, props.divStyle)
 
-  // TODO: send the element
+  const entryState = props.context.docks.getStateById(props.entry.id)
+  if (entryState)
+    entryState.domElements.panel = holder.element
 
   holder.mount(viewFrame.value!)
   isLoading.value = false

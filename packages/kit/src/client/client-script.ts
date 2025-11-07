@@ -1,52 +1,14 @@
-import type { BirpcReturn, DevToolsDockEntry, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../types'
-
-export type DockClientScriptClientType = 'embedded' | 'standalone'
+import type { DevToolsDockEntry } from '../types'
+import type { DockEntryState, DocksContext } from './docks'
 
 /**
  * Context for client scripts running in dock entries
  */
-export interface DockClientScriptContext {
-  /**
-   * Interactions with the docks
-   */
-  docks: DockClientScriptDocks
-
+export interface DockClientScriptContext extends DocksContext {
   /**
    * The state if the current dock entry
    */
-  current: DockClientScriptCurrent
-
-  /**
-   * The RPC client to interact with the server
-   */
-  rpc: BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>
-
-  /**
-   * Type of the client environment
-   *
-   * 'embedded' - running inside an embedded floating panel
-   * 'standalone' - running inside a standlone window (no user app)
-   */
-  clientType: DockClientScriptClientType
-}
-
-export interface DockClientScriptDocks {
-  /**
-   * Switch to the selected dock entry, pass `null` to clear the selection
-   *
-   * @returns Whether the selection was changed successfully
-   */
-  switchEntry: (id: string | null) => Promise<boolean>
-
-  /**
-   * Minimize the panel
-   */
-  minimize: () => Promise<void>
-
-  /**
-   * Reveal the panel
-   */
-  reveal: () => Promise<void>
+  current: DockEntryState
 }
 
 export interface DockClientScriptCurrent {

@@ -59,11 +59,12 @@ export default defineConfig({
           ctx.docks.register({
             type: 'custom-render',
             renderer: ctx.utils.createSimpleClientScript((ctx) => {
-              if (!ctx.current.elPanel) {
+              if (!ctx.current.domElements.panel) {
                 // eslint-disable-next-line no-alert
                 alert('No panel element found!')
               }
               const el = document.createElement('div')
+              el.style.padding = '16px'
               el.textContent = 'Hello from custom render dock!'
 
               const btn = document.createElement('button')
@@ -73,7 +74,7 @@ export default defineConfig({
                 alert('Button clicked in custom render dock!')
               }
               el.appendChild(btn)
-              ctx.current.elPanel?.appendChild(el)
+              ctx.current.domElements.panel?.appendChild(el)
             }),
             id: 'custom-render',
             title: 'Custom',

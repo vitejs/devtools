@@ -1,5 +1,5 @@
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { VueElementConstructor } from 'vue'
-import type { DocksContext } from '../state/dock'
 import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
 import Component from './DockEmbedded.vue'

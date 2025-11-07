@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksPanelContext } from '../state/dock'
+import type { DocksPanelContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
 import { ref, watch } from 'vue'
 

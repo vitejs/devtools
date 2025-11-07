@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '../state/dock'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
 import FloatingTooltip from './FloatingTooltip.vue'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '../state/dock'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { useStateHandlers } from '../state/state'
@@ -8,13 +8,12 @@ import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
 
-// Here we directly destructure is as we don't expect context to be changed
 const props = defineProps<{
   context: DocksContext
 }>()
-const context = props.context
 
-const isDragging = defineModel<boolean>('isDragging', { default: false })
+// Here we directly destructure is as we don't expect context to be changed
+const context = props.context
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
@@ -47,6 +46,9 @@ const SNAP_THRESHOLD = 2
 const dockEl = useTemplateRef<HTMLDivElement>('dockEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
 
+const recalculateCounter = ref(0)
+const isHovering = ref(false)
+
 const windowSize = reactive({
   width: window.innerWidth,
   height: window.innerHeight,
@@ -57,7 +59,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 function onPointerDown(e: PointerEvent) {
   if (!dockEl.value)
     return
-  isDragging.value = true
+  context.panel.isDragging = true
   const { left, top, width, height } = dockEl.value!.getBoundingClientRect()
   draggingOffset.x = e.clientX - left - width / 2
   draggingOffset.y = e.clientY - top - height / 2
@@ -73,7 +75,7 @@ onMounted(() => {
   })
 
   useEventListener(window, 'pointermove', (e: PointerEvent) => {
-    if (!isDragging.value)
+    if (!context.panel.isDragging)
       return
 
     const store = context.panel.store
@@ -109,10 +111,10 @@ onMounted(() => {
     store.top = snapToPoints(y / window.innerHeight * 100)
   })
   useEventListener(window, 'pointerup', () => {
-    isDragging.value = false
+    context.panel.isDragging = false
   })
   useEventListener(window, 'pointerleave', () => {
-    isDragging.value = false
+    context.panel.isDragging = false
   })
 })
 
@@ -129,9 +131,6 @@ function snapToPoints(value: number) {
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
-
-const recalculateCounter = ref(0)
-const isHovering = ref(false)
 
 const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
@@ -191,7 +190,7 @@ const isMinimized = computed(() => {
     return true
   // @ts-expect-error compatibility
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
-  return !isDragging.value
+  return !context.panel.isDragging
     && !context.panel.store.open
     && !isHovering.value
     && !isTouchDevice
@@ -216,7 +215,7 @@ const panelStyle = computed(() => {
     style.opacity = 0
     style.pointerEvents = 'none'
   }
-  if (isDragging.value)
+  if (context.panel.isDragging)
     style.transition = 'none !important'
   return style
 })
@@ -244,7 +243,7 @@ onMounted(() => {
     <div
       v-if="!isSafari"
       id="vite-devtools-glowing"
-      :class="isDragging ? 'op60!' : ''"
+      :class="context.panel.isDragging ? 'op60!' : ''"
     />
     <div
       id="vite-devtools-dock-container"
@@ -267,11 +266,11 @@ onMounted(() => {
           :class="isMinimized ? 'op100' : 'op0'"
         />
         <DockEntries
-          :entries="context.dockEntries"
+          :entries="context.docks.entries"
           class="transition duration-200 flex items-center w-full h-full justify-center"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="context.panel.isVertical"
-          :selected="context.selected"
+          :selected="context.docks.selected"
           @select="selectDockEntry"
         />
       </div>
@@ -279,7 +278,7 @@ onMounted(() => {
     <slot
       :context="context"
       :dock-el="dockEl"
-      :selected="context.selected"
+      :selected="context.docks.selected"
       :panel-margins="panelMargins"
     />
   </div>

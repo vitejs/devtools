@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { DocksContext } from '../state/dock'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
@@ -162,7 +162,7 @@ onMounted(() => {
 
 <template>
   <div
-    v-show="context.selected"
+    v-show="context.docks.selected"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
     :style="iframeStyle"
