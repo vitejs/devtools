@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockState } from './DockProps'
-import type { IframeManager } from './IframeManager'
+import type { DevToolsDockState } from '../types/DockProps'
+import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 const props = defineProps<{
@@ -10,7 +10,7 @@ const props = defineProps<{
   isDragging: boolean
   isResizing: boolean
   entry: DevToolsViewIframe
-  iframes: IframeManager
+  presistedDoms: PresistedDomViewsManager
   iframeStyle?: CSSProperties
 }>()
 
@@ -18,13 +18,13 @@ const isLoading = ref(true)
 const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 
 onMounted(() => {
-  const holder = props.iframes.getIframeHolder(props.entry.id)
-  holder.iframe.style.boxShadow = 'none'
-  holder.iframe.style.outline = 'none'
-  Object.assign(holder.iframe.style, props.iframeStyle)
+  const holder = props.presistedDoms.getOrCreateHolder(props.entry.id, 'iframe')
+  holder.element.style.boxShadow = 'none'
+  holder.element.style.outline = 'none'
+  Object.assign(holder.element.style, props.iframeStyle)
 
-  if (!holder.iframe.src)
-    holder.iframe.src = props.entry.url
+  if (!holder.element.src)
+    holder.element.src = props.entry.url
 
   holder.mount(viewFrame.value!)
   isLoading.value = false
@@ -42,15 +42,15 @@ onMounted(() => {
 
   watchEffect(
     () => {
-      holder.iframe.style.pointerEvents = (props.isDragging || props.isResizing) ? 'none' : 'auto'
+      holder.element.style.pointerEvents = (props.isDragging || props.isResizing) ? 'none' : 'auto'
     },
     { flush: 'sync' },
   )
 })
 
 onUnmounted(() => {
-  const iframe = props.iframes.getIframeHolder(props.entry.id)
-  iframe.unmount()
+  const holder = props.presistedDoms.getHolder(props.entry.id, 'iframe')
+  holder?.unmount()
 })
 </script>
 

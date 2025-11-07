@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import type { DevToolsDockState } from './DockProps'
+import type { DevToolsDockState } from '../types/DockProps'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
 import FloatingTooltip from './FloatingTooltip.vue'

@@ -1,7 +1,7 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient, DockClientScriptClientType, DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
-import type { DevToolsDockState } from '../components/DockProps'
+import type { DevToolsDockState } from '../types/DockProps'
 import { computed, reactive } from 'vue'
 
 export function useStateHandlers(

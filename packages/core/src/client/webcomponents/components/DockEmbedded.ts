@@ -1,5 +1,5 @@
 import type { VueElementConstructor } from 'vue'
-import type { DockProps } from './DockProps'
+import type { DockProps } from '../types/DockProps'
 import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
 import Component from './DockEmbedded.vue'

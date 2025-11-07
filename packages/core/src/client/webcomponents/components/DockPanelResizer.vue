@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from './DockProps'
+import type { DevToolsDockState } from '../types/DockProps'
 import { toRefs, useEventListener } from '@vueuse/core'
 import { ref, watch } from 'vue'
 

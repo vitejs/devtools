@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockState } from './DockProps'
+import type { DevToolsDockState } from '../types/DockProps'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
-import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
+import { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import DockPanelResizer from './DockPanelResizer.vue'
-import { IframeManager } from './IframeManager'
 import ViewEntry from './ViewEntry.vue'
 
 const props = defineProps<{
@@ -23,13 +23,8 @@ const isDragging = defineModel<boolean>('isDragging', { default: false })
 const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
-const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
-
-const iframes = markRaw(new IframeManager())
-
-watchEffect(() => {
-  iframes.setContainer(iframesContainer.value!)
-}, { flush: 'sync' })
+const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
+const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -174,13 +169,13 @@ onMounted(() => {
       :entry
     />
     <ViewEntry
-      v-if="entry && iframesContainer"
+      v-if="entry && viewsContainer"
       :key="entry.id"
       :state="state"
       :is-dragging="isDragging"
       :is-resizing="isResizing"
       :entry="entry"
-      :iframes="iframes"
+      :presisted-doms="presistedDoms"
       :iframe-style="{
         border: '1px solid #8883',
         borderRadius: '0.5rem',
@@ -188,8 +183,8 @@ onMounted(() => {
       rounded
     />
     <div
-      id="vite-devtools-iframe-container"
-      ref="iframesContainer"
+      id="vite-devtools-views-container"
+      ref="viewsContainer"
       class="absolute inset-0"
     />
   </div>

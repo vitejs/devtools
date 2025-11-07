@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DockProps } from './DockProps'
+import type { DockProps } from '../types/DockProps'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
 import { useStateHandlers } from '../state/state'

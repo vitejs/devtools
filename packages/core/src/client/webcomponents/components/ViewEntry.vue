@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockState } from './DockProps'
-import type { IframeManager } from './IframeManager'
+import type { DevToolsDockState } from '../types/DockProps'
+import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import ViewIframe from './ViewIframe.vue'
 
 defineProps<{
@@ -10,7 +10,7 @@ defineProps<{
   isDragging: boolean
   isResizing: boolean
   entry: DevToolsDockEntry
-  iframes: IframeManager
+  presistedDoms: PresistedDomViewsManager
   iframeStyle?: CSSProperties
 }>()
 </script>
@@ -22,7 +22,7 @@ defineProps<{
     :is-dragging="isDragging"
     :is-resizing="isResizing"
     :entry="entry"
-    :iframes="iframes"
+    :presisted-doms="presistedDoms"
     :iframe-style="iframeStyle"
   />
   <div v-else>

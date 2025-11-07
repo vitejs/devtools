@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from '../webcomponents/components/DockProps'
+import type { DevToolsDockState } from '../webcomponents/types/DockProps'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { computed, markRaw, ref, shallowRef, useTemplateRef, watchEffect } from 'vue'
+import { computed, markRaw, ref, shallowRef, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
-import { IframeManager } from '../webcomponents/components/IframeManager'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 import { useStateHandlers } from '../webcomponents/state/state'
+import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
 const { rpc } = await getDevToolsRpcClient()
 
@@ -32,12 +32,8 @@ const state = useLocalStorage<DevToolsDockState>(
   { mergeDefaults: true },
 )
 
-const iframes = markRaw(new IframeManager())
-const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
-
-watchEffect(() => {
-  iframes.setContainer(iframesContainer.value!)
-}, { flush: 'sync' })
+const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
+const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
 const isDragging = ref(false)
 const entry = computed(() => state.value.dockEntry || docks.value[0])
@@ -60,15 +56,15 @@ const { selectDockEntry } = useStateHandlers(state, docks, rpc, 'standalone')
       />
     </div>
     <div>
-      <div id="iframes-container" ref="iframesContainer" />
+      <div id="vite-devtools-views-container" ref="viewsContainer" />
       <ViewEntry
-        v-if="entry && iframesContainer"
+        v-if="entry && viewsContainer"
         :key="entry.id"
         :state="state"
         :entry="entry"
         :is-dragging="isDragging"
         :is-resizing="false"
-        :iframes="iframes"
+        :presisted-doms="presistedDoms"
       />
     </div>
   </div>
