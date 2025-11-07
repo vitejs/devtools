@@ -1,10 +1,36 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DockClientScriptClientType, DockClientScriptContext, DockClientScriptCurrent, DockClientScriptDocks } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
 import type { DevToolsDockState } from '../components/DockProps'
 import { computed, reactive } from 'vue'
 
-export function useStateHandlers(state: Ref<DevToolsDockState>) {
+export function useStateHandlers(
+  state: Ref<DevToolsDockState>,
+  dockEntries: Ref<DevToolsDockEntry[]>,
+  rpc: DevToolsRpcClient,
+  clientType: DockClientScriptClientType,
+) {
+  const docks: DockClientScriptDocks = reactive({
+    switchEntry: async (id: string | null) => {
+      if (id === null) {
+        selectDockEntry(undefined)
+        return true
+      }
+      const entry = dockEntries.value.find((d: DevToolsDockEntry) => d.id === id)
+      if (!entry) {
+        return false
+      }
+      selectDockEntry(entry)
+      return true
+    },
+    minimize: async () => {
+      state.value.open = false
+    },
+    reveal: async () => {
+      state.value.open = true
+    },
+  })
+
   function importScript(entry: DevToolsDockEntry): Promise<(context: DockClientScriptContext) => void | Promise<void>> {
     const id = `${entry.type}:${entry.id}`
     return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
@@ -31,10 +57,9 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
       return
     }
 
-    const scriptContext: DockClientScriptContext = reactive({
-      dockEntry: entry,
-      // @ts-expect-error cast for unwraping
-      dockState: computed<'active' | 'inactive'>({
+    const current: DockClientScriptCurrent = reactive({
+      entryMeta: entry,
+      state: computed<'active' | 'inactive'>({
         get() {
           return state.value.dockEntry?.id === entry.id ? 'active' : 'inactive'
         },
@@ -45,9 +70,13 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
             state.value.dockEntry = undefined
         },
       }),
-      hidePanel() {
-        state.value.open = false
-      },
+    })
+
+    const scriptContext: DockClientScriptContext = reactive({
+      rpc,
+      docks,
+      current,
+      clientType,
     })
 
     // If it's an action, run and return (early exit)
@@ -63,6 +92,7 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
   }
 
   return {
+    docks,
     selectDockEntry,
   }
 }

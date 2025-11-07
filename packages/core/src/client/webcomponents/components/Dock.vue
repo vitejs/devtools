@@ -217,7 +217,7 @@ const panelStyle = computed(() => {
   return style
 })
 
-const { selectDockEntry } = useStateHandlers(state)
+const { selectDockEntry } = useStateHandlers(state, docks, props.rpc, 'embedded')
 
 onMounted(() => {
   bringUp()

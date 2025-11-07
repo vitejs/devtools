@@ -42,6 +42,7 @@ export async function init(): Promise<void> {
   const dockEl = new DockEmbedded({
     state,
     docks,
+    rpc,
   })
   document.body.appendChild(dockEl)
 }

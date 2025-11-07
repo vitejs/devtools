@@ -2,7 +2,7 @@
 import type { DevToolsDockState } from '../webcomponents/components/DockProps'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
+import { computed, markRaw, ref, shallowRef, useTemplateRef, watchEffect } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import { IframeManager } from '../webcomponents/components/IframeManager'
@@ -14,7 +14,7 @@ const { rpc } = await getDevToolsRpcClient()
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
 
-const docks = await rpc['vite:core:list-dock-entries']()
+const docks = shallowRef(await rpc['vite:core:list-dock-entries']())
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] Docks', docks)
 
@@ -40,9 +40,9 @@ watchEffect(() => {
 }, { flush: 'sync' })
 
 const isDragging = ref(false)
-const entry = computed(() => state.value.dockEntry || docks[0])
+const entry = computed(() => state.value.dockEntry || docks.value[0])
 
-const { selectDockEntry } = useStateHandlers(state)
+const { selectDockEntry } = useStateHandlers(state, docks, rpc, 'standalone')
 </script>
 
 <template>

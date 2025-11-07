@@ -1,4 +1,5 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 
 export interface DevToolsDockState {
   width: number
@@ -14,4 +15,5 @@ export interface DevToolsDockState {
 export interface DockProps {
   state: DevToolsDockState
   docks: DevToolsDockEntry[]
+  rpc: DevToolsRpcClient
 }
