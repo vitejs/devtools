@@ -19,13 +19,13 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.js",
-    "./client": "./dist/client.js",
+    ".": "./dist/index.mjs",
+    "./client": "./dist/client.mjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],

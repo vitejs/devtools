@@ -32,7 +32,9 @@ export default defineConfig({
     }),
     DevToolsViteUI(),
     UnoCSS(),
-    Tracer(),
+    Tracer({
+      viteDevtools: true,
+    }),
     {
       name: 'local',
       devtools: {
