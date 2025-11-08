@@ -37,6 +37,7 @@ catalogs:
     launch-editor: ^2.12.0
     mlly: ^1.8.0
     mrmime: ^2.0.1
+    nanoevents: ^9.1.0
     ohash: ^2.0.11
     open: ^10.2.0
     p-limit: ^7.2.0

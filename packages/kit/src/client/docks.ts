@@ -1,3 +1,5 @@
+import type { Emitter as EventsEmitter } from 'nanoevents'
+import type { Raw } from 'vue'
 import type { DevToolsDockEntry } from '../types'
 import type { DevToolsRpcClient } from './rpc'
 
@@ -65,4 +67,13 @@ export interface DockEntryState {
     iframe?: HTMLIFrameElement | null
     panel?: HTMLDivElement | null
   }
+  events: Raw<EventsEmitter<DockEntryStateEvents>>
+}
+
+export interface DockEntryStateEvents {
+  'entry:activated': () => void
+  'entry:deactivated': () => void
+  'entry:updated': (newMeta: DevToolsDockEntry) => void
+  'dom:panel:mounted': (panel: HTMLDivElement) => void
+  'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
 }

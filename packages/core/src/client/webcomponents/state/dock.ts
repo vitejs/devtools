@@ -1,7 +1,8 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DevToolsRpcClient, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
-import { computed, reactive, ref, shallowRef } from 'vue'
+import { createNanoEvents } from 'nanoevents'
+import { computed, markRaw, reactive, ref, shallowRef, watch } from 'vue'
 
 export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
   return {
@@ -15,6 +16,42 @@ export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
   }
 }
 
+function createDockEntryState(
+  entry: DevToolsDockEntry,
+  selected: Ref<DevToolsDockEntry | null>,
+): DockEntryState {
+  const events = createNanoEvents<DockEntryStateEvents>()
+  const state: DockEntryState = reactive({
+    entryMeta: entry,
+    get isActive() {
+      return selected.value?.id === entry.id
+    },
+    domElements: {},
+    events: markRaw(events),
+  })
+
+  watch(() => selected.value?.id, (newSelectedId) => {
+    if (newSelectedId === entry.id) {
+      events.emit('entry:activated')
+    }
+    else {
+      events.emit('entry:deactivated')
+    }
+  })
+
+  watch(() => state.domElements.iframe, (newIframe) => {
+    if (newIframe)
+      events.emit('dom:iframe:mounted', newIframe)
+  })
+
+  watch(() => state.domElements.panel, (newPanel) => {
+    if (newPanel)
+      events.emit('dom:panel:mounted', newPanel)
+  })
+
+  return state
+}
+
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
@@ -25,17 +62,12 @@ export async function createDocksContext(
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Docks Entries', [...dockEntries.value])
   // TODO: get board case from rpc when entries updates
-  const dockEntryStateMap = reactive(new Map<string, DockEntryState>())
+  const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
   for (const entry of dockEntries.value) {
+    // TODO: handle update
     dockEntryStateMap.set(
       entry.id,
-      reactive({
-        entryMeta: entry,
-        get isActive() {
-          return selected.value?.id === entry.id
-        },
-        domElements: {},
-      }),
+      createDockEntryState(entry, selected),
     )
   }
 
@@ -51,7 +83,7 @@ export async function createDocksContext(
     docks: {
       selected,
       entries: dockEntries.value,
-      entryToStateMap: dockEntryStateMap,
+      entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
       switchEntry: async (id: string | null) => {
         if (id === null) {
