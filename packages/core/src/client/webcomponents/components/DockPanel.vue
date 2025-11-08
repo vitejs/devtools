@@ -162,7 +162,7 @@ onMounted(() => {
 
 <template>
   <div
-    v-show="context.docks.selected && context.docks.selected.type === 'action'"
+    v-show="context.docks.selected && context.docks.selected.type !== 'action'"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
     :style="panelStyle"
