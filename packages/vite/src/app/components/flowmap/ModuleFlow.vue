@@ -32,22 +32,22 @@ function handleClose() {
 </script>
 
 <template>
+  <Splitpanes v-if="selected" class="!h-auto w-full module-flow-splitter right-4 bottom-4 fixed z-10 pointer-events-none">
+    <Pane size="45" min-size="10" max-size="90" class="!h-auto pointer-events-none" />
+    <Pane size="55" min-size="10" max-size="90" class="!h-auto !of-visible ">
+      <!-- the origin of the height: -->
+      <!-- DialogTopMargin (20) + HandleHeight (30) + padding (4*2) = 58 -->
+      <div v-on-click-outside="[handleClose, { ignore: ['.splitpanes__splitter', '.flowmap-node-inline'] }]" w-full h="[calc(100vh-(var(--spacing)*58))]" pointer-events-auto sticky top-4>
+        <div absolute left-0 top="1/2" translate-x="-1/2" translate-y="-1/2" bg="#DFDFDF dark:#313131" h-10 w-2 rounded-full z-10 cursor-col-resize />
+        <ModuleFlowDetails
+          :selected="selected"
+          :session="session"
+          @close="handleClose"
+        />
+      </div>
+    </Pane>
+  </Splitpanes>
   <div p4>
-    <Splitpanes v-if="selected" class="!h-auto w-full module-flow-splitter right-4 bottom-4 fixed z-10 pointer-events-none">
-      <Pane size="45" min-size="10" max-size="90" class="!h-auto pointer-events-none" />
-      <Pane size="55" min-size="10" max-size="90" class="!h-auto !of-visible ">
-        <!-- the origin of the height: -->
-        <!-- DialogTopMargin (20) + HandleHeight (30) + padding (4*2) = 58 -->
-        <div v-on-click-outside="[handleClose, { ignore: ['.splitpanes__splitter', '.flowmap-node-inline'] }]" w-full h="[calc(100vh-(var(--spacing)*58))]" pointer-events-auto sticky top-4>
-          <div absolute left-0 top="1/2" translate-x="-1/2" translate-y="-1/2" bg="#DFDFDF dark:#313131" h-10 w-2 rounded-full z-10 cursor-col-resize />
-          <ModuleFlowDetails
-            :selected="selected"
-            :session="session"
-            @close="handleClose"
-          />
-        </div>
-      </Pane>
-    </Splitpanes>
     <ModuleFlowTimeline
       :info="info"
       :session="session"
