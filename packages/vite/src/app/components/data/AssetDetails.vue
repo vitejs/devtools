@@ -27,10 +27,13 @@ const { state } = useAsyncState(
     if (!props.lazy)
       return
 
-    const res = await rpc.value!['vite:rolldown:get-asset-details']?.({
-      session: props.session.id,
-      id: props.asset.filename,
-    })
+    const res = await rpc.value.$call(
+      'vite:rolldown:get-asset-details',
+      {
+        session: props.session.id,
+        id: props.asset.filename,
+      },
+    )
     if ('chunk' in res) {
       return {
         chunks: [{ ...res?.chunk, type: 'chunk' }],
@@ -61,7 +64,10 @@ const _importers = computed(() => props.lazy ? state.value?.importers : props.im
 const _imports = computed(() => props.lazy ? state.value?.imports : props.imports)
 
 function openInEditor() {
-  rpc.value!['vite:core:open-in-editor'](`${props.session.meta.dir}/${props.asset.filename}`)
+  rpc.value.$call(
+    'vite:core:open-in-editor',
+    `${props.session.meta.dir}/${props.asset.filename}`,
+  )
 }
 </script>
 

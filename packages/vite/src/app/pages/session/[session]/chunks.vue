@@ -31,9 +31,10 @@ const chunkViewTypes = [
 const rpc = useRpc()
 const { state: chunks, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value!['vite:rolldown:get-chunks-graph']?.({
-      session: props.session.id,
-    })
+    return await rpc.value.$call(
+      'vite:rolldown:get-chunks-graph',
+      { session: props.session.id },
+    )
   },
   null,
 )

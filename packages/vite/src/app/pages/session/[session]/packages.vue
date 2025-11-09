@@ -41,9 +41,10 @@ const searchValue = ref<{ search: string, selected: string[] }>({
 })
 const { state: packages, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value!['vite:rolldown:get-packages']?.({
-      session: props.session.id,
-    })
+    return await rpc.value.$call(
+      'vite:rolldown:get-packages',
+      { session: props.session.id },
+    )
   },
   null,
 )

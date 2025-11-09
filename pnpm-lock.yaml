@@ -41,8 +41,8 @@ catalogs:
       specifier: ^4.2.0
       version: 4.2.0
     birpc:
-      specifier: ^2.7.0
-      version: 2.7.0
+      specifier: ^2.8.0
+      version: 2.8.0
     birpc-x:
       specifier: 0.0.1
       version: 0.0.1
@@ -234,8 +234,8 @@ catalogs:
       specifier: ^1.2.10
       version: 1.2.10
     '@iconify-json/octicon':
-      specifier: ^1.2.17
-      version: 1.2.17
+      specifier: ^1.2.18
+      version: 1.2.18
     '@iconify-json/ph':
       specifier: ^1.2.2
       version: 1.2.2
@@ -243,8 +243,8 @@ catalogs:
       specifier: ^1.2.6
       version: 1.2.6
     '@iconify-json/simple-icons':
-      specifier: ^1.2.57
-      version: 1.2.57
+      specifier: ^1.2.58
+      version: 1.2.58
     '@iconify-json/svg-spinners':
       specifier: ^1.2.4
       version: 1.2.4
@@ -260,8 +260,8 @@ catalogs:
       version: 1.9.1
   playground:
     vite-plugin-vue-tracer:
-      specifier: ^1.1.2
-      version: 1.1.2
+      specifier: ^1.1.3
+      version: 1.1.3
   testing:
     vitest:
       specifier: ^4.0.8
@@ -341,7 +341,7 @@ importers:
         version: 1.2.10
       '@iconify-json/octicon':
         specifier: catalog:icons
-        version: 1.2.17
+        version: 1.2.18
       '@iconify-json/ph':
         specifier: catalog:icons
         version: 1.2.2
@@ -350,7 +350,7 @@ importers:
         version: 1.2.6
       '@iconify-json/simple-icons':
         specifier: catalog:icons
-        version: 1.2.57
+        version: 1.2.58
       '@iconify-json/svg-spinners':
         specifier: catalog:icons
         version: 1.2.4
@@ -434,7 +434,7 @@ importers:
         version: 11.3.3(@nuxt/kit@4.2.1(magicast@0.5.0))(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))
       vite-plugin-vue-tracer:
         specifier: catalog:playground
-        version: 1.1.2(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+        version: 1.1.3(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       vitest:
         specifier: catalog:testing
         version: 4.0.8(@types/debug@4.1.12)(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
@@ -473,7 +473,7 @@ importers:
         version: link:../vite
       birpc:
         specifier: catalog:deps
-        version: 2.7.0
+        version: 2.8.0
       birpc-x:
         specifier: catalog:deps
         version: 0.0.1
@@ -537,7 +537,7 @@ importers:
         version: link:../rpc
       birpc:
         specifier: catalog:deps
-        version: 2.7.0
+        version: 2.8.0
       birpc-x:
         specifier: catalog:deps
         version: 0.0.1
@@ -550,20 +550,20 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
+        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
 
   packages/rpc:
     dependencies:
       birpc:
         specifier: catalog:deps
-        version: 2.7.0
+        version: 2.8.0
       structured-clone-es:
         specifier: catalog:deps
         version: 1.0.0
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
+        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
       ws:
         specifier: catalog:deps
         version: 8.18.3
@@ -590,7 +590,7 @@ importers:
         version: 4.2.0
       birpc:
         specifier: catalog:deps
-        version: 2.7.0
+        version: 2.8.0
       cac:
         specifier: catalog:deps
         version: 6.7.14
@@ -714,7 +714,7 @@ importers:
         version: 1.0.0
       tsdown:
         specifier: catalog:build
-        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
+        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
       vite-hot-client:
         specifier: catalog:frontend
         version: 2.1.0(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))
@@ -727,7 +727,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
+        version: 0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.20.6
@@ -1258,8 +1258,8 @@ packages:
   '@iconify-json/logos@1.2.10':
     resolution: {integrity: sha512-qxaXKJ6fu8jzTMPQdHtNxlfx6tBQ0jXRbHZIYy5Ilh8Lx9US9FsAdzZWUR8MXV8PnWTKGDFO4ZZee9VwerCyMA==}
 
-  '@iconify-json/octicon@1.2.17':
-    resolution: {integrity: sha512-U/mznjeCeZzuqpP25zWGcF4amLaYnNLs9sTN2hYALa+28n33KUXj/XjLmpAjIUvsyvn91jxfwdxSE79HfM4jCg==}
+  '@iconify-json/octicon@1.2.18':
+    resolution: {integrity: sha512-rj94lgRl70HXovRxD+xSOpSql6cj3N8rv3ouSh7UJEuAFim0RcCEt2JQhr8hiS5Lj1D65EQP7oSNMrVOkYi8kg==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -1267,11 +1267,11 @@ packages:
   '@iconify-json/ri@1.2.6':
     resolution: {integrity: sha512-tGXRmXtb8oFu8DNg9MsS1pywKFgs9QZ4U6LBzUamBHaw3ePSiPd7ouE64gzHzfEcR16hgVaXoUa+XxD3BB0XOg==}
 
-  '@iconify-json/simple-icons@1.2.56':
-    resolution: {integrity: sha512-oAvxOzgSjfvdj/Jsi3S7HDUCxO8/n2j8e1w1e/FktHUAXiWjNX00n3Tu3AP+n1ayKrypcUDXCzxn+0ENMl6ouw==}
-
   '@iconify-json/simple-icons@1.2.57':
     resolution: {integrity: sha512-/yWbO502M6WfvmcV5OjEgA4uoPN/76nrn7Hri/8g9L4GiNQ6VMgXWE9vFp4tDsmGMAe4ZCov3NbH6vJCgXZ1hA==}
+
+  '@iconify-json/simple-icons@1.2.58':
+    resolution: {integrity: sha512-XtXEoRALqztdNc9ujYBj2tTCPKdIPKJBdLNDebFF46VV1aOAwTbAYMgNsK5GMCpTJupLCmpBWDn+gX5SpECorQ==}
 
   '@iconify-json/svg-spinners@1.2.4':
     resolution: {integrity: sha512-ayn0pogFPwJA1WFZpDnoq9/hjDxN+keeCMyThaX4d3gSJ3y0mdKUxIA/b1YXWGtY9wVtZmxwcvOIeEieG4+JNg==}
@@ -2774,24 +2774,24 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@vitejs/devtools-kit@0.0.0-alpha.15':
-    resolution: {integrity: sha512-ONDAo2K84Zx/DeZlsMWetZwWtUyBos2/7NHX9zL1Bff9ZpPGFyTFJ0KwUNZEt7arDmXQi2MbFC556pAcyz0DEw==}
+  '@vitejs/devtools-kit@0.0.0-alpha.16':
+    resolution: {integrity: sha512-/BlY4A84c04ui7E3GRTgkDU1maY9690hW1l5ZBVsdigVKFsQKHKqPiCXeyO0KI/6yilxU6mJGeZgUktzMyKy/w==}
     peerDependencies:
       vite: '*'
 
-  '@vitejs/devtools-rpc@0.0.0-alpha.15':
-    resolution: {integrity: sha512-E+EMYlooCqHLQlWjkrm8BCNCPlCW0mcSwMFJvUkNJ8d9taQpsh13wnij5ImauorXDDZKkg5fw0JPLtDOWwGrTw==}
+  '@vitejs/devtools-rpc@0.0.0-alpha.16':
+    resolution: {integrity: sha512-+iSGXCt1bO9zGM6/koUozqjWhNZ6ed3TIb3jYeYrrIg5A5GZn3ELUiud2rJYyGPC7Ux11x5F45SCMNVgyc8ZXQ==}
     peerDependencies:
       ws: '*'
     peerDependenciesMeta:
       ws:
         optional: true
 
-  '@vitejs/devtools-vite@0.0.0-alpha.15':
-    resolution: {integrity: sha512-LNjy+FCnPUfM2Mv/3Qp1XJbu9exkeC86VfMtFFrwM3qYMOxkAMfowFw0oVFlXmtb8TIK3cxbfGDyP1ujTKdhmw==}
+  '@vitejs/devtools-vite@0.0.0-alpha.16':
+    resolution: {integrity: sha512-6WycYgNfNlNJbfBI4NvK0SVvuw61RaGtWbIkPqD9iv0S0bJsLkWE4eDHXwoe59BLDYXYCf9dfkjttqToZ+XF8g==}
 
-  '@vitejs/devtools@0.0.0-alpha.15':
-    resolution: {integrity: sha512-7A4FhQOe7Pms5PMAMsO1oXtJ57r5i0WLOj/nxSEDap9kbUO5lNC6T0jUlHxriGIJlc/LPiJeWdgeMTgvsSzBgA==}
+  '@vitejs/devtools@0.0.0-alpha.16':
+    resolution: {integrity: sha512-f4RRJfH1uHuOqO5LMjK53th0e59UAGQtYUOHnLSXGTX1uZ3rYgCEHc3U//AAs/j3NkICGK/rj1lfcvPsUw3fGw==}
     hasBin: true
     peerDependencies:
       vite: '*'
@@ -3292,6 +3292,9 @@ packages:
 
   birpc@2.7.0:
     resolution: {integrity: sha512-tub/wFGH49vNCm0xraykcY3TcRgX/3JsALYq/Lwrtti+bTyFHkCUAWF5wgYoie8P41wYwig2mIKiqoocr1EkEQ==}
+
+  birpc@2.8.0:
+    resolution: {integrity: sha512-Bz2a4qD/5GRhiHSwj30c/8kC8QGj12nNDwz3D4ErQ4Xhy35dsSDvF+RA/tWpjyU0pdGtSDiEk6B5fBGE1qNVhw==}
 
   body-parser@2.2.0:
     resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
@@ -6921,8 +6924,8 @@ packages:
     peerDependencies:
       vite: '>=6.0.0'
 
-  vite-plugin-vue-tracer@1.1.2:
-    resolution: {integrity: sha512-cuJaOlvnv6oy4kaM8Ntw6ksrqM+fBDIpqVk41HW/EqoIoAj2tNRFfHKqjC5XQe3X/JDeUTv+BugF4kivvi/kYQ==}
+  vite-plugin-vue-tracer@1.1.3:
+    resolution: {integrity: sha512-fM7hfHELZvbPnSn8EKZwHfzxm5EfYFQIclz8rwcNXfodNbRkwNvh0AGMtaBfMxQ9HC5KVa3KitwHnmE4ezDemw==}
     peerDependencies:
       vite: ^6.0.0 || ^7.0.0
       vue: ^3.5.0
@@ -7810,7 +7813,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/octicon@1.2.17':
+  '@iconify-json/octicon@1.2.18':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -7822,11 +7825,11 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/simple-icons@1.2.56':
+  '@iconify-json/simple-icons@1.2.57':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/simple-icons@1.2.57':
+  '@iconify-json/simple-icons@1.2.58':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -8133,7 +8136,7 @@ snapshots:
       tinyglobby: 0.2.15
       vite: rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
       vite-plugin-inspect: 11.3.3(@nuxt/kit@4.2.1(magicast@0.5.0))(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))
-      vite-plugin-vue-tracer: 1.1.2(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      vite-plugin-vue-tracer: 1.1.3(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       which: 5.0.0
       ws: 8.18.3
     transitivePeerDependencies:
@@ -8174,7 +8177,7 @@ snapshots:
       tinyglobby: 0.2.15
       vite: 7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
       vite-plugin-inspect: 11.3.3(@nuxt/kit@4.2.1(magicast@0.3.5))(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))
-      vite-plugin-vue-tracer: 1.1.2(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      vite-plugin-vue-tracer: 1.1.3(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       which: 5.0.0
       ws: 8.18.3
     transitivePeerDependencies:
@@ -9880,27 +9883,29 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vitejs/devtools-kit@0.0.0-alpha.15(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)':
+  '@vitejs/devtools-kit@0.0.0-alpha.16(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)':
     dependencies:
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
       birpc: 2.7.0
       birpc-x: 0.0.1
+      nanoevents: 9.1.0
       vite: rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - ws
     optional: true
 
-  '@vitejs/devtools-kit@0.0.0-alpha.15(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)':
+  '@vitejs/devtools-kit@0.0.0-alpha.16(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)':
     dependencies:
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
       birpc: 2.7.0
       birpc-x: 0.0.1
+      nanoevents: 9.1.0
       vite: 7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
     transitivePeerDependencies:
       - ws
     optional: true
 
-  '@vitejs/devtools-rpc@0.0.0-alpha.15(ws@8.18.3)':
+  '@vitejs/devtools-rpc@0.0.0-alpha.16(ws@8.18.3)':
     dependencies:
       birpc: 2.7.0
       structured-clone-es: 1.0.0
@@ -9908,13 +9913,13 @@ snapshots:
       ws: 8.18.3
     optional: true
 
-  '@vitejs/devtools-vite@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
+  '@vitejs/devtools-vite@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@pnpm/read-project-manifest': 1001.1.4(@pnpm/logger@1001.0.0)
       '@rolldown/debug': 1.0.0-beta.47
-      '@vitejs/devtools-kit': 0.0.0-alpha.15(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
+      '@vitejs/devtools-kit': 0.0.0-alpha.16(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
       ansis: 4.2.0
       birpc: 2.7.0
       cac: 6.7.14
@@ -9963,13 +9968,13 @@ snapshots:
       - vue
     optional: true
 
-  '@vitejs/devtools-vite@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
+  '@vitejs/devtools-vite@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@pnpm/read-project-manifest': 1001.1.4(@pnpm/logger@1001.0.0)
       '@rolldown/debug': 1.0.0-beta.47
-      '@vitejs/devtools-kit': 0.0.0-alpha.15(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
+      '@vitejs/devtools-kit': 0.0.0-alpha.16(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
       ansis: 4.2.0
       birpc: 2.7.0
       cac: 6.7.14
@@ -10018,16 +10023,18 @@ snapshots:
       - vue
     optional: true
 
-  '@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
+  '@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
     dependencies:
-      '@vitejs/devtools-kit': 0.0.0-alpha.15(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
-      '@vitejs/devtools-vite': 0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      '@vitejs/devtools-kit': 0.0.0-alpha.16(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
+      '@vitejs/devtools-vite': 0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      birpc: 2.7.0
       birpc-x: 0.0.1
       cac: 6.7.14
       debug: 4.4.3
       launch-editor: 2.12.0
       mlly: 1.8.0
+      nanoevents: 9.1.0
       open: 10.2.0
       pathe: 2.0.3
       sirv: 3.0.2
@@ -10060,16 +10067,18 @@ snapshots:
       - vue
     optional: true
 
-  '@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
+  '@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))':
     dependencies:
-      '@vitejs/devtools-kit': 0.0.0-alpha.15(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
-      '@vitejs/devtools-rpc': 0.0.0-alpha.15(ws@8.18.3)
-      '@vitejs/devtools-vite': 0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      '@vitejs/devtools-kit': 0.0.0-alpha.16(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(ws@8.18.3)
+      '@vitejs/devtools-rpc': 0.0.0-alpha.16(ws@8.18.3)
+      '@vitejs/devtools-vite': 0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      birpc: 2.7.0
       birpc-x: 0.0.1
       cac: 6.7.14
       debug: 4.4.3
       launch-editor: 2.12.0
       mlly: 1.8.0
+      nanoevents: 9.1.0
       open: 10.2.0
       pathe: 2.0.3
       sirv: 3.0.2
@@ -10723,9 +10732,11 @@ snapshots:
 
   birpc-x@0.0.1:
     dependencies:
-      birpc: 2.7.0
+      birpc: 2.8.0
 
   birpc@2.7.0: {}
+
+  birpc@2.8.0: {}
 
   body-parser@2.2.0:
     dependencies:
@@ -14077,7 +14088,7 @@ snapshots:
       '@babel/parser': 7.28.5
       '@babel/types': 7.28.5
       ast-kit: 2.1.3
-      birpc: 2.7.0
+      birpc: 2.8.0
       debug: 4.4.3
       dts-resolver: 2.1.2
       get-tsconfig: 4.13.0
@@ -14612,7 +14623,7 @@ snapshots:
       picomatch: 4.0.3
       typescript: 5.9.3
 
-  tsdown@0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3)):
+  tsdown@0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3)):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
@@ -14630,7 +14641,7 @@ snapshots:
       unconfig-core: 7.4.0
       unrun: 0.2.6(synckit@0.11.11)
     optionalDependencies:
-      '@vitejs/devtools': 0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      '@vitejs/devtools': 0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       publint: 0.3.15
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -14641,7 +14652,7 @@ snapshots:
       - synckit
       - vue-tsc
 
-  tsdown@0.16.1(@vitejs/devtools@0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3)):
+  tsdown@0.16.1(@vitejs/devtools@0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)))(publint@0.3.15)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.3(typescript@5.9.3)):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
@@ -14659,7 +14670,7 @@ snapshots:
       unconfig-core: 7.4.0
       unrun: 0.2.6(synckit@0.11.11)
     optionalDependencies:
-      '@vitejs/devtools': 0.0.0-alpha.15(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
+      '@vitejs/devtools': 0.0.0-alpha.16(@netlify/blobs@9.1.2)(@pnpm/logger@1001.0.0)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
       publint: 0.3.15
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -15159,7 +15170,7 @@ snapshots:
       - '@cfworker/json-schema'
       - supports-color
 
-  vite-plugin-vue-tracer@1.1.2(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)):
+  vite-plugin-vue-tracer@1.1.3(rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)):
     dependencies:
       estree-walker: 3.0.3
       exsolve: 1.0.7
@@ -15169,7 +15180,7 @@ snapshots:
       vite: rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.25.12)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
       vue: 3.5.24(typescript@5.9.3)
 
-  vite-plugin-vue-tracer@1.1.2(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)):
+  vite-plugin-vue-tracer@1.1.3(vite@7.2.2(@types/node@24.0.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3)):
     dependencies:
       estree-walker: 3.0.3
       exsolve: 1.0.7
@@ -15210,7 +15221,7 @@ snapshots:
     dependencies:
       '@docsearch/css': 4.2.0
       '@docsearch/js': 4.2.0
-      '@iconify-json/simple-icons': 1.2.56
+      '@iconify-json/simple-icons': 1.2.57
       '@shikijs/core': 3.14.0
       '@shikijs/transformers': 3.14.0
       '@shikijs/types': 3.14.0

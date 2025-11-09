@@ -82,9 +82,10 @@ useSideNav(() => {
 })
 
 onMounted(async () => {
-  const summary = await rpc.value!['vite:rolldown:get-session-summary']!({
-    session: params.session,
-  })
+  const summary = await rpc.value.$call(
+    'vite:rolldown:get-session-summary',
+    { session: params.session },
+  )
   session.meta = summary.meta!
   session.modulesList = summary.modules.map(mod => ({
     id: mod.id,

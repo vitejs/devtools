@@ -16,10 +16,13 @@ const emit = defineEmits<{
 const rpc = useRpc()
 const { state } = useAsyncState(
   async () => {
-    const res = await rpc.value!['vite:rolldown:get-asset-details']?.({
-      session: props.session.id,
-      id: props.asset,
-    })
+    const res = await rpc.value.$call(
+      'vite:rolldown:get-asset-details',
+      {
+        session: props.session.id,
+        id: props.asset,
+      },
+    )
     if ('chunk' in res) {
       return {
         asset: { ...res?.asset, type: 'asset' },

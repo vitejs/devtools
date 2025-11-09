@@ -28,7 +28,10 @@ watchEffect(async () => {
   nextTick(async () => {
     transforms.value = []
     transformsLoading.value = true
-    transforms.value = await rpc.value!['vite:rolldown:get-module-transforms']?.(arg)
+    transforms.value = await rpc.value.$call(
+      'vite:rolldown:get-module-transforms',
+      arg,
+    )
     transformsLoading.value = false
   })
 })
@@ -40,7 +43,10 @@ const info = computedAsync(async () => {
   }
   return {
     transforms: transforms.value,
-    ...(await rpc.value!['vite:rolldown:get-module-info']?.(arg)),
+    ...(await rpc.value.$call(
+      'vite:rolldown:get-module-info',
+      arg,
+    )),
   } as ModuleInfo
 })
 

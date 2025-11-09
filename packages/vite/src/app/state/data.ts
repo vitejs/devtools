@@ -5,5 +5,5 @@ const rpc = useRpc()
 export const rawEvents = ref<any>([])
 
 export async function fetchData() {
-  rawEvents.value = await rpc.value!['vite:get-payload']()
+  rawEvents.value = await rpc.value.$call('vite:get-payload')
 }

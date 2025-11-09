@@ -58,7 +58,7 @@ export async function createDocksContext(
   panelStore?: Ref<DockPanelStorage>,
 ): Promise<DocksContext> {
   const selected = ref<DevToolsDockEntry | null>(null)
-  const dockEntries = shallowRef((await rpc['vite:core:list-dock-entries']()).map(entry => Object.freeze(entry)))
+  const dockEntries = shallowRef((await rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry)))
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Docks Entries', [...dockEntries.value])
   // TODO: get board case from rpc when entries updates
