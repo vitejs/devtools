@@ -115,7 +115,7 @@ function openInEditor() {
           Chunks
         </div>
         <NuxtLink
-          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1
+          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1 min-w-fit
           :to="{ path: route.path, query: { chunk: chunk.chunk_id } }"
         >
           <DataChunkDetails

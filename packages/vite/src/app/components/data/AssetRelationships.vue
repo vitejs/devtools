@@ -170,7 +170,7 @@ onMounted(() => {
 
       <!-- dot: current asset -->
       <div
-        bg-base rounded-full border-3 font-mono border-active :style="{
+        bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
           margin: dotNodeMargin,
           width: `${SPACING.dot}px`,
           height: `${SPACING.dot}px`,
