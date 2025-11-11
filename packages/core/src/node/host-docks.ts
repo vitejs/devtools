@@ -9,7 +9,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     public readonly context: DevToolsNodeContext,
   ) {
     this._sendOnChange = debounce(() => {
-      context.rpc.boardcast?.$callOptional('vite:core:list-dock-entries:updated')
+      context.rpc?.boardcast?.$callOptional('vite:core:list-dock-entries:updated')
     }, 10)
   }
 
