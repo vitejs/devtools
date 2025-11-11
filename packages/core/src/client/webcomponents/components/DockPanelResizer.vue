@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from './DockProps'
-import { toRefs, useEventListener } from '@vueuse/core'
+import type { DocksPanelContext } from '@vitejs/devtools-kit/client'
+import { useEventListener } from '@vueuse/core'
 import { ref, watch } from 'vue'
 
 const props = defineProps<{
-  state: DevToolsDockState
-  isDragging: boolean
+  panel: DocksPanelContext
 }>()
-
-const isResizing = defineModel<boolean>('isResizing', { default: false })
 
 const PANEL_MIN = 20
 const PANEL_MAX = 100
-
-const {
-  state,
-} = toRefs(props)
 
 const container = ref<HTMLElement>()
 const resizingState = ref<false | { top?: boolean, left?: boolean, right?: boolean, bottom?: boolean }>(false)
@@ -47,23 +40,25 @@ function handleResize(e: MouseEvent | TouchEvent) {
   if (!box)
     return
 
+  const store = props.panel.store
+
   let widthPx: number, heightPx: number
   if (resizingState.value.right) {
     widthPx = Math.abs(e instanceof MouseEvent ? e.clientX : (e.touches[0]?.clientX || 0) - (box?.left || 0))
-    state.value.width = Math.min(PANEL_MAX, Math.max(PANEL_MIN, widthPx / window.innerWidth * 100))
+    store.width = Math.min(PANEL_MAX, Math.max(PANEL_MIN, widthPx / window.innerWidth * 100))
   }
   else if (resizingState.value.left) {
     widthPx = Math.abs((box?.right || 0) - (e instanceof MouseEvent ? e.clientX : (e.touches[0]?.clientX || 0)))
-    state.value.width = Math.min(PANEL_MAX, Math.max(PANEL_MIN, widthPx / window.innerWidth * 100))
+    store.width = Math.min(PANEL_MAX, Math.max(PANEL_MIN, widthPx / window.innerWidth * 100))
   }
 
   if (resizingState.value.top) {
     heightPx = Math.abs((box?.bottom || 0) - (e instanceof MouseEvent ? e.clientY : (e.touches[0]?.clientY || 0)))
-    state.value.height = Math.min(PANEL_MAX, Math.max(PANEL_MIN, heightPx / window.innerHeight * 100))
+    store.height = Math.min(PANEL_MAX, Math.max(PANEL_MIN, heightPx / window.innerHeight * 100))
   }
   else if (resizingState.value.bottom) {
     heightPx = Math.abs(e instanceof MouseEvent ? e.clientY : (e.touches[0]?.clientY || 0) - (box?.top || 0))
-    state.value.height = Math.min(PANEL_MAX, Math.max(PANEL_MIN, heightPx / window.innerHeight * 100))
+    store.height = Math.min(PANEL_MAX, Math.max(PANEL_MIN, heightPx / window.innerHeight * 100))
   }
 }
 
@@ -76,7 +71,8 @@ useEventListener(window, 'mouseleave', () => resizingState.value = false)
 watch(
   resizingState,
   (value) => {
-    isResizing.value = !!value
+    // eslint-disable-next-line vue/no-mutating-props
+    props.panel.isResizing = !!value
   },
   { flush: 'sync' },
 )
@@ -90,56 +86,56 @@ watch(
   >
     <!-- Handlers -->
     <div
-      v-show="state.position !== 'top'"
+      v-show="panel.store.position !== 'top'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
       :style="{ top: 0 }"
       @mousedown.prevent="resizingState = { top: true }"
       @touchstart.passive="() => resizingState = { top: true }"
     />
     <div
-      v-show="state.position !== 'bottom'"
+      v-show="panel.store.position !== 'bottom'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
       :style="{ bottom: 0 }"
       @mousedown.prevent="() => resizingState = { bottom: true }"
       @touchstart.passive="() => resizingState = { bottom: true }"
     />
     <div
-      v-show="state.position !== 'left'"
+      v-show="panel.store.position !== 'left'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
       :style="{ left: 0 }"
       @mousedown.prevent="() => resizingState = { left: true }"
       @touchstart.passive="() => resizingState = { left: true }"
     />
     <div
-      v-show="state.position !== 'right'"
+      v-show="panel.store.position !== 'right'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
       :style="{ right: 0 }"
       @mousedown.prevent="() => resizingState = { right: true }"
       @touchstart.passive="() => resizingState = { right: true }"
     />
     <div
-      v-show="state.position !== 'top' && state.position !== 'left'"
+      v-show="panel.store.position !== 'top' && panel.store.position !== 'left'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ top: 0, left: 0, cursor: 'nwse-resize' }"
       @mousedown.prevent="() => resizingState = { top: true, left: true }"
       @touchstart.passive="() => resizingState = { top: true, left: true }"
     />
     <div
-      v-show="state.position !== 'top' && state.position !== 'right'"
+      v-show="panel.store.position !== 'top' && panel.store.position !== 'right'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ top: 0, right: 0, cursor: 'nesw-resize' }"
       @mousedown.prevent="() => resizingState = { top: true, right: true }"
       @touchstart.passive="() => resizingState = { top: true, right: true }"
     />
     <div
-      v-show="state.position !== 'bottom' && state.position !== 'left'"
+      v-show="panel.store.position !== 'bottom' && panel.store.position !== 'left'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ bottom: 0, left: 0, cursor: 'nesw-resize' }"
       @mousedown.prevent="() => resizingState = { bottom: true, left: true }"
       @touchstart.passive="() => resizingState = { bottom: true, left: true }"
     />
     <div
-      v-show="state.position !== 'bottom' && state.position !== 'right'"
+      v-show="panel.store.position !== 'bottom' && panel.store.position !== 'right'"
       class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
       :style="{ bottom: 0, right: 0, cursor: 'nwse-resize' }"
       @mousedown.prevent="() => resizingState = { bottom: true, right: true }"

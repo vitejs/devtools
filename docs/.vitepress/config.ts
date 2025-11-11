@@ -16,6 +16,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
+      { text: 'Kit', link: '/kit/' },
     ],
 
     sidebar: [
@@ -23,7 +24,12 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/guide/' },
-          { text: 'Why Vite DevTools', link: '/guide/why' },
+        ],
+      },
+      {
+        text: 'DevTools Kit',
+        items: [
+          { text: 'Introduction', link: '/kit/' },
         ],
       },
     ],

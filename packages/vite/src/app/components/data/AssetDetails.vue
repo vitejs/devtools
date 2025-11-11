@@ -27,10 +27,13 @@ const { state } = useAsyncState(
     if (!props.lazy)
       return
 
-    const res = await rpc.value!['vite:rolldown:get-asset-details']?.({
-      session: props.session.id,
-      id: props.asset.filename,
-    })
+    const res = await rpc.value.$call(
+      'vite:rolldown:get-asset-details',
+      {
+        session: props.session.id,
+        id: props.asset.filename,
+      },
+    )
     if ('chunk' in res) {
       return {
         chunks: [{ ...res?.chunk, type: 'chunk' }],
@@ -61,7 +64,10 @@ const _importers = computed(() => props.lazy ? state.value?.importers : props.im
 const _imports = computed(() => props.lazy ? state.value?.imports : props.imports)
 
 function openInEditor() {
-  rpc.value!['vite:core:open-in-editor'](`${props.session.meta.dir}/${props.asset.filename}`)
+  rpc.value.$call(
+    'vite:core:open-in-editor',
+    `${props.session.meta.dir}/${props.asset.filename}`,
+  )
 }
 </script>
 
@@ -115,7 +121,7 @@ function openInEditor() {
           Chunks
         </div>
         <NuxtLink
-          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1
+          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1 min-w-fit
           :to="{ path: route.path, query: { chunk: chunk.chunk_id } }"
         >
           <DataChunkDetails

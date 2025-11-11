@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { ConnectionMeta, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsNodeContext, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
@@ -32,7 +32,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   })
 
-  const rpc = createRpcServer<any, any>(
+  const rpc = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
     {
       preset,
@@ -46,7 +46,9 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   )
 
-  const getMetadata = async (): Promise<ConnectionMeta> => {
+  rpcHost.boardcast = rpc.broadcast
+
+  const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     return {
       backend: 'websocket',
       websocket: port,
@@ -56,7 +58,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   return {
     port,
     rpc,
-    functions: rpcHost,
-    getMetadata,
+    rpcHost,
+    getConnectionMeta,
   }
 }

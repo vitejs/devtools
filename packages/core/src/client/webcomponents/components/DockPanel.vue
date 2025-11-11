@@ -1,35 +1,30 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { DevToolsDockState } from './DockProps'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
-import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
+import { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import DockPanelResizer from './DockPanelResizer.vue'
-import { IframeManager } from './IframeManager'
 import ViewEntry from './ViewEntry.vue'
 
 const props = defineProps<{
-  state: DevToolsDockState
-  entry?: DevToolsDockEntry
+  context: DocksContext
+  selected: DevToolsDockEntry | null
   dockEl?: HTMLDivElement
   panelMargins: { left: number, top: number, right: number, bottom: number }
 }>()
 
-const { state, entry, panelMargins } = toRefs(props)
+const context = props.context
+const { selected, panelMargins } = toRefs(props)
+
 const windowSize = reactive(useWindowSize())
-const isResizing = ref(false)
 const isHovering = ref(false)
-const isDragging = defineModel<boolean>('isDragging', { default: false })
 const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
-const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
-
-const iframes = markRaw(new IframeManager())
-
-watchEffect(() => {
-  iframes.setContainer(iframesContainer.value!)
-}, { flush: 'sync' })
+const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
+const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -39,10 +34,12 @@ const anchorPos = computed(() => {
   const halfWidth = (props.dockEl?.clientWidth || 0) / 2
   const halfHeight = (props.dockEl?.clientHeight || 0) / 2
 
-  const left = state.value.left * windowSize.width / 100
-  const top = state.value.top * windowSize.height / 100
+  const store = context.panel.store
 
-  switch (state.value.position) {
+  const left = store.left * windowSize.width / 100
+  const top = store.top * windowSize.height / 100
+
+  switch (store.position) {
     case 'top':
       return {
         left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
@@ -70,18 +67,18 @@ const anchorPos = computed(() => {
 let _timer: ReturnType<typeof setTimeout> | null = null
 function bringUp() {
   isHovering.value = true
-  if (state.value.minimizePanelInactive < 0)
+  if (context.panel.store.inactiveTimeout < 0)
     return
   if (_timer)
     clearTimeout(_timer)
   _timer = setTimeout(() => {
     isHovering.value = false
-  }, +state.value.minimizePanelInactive || 0)
+  }, +context.panel.store.inactiveTimeout || 0)
 }
 
 const { width: frameWidth, height: frameHeight } = useElementBounding(dockPanel)
 
-const iframeStyle = computed(() => {
+const panelStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
   mousePosition.x, mousePosition.y
 
@@ -100,22 +97,25 @@ const iframeStyle = computed(() => {
   const maxWidth = windowSize.width - marginHorizontal
   const maxHeight = windowSize.height - marginVertical
 
+  const panel = context.panel
+  const store = panel.store
+
   const style: CSSProperties = {
     position: 'fixed',
     zIndex: -1,
-    pointerEvents: (isDragging.value || isResizing.value) ? 'none' : 'auto',
-    width: `min(${state.value.width}vw, calc(100vw - ${marginHorizontal}px))`,
-    height: `min(${state.value.height}vh, calc(100vh - ${marginVertical}px))`,
+    pointerEvents: (panel.isDragging || panel.isResizing) ? 'none' : 'auto',
+    width: `min(${store.width}vw, calc(100vw - ${marginHorizontal}px))`,
+    height: `min(${store.height}vh, calc(100vh - ${marginVertical}px))`,
   }
 
   const anchor = anchorPos.value
-  const width = Math.min(maxWidth, state.value.width * windowSize.width / 100)
-  const height = Math.min(maxHeight, state.value.height * windowSize.height / 100)
+  const width = Math.min(maxWidth, store.width * windowSize.width / 100)
+  const height = Math.min(maxHeight, store.height * windowSize.height / 100)
 
   const anchorX = anchor?.left || 0
   const anchorY = anchor?.top || 0
 
-  switch (state.value.position) {
+  switch (store.position) {
     case 'top':
     case 'bottom':
       style.left = `${-frameWidth.value / 2}px`
@@ -136,7 +136,7 @@ const iframeStyle = computed(() => {
       break
   }
 
-  switch (state.value.position) {
+  switch (store.position) {
     case 'top':
       style.top = 0
       break
@@ -162,25 +162,18 @@ onMounted(() => {
 
 <template>
   <div
-    v-show="entry"
+    v-show="context.docks.selected && context.docks.selected.type !== 'action'"
     ref="dockPanel"
     class="bg-glass rounded-lg border border-base shadow"
-    :style="iframeStyle"
+    :style="panelStyle"
   >
-    <DockPanelResizer
-      v-model:is-resizing="isResizing"
-      :is-dragging="isDragging"
-      :state
-      :entry
-    />
+    <DockPanelResizer :panel="context.panel" />
     <ViewEntry
-      v-if="entry && iframesContainer"
-      :key="entry.id"
-      :state="state"
-      :is-dragging="isDragging"
-      :is-resizing="isResizing"
-      :entry="entry"
-      :iframes="iframes"
+      v-if="selected && viewsContainer"
+      :key="selected.id"
+      :context
+      :entry="selected"
+      :presisted-doms="presistedDoms"
       :iframe-style="{
         border: '1px solid #8883',
         borderRadius: '0.5rem',
@@ -188,8 +181,8 @@ onMounted(() => {
       rounded
     />
     <div
-      id="vite-devtools-iframe-container"
-      ref="iframesContainer"
+      id="vite-devtools-views-container"
+      ref="viewsContainer"
       class="absolute inset-0"
     />
   </div>

@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.0.0-alpha.11",
+  "version": "0.0.0-alpha.17",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -45,22 +45,27 @@
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
+    "play:standlone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
     "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
     "play:build": "pnpm -C playground run build"
   },
   "peerDependencies": {
-    "vite": "catalog:build"
+    "vite": "*"
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
     "@vitejs/devtools-vite": "workspace:*",
+    "birpc": "catalog:deps",
+    "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
     "debug": "catalog:deps",
     "launch-editor": "catalog:deps",
     "mlly": "catalog:deps",
+    "nanoevents": "catalog:deps",
     "open": "catalog:deps",
     "pathe": "catalog:deps",
+    "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
     "ws": "catalog:deps"
   },

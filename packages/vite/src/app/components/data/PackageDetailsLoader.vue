@@ -19,10 +19,13 @@ const parsedPackage = computed(() => {
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value!['vite:rolldown:get-package-details']?.({
-      session: props.session.id,
-      id: props.package,
-    })
+    return await rpc.value.$call(
+      'vite:rolldown:get-package-details',
+      {
+        session: props.session.id,
+        id: props.package,
+      },
+    )
   },
   null,
 )

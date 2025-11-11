@@ -32,7 +32,9 @@ export default defineConfig({
     }),
     DevToolsViteUI(),
     UnoCSS(),
-    Tracer(),
+    Tracer({
+      viteDevtools: true,
+    }),
     {
       name: 'local',
       devtools: {
@@ -47,14 +49,67 @@ export default defineConfig({
 
           ctx.docks.register({
             type: 'action',
-            action: ctx.utils.clientEntryFromSimpleFunction(() => {
+            action: ctx.utils.createSimpleClientScript((ctx) => {
               // eslint-disable-next-line no-alert
-              alert('Hello, world!')
+              alert('Hello, world! For the first time!')
+              ctx.current.events.on('entry:activated', () => {
+                // eslint-disable-next-line no-alert
+                alert('Hello, world!')
+              })
             }),
             id: 'local2',
             title: 'Local2',
             icon: 'ph:bell-simple-ringing-duotone',
           })
+
+          ctx.docks.register({
+            type: 'custom-render',
+            renderer: ctx.utils.createSimpleClientScript((ctx) => {
+              ctx.current.events.on('dom:panel:mounted', (panel) => {
+                const el = document.createElement('div')
+                el.style.padding = '16px'
+                el.textContent = 'Hello from custom render dock!'
+
+                const btn = document.createElement('button')
+                btn.textContent = 'Click me'
+                btn.onclick = () => {
+                // eslint-disable-next-line no-alert
+                  alert('Button clicked in custom render dock!')
+                }
+                el.appendChild(btn)
+                panel.appendChild(el)
+              })
+            }),
+            id: 'custom-render',
+            title: 'Custom',
+            icon: 'ph:newspaper-clipping-duotone',
+          })
+
+          ctx.docks.register({
+            id: 'counter',
+            type: 'action',
+            icon: 'material-symbols:counter-1',
+            title: 'Counter',
+            // TODO: HMR
+            action: ctx.utils.createSimpleClientScript(() => {}),
+          })
+
+          let count = 1
+          // eslint-disable-next-line unimport/auto-insert
+          setInterval(() => {
+            count = (count + 1) % 5
+            ctx.docks.update({
+              id: 'counter',
+              type: 'action',
+              icon: `material-symbols:counter-${count}`,
+              title: `Counter ${count}`,
+              // TODO: HMR
+              action: ctx.utils.createSimpleClientScript(() => {
+                // eslint-disable-next-line no-alert
+                alert(`Counter ${count}`)
+              }),
+            })
+          }, 1000)
         },
       },
     },

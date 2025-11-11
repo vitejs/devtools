@@ -32,7 +32,7 @@ const normalizedSelectedSessions = computed(() => {
 })
 
 const rpc = useRpc()
-const sessions = await rpc.value!['vite:rolldown:list-sessions']()
+const sessions = await rpc.value.$call('vite:rolldown:list-sessions')
 
 function selectSession(session: BuildInfo) {
   if (selectedSessionIds.value.includes(session.id)) {

@@ -1,48 +1,31 @@
 <script setup lang="ts">
-import type { DevToolsDockState } from '../webcomponents/components/DockProps'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { useLocalStorage } from '@vueuse/core'
-import { computed, markRaw, ref, useTemplateRef, watchEffect } from 'vue'
+import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
-import { IframeManager } from '../webcomponents/components/IframeManager'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
+import { createDocksContext } from '../webcomponents/state/dock'
 import { useStateHandlers } from '../webcomponents/state/state'
+import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
-const { rpc } = await getDevToolsRpcClient()
+const rpcReturn = await getDevToolsRpcClient()
+const { rpc } = rpcReturn
 
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
 
-const docks = await rpc['vite:core:list-dock-entries']()
-// eslint-disable-next-line no-console
-console.log('[VITE DEVTOOLS] Docks', docks)
+const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
+const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
-const state = useLocalStorage<DevToolsDockState>(
-  'vite-devtools-dock-state',
-  {
-    width: 80,
-    height: 80,
-    top: 0,
-    left: 0,
-    position: 'left',
-    open: false,
-    minimizePanelInactive: 3_000,
-  },
-  { mergeDefaults: true },
+const context: DocksContext = await createDocksContext(
+  'standalone',
+  rpcReturn,
 )
 
-const iframes = markRaw(new IframeManager())
-const iframesContainer = useTemplateRef<HTMLDivElement>('iframesContainer')
+context.docks.selected ||= context.docks.entries[0] || null
 
-watchEffect(() => {
-  iframes.setContainer(iframesContainer.value!)
-}, { flush: 'sync' })
-
-const isDragging = ref(false)
-const entry = computed(() => state.value.dockEntry || docks[0])
-
-const { selectDockEntry } = useStateHandlers(state)
+const { selectDockEntry } = useStateHandlers(context)
 </script>
 
 <template>
@@ -52,23 +35,21 @@ const { selectDockEntry } = useStateHandlers(state)
         <VitePlus class="w-7 h-7 ma" />
       </div>
       <DockEntries
-        :entries="docks"
+        :entries="context.docks.entries"
         class="transition duration-200 p2"
         :is-vertical="false"
-        :selected="state.dockEntry"
+        :selected="context.docks.selected"
         @select="selectDockEntry"
       />
     </div>
     <div>
-      <div id="iframes-container" ref="iframesContainer" />
+      <div id="vite-devtools-views-container" ref="viewsContainer" />
       <ViewEntry
-        v-if="entry && iframesContainer"
-        :key="entry.id"
-        :state="state"
-        :entry="entry"
-        :is-dragging="isDragging"
-        :is-resizing="false"
-        :iframes="iframes"
+        v-if="context.docks.selected && viewsContainer"
+        :key="context.docks.selected.id"
+        :entry="context.docks.selected"
+        :context
+        :presisted-doms="presistedDoms"
       />
     </div>
   </div>

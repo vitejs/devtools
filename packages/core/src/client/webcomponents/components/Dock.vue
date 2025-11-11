@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import type { DockProps } from './DockProps'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, toRefs, useTemplateRef, watchEffect } from 'vue'
+import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { useStateHandlers } from '../state/state'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
 
-const props = defineProps<DockProps>()
+const props = defineProps<{
+  context: DocksContext
+}>()
 
-const { state, docks } = toRefs(props)
-
-const isDragging = defineModel<boolean>('isDragging', { default: false })
+// Here we directly destructure is as we don't expect context to be changed
+const context = props.context
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
@@ -45,6 +46,9 @@ const SNAP_THRESHOLD = 2
 const dockEl = useTemplateRef<HTMLDivElement>('dockEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
 
+const recalculateCounter = ref(0)
+const isHovering = ref(false)
+
 const windowSize = reactive({
   width: window.innerWidth,
   height: window.innerHeight,
@@ -55,7 +59,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 function onPointerDown(e: PointerEvent) {
   if (!dockEl.value)
     return
-  isDragging.value = true
+  context.panel.isDragging = true
   const { left, top, width, height } = dockEl.value!.getBoundingClientRect()
   draggingOffset.x = e.clientX - left - width / 2
   draggingOffset.y = e.clientY - top - height / 2
@@ -71,9 +75,10 @@ onMounted(() => {
   })
 
   useEventListener(window, 'pointermove', (e: PointerEvent) => {
-    if (!isDragging.value)
+    if (!context.panel.isDragging)
       return
 
+    const store = context.panel.store
     const centerX = window.innerWidth / 2
     const centerY = window.innerHeight / 2
 
@@ -94,7 +99,7 @@ onMounted(() => {
     const BL = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, 0 - centerX)
     const BR = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, window.innerWidth - centerX)
 
-    state.value.position = deg >= TL && deg <= TR
+    store.position = deg >= TL && deg <= TR
       ? 'top'
       : deg >= TR && deg <= BR
         ? 'right'
@@ -102,14 +107,14 @@ onMounted(() => {
           ? 'bottom'
           : 'left'
 
-    state.value.left = snapToPoints(x / window.innerWidth * 100)
-    state.value.top = snapToPoints(y / window.innerHeight * 100)
+    store.left = snapToPoints(x / window.innerWidth * 100)
+    store.top = snapToPoints(y / window.innerHeight * 100)
   })
   useEventListener(window, 'pointerup', () => {
-    isDragging.value = false
+    context.panel.isDragging = false
   })
   useEventListener(window, 'pointerleave', () => {
-    isDragging.value = false
+    context.panel.isDragging = false
   })
 })
 
@@ -127,21 +132,19 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
-const recalculateCounter = ref(0)
-const isHovering = ref(false)
-const isVertical = computed(() => state.value.position === 'left' || state.value.position === 'right')
-
 const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
   recalculateCounter.value
 
+  const store = context.panel.store
+
   const halfWidth = (dockEl.value?.clientWidth || 0) / 2
   const halfHeight = (dockEl.value?.clientHeight || 0) / 2
 
-  const left = state.value.left * windowSize.width / 100
-  const top = state.value.top * windowSize.height / 100
+  const left = store.left * windowSize.width / 100
+  const top = store.top * windowSize.height / 100
 
-  switch (state.value.position) {
+  switch (store.position) {
     case 'top':
       return {
         left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
@@ -169,29 +172,29 @@ const anchorPos = computed(() => {
 let _timer: ReturnType<typeof setTimeout> | null = null
 function bringUp() {
   isHovering.value = true
-  if (state.value.minimizePanelInactive < 0)
+  if (context.panel.store.inactiveTimeout < 0)
     return
   if (_timer)
     clearTimeout(_timer)
   _timer = setTimeout(() => {
     isHovering.value = false
-  }, +state.value.minimizePanelInactive || 0)
+  }, +context.panel.store.inactiveTimeout || 0)
 }
 
 const isHidden = computed(() => false)
 
 const isMinimized = computed(() => {
-  if (state.value.minimizePanelInactive < 0)
+  if (context.panel.store.inactiveTimeout < 0)
     return false
-  if (state.value.minimizePanelInactive === 0)
+  if (context.panel.store.inactiveTimeout === 0)
     return true
   // @ts-expect-error compatibility
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
-  return !isDragging.value
-    && !state.value.open
+  return !context.panel.isDragging
+    && !context.panel.store.open
     && !isHovering.value
     && !isTouchDevice
-    && state.value.minimizePanelInactive
+    && context.panel.store.inactiveTimeout
 })
 
 const anchorStyle = computed(() => {
@@ -204,7 +207,7 @@ const anchorStyle = computed(() => {
 
 const panelStyle = computed(() => {
   const style: any = {
-    transform: isVertical.value
+    transform: context.panel.isVertical
       ? `translate(-50%, -50%) rotate(90deg)`
       : `translate(-50%, -50%)`,
   }
@@ -212,12 +215,12 @@ const panelStyle = computed(() => {
     style.opacity = 0
     style.pointerEvents = 'none'
   }
-  if (isDragging.value)
+  if (context.panel.isDragging)
     style.transition = 'none !important'
   return style
 })
 
-const { selectDockEntry } = useStateHandlers(state)
+const { selectDockEntry } = useStateHandlers(context)
 
 onMounted(() => {
   bringUp()
@@ -231,8 +234,8 @@ onMounted(() => {
     ref="anchorEl"
     :style="[anchorStyle]"
     :class="{
-      'vite-devtools-horizontal': !isVertical,
-      'vite-devtools-vertical': isVertical,
+      'vite-devtools-horizontal': !context.panel.isVertical,
+      'vite-devtools-vertical': context.panel.isVertical,
       'vite-devtools-minimized': isMinimized,
     }"
     @mousemove="bringUp"
@@ -240,7 +243,7 @@ onMounted(() => {
     <div
       v-if="!isSafari"
       id="vite-devtools-glowing"
-      :class="isDragging ? 'op60!' : ''"
+      :class="context.panel.isDragging ? 'op60!' : ''"
     />
     <div
       id="vite-devtools-dock-container"
@@ -256,28 +259,27 @@ onMounted(() => {
         />
         <BracketRight
           class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
-          :class="isVertical ? 'scale-y--100' : ''"
+          :class="context.panel.isVertical ? 'scale-y--100' : ''"
         />
         <VitePlusCore
           class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
           :class="isMinimized ? 'op100' : 'op0'"
         />
         <DockEntries
-          :entries="docks"
+          :entries="context.docks.entries"
           class="transition duration-200 flex items-center w-full h-full justify-center"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
-          :is-vertical="isVertical"
-          :selected="state.dockEntry"
+          :is-vertical="context.panel.isVertical"
+          :selected="context.docks.selected"
           @select="selectDockEntry"
         />
       </div>
     </div>
     <slot
+      :context="context"
       :dock-el="dockEl"
+      :selected="context.docks.selected"
       :panel-margins="panelMargins"
-      :state="state"
-      :is-dragging="isDragging"
-      :entry="state.dockEntry?.type === 'action' ? undefined : state.dockEntry"
     />
   </div>
 </template>

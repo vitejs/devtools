@@ -1,3 +1,3 @@
 export * from './components/DockEmbedded'
-export * from './components/DockProps'
-export * from './components/IframeManager'
+export * from './state/dock'
+export * from './utils/PresistedDomViewsManager'

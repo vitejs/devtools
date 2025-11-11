@@ -1,5 +1,4 @@
 import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { getPayload } from './functions/get-payload'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
 import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
@@ -17,7 +16,6 @@ import { rolldownListSessions } from './functions/rolldown-list-sessions'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
-  getPayload,
   rolldownListSessions,
   rolldownGetRawEvents,
   rolldownGetSessionSummary,

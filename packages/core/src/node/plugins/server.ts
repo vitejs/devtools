@@ -36,20 +36,13 @@ export function DevToolsServer(): Plugin {
         for (const dock of docks) {
           const id = `${dock.type}:${dock.id}`
           if (dock.type === 'action') {
-            // TODO: backward compatibility, remove later
-            // @ts-expect-error ignore
-            map.set(id, dock.action || dock.import)
+            map.set(id, dock.action)
           }
           else if (dock.type === 'custom-render') {
             map.set(id, dock.renderer)
           }
           else if (dock.type === 'iframe' && dock.clientScript) {
             map.set(id, dock.clientScript)
-          }
-          else if ('import' in dock) {
-            // TODO: backward compatibility, remove later
-            // @ts-expect-error ignore
-            map.set(id, dock.import)
           }
         }
         return [

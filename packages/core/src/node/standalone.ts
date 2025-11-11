@@ -1,7 +1,7 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import process from 'node:process'
-import { loadConfigFromFile, resolveConfig } from 'vite'
+import { resolveConfig } from 'vite'
 import { createDevToolsContext } from './context'
 import { DevTools } from './plugins'
 
@@ -23,29 +23,21 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     mode = 'production',
   } = options
 
-  const loaded = await loadConfigFromFile(
-    {
-      command,
-      mode,
-    },
-    options.config,
-    cwd,
-  )
-
-  // Inject devtools plugin
-  const config = loaded?.config || {}
-  config.plugins ||= []
-  config.plugins.push(DevTools())
-
-  dedupeVitePlugins(
-    config.plugins as Plugin[],
-    plugin => plugin.name?.startsWith('vite:devtools'),
-  )
-
   const resolved = await resolveConfig(
-    config,
+    {
+      configFile: options.config,
+      root: cwd,
+      plugins: [
+        DevTools(),
+      ],
+    },
     command,
     mode,
+  )
+
+  dedupeVitePlugins(
+    resolved.plugins as Plugin[],
+    plugin => plugin.name?.startsWith('vite:devtools'),
   )
 
   const context = await createDevToolsContext(resolved)

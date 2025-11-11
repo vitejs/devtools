@@ -1,4 +1,5 @@
-import type { DevToolsNodeContext, RpcFunctionDefinition } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { describe, expect, it } from 'vitest'
 import { RpcFunctionsHost } from '../host-functions'
 
@@ -15,11 +16,11 @@ describe('rpcFunctionsHost', () => {
   describe('register() collision detection', () => {
     it('should register a new RPC function successfully', () => {
       const host = new RpcFunctionsHost(mockContext)
-      const fn: RpcFunctionDefinition<string, any, any, any> = {
+      const fn = defineRpcFunction({
         name: 'test-function',
         type: 'action',
         setup: setupWith(emptyHandler),
-      }
+      })
 
       expect(() => host.register(fn)).not.toThrow()
       expect(host.definitions.has('test-function')).toBe(true)
@@ -27,16 +28,16 @@ describe('rpcFunctionsHost', () => {
 
     it('should throw error when registering duplicate RPC function ID', () => {
       const host = new RpcFunctionsHost(mockContext)
-      const fn1: RpcFunctionDefinition<string, any, any, any> = {
+      const fn1 = defineRpcFunction({
         name: 'duplicate-fn',
         type: 'action',
         setup: setupWith(returnFirst),
-      }
-      const fn2: RpcFunctionDefinition<string, any, any, any> = {
+      })
+      const fn2 = defineRpcFunction({
         name: 'duplicate-fn',
         type: 'action',
         setup: setupWith(returnSecond),
-      }
+      })
 
       host.register(fn1)
 
@@ -48,11 +49,11 @@ describe('rpcFunctionsHost', () => {
 
     it('should include the duplicate ID in error message', () => {
       const host = new RpcFunctionsHost(mockContext)
-      const fn: RpcFunctionDefinition<string, any, any, any> = {
+      const fn = defineRpcFunction({
         name: 'my-special-function',
         type: 'query',
         setup: setupWith(emptyHandler),
-      }
+      })
 
       host.register(fn)
 
@@ -64,11 +65,11 @@ describe('rpcFunctionsHost', () => {
   describe('update() existence validation', () => {
     it('should throw error when updating non-existent RPC function', () => {
       const host = new RpcFunctionsHost(mockContext)
-      const fn: RpcFunctionDefinition<string, any, any, any> = {
+      const fn = defineRpcFunction({
         name: 'nonexistent',
         type: 'action',
         setup: setupWith(emptyHandler),
-      }
+      })
 
       const updateNonexistent = () => host.update(fn)
       expect(updateNonexistent).toThrow()
@@ -79,16 +80,16 @@ describe('rpcFunctionsHost', () => {
 
     it('should update existing RPC function successfully', () => {
       const host = new RpcFunctionsHost(mockContext)
-      const fn1: RpcFunctionDefinition<string, any, any, any> = {
+      const fn1 = defineRpcFunction({
         name: 'update-test',
         type: 'action',
         setup: setupWith(returnV1),
-      }
-      const fn2: RpcFunctionDefinition<string, any, any, any> = {
+      })
+      const fn2 = defineRpcFunction({
         name: 'update-test',
         type: 'action',
         setup: setupWith(returnV2),
-      }
+      })
 
       host.register(fn1)
       const doUpdate = () => host.update(fn2)
@@ -102,11 +103,11 @@ describe('rpcFunctionsHost', () => {
       const host = new RpcFunctionsHost(mockContext)
 
       // Register one function
-      host.register({
+      host.register(defineRpcFunction({
         name: 'exists',
         type: 'action',
         setup: setupWith(emptyHandler),
-      })
+      }))
 
       // Update should work for existing
       const updateExisting = () =>

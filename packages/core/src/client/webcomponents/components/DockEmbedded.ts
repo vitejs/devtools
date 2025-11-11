@@ -1,5 +1,5 @@
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { VueElementConstructor } from 'vue'
-import type { DockProps } from './DockProps'
 import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
 import Component from './DockEmbedded.vue'
@@ -10,6 +10,8 @@ export const DockEmbedded = defineCustomElement(
     shadowRoot: true,
     styles: [css],
   },
-) as VueElementConstructor<DockProps>
+) as VueElementConstructor<{
+  context: DocksContext
+}>
 
 customElements.define('vite-devtools-dock-embedded', DockEmbedded)

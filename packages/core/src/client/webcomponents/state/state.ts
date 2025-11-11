@@ -1,20 +1,23 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
-import type { Ref } from 'vue'
-import type { DevToolsDockState } from '../components/DockProps'
-import { computed, reactive } from 'vue'
+import type { DockClientScriptContext, DocksContext } from '@vitejs/devtools-kit/client'
+import { reactive, toRefs } from 'vue'
 
-export function useStateHandlers(state: Ref<DevToolsDockState>) {
-  function importScript(entry: DevToolsDockEntry): Promise<(context: DockClientScriptContext) => void | Promise<void>> {
+export function useStateHandlers(
+  context: DocksContext,
+) {
+  function _setupScript(
+    entry: DevToolsDockEntry,
+    context: DockClientScriptContext,
+  ): Promise<void> {
     const id = `${entry.type}:${entry.id}`
     return import(/* @vite-ignore */ ['/.devtools', 'imports'].join('-'))
       .then((module) => {
-        const importsMap = module.importsMap as Record<string, () => Promise<() => void>>
+        const importsMap = module.importsMap as Record<string, () => Promise<(context: DockClientScriptContext) => void>>
         const importFn = importsMap[id]
         if (!importFn) {
           return Promise.reject(new Error(`[VITE DEVTOOLS] No import found for id: ${id}`))
         }
-        return importFn()
+        return importFn().then(fn => fn(context))
       })
       .catch((error) => {
         // TODO: maybe popup a error toast here?
@@ -24,42 +27,43 @@ export function useStateHandlers(state: Ref<DevToolsDockState>) {
       })
   }
 
+  const setupPromises = new Map<string, Promise<void>>()
+  function setupScript(entry: DevToolsDockEntry, context: DockClientScriptContext): Promise<void> {
+    if (setupPromises.has(entry.id))
+      return setupPromises.get(entry.id)!
+    const promise = _setupScript(entry, context)
+    setupPromises.set(entry.id, promise)
+    return promise
+  }
+
   async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
-      state.value.open = false
-      state.value.dockEntry = undefined
+      context.panel.store.open = false
+      context.docks.selected = null
+      return
+    }
+    if (context.docks.selected?.id === entry.id) {
       return
     }
 
+    const current = context.docks.getStateById(entry.id)!
+
     const scriptContext: DockClientScriptContext = reactive({
-      dockEntry: entry,
-      // @ts-expect-error cast for unwraping
-      dockState: computed<'active' | 'inactive'>({
-        get() {
-          return state.value.dockEntry?.id === entry.id ? 'active' : 'inactive'
-        },
-        set(val) {
-          if (val === 'active')
-            state.value.dockEntry = entry
-          else if (state.value.dockEntry?.id === entry.id)
-            state.value.dockEntry = undefined
-        },
-      }),
-      hidePanel() {
-        state.value.open = false
-      },
+      ...toRefs(context) as any,
+      current,
     })
 
-    // If it's an action, run and return (early exit)
-    if (entry?.type === 'action') {
-      return await importScript(entry).then(fn => fn(scriptContext))
+    // If has import script, run it
+    if (
+      (entry.type === 'action')
+      || (entry.type === 'custom-render')
+      || (entry.type === 'iframe' && entry.clientScript)
+    ) {
+      await setupScript(entry, scriptContext)
     }
 
-    state.value.dockEntry = entry
-    state.value.open = true
-
-    // If has import script, run it
-    await importScript(entry).then(fn => fn?.(scriptContext))
+    context.docks.selected = entry
+    context.panel.store.open = true
   }
 
   return {

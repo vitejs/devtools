@@ -1,4 +1,5 @@
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { DockClientScriptContext } from '../client'
 import type { RpcFunctionsHost } from './rpc'
 import type { ClientScriptEntry, DevToolsDockHost, DevToolsViewHost } from './views'
 
@@ -27,7 +28,13 @@ export interface DevToolsNodeContext {
 }
 
 export interface DevToolsNodeUtils {
-  clientEntryFromSimpleFunction: (fn: () => void) => ClientScriptEntry
+  /**
+   * Create a simple client script from a function or stringified code
+   *
+   * @deprecated DO NOT USE. This is mostly for testing only. Please use a proper importable module instead.
+   * @experimental
+   */
+  createSimpleClientScript: (fn: string | ((ctx: DockClientScriptContext) => void)) => ClientScriptEntry
 }
 
 export interface ConnectionMeta {
