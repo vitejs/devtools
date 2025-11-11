@@ -84,6 +84,32 @@ export default defineConfig({
             title: 'Custom',
             icon: 'ph:newspaper-clipping-duotone',
           })
+
+          ctx.docks.register({
+            id: 'counter',
+            type: 'action',
+            icon: 'material-symbols:counter-1',
+            title: 'Counter',
+            // TODO: HMR
+            action: ctx.utils.createSimpleClientScript(() => {}),
+          })
+
+          let count = 1
+          // eslint-disable-next-line unimport/auto-insert
+          setInterval(() => {
+            count = (count + 1) % 5
+            ctx.docks.update({
+              id: 'counter',
+              type: 'action',
+              icon: `material-symbols:counter-${count}`,
+              title: `Counter ${count}`,
+              // TODO: HMR
+              action: ctx.utils.createSimpleClientScript(() => {
+                // eslint-disable-next-line no-alert
+                alert(`Counter ${count}`)
+              }),
+            })
+          }, 1000)
         },
       },
     },

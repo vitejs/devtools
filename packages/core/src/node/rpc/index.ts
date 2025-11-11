@@ -23,4 +23,8 @@ export type ServerFunctionsDump = {
 
 declare module '@vitejs/devtools-kit' {
   export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+
+  export interface DevToolsRpcClientFunctions {
+    'vite:core:list-dock-entries:updated': () => Promise<void>
+  }
 }

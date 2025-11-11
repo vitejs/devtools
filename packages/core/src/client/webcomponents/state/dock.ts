@@ -1,8 +1,8 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { ClientRpcReturn, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
-import type { Ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
 import { createNanoEvents } from 'nanoevents'
-import { computed, markRaw, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, markRaw, reactive, ref, shallowRef, watch, watchEffect } from 'vue'
 
 export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
   return {
@@ -52,28 +52,56 @@ function createDockEntryState(
   return state
 }
 
+let _docksEntriesRef: ShallowRef<DevToolsDockEntry[]> | undefined
+export async function useDocksEntries(rpcReturn: ClientRpcReturn): Promise<Ref<DevToolsDockEntry[]>> {
+  if (_docksEntriesRef) {
+    return _docksEntriesRef
+  }
+  const dockEntries = _docksEntriesRef = shallowRef<DevToolsDockEntry[]>([])
+  async function updateDocksEntries() {
+    dockEntries.value = (await rpcReturn.rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry))
+    // eslint-disable-next-line no-console
+    console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
+  }
+  rpcReturn.clientRpc.register({
+    name: 'vite:core:list-dock-entries:updated',
+    type: 'action',
+    handler: () => updateDocksEntries(),
+  })
+  await updateDocksEntries()
+  return dockEntries
+}
+
+let _docksContext: DocksContext | undefined
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
   rpcReturn: ClientRpcReturn,
   panelStore?: Ref<DockPanelStorage>,
 ): Promise<DocksContext> {
-  const selected = ref<DevToolsDockEntry | null>(null)
-  const dockEntries = shallowRef((await rpcReturn.rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry)))
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] Docks Entries', [...dockEntries.value])
-  // TODO: get board case from rpc when entries updates
-  const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
-  for (const entry of dockEntries.value) {
-    // TODO: handle update
-    dockEntryStateMap.set(
-      entry.id,
-      createDockEntryState(entry, selected),
-    )
+  if (_docksContext) {
+    return _docksContext
   }
+
+  const selected = ref<DevToolsDockEntry | null>(null)
+  const dockEntries = await useDocksEntries(rpcReturn)
+
+  const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
+  watchEffect(() => {
+    for (const entry of dockEntries.value) {
+      if (dockEntryStateMap.has(entry.id)) {
+        dockEntryStateMap.get(entry.id)!.entryMeta = entry
+        continue
+      }
+      dockEntryStateMap.set(
+        entry.id,
+        createDockEntryState(entry, selected),
+      )
+    }
+  })
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
 
-  return reactive({
+  _docksContext = reactive({
     panel: {
       store: panelStore,
       isDragging: false,
@@ -82,7 +110,7 @@ export async function createDocksContext(
     },
     docks: {
       selected,
-      entries: dockEntries.value,
+      entries: dockEntries,
       entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
       switchEntry: async (id: string | null) => {
@@ -102,4 +130,6 @@ export async function createDocksContext(
     clientRpc: rpcReturn.clientRpc,
     clientType,
   })
+
+  return _docksContext
 }
