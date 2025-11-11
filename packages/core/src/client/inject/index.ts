@@ -10,7 +10,8 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
-  const { rpc } = await getDevToolsRpcClient()
+  const rpcReturn = await getDevToolsRpcClient()
+  const { rpc } = rpcReturn
 
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
@@ -35,7 +36,7 @@ export async function init(): Promise<void> {
 
   const context = await createDocksContext(
     'embedded',
-    rpc,
+    rpcReturn,
     state,
   )
 

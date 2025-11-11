@@ -1,5 +1,5 @@
 import type {} from '@vitejs/devtools'
-import type { BirpcReturn, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { ClientRpcReturn } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
 import { useRuntimeConfig } from '#app/nuxt'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
@@ -13,7 +13,7 @@ export const connectionState = reactive<{
   error: null,
 })
 
-const rpc = shallowRef<BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>>(undefined!)
+const rpc = shallowRef<ClientRpcReturn['rpc']>(undefined!)
 
 export async function connect() {
   const runtimeConfig = useRuntimeConfig()

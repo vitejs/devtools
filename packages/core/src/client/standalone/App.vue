@@ -9,7 +9,8 @@ import { createDocksContext } from '../webcomponents/state/dock'
 import { useStateHandlers } from '../webcomponents/state/state'
 import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
-const { rpc } = await getDevToolsRpcClient()
+const rpcReturn = await getDevToolsRpcClient()
+const { rpc } = rpcReturn
 
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
@@ -19,7 +20,7 @@ const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
 
 const context: DocksContext = await createDocksContext(
   'standalone',
-  rpc,
+  rpcReturn,
 )
 
 context.docks.selected ||= context.docks.entries[0] || null

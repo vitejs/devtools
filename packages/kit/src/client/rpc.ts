@@ -1,8 +1,10 @@
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../types'
+import type { DevToolsClientContext, DevToolsClientRpcHost } from './docks'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { RpcFunctionsCollectorBase } from 'birpc-x'
 
 function isNumeric(str: string | number | undefined) {
   if (str == null)
@@ -19,12 +21,15 @@ export interface DevToolsRpcClientOptions {
 
 export type DevToolsRpcClient = BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>
 
-export async function getDevToolsRpcClient(
-  options: DevToolsRpcClientOptions = {},
-): Promise<{
+export interface ClientRpcReturn {
   connectionMeta: ConnectionMeta
   rpc: DevToolsRpcClient
-}> {
+  clientRpc: DevToolsClientRpcHost
+}
+
+export async function getDevToolsRpcClient(
+  options: DevToolsRpcClientOptions = {},
+): Promise<ClientRpcReturn> {
   const {
     baseURL = '/.devtools/',
     rpcOptions = {},
@@ -55,16 +60,26 @@ export async function getDevToolsRpcClient(
     ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${connectionMeta.websocket}`
     : connectionMeta.websocket as string
 
-  const rpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({}, {
-    preset: createWsRpcPreset({
-      url,
-      ...options.wsOptions,
-    }),
-    rpcOptions,
-  })
+  const context: DevToolsClientContext = {
+    rpc: undefined!,
+  }
+  const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
+  const rpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>(
+    clientRpc.functions,
+    {
+      preset: createWsRpcPreset({
+        url,
+        ...options.wsOptions,
+      }),
+      rpcOptions,
+    },
+  )
+  // @ts-expect-error assign to readonly property
+  context.rpc = rpc
 
   return {
     connectionMeta,
     rpc,
+    clientRpc,
   }
 }

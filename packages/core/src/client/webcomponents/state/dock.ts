@@ -1,5 +1,5 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DevToolsRpcClient, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { ClientRpcReturn, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
 import { createNanoEvents } from 'nanoevents'
 import { computed, markRaw, reactive, ref, shallowRef, watch } from 'vue'
@@ -54,11 +54,11 @@ function createDockEntryState(
 
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
-  rpc: DevToolsRpcClient,
+  rpcReturn: ClientRpcReturn,
   panelStore?: Ref<DockPanelStorage>,
 ): Promise<DocksContext> {
   const selected = ref<DevToolsDockEntry | null>(null)
-  const dockEntries = shallowRef((await rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry)))
+  const dockEntries = shallowRef((await rpcReturn.rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry)))
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Docks Entries', [...dockEntries.value])
   // TODO: get board case from rpc when entries updates
@@ -98,7 +98,8 @@ export async function createDocksContext(
         return true
       },
     },
-    rpc,
+    rpc: rpcReturn.rpc,
+    clientRpc: rpcReturn.clientRpc,
     clientType,
   })
 }

@@ -28,7 +28,7 @@ catalogs:
     ansis: ^4.2.0
     birpc: ^2.8.0
     # Unstable API, lock the version
-    birpc-x: 0.0.1
+    birpc-x: 0.0.3
     cac: ^6.7.14
     debug: ^4.4.3
     diff: ^8.0.2

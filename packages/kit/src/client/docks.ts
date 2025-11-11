@@ -1,6 +1,7 @@
+import type { RpcFunctionsCollector } from 'birpc-x'
 import type { Emitter as EventsEmitter } from 'nanoevents'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry } from '../types'
+import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '../types'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -15,7 +16,14 @@ export interface DockPanelStorage {
 
 export type DockClientType = 'embedded' | 'standalone'
 
-export interface DocksContext {
+export interface DevToolsClientContext {
+  /**
+   * The RPC client to interact with the server
+   */
+  readonly rpc: DevToolsRpcClient
+}
+
+export interface DocksContext extends DevToolsClientContext {
   /**
    * Type of the client environment
    *
@@ -24,18 +32,20 @@ export interface DocksContext {
    */
   readonly clientType: 'embedded' | 'standalone'
   /**
-   * The RPC client to interact with the server
-   */
-  readonly rpc: DevToolsRpcClient
-  /**
    * The panel context
    */
-  panel: DocksPanelContext
+  readonly panel: DocksPanelContext
   /**
    * The docks entries context
    */
-  docks: DocksEntriesContext
+  readonly docks: DocksEntriesContext
+  /**
+   * The client-side RPC functions to be called from the server
+   */
+  readonly clientRpc: DevToolsClientRpcHost
 }
+
+export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsClientContext>
 
 export interface DocksPanelContext {
   store: DockPanelStorage
