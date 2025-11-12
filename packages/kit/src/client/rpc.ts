@@ -15,6 +15,7 @@ function isNumeric(str: string | number | undefined) {
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
   baseURL?: string[]
+  cacheResponse?: boolean
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions>>
 }
@@ -25,6 +26,7 @@ export interface ClientRpcReturn {
   connectionMeta: ConnectionMeta
   rpc: DevToolsRpcClient
   clientRpc: DevToolsClientRpcHost
+  invalidateCache: () => void
 }
 
 export async function getDevToolsRpcClient(
@@ -33,8 +35,10 @@ export async function getDevToolsRpcClient(
   const {
     baseURL = '/.devtools/',
     rpcOptions = {},
+    cacheResponse = false,
   } = options
   const urls = Array.isArray(baseURL) ? baseURL : [baseURL]
+  const responseCacheMap = new Map<string, unknown>()
   let connectionMeta: ConnectionMeta | undefined = options.connectionMeta
 
   if (!connectionMeta) {
@@ -71,15 +75,42 @@ export async function getDevToolsRpcClient(
         url,
         ...options.wsOptions,
       }),
-      rpcOptions,
+      rpcOptions: {
+        ...rpcOptions,
+        onRequest: async (req, next, resolve) => {
+          await rpcOptions.onRequest?.(req, next, resolve)
+          if (cacheResponse) {
+            const cacheKey = `${req.m}-${JSON.stringify(req.a)}`
+            if (responseCacheMap.has(cacheKey)) {
+              resolve(responseCacheMap.get(cacheKey))
+            }
+            else {
+              responseCacheMap.set(cacheKey, await next(req))
+            }
+          }
+          else {
+            await next(req)
+          }
+        },
+      },
     },
   )
   // @ts-expect-error assign to readonly property
   context.rpc = rpc
 
+  function invalidateCache(key?: string) {
+    if (key) {
+      responseCacheMap.delete(key)
+    }
+    else {
+      responseCacheMap.clear()
+    }
+  }
+
   return {
     connectionMeta,
     rpc,
     clientRpc,
+    invalidateCache,
   }
 }
