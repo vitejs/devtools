@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
@@ -7,12 +8,10 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{
   chunk: RolldownChunkInfo
   session: SessionContext
-  showModules?: boolean
-  showImports?: boolean
+  showDetails?: boolean
   chunks?: RolldownChunkInfo[]
 }>(), {
-  showModules: true,
-  showImports: true,
+  showDetails: true,
 })
 
 const modulesMap = computed(() => {
@@ -29,6 +28,7 @@ const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) =>
   return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
 }, 0))
 
+const route = useRoute()
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
@@ -84,42 +84,56 @@ const importers = computed((): RolldownChunkImport[] => {
       <slot />
     </ChunksBaseInfo>
 
-    <details v-if="showModules" open="true">
-      <summary op50>
-        <span>Modules ({{ chunk.modules.length }})</span>
-      </summary>
-      <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="chunk.modules">
-        <template #default="{ items }">
-          <DisplayModuleId
-            v-for="module of items"
-            :id="module"
-            :key="module"
-            :session
-            :link="true"
-            :minimal="true"
-            hover="bg-active"
-            border="~ base rounded" px2 py1 w-full
-          />
-        </template>
-      </DisplayExpandableContainer>
-    </details>
-
-    <VisualLoading v-if="isLoading" />
-
-    <template v-else-if="showImports">
-      <details v-if="chunk.imports.length" open="true">
+    <template v-if="showDetails">
+      <details open="true">
         <summary op50>
-          <span>Imports ({{ chunk.imports.length }})</span>
+          Assets
         </summary>
-        <ChunksImports :imports="imports" />
+        <NuxtLink
+          border="~ base rounded-lg" px2 mt2 py1 min-w-fit flex="~"
+          :to="{ path: route.path, query: { asset: chunk.asset?.filename } }"
+        >
+          <AssetsBaseInfo :asset="{ ...chunk.asset!, type: 'asset' }" />
+        </NuxtLink>
       </details>
 
-      <details v-if="importers.length" open="true">
+      <details open="true">
         <summary op50>
-          <span>Importers ({{ importers.length }})</span>
+          <span>Modules ({{ chunk.modules.length }})</span>
         </summary>
-        <ChunksImports :imports="importers" />
+        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="chunk.modules">
+          <template #default="{ items }">
+            <DisplayModuleId
+              v-for="module of items"
+              :id="module"
+              :key="module"
+              :session
+              :link="true"
+              :minimal="true"
+              hover="bg-active"
+              border="~ base rounded" px2 py1 w-full
+            />
+          </template>
+        </DisplayExpandableContainer>
       </details>
+
+      <VisualLoading v-if="isLoading" />
+
+      <template v-else>
+        <details v-if="chunk.imports.length" open="true">
+          <summary op50>
+            <span>Imports ({{ chunk.imports.length }})</span>
+          </summary>
+          <ChunksImports :imports="imports" />
+        </details>
+
+        <details v-if="importers.length" open="true">
+          <summary op50>
+            <span>Importers ({{ importers.length }})</span>
+          </summary>
+          <ChunksImports :imports="importers" />
+        </details>
+      </template>
     </template>
   </div>
 </template>

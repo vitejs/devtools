@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Asset as AssetInfo } from '@rolldown/debug'
-import type {} from '@vitejs/devtools'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
@@ -74,12 +73,7 @@ function openInEditor() {
 <template>
   <div flex="~ col gap-3">
     <div flex="~ gap-4 items-center wrap">
-      <div flex="~ gap-2 items-center">
-        <div i-catppuccin-java-class-abstract />
-        <div>{{ asset.filename }}</div>
-        <DisplayFileSizeBadge :bytes="asset.size" text-sm />
-        <DisplayBadge :text="asset.type" />
-      </div>
+      <AssetsBaseInfo :asset="asset" />
       <div flex-auto />
       <div flex="~ gap-2">
         <button btn-action @click="openInEditor">
@@ -127,8 +121,7 @@ function openInEditor() {
           <DataChunkDetails
             :chunk="chunk"
             :session="session"
-            :show-modules="false"
-            :show-imports="false"
+            :show-details="false"
           />
         </NuxtLink>
       </div>

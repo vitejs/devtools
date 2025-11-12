@@ -162,6 +162,7 @@ export interface RolldownModuleNoChangesHide {
 export interface RolldownChunkInfo extends ChunkInfo {
   type?: 'chunk'
   is_initial?: boolean
+  asset?: AssetInfo
 }
 
 export interface RolldownAssetInfo extends AssetInfo {

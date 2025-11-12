@@ -10,9 +10,11 @@ export const rolldownGetChunkInfo = defineRpcFunction({
     return {
       handler: async ({ session, id }: { session: string, id: number }) => {
         const reader = await manager.loadSession(session)
-        const chunk = reader.manager.chunks.get(id)
+        const chunk = reader.manager.chunks.get(id)!
         if (chunk && !chunk.name)
           chunk.name = guessChunkName(chunk)
+
+        chunk.asset = reader.manager.chunkAssetMap.get(chunk.chunk_id)
         return chunk
       },
     }

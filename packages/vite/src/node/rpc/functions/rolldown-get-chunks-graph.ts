@@ -11,9 +11,12 @@ export const rolldownGetChunksGraph = defineRpcFunction({
       handler: async ({ session }: { session: string }) => {
         const reader = await manager.loadSession(session)
         const chunks = Array.from(reader.manager.chunks.values())
+
         chunks.forEach((chunk) => {
           if (chunk && !chunk.name)
             chunk.name = guessChunkName(chunk)
+
+          chunk.asset = reader.manager.chunkAssetMap.get(chunk.chunk_id)
         })
         return chunks
       },

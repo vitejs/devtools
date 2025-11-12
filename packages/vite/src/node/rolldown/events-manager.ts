@@ -17,6 +17,7 @@ export class RolldownEventsManager {
   events: RolldownEvent[] = []
   chunks: Map<number, RolldownChunkInfo> = new Map()
   assets: Map<string, AssetInfo> = new Map()
+  chunkAssetMap = new Map<number, AssetInfo>()
   modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
   source_refs: Map<string, string> = new Map()
   module_build_hook_events: Map<string, ModuleBuildHookEvents> = new Map()
@@ -182,6 +183,7 @@ export class RolldownEventsManager {
       for (const asset of event.assets) {
         this.assets.set(asset.filename, asset)
       }
+      this.chunkAssetMap = new Map(event.assets.map(asset => [asset.chunk_id!, asset]))
     }
 
     return event
