@@ -5,6 +5,7 @@ import type { CSSProperties } from 'vue'
 import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
 import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
+import ViewLauncher from './ViewLauncher.vue'
 
 defineProps<{
   context: DocksContext
@@ -30,6 +31,11 @@ defineProps<{
     :entry
     :presisted-doms="presistedDoms"
     :div-style="divStyle"
+  />
+  <ViewLauncher
+    v-else-if="entry.type === 'launcher'"
+    :context
+    :entry
   />
   <div v-else>
     Unknown entry: {{ entry }}

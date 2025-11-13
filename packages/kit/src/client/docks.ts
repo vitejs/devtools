@@ -55,7 +55,8 @@ export interface DocksPanelContext {
 }
 
 export interface DocksEntriesContext {
-  selected: DevToolsDockEntry | null
+  selectedId: string | null
+  readonly selected: DevToolsDockEntry | null
   entries: DevToolsDockEntry[]
   entryToStateMap: Map<string, DockEntryState>
   /**

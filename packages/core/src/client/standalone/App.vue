@@ -23,7 +23,7 @@ const context: DocksContext = await createDocksContext(
   rpcReturn,
 )
 
-context.docks.selected ||= context.docks.entries[0] || null
+context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
 
 const { selectDockEntry } = useStateHandlers(context)
 </script>
@@ -43,7 +43,7 @@ const { selectDockEntry } = useStateHandlers(context)
       />
     </div>
     <div>
-      <div id="vite-devtools-views-container" ref="viewsContainer" />
+      <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
       <ViewEntry
         v-if="context.docks.selected && viewsContainer"
         :key="context.docks.selected.id"

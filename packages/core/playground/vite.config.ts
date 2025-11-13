@@ -94,6 +94,27 @@ export default defineConfig({
             action: ctx.utils.createSimpleClientScript(() => {}),
           })
 
+          ctx.docks.register({
+            id: 'launcher',
+            type: 'launcher',
+            icon: 'ph:rocket-launch-duotone',
+            title: 'Launcher',
+            launcher: {
+              title: 'Launcher My Cool App',
+              onLaunch: async () => {
+                await new Promise(resolve => setTimeout(resolve, 1000))
+
+                ctx.docks.update({
+                  id: 'launcher',
+                  icon: 'ph:rocket-launch-fill',
+                  type: 'iframe',
+                  title: 'My Cool App is Ready',
+                  url: 'https://antfu.me',
+                })
+              },
+            },
+          })
+
           let count = 1
           // eslint-disable-next-line unimport/auto-insert
           setInterval(() => {

@@ -82,8 +82,9 @@ export async function createDocksContext(
     return _docksContext
   }
 
-  const selected = ref<DevToolsDockEntry | null>(null)
+  const selectedId = ref<string | null>(null)
   const dockEntries = await useDocksEntries(rpcReturn)
+  const selected = computed(() => dockEntries.value.find(entry => entry.id === selectedId.value) ?? null)
 
   const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
   watchEffect(() => {
@@ -109,19 +110,20 @@ export async function createDocksContext(
       isVertical: computed(() => panelStore.value.position === 'left' || panelStore.value.position === 'right'),
     },
     docks: {
+      selectedId,
       selected,
       entries: dockEntries,
       entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
       switchEntry: async (id: string | null) => {
         if (id === null) {
-          selected.value = null
+          selectedId.value = null
           return true
         }
         const entry = dockEntries.value.find(e => e.id === id)
         if (!entry)
           return false
-        selected.value = entry
+        selectedId.value = entry.id
         // TODO: run action
         return true
       },

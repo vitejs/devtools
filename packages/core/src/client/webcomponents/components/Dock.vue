@@ -245,6 +245,12 @@ onMounted(() => {
       id="vite-devtools-glowing"
       :class="context.panel.isDragging ? 'op60!' : ''"
     />
+    <slot
+      :context="context"
+      :dock-el="dockEl"
+      :selected="context.docks.selected"
+      :panel-margins="panelMargins"
+    />
     <div
       id="vite-devtools-dock-container"
       ref="dockEl"
@@ -275,11 +281,5 @@ onMounted(() => {
         />
       </div>
     </div>
-    <slot
-      :context="context"
-      :dock-el="dockEl"
-      :selected="context.docks.selected"
-      :panel-margins="panelMargins"
-    />
   </div>
 </template>

@@ -1,3 +1,4 @@
+export * from './docks'
 export * from './rpc'
 export * from './rpc-augments'
 export * from './utils'

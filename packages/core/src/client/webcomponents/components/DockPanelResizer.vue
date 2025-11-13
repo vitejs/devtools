@@ -82,7 +82,7 @@ watch(
   <div
     id="vite-devtools-resize-container"
     ref="container"
-    class="w-full h-full absolute left-0 right-0 bottom-0 top-0 antialiased"
+    class="w-full h-full absolute left-0 right-0 bottom-0 top-0 antialiased pointer-events-auto"
   >
     <!-- Handlers -->
     <div

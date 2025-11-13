@@ -102,7 +102,6 @@ const panelStyle = computed(() => {
 
   const style: CSSProperties = {
     position: 'fixed',
-    zIndex: -1,
     pointerEvents: (panel.isDragging || panel.isResizing) ? 'none' : 'auto',
     width: `min(${store.width}vw, calc(100vw - ${marginHorizontal}px))`,
     height: `min(${store.height}vh, calc(100vh - ${marginVertical}px))`,
@@ -178,12 +177,11 @@ onMounted(() => {
         border: '1px solid #8883',
         borderRadius: '0.5rem',
       }"
-      rounded
     />
     <div
       id="vite-devtools-views-container"
       ref="viewsContainer"
-      class="absolute inset-0"
+      class="absolute inset-0 pointer-events-none"
     />
   </div>
 </template>

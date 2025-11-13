@@ -39,10 +39,10 @@ export function useStateHandlers(
   async function selectDockEntry(entry?: DevToolsDockEntry) {
     if (!entry) {
       context.panel.store.open = false
-      context.docks.selected = null
+      context.docks.selectedId = null
       return
     }
-    if (context.docks.selected?.id === entry.id) {
+    if (context.docks.selectedId === entry.id) {
       return
     }
 
@@ -62,7 +62,7 @@ export function useStateHandlers(
       await setupScript(entry, scriptContext)
     }
 
-    context.docks.selected = entry
+    context.docks.selectedId = entry.id
     context.panel.store.open = true
   }
 

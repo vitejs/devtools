@@ -1,6 +1,7 @@
 import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { listDockEntries } from './list-dock-entries'
 import { listRpcFunctions } from './list-rpc-functions'
+import { onDockLaunch } from './on-dock-launch'
 import { openInEditor } from './open-in-editor'
 import { openInFinder } from './open-in-finder'
 
@@ -9,6 +10,7 @@ export const builtinRpcFunctions = [
   listDockEntries,
   openInEditor,
   openInFinder,
+  onDockLaunch,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcFunctions>

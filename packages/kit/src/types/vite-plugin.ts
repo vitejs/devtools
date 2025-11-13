@@ -1,7 +1,8 @@
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DockClientScriptContext } from '../client'
+import type { ClientScriptEntry, DevToolsDockHost } from './docks'
 import type { RpcFunctionsHost } from './rpc'
-import type { ClientScriptEntry, DevToolsDockHost, DevToolsViewHost } from './views'
+import type { DevToolsViewHost } from './views'
 
 export interface DevToolsCapabilities {
   rpc?: boolean
