@@ -23,7 +23,7 @@ export async function connect() {
         '/.devtools/',
         runtimeConfig.app.baseURL,
       ],
-      cacheResponse: true,
+      cacheOptions: true,
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {
         onConnected: () => {
@@ -45,6 +45,16 @@ export async function connect() {
     })
 
     rpc.value = result.rpc
+
+    const functions = await rpc.value.$call('vite:core:list-rpc-functions')
+
+    // TODO: add cacheable option to birpc-x and use it here
+    // @ts-expect-error skip type check
+    const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
+    result.cacheManager.updateOptions({
+      functions: [...cacheableFunctions],
+    })
+
     connectionState.connected = true
   }
   catch (e) {
