@@ -10,6 +10,9 @@ export default defineConfig({
   exports: true,
   dts: true,
   clean: false,
+  noExternal: [
+    '@pnpm/read-project-manifest',
+  ],
   inputOptions: {
     experimental: {
       resolveNewUrlToAsset: false,
