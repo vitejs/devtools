@@ -45,7 +45,7 @@
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
-    "play:standlone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
+    "play:standalone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
     "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
     "play:build": "pnpm -C playground run build"
   },

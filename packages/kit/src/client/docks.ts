@@ -28,7 +28,7 @@ export interface DocksContext extends DevToolsClientContext {
    * Type of the client environment
    *
    * 'embedded' - running inside an embedded floating panel
-   * 'standalone' - running inside a standlone window (no user app)
+   * 'standalone' - running inside a standalone window (no user app)
    */
   readonly clientType: 'embedded' | 'standalone'
   /**
