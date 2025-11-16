@@ -9,10 +9,12 @@ export interface DevToolsDockHost {
 
 export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default'
 
+export type DevToolsDockEntryIcon = string | { light: string, dark: string }
+
 export interface DevToolsDockEntryBase {
   id: string
   title: string
-  icon: string | { light: string, dark: string }
+  icon: DevToolsDockEntryIcon
   /**
    * The default order of the entry in the dock.
    * The higher the number the earlier it appears.
@@ -54,13 +56,18 @@ export interface DevToolsViewIframe extends DevToolsDockEntryBase {
   clientScript?: ClientScriptEntry
 }
 
+export type DevToolsViewLauncherStatus = 'idle' | 'loading' | 'success' | 'error'
+
 export interface DevToolsViewLauncher extends DevToolsDockEntryBase {
   type: 'launcher'
   launcher: {
+    icon?: DevToolsDockEntryIcon
     title: string
-    status?: 'idle' | 'loading' | 'success' | 'error'
+    status?: DevToolsViewLauncherStatus
     error?: string
     description?: string
+    buttonStart?: string
+    buttonLoading?: string
     onLaunch: () => Promise<void>
   }
 }
