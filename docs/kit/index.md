@@ -144,6 +144,47 @@ And in your package.json, you can export the sub entrypoint:
 
 That's it! When users install your plugin, they can use your action button in the dock, and when the entry is activated the first time, the action will be executed in the user's app for you to handle the logic.
 
+### Register Custom Renderer
+
+If you want to draw your own views directly in the user's app instead of an iframe, you can register an dock entry with a custom renderer:
+
+```ts {6}
+ctx.docks.register({
+  id: 'my-custom-view',
+  title: 'My Custom View',
+  type: 'custom-render',
+  renderer: {
+    importFrom: 'vite-plugin-my-inspector/vite-devtools-renderer',
+    importName: 'default',
+  },
+  icon: 'ph:file-duotone'
+})
+```
+
+Same as [Action](#register-an-action), we write the renderer logic in client script that we export in a sub export:
+
+```ts [src/vite-devtools-renderer.ts]
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setupDevToolsCustomRenderer(ctx: DevToolsClientScriptContext) {
+  // Setup action will only execute when the entry is activated the first time
+
+  // Mounted event will also be called once and we will preseve the DOM
+  ctx.current.events.on('dom:panel:mounted', (panel) => {
+    // Render your custom DOM and mount to `panel`
+    // You can use vanila JavaScript or actually any frameworks you prefer
+    const el = document.createElement('div')
+    el.style.padding = '16px'
+    el.textContent = 'Hello from custom render dock!'
+
+    const btn = document.createElement('button')
+    btn.textContent = 'Click me'
+    el.appendChild(btn)
+    panel.appendChild(el)
+  })
+}
+```
+
 ## References
 
 The docs might not cover all the details, please help us to improve it by submitting PRs. And in the meantime, you can refer to the following existing DevTools integrations for reference (but note they might not always be up to date with the latest API changes):
