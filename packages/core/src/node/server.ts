@@ -5,23 +5,24 @@ import { dirClientStandalone } from '../dirs'
 import { createWsServer } from './ws'
 
 export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
-  const app = createApp()
+  const h3 = createApp()
 
-  const { rpc, getConnectionMeta: getMetadata } = await createWsServer(options)
+  const { rpc, getConnectionMeta } = await createWsServer(options)
 
-  app.use('/.vdt-connection.json', eventHandler(async (event) => {
+  h3.use('/.vdt-connection.json', eventHandler(async (event) => {
     event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify(await getMetadata()))
+    return event.node.res.end(JSON.stringify(await getConnectionMeta()))
   }))
 
-  app.use(fromNodeMiddleware(sirv(dirClientStandalone, {
+  h3.use(fromNodeMiddleware(sirv(dirClientStandalone, {
     dev: true,
     single: true,
   })))
 
   return {
-    h3: app,
-    middleware: toNodeListener(app),
+    h3,
     rpc,
+    middleware: toNodeListener(h3),
+    getConnectionMeta,
   }
 }

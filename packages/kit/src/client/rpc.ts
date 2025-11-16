@@ -6,6 +6,8 @@ import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 import { RpcFunctionsCollectorBase } from 'birpc-x'
 
+const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
+
 function isNumeric(str: string | number | undefined) {
   if (str == null)
     return false
@@ -27,6 +29,23 @@ export interface ClientRpcReturn {
   clientRpc: DevToolsClientRpcHost
 }
 
+function findConnectionMetaFromWindows(): ConnectionMeta | undefined {
+  const getters = [
+    () => (window as any)[CONNECTION_META_KEY],
+    () => (globalThis as any)[CONNECTION_META_KEY],
+    () => (parent.window as any)[CONNECTION_META_KEY],
+  ]
+
+  for (const getter of getters) {
+    try {
+      const value = getter()
+      if (value)
+        return value
+    }
+    catch {}
+  }
+}
+
 export async function getDevToolsRpcClient(
   options: DevToolsRpcClientOptions = {},
 ): Promise<ClientRpcReturn> {
@@ -34,15 +53,16 @@ export async function getDevToolsRpcClient(
     baseURL = '/.devtools/',
     rpcOptions = {},
   } = options
-  const urls = Array.isArray(baseURL) ? baseURL : [baseURL]
-  let connectionMeta: ConnectionMeta | undefined = options.connectionMeta
+  const bases = Array.isArray(baseURL) ? baseURL : [baseURL]
+  let connectionMeta: ConnectionMeta | undefined = options.connectionMeta || findConnectionMetaFromWindows()
 
   if (!connectionMeta) {
     const errors: Error[] = []
-    for (const url of urls) {
+    for (const base of bases) {
       try {
-        connectionMeta = await fetch(`${url}.vdt-connection.json`)
+        connectionMeta = await fetch(`${base}.vdt-connection.json`)
           .then(r => r.json()) as ConnectionMeta
+        ;(globalThis as any)[CONNECTION_META_KEY] = connectionMeta
         break
       }
       catch (e) {
@@ -50,7 +70,7 @@ export async function getDevToolsRpcClient(
       }
     }
     if (!connectionMeta) {
-      throw new Error(`Failed to get connection meta from ${urls.join(', ')}`, {
+      throw new Error(`Failed to get connection meta from ${bases.join(', ')}`, {
         cause: errors,
       })
     }
