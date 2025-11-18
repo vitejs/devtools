@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
@@ -32,8 +31,8 @@ const { state } = useAsyncState(
       } as {
         asset: RolldownAssetInfo
         chunks: RolldownChunkInfo[]
-        importers: AssetInfo[]
-        imports: AssetInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
       }
     }
     else {
@@ -45,8 +44,8 @@ const { state } = useAsyncState(
       } satisfies {
         asset: RolldownAssetInfo
         chunks: RolldownChunkInfo[]
-        importers: AssetInfo[]
-        imports: AssetInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
       }
     }
   },

@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { HierarchyNode } from 'd3-hierarchy'
+import type { RolldownAssetInfo } from '~~/shared/types'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
 const props = defineProps<{
-  importers?: AssetInfo[]
-  imports?: AssetInfo[]
+  importers?: RolldownAssetInfo[]
+  imports?: RolldownAssetInfo[]
 }>()
 
 type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
@@ -25,7 +25,7 @@ const SPACING = {
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
-const links = shallowRef<ModuleGraphLink<AssetInfo, AssetInfo>[]>([])
+const links = shallowRef<ModuleGraphLink<RolldownAssetInfo, RolldownAssetInfo>[]>([])
 
 const normalizedMaxLinks = computed(() => {
   return Math.min(Math.max(props.importers?.length || 0, props.imports?.length || 0), MAX_LINKS)
@@ -88,11 +88,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
-        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
         target: {
           x: calculateLinkX('importer-end'),
           y: calculateLinkY('importer-end'),
-        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
       }
     })
     links.value.push(..._importersLinks)
@@ -106,11 +106,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
-        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
         target: {
           x: calculateLinkX('import-end'),
           y: calculateLinkY('import-end', i),
-        } as HierarchyNode<ModuleGraphNode<AssetInfo, AssetInfo>>,
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
       }
     })
     links.value.push(..._importsLinks)
@@ -223,8 +223,8 @@ onMounted(() => {
         <path
           v-for="link of links"
           :key="link.id"
-          :d="generateModuleGraphLink<AssetInfo, AssetInfo>(link)!"
-          :class="getModuleGraphLinkColor<AssetInfo, AssetInfo>(link)"
+          :d="generateModuleGraphLink<RolldownAssetInfo, RolldownAssetInfo>(link)!"
+          :class="getModuleGraphLinkColor<RolldownAssetInfo, RolldownAssetInfo>(link)"
           fill="none"
         />
       </g>

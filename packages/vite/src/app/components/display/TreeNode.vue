@@ -21,6 +21,11 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   (e: 'select', node: ModuleDest): void
 }>()
+
+defineSlots<{
+  extra: (props: { node: ModuleDest }) => any
+}>()
+
 const open = defineModel<boolean>('open', { required: false, default: true })
 const route = useRoute()
 const location = window.location
@@ -57,7 +62,11 @@ function select(node: ModuleDest) {
         :padding="padding + 1"
         :link-query-key="linkQueryKey"
         @select="select"
-      />
+      >
+        <template #extra="{ node }">
+          <slot name="extra" :node="node" />
+        </template>
+      </DisplayTreeNode>
       <template v-for="i of node.items" :key="i.full">
         <component
           :is="link ? NuxtLink : 'div'"
@@ -73,6 +82,7 @@ function select(node: ModuleDest) {
           <DisplayFileIcon :filename="i.full" />
           <div font-mono>
             <DisplayHighlightedPath :path="i.path.split('/').pop() || ''" />
+            <slot name="extra" :node="i" />
           </div>
         </component>
       </template>

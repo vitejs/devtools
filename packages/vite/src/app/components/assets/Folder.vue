@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
-import type { ModuleDest, SessionContext } from '~~/shared/types'
+import type { ModuleDest, RolldownAssetInfo, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 import { toTree } from '../../utils/format'
 
 const props = defineProps<{
-  assets: AssetInfo[]
+  assets: RolldownAssetInfo[]
   session: SessionContext
 }>()
 const assetTree = computed(() => {
@@ -18,6 +17,8 @@ const assetTree = computed(() => {
   })
   return toTree(nodes, 'Project')
 })
+
+const assetsMap = computed(() => new Map<string, RolldownAssetInfo>(props.assets.map(a => [a.filename, a])))
 </script>
 
 <template>
@@ -30,7 +31,13 @@ const assetTree = computed(() => {
       icon-open="i-catppuccin:folder-dist-open catppuccin"
       :link="true"
       link-query-key="asset"
-    />
+    >
+      <template #extra="{ node }">
+        <span op50>
+          ({{ assetsMap.get(node.full)?.chunk?.name?.replace(/[\[\]]/g, '') }})
+        </span>
+      </template>
+    </DisplayTreeNode>
   </div>
 </template>
 
