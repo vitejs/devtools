@@ -166,7 +166,8 @@ export interface RolldownChunkInfo extends ChunkInfo {
 }
 
 export interface RolldownAssetInfo extends AssetInfo {
-  type: 'asset'
+  type?: 'asset'
+  chunk?: RolldownChunkInfo
 }
 
 export type RolldownModuleFlowNode

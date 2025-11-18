@@ -1,8 +1,7 @@
-import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { TreeNode } from 'nanovis'
-import type { PackageInfo, PluginBuildInfo } from '~~/shared/types'
+import type { PackageInfo, PluginBuildInfo, RolldownAssetInfo } from '~~/shared/types'
 
-export type AssetChartInfo = AssetInfo & {
+export type AssetChartInfo = Omit<RolldownAssetInfo, 'type'> & {
   path: string
   type: 'folder' | 'file'
 }

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types'
+import type { RolldownAssetInfo, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
 import { useRoute, useRouter } from '#app/composables/router'
@@ -84,7 +83,7 @@ function toggleDisplay(type: ClientSettings['assetViewType']) {
   settings.value.assetViewType = type
 }
 
-const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<AssetInfo, AssetChartInfo, AssetChartNode>({
+const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<Omit<RolldownAssetInfo, 'type'>, AssetChartInfo, AssetChartNode>({
   data: searched,
   nameKey: 'filename',
   sizeKey: 'size',

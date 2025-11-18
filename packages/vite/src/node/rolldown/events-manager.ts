@@ -1,5 +1,6 @@
-import type { Asset as AssetInfo, Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
-import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownChunkInfo } from '../../shared/types'
+import type { Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
+import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownAssetInfo, RolldownChunkInfo } from '../../shared/types'
+import { guessChunkName } from '../../shared/utils/guess-chunk-name'
 import { getInitialChunkIds } from '../utils/chunk'
 import { getContentByteSize } from '../utils/format'
 
@@ -16,8 +17,8 @@ const MODULE_BUILD_END_HOOKS = ['HookResolveIdCallEnd', 'HookLoadCallEnd', 'Hook
 export class RolldownEventsManager {
   events: RolldownEvent[] = []
   chunks: Map<number, RolldownChunkInfo> = new Map()
-  assets: Map<string, AssetInfo> = new Map()
-  chunkAssetMap = new Map<number, AssetInfo>()
+  assets: Map<string, RolldownAssetInfo> = new Map()
+  chunkAssetMap = new Map<number, RolldownAssetInfo>()
   modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
   source_refs: Map<string, string> = new Map()
   module_build_hook_events: Map<string, ModuleBuildHookEvents> = new Map()
@@ -143,7 +144,7 @@ export class RolldownEventsManager {
     if (event.action === 'ChunkGraphReady') {
       const initialChunkIds = getInitialChunkIds(event.chunks)
       for (const chunk of event.chunks) {
-        this.chunks.set(chunk.chunk_id, { ...chunk, is_initial: initialChunkIds.has(chunk.chunk_id) })
+        this.chunks.set(chunk.chunk_id, { ...chunk, is_initial: initialChunkIds.has(chunk.chunk_id), name: chunk.name || guessChunkName(chunk) })
       }
       return
     }
@@ -181,7 +182,7 @@ export class RolldownEventsManager {
 
     if (event.action === 'AssetsReady') {
       for (const asset of event.assets) {
-        this.assets.set(asset.filename, asset)
+        this.assets.set(asset.filename, { ...asset, chunk: this.chunks.get(asset.chunk_id!) })
       }
       this.chunkAssetMap = new Map(event.assets.map(asset => [asset.chunk_id!, asset]))
     }

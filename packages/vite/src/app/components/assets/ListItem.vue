@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
+import type { RolldownAssetInfo } from '~~/shared/types'
 
 defineProps<{
-  asset: AssetInfo
+  asset: RolldownAssetInfo
 }>()
 </script>
 
@@ -15,6 +15,9 @@ defineProps<{
       <DisplayFileIcon :filename="asset.filename" />
       <span overflow-hidden text-ellipsis break-all line-clamp-2>
         {{ asset.filename }}
+        <span op50>
+          ({{ asset.chunk?.name?.replace(/[\[\]]/g, '') }})
+        </span>
       </span>
     </div>
   </NuxtLink>

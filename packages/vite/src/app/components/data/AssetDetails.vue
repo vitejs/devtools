@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
@@ -11,8 +10,8 @@ const props = withDefaults(defineProps<{
   session: SessionContext
   asset: RolldownAssetInfo
   chunks?: RolldownChunkInfo[]
-  importers?: AssetInfo[]
-  imports?: AssetInfo[]
+  importers?: RolldownAssetInfo[]
+  imports?: RolldownAssetInfo[]
   lazy?: boolean
 }>(), {
   lazy: false,
@@ -40,8 +39,8 @@ const { state } = useAsyncState(
         imports: res?.imports,
       } as {
         chunks: RolldownChunkInfo[]
-        importers: AssetInfo[]
-        imports: AssetInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
       }
     }
     else {
@@ -51,8 +50,8 @@ const { state } = useAsyncState(
         imports: [],
       } as {
         chunks: RolldownChunkInfo[]
-        importers: AssetInfo[]
-        imports: AssetInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
       }
     }
   },

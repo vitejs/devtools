@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Asset as AssetInfo } from '@rolldown/debug'
+import type { RolldownAssetInfo } from '~~/shared/types'
 
 defineProps<{
-  assets: AssetInfo[]
+  assets: RolldownAssetInfo[]
 }>()
 </script>
 
