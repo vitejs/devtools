@@ -4,6 +4,7 @@ import Debug from 'debug'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
+import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { builtinRpcFunctions } from './rpc'
 
@@ -24,13 +25,16 @@ export async function createDevToolsContext(
     docks: undefined!,
     views: undefined!,
     utils: ContextUtils,
+    terminals: undefined!,
   }
   const rpcHost = new RpcFunctionsHost(context)
   const docksHost = new DevToolsDockHost(context)
   const viewsHost = new DevToolsViewHost(context)
+  const terminalsHost = new DevToolsTerminalHost(context)
   context.rpc = rpcHost
   context.docks = docksHost
   context.views = viewsHost
+  context.terminals = terminalsHost
 
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcFunctions) {

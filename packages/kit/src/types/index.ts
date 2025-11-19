@@ -1,6 +1,7 @@
 export * from './docks'
 export * from './rpc'
 export * from './rpc-augments'
+export * from './terminals'
 export * from './utils'
 export * from './views'
 export * from './vite-augment'

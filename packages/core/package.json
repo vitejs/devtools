@@ -67,6 +67,7 @@
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
+    "tinyexec": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {
