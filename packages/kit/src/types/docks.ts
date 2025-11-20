@@ -87,4 +87,11 @@ export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
   renderer: ClientScriptEntry
 }
 
+export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
+  type: '~builtin'
+  name: '~terminals' | '~logs'
+}
+
 export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
+
+export type DevToolsDockEntryWithBuiltin = DevToolsDockEntry | DevToolsViewBuiltin

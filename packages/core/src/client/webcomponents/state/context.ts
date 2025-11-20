@@ -1,7 +1,8 @@
-import type { ClientRpcReturn, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { ClientRpcReturn, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
-import { computed, markRaw, reactive, ref, watchEffect } from 'vue'
+import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, useDocksEntries } from './docks'
+import { executeSetupScript } from './setup-script'
 
 let _docksContext: DocksContext | undefined
 export async function createDocksContext(
@@ -55,7 +56,23 @@ export async function createDocksContext(
         if (!entry)
           return false
         selectedId.value = entry.id
-        // TODO: run action
+
+        // If has import script, run it
+        if (
+          (entry.type === 'action')
+          || (entry.type === 'custom-render')
+          || (entry.type === 'iframe' && entry.clientScript)
+        ) {
+          const current = dockEntryStateMap.get(id)!
+          const scriptContext: DockClientScriptContext = reactive({
+            ...toRefs(_docksContext!) as any,
+            current,
+          })
+          await executeSetupScript(entry, scriptContext)
+        }
+
+        selectedId.value = entry.id
+        panelStore.value.open = true
         return true
       },
     },

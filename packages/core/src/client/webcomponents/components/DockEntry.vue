@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntryBase } from '@vitejs/devtools-kit'
 import { useEventListener } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { setFloatingTooltip } from '../state/floating-tooltip'
 import DockIcon from './DockIcon.vue'
 
 const props = defineProps<{
-  dock: DevToolsDockEntry
+  dock: DevToolsDockEntryBase
   isSelected?: boolean
   isDimmed?: boolean
   isVertical?: boolean

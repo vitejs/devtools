@@ -2,7 +2,6 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
-import { useStateHandlers } from '../state/__todo-refactor'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
@@ -220,8 +219,6 @@ const panelStyle = computed(() => {
   return style
 })
 
-const { selectDockEntry } = useStateHandlers(context)
-
 onMounted(() => {
   bringUp()
   recalculateCounter.value++
@@ -277,7 +274,7 @@ onMounted(() => {
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="context.panel.isVertical"
           :selected="context.docks.selected"
-          @select="selectDockEntry"
+          @select="(e) => context.docks.switchEntry(e.id)"
         />
       </div>
     </div>

@@ -3,19 +3,23 @@ import { docksList } from './internal/docks-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
 import { rpcServerList } from './internal/rpc-server-list'
 import { terminalsList } from './internal/terminals-list'
+import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
 import { openInFinder } from './public/open-in-finder'
 
+// @keep-sorted
 export const builtinPublicRpcDecalrations = [
   openInEditor,
   openInFinder,
 ] as const
 
+// @keep-sorted
 export const builtinInternalRpcDecalrations = [
-  rpcServerList,
   docksList,
-  terminalsList,
   docksOnLaunch,
+  rpcServerList,
+  terminalsList,
+  terminalsRead,
 ] as const
 
 export const builtinRpcDecalrations = [
@@ -36,9 +40,10 @@ export type BuiltinServerFunctionsDump = {
 declare module '@vitejs/devtools-kit' {
   export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
 
+  // @keep-sorted
   export interface DevToolsRpcClientFunctions {
     'vite:internal:docks:updated': () => Promise<void>
-    'vite:internal:terminals:updated': () => Promise<void>
     'vite:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
+    'vite:internal:terminals:updated': () => Promise<void>
   }
 }
