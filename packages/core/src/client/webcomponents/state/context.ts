@@ -47,8 +47,8 @@ export async function createDocksContext(
       entries: dockEntries,
       entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
-      switchEntry: async (id: string | null) => {
-        if (id === null) {
+      switchEntry: async (id: string | null = null) => {
+        if (id == null) {
           selectedId.value = null
           return true
         }

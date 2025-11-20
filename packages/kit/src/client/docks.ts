@@ -67,7 +67,7 @@ export interface DocksEntriesContext {
    *
    * @returns Whether the selection was changed successfully
    */
-  switchEntry: (id: string | null) => Promise<boolean>
+  switchEntry: (id?: string | null) => Promise<boolean>
 }
 
 export interface DockEntryState {

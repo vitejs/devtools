@@ -274,7 +274,7 @@ onMounted(() => {
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="context.panel.isVertical"
           :selected="context.docks.selected"
-          @select="(e) => context.docks.switchEntry(e.id)"
+          @select="(e) => context.docks.switchEntry(e?.id)"
         />
       </div>
     </div>

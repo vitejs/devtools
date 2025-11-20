@@ -36,7 +36,7 @@ context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
         class="transition duration-200 p2"
         :is-vertical="false"
         :selected="context.docks.selected"
-        @select="(e) => context.docks.switchEntry(e.id)"
+        @select="(e) => context.docks.switchEntry(e?.id)"
       />
     </div>
     <div>
