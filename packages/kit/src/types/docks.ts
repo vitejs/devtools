@@ -1,12 +1,17 @@
-// TODO: refine categories more clearly
+import type { EventEmitter } from './events'
 
 export interface DevToolsDockHost {
   views: Map<string, DevToolsDockEntry>
+  events: EventEmitter<{
+    'dock:entry:updated': (entry: DevToolsDockEntry) => void
+  }>
+
   register: (entry: DevToolsDockEntry) => void
   update: (entry: DevToolsDockEntry) => void
   values: () => DevToolsDockEntry[]
 }
 
+// TODO: refine categories more clearly
 export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default'
 
 export type DevToolsDockEntryIcon = string | { light: string, dark: string }

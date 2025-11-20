@@ -1,7 +1,7 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { ClientRpcReturn, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref, ShallowRef } from 'vue'
-import { createNanoEvents } from 'nanoevents'
+import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { computed, markRaw, reactive, ref, shallowRef, watch, watchEffect } from 'vue'
 
 export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
@@ -20,7 +20,7 @@ function createDockEntryState(
   entry: DevToolsDockEntry,
   selected: Ref<DevToolsDockEntry | null>,
 ): DockEntryState {
-  const events = createNanoEvents<DockEntryStateEvents>()
+  const events = createEventEmitter<DockEntryStateEvents>()
   const state: DockEntryState = reactive({
     entryMeta: entry,
     get isActive() {

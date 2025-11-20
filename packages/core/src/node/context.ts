@@ -1,6 +1,7 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import Debug from 'debug'
+import { debounce } from 'perfect-debounce'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -40,6 +41,11 @@ export async function createDevToolsContext(
   for (const fn of builtinRpcFunctions) {
     rpcHost.register(fn)
   }
+
+  // Register hosts side effects
+  docksHost.events.on('dock:entry:updated', debounce(() => {
+    rpcHost.boardcast.$callOptional('vite:core:list-dock-entries:updated')
+  }, 10))
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)

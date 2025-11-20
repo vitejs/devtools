@@ -62,7 +62,6 @@
     "debug": "catalog:deps",
     "launch-editor": "catalog:deps",
     "mlly": "catalog:deps",
-    "nanoevents": "catalog:deps",
     "open": "catalog:deps",
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps",

@@ -1,17 +1,13 @@
 import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
-import { debounce } from 'perfect-debounce'
+import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
-  public readonly views: Map<string, DevToolsDockEntry> = new Map()
-  private _sendOnChange: (() => void)
+  public readonly views: DevToolsDockHostType['views'] = new Map()
+  public readonly events: DevToolsDockHostType['events'] = createEventEmitter()
 
   constructor(
     public readonly context: DevToolsNodeContext,
   ) {
-    this._sendOnChange = debounce(() => {
-      // TODO: externalize this
-      context.rpc?.boardcast?.$callOptional('vite:core:list-dock-entries:updated')
-    }, 10)
   }
 
   values(): DevToolsDockEntry[] {
@@ -23,7 +19,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
       throw new Error(`Dock with id "${view.id}" is already registered`)
     }
     this.views.set(view.id, view)
-    this._sendOnChange()
+    this.events.emit('dock:entry:updated', view)
   }
 
   update(view: DevToolsDockEntry): void {
@@ -31,6 +27,6 @@ export class DevToolsDockHost implements DevToolsDockHostType {
       throw new Error(`Dock with id "${view.id}" is not registered. Use register() to add new docks.`)
     }
     this.views.set(view.id, view)
-    this._sendOnChange()
+    this.events.emit('dock:entry:updated', view)
   }
 }

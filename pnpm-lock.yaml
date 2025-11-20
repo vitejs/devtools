@@ -70,9 +70,6 @@ catalogs:
     mrmime:
       specifier: ^2.0.1
       version: 2.0.1
-    nanoevents:
-      specifier: ^9.1.0
-      version: 9.1.0
     ohash:
       specifier: ^2.0.11
       version: 2.0.11
@@ -501,9 +498,6 @@ importers:
       mlly:
         specifier: catalog:deps
         version: 1.8.0
-      nanoevents:
-        specifier: catalog:deps
-        version: 9.1.0
       open:
         specifier: catalog:deps
         version: 11.0.0
@@ -559,9 +553,6 @@ importers:
       birpc-x:
         specifier: catalog:deps
         version: 0.0.5
-      nanoevents:
-        specifier: catalog:deps
-        version: 9.1.0
       vite:
         specifier: npm:rolldown-vite@^7.2.2
         version: rolldown-vite@7.2.2(@types/node@24.0.7)(esbuild@0.27.0)(jiti@2.6.1)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
@@ -13003,7 +12994,8 @@ snapshots:
 
   nanoevents@6.0.2: {}
 
-  nanoevents@9.1.0: {}
+  nanoevents@9.1.0:
+    optional: true
 
   nanoid@3.3.11: {}
 

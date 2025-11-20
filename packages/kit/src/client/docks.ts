@@ -1,7 +1,6 @@
 import type { RpcFunctionsCollector } from 'birpc-x'
-import type { Emitter as EventsEmitter } from 'nanoevents'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '../types'
+import type { DevToolsDockEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -78,7 +77,7 @@ export interface DockEntryState {
     iframe?: HTMLIFrameElement | null
     panel?: HTMLDivElement | null
   }
-  events: Raw<EventsEmitter<DockEntryStateEvents>>
+  events: Raw<EventEmitter<DockEntryStateEvents>>
 }
 
 export interface DockEntryStateEvents {
