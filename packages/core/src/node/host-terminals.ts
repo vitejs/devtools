@@ -80,7 +80,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   async startChildProcess(
     executeOptions: DevToolsChildProcessExecuteOptions,
-    terminal: DevToolsTerminalSessionBase,
+    terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
       throw new Error(`Terminal session with id "${terminal.id}" already registered`)

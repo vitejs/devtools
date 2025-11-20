@@ -102,6 +102,14 @@ export default defineConfig({
             launcher: {
               title: 'Launcher My Cool App',
               onLaunch: async () => {
+                await ctx.terminals.startChildProcess({
+                  command: 'vite',
+                  args: ['dev'],
+                  cwd: process.cwd(),
+                }, {
+                  id: 'vite-run',
+                  title: 'Vite Run',
+                })
                 await new Promise(resolve => setTimeout(resolve, 1000))
 
                 ctx.docks.update({

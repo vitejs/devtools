@@ -75,6 +75,8 @@ catalogs:
     '@vueuse/components': ^14.0.0
     '@vueuse/core': ^14.0.0
     '@vueuse/router': ^14.0.0
+    '@xterm/addon-fit': ^0.10.0
+    '@xterm/xterm': ^5.5.0
     codemirror: ^5.65.20
     codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2

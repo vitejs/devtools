@@ -19,7 +19,7 @@ export interface DevToolsTerminalHost {
 
   startChildProcess: (
     executeOptions: DevToolsChildProcessExecuteOptions,
-    terminal: DevToolsTerminalSessionBase,
+    terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ) => Promise<DevToolsChildProcessTerminalSession>
 }
 
