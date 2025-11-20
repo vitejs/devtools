@@ -1,3 +1,3 @@
 export * from './components/DockEmbedded'
-export * from './state/dock'
+export * from './state/docks'
 export * from './utils/PresistedDomViewsManager'

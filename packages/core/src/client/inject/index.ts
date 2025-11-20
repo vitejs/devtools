@@ -4,7 +4,7 @@
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { createDocksContext } from '../webcomponents'
+import { createDocksContext } from '../webcomponents/state/context'
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-console

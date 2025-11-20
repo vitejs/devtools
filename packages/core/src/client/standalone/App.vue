@@ -5,8 +5,8 @@ import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
-import { createDocksContext } from '../webcomponents/state/dock'
-import { useStateHandlers } from '../webcomponents/state/state'
+import { useStateHandlers } from '../webcomponents/state/__todo-refactor'
+import { createDocksContext } from '../webcomponents/state/context'
 import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
 
 const rpcReturn = await getDevToolsRpcClient()

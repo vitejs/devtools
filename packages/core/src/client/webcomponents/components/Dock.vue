@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
-import { useStateHandlers } from '../state/state'
+import { useStateHandlers } from '../state/__todo-refactor'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
