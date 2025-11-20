@@ -1,8 +1,8 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
-export const listRpcFunctions = defineRpcFunction({
-  name: 'vite:core:list-rpc-functions',
-  type: 'action',
+export const rpcServerList = defineRpcFunction({
+  name: 'vite:internal:rpc:server:list',
+  type: 'static',
   setup: (context) => {
     return {
       async handler() {

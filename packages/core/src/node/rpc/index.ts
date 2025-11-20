@@ -1,32 +1,44 @@
-import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { listDockEntries } from './list-dock-entries'
-import { listRpcFunctions } from './list-rpc-functions'
-import { onDockLaunch } from './on-dock-launch'
-import { openInEditor } from './open-in-editor'
-import { openInFinder } from './open-in-finder'
+import type { DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import { docksList } from './internal/docks-list'
+import { docksOnLaunch } from './internal/docks-on-launch'
+import { rpcServerList } from './internal/rpc-server-list'
+import { terminalsList } from './internal/terminals-list'
+import { openInEditor } from './public/open-in-editor'
+import { openInFinder } from './public/open-in-finder'
 
-export const builtinRpcFunctions = [
-  listRpcFunctions,
-  listDockEntries,
+export const builtinPublicRpcDecalrations = [
   openInEditor,
   openInFinder,
-  onDockLaunch,
 ] as const
 
-export type ServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcFunctions>
+export const builtinInternalRpcDecalrations = [
+  rpcServerList,
+  docksList,
+  terminalsList,
+  docksOnLaunch,
+] as const
 
-export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
-  RpcDefinitionsFilter<typeof builtinRpcFunctions, 'static'>
+export const builtinRpcDecalrations = [
+  ...builtinPublicRpcDecalrations,
+  ...builtinInternalRpcDecalrations,
+] as const
+
+export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDecalrations>
+
+export type BuiltinServerFunctionsStatic = RpcDefinitionsToFunctions<
+  RpcDefinitionsFilter<typeof builtinRpcDecalrations, 'static'>
 >
 
-export type ServerFunctionsDump = {
-  [K in keyof ServerFunctionsStatic]: Awaited<ReturnType<ServerFunctionsStatic[K]>>
+export type BuiltinServerFunctionsDump = {
+  [K in keyof BuiltinServerFunctionsStatic]: Awaited<ReturnType<BuiltinServerFunctionsStatic[K]>>
 }
 
 declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
 
   export interface DevToolsRpcClientFunctions {
-    'vite:core:list-dock-entries:updated': () => Promise<void>
+    'vite:internal:docks:updated': () => Promise<void>
+    'vite:internal:terminals:updated': () => Promise<void>
+    'vite:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
   }
 }

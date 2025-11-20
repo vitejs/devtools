@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 function onLaunch() {
-  props.context.rpc.$call('vite:core:on-dock-launch', props.entry.id)
+  props.context.rpc.$call('vite:internal:docks:on-launch', props.entry.id)
 }
 
 const status = computed(() => props.entry.launcher.status || 'idle')

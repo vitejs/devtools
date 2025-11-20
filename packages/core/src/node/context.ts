@@ -44,8 +44,14 @@ export async function createDevToolsContext(
 
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
-    rpcHost.boardcast.$callOptional('vite:core:list-dock-entries:updated')
+    rpcHost.boardcast.$callOptional('vite:internal:docks:updated')
   }, 10))
+  terminalsHost.events.on('terminal:session:updated', debounce(() => {
+    rpcHost.boardcast.$callOptional('vite:internal:terminals:updated')
+  }, 10))
+  terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
+    rpcHost.boardcast.$callOptional('vite:internal:terminals:stream-chunk', data)
+  })
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)

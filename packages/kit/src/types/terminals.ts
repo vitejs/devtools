@@ -1,14 +1,26 @@
 import type { ChildProcess } from 'node:child_process'
+import type { EventEmitter } from './events'
+
+export interface DevToolsTerminalSessionStreamChunkEvent {
+  id: string
+  chunks: string[]
+  ts: number
+}
 
 export interface DevToolsTerminalHost {
   readonly sessions: Map<string, DevToolsTerminalSession>
+  readonly events: EventEmitter<{
+    'terminal:session:updated': (session: DevToolsTerminalSession) => void
+    'terminal:session:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => void
+  }>
 
   register: (session: DevToolsTerminalSession) => DevToolsTerminalSession
   update: (session: DevToolsTerminalSession) => void
 
-  serialize: (session: DevToolsTerminalSession) => DevToolsTerminalSessionSerializable
-
-  startChildProcess: (options: DevToolsChildProcessTerminalOptions) => Promise<DevToolsChildProcessTerminalSession>
+  startChildProcess: (
+    executeOptions: DevToolsChildProcessExecuteOptions,
+    terminal: DevToolsTerminalSessionBase,
+  ) => Promise<DevToolsChildProcessTerminalSession>
 }
 
 export type DevToolsTerminalStatus = 'running' | 'stopped' | 'error'
@@ -17,18 +29,15 @@ export interface DevToolsTerminalSessionBase {
   id: string
   title: string
   description?: string
-}
-
-export interface DevToolsTerminalSessionSerializable extends DevToolsTerminalSessionBase {
   status: DevToolsTerminalStatus
-  buffer?: string[]
 }
 
-export interface DevToolsTerminalSession extends DevToolsTerminalSessionSerializable {
+export interface DevToolsTerminalSession extends DevToolsTerminalSessionBase {
+  buffer?: string[]
   stream?: ReadableStream<string>
 }
 
-export interface DevToolsChildProcessTerminalOptions extends DevToolsTerminalSessionBase {
+export interface DevToolsChildProcessExecuteOptions {
   command: string
   args: string[]
   cwd?: string
@@ -36,6 +45,8 @@ export interface DevToolsChildProcessTerminalOptions extends DevToolsTerminalSes
 }
 
 export interface DevToolsChildProcessTerminalSession extends DevToolsTerminalSession {
+  type: 'child-process'
+  executeOptions: DevToolsChildProcessExecuteOptions
   getChildProcess: () => ChildProcess | undefined
   terminate: () => Promise<void>
   restart: () => Promise<void>

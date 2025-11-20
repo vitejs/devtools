@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
 import type { ClientRpcReturn, DockEntryState, DockEntryStateEvents, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref, ShallowRef } from 'vue'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
@@ -59,12 +59,12 @@ export async function useDocksEntries(rpcReturn: ClientRpcReturn): Promise<Ref<D
   }
   const dockEntries = _docksEntriesRef = shallowRef<DevToolsDockEntry[]>([])
   async function updateDocksEntries() {
-    dockEntries.value = (await rpcReturn.rpc.$call('vite:core:list-dock-entries')).map(entry => Object.freeze(entry))
+    dockEntries.value = (await rpcReturn.rpc.$call('vite:internal:docks:list')).map(entry => Object.freeze(entry))
     // eslint-disable-next-line no-console
     console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
   }
   rpcReturn.clientRpc.register({
-    name: 'vite:core:list-dock-entries:updated',
+    name: 'vite:internal:docks:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => updateDocksEntries(),
   })

@@ -16,7 +16,7 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
 
-  const rpcFunctions = await rpc.$call('vite:core:list-rpc-functions')
+  const rpcFunctions = await rpc.$call('vite:internal:rpc:server:list')
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 
