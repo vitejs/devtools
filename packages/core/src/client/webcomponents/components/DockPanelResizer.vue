@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DocksPanelContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
 const props = defineProps<{
   panel: DocksPanelContext
@@ -10,7 +10,8 @@ const props = defineProps<{
 const PANEL_MIN = 20
 const PANEL_MAX = 100
 
-const container = ref<HTMLElement>()
+const topHandle = useTemplateRef<HTMLDivElement>('topHandle')
+const container = computed(() => topHandle.value?.parentElement)
 const resizingState = ref<false | { top?: boolean, left?: boolean, right?: boolean, bottom?: boolean }>(false)
 
 // Close panel on outside click (when enabled)
@@ -79,67 +80,62 @@ watch(
 </script>
 
 <template>
+  <!-- Handlers -->
   <div
-    id="vite-devtools-resize-container"
-    ref="container"
-    class="w-full h-full absolute left-0 right-0 bottom-0 top-0 antialiased pointer-events-auto"
-  >
-    <!-- Handlers -->
-    <div
-      v-show="panel.store.position !== 'top'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
-      :style="{ top: 0 }"
-      @mousedown.prevent="resizingState = { top: true }"
-      @touchstart.passive="() => resizingState = { top: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'bottom'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
-      :style="{ bottom: 0 }"
-      @mousedown.prevent="() => resizingState = { bottom: true }"
-      @touchstart.passive="() => resizingState = { bottom: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'left'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
-      :style="{ left: 0 }"
-      @mousedown.prevent="() => resizingState = { left: true }"
-      @touchstart.passive="() => resizingState = { left: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'right'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
-      :style="{ right: 0 }"
-      @mousedown.prevent="() => resizingState = { right: true }"
-      @touchstart.passive="() => resizingState = { right: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'top' && panel.store.position !== 'left'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
-      :style="{ top: 0, left: 0, cursor: 'nwse-resize' }"
-      @mousedown.prevent="() => resizingState = { top: true, left: true }"
-      @touchstart.passive="() => resizingState = { top: true, left: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'top' && panel.store.position !== 'right'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
-      :style="{ top: 0, right: 0, cursor: 'nesw-resize' }"
-      @mousedown.prevent="() => resizingState = { top: true, right: true }"
-      @touchstart.passive="() => resizingState = { top: true, right: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'bottom' && panel.store.position !== 'left'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
-      :style="{ bottom: 0, left: 0, cursor: 'nesw-resize' }"
-      @mousedown.prevent="() => resizingState = { bottom: true, left: true }"
-      @touchstart.passive="() => resizingState = { bottom: true, left: true }"
-    />
-    <div
-      v-show="panel.store.position !== 'bottom' && panel.store.position !== 'right'"
-      class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
-      :style="{ bottom: 0, right: 0, cursor: 'nwse-resize' }"
-      @mousedown.prevent="() => resizingState = { bottom: true, right: true }"
-      @touchstart.passive="() => resizingState = { bottom: true, right: true }"
-    />
-  </div>
+    v-show="panel.store.position !== 'top'"
+    ref="topHandle"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
+    :style="{ top: 0 }"
+    @mousedown.prevent="resizingState = { top: true }"
+    @touchstart.passive="() => resizingState = { top: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'bottom'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-horizontal"
+    :style="{ bottom: 0 }"
+    @mousedown.prevent="() => resizingState = { bottom: true }"
+    @touchstart.passive="() => resizingState = { bottom: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'left'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
+    :style="{ left: 0 }"
+    @mousedown.prevent="() => resizingState = { left: true }"
+    @touchstart.passive="() => resizingState = { left: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'right'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-vertical"
+    :style="{ right: 0 }"
+    @mousedown.prevent="() => resizingState = { right: true }"
+    @touchstart.passive="() => resizingState = { right: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'top' && panel.store.position !== 'left'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
+    :style="{ top: 0, left: 0, cursor: 'nwse-resize' }"
+    @mousedown.prevent="() => resizingState = { top: true, left: true }"
+    @touchstart.passive="() => resizingState = { top: true, left: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'top' && panel.store.position !== 'right'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
+    :style="{ top: 0, right: 0, cursor: 'nesw-resize' }"
+    @mousedown.prevent="() => resizingState = { top: true, right: true }"
+    @touchstart.passive="() => resizingState = { top: true, right: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'bottom' && panel.store.position !== 'left'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
+    :style="{ bottom: 0, left: 0, cursor: 'nesw-resize' }"
+    @mousedown.prevent="() => resizingState = { bottom: true, left: true }"
+    @touchstart.passive="() => resizingState = { bottom: true, left: true }"
+  />
+  <div
+    v-show="panel.store.position !== 'bottom' && panel.store.position !== 'right'"
+    class="vite-devtools-resize-handle vite-devtools-resize-handle-corner"
+    :style="{ bottom: 0, right: 0, cursor: 'nwse-resize' }"
+    @mousedown.prevent="() => resizingState = { bottom: true, right: true }"
+    @touchstart.passive="() => resizingState = { bottom: true, right: true }"
+  />
 </template>
