@@ -81,5 +81,5 @@ export async function createDocksContext(
     clientType,
   })
 
-  return _docksContext
+  return _docksContext!
 }

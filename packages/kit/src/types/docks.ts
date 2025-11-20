@@ -1,14 +1,14 @@
 import type { EventEmitter } from './events'
 
 export interface DevToolsDockHost {
-  views: Map<string, DevToolsDockEntry>
+  views: Map<string, DevToolsDockUserEntry>
   events: EventEmitter<{
-    'dock:entry:updated': (entry: DevToolsDockEntry) => void
+    'dock:entry:updated': (entry: DevToolsDockUserEntry) => void
   }>
 
-  register: (entry: DevToolsDockEntry) => void
-  update: (entry: DevToolsDockEntry) => void
-  values: () => DevToolsDockEntry[]
+  register: (entry: DevToolsDockUserEntry) => void
+  update: (entry: DevToolsDockUserEntry) => void
+  values: () => DevToolsDockUserEntry[]
 }
 
 // TODO: refine categories more clearly
@@ -89,9 +89,9 @@ export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
 
 export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
   type: '~builtin'
-  name: '~terminals' | '~logs'
+  id: '~terminals' | '~logs'
 }
 
-export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
+export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
 
-export type DevToolsDockEntryWithBuiltin = DevToolsDockEntry | DevToolsViewBuiltin
+export type DevToolsDockEntry = DevToolsDockUserEntry | DevToolsViewBuiltin

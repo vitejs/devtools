@@ -10,7 +10,7 @@ export interface TerminalState {
 }
 
 let _terminalsRef: ShallowRef<TerminalState[]> | undefined
-export async function useTerminals(context: DocksContext): Promise<Ref<TerminalState[]>> {
+export function useTerminals(context: DocksContext): Ref<TerminalState[]> {
   if (_terminalsRef) {
     return _terminalsRef
   }
@@ -31,6 +31,6 @@ export async function useTerminals(context: DocksContext): Promise<Ref<TerminalS
     type: 'action',
     handler: () => udpateTerminals(),
   })
-  await udpateTerminals()
+  udpateTerminals()
   return terminals
 }

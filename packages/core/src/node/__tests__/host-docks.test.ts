@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockUserEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { describe, expect, it } from 'vitest'
 import { DevToolsDockHost } from '../host-docks'
 
@@ -8,7 +8,7 @@ describe('devToolsDockHost', () => {
   describe('register() collision detection', () => {
     it('should register a new dock successfully', () => {
       const host = new DevToolsDockHost(mockContext)
-      const dock: DevToolsDockEntry = {
+      const dock: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'test-dock',
         title: 'Test Dock',
@@ -22,14 +22,14 @@ describe('devToolsDockHost', () => {
 
     it('should throw error when registering duplicate dock ID', () => {
       const host = new DevToolsDockHost(mockContext)
-      const dock1: DevToolsDockEntry = {
+      const dock1: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'duplicate-dock',
         title: 'First Dock',
         icon: 'icon1',
         url: 'http://localhost:3001',
       }
-      const dock2: DevToolsDockEntry = {
+      const dock2: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'duplicate-dock',
         title: 'Second Dock',
@@ -46,7 +46,7 @@ describe('devToolsDockHost', () => {
 
     it('should include the duplicate ID in error message', () => {
       const host = new DevToolsDockHost(mockContext)
-      const dock: DevToolsDockEntry = {
+      const dock: DevToolsDockUserEntry = {
         type: 'custom-render',
         id: 'my-special-panel',
         title: 'Special Panel',
@@ -88,7 +88,7 @@ describe('devToolsDockHost', () => {
   describe('update() existence validation', () => {
     it('should throw error when updating non-existent dock', () => {
       const host = new DevToolsDockHost(mockContext)
-      const dock: DevToolsDockEntry = {
+      const dock: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'nonexistent',
         title: 'Does Not Exist',
@@ -104,14 +104,14 @@ describe('devToolsDockHost', () => {
 
     it('should update existing dock successfully', () => {
       const host = new DevToolsDockHost(mockContext)
-      const dock1: DevToolsDockEntry = {
+      const dock1: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'update-test',
         title: 'Original Title',
         icon: 'original',
         url: 'http://localhost:3001',
       }
-      const dock2: DevToolsDockEntry = {
+      const dock2: DevToolsDockUserEntry = {
         type: 'iframe',
         id: 'update-test',
         title: 'Updated Title',

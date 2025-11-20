@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsRpcClientFunctions, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { ClientRpcReturn, DockEntryState, DockEntryStateEvents, DockPanelStorage } from '@vitejs/devtools-kit/client'
 import type { Ref, ShallowRef } from 'vue'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
@@ -15,6 +15,15 @@ export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
     inactiveTimeout: 3_000,
   }
 }
+
+export const builtinDocksEntries: DevToolsViewBuiltin[] = [
+  Object.freeze({
+    type: '~builtin',
+    id: '~terminals',
+    title: 'Terminals',
+    icon: 'ph:terminal-duotone',
+  }),
+]
 
 export function createDockEntryState(
   entry: DevToolsDockEntry,
@@ -59,7 +68,10 @@ export async function useDocksEntries(rpcReturn: ClientRpcReturn): Promise<Ref<D
   }
   const dockEntries = _docksEntriesRef = shallowRef<DevToolsDockEntry[]>([])
   async function updateDocksEntries() {
-    dockEntries.value = (await rpcReturn.rpc.$call('vite:internal:docks:list')).map(entry => Object.freeze(entry))
+    dockEntries.value = [
+      ...(await rpcReturn.rpc.$call('vite:internal:docks:list')).map(entry => Object.freeze(entry)),
+      ...builtinDocksEntries,
+    ]
     // eslint-disable-next-line no-console
     console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
   }

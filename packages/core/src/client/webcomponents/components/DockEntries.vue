@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import type { DevToolsDockEntryWithBuiltin } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
-  entries: DevToolsDockEntryWithBuiltin[]
-  selected: DevToolsDockEntryWithBuiltin | null
+  entries: DevToolsDockEntry[]
+  selected: DevToolsDockEntry | null
   isVertical: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'select', entry: DevToolsDockEntryWithBuiltin): void
+  (e: 'select', entry: DevToolsDockEntry): void
 }>()
 
 const { selected, isVertical, entries } = toRefs(props)
 
-function toggleDockEntry(dock: DevToolsDockEntryWithBuiltin) {
+function toggleDockEntry(dock: DevToolsDockEntry) {
   if (selected.value?.id === dock.id)
     emit('select', undefined!)
   else

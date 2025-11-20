@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockHost as DevToolsDockHostType, DevToolsDockUserEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
@@ -10,11 +10,11 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   ) {
   }
 
-  values(): DevToolsDockEntry[] {
+  values(): DevToolsDockUserEntry[] {
     return Array.from(this.views.values())
   }
 
-  register(view: DevToolsDockEntry, force?: boolean): void {
+  register(view: DevToolsDockUserEntry, force?: boolean): void {
     if (this.views.has(view.id) && !force) {
       throw new Error(`Dock with id "${view.id}" is already registered`)
     }
@@ -22,7 +22,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     this.events.emit('dock:entry:updated', view)
   }
 
-  update(view: DevToolsDockEntry): void {
+  update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
       throw new Error(`Dock with id "${view.id}" is not registered. Use register() to add new docks.`)
     }

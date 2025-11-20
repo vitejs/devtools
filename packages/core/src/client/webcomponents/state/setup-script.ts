@@ -1,8 +1,8 @@
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsDockUserEntry } from '@vitejs/devtools-kit'
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
 function _executeSetupScript(
-  entry: DevToolsDockEntry,
+  entry: DevToolsDockUserEntry,
   context: DockClientScriptContext,
 ): Promise<void> {
   const id = `${entry.type}:${entry.id}`
@@ -24,7 +24,7 @@ function _executeSetupScript(
 }
 const _setupPromises = new Map<string, Promise<void>>()
 export function executeSetupScript(
-  entry: DevToolsDockEntry,
+  entry: DevToolsDockUserEntry,
   context: DockClientScriptContext,
 ): Promise<void> {
   if (_setupPromises.has(entry.id))

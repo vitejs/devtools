@@ -1,6 +1,6 @@
 import type { RpcFunctionsCollector } from 'birpc-x'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -83,7 +83,7 @@ export interface DockEntryState {
 export interface DockEntryStateEvents {
   'entry:activated': () => void
   'entry:deactivated': () => void
-  'entry:updated': (newMeta: DevToolsDockEntry) => void
+  'entry:updated': (newMeta: DevToolsDockUserEntry) => void
   'dom:panel:mounted': (panel: HTMLDivElement) => void
   'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
 }
