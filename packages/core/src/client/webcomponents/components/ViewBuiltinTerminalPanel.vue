@@ -34,7 +34,7 @@ onMounted(async () => {
     const { buffer } = await props.context.rpc.$call('vite:internal:terminals:read', props.terminal.info.id)
     props.terminal.buffer = markRaw(buffer)
     for (const chunk of buffer)
-      term.write(chunk)
+      term.writeln(chunk)
   }
 
   props.terminal.terminal = term

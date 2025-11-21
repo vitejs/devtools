@@ -16,7 +16,7 @@ const context = props.context
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
-const PANEL_MARGIN = 5
+const PANEL_MARGIN = 2
 const panelMargins = reactive({
   left: PANEL_MARGIN,
   top: PANEL_MARGIN,

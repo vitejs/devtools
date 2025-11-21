@@ -1,8 +1,7 @@
-import type { DevToolsRpcClientFunctions, DevToolsTerminalSessionStreamChunkEvent } from '@vitejs/devtools-kit'
+import type { DevToolsRpcClientFunctions, DevToolsTerminalSessionBase, DevToolsTerminalSessionStreamChunkEvent } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { Terminal } from '@xterm/xterm'
 import type { Reactive } from 'vue'
-import type { DevToolsTerminalSessionBase } from '../../../../../kit/src'
 import { reactive } from 'vue'
 
 export interface TerminalState {
@@ -16,7 +15,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
   if (_terminalsMap) {
     return _terminalsMap
   }
-  const map = _terminalsMap = reactive(new Map())
+  const map: Reactive<Map<string, TerminalState>> = _terminalsMap = reactive(new Map())
   async function udpateTerminals() {
     const terminals = await context.rpc.$call('vite:internal:terminals:list')
 
@@ -51,7 +50,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
       }
       terminal.buffer?.push(...data.chunks)
       for (const chunk of data.chunks)
-        terminal.terminal?.write(chunk)
+        terminal.terminal?.writeln(chunk)
     },
   })
   udpateTerminals()

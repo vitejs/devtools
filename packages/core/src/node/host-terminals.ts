@@ -88,14 +88,9 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     const { exec } = await import('tinyexec')
 
     let controller: ReadableStreamDefaultController<string> | undefined
-    const buffer = new ReadableStream<string>({
-      async start(_controller) {
+    const stream = new ReadableStream<string>({
+      start(_controller) {
         controller = _controller
-      },
-    })
-    const writer = new WritableStream<string>({
-      write(chunk) {
-        controller?.enqueue(chunk)
       },
     })
 
@@ -116,14 +111,12 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
         },
       )
 
-      const stream = new ReadableStream<string>({
-        async start(controller) {
-          for await (const chunk of cp) {
-            controller.enqueue(chunk)
-          }
-        },
-      })
-      stream.pipeTo(writer)
+      ;(async () => {
+        for await (const chunk of cp) {
+          controller?.enqueue(chunk)
+        }
+      })()
+
       return cp
     }
 
@@ -141,14 +134,14 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     const session: DevToolsChildProcessTerminalSession = {
       ...terminal,
       status: 'running',
-      stream: buffer,
+      stream,
       type: 'child-process',
       executeOptions,
       getChildProcess: () => cp?.process,
       terminate,
       restart,
     }
-    this.sessions.set(session.id, session)
+    this.register(session)
 
     return Promise.resolve(session)
   }
