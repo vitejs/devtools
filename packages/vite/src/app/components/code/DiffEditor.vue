@@ -2,7 +2,7 @@
 import type CodeMirror from 'codemirror'
 import { Pane, Splitpanes } from 'splitpanes'
 import { computed, nextTick, onMounted, toRefs, useTemplateRef, watchEffect } from 'vue'
-import { guessCodemirrowMode, syncEditorScrolls, syncScrollListeners, useCodeMirror } from '~/composables/codemirror'
+import { guessCodemirrorMode, syncEditorScrolls, syncScrollListeners, useCodeMirror } from '~/composables/codemirror'
 import { settings } from '~/state/settings'
 import { calculateDiffWithWorker } from '~/worker/diff'
 
@@ -64,8 +64,8 @@ onMounted(() => {
     const r = to.value
     const diffEnabled = props.diff
 
-    cm1.setOption('mode', guessCodemirrowMode(l))
-    cm2.setOption('mode', guessCodemirrowMode(r))
+    cm1.setOption('mode', guessCodemirrorMode(l))
+    cm2.setOption('mode', guessCodemirrorMode(r))
 
     await nextTick()
 

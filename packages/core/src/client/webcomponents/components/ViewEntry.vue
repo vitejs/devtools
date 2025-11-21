@@ -2,7 +2,7 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
+import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
 import ViewLauncher from './ViewLauncher.vue'
@@ -10,7 +10,7 @@ import ViewLauncher from './ViewLauncher.vue'
 defineProps<{
   context: DocksContext
   entry: DevToolsDockEntry
-  presistedDoms: PresistedDomViewsManager
+  persistedDoms: PersistedDomViewsManager
   iframeStyle?: CSSProperties
   divStyle?: CSSProperties
 }>()
@@ -22,14 +22,14 @@ defineProps<{
     v-else-if="entry.type === 'iframe'"
     :context
     :entry
-    :presisted-doms="presistedDoms"
+    :persisted-doms="persistedDoms"
     :iframe-style="iframeStyle"
   />
   <ViewCustomRenderer
     v-else-if="entry.type === 'custom-render'"
     :context
     :entry
-    :presisted-doms="presistedDoms"
+    :persisted-doms="persistedDoms"
     :div-style="divStyle"
   />
   <ViewLauncher

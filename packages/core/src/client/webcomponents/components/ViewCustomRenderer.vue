@@ -2,13 +2,13 @@
 import type { DevToolsViewCustomRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
+import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 const props = defineProps<{
   context: DocksContext
   entry: DevToolsViewCustomRender
-  presistedDoms: PresistedDomViewsManager
+  persistedDoms: PersistedDomViewsManager
   divStyle?: CSSProperties
 }>()
 
@@ -16,7 +16,7 @@ const isLoading = ref(true)
 const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 
 onMounted(() => {
-  const holder = props.presistedDoms.getOrCreateHolder(props.entry.id, 'div')
+  const holder = props.persistedDoms.getOrCreateHolder(props.entry.id, 'div')
   holder.element.style.boxShadow = 'none'
   holder.element.style.outline = 'none'
   Object.assign(holder.element.style, props.divStyle)
@@ -48,7 +48,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  const holder = props.presistedDoms.getHolder(props.entry.id, 'div')
+  const holder = props.persistedDoms.getHolder(props.entry.id, 'div')
   holder?.unmount()
 })
 </script>
