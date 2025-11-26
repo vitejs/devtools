@@ -63,8 +63,8 @@ function select(node: ModuleDest) {
         :link-query-key="linkQueryKey"
         @select="select"
       >
-        <template #extra="{ node }">
-          <slot name="extra" :node="node" />
+        <template #extra="{ node: n }">
+          <slot name="extra" :node="n" />
         </template>
       </DisplayTreeNode>
       <template v-for="i of node.items" :key="i.full">
