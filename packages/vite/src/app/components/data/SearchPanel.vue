@@ -72,15 +72,18 @@ function unselectToggle() {
 
 <template>
   <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
-    <div v-if="modelValue.search !== false">
-      <input
-        v-model="model.search"
-        p2 px4
-        w-full
-        style="outline: none"
-        placeholder="Search"
-      >
-    </div>
+    <slot name="search">
+      <div v-if="modelValue.search !== false" class="flex items-center">
+        <input
+          v-model="model.search"
+          p2 px4
+          w-full
+          style="outline: none"
+          placeholder="Search"
+        >
+        <slot name="search-end" />
+      </div>
+    </slot>
     <div v-if="rules.length" :class="selectedContainerClass" flex="~ gap-2 wrap" p2 border="t base">
       <label
         v-for="rule of rules"

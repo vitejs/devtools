@@ -16,9 +16,10 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
+const navigatorVisible = ref(false)
 
 const searchValue = ref<{
-  search: string
+  search: string | false
   selected: string[] | null
   [key: string]: any
 }>({
@@ -121,12 +122,30 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   }
   settings.value.moduleGraphViewType = type
 }
+
+function toggleNavigator(state: boolean) {
+  navigatorVisible.value = state
+  searchValue.value.search = state ? false : ''
+}
 </script>
 
 <template>
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
+        <template v-if="navigatorVisible" #search>
+          <ModulesGraphNavigator :session="session" :modules="searched" @close="toggleNavigator(false)" />
+        </template>
+        <template #search-end>
+          <div h12 mr2 flex="~ items-center">
+            <button
+              w-8 h-8 rounded-full flex items-center justify-center
+              hover="bg-active op100" op50 title="Module Navigator" @click="toggleNavigator(true)"
+            >
+              <i i-ri:route-line flex />
+            </button>
+          </div>
+        </template>
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
