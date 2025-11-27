@@ -48,6 +48,8 @@ export async function createDevToolsContext(
   }, 10))
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
     rpcHost.boardcast.$callOptional('vite:internal:terminals:updated')
+    // New terminals might affect the visibility of the terminals dock entry, we trigger it here as well
+    rpcHost.boardcast.$callOptional('vite:internal:docks:updated')
   }, 10))
   terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
     rpcHost.boardcast.$callOptional('vite:internal:terminals:stream-chunk', data)

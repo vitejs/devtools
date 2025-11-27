@@ -16,7 +16,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
     return _terminalsMap
   }
   const map: Reactive<Map<string, TerminalState>> = _terminalsMap = reactive(new Map())
-  async function udpateTerminals() {
+  async function updateTerminals() {
     const terminals = await context.rpc.$call('vite:internal:terminals:list')
 
     for (const terminal of terminals) {
@@ -37,7 +37,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
   context.clientRpc.register({
     name: 'vite:internal:terminals:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
-    handler: () => udpateTerminals(),
+    handler: () => updateTerminals(),
   })
   context.clientRpc.register({
     name: 'vite:internal:terminals:stream-chunk' satisfies keyof DevToolsRpcClientFunctions,
@@ -53,7 +53,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
         terminal.terminal?.writeln(chunk)
     },
   })
-  udpateTerminals()
+  updateTerminals()
 
   return map
 }

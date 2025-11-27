@@ -25,14 +25,15 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
 
 <template>
   <div>
-    <DockEntry
-      v-for="dock of entries"
-      :key="dock.id"
-      :dock
-      :is-selected="selected?.id === dock.id"
-      :is-dimmed="selected ? (selected.id !== dock.id) : false"
-      :is-vertical="isVertical"
-      @click="toggleDockEntry(dock)"
-    />
+    <template v-for="dock of entries" :key="dock.id">
+      <DockEntry
+        v-if="!dock.isHidden"
+        :dock
+        :is-selected="selected?.id === dock.id"
+        :is-dimmed="selected ? (selected.id !== dock.id) : false"
+        :is-vertical="isVertical"
+        @click="toggleDockEntry(dock)"
+      />
+    </template>
   </div>
 </template>

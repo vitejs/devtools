@@ -5,7 +5,7 @@ import type { TerminalState } from '../state/terminals'
 import { useEventListener } from '@vueuse/core'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
-import { markRaw, onMounted, ref } from 'vue'
+import { markRaw, nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -30,14 +30,24 @@ onMounted(async () => {
     fitAddon.fit()
   })
 
+  nextTick(() => {
+    fitAddon.fit()
+  })
+
+  props.terminal.terminal = term
+
   if (props.terminal.buffer == null) {
     const { buffer } = await props.context.rpc.$call('vite:internal:terminals:read', props.terminal.info.id)
     props.terminal.buffer = markRaw(buffer)
-    for (const chunk of buffer)
-      term.writeln(chunk)
   }
 
-  props.terminal.terminal = term
+  for (const chunk of props.terminal.buffer)
+    term.writeln(chunk)
+})
+
+onUnmounted(() => {
+  term.dispose()
+  props.terminal.terminal = null
 })
 
 // async function clear() {
@@ -57,9 +67,9 @@ onMounted(async () => {
 <template>
   <div ref="container" class="h-full w-full of-auto bg-black" />
   <!-- <div border="t base" flex="~ gap-2" items-center p2>
-    <NButton title="Clear" icon="i-carbon-clean" :border="false" @click="clear()" />
-    <NButton v-if="info?.restartable" title="Restart" icon="carbon-renew" :border="false" @click="restart()" />
-    <NButton v-if="info?.terminatable" title="Terminate" icon="carbon-delete" :border="false" @click="terminate()" />
+    <button title="Clear" icon="i-carbon-clean" :border="false" @click="clear()" />
+    <button v-if="info?.restartable" title="Restart" icon="carbon-renew" :border="false" @click="restart()" />
+    <button v-if="info?.terminatable" title="Terminate" icon="carbon-delete" :border="false" @click="terminate()" />
     <span text-sm op50>{{ info?.description }}</span>
   </div> -->
 </template>

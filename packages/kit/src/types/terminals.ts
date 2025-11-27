@@ -1,4 +1,5 @@
 import type { ChildProcess } from 'node:child_process'
+import type { DevToolsDockEntryIcon } from './docks'
 import type { EventEmitter } from './events'
 
 export interface DevToolsTerminalSessionStreamChunkEvent {
@@ -30,6 +31,7 @@ export interface DevToolsTerminalSessionBase {
   title: string
   description?: string
   status: DevToolsTerminalStatus
+  icon?: DevToolsDockEntryIcon
 }
 
 export interface DevToolsTerminalSession extends DevToolsTerminalSessionBase {

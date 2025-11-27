@@ -33,6 +33,11 @@ export interface DevToolsDockEntryBase {
    * @default 'default'
    */
   category?: DevToolsDockEntryCategory
+  /**
+   * Whether the entry should be hidden from the user.
+   * @default false
+   */
+  isHidden?: boolean
 }
 
 export interface ClientScriptEntry {
