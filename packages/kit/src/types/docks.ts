@@ -1,12 +1,14 @@
 import type { EventEmitter } from './events'
 
 export interface DevToolsDockHost {
-  views: Map<string, DevToolsDockUserEntry>
-  events: EventEmitter<{
+  readonly views: Map<string, DevToolsDockUserEntry>
+  readonly events: EventEmitter<{
     'dock:entry:updated': (entry: DevToolsDockUserEntry) => void
   }>
 
-  register: (entry: DevToolsDockUserEntry) => void
+  register: <T extends DevToolsDockUserEntry>(entry: T, force?: boolean) => {
+    update: (patch: Partial<T>) => void
+  }
   update: (entry: DevToolsDockUserEntry) => void
   values: () => DevToolsDockUserEntry[]
 }

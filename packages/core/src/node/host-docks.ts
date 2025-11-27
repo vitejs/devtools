@@ -14,12 +14,23 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return Array.from(this.views.values())
   }
 
-  register(view: DevToolsDockUserEntry, force?: boolean): void {
+  register<T extends DevToolsDockUserEntry>(view: T, force?: boolean): {
+    update: (patch: Partial<T>) => void
+  } {
     if (this.views.has(view.id) && !force) {
       throw new Error(`Dock with id "${view.id}" is already registered`)
     }
     this.views.set(view.id, view)
     this.events.emit('dock:entry:updated', view)
+
+    return {
+      update: (patch) => {
+        if (patch.id && patch.id !== view.id) {
+          throw new Error(`Cannot change the id of a dock. Use register() to add new docks.`)
+        }
+        this.update(Object.assign(this.views.get(view.id)!, patch))
+      },
+    }
   }
 
   update(view: DevToolsDockUserEntry): void {

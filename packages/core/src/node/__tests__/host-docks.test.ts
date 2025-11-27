@@ -167,7 +167,7 @@ describe('devToolsDockHost', () => {
     it('should preserve dock in values() after update', () => {
       const host = new DevToolsDockHost(mockContext)
 
-      host.register({
+      const { update } = host.register({
         type: 'iframe',
         id: 'test',
         title: 'Original',
@@ -175,9 +175,7 @@ describe('devToolsDockHost', () => {
         url: 'http://localhost:3000',
       })
 
-      host.update({
-        type: 'iframe',
-        id: 'test',
+      update({
         title: 'Updated',
         icon: 'newicon',
         url: 'http://localhost:3001',
