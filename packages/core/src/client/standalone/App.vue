@@ -5,8 +5,7 @@ import { markRaw, useTemplateRef } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
-import { createDocksContext } from '../webcomponents/state/dock'
-import { useStateHandlers } from '../webcomponents/state/state'
+import { createDocksContext } from '../webcomponents/state/context'
 import { PersistedDomViewsManager } from '../webcomponents/utils/PersistedDomViewsManager'
 
 const rpcReturn = await getDevToolsRpcClient()
@@ -24,8 +23,6 @@ const context: DocksContext = await createDocksContext(
 )
 
 context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
-
-const { selectDockEntry } = useStateHandlers(context)
 </script>
 
 <template>
@@ -39,7 +36,7 @@ const { selectDockEntry } = useStateHandlers(context)
         class="transition duration-200 p2"
         :is-vertical="false"
         :selected="context.docks.selected"
-        @select="selectDockEntry"
+        @select="(e) => context.docks.switchEntry(e?.id)"
       />
     </div>
     <div>

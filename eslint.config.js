@@ -12,3 +12,6 @@ export default antfu({
       'no-console': 'off',
     },
   })
+  .removeRules(
+    'vue/no-template-shadow',
+  )

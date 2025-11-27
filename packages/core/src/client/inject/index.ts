@@ -4,7 +4,7 @@
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
-import { createDocksContext } from '../webcomponents'
+import { createDocksContext } from '../webcomponents/state/context'
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
@@ -16,7 +16,7 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC', rpc)
 
-  const rpcFunctions = await rpc.$call('vite:core:list-rpc-functions')
+  const rpcFunctions = await rpc.$call('vite:internal:rpc:server:list')
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 

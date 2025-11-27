@@ -70,6 +70,7 @@
     "@types/stream-json": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/components": "catalog:frontend",
+    "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
     "@vueuse/router": "catalog:frontend",
     "codemirror": "catalog:frontend",

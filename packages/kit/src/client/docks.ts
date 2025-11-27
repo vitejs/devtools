@@ -1,7 +1,6 @@
 import type { RpcFunctionsCollector } from 'birpc-x'
-import type { Emitter as EventsEmitter } from 'nanoevents'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '../types'
+import type { DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -68,7 +67,7 @@ export interface DocksEntriesContext {
    *
    * @returns Whether the selection was changed successfully
    */
-  switchEntry: (id: string | null) => Promise<boolean>
+  switchEntry: (id?: string | null) => Promise<boolean>
 }
 
 export interface DockEntryState {
@@ -78,13 +77,13 @@ export interface DockEntryState {
     iframe?: HTMLIFrameElement | null
     panel?: HTMLDivElement | null
   }
-  events: Raw<EventsEmitter<DockEntryStateEvents>>
+  events: Raw<EventEmitter<DockEntryStateEvents>>
 }
 
 export interface DockEntryStateEvents {
   'entry:activated': () => void
   'entry:deactivated': () => void
-  'entry:updated': (newMeta: DevToolsDockEntry) => void
+  'entry:updated': (newMeta: DevToolsDockUserEntry) => void
   'dom:panel:mounted': (panel: HTMLDivElement) => void
   'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
 }
