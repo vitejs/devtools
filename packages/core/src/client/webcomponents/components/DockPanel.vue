@@ -4,7 +4,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
-import { PresistedDomViewsManager } from '../utils/PresistedDomViewsManager'
+import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import DockPanelResizer from './DockPanelResizer.vue'
 import ViewEntry from './ViewEntry.vue'
 
@@ -24,7 +24,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
+const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -172,7 +172,7 @@ onMounted(() => {
       :key="selected.id"
       :context
       :entry="selected"
-      :presisted-doms="presistedDoms"
+      :persisted-doms="persistedDoms"
       :iframe-style="{
         border: '1px solid #8883',
         borderRadius: '0.5rem',

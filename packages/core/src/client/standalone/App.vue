@@ -6,7 +6,7 @@ import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 import { createDocksContext } from '../webcomponents/state/context'
-import { PresistedDomViewsManager } from '../webcomponents/utils/PresistedDomViewsManager'
+import { PersistedDomViewsManager } from '../webcomponents/utils/PersistedDomViewsManager'
 
 const rpcReturn = await getDevToolsRpcClient()
 const { rpc } = rpcReturn
@@ -15,7 +15,7 @@ const { rpc } = rpcReturn
 console.log('[VITE DEVTOOLS] RPC', rpc)
 
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const presistedDoms = markRaw(new PresistedDomViewsManager(viewsContainer))
+const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 
 const context: DocksContext = await createDocksContext(
   'standalone',
@@ -46,7 +46,7 @@ context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
         :key="context.docks.selected.id"
         :entry="context.docks.selected"
         :context
-        :presisted-doms="presistedDoms"
+        :persisted-doms="persistedDoms"
       />
     </div>
   </div>

@@ -22,11 +22,18 @@ const modulesMap = computed(() => {
   return map
 })
 
-const chunkSize = computed(() => props.chunk.modules.reduce((total, moduleId) => {
-  const moduleInfo = modulesMap.value.get(moduleId)
-  const transforms = moduleInfo?.buildMetrics?.transforms
-  return transforms?.length ? total + transforms[transforms.length - 1]!.transformed_code_size : total
-}, 0))
+function getModuleSize(modules: string[]) {
+  return modules.reduce((total, id) => {
+    const moduleInfo = modulesMap.value.get(id)
+    if (!moduleInfo || !moduleInfo.buildMetrics?.transforms?.length)
+      return total
+
+    const transforms = moduleInfo.buildMetrics.transforms
+    return total + transforms[transforms.length - 1]!.transformed_code_size
+  }, 0)
+}
+
+const chunkSize = computed(() => getModuleSize(props.chunk.modules))
 
 const route = useRoute()
 const rpc = useRpc()
@@ -45,7 +52,7 @@ const { state, isLoading } = useAsyncState(
 
 const normalizedChunks = computed(() => props.chunks || state.value)
 
-const imports = computed((): RolldownChunkImport[] => {
+const imports = computed((): Array<RolldownChunkImport & { size: number }> => {
   return props.chunk.imports.map((importChunk) => {
     const chunk = normalizedChunks.value?.find(c => c.chunk_id === importChunk.chunk_id)
     return {
@@ -54,6 +61,7 @@ const imports = computed((): RolldownChunkImport[] => {
       reason: chunk?.reason || 'common',
       imports: chunk?.imports.length || 0,
       modules: chunk?.modules.length || 0,
+      size: getModuleSize(chunk?.modules || []),
     }
   })
 })
@@ -79,7 +87,10 @@ const importers = computed((): RolldownChunkImport[] => {
     <ChunksBaseInfo :chunk="chunk">
       <template #left-after>
         <DisplayBadge v-if="chunk.is_initial" text="initial" />
-        <DisplayFileSizeBadge :bytes="chunkSize" text-sm />
+        <DisplayFileSizeBadge :bytes="chunkSize" text-sm title="Chunk size" />
+        <div v-if="imports.length" text-sm op50 flex="~ items-center" title="Total size of imports">
+          (<DisplayFileSizeBadge :bytes="imports.reduce((total, i) => total + i.size, 0) " />)
+        </div>
       </template>
       <slot />
     </ChunksBaseInfo>

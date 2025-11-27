@@ -95,7 +95,7 @@ export function syncScrollListeners(
   cm2.on('scrollCursorIntoView', editor => syncEditorScrolls(editor, cm1))
 }
 
-export function guessCodemirrowMode(code: string) {
+export function guessCodemirrorMode(code: string) {
   if (code.trimStart().startsWith('<'))
     return 'htmlmixed'
   if (code.match(/^import\s/))
