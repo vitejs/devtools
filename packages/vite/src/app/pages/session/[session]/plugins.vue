@@ -2,7 +2,7 @@
 import type { SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
-import { computedWithControl, debouncedWatch } from '@vueuse/core'
+import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { DefaultPluginType, getPluginTypeFromName, PluginTypeRules } from '~/utils/icon'
@@ -59,7 +59,7 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
-debouncedWatch(
+watchDebounced(
   searchValue.value,
   (f) => {
     const query: any = {
