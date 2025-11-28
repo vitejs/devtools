@@ -16,7 +16,18 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-const navigatorVisible = ref(false)
+const navigatorVisible = ref(true)
+const navigatorNode = ref({
+  start: '',
+  end: '',
+})
+
+function selectNavigatorNodes(nodes: { start: string, end: string }) {
+  navigatorNode.value = {
+    start: nodes.start,
+    end: nodes.end,
+  }
+}
 
 const searchValue = ref<{
   search: string | false
@@ -116,6 +127,66 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
+const filteredGraph = computed(() => {
+  const { start, end } = navigatorNode.value
+  if (!start && !end)
+    return searched.value
+
+  const modulesMap = new Map(props.session.modulesList.map(m => [m.id, m]))
+  const linkedNodes = new Set<string>()
+
+  const bfs = (startId: string, getNext: (id: string) => string[], stopAt?: string) => {
+    const queue = [startId]
+    const visited = new Set<string>()
+    const pathMap = new Map<string, string[]>([[startId, [startId]]])
+
+    while (queue.length > 0) {
+      const id = queue.shift()!
+      if (visited.has(id))
+        continue
+      visited.add(id)
+
+      if (stopAt) {
+        if (id === stopAt)
+          pathMap.get(id)?.forEach(nodeId => linkedNodes.add(nodeId))
+      }
+      else {
+        linkedNodes.add(id)
+      }
+
+      if (!stopAt || id !== stopAt) {
+        getNext(id).forEach((nextId) => {
+          if (!visited.has(nextId)) {
+            queue.push(nextId)
+            if (stopAt)
+              pathMap.set(nextId, [...(pathMap.get(id) || []), nextId])
+          }
+        })
+      }
+    }
+  }
+
+  if (start && end) {
+    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [], end)
+  }
+  else if (start) {
+    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [])
+  }
+  else if (end) {
+    bfs(end, id => modulesMap.get(id)?.importers || [])
+  }
+
+  return filtered.value.filter(x => linkedNodes.has(x.id)).map((m) => {
+    if (m.id === start) {
+      return {
+        ...m,
+        importers: [],
+      }
+    }
+    return m
+  })
+})
+
 function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
@@ -134,7 +205,7 @@ function toggleNavigator(state: boolean) {
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="navigatorVisible" #search>
-          <ModulesGraphNavigator :session="session" :modules="searched" @close="toggleNavigator(false)" />
+          <ModulesGraphNavigator :session="session" :modules="searched" @select="selectNavigatorNodes" @close="toggleNavigator(false)" />
         </template>
         <template #search-end>
           <div h12 mr2 flex="~ items-center">
@@ -190,7 +261,7 @@ function toggleNavigator(state: boolean) {
     <template v-else-if="settings.moduleGraphViewType === 'graph'">
       <ModulesGraph
         :session="session"
-        :modules="searched"
+        :modules="filteredGraph"
       />
     </template>
     <template v-else>
