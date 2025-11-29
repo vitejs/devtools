@@ -208,7 +208,7 @@ function toggleNavigator(state: boolean) {
           <ModulesGraphNavigator :session="session" :modules="searched" @select="selectNavigatorNodes" @close="toggleNavigator(false)" />
         </template>
         <template #search-end>
-          <div h12 mr2 flex="~ items-center">
+          <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">
             <button
               w-8 h-8 rounded-full flex items-center justify-center
               hover="bg-active op100" op50 title="Module Navigator" @click="toggleNavigator(true)"

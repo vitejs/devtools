@@ -78,7 +78,7 @@ const endModules = computed(() => {
     return res
   }
 
-  return searchStart.value.selected ? getAllImports(searchStart.value.selected) : []
+  return searchStart.value.selected ? getAllImports(searchStart.value.selected) : props.modules
 })
 
 const endFuse = computedWithControl(
@@ -151,7 +151,7 @@ watch([() => searchStart.value.selected, () => searchEnd.value.selected], () => 
           </div>
           <button i-carbon-clean text-4 hover="op100" op50 title="Clear" absolute right-2 @click="clearSelected('start')" />
         </div>
-        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 120 }">
+        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 150 }">
           <input
             v-model="searchStart.search"
             p1 px4 w-full border="~ base rounded-1" style="outline: none"
@@ -186,7 +186,7 @@ watch([() => searchStart.value.selected, () => searchEnd.value.selected], () => 
           </div>
           <button i-carbon-clean text-4 hover="op100" op50 title="Clear" absolute right-2 @click="clearSelected('end')" />
         </div>
-        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 120 }">
+        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 150 }">
           <input
             v-model="searchEnd.search"
             p1 px4 w-full border="~ base rounded-1" style="outline: none"
