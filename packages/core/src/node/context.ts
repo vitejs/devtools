@@ -44,15 +44,15 @@ export async function createDevToolsContext(
 
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
-    rpcHost.boardcast.$callOptional('vite:internal:docks:updated')
+    rpcHost.boardcast?.$callOptional('vite:internal:docks:updated')
   }, 10))
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
-    rpcHost.boardcast.$callOptional('vite:internal:terminals:updated')
+    rpcHost.boardcast?.$callOptional('vite:internal:terminals:updated')
     // New terminals might affect the visibility of the terminals dock entry, we trigger it here as well
-    rpcHost.boardcast.$callOptional('vite:internal:docks:updated')
+    rpcHost.boardcast?.$callOptional('vite:internal:docks:updated')
   }, 10))
   terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
-    rpcHost.boardcast.$callOptional('vite:internal:terminals:stream-chunk', data)
+    rpcHost.boardcast?.$callOptional('vite:internal:terminals:stream-chunk', data)
   })
 
   // Register plugins
