@@ -356,9 +356,18 @@ export function useGraphDraggingScroll() {
   }
 }
 
+export interface ModulePathSelector {
+  state: { value: { search: string, selected: string | null } }
+  modules: ComputedRef<ModuleListItem[]>
+  fuse: Ref<ComputedRefWithControl<Fuse<ModuleListItem>> | undefined>
+  initSelector: (modules: ComputedRef<ModuleListItem[]>) => void
+  select: (module: ModuleListItem) => void
+  clear: () => void
+}
+
 export function useModulePathSelector(options: {
   getModules: () => ModuleListItem[]
-}) {
+}): ModulePathSelector {
   const state = ref<{
     search: string
     selected: string | null

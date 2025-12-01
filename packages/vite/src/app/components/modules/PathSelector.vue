@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
-import { hideAllPoppers, Menu as VMenu } from 'floating-vue'
 import { computed, watch } from 'vue'
 import { useModulePathSelector } from '~/composables/moduleGraph'
 
@@ -88,80 +87,32 @@ watch([() => startSelector.state.value.selected, () => endSelector.state.value.s
 <template>
   <div h12 px4 p2 relative flex="~ gap2 items-center">
     <div flex="~ items-center gap2" class="flex-1" min-w-0>
-      <div flex-1 w-0>
-        <div v-if="startSelector.state.value.selected" w-full overflow-hidden flex="~ items-center" border="~ base rounded" p1 relative>
-          <div overflow-hidden text-ellipsis pr6 py0.5 w-0 flex-1>
-            <DisplayModuleId
-              :id="startSelector.state.value.selected"
-              :session="session"
-              block text-nowrap
-              :link="false"
-              :disable-tooltip="true"
-            />
-          </div>
-          <button i-carbon-clean text-4 hover="op100" op50 title="Clear" absolute right-2 @click="startSelector.clear" />
-        </div>
-        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 150 }">
-          <input
-            v-model="startSelector.state.value.search"
-            p1 px4 w-full border="~ base rounded-1" style="outline: none"
-            placeholder="Start"
-            @blur="hideAllPoppers"
-          >
-          <template #popper>
-            <div class="p2 w100" flex="~ col gap2">
-              <ModulesFlatList
-                :session="session"
-                :modules="startSelector.modules.value"
-                disable-tooltip
-                :link="false"
-                @select="startSelector.select"
-              />
-            </div>
-          </template>
-        </VMenu>
-      </div>
+      <ModulesPathSelectorItem
+        v-model:search="startSelector.state.value.search"
+        placeholder="Start"
+        :selector="startSelector"
+        :session="session"
+        :modules="startSelector.modules.value"
+        @clear="() => { startSelector.clear(); endSelector.clear() }"
+      />
       <div class="i-carbon-arrow-right op50" flex-shrink-0 />
 
-      <div flex-1 w-0>
-        <div v-if="endSelector.state.value.selected" w-full overflow-hidden flex="~ items-center" border="~ base rounded" p1 relative>
-          <div overflow-hidden text-ellipsis pr6 py0.5 w-0 flex-1>
-            <DisplayModuleId
-              :id="endSelector.state.value.selected"
-              :session="session"
-              block text-nowrap
-              :link="false"
-              :disable-tooltip="true"
-            />
+      <ModulesPathSelectorItem
+        v-model:search="endSelector.state.value.search"
+        placeholder="End"
+        :selector="endSelector"
+        :session="session"
+        :modules="filteredEndModules"
+        @clear="endSelector.clear"
+      >
+        <template #empty>
+          <div flex="~ items-center justify-center" w-full h-20>
+            <span italic op50>
+              {{ startSelector.state.value.selected ? 'No modules' : 'Select a start module to get end modules' }}
+            </span>
           </div>
-          <button i-carbon-clean text-4 hover="op100" op50 title="Clear" absolute right-2 @click="() => { startSelector.clear() ; endSelector.clear() }" />
-        </div>
-        <VMenu v-else :distance="15" :triggers="['click']" :auto-hide="false" :delay="{ show: 300, hide: 150 }">
-          <input
-            v-model="endSelector.state.value.search"
-            p1 px4 w-full border="~ base rounded-1" style="outline: none"
-            placeholder="End"
-            @blur="hideAllPoppers"
-          >
-          <template #popper>
-            <div class="p2 w100" flex="~ col gap2">
-              <ModulesFlatList
-                v-if="filteredEndModules.length"
-                :session="session"
-                :modules="filteredEndModules"
-                disable-tooltip
-                :link="false"
-                @select="endSelector.select"
-              />
-              <div v-else flex="~ items-center justify-center" w-full h-20>
-                <span italic op50>
-                  {{ startSelector.state.value.selected ? 'No modules' : 'Select a start module to get end modules' }}
-                </span>
-              </div>
-            </div>
-          </template>
-        </VMenu>
-      </div>
+        </template>
+      </ModulesPathSelectorItem>
     </div>
 
     <DisplayCloseButton class="mr--2" @click="emit('close')" />
