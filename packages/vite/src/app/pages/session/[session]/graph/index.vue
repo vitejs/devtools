@@ -16,7 +16,7 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-const pathSelectorVisible = ref(true)
+const pathSelectorVisible = ref(false)
 const pathNodes = ref({
   start: '',
   end: '',
