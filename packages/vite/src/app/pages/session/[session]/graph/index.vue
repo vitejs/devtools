@@ -16,14 +16,14 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-const navigatorVisible = ref(true)
-const navigatorNode = ref({
+const pathSelectorVisible = ref(true)
+const pathNodes = ref({
   start: '',
   end: '',
 })
 
-function selectNavigatorNodes(nodes: { start: string, end: string }) {
-  navigatorNode.value = {
+function selectPathNodes(nodes: { start: string, end: string }) {
+  pathNodes.value = {
     start: nodes.start,
     end: nodes.end,
   }
@@ -128,7 +128,7 @@ const searched = computed(() => {
 })
 
 const filteredGraph = computed(() => {
-  const { start, end } = navigatorNode.value
+  const { start, end } = pathNodes.value
   if (!start && !end)
     return searched.value
 
@@ -194,8 +194,8 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   settings.value.moduleGraphViewType = type
 }
 
-function toggleNavigator(state: boolean) {
-  navigatorVisible.value = state
+function togglePathSelector(state: boolean) {
+  pathSelectorVisible.value = state
   searchValue.value.search = state ? false : ''
 }
 </script>
@@ -204,14 +204,14 @@ function toggleNavigator(state: boolean) {
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
-        <template v-if="navigatorVisible" #search>
-          <ModulesPathSelector :session="session" :modules="searched" @select="selectNavigatorNodes" @close="toggleNavigator(false)" />
+        <template v-if="pathSelectorVisible" #search>
+          <ModulesPathSelector :session="session" :modules="searched" @select="selectPathNodes" @close="togglePathSelector(false)" />
         </template>
         <template #search-end>
           <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">
             <button
               w-8 h-8 rounded-full flex items-center justify-center
-              hover="bg-active op100" op50 title="Module Navigator" @click="toggleNavigator(true)"
+              hover="bg-active op100" op50 title="Module Navigator" @click="togglePathSelector(true)"
             >
               <i i-ri:route-line flex />
             </button>
