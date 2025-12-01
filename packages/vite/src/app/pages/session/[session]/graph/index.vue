@@ -205,7 +205,7 @@ function toggleNavigator(state: boolean) {
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="navigatorVisible" #search>
-          <ModulesGraphNavigator :session="session" :modules="searched" @select="selectNavigatorNodes" @close="toggleNavigator(false)" />
+          <ModulesPathSelector :session="session" :modules="searched" @select="selectNavigatorNodes" @close="toggleNavigator(false)" />
         </template>
         <template #search-end>
           <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">

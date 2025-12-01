@@ -1,8 +1,11 @@
+import type { ComputedRefWithControl } from '@vueuse/core'
 import type { HierarchyLink, HierarchyNode } from 'd3-hierarchy'
 import type { ComputedRef, InjectionKey, MaybeRef, Ref, ShallowReactive, ShallowRef } from 'vue'
-import { onKeyPressed, useEventListener, useMagicKeys } from '@vueuse/core'
+import type { ModuleListItem } from '~~/shared/types'
+import { computedWithControl, onKeyPressed, useEventListener, useMagicKeys } from '@vueuse/core'
 import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
+import Fuse from 'fuse.js'
 import { computed, inject, nextTick, provide, ref, shallowReactive, shallowRef, unref } from 'vue'
 import { useZoomElement } from './zoomElement'
 
@@ -350,5 +353,50 @@ export function useGraphDraggingScroll() {
   return {
     init,
     isGrabbing,
+  }
+}
+
+export function useModulePathSelector(options: {
+  getModules: () => ModuleListItem[]
+}) {
+  const state = ref<{
+    search: string
+    selected: string | null
+  }>({
+    search: '',
+    selected: null,
+  })
+  const fuse = ref<ComputedRefWithControl<Fuse<ModuleListItem>>>()
+
+  const modules = computed(options.getModules)
+
+  function initSelector(modules: ComputedRef<ModuleListItem[]>) {
+    fuse.value = computedWithControl(
+      modules,
+      () => new Fuse(modules.value, {
+        includeScore: true,
+        keys: ['id'],
+        ignoreLocation: true,
+        threshold: 0.4,
+      }),
+    )
+  }
+
+  function select(node: ModuleListItem) {
+    state.value.selected = node.id
+    state.value.search = ''
+  }
+
+  function clear() {
+    state.value.selected = null
+  }
+
+  return {
+    state,
+    modules,
+    fuse,
+    initSelector,
+    select,
+    clear,
   }
 }
