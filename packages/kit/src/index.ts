@@ -1,2 +1,2 @@
 export type * from './types'
-export * from './utils/rpc'
+export * from './utils/define'

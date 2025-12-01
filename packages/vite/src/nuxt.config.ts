@@ -31,6 +31,7 @@ export default defineNuxtConfig({
   alias: {
     '@vitejs/devtools-rpc': pkgPath('rpc/src'),
     '@vitejs/devtools-kit/client': pkgPath('kit/src/client/index.ts'),
+    '@vitejs/devtools-kit/utils/events': pkgPath('kit/src/utils/events.ts'),
     '@vitejs/devtools-kit': pkgPath('kit/src/index.ts'),
     '@vitejs/devtools-vite': pkgPath('vite/src/index.ts'),
     '@vitejs/devtools/client/inject': pkgPath('core/src/client/inject/index.ts'),

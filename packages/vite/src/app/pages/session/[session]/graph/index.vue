@@ -3,7 +3,7 @@ import type { SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
-import { computedWithControl, debouncedWatch } from '@vueuse/core'
+import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { settings } from '~/state/settings'
@@ -62,7 +62,7 @@ const moduleViewTypes = [
   },
 ] as const
 
-debouncedWatch(
+watchDebounced(
   searchValue.value,
   (f) => {
     const query: any = {

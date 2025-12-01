@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.0.0-alpha.18",
+  "version": "0.0.0-alpha.19",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -21,6 +21,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
+    "./utils/events": "./dist/utils/events.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",
@@ -40,8 +41,7 @@
   "dependencies": {
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
-    "birpc-x": "catalog:deps",
-    "nanoevents": "catalog:deps"
+    "birpc-x": "catalog:deps"
   },
   "devDependencies": {
     "tsdown": "catalog:build",

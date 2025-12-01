@@ -1,12 +1,19 @@
-// TODO: refine categories more clearly
+import type { EventEmitter } from './events'
 
 export interface DevToolsDockHost {
-  views: Map<string, DevToolsDockEntry>
-  register: (entry: DevToolsDockEntry) => void
-  update: (entry: DevToolsDockEntry) => void
-  values: () => DevToolsDockEntry[]
+  readonly views: Map<string, DevToolsDockUserEntry>
+  readonly events: EventEmitter<{
+    'dock:entry:updated': (entry: DevToolsDockUserEntry) => void
+  }>
+
+  register: <T extends DevToolsDockUserEntry>(entry: T, force?: boolean) => {
+    update: (patch: Partial<T>) => void
+  }
+  update: (entry: DevToolsDockUserEntry) => void
+  values: () => DevToolsDockUserEntry[]
 }
 
+// TODO: refine categories more clearly
 export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default'
 
 export type DevToolsDockEntryIcon = string | { light: string, dark: string }
@@ -26,6 +33,11 @@ export interface DevToolsDockEntryBase {
    * @default 'default'
    */
   category?: DevToolsDockEntryCategory
+  /**
+   * Whether the entry should be hidden from the user.
+   * @default false
+   */
+  isHidden?: boolean
 }
 
 export interface ClientScriptEntry {
@@ -82,4 +94,11 @@ export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
   renderer: ClientScriptEntry
 }
 
-export type DevToolsDockEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
+export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
+  type: '~builtin'
+  id: '~terminals' | '~logs'
+}
+
+export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
+
+export type DevToolsDockEntry = DevToolsDockUserEntry | DevToolsViewBuiltin

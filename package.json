@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "0.0.0-alpha.18",
+  "version": "0.0.0-alpha.19",
   "private": true,
   "packageManager": "pnpm@10.23.0",
   "scripts": {
@@ -44,6 +44,7 @@
     "@types/ws": "catalog:types",
     "@typescript-eslint/utils": "catalog:devtools",
     "@unocss/eslint-config": "catalog:devtools",
+    "@vueuse/core": "catalog:frontend",
     "ansis": "catalog:deps",
     "bumpp": "catalog:devtools",
     "esbuild": "catalog:build",
