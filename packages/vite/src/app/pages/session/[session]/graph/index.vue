@@ -16,9 +16,21 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
+const pathSelectorVisible = ref(false)
+const pathNodes = ref({
+  start: '',
+  end: '',
+})
+
+function selectPathNodes(nodes: { start: string, end: string }) {
+  pathNodes.value = {
+    start: nodes.start,
+    end: nodes.end,
+  }
+}
 
 const searchValue = ref<{
-  search: string
+  search: string | false
   selected: string[] | null
   [key: string]: any
 }>({
@@ -115,11 +127,76 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
+const filteredGraph = computed(() => {
+  const { start, end } = pathNodes.value
+  if (!start && !end)
+    return searched.value
+
+  const modulesMap = new Map(props.session.modulesList.map(m => [m.id, m]))
+  const linkedNodes = new Set<string>()
+
+  const bfs = (startId: string, getNext: (id: string) => string[], stopAt?: string) => {
+    const queue = [startId]
+    const visited = new Set<string>()
+    const pathMap = new Map<string, string[]>([[startId, [startId]]])
+
+    while (queue.length > 0) {
+      const id = queue.shift()!
+      if (visited.has(id))
+        continue
+      visited.add(id)
+
+      if (stopAt) {
+        if (id === stopAt)
+          pathMap.get(id)?.forEach(nodeId => linkedNodes.add(nodeId))
+      }
+      else {
+        linkedNodes.add(id)
+      }
+
+      if (!stopAt || id !== stopAt) {
+        getNext(id).forEach((nextId) => {
+          if (!visited.has(nextId)) {
+            queue.push(nextId)
+            if (stopAt)
+              pathMap.set(nextId, [...(pathMap.get(id) || []), nextId])
+          }
+        })
+      }
+    }
+  }
+
+  if (start && end) {
+    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [], end)
+  }
+  else if (start) {
+    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [])
+  }
+  else if (end) {
+    bfs(end, id => modulesMap.get(id)?.importers || [])
+  }
+
+  return filtered.value.filter(x => linkedNodes.has(x.id)).map((m) => {
+    if (m.id === start) {
+      return {
+        ...m,
+        importers: [],
+      }
+    }
+    return m
+  })
+})
+
 function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
   }
   settings.value.moduleGraphViewType = type
+}
+
+function togglePathSelector(state: boolean) {
+  pathSelectorVisible.value = state
+  searchValue.value.search = state ? false : ''
 }
 </script>
 
@@ -127,6 +204,19 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   <div relative max-h-screen of-hidden>
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
+        <template v-if="pathSelectorVisible" #search>
+          <ModulesPathSelector :session="session" :modules="searched" @select="selectPathNodes" @close="togglePathSelector(false)" />
+        </template>
+        <template #search-end>
+          <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">
+            <button
+              w-8 h-8 rounded-full flex items-center justify-center
+              hover="bg-active op100" op50 title="Module Navigator" @click="togglePathSelector(true)"
+            >
+              <i i-ri:route-line flex />
+            </button>
+          </div>
+        </template>
         <div flex="~ gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
@@ -171,7 +261,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
     <template v-else-if="settings.moduleGraphViewType === 'graph'">
       <ModulesGraph
         :session="session"
-        :modules="searched"
+        :modules="filteredGraph"
       />
     </template>
     <template v-else>
