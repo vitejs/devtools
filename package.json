@@ -69,6 +69,7 @@
     "@jridgewell/sourcemap-codec": "1.5.0",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/kit": "catalog:build",
+    "@nuxt/vite-builder": "catalog:build",
     "@rolldown/debug": "catalog:deps",
     "esbuild": "catalog:build",
     "nitropack": "catalog:build",

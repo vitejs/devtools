@@ -11,6 +11,11 @@ export interface WebSocketRpcServerOptions {
   onDisconnected?: (ws: WebSocket) => void
 }
 
+export interface WebSocketRpcServerChannelMeta {
+  uid: string
+  isTrusted?: boolean
+}
+
 function NOOP() {}
 
 export const createWsRpcPreset: RpcServerPreset<(options: WebSocketRpcServerOptions) => <ClientFunctions, ServerFunctions>(rpc: BirpcGroup<ClientFunctions, ServerFunctions>, options?: Pick<BirpcOptions<ClientFunctions>, 'serialize' | 'deserialize'>) => void> = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
@@ -41,6 +46,10 @@ export const createWsRpcPreset: RpcServerPreset<(options: WebSocketRpcServerOpti
         },
         serialize,
         deserialize,
+        meta: <WebSocketRpcServerChannelMeta>{
+          uid: crypto.randomUUID(),
+          isTrusted: false,
+        },
       }
 
       rpc.updateChannels((channels) => {
