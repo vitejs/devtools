@@ -42,6 +42,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
           console.error(error)
           throw error
         },
+        resolver(name, fn) {
+          console.log(c.yellow`${MARK_CHECK} RPC resolver:`, name, fn)
+          return fn
+        },
       },
     },
   )
