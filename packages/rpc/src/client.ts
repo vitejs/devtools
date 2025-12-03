@@ -1,14 +1,14 @@
-import type { BirpcOptions, BirpcReturn } from 'birpc'
+import type { BirpcOptions, BirpcReturn, ChannelOptions } from 'birpc'
 import { createBirpc } from 'birpc'
 
 export function createRpcClient<
-  ServerFunctions = Record<string, never>,
-  ClientFunctions extends object = Record<string, never>,
+  ServerFunctions,
+  ClientFunctions extends object,
 >(
   functions: ClientFunctions,
   options: {
-    preset: BirpcOptions<ServerFunctions>
-    rpcOptions?: Partial<BirpcOptions<ServerFunctions>>
+    preset: ChannelOptions
+    rpcOptions?: Partial<BirpcOptions<ServerFunctions, ClientFunctions>>
   },
 ): BirpcReturn<ServerFunctions, ClientFunctions> {
   const { preset, rpcOptions = {} } = options
