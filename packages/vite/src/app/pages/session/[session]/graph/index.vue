@@ -211,7 +211,7 @@ function togglePathSelector(state: boolean) {
           <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">
             <button
               w-8 h-8 rounded-full flex items-center justify-center
-              hover="bg-active op100" op50 title="Module Navigator" @click="togglePathSelector(true)"
+              hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
             >
               <i i-ri:route-line flex />
             </button>
