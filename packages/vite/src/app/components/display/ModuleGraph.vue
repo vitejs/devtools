@@ -61,7 +61,7 @@ onMounted(() => {
         <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
           <g>
             <template v-for="link of links" :key="link.id">
-              <slot name="link" :link="link" :d="generateModuleGraphLink<T, I>(link, spacing)!" :link-class="getModuleGraphLinkColor<T, I>(link)">
+              <slot v-if="link.target" name="link" :link="link" :d="generateModuleGraphLink<T, I>(link, spacing)!" :link-class="getModuleGraphLinkColor<T, I>(link)">
                 <path
                   :key="link.id"
                   :d="generateModuleGraphLink<T, I>(link, spacing)!"
