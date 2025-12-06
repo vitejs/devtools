@@ -11,7 +11,7 @@ export function createRpcServer<
     rpcOptions?: EventOptions<ClientFunctions>
   },
 ): BirpcGroup<ClientFunctions, ServerFunctions> {
-  const rpc = createBirpcGroup<ClientFunctions, ServerFunctions>(functions, [], options?.rpcOptions ?? {})
+  const rpc = createBirpcGroup<ClientFunctions, ServerFunctions>(functions, [], (options?.rpcOptions ?? {}) as EventOptions<ClientFunctions, ServerFunctions>)
   options?.preset(rpc)
 
   return rpc

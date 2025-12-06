@@ -151,7 +151,7 @@ onMounted(() => {
           marginTop: `${importersVerticalOffset}px`,
         }"
       >
-        <template v-for="(importer, i) of importers" :key="importer.id">
+        <template v-for="(importer, i) of importers" :key="importer!.id">
           <DisplayModuleId
             :id="importer!.id"
             hover="bg-active" block px2 p1 bg-base ws-nowrap
@@ -186,7 +186,7 @@ onMounted(() => {
           marginTop: `${importsVerticalOffset}px`,
         }"
       >
-        <template v-for="(_import, i) of module.imports" :key="_import.id">
+        <template v-for="(_import, i) of module.imports" :key="_import.module_id">
           <DisplayModuleId
             :id="_import!.module_id"
             hover="bg-active" block px2 p1 bg-base ws-nowrap

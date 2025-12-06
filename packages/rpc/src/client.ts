@@ -16,5 +16,5 @@ export function createRpcClient<
     ...preset,
     timeout: -1,
     ...rpcOptions,
-  })
+  } as BirpcOptions<ServerFunctions, ClientFunctions>)
 }

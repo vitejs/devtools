@@ -1,3 +1,4 @@
+import type { RemovableRef } from '@vueuse/core'
 import type { Ref } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
@@ -58,7 +59,7 @@ export const settings = useLocalStorage<ClientSettings>(
   },
 )
 
-export function objectRefToRefs<T extends object>(obj: Ref<T>): {
+export function objectRefToRefs<T extends object>(obj: RemovableRef<T>): {
   [K in keyof T]: Ref<T[K]>
 } {
   const cache = new Map<keyof T, Ref<T[keyof T]>>()
