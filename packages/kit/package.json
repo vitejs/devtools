@@ -44,6 +44,7 @@
     "birpc-x": "catalog:deps"
   },
   "devDependencies": {
+    "nanoid": "^5.1.6",
     "tsdown": "catalog:build",
     "vite": "catalog:build"
   }

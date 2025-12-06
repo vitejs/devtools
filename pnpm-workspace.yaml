@@ -2,13 +2,11 @@ packages:
   - packages/*
   - docs
 
-patchedDependencies:
-  '@unocss/inspector': patches/@unocss__inspector.patch
-
 catalogs:
   build:
     '@antfu/ni': ^28.0.0
     '@nuxt/kit': ^4.2.1
+    '@nuxt/vite-builder': https://pkg.pr.new/@nuxt/vite-builder@33682
     '@unocss/nuxt': ^66.5.10
     '@vitejs/plugin-vue': ^6.0.2
     '@vueuse/nuxt': ^14.1.0
@@ -25,9 +23,9 @@ catalogs:
     '@pnpm/read-project-manifest': ^1001.2.1
     '@rolldown/debug': ^1.0.0-beta.52
     ansis: ^4.2.0
-    birpc: ^2.8.0
+    birpc: ^3.0.0
     # Unstable API, lock the version
-    birpc-x: 0.0.5
+    birpc-x: 0.0.6
     cac: ^6.7.14
     debug: ^4.4.3
     diff: ^8.0.2
@@ -52,7 +50,7 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.18.3
   devtools:
-    '@antfu/eslint-config': ^6.2.0
+    '@antfu/eslint-config': ^6.3.0
     '@nuxt/devtools': ^3.1.1
     '@nuxt/eslint': ^1.11.0
     '@typescript-eslint/utils': ^8.48.1
@@ -66,7 +64,7 @@ catalogs:
     vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.1.5
   docs:
-    '@shikijs/vitepress-twoslash': ^3.18.0
+    '@shikijs/vitepress-twoslash': ^3.19.0
     vitepress: ^2.0.0-alpha.15
     vitepress-plugin-group-icons: ^1.6.5
   frontend:
