@@ -1,11 +1,13 @@
-<script setup lang="ts">
-import type { ModuleListItem, SessionContext } from '~~/shared/types'
+<script setup lang="ts"  generic="T extends { id:string, imports: Record<string, unknown>[] }">
+import type { SessionContext } from '~~/shared/types'
+import type { GraphPathSelector } from '~/composables/graph-path-selector'
 import { computed, watch } from 'vue'
-import { useModulePathSelector } from '~/composables/moduleGraph'
+import { useGraphPathSelector } from '~/composables/graph-path-selector'
 
 const props = defineProps<{
   session: SessionContext
-  modules: ModuleListItem[]
+  data: T[]
+  importId: string
 }>()
 
 const emit = defineEmits<{
@@ -13,18 +15,28 @@ const emit = defineEmits<{
   (e: 'select', nodes: { start: string, end: string }): void
 }>()
 
-const modulesMap = computed(() => {
-  const map = new Map<string, ModuleListItem>()
-  props.modules.forEach((m) => {
+defineSlots<{
+  list: (props: {
+    select: (module: T) => void
+    data: T[]
+  }) => void
+  item: (props: {
+    id: string
+  }) => void
+}>()
+
+const dataMap = computed(() => {
+  const map = new Map<string, T>()
+  props.data.forEach((m) => {
     map.set(m.id, m)
   })
   return map
 })
 
-const startSelector = useModulePathSelector({
+const startSelector: GraphPathSelector<T> = useGraphPathSelector<T>({
   getModules: () => {
     if (!startSelector.state.value.search) {
-      return props.modules
+      return props.data
     }
     else {
       return startSelector.fuse.value!.value?.search(startSelector.state.value.search).map(r => r.item) ?? []
@@ -32,21 +44,21 @@ const startSelector = useModulePathSelector({
   },
 })
 
-startSelector.initSelector(computed(() => props.modules))
+startSelector.initSelector(computed(() => props.data))
 
-function getAllImports(moduleId: string, visited = new Set<string>()): ModuleListItem[] {
+function getAllImports(moduleId: string, visited = new Set<string>()): T[] {
   if (visited.has(moduleId))
     return []
   visited.add(moduleId)
 
-  const module = modulesMap.value.get(moduleId)
+  const module = dataMap.value.get(moduleId)
   if (!module?.imports?.length)
     return []
 
-  const res: ModuleListItem[] = []
+  const res: T[] = []
 
   for (const importItem of module.imports) {
-    const importedModule = modulesMap.value.get(importItem.module_id)
+    const importedModule = dataMap.value.get(`${importItem[props.importId]}`)
     if (!importedModule)
       continue
 
@@ -59,7 +71,7 @@ function getAllImports(moduleId: string, visited = new Set<string>()): ModuleLis
   return res
 }
 
-const endSelector = useModulePathSelector({
+const endSelector = useGraphPathSelector<T>({
   getModules: () => {
     return startSelector.state.value.selected ? getAllImports(startSelector.state.value.selected) : []
   },
@@ -82,29 +94,50 @@ watch([() => startSelector.state.value.selected, () => endSelector.state.value.s
     end: endSelector.state.value.selected ?? '',
   })
 })
+
+function close() {
+  emit('select', {
+    start: '',
+    end: '',
+  })
+  emit('close')
+}
 </script>
 
 <template>
-  <div h12 px4 p2 relative flex="~ gap2 items-center">
-    <div flex="~ items-center gap2" class="flex-1" min-w-0>
-      <ModulesPathSelectorItem
+  <div h10 px4 p1 relative flex="~ gap2 items-center">
+    <div flex="~ items-center gap2" class="flex-1 h-full" min-w-0>
+      <DataPathSelectorItem
         v-model:search="startSelector.state.value.search"
         placeholder="Start"
         :selector="startSelector"
         :session="session"
-        :modules="startSelector.modules.value"
+        :data="startSelector.modules.value"
         @clear="() => { startSelector.clear(); endSelector.clear() }"
-      />
+      >
+        <template #list>
+          <slot name="list" :select="startSelector.select" :data="startSelector.modules.value" />
+        </template>
+        <template #item>
+          <slot :id="startSelector.state.value.selected!" name="item" />
+        </template>
+      </DataPathSelectorItem>
       <div class="i-carbon-arrow-right op50" flex-shrink-0 />
 
-      <ModulesPathSelectorItem
+      <DataPathSelectorItem
         v-model:search="endSelector.state.value.search"
         placeholder="End"
         :selector="endSelector"
         :session="session"
-        :modules="filteredEndModules"
+        :data="filteredEndModules"
         @clear="endSelector.clear"
       >
+        <template #list>
+          <slot name="list" :select="endSelector.select" :data="filteredEndModules" />
+        </template>
+        <template #item>
+          <slot :id="endSelector.state.value.selected!" name="item" />
+        </template>
         <template #empty>
           <div flex="~ items-center justify-center" w-full h-20>
             <span italic op50>
@@ -112,9 +145,9 @@ watch([() => startSelector.state.value.selected, () => endSelector.state.value.s
             </span>
           </div>
         </template>
-      </ModulesPathSelectorItem>
+      </DataPathSelectorItem>
     </div>
 
-    <DisplayCloseButton class="mr--2" @click="emit('close')" />
+    <DisplayCloseButton class="mr--2" @click="close" />
   </div>
 </template>

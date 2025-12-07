@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { SessionContext } from '~~/shared/types'
+import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
+import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
@@ -16,18 +17,6 @@ const props = defineProps<{
 
 const route = useRoute()
 const router = useRouter()
-const pathSelectorVisible = ref(false)
-const pathNodes = ref({
-  start: '',
-  end: '',
-})
-
-function selectPathNodes(nodes: { start: string, end: string }) {
-  pathNodes.value = {
-    start: nodes.start,
-    end: nodes.end,
-  }
-}
 
 const searchValue = ref<{
   search: string | false
@@ -108,6 +97,15 @@ const filtered = computed(() => {
   return modules.map(mod => ({ ...mod.mod, path: mod.path.path }))
 })
 
+const { pathSelectorVisible, selectPathNodes, togglePathSelector, normalizedGraph } = useGraphPathManager<ModuleListItem>({
+  onToggle: (visible) => {
+    searchValue.value.search = visible ? false : ''
+  },
+  dataMap: computed(() => new Map(props.session.modulesList.map(m => [m.id, m]))),
+  list: filtered,
+  importIdKey: 'module_id',
+})
+
 const fuse = computedWithControl(
   () => filtered.value,
   () => new Fuse(filtered.value, {
@@ -118,7 +116,7 @@ const fuse = computedWithControl(
   }),
 )
 
-const searched = computed(() => {
+const searched = computed<ModuleListItem[]>(() => {
   if (!searchValue.value.search) {
     return filtered.value
   }
@@ -127,76 +125,11 @@ const searched = computed(() => {
     .map(r => r.item)
 })
 
-const filteredGraph = computed(() => {
-  const { start, end } = pathNodes.value
-  if (!start && !end)
-    return searched.value
-
-  const modulesMap = new Map(props.session.modulesList.map(m => [m.id, m]))
-  const linkedNodes = new Set<string>()
-
-  const bfs = (startId: string, getNext: (id: string) => string[], stopAt?: string) => {
-    const queue = [startId]
-    const visited = new Set<string>()
-    const pathMap = new Map<string, string[]>([[startId, [startId]]])
-
-    while (queue.length > 0) {
-      const id = queue.shift()!
-      if (visited.has(id))
-        continue
-      visited.add(id)
-
-      if (stopAt) {
-        if (id === stopAt)
-          pathMap.get(id)?.forEach(nodeId => linkedNodes.add(nodeId))
-      }
-      else {
-        linkedNodes.add(id)
-      }
-
-      if (!stopAt || id !== stopAt) {
-        getNext(id).forEach((nextId) => {
-          if (!visited.has(nextId)) {
-            queue.push(nextId)
-            if (stopAt)
-              pathMap.set(nextId, [...(pathMap.get(id) || []), nextId])
-          }
-        })
-      }
-    }
-  }
-
-  if (start && end) {
-    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [], end)
-  }
-  else if (start) {
-    bfs(start, id => modulesMap.get(id)?.imports.map(imp => imp.module_id) || [])
-  }
-  else if (end) {
-    bfs(end, id => modulesMap.get(id)?.importers || [])
-  }
-
-  return filtered.value.filter(x => linkedNodes.has(x.id)).map((m) => {
-    if (m.id === start) {
-      return {
-        ...m,
-        importers: [],
-      }
-    }
-    return m
-  })
-})
-
 function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
   if (route.query.module) {
     router.replace({ query: { ...route.query, module: undefined } })
   }
   settings.value.moduleGraphViewType = type
-}
-
-function togglePathSelector(state: boolean) {
-  pathSelectorVisible.value = state
-  searchValue.value.search = state ? false : ''
 }
 </script>
 
@@ -205,10 +138,30 @@ function togglePathSelector(state: boolean) {
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
-          <ModulesPathSelector :session="session" :modules="searched" @select="selectPathNodes" @close="togglePathSelector(false)" />
+          <DataPathSelector :session="session" :data="searched" import-id="module_id" @select="selectPathNodes" @close="togglePathSelector(false)">
+            <template #list="{ select, data }">
+              <ModulesFlatList
+                v-if="data?.length"
+                :session="session"
+                :modules="data"
+                disable-tooltip
+                :link="false"
+                @select="select"
+              />
+            </template>
+            <template #item="{ id }">
+              <DisplayModuleId
+                :id="id"
+                :session="session"
+                block text-nowrap
+                :link="false"
+                :disable-tooltip="true"
+              />
+            </template>
+          </DataPathSelector>
         </template>
         <template #search-end>
-          <div v-if="settings.moduleGraphViewType === 'graph'" h12 mr2 flex="~ items-center">
+          <div v-if="settings.moduleGraphViewType === 'graph'" h10 mr2 flex="~ items-center">
             <button
               w-8 h-8 rounded-full flex items-center justify-center
               hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
@@ -261,7 +214,7 @@ function togglePathSelector(state: boolean) {
     <template v-else-if="settings.moduleGraphViewType === 'graph'">
       <ModulesGraph
         :session="session"
-        :modules="filteredGraph"
+        :modules="normalizedGraph"
       />
     </template>
     <template v-else>
