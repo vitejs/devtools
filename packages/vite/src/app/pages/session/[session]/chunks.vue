@@ -93,34 +93,33 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
         </div>
       </DataSearchPanel>
     </div>
-    <div of-auto h-screen flex="~ col gap-2" pt12>
-      <template v-if="settings.chunkViewType === 'list'">
-        <div class="px5 pt24 of-auto h-screen" flex="~ col gap-4">
-          <ChunksFlatList
-            :session="session"
-            :chunks="searched"
-          />
-        </div>
-      </template>
-      <template v-if="settings.chunkViewType === 'detailed-list'">
-        <div class="px5 pt24 of-auto h-screen" flex="~ col gap-4">
-          <template v-for="chunk of searched" :key="chunk.id">
-            <DataChunkDetails
-              border="~ base rounded-lg"
-              p3
-              :chunk="chunk"
-              :chunks="searched!"
-              :session="session"
-            />
-          </template>
-        </div>
-      </template>
-      <template v-else-if="settings.chunkViewType === 'graph'">
-        <ChunksGraph
+    <template v-if="settings.chunkViewType === 'list'">
+      <div class="px5 pt32 of-auto h-screen" flex="~ col gap-4">
+        <ChunksFlatList
           :session="session"
           :chunks="searched"
         />
-      </template>
-    </div>
+      </div>
+    </template>
+    <template v-if="settings.chunkViewType === 'detailed-list'">
+      <div class="px5 pt32 of-auto h-screen" flex="~ col gap-4">
+        <template v-for="chunk of searched" :key="chunk.id">
+          <DataChunkDetails
+            border="~ base rounded-lg"
+            p3
+            :chunk="chunk"
+            :chunks="searched!"
+            :session="session"
+          />
+        </template>
+      </div>
+    </template>
+    <template v-else-if="settings.chunkViewType === 'graph'">
+      <ChunksGraph
+        class="pt32"
+        :session="session"
+        :chunks="searched"
+      />
+    </template>
   </div>
 </template>
