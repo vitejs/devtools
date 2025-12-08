@@ -3,7 +3,7 @@ import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { useScroll } from '@vueuse/core'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, shallowRef, triggerRef, useTemplateRef, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ const SPACING = {
 
 const container = useTemplateRef<HTMLDivElement>('container')
 const importersContainer = useTemplateRef<HTMLDivElement>('importersContainer')
-const links = ref<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
+const links = shallowRef<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
 
 const modulesMap = computed(() => {
   const map = new Map<string, ModuleListItem>()
@@ -136,6 +136,7 @@ function updateLinksOffset() {
     }
     link.source.y = calculateLinkY('importer-start', idx)
   }
+  triggerRef(links)
 }
 
 onMounted(() => {
