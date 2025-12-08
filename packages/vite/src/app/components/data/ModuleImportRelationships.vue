@@ -3,7 +3,7 @@ import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
 import { useScroll } from '@vueuse/core'
-import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
 const props = defineProps<{
@@ -28,7 +28,7 @@ const SPACING = {
 
 const container = useTemplateRef<HTMLDivElement>('container')
 const importersContainer = useTemplateRef<HTMLDivElement>('importersContainer')
-const links = shallowRef<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
+const links = ref<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
 
 const modulesMap = computed(() => {
   const map = new Map<string, ModuleListItem>()
@@ -97,7 +97,7 @@ function generateLinks() {
   if (importers.value?.length) {
     const _importersLinks = Array.from({ length: importersMaxLength.value }, (_, i) => {
       return {
-        id: '',
+        id: `link-importer-${i}`,
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
@@ -114,7 +114,7 @@ function generateLinks() {
   if (props.module?.imports?.length) {
     const _importsLinks = Array.from({ length: importsMaxLength.value }, (_, i) => {
       return {
-        id: '',
+        id: `link-import-${i}`,
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
@@ -129,6 +129,15 @@ function generateLinks() {
   }
 }
 
+function updateLinksOffset() {
+  for (const [idx, link] of links.value.entries()) {
+    if (idx >= (importersMaxLength.value)) {
+      continue
+    }
+    link.source.y = calculateLinkY('importer-start', idx)
+  }
+}
+
 onMounted(() => {
   watch(
     () => [props.module],
@@ -138,26 +147,19 @@ onMounted(() => {
   watch(
     () => importersScrollY.value,
     () => {
-      generateLinks()
+      updateLinksOffset()
     },
   )
 })
 </script>
 
 <template>
-  <div
-    ref="container"
-    w-full relative select-none mt4
-  >
+  <div ref="container" w-full relative select-none mt4>
     <!-- nodes -->
     <div flex px2>
       <!-- importers -->
       <div
-        v-if="importers?.length"
-        ref="importersContainer"
-        py1
-        overflow-y-auto
-        :style="{
+        v-if="importers?.length" ref="importersContainer" py1 overflow-y-auto :style="{
           width: `${SPACING.width + SPACING.marginX}px`,
           maxHeight: `${SPACING.height * importersMaxLength + SPACING.padding * (importersMaxLength - 1)}px`,
           marginTop: `${importersVerticalOffset}px`,
@@ -165,14 +167,8 @@ onMounted(() => {
       >
         <template v-for="(importer, i) of importers" :key="importer!.id">
           <DisplayModuleId
-            :id="importer!.id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
+            :id="importer!.id" hover="bg-active" block px2 p1 bg-base ws-nowrap z-graph-node
+            border="~ base rounded" :link="true" :session="session" :minimal="true" :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
               overflow: 'hidden',
@@ -191,23 +187,15 @@ onMounted(() => {
       />
       <!-- imports -->
       <div
-        v-if="module.imports?.length"
-        py1
-        :style="{
+        v-if="module.imports?.length" py1 :style="{
           width: `${SPACING.width}px`,
           marginTop: `${importsVerticalOffset}px`,
         }"
       >
         <template v-for="(_import, i) of module.imports" :key="_import.module_id">
           <DisplayModuleId
-            :id="_import!.module_id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
+            :id="_import!.module_id" hover="bg-active" block px2 p1 bg-base ws-nowrap z-graph-node
+            border="~ base rounded" :link="true" :session="session" :minimal="true" :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
               overflow: 'hidden',
@@ -220,19 +208,15 @@ onMounted(() => {
 
     <!-- links -->
     <svg
-      pointer-events-none absolute left-0 top-0 z-graph-link w-full
-      :style="{
+      pointer-events-none absolute left-0 top-0 z-graph-link w-full :style="{
         height: `${nodesHeight}px`,
       }"
     >
       <g>
         <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
+          v-for="link of links" :key="link.id" :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
           :class="getModuleGraphLinkColor<ModuleListItem, ModuleImport>(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-          fill="none"
+          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined" fill="none"
         />
       </g>
     </svg>
