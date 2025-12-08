@@ -2,6 +2,7 @@
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import { useScroll } from '@vueuse/core'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
 
@@ -26,6 +27,7 @@ const SPACING = {
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
+const importersContainer = useTemplateRef<HTMLDivElement>('importersContainer')
 const links = shallowRef<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
 
 const modulesMap = computed(() => {
@@ -44,6 +46,7 @@ const normalizedMaxLinks = computed(() => {
   return Math.min(Math.max(props.module.importers?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
 })
 
+const { y: importersScrollY } = useScroll(importersContainer)
 const importersMaxLength = computed(() => Math.min(importers.value?.length || 0, MAX_LINKS))
 const importsMaxLength = computed(() => Math.min(props.module.imports?.length || 0, MAX_LINKS))
 const nodesHeight = computed(() => SPACING.height * normalizedMaxLinks.value + SPACING.padding * (normalizedMaxLinks.value + 1) + SPACING.border * 2)
@@ -78,7 +81,7 @@ function calculateLinkX(type: LinkPoint) {
 function calculateLinkY(type: LinkPoint, i?: number) {
   switch (type) {
     case 'importer-start':
-      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importersVerticalOffset.value
+      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importersVerticalOffset.value - importersScrollY.value % (SPACING.height + SPACING.padding)
     case 'import-end':
       return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importsVerticalOffset.value
     case 'importer-end':
@@ -132,6 +135,12 @@ onMounted(() => {
     generateLinks,
     { immediate: true },
   )
+  watch(
+    () => importersScrollY.value,
+    () => {
+      generateLinks()
+    },
+  )
 })
 </script>
 
@@ -145,9 +154,12 @@ onMounted(() => {
       <!-- importers -->
       <div
         v-if="importers?.length"
+        ref="importersContainer"
         py1
+        overflow-y-auto
         :style="{
-          width: `${SPACING.width}px`,
+          width: `${SPACING.width + SPACING.marginX}px`,
+          maxHeight: `${SPACING.height * importersMaxLength + SPACING.padding * (importersMaxLength - 1)}px`,
           marginTop: `${importersVerticalOffset}px`,
         }"
       >
