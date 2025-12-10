@@ -7,8 +7,10 @@ import { computed } from 'vue'
 const props = withDefaults(defineProps<{
   chunk: RolldownChunkInfo | RolldownChunkImport
   link?: boolean
+  basic?: boolean
 }>(), {
   link: false,
+  basic: false,
 })
 const route = useRoute()
 const normalizedImports = computed(() => Array.isArray(props.chunk.imports) ? props.chunk.imports.length : props.chunk.imports)
@@ -32,7 +34,7 @@ const normalizedModules = computed(() => Array.isArray(props.chunk.modules) ? pr
 
     <div flex-auto />
 
-    <div flex="~ items-center gap-2">
+    <div v-if="!basic" flex="~ items-center gap-2">
       <span op50 font-mono>#{{ chunk.chunk_id }}</span>
       <div flex="~ gap-1 items-center" :title="`${normalizedImports} imports`">
         <div i-ph-file-arrow-up-duotone />

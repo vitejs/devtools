@@ -76,6 +76,9 @@ export const createLinkVertical = linkVertical()
   .y(d => d[1])
 
 export function generateModuleGraphLink<M, I>(link: ModuleGraphLink<M, I>, spacing?: ModuleGraphSpacing) {
+  if (!link.target || !link.source) {
+    return null
+  }
   if (!spacing) {
     if (link.target.x! <= link.source.x!) {
       return createLinkVertical({
