@@ -10,7 +10,7 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
-  const rpcReturn = await getDevToolsRpcClient()
+  const rpc = await getDevToolsRpcClient()
 
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',
@@ -28,7 +28,7 @@ export async function init(): Promise<void> {
 
   const context = await createDocksContext(
     'embedded',
-    rpcReturn,
+    rpc,
     state,
   )
 

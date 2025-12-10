@@ -1,10 +1,12 @@
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcReturn, EventOptions } from 'birpc'
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '../types'
-import type { DevToolsClientContext, DevToolsClientRpcHost } from './docks'
+import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
+import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 import { RpcFunctionsCollectorBase } from 'birpc-x'
+import { UAParser } from 'my-ua-parser'
+import { createEventEmitter } from '../utils/events'
 import { nanoid } from '../utils/nanoid'
 import { promiseWithResolver } from '../utils/promise'
 
@@ -26,9 +28,14 @@ export interface DevToolsRpcClientOptions {
 
 export interface DevToolsRpcClient {
   /**
+   * The events of the client
+   */
+  events: EventEmitter<RpcClientEvents>
+
+  /**
    * Whether the client is trusted
    */
-  readonly isTrusted: boolean
+  readonly isTrusted: boolean | null
   /**
    * The connection meta
    */
@@ -40,7 +47,12 @@ export interface DevToolsRpcClient {
    *
    * @param timeout - The timeout in milliseconds, default to 60 seconds
    */
-  ensureTrusted: (timeout?: number) => Promise<void>
+  ensureTrusted: (timeout?: number) => Promise<boolean>
+
+  /**
+   * Request trust from the server
+   */
+  requestTrust: () => Promise<boolean>
 
   /**
    * Call a RPC function on the server
@@ -109,6 +121,7 @@ export async function getDevToolsRpcClient(
     baseURL = '/.devtools/',
     rpcOptions = {},
   } = options
+  const events = createEventEmitter<RpcClientEvents>()
   const bases = Array.isArray(baseURL) ? baseURL : [baseURL]
   let connectionMeta: ConnectionMeta | undefined = options.connectionMeta || findConnectionMetaFromWindows()
 
@@ -142,20 +155,9 @@ export async function getDevToolsRpcClient(
   const authId = getConnectionAuthIdFromWindows()
 
   let isTrusted = false
-  const trustedPromise = promiseWithResolver<void>()
+  const trustedPromise = promiseWithResolver<boolean>()
 
   const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
-
-  // Builtin rpc functions
-  clientRpc.register({
-    name: 'vite:anonymous:trusted',
-    type: 'event',
-    handler: () => {
-      isTrusted = true
-      trustedPromise.resolve()
-      return true
-    },
-  })
 
   // Create the RPC client
   const serverRpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>(
@@ -169,15 +171,35 @@ export async function getDevToolsRpcClient(
     },
   )
 
-  // TODO: implement the trust logic
-  serverRpc.$call('vite:anonymous:auth', {
-    authId,
-    ua: navigator.userAgent,
-  })
-
-  async function ensureTrusted(timeout = 60_000): Promise<void> {
+  async function requestTrust() {
     if (isTrusted)
-      trustedPromise.resolve()
+      return true
+
+    const info = new UAParser(navigator.userAgent).getResult()
+    const ua = [
+      info.browser.name,
+      info.browser.version,
+      '|',
+      info.os.name,
+      info.os.version,
+      info.device.type,
+    ].filter(i => i).join(' ')
+
+    const result = await serverRpc
+      .$call('vite:anonymous:auth', {
+        authId,
+        ua,
+      })
+
+    isTrusted = result.isTrusted
+    trustedPromise.resolve(isTrusted)
+    events.emit('rpc:is-trusted:updated', isTrusted)
+    return result.isTrusted
+  }
+
+  async function ensureTrusted(timeout = 60_000): Promise<boolean> {
+    if (isTrusted)
+      trustedPromise.resolve(true)
 
     if (timeout <= 0)
       return trustedPromise.promise
@@ -192,14 +214,18 @@ export async function getDevToolsRpcClient(
         clear = () => clearTimeout(id)
       }),
     ])
+
+    return isTrusted
   }
 
   const rpc: DevToolsRpcClient = {
+    events,
     get isTrusted() {
       return isTrusted
     },
     connectionMeta,
     ensureTrusted,
+    requestTrust,
     call: (...args: any): any => {
       // @ts-expect-error casting
       return serverRpc.call(...args)
@@ -217,6 +243,7 @@ export async function getDevToolsRpcClient(
 
   // @ts-expect-error assign to readonly property
   context.rpc = rpc
+  requestTrust()
 
   return rpc
 }

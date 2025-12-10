@@ -68,6 +68,10 @@ export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevTo
     // eslint-disable-next-line no-console
     console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
   }
+  rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+    if (isTrusted)
+      updateDocksEntries()
+  })
   rpc.client.register({
     name: 'vite:internal:docks:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',

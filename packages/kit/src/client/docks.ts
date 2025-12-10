@@ -83,3 +83,7 @@ export interface DockEntryStateEvents {
   'dom:panel:mounted': (panel: HTMLDivElement) => void
   'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
 }
+
+export interface RpcClientEvents {
+  'rpc:is-trusted:updated': (isTrusted: boolean) => void
+}
