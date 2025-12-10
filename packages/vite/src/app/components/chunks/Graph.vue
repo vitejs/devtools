@@ -9,10 +9,13 @@ import { createModuleGraph } from '~/composables/moduleGraph'
 type ChunkInfo = RolldownChunkInfo & {
   id: string
 }
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   session: SessionContext
   chunks: ChunkInfo[]
-}>()
+  entryId?: string
+}>(), {
+  entryId: '',
+})
 
 const chunks = computed(() => props.chunks)
 const route = useRoute()
@@ -32,7 +35,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
       width.value = window.innerWidth
       height.value = window.innerHeight
 
-      const entryChunks = chunks.value.filter(chunk => chunk.reason === 'entry')
+      const entryChunks = chunks.value.filter(chunk => props.entryId ? chunk.id === props.entryId : chunk.reason === 'entry')
 
       const seen = new Set<ChunkInfo>()
       const root = hierarchy<ModuleGraphNode<ChunkInfo, ChunkImport>>(

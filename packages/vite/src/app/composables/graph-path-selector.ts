@@ -14,6 +14,7 @@ export interface GraphPathSelector<T> {
 }
 
 export function useGraphPathSelector<T extends { id: string }>(options: {
+  searchKeys?: string[]
   getModules: () => T[]
 }): GraphPathSelector<T> {
   const state = ref<{
@@ -32,7 +33,7 @@ export function useGraphPathSelector<T extends { id: string }>(options: {
       modules,
       () => new Fuse(modules.value, {
         includeScore: true,
-        keys: ['id'],
+        keys: options.searchKeys || ['id'],
         ignoreLocation: true,
         threshold: 0.4,
       }),

@@ -5,8 +5,10 @@ withDefaults(defineProps<{
   chunks: Array<RolldownChunkInfo & { id: string }>
   session: SessionContext
   link?: boolean
+  basic?: boolean
 }>(), {
   link: true,
+  basic: false,
 })
 
 const emit = defineEmits<{
@@ -21,7 +23,7 @@ const emit = defineEmits<{
   >
     <template #default="{ item }">
       <div flex pb2 @click="emit('select', item)">
-        <ChunksBaseInfo :chunk="item" :link="link" w-full font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active" flex="~ gap-4 items-center">
+        <ChunksBaseInfo :chunk="item" :basic="basic" :link="link" w-full font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active" flex="~ gap-4 items-center">
           <template #left-after>
             <DisplayBadge v-if="item.is_initial" text="initial" />
           </template>

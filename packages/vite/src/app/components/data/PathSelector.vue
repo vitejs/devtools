@@ -7,7 +7,8 @@ import { useGraphPathSelector } from '~/composables/graph-path-selector'
 const props = defineProps<{
   session: SessionContext
   data: T[]
-  importId: string
+  importIdKey: string
+  searchKeys?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -34,6 +35,7 @@ const dataMap = computed(() => {
 })
 
 const startSelector: GraphPathSelector<T> = useGraphPathSelector<T>({
+  searchKeys: props.searchKeys,
   getModules: () => {
     if (!startSelector.state.value.search) {
       return props.data
@@ -58,7 +60,7 @@ function getAllImports(moduleId: string, visited = new Set<string>()): T[] {
   const res: T[] = []
 
   for (const importItem of module.imports) {
-    const importedModule = dataMap.value.get(`${importItem[props.importId]}`)
+    const importedModule = dataMap.value.get(`${importItem[props.importIdKey]}`)
     if (!importedModule)
       continue
 
@@ -72,6 +74,7 @@ function getAllImports(moduleId: string, visited = new Set<string>()): T[] {
 }
 
 const endSelector = useGraphPathSelector<T>({
+  searchKeys: props.searchKeys,
   getModules: () => {
     return startSelector.state.value.selected ? getAllImports(startSelector.state.value.selected) : []
   },

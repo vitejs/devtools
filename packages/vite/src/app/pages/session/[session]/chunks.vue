@@ -77,7 +77,7 @@ const searched = computed<Array<RolldownChunkInfo & { id: string }>>(() => {
     .map(r => r.item)
 })
 
-const { pathSelectorVisible, selectPathNodes, togglePathSelector, normalizedGraph } = useGraphPathManager<RolldownChunkInfo & { id: string }>({
+const { pathSelectorVisible, pathNodes, selectPathNodes, togglePathSelector, normalizedGraph } = useGraphPathManager<RolldownChunkInfo & { id: string }>({
   onToggle: (visible) => {
     searchValue.value.search = visible ? false : ''
   },
@@ -97,12 +97,13 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
     <div absolute left-4 top-4 z-panel-nav>
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
-          <DataPathSelector :session="session" :data="searched" import-id="chunk_id" @select="selectPathNodes" @close="togglePathSelector(false)">
+          <DataPathSelector :session="session" :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
             <template #list="{ select, data }">
               <ChunksFlatList
                 :session="session"
                 :chunks="data"
                 :link="false"
+                :basic="true"
                 @select="select"
               />
             </template>
@@ -162,6 +163,7 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
         class="pt32"
         :session="session"
         :chunks="normalizedGraph"
+        :entry-id="pathNodes.start"
       />
     </template>
   </div>
