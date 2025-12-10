@@ -220,7 +220,8 @@ const panelStyle = computed(() => {
 })
 
 onMounted(() => {
-  bringUp()
+  if (context.rpc.isTrusted)
+    bringUp()
   recalculateCounter.value++
 })
 </script>
@@ -268,6 +269,9 @@ onMounted(() => {
           class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
           :class="isMinimized ? 'op100' : 'op0'"
         />
+        <div v-if="!context.rpc.isTrusted" class="p2">
+          IS NOT TRUSTED
+        </div>
         <DockEntries
           :entries="context.docks.entries"
           class="transition duration-200 flex items-center w-full h-full justify-center"

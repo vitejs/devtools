@@ -11,14 +11,6 @@ export async function init(): Promise<void> {
   console.log('[VITE DEVTOOLS] Client injected')
 
   const rpcReturn = await getDevToolsRpcClient()
-  const { rpc } = rpcReturn
-
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] RPC', rpc)
-
-  const rpcFunctions = await rpc.$call('vite:internal:rpc:server:list')
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] RPC Functions', rpcFunctions)
 
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',

@@ -17,7 +17,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
   }
   const map: Reactive<Map<string, TerminalState>> = _terminalsMap = reactive(new Map())
   async function updateTerminals() {
-    const terminals = await context.rpc.$call('vite:internal:terminals:list')
+    const terminals = await context.rpc.call('vite:internal:terminals:list')
 
     for (const terminal of terminals) {
       if (map.has(terminal.id)) {
@@ -34,12 +34,12 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
     // eslint-disable-next-line no-console
     console.log('[VITE DEVTOOLS] Terminals Updated', [...map.values()])
   }
-  context.clientRpc.register({
+  context.rpc.client.register({
     name: 'vite:internal:terminals:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => updateTerminals(),
   })
-  context.clientRpc.register({
+  context.rpc.client.register({
     name: 'vite:internal:terminals:stream-chunk' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: (data: DevToolsTerminalSessionStreamChunkEvent) => {

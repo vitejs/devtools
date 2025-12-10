@@ -8,8 +8,7 @@ import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 import { createDocksContext } from '../webcomponents/state/context'
 import { PersistedDomViewsManager } from '../webcomponents/utils/PersistedDomViewsManager'
 
-const rpcReturn = await getDevToolsRpcClient()
-const { rpc } = rpcReturn
+const rpc = await getDevToolsRpcClient()
 
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
@@ -19,7 +18,7 @@ const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 
 const context: DocksContext = await createDocksContext(
   'standalone',
-  rpcReturn,
+  rpc,
 )
 
 context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
