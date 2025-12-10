@@ -14,22 +14,21 @@ patchedDependencies:
 catalogs:
   build:
     '@antfu/ni': ^28.0.0
-    '@nuxt/kit': https://pkg.pr.new/@nuxt/kit@33682
+    '@nuxt/kit': ^4.2.2
     '@unocss/nuxt': ^66.5.10
     '@vitejs/plugin-vue': ^6.0.2
     '@vueuse/nuxt': ^14.1.0
     esbuild: ^0.27.1
     magic-string: ^0.30.21
     nitropack: ^2.12.9
-    # https://github.com/nuxt/nuxt/issues/33693
-    nuxt: https://pkg.pr.new/nuxt@33682
+    nuxt: ^4.2.2
     rolldown: ^1.0.0-beta.53
-    tsdown: ^0.17.0
+    tsdown: ^0.17.2
     tsx: ^4.21.0
     unplugin-vue: ^7.1.0
-    vite: ^8.0.0-beta.0
+    vite: ^8.0.0-beta.1
   deps:
-    '@pnpm/read-project-manifest': ^1001.2.1
+    '@pnpm/read-project-manifest': ^1001.2.2
     '@rolldown/debug': ^1.0.0-beta.53
     ansis: ^4.2.0
     birpc: ^3.0.0
@@ -48,7 +47,7 @@ catalogs:
     p-limit: ^7.2.0
     pathe: ^2.0.3
     perfect-debounce: ^2.0.0
-    publint: ^0.3.15
+    publint: ^0.3.16
     sirv: ^3.0.2
     split2: ^4.2.0
     structured-clone-es: ^1.0.0
@@ -59,10 +58,10 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.18.3
   devtools:
-    '@antfu/eslint-config': ^6.4.2
+    '@antfu/eslint-config': ^6.6.1
     '@nuxt/devtools': ^3.1.1
-    '@nuxt/eslint': ^1.11.0
-    '@typescript-eslint/utils': ^8.48.1
+    '@nuxt/eslint': ^1.12.1
+    '@typescript-eslint/utils': ^8.49.0
     '@unocss/eslint-config': ^66.5.10
     bumpp: ^10.3.2
     eslint: ^9.39.1
@@ -71,7 +70,7 @@ catalogs:
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
-    vue-tsc: ^3.1.6
+    vue-tsc: ^3.1.8
   docs:
     '@shikijs/vitepress-twoslash': ^3.19.0
     vitepress: ^2.0.0-alpha.15
@@ -108,7 +107,7 @@ catalogs:
     '@iconify-json/octicon': ^1.2.19
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.6
-    '@iconify-json/simple-icons': ^1.2.61
+    '@iconify-json/simple-icons': ^1.2.62
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/tabler': ^1.2.23
   inlined:
