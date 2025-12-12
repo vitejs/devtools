@@ -6,6 +6,7 @@ import { Menu as VMenu } from 'floating-vue'
 import { computed, ref } from 'vue'
 import { settings } from '~~/app/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
+import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
@@ -141,7 +142,7 @@ function toggleDurationSortType() {
         <div
           role="row"
           flex="~ row"
-          class="border-base border-b-1 border-dashed"
+          class="border-base border-b border-dashed"
           :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
         >
           <div v-if="selectedFields.includes('hookName')" role="cell" flex="~ items-center justify-center" flex-none w32 ws-nowrap op80>
@@ -161,10 +162,10 @@ function toggleDurationSortType() {
             <DisplayDuration :duration="item.duration" />
           </div>
           <div v-if="selectedFields.includes('startTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-            <DisplayTimestamp :timestamp="item.timestamp_start" />
+            {{ normalizeTimestamp(item.timestamp_start) }}
           </div>
           <div v-if="selectedFields.includes('endTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-            <DisplayTimestamp :timestamp="item.timestamp_end" />
+            {{ normalizeTimestamp(item.timestamp_end) }}
           </div>
         </div>
       </template>
