@@ -52,10 +52,13 @@ export async function createWsServer(options: CreateWsServerOptions) {
           console.error(error)
         },
         resolver(name, fn) {
+          // eslint-disable-next-line ts/no-this-alias
+          const rpc = this
+
           // Block unauthorized access to non-anonymous methods
-          if (!name.startsWith(ANONYMOUS_SCOPE) && !this.$meta.isTrusted) {
+          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
             return () => {
-              throw new Error(`Unauthorized access to method ${JSON.stringify(name)}, please trust this client first`)
+              throw new Error(`Unauthorized access to method ${JSON.stringify(name)} from client [${rpc.$meta.id}]`)
             }
           }
 
@@ -64,8 +67,6 @@ export async function createWsServer(options: CreateWsServerOptions) {
             return undefined
 
           // Register AsyncContext for the current RPC call
-          // eslint-disable-next-line ts/no-this-alias
-          const rpc = this
           return async function (this: any, ...args) {
             return await asyncStorage.run({
               rpc,

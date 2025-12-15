@@ -20,10 +20,16 @@ const TEMPORARY_STORAGE = new Map<string, {
 export const anonymousAuth = defineRpcFunction({
   name: 'vite:anonymous:auth',
   type: 'action',
-  setup: () => {
+  setup: (context) => {
     return {
       handler: async (query: DevToolsAuthInput): Promise<DevToolsAuthReturn> => {
+        const session = context.rpc.getCurrentRpcSession()
+        if (!session)
+          throw new Error('Failed to retrieve the current RPC session')
+
         if (TEMPORARY_STORAGE.has(query.authId)) {
+          session.meta.clientAuthId = query.authId
+          session.meta.isTrusted = true
           return {
             isTrusted: true,
           }
@@ -55,8 +61,10 @@ export const anonymousAuth = defineRpcFunction({
             ua: query.ua,
             timestamp: Date.now(),
           })
-          p.outro(c.green(c.bold('You have granted permissions to this client.')))
+          session.meta.clientAuthId = query.authId
+          session.meta.isTrusted = true
 
+          p.outro(c.green(c.bold('You have granted permissions to this client.')))
           return {
             isTrusted: true,
           }
