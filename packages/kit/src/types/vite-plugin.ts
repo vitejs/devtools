@@ -19,14 +19,43 @@ export interface DevToolsPluginOptions {
 }
 
 export interface DevToolsNodeContext {
+  /**
+   * Current working directory of Vite DevTools
+   */
   readonly cwd: string
+  /**
+   * Current mode of Vite DevTools
+   * - 'dev' - when Vite DevTools is running in dev mode
+   * - 'build' - when Vite DevTools is running in build mode (no server)
+   */
   readonly mode: 'dev' | 'build'
+  /**
+   * Resolved Vite configuration
+   */
   readonly viteConfig: ResolvedConfig
+  /**
+   * Vite dev server instance (only available in dev mode)
+   */
   readonly viteServer?: ViteDevServer
+  /**
+   * RPC functions host, for registering server-side RPC functions and calling client-side RPC functions
+   */
   rpc: RpcFunctionsHost
+  /**
+   * Docks host, for registering dock entries
+   */
   docks: DevToolsDockHost
+  /**
+   * Views host, for registering static views
+   */
   views: DevToolsViewHost
+  /**
+   * Utils for the node context
+   */
   utils: DevToolsNodeUtils
+  /**
+   * Terminals host, for registering terminal sessions and streaming terminal output
+   */
   terminals: DevToolsTerminalHost
 }
 

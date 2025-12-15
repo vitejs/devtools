@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import type { ConnectionMeta, DevToolsNodeContext, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
 import type { RpcFunctionsHost } from './host-functions'
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
@@ -23,15 +24,17 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const preset = createWsRpcPreset({
     port: port!,
-    onConnected: (ws) => {
+    onConnected: (ws, meta) => {
       wsClients.add(ws)
-      console.log(c.green`${MARK_CHECK} Websocket client connected`)
+      console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected`)
     },
-    onDisconnected: (ws) => {
+    onDisconnected: (ws, meta) => {
       wsClients.delete(ws)
-      console.log(c.red`${MARK_CHECK} Websocket client disconnected`)
+      console.log(c.red`${MARK_CHECK} Websocket client [${meta.id}] disconnected`)
     },
   })
+
+  const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
 
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
@@ -46,11 +49,26 @@ export async function createWsServer(options: CreateWsServerOptions) {
           console.error(c.red`⬢ RPC error on executing rpc`)
           console.error(error)
         },
+        resolver(name, fn) {
+          if (!fn)
+            return undefined
+          // eslint-disable-next-line ts/no-this-alias
+          const rpc = this
+          return async function (this: any, ...args) {
+            return await asyncStorage.run({
+              rpc,
+              meta: rpc.$meta,
+            }, async () => {
+              return (await fn).apply(this, args)
+            })
+          }
+        },
       },
     },
   )
 
-  rpcHost.rpcGroup = rpcGroup
+  rpcHost._rpcGroup = rpcGroup
+  rpcHost._asyncStorage = asyncStorage
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     return {

@@ -1,3 +1,4 @@
+import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-kit'
 import type { BirpcGroup, BirpcOptions, ChannelOptions } from 'birpc'
 import type { WebSocket } from 'ws'
 import type { RpcServerPreset } from '..'
@@ -7,9 +8,11 @@ import { defineRpcServerPreset } from '..'
 
 export interface WebSocketRpcServerOptions {
   port: number
-  onConnected?: (ws: WebSocket) => void
-  onDisconnected?: (ws: WebSocket) => void
+  onConnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
+  onDisconnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
 }
+
+let id = 0
 
 function NOOP() {}
 
@@ -43,6 +46,10 @@ export const createWsRpcPreset: RpcServerPreset<
     } = options ?? {}
 
     wss.on('connection', (ws) => {
+      const meta: DevToolsNodeRpcSessionMeta = {
+        id: id++,
+        ws,
+      }
       const channel: ChannelOptions = {
         post: (data) => {
           ws.send(data)
@@ -54,6 +61,7 @@ export const createWsRpcPreset: RpcServerPreset<
         },
         serialize,
         deserialize,
+        meta,
       }
 
       rpc.updateChannels((channels) => {
@@ -66,9 +74,9 @@ export const createWsRpcPreset: RpcServerPreset<
           if (index >= 0)
             channels.splice(index, 1)
         })
-        onDisconnected(ws)
+        onDisconnected(ws, meta)
       })
-      onConnected(ws)
+      onConnected(ws, meta)
     })
   }
 })

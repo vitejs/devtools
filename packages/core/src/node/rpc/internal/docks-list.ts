@@ -18,10 +18,14 @@ export const docksList = defineRpcFunction({
     ]
 
     return {
-      handler: (): DevToolsDockEntry[] => [
-        ...Array.from(context.docks.values()),
-        ...builtinDocksEntries,
-      ],
+      handler(): DevToolsDockEntry[] {
+        // const session = context.rpc.getCurrentRpcSession()
+        // console.log('session', session?.meta.id)
+        return [
+          ...Array.from(context.docks.values()),
+          ...builtinDocksEntries,
+        ]
+      },
     }
   },
 })
