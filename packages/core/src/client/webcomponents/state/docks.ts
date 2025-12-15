@@ -32,22 +32,22 @@ export function createDockEntryState(
 
   watch(() => selected.value?.id, (newSelectedId) => {
     if (newSelectedId === entry.id) {
-      events.emit('entry:activated')
+      events.emitOnce('entry:activated')
     }
     else {
-      events.emit('entry:deactivated')
+      events.emitOnce('entry:deactivated')
     }
-  })
+  }, { immediate: true })
 
   watch(() => state.domElements.iframe, (newIframe) => {
     if (newIframe)
-      events.emit('dom:iframe:mounted', newIframe)
-  })
+      events.emitOnce('dom:iframe:mounted', newIframe)
+  }, { immediate: true })
 
   watch(() => state.domElements.panel, (newPanel) => {
     if (newPanel)
-      events.emit('dom:panel:mounted', newPanel)
-  })
+      events.emitOnce('dom:panel:mounted', newPanel)
+  }, { immediate: true })
 
   return state
 }
