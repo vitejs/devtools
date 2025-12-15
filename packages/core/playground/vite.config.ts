@@ -132,11 +132,10 @@ export default defineConfig({
               type: 'action',
               icon: `material-symbols:counter-${count}`,
               title: `Counter ${count}`,
-              // TODO: HMR
-              action: ctx.utils.createSimpleClientScript(() => {
-                // eslint-disable-next-line no-alert
-                alert(`Counter ${count}`)
-              }),
+              // TODO: HMR?
+              action: ctx.utils.createSimpleClientScript(`() => {
+                alert('Counter ${count}')
+              }`),
             })
           }, 1000)
         },

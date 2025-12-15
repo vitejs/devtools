@@ -1,21 +1,11 @@
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 import Inspect from 'vite-plugin-inspect'
+import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-
 const BASE = '/.devtools-vite/'
-
-// const headers: Record<string, string> = isWebContainer
-//   ? {
-//       'Cross-Origin-Embedder-Policy': 'require-corp',
-//       'Cross-Origin-Opener-Policy': 'same-origin',
-//     }
-//   : {}
-
-const pkgPath = (path: string) => fileURLToPath(new URL(`../../${path}`, import.meta.url))
 
 export default defineNuxtConfig({
   ssr: false,
@@ -28,18 +18,7 @@ export default defineNuxtConfig({
     './modules/rpc',
   ],
 
-  alias: {
-    '@vitejs/devtools-rpc': pkgPath('rpc/src'),
-    '@vitejs/devtools-rpc/presets/ws/server': pkgPath('rpc/src/presets/ws/server.ts'),
-    '@vitejs/devtools-rpc/presets/ws/client': pkgPath('rpc/src/presets/ws/client.ts'),
-    '@vitejs/devtools-kit/client': pkgPath('kit/src/client/index.ts'),
-    '@vitejs/devtools-kit/utils/events': pkgPath('kit/src/utils/events.ts'),
-    '@vitejs/devtools-kit': pkgPath('kit/src/index.ts'),
-    '@vitejs/devtools-vite': pkgPath('vite/src/index.ts'),
-    '@vitejs/devtools/client/inject': pkgPath('core/src/client/inject/index.ts'),
-    '@vitejs/devtools/client/webcomponents': pkgPath('core/src/client/webcomponents/index.ts'),
-    '@vitejs/devtools': pkgPath('core/src/index.ts'),
-  },
+  alias,
 
   logLevel: 'verbose',
   srcDir: 'app',
@@ -106,9 +85,6 @@ export default defineNuxtConfig({
 
   vite: {
     base: BASE,
-    // server: {
-    //   headers,
-    // },
     build: {
       rolldownOptions: {
         debug: {},

@@ -18,7 +18,17 @@ export interface EventEmitter<Events extends EventsMap> {
    * @param args The arguments for listeners.
    */
   emit: <K extends keyof Events>(
-    this: this,
+    event: K,
+    ...args: Parameters<Events[K]>
+  ) => void
+
+  /**
+   * Calls the listeners for a given event once and then removes the listener.
+   *
+   * @param event The event name.
+   * @param args The arguments for listeners.
+   */
+  emitOnce: <K extends keyof Events>(
     event: K,
     ...args: Parameters<Events[K]>
   ) => void
@@ -47,5 +57,23 @@ export interface EventEmitter<Events extends EventsMap> {
    * @param cb The listener function.
    * @returns Unbind listener from event.
    */
-  on: <K extends keyof Events>(this: this, event: K, cb: Events[K]) => EventUnsubscribe
+  on: <K extends keyof Events>(event: K, cb: Events[K]) => EventUnsubscribe
+  /**
+   * Add a listener for a given event once.
+   *
+   * ```js
+   * const unbind = ee.once('tick', (tickType, tickDuration) => {
+   *   count += 1
+   * })
+   *
+   * disable () {
+   *   unbind()
+   * }
+   * ```
+   *
+   * @param event The event name.
+   * @param cb The listener function.
+   * @returns Unbind listener from event.
+   */
+  once: <K extends keyof Events>(event: K, cb: Events[K]) => EventUnsubscribe
 }

@@ -1,5 +1,5 @@
 import type { ResolvedConfig } from 'vite'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createDevToolsContext } from '../context'
 
 async function emptyHandler() { /* empty */ }
@@ -15,15 +15,19 @@ async function failingHandler() {
 
 describe('registration Safety Integration Tests', () => {
   // Mock Vite config
-  const mockViteConfig = {
-    root: process.cwd(),
-    command: 'build',
-    plugins: [],
-  } as unknown as ResolvedConfig
+  async function createContext() {
+    const ctx = await createDevToolsContext({
+      root: process.cwd(),
+      command: 'build',
+      plugins: [],
+    } as unknown as ResolvedConfig)
+    ctx.rpc.boardcast = vi.fn()
+    return ctx
+  }
 
   describe('scenario 1: RPC Collision Detection', () => {
     it('should detect and prevent duplicate RPC function registrations', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       // Register first function
       ctx.rpc.register({
@@ -46,7 +50,7 @@ describe('registration Safety Integration Tests', () => {
     })
 
     it('should allow different plugins to register different function names', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
       const initialSize = ctx.rpc.definitions.size
 
       ctx.rpc.register({
@@ -67,7 +71,7 @@ describe('registration Safety Integration Tests', () => {
 
   describe('scenario 2: Dock Update Method', () => {
     it('should fail to update non-existent dock', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       const updateNonexistentDock = () =>
         ctx.docks.update({
@@ -81,7 +85,7 @@ describe('registration Safety Integration Tests', () => {
     })
 
     it('should successfully update existing dock', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       // Register
       ctx.docks.register({
@@ -111,7 +115,7 @@ describe('registration Safety Integration Tests', () => {
 
   describe('scenario 3: RPC Error Handling Without Context Crash', () => {
     it('should handle RPC errors gracefully without crashing context', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
       const initialSize = ctx.rpc.definitions.size
 
       // Register stable function
@@ -153,7 +157,7 @@ describe('registration Safety Integration Tests', () => {
     })
 
     it('should allow context operations after registration errors', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
       const initialSize = ctx.rpc.definitions.size
 
       ctx.rpc.register({
@@ -187,7 +191,7 @@ describe('registration Safety Integration Tests', () => {
 
   describe('scenario 4: Cross-Host Collision Detection', () => {
     it('should detect collisions across all host types', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       // Test RPC collision
       ctx.rpc.register({
@@ -225,7 +229,7 @@ describe('registration Safety Integration Tests', () => {
     })
 
     it('should allow same ID across different host types', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       // Same ID "shared" can exist in both RPC and Docks
       ctx.rpc.register({
@@ -247,7 +251,7 @@ describe('registration Safety Integration Tests', () => {
     })
 
     it('should provide clear error messages for each host type', async () => {
-      const ctx = await createDevToolsContext(mockViteConfig)
+      const ctx = await createContext()
 
       ctx.rpc.register({
         name: 'rpc-test',

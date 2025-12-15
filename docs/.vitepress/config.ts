@@ -4,11 +4,12 @@ import {
   groupIconMdPlugin,
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
+import { version } from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'Vite DevTools',
-  description: 'DevTools for Vite',
+  description: 'Visualize and analyze your Vite build process with powerful developer tools. Extensible architecture for building custom DevTools integrations.',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
   ],
@@ -16,12 +17,19 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
-      { text: 'Kit', link: '/kit/' },
+      { text: 'DevTools Kit', link: '/kit/' },
+      {
+        text: `v${version}`,
+        items: [
+          { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
+          { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
+        ],
+      },
     ],
 
     sidebar: [
       {
-        text: 'Introduction',
+        text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/' },
         ],
@@ -33,13 +41,23 @@ export default defineConfig({
         ],
       },
     ],
+
+    search: {
+      provider: 'local',
+    },
+
     logo: {
       light: '/logo.svg',
       dark: '/logo_dark.svg',
     },
+
     footer: {
       message: `Released under the MIT License.`,
       copyright: 'Copyright © 2025-present VoidZero Inc. & Vite Contributors',
+    },
+
+    lastUpdated: {
+      text: 'Last updated',
     },
 
     editLink: {

@@ -2,15 +2,43 @@
   "compilerOptions": {
     "composite": true,
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": [
+      "esnext"
+    ],
     "rootDir": ".",
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-kit/client": ["./packages/kit/src/client/index"],
-      "@vitejs/devtools-kit": ["./packages/kit/src/index"],
-      "@vitejs/devtools-vite": ["./packages/vite/src/index"],
-      "@vitejs/devtools": ["./packages/core/src/index"]
+      "@vitejs/devtools-rpc": [
+        "./packages/rpc/src"
+      ],
+      "@vitejs/devtools-rpc/presets/ws/server": [
+        "./packages/rpc/src/presets/ws/server.ts"
+      ],
+      "@vitejs/devtools-rpc/presets/ws/client": [
+        "./packages/rpc/src/presets/ws/client.ts"
+      ],
+      "@vitejs/devtools-kit/client": [
+        "./packages/kit/src/client/index.ts"
+      ],
+      "@vitejs/devtools-kit/utils/events": [
+        "./packages/kit/src/utils/events.ts"
+      ],
+      "@vitejs/devtools-kit": [
+        "./packages/kit/src/index.ts"
+      ],
+      "@vitejs/devtools-vite": [
+        "./packages/vite/src/index.ts"
+      ],
+      "@vitejs/devtools/client/inject": [
+        "./packages/core/src/client/inject/index.ts"
+      ],
+      "@vitejs/devtools/client/webcomponents": [
+        "./packages/core/src/client/webcomponents/index.ts"
+      ],
+      "@vitejs/devtools": [
+        "./packages/core/src/index.ts"
+      ]
     },
     "resolveJsonModule": true,
     "strict": true,

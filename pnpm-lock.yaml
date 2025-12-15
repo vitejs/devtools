@@ -406,6 +406,9 @@ importers:
       bumpp:
         specifier: catalog:devtools
         version: 10.3.2(magicast@0.5.1)
+      chokidar:
+        specifier: ^5.0.0
+        version: 5.0.0
       esbuild:
         specifier: ^0.27.1
         version: 0.27.1
@@ -742,7 +745,7 @@ importers:
         version: 1.0.0
       tsdown:
         specifier: catalog:build
-        version: 0.17.4(@vitejs/devtools@0.0.0-alpha.19(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.8.2)(vite@8.0.0-beta.2(@types/node@24.10.1)(esbuild@0.27.1)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.25(typescript@5.9.3)))(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.8(typescript@5.9.3))
+        version: 0.17.4(@vitejs/devtools@packages+core)(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.1.8(typescript@5.9.3))
       vite-hot-client:
         specifier: catalog:frontend
         version: 2.1.0(vite@8.0.0-beta.2(@types/node@24.10.1)(esbuild@0.27.1)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))

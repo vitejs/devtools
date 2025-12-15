@@ -55,7 +55,6 @@ export async function createDocksContext(
         const entry = dockEntries.value.find(e => e.id === id)
         if (!entry)
           return false
-        selectedId.value = entry.id
 
         // If has import script, run it
         if (
