@@ -36,7 +36,7 @@ export async function connect() {
         },
       },
       rpcOptions: {
-        onError: (e, name) => {
+        onGeneralError: (e, name) => {
           connectionState.error = e
           console.error(`[vite-devtools] RPC error on executing "${name}":`)
         },

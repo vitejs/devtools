@@ -1,6 +1,13 @@
 import type { BirpcGroup, BirpcOptions, ChannelOptions } from 'birpc'
 
-export type RpcServerPresetReturnType = <ClientFunctions, ServerFunctions>(rpc: BirpcGroup<ClientFunctions, ServerFunctions>, options?: Pick<BirpcOptions<ClientFunctions>, 'serialize' | 'deserialize'>) => void
+export type RpcServerPresetReturnType = <
+  ClientFunctions extends object,
+  ServerFunctions extends object,
+>(
+  rpc: BirpcGroup<ClientFunctions, ServerFunctions, false>,
+  options?: Pick<BirpcOptions<ClientFunctions, ServerFunctions, false>, 'serialize' | 'deserialize'>,
+) => void
+
 export type RpcServerPresetBasicType = (...args: any[]) => RpcServerPresetReturnType
 export type RpcServerPreset<T extends RpcServerPresetBasicType> = (...args: Parameters<T>) => RpcServerPresetReturnType
 

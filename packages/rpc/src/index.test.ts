@@ -41,10 +41,10 @@ describe('devtools rpc', () => {
       preset: createWsRpcClientPreset({ url: WS_URL }),
     })
 
-    expect(await client1.hello(1)).toBe('hello world from client 1')
+    expect(await client1.$call('hello', 1)).toBe('hello world from client 1')
 
-    expect(await client2.hello(2)).toBe('hello world from client 2')
+    expect(await client2.$call('hello', 2)).toBe('hello world from client 2')
 
-    expect(await server.broadcast.hey('server')).toEqual(expect.arrayContaining(['hey server, I\'m client 1', 'hey server, I\'m client 2']))
+    expect(await server.broadcast.$call('hey', 'server')).toEqual(expect.arrayContaining(['hey server, I\'m client 1', 'hey server, I\'m client 2']))
   })
 })

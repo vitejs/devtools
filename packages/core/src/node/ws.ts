@@ -37,7 +37,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     {
       preset,
       rpcOptions: {
-        onError(error, name) {
+        onGeneralError(error, name) {
           console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
           console.error(error)
           throw error

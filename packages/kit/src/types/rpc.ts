@@ -4,5 +4,5 @@ import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from './r
 import type { DevToolsNodeContext } from './vite-plugin'
 
 export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> & {
-  boardcast: BirpcGroup<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>['broadcast']
+  boardcast: BirpcGroup<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>['broadcast']
 }

@@ -2,19 +2,20 @@ import type { BirpcOptions, BirpcReturn } from 'birpc'
 import { createBirpc } from 'birpc'
 
 export function createRpcClient<
-  ServerFunctions = Record<string, never>,
+  ServerFunctions extends object = Record<string, never>,
   ClientFunctions extends object = Record<string, never>,
 >(
   functions: ClientFunctions,
   options: {
-    preset: BirpcOptions<ServerFunctions>
-    rpcOptions?: Partial<BirpcOptions<ServerFunctions>>
+    preset: BirpcOptions<ServerFunctions, ClientFunctions, false>
+    rpcOptions?: Partial<BirpcOptions<ServerFunctions, ClientFunctions, boolean>>
   },
-): BirpcReturn<ServerFunctions, ClientFunctions> {
+): BirpcReturn<ServerFunctions, ClientFunctions, false> {
   const { preset, rpcOptions = {} } = options
-  return createBirpc<ServerFunctions, ClientFunctions>(functions, {
+  return createBirpc<ServerFunctions, ClientFunctions, false>(functions, {
     ...preset,
     timeout: -1,
     ...rpcOptions,
-  } as BirpcOptions<ServerFunctions, ClientFunctions>)
+    proxify: false,
+  })
 }

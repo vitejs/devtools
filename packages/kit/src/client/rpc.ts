@@ -18,10 +18,10 @@ export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
   baseURL?: string[]
   wsOptions?: Partial<WebSocketRpcClientOptions>
-  rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions>>
+  rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
 }
 
-export type DevToolsRpcClient = BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>
+export type DevToolsRpcClient = BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, false>
 
 export interface ClientRpcReturn {
   connectionMeta: ConnectionMeta

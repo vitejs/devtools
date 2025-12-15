@@ -13,17 +13,30 @@ export interface WebSocketRpcServerOptions {
 
 function NOOP() {}
 
-export const createWsRpcPreset: RpcServerPreset<(options: WebSocketRpcServerOptions) => <ClientFunctions, ServerFunctions>(rpc: BirpcGroup<ClientFunctions, ServerFunctions>, options?: Pick<BirpcOptions<ClientFunctions>, 'serialize' | 'deserialize'>) => void> = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
+export const createWsRpcPreset: RpcServerPreset<
+  (options: WebSocketRpcServerOptions) =>
+  <
+    ClientFunctions extends object,
+    ServerFunctions extends object,
+  >(
+    rpc: BirpcGroup<ClientFunctions, ServerFunctions, false>,
+    options?: Pick<BirpcOptions<ClientFunctions, ServerFunctions, false>, 'serialize' | 'deserialize'>,
+  ) => void
+> = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
   const {
     port,
     onConnected = NOOP,
     onDisconnected = NOOP,
   } = options
+
   const wss = new WebSocketServer({
     port,
   })
 
-  return <ClientFunctions, ServerFunctions>(rpc: BirpcGroup<ClientFunctions, ServerFunctions>, options?: Pick<BirpcOptions<ClientFunctions>, 'serialize' | 'deserialize'>) => {
+  return <ClientFunctions extends object, ServerFunctions extends object>(
+    rpc: BirpcGroup<ClientFunctions, ServerFunctions, false>,
+    options?: Pick<BirpcOptions<ClientFunctions, ServerFunctions, false>, 'serialize' | 'deserialize'>,
+  ) => {
     const {
       serialize = stringify,
       deserialize = parse,
