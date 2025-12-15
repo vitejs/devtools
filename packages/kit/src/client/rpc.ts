@@ -122,16 +122,22 @@ export async function getDevToolsRpcClient(
     events,
     connectionMeta,
     call: (...args: any): any => {
-      // @ts-expect-error casting
-      return serverRpc.call(...args)
+      return serverRpc.$call(
+        // @ts-expect-error casting
+        ...args,
+      )
     },
     callEvent: (...args: any): any => {
-      // @ts-expect-error casting
-      return serverRpc.callEvent(...args)
+      return serverRpc.$callEvent(
+        // @ts-expect-error casting
+        ...args,
+      )
     },
     callOptional: (...args: any): any => {
-      // @ts-expect-error casting
-      return serverRpc.callOptional(...args)
+      return serverRpc.$callOptional(
+        // @ts-expect-error casting
+        ...args,
+      )
     },
     client: clientRpc,
   }
