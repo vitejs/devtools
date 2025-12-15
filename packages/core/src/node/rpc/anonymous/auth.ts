@@ -5,12 +5,14 @@ import c from 'ansis'
 export interface DevToolsAuthInput {
   authId: string
   ua: string
+  origin: string
 }
 
 export interface DevToolsAuthReturn {
   isTrusted: boolean
 }
 
+// TODO: Replace with a proper storage solution
 const TEMPORARY_STORAGE = new Map<string, {
   authId: string
   ua: string
@@ -39,6 +41,7 @@ export const anonymousAuth = defineRpcFunction({
           `A browser is requesting permissions to connect to the Vite DevTools.`,
 
           `User Agent: ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
+          `Origin    : ${c.cyan(c.bold(query.origin || 'Unknown'))}`,
           `Identifier: ${c.green(c.bold(query.authId))}`,
           '',
           'This will allow the browser to interact with the server, make file changes and run commands.',
@@ -64,13 +67,13 @@ export const anonymousAuth = defineRpcFunction({
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
 
-          p.outro(c.green(c.bold('You have granted permissions to this client.')))
+          p.outro(c.green(c.bold(`You have granted permissions to ${c.bold(query.authId)}`)))
           return {
             isTrusted: true,
           }
         }
 
-        p.outro(c.red(c.bold('You have denied permissions to this client.')))
+        p.outro(c.red(c.bold(`You have denied permissions to ${c.bold(query.authId)}`)))
         return {
           isTrusted: false,
         }

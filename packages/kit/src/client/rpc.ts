@@ -188,6 +188,7 @@ export async function getDevToolsRpcClient(
     const result = await serverRpc.$call('vite:anonymous:auth', {
       authId,
       ua,
+      origin: location.origin,
     })
 
     isTrusted = result.isTrusted
