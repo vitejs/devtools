@@ -42,7 +42,7 @@ const { state, isLoading } = useAsyncState(
     if (props.chunks)
       return
 
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-chunks-graph',
       { session: props.session.id },
     )

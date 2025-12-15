@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsNodeContext, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { WebSocket } from 'ws'
+import type { RpcFunctionsHost } from './host-functions'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
@@ -15,7 +16,7 @@ export interface CreateWsServerOptions {
 }
 
 export async function createWsServer(options: CreateWsServerOptions) {
-  const rpcHost = options.context.rpc
+  const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
   const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })
 
   const wsClients = new Set<WebSocket>()
@@ -32,21 +33,24 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   })
 
-  const rpc = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
+  const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
     {
       preset,
       rpcOptions: {
-        onGeneralError(error, name) {
+        onFunctionError(error, name) {
           console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
           console.error(error)
-          throw error
+        },
+        onGeneralError(error) {
+          console.error(c.red`⬢ RPC error on executing rpc`)
+          console.error(error)
         },
       },
     },
   )
 
-  rpcHost.boardcast = rpc.broadcast
+  rpcHost.rpcGroup = rpcGroup
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     return {
@@ -57,7 +61,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   return {
     port,
-    rpc,
+    rpc: rpcGroup,
     rpcHost,
     getConnectionMeta,
   }

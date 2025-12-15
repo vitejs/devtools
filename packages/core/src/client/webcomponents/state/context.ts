@@ -1,4 +1,4 @@
-import type { ClientRpcReturn, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, useDocksEntries } from './docks'
@@ -7,7 +7,7 @@ import { executeSetupScript } from './setup-script'
 let _docksContext: DocksContext | undefined
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
-  rpcReturn: ClientRpcReturn,
+  rpc: DevToolsRpcClient,
   panelStore?: Ref<DockPanelStorage>,
 ): Promise<DocksContext> {
   if (_docksContext) {
@@ -15,7 +15,7 @@ export async function createDocksContext(
   }
 
   const selectedId = ref<string | null>(null)
-  const dockEntries = await useDocksEntries(rpcReturn)
+  const dockEntries = await useDocksEntries(rpc)
   const selected = computed(() => dockEntries.value.find(entry => entry.id === selectedId.value) ?? null)
 
   const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
@@ -76,8 +76,7 @@ export async function createDocksContext(
         return true
       },
     },
-    rpc: rpcReturn.rpc,
-    clientRpc: rpcReturn.clientRpc,
+    rpc,
     clientType,
   })
 

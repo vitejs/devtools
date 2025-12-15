@@ -52,7 +52,7 @@ const assetViewTypes = [
 const rpc = useRpc()
 const { state: assets, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-assets-list',
       { session: props.session.id },
     )

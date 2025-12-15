@@ -22,6 +22,7 @@
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
     "./utils/events": "./dist/utils/events.mjs",
+    "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",
@@ -44,6 +45,7 @@
     "birpc-x": "catalog:deps"
   },
   "devDependencies": {
+    "my-ua-parser": "catalog:frontend",
     "tsdown": "catalog:build",
     "vite": "catalog:build"
   }

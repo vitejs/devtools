@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const rpc = useRpc()
 const { state } = useAsyncState(
   async () => {
-    const res = await rpc.value.$call(
+    const res = await rpc.value.call(
       'vite:rolldown:get-asset-details',
       {
         session: props.session.id,

@@ -31,7 +31,7 @@ const packageTypeRules = [
     match: /.*/,
     name: 'transitive',
     description: 'Transitive Dependencies',
-    icon: 'i-octicon:package-24  light:filter-invert-30!',
+    icon: 'i-octicon:package-24 light:filter-invert-30!',
   },
 ]
 const rpc = useRpc()
@@ -41,7 +41,7 @@ const searchValue = ref<{ search: string, selected: string[] }>({
 })
 const { state: packages, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-packages',
       { session: props.session.id },
     )

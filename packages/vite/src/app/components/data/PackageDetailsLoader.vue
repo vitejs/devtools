@@ -19,7 +19,7 @@ const parsedPackage = computed(() => {
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-package-details',
       {
         session: props.session.id,

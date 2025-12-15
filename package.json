@@ -69,6 +69,7 @@
     "@jridgewell/sourcemap-codec": "catalog:resolutions",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/kit": "catalog:build",
+    "@nuxt/vite-builder": "catalog:build",
     "@rolldown/debug": "catalog:deps",
     "chokidar": "catalog:resolutions",
     "esbuild": "catalog:build",
