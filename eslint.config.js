@@ -14,5 +14,4 @@ export default antfu({
   })
   .removeRules(
     'vue/no-template-shadow',
-    'pnpm/yaml-enforce-settings',
   )

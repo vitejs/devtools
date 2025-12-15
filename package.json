@@ -66,14 +66,16 @@
     "vue-tsc": "catalog:devtools"
   },
   "resolutions": {
-    "@jridgewell/sourcemap-codec": "1.5.0",
+    "@jridgewell/sourcemap-codec": "catalog:resolutions",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/kit": "catalog:build",
     "@rolldown/debug": "catalog:deps",
+    "chokidar": "catalog:resolutions",
     "esbuild": "catalog:build",
     "nitropack": "catalog:build",
     "nuxt": "catalog:build",
     "rolldown": "catalog:build",
+    "semver": "catalog:resolutions",
     "vite": "catalog:build"
   },
   "simple-git-hooks": {
