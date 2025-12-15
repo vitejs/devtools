@@ -12,7 +12,7 @@ const query = useRoute().query
 
 const events = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-module-raw-events',
       {
         session: props.session.id,

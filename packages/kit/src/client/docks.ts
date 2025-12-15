@@ -38,10 +38,6 @@ export interface DocksContext extends DevToolsClientContext {
    * The docks entries context
    */
   readonly docks: DocksEntriesContext
-  /**
-   * The client-side RPC functions to be called from the server
-   */
-  readonly clientRpc: DevToolsClientRpcHost
 }
 
 export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsClientContext>
@@ -86,4 +82,7 @@ export interface DockEntryStateEvents {
   'entry:updated': (newMeta: DevToolsDockUserEntry) => void
   'dom:panel:mounted': (panel: HTMLDivElement) => void
   'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
+}
+
+export interface RpcClientEvents {
 }

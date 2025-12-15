@@ -25,7 +25,7 @@ const { state } = useAsyncState(
     if (!props.lazy)
       return
 
-    const res = await rpc.value.$call(
+    const res = await rpc.value.call(
       'vite:rolldown:get-asset-details',
       {
         session: props.session.id,
@@ -62,7 +62,7 @@ const _importers = computed(() => props.lazy ? state.value?.importers : props.im
 const _imports = computed(() => props.lazy ? state.value?.imports : props.imports)
 
 function openInEditor() {
-  rpc.value.$call(
+  rpc.value.call(
     'vite:core:open-in-editor',
     `${props.session.meta.dir}/${props.asset.filename}`,
   )

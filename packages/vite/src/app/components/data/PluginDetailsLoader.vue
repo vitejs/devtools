@@ -25,7 +25,7 @@ const route = useRoute()
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
-    const res = await rpc.value.$call(
+    const res = await rpc.value.call(
       'vite:rolldown:get-plugin-details',
       {
         session: props.session.id,

@@ -15,7 +15,7 @@ const sessions = ref<SessionCompareContext[]>([])
 onMounted(async () => {
   isLoading.value = true
 
-  const summary = await rpc.value.$call(
+  const summary = await rpc.value.call(
     'vite:rolldown:get-session-compare-summary',
     { sessions: params.sessions.split(',') },
   )

@@ -30,6 +30,8 @@ export default defineNuxtConfig({
 
   alias: {
     '@vitejs/devtools-rpc': pkgPath('rpc/src'),
+    '@vitejs/devtools-rpc/presets/ws/server': pkgPath('rpc/src/presets/ws/server.ts'),
+    '@vitejs/devtools-rpc/presets/ws/client': pkgPath('rpc/src/presets/ws/client.ts'),
     '@vitejs/devtools-kit/client': pkgPath('kit/src/client/index.ts'),
     '@vitejs/devtools-kit/utils/events': pkgPath('kit/src/utils/events.ts'),
     '@vitejs/devtools-kit': pkgPath('kit/src/index.ts'),

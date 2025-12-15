@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-chunk-info',
       {
         session: props.session.id,

@@ -28,7 +28,7 @@ watchEffect(async () => {
   nextTick(async () => {
     transforms.value = []
     transformsLoading.value = true
-    transforms.value = await rpc.value.$call(
+    transforms.value = await rpc.value.call(
       'vite:rolldown:get-module-transforms',
       arg,
     )
@@ -43,7 +43,7 @@ const info = computedAsync(async () => {
   }
   return {
     transforms: transforms.value,
-    ...(await rpc.value.$call(
+    ...(await rpc.value.call(
       'vite:rolldown:get-module-info',
       arg,
     )),

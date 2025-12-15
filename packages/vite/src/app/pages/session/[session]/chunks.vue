@@ -37,7 +37,7 @@ const searchValue = ref<{ search: string | false }>({
 const rpc = useRpc()
 const { state: chunks, isLoading } = useAsyncState(
   async () => {
-    return await rpc.value.$call(
+    return await rpc.value.call(
       'vite:rolldown:get-chunks-graph',
       { session: props.session.id },
     )
