@@ -24,6 +24,12 @@
       "@vitejs/devtools-kit/utils/events": [
         "./packages/kit/src/utils/events.ts"
       ],
+      "@vitejs/devtools-kit/utils/nanoid": [
+        "./packages/kit/src/utils/nanoid.ts"
+      ],
+      "@vitejs/devtools-kit/utils/shared-state": [
+        "./packages/kit/src/utils/shared-state.ts"
+      ],
       "@vitejs/devtools-kit": [
         "./packages/kit/src/index.ts"
       ],

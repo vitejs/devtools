@@ -60,6 +60,7 @@
     "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
     "debug": "catalog:deps",
+    "immer": "catalog:deps",
     "launch-editor": "catalog:deps",
     "mlly": "catalog:deps",
     "open": "catalog:deps",

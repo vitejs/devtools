@@ -11,6 +11,8 @@ export const alias = {
   '@vitejs/devtools-rpc/presets/ws/client': r('rpc/src/presets/ws/client.ts'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
   '@vitejs/devtools-kit/utils/events': r('kit/src/utils/events.ts'),
+  '@vitejs/devtools-kit/utils/nanoid': r('kit/src/utils/nanoid.ts'),
+  '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
   '@vitejs/devtools-vite': r('vite/src/index.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
