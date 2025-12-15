@@ -39,7 +39,7 @@ export const anonymousAuth = defineRpcFunction({
 
         const message = [
           `A browser is requesting permissions to connect to the Vite DevTools.`,
-
+          '',
           `User Agent: ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
           `Origin    : ${c.cyan(c.bold(query.origin || 'Unknown'))}`,
           `Identifier: ${c.green(c.bold(query.authId))}`,
