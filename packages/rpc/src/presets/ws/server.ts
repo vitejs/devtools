@@ -11,6 +11,11 @@ export interface WebSocketRpcServerOptions {
   onDisconnected?: (ws: WebSocket) => void
 }
 
+export interface WebSocketRpcServerChannelMeta {
+  uid: string
+  isTrusted?: boolean
+}
+
 function NOOP() {}
 
 export const createWsRpcPreset: RpcServerPreset<
@@ -54,6 +59,10 @@ export const createWsRpcPreset: RpcServerPreset<
         },
         serialize,
         deserialize,
+        meta: <WebSocketRpcServerChannelMeta>{
+          uid: crypto.randomUUID(),
+          isTrusted: false,
+        },
       }
 
       rpc.updateChannels((channels) => {

@@ -85,4 +85,5 @@ export interface DockEntryStateEvents {
 }
 
 export interface RpcClientEvents {
+  'rpc:is-trusted:updated': (isTrusted: boolean) => void
 }

@@ -15,6 +15,8 @@ export interface CreateWsServerOptions {
   context: DevToolsNodeContext
 }
 
+const ANONYMOUS_SCOPE = 'vite:anonymous:'
+
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
   const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })
@@ -45,6 +47,17 @@ export async function createWsServer(options: CreateWsServerOptions) {
         onGeneralError(error) {
           console.error(c.red`⬢ RPC error on executing rpc`)
           console.error(error)
+        },
+        resolver(name, fn) {
+          if (name.startsWith(ANONYMOUS_SCOPE))
+            return fn
+
+          if (!this.$meta.isTrusted) {
+            return () => {
+              throw new Error(`Unauthorized access to method ${JSON.stringify(name)}, please trust this client first`)
+            }
+          }
+          return fn
         },
       },
     },

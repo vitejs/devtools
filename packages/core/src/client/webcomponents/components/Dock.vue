@@ -64,6 +64,11 @@ function onPointerDown(e: PointerEvent) {
   draggingOffset.y = e.clientY - top - height / 2
 }
 
+const isRpcTrusted = ref(context.rpc.isTrusted)
+context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+  isRpcTrusted.value = isTrusted
+})
+
 onMounted(() => {
   windowSize.width = window.innerWidth
   windowSize.height = window.innerHeight
@@ -220,7 +225,10 @@ const panelStyle = computed(() => {
 })
 
 onMounted(() => {
-  bringUp()
+  if (context.panel.store.open && !isRpcTrusted.value)
+    context.panel.store.open = false
+  if (isRpcTrusted.value)
+    bringUp()
   recalculateCounter.value++
 })
 </script>
@@ -268,6 +276,13 @@ onMounted(() => {
           class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
           :class="isMinimized ? 'op100' : 'op0'"
         />
+        <div
+          v-if="!isRpcTrusted"
+          class="p2"
+          :class="isMinimized ? 'opacity-0 pointer-events-none ws-nowrap flex items-center text-sm text-orange' : 'opacity-100'"
+        >
+          IS NOT TRUSTED
+        </div>
         <DockEntries
           :entries="context.docks.entries"
           class="transition duration-200 flex items-center w-full h-full justify-center"
