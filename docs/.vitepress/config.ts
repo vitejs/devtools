@@ -22,7 +22,7 @@ export default defineConfig({
         text: `v${version}`,
         items: [
           { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
-          { text: 'Contributing', link: 'https://github.com/vitejs/devtools#-contributing-guide' },
+          { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
         ],
       },
     ],
