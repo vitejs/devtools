@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ChunkImport } from '@rolldown/debug'
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
 import { useRoute } from '#app/composables/router'
 import { computed, nextTick, unref } from 'vue'
-import { createModuleGraph } from '~/composables/moduleGraph'
+import { createModuleGraph } from '~/composables/module-graph'
 
 type ChunkInfo = RolldownChunkInfo & {
   id: string
