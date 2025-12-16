@@ -30,24 +30,36 @@ export function createDockEntryState(
     events: markRaw(events),
   })
 
-  watch(() => selected.value?.id, (newSelectedId) => {
-    if (newSelectedId === entry.id) {
-      events.emitOnce('entry:activated')
-    }
-    else {
-      events.emitOnce('entry:deactivated')
-    }
-  }, { immediate: true })
+  watch(
+    () => selected.value?.id,
+    (newSelectedId) => {
+      if (newSelectedId === entry.id) {
+        events.emit('entry:activated')
+      }
+      else {
+        events.emit('entry:deactivated')
+      }
+    },
+    { immediate: true },
+  )
 
-  watch(() => state.domElements.iframe, (newIframe) => {
-    if (newIframe)
-      events.emitOnce('dom:iframe:mounted', newIframe)
-  }, { immediate: true })
+  watch(
+    () => state.domElements.iframe,
+    (newIframe) => {
+      if (newIframe)
+        events.emit('dom:iframe:mounted', newIframe)
+    },
+    { immediate: true },
+  )
 
-  watch(() => state.domElements.panel, (newPanel) => {
-    if (newPanel)
-      events.emitOnce('dom:panel:mounted', newPanel)
-  }, { immediate: true })
+  watch(
+    () => state.domElements.panel,
+    (newPanel) => {
+      if (newPanel)
+        events.emit('dom:panel:mounted', newPanel)
+    },
+    { immediate: true },
+  )
 
   return state
 }
