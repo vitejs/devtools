@@ -23,6 +23,7 @@
     "./client": "./dist/client.mjs",
     "./utils/events": "./dist/utils/events.mjs",
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
+    "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",

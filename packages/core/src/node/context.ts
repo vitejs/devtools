@@ -2,6 +2,7 @@ import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import Debug from 'debug'
 import { debounce } from 'perfect-debounce'
+import { searchForWorkspaceRoot } from 'vite'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -19,6 +20,7 @@ export async function createDevToolsContext(
 
   const context: DevToolsNodeContext = {
     cwd,
+    workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
     viteConfig,
     viteServer,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
