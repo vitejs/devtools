@@ -20,6 +20,10 @@ export interface DevToolsPluginOptions {
 
 export interface DevToolsNodeContext {
   /**
+   * Workspace root directory of Vite DevTools
+   */
+  readonly workspaceRoot: string
+  /**
    * Current working directory of Vite DevTools
    */
   readonly cwd: string
