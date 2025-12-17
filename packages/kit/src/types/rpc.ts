@@ -18,7 +18,7 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
   /**
    * Broadcast a message to all connected clients
    */
-  boardcast: <
+  broadcast: <
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
   >(

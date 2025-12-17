@@ -14,7 +14,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
     super(context)
   }
 
-  boardcast<
+  broadcast<
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
   >(
