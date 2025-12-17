@@ -1,6 +1,8 @@
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
+import { join } from 'pathe'
+import { createStorage } from '../../storage'
 
 export interface DevToolsAuthInput {
   authId: string
@@ -12,24 +14,33 @@ export interface DevToolsAuthReturn {
   isTrusted: boolean
 }
 
-// TODO: Replace with a proper storage solution
-const TEMPORARY_STORAGE = new Map<string, {
-  authId: string
-  ua: string
-  timestamp: number
-}>()
+interface AnonymousAuthStorage {
+  trusted: Record<string, {
+    authId: string
+    ua: string
+    origin: string
+    timestamp: number
+  }>
+}
 
 export const anonymousAuth = defineRpcFunction({
   name: 'vite:anonymous:auth',
   type: 'action',
   setup: (context) => {
+    const storage = createStorage<AnonymousAuthStorage>({
+      filepath: join(context.cwd, 'node_modules/.vite/devtools/auth.json'),
+      initialValue: {
+        trusted: {},
+      },
+    })
+
     return {
       handler: async (query: DevToolsAuthInput): Promise<DevToolsAuthReturn> => {
         const session = context.rpc.getCurrentRpcSession()
         if (!session)
           throw new Error('Failed to retrieve the current RPC session')
 
-        if (TEMPORARY_STORAGE.has(query.authId)) {
+        if (storage.get().trusted[query.authId]) {
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
           return {
@@ -59,10 +70,13 @@ export const anonymousAuth = defineRpcFunction({
         })
 
         if (answer) {
-          TEMPORARY_STORAGE.set(query.authId, {
-            authId: query.authId,
-            ua: query.ua,
-            timestamp: Date.now(),
+          storage.mutate((state) => {
+            state.trusted[query.authId] = {
+              authId: query.authId,
+              ua: query.ua,
+              origin: query.origin,
+              timestamp: Date.now(),
+            }
           })
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
