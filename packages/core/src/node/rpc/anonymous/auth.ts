@@ -1,3 +1,4 @@
+import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
@@ -19,6 +20,11 @@ export const anonymousAuth = defineRpcFunction({
   setup: (context) => {
     const internal = getInternalContext(context)
     const storage = internal.storage.auth
+    const isClientAuthDisabled = context.viteConfig.devtools?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
+
+    if (isClientAuthDisabled) {
+      console.warn('[Vite DevTools] Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
+    }
 
     return {
       handler: async (query: DevToolsAuthInput): Promise<DevToolsAuthReturn> => {
@@ -26,7 +32,7 @@ export const anonymousAuth = defineRpcFunction({
         if (!session)
           throw new Error('Failed to retrieve the current RPC session')
 
-        if (storage.get().trusted[query.authId]) {
+        if (isClientAuthDisabled || storage.get().trusted[query.authId]) {
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
           return {
