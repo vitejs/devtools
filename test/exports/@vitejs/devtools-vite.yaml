@@ -1,0 +1,4 @@
+.:
+  DevToolsViteUI: function
+./dirs:
+  clientPublicDir: string

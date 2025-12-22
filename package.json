@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.0.0-alpha.20",
   "private": true,
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "build": "pnpm -r run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -56,6 +56,7 @@
     "nuxt-eslint-auto-explicit-import": "catalog:devtools",
     "p-limit": "catalog:deps",
     "simple-git-hooks": "catalog:devtools",
+    "tsdown": "catalog:build",
     "tsx": "catalog:build",
     "typescript": "catalog:devtools",
     "unstorage": "catalog:deps",
@@ -63,8 +64,10 @@
     "vite-plugin-inspect": "catalog:devtools",
     "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
+    "vitest-package-exports": "catalog:testing",
     "vue": "catalog:frontend",
-    "vue-tsc": "catalog:devtools"
+    "vue-tsc": "catalog:devtools",
+    "yaml": "catalog:testing"
   },
   "resolutions": {
     "@jridgewell/sourcemap-codec": "catalog:resolutions",
