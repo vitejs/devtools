@@ -76,8 +76,9 @@ export interface DevToolsRpcClient {
   client: DevToolsClientRpcHost
 }
 
-function getConnectionAuthIdFromWindows(): string {
+function getConnectionAuthIdFromWindows(userAuthId?: string): string {
   const getters = [
+    () => userAuthId,
     () => localStorage.getItem(CONNECTION_AUTH_ID_KEY),
     () => (window as any)?.[CONNECTION_AUTH_ID_KEY],
     () => (globalThis as any)?.[CONNECTION_AUTH_ID_KEY],
@@ -158,7 +159,7 @@ export async function getDevToolsRpcClient(
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
-  const authId = options.authId || getConnectionAuthIdFromWindows()
+  const authId = getConnectionAuthIdFromWindows(options.authId)
 
   let isTrusted = false
   const trustedPromise = promiseWithResolver<boolean>()
