@@ -3,6 +3,7 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import ViewBuiltinClientAuthNotice from './ViewBuiltinClientAuthNotice.vue'
 import ViewBuiltinTerminals from './ViewBuiltinTerminals.vue'
 import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
@@ -23,6 +24,10 @@ defineProps<{
       v-if="entry.id === '~terminals'"
       :context
       :entry
+    />
+    <ViewBuiltinClientAuthNotice
+      v-else-if="entry.id === '~client-auth-notice'"
+      :context
     />
     <div v-else>
       Unknown builtin entry: {{ entry }}

@@ -71,11 +71,19 @@ export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevTo
   }
   const dockEntries = _docksEntriesRef = shallowRef<DevToolsDockEntry[]>([])
   async function updateDocksEntries() {
+    if (!rpc.isTrusted) {
+      console.warn('[VITE DEVTOOLS] Untrusted client, skipping docks entries update')
+      return
+    }
     dockEntries.value = (await rpc.call('vite:internal:docks:list'))
       .map(entry => Object.freeze(entry))
     // eslint-disable-next-line no-console
     console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
   }
+  rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+    if (isTrusted)
+      updateDocksEntries()
+  })
   rpc.client.register({
     name: 'vite:internal:docks:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',

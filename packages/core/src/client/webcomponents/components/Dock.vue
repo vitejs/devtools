@@ -2,6 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
+import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
 import DockEntries from './DockEntries.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
@@ -63,6 +64,13 @@ function onPointerDown(e: PointerEvent) {
   draggingOffset.x = e.clientX - left - width / 2
   draggingOffset.y = e.clientY - top - height / 2
 }
+
+const isRpcTrusted = ref(context.rpc.isTrusted)
+context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+  isRpcTrusted.value = isTrusted
+  if (isTrusted && context.docks.selected?.id === BUILTIN_ENTRY_CLIENT_AUTH_NOTICE.id)
+    context.docks.switchEntry(null)
+})
 
 onMounted(() => {
   windowSize.width = window.innerWidth
@@ -220,7 +228,10 @@ const panelStyle = computed(() => {
 })
 
 onMounted(() => {
-  bringUp()
+  if (context.panel.store.open && !isRpcTrusted.value)
+    context.panel.store.open = false
+  if (isRpcTrusted.value)
+    bringUp()
   recalculateCounter.value++
 })
 </script>
@@ -264,13 +275,39 @@ onMounted(() => {
           class="vite-devtools-dock-bracket absolute right--1 top-1/2 translate-y--1/2 bottom-0 w-2.5 op75 transition-opacity duration-300"
           :class="context.panel.isVertical ? 'scale-y--100' : ''"
         />
-        <VitePlusCore
+        <div
           class="w-3 h-3 absolute left-1/2 top-1/2 translate-x--1/2 translate-y--1/2 transition-opacity duration-300"
-          :class="isMinimized ? 'op100' : 'op0'"
-        />
+          :class="[
+            isMinimized ? 'op100' : 'op0',
+            context.panel.isVertical ? 'rotate-270' : 'rotate-0',
+          ]"
+        >
+          <VitePlusCore />
+          <div v-if="!isRpcTrusted" class="i-fluent-emoji-flat-warning absolute bottom-0 right--1px w-1.5 h-1.5" />
+        </div>
+        <div
+          v-if="!isRpcTrusted"
+          class="transition duration-300 delay-200"
+          :class="isMinimized ? 'opacity-0 pointer-events-none ws-nowrap text-sm text-orange of-hidden' : 'opacity-100'"
+        >
+          <button
+            class="p2 transition hover:bg-active rounded-full px4"
+            @click="context.docks.toggleEntry(BUILTIN_ENTRY_CLIENT_AUTH_NOTICE.id)"
+          >
+            <div class="flex items-center gap-1">
+              <div
+                class="i-fluent-emoji-flat-warning flex-none"
+                :class="context.panel.isVertical ? 'rotate-270' : 'rotate-0'"
+              />
+              <div class="ws-nowrap text-amber">
+                Unauthorized
+              </div>
+            </div>
+          </button>
+        </div>
         <DockEntries
           :entries="context.docks.entries"
-          class="transition duration-200 flex items-center w-full h-full justify-center"
+          class="transition duration-200 flex items-center w-full h-full justify-center px3"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="context.panel.isVertical"
           :selected="context.docks.selected"

@@ -8,6 +8,7 @@ import { defineRpcServerPreset } from '..'
 
 export interface WebSocketRpcServerOptions {
   port: number
+  host?: string
   onConnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
   onDisconnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
 }
@@ -28,12 +29,14 @@ export const createWsRpcPreset: RpcServerPreset<
 > = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
   const {
     port,
+    host = 'localhost',
     onConnected = NOOP,
     onDisconnected = NOOP,
   } = options
 
   const wss = new WebSocketServer({
     port,
+    host,
   })
 
   return <ClientFunctions extends object, ServerFunctions extends object>(

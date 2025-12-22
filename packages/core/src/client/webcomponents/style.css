@@ -18,7 +18,7 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock {
-  --uno: h-full rounded-full select-none touch-none px4 ma h-[40px];
+  --uno: h-full rounded-full select-none touch-none ma h-[40px];
   --uno: shadow text-white bg-glass;
   --uno: transition-all duration-500;
   width: calc-size(max-content, size);

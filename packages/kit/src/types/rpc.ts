@@ -7,6 +7,8 @@ import type { DevToolsNodeContext } from './vite-plugin'
 export interface DevToolsNodeRpcSessionMeta {
   id: number
   ws?: WebSocket
+  clientAuthId?: string
+  isTrusted?: boolean
 }
 
 export interface DevToolsNodeRpcSession {

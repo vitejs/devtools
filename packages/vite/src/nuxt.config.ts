@@ -125,6 +125,9 @@ export default defineNuxtConfig({
         'birpc',
       ],
     },
+    devtools: {
+      clientAuth: false,
+    },
     plugins: [
       NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
     ],

@@ -15,8 +15,14 @@ export function DevToolsServer(): Plugin {
     apply: 'serve',
     async configureServer(viteDevServer) {
       context = await createDevToolsContext(viteDevServer.config, viteDevServer)
+
+      const host = viteDevServer.config.server.host === true
+        ? '0.0.0.0'
+        : viteDevServer.config.server.host || 'localhost'
+
       const { middleware } = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
+        hostWebSocket: host,
         context,
       })
       viteDevServer.middlewares.use('/.devtools/', middleware)

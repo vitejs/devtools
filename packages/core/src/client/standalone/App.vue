@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { markRaw, useTemplateRef } from 'vue'
+import { markRaw, ref, useTemplateRef, watch } from 'vue'
 import DockEntries from '../webcomponents/components/DockEntries.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
+import ViewBuiltinClientAuthNotice from '../webcomponents/components/ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 import { createDocksContext } from '../webcomponents/state/context'
 import { PersistedDomViewsManager } from '../webcomponents/utils/PersistedDomViewsManager'
@@ -21,11 +22,25 @@ const context: DocksContext = await createDocksContext(
   rpc,
 )
 
-context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
+const isRpcTrusted = ref(context.rpc.isTrusted)
+context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+  isRpcTrusted.value = isTrusted
+})
+
+watch(
+  () => context.docks.entries,
+  () => {
+    context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <div class="h-screen w-screen of-hidden grid cols-[max-content_1fr]">
+  <div v-if="!isRpcTrusted" class="h-screen w-screen of-hidden">
+    <ViewBuiltinClientAuthNotice :context="context" />
+  </div>
+  <div v-else class="h-screen w-screen of-hidden grid cols-[max-content_1fr]">
     <div class="border-r border-base flex flex-col">
       <div class="p2 border-b border-base flex">
         <VitePlus class="w-7 h-7 ma" />

@@ -1,4 +1,5 @@
 import type { DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import { anonymousAuth } from './anonymous/auth'
 import { docksList } from './internal/docks-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
 import { rpcServerList } from './internal/rpc-server-list'
@@ -13,6 +14,10 @@ export const builtinPublicRpcDecalrations = [
   openInFinder,
 ] as const
 
+export const builtinAnonymousRpcDecalrations = [
+  anonymousAuth,
+] as const
+
 // @keep-sorted
 export const builtinInternalRpcDecalrations = [
   docksList,
@@ -24,6 +29,7 @@ export const builtinInternalRpcDecalrations = [
 
 export const builtinRpcDecalrations = [
   ...builtinPublicRpcDecalrations,
+  ...builtinAnonymousRpcDecalrations,
   ...builtinInternalRpcDecalrations,
 ] as const
 

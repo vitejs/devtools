@@ -1,15 +1,16 @@
 import fs from 'node:fs'
 import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import { dirname } from 'pathe'
 
 export interface CreateStorageOptions<T extends object> {
   filepath: string
   initialValue: T
 }
 
-export async function createStorage<T extends object>(options: CreateStorageOptions<T>) {
+export function createStorage<T extends object>(options: CreateStorageOptions<T>) {
   let initialState: T
   if (fs.existsSync(options.filepath)) {
-    initialState = JSON.parse(await fs.readFileSync(options.filepath, 'utf-8')) as T
+    initialState = JSON.parse(fs.readFileSync(options.filepath, 'utf-8')) as T
   }
   else {
     initialState = options.initialValue
@@ -21,6 +22,7 @@ export async function createStorage<T extends object>(options: CreateStorageOpti
   })
 
   state.on('updated', (newState) => {
+    fs.mkdirSync(dirname(options.filepath), { recursive: true })
     fs.writeFileSync(options.filepath, `${JSON.stringify(newState, null, 2)}\n`)
   })
 
