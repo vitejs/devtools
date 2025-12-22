@@ -36,6 +36,7 @@ export async function start(options: StartOptions) {
 
   const { h3 } = await createDevToolsMiddleware({
     cwd: devtools.config.root,
+    hostWebSocket: host,
     context: devtools.context,
   })
 

@@ -12,6 +12,7 @@ import { MARK_CHECK } from './constants'
 export interface CreateWsServerOptions {
   cwd: string
   portWebSocket?: number
+  hostWebSocket: string
   base?: string
   context: DevToolsNodeContext
 }
@@ -20,12 +21,14 @@ const ANONYMOUS_SCOPE = 'vite:anonymous:'
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
-  const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })
+  const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })!
+  const host = options.hostWebSocket ?? 'localhost'
 
   const wsClients = new Set<WebSocket>()
 
   const preset = createWsRpcPreset({
-    port: port!,
+    port,
+    host,
     onConnected: (ws, meta) => {
       wsClients.add(ws)
       console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected`)
