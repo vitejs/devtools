@@ -285,8 +285,8 @@ catalogs:
       specifier: ^4.0.16
       version: 4.0.16
     vitest-package-exports:
-      specifier: ^1.1.0
-      version: 1.1.0
+      specifier: ^1.1.1
+      version: 1.1.1
     yaml:
       specifier: ^2.8.2
       version: 2.8.2
@@ -468,7 +468,7 @@ importers:
         version: 4.0.16(@types/node@24.10.1)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       vitest-package-exports:
         specifier: catalog:testing
-        version: 1.1.0
+        version: 1.1.1
       vue:
         specifier: catalog:frontend
         version: 3.5.26(typescript@5.9.3)
@@ -6557,8 +6557,8 @@ packages:
       postcss:
         optional: true
 
-  vitest-package-exports@1.1.0:
-    resolution: {integrity: sha512-4x2duVUPdFmWCl5KCIIsTQai9zinvqPG2NrwKcjHQ/RE6ANYQKbwBnNjfuAv5oEqGLxJPVnBVxJo+Mc01ZTybQ==}
+  vitest-package-exports@1.1.1:
+    resolution: {integrity: sha512-62/lvkUK4PDHgAAOjstWQpQQjIVTQKPnd3Pak6hCPjlfIAV8o0a7xhzPNMF1tT7TWdQmcVFs1b9pr41ZiH75Xw==}
 
   vitest@4.0.16:
     resolution: {integrity: sha512-E4t7DJ9pESL6E3I8nFjPa4xGUd3PmiWDLsDztS2qXSJWfHtbQnwAWylaBvSNY48I3vr8PTqIZlyK8TE3V3CA4Q==}
@@ -13348,7 +13348,7 @@ snapshots:
       - universal-cookie
       - yaml
 
-  vitest-package-exports@1.1.0:
+  vitest-package-exports@1.1.1:
     dependencies:
       find-up-simple: 1.0.1
       pathe: 2.0.3
