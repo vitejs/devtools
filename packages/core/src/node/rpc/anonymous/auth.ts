@@ -1,8 +1,7 @@
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
-import { join } from 'pathe'
-import { createStorage } from '../../storage'
+import { getInternalContext } from '../../context-internal'
 
 export interface DevToolsAuthInput {
   authId: string
@@ -14,25 +13,12 @@ export interface DevToolsAuthReturn {
   isTrusted: boolean
 }
 
-interface AnonymousAuthStorage {
-  trusted: Record<string, {
-    authId: string
-    ua: string
-    origin: string
-    timestamp: number
-  }>
-}
-
 export const anonymousAuth = defineRpcFunction({
   name: 'vite:anonymous:auth',
   type: 'action',
   setup: (context) => {
-    const storage = createStorage<AnonymousAuthStorage>({
-      filepath: join(context.cwd, 'node_modules/.vite/devtools/auth.json'),
-      initialValue: {
-        trusted: {},
-      },
-    })
+    const internal = getInternalContext(context)
+    const storage = internal.storage.auth
 
     return {
       handler: async (query: DevToolsAuthInput): Promise<DevToolsAuthReturn> => {
