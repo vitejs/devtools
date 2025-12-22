@@ -1,6 +1,7 @@
 import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
+import { BUILTIN_ENTRIES } from '../constants'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, useDocksEntries } from './docks'
 import { executeSetupScript } from './setup-script'
 
@@ -14,9 +15,13 @@ export async function createDocksContext(
     return _docksContext
   }
 
-  const selectedId = ref<string | null>(null)
   const dockEntries = await useDocksEntries(rpc)
-  const selected = computed(() => dockEntries.value.find(entry => entry.id === selectedId.value) ?? null)
+  const selectedId = ref<string | null>(null)
+  const selected = computed(
+    () => dockEntries.value.find(entry => entry.id === selectedId.value)
+      ?? BUILTIN_ENTRIES.find(entry => entry.id === selectedId.value)
+      ?? null,
+  )
 
   const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
   watchEffect(() => {
@@ -34,6 +39,45 @@ export async function createDocksContext(
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
 
+  const switchEntry = async (id: string | null = null) => {
+    if (id == null) {
+      selectedId.value = null
+      return true
+    }
+    if (id === '~client-auth-notice') {
+      selectedId.value = id
+      panelStore.value.open = true
+      return true
+    }
+    const entry = dockEntries.value.find(e => e.id === id)
+    if (!entry)
+      return false
+
+    // If has import script, run it
+    if (
+      (entry.type === 'action')
+      || (entry.type === 'custom-render')
+      || (entry.type === 'iframe' && entry.clientScript)
+    ) {
+      const current = dockEntryStateMap.get(id)!
+      const scriptContext: DockClientScriptContext = reactive({
+        ...toRefs(_docksContext!) as any,
+        current,
+      })
+      await executeSetupScript(entry, scriptContext)
+    }
+
+    selectedId.value = entry.id
+    panelStore.value.open = true
+    return true
+  }
+
+  const toggleEntry = async (id: string) => {
+    if (selectedId.value === id)
+      return switchEntry(null)
+    return switchEntry(id)
+  }
+
   _docksContext = reactive({
     panel: {
       store: panelStore,
@@ -47,33 +91,8 @@ export async function createDocksContext(
       entries: dockEntries,
       entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
-      switchEntry: async (id: string | null = null) => {
-        if (id == null) {
-          selectedId.value = null
-          return true
-        }
-        const entry = dockEntries.value.find(e => e.id === id)
-        if (!entry)
-          return false
-
-        // If has import script, run it
-        if (
-          (entry.type === 'action')
-          || (entry.type === 'custom-render')
-          || (entry.type === 'iframe' && entry.clientScript)
-        ) {
-          const current = dockEntryStateMap.get(id)!
-          const scriptContext: DockClientScriptContext = reactive({
-            ...toRefs(_docksContext!) as any,
-            current,
-          })
-          await executeSetupScript(entry, scriptContext)
-        }
-
-        selectedId.value = entry.id
-        panelStore.value.open = true
-        return true
-      },
+      switchEntry,
+      toggleEntry,
     },
     rpc,
     clientType,

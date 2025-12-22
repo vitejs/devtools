@@ -64,6 +64,12 @@ export interface DocksEntriesContext {
    * @returns Whether the selection was changed successfully
    */
   switchEntry: (id?: string | null) => Promise<boolean>
+  /**
+   * Toggle the selected dock entry
+   *
+   * @returns Whether the selection was changed successfully
+   */
+  toggleEntry: (id: string) => Promise<boolean>
 }
 
 export interface DockEntryState {
