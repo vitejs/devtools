@@ -22,6 +22,10 @@ function isNumeric(str: string | number | undefined) {
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
   baseURL?: string[]
+  /**
+   * The auth id to use for the client
+   */
+  authId?: string
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
 }
@@ -80,21 +84,23 @@ function getConnectionAuthIdFromWindows(): string {
     () => (parent.window as any)?.[CONNECTION_AUTH_ID_KEY],
   ]
 
+  let value: string | undefined
+
   for (const getter of getters) {
     try {
-      const value = getter()
-      if (value) {
-        if (!localStorage.getItem(CONNECTION_AUTH_ID_KEY))
-          localStorage.setItem(CONNECTION_AUTH_ID_KEY, value)
-        return value
-      }
+      value = getter()
+      if (value)
+        break
     }
     catch {}
   }
 
-  const uid = nanoid()
-  localStorage.setItem(CONNECTION_AUTH_ID_KEY, uid)
-  return uid
+  if (!value)
+    value = nanoid()
+
+  localStorage.setItem(CONNECTION_AUTH_ID_KEY, value)
+  ;(globalThis as any)[CONNECTION_AUTH_ID_KEY] = value
+  return value
 }
 
 function findConnectionMetaFromWindows(): ConnectionMeta | undefined {
@@ -152,7 +158,7 @@ export async function getDevToolsRpcClient(
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
-  const authId = getConnectionAuthIdFromWindows()
+  const authId = options.authId || getConnectionAuthIdFromWindows()
 
   let isTrusted = false
   const trustedPromise = promiseWithResolver<boolean>()

@@ -3,6 +3,7 @@ import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevTo
 import type { WebSocket } from 'ws'
 import type { RpcFunctionsHost } from './host-functions'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import process from 'node:process'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
@@ -41,6 +42,8 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
 
+  const isClientAuthDisabled = options.context.mode === 'build' || options.context.viteConfig.devtools?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
+
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
     {
@@ -59,7 +62,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           const rpc = this
 
           // Block unauthorized access to non-anonymous methods
-          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
+          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted && !isClientAuthDisabled) {
             return () => {
               throw new Error(`Unauthorized access to method ${JSON.stringify(name)} from client [${rpc.$meta.id}]`)
             }
