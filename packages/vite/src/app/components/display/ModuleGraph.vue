@@ -1,7 +1,7 @@
 <script setup lang="ts" generic="T extends { id: string, imports: unknown[] }, I">
 import type { SessionContext } from '~~/shared/types'
 import { onMounted, unref, watch } from 'vue'
-import { generateModuleGraphLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/moduleGraph'
+import { generateModuleGraphLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/module-graph'
 
 const props = withDefaults(defineProps<{
   modules: T[]

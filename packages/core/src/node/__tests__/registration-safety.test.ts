@@ -21,7 +21,7 @@ describe('registration Safety Integration Tests', () => {
       command: 'build',
       plugins: [],
     } as unknown as ResolvedConfig)
-    ctx.rpc.boardcast = vi.fn()
+    ctx.rpc.broadcast = vi.fn()
     return ctx
   }
 

@@ -7,7 +7,7 @@ import { hierarchy, tree } from 'd3-hierarchy'
 import { linkHorizontal, linkVertical } from 'd3-shape'
 import Fuse from 'fuse.js'
 import { computed, inject, nextTick, provide, ref, shallowReactive, shallowRef, unref } from 'vue'
-import { useZoomElement } from './zoomElement'
+import { useZoomElement } from './zoom-element'
 
 export interface ModuleGraphNode<M, I> {
   module: M

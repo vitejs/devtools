@@ -374,7 +374,7 @@ declare module '@vitejs/devtools-kit' {
 
 ### Call Client Functions from Server
 
-To call client-side functions from the server, use `ctx.rpc.boardcast()` (note: the method name is `boardcast`, which broadcasts to all connected clients):
+To call client-side functions from the server, use `ctx.rpc.broadcast()` (note: the method name is `broadcast`, which broadcasts to all connected clients):
 
 ```ts {6-10}
 export default function myPlugin(): Plugin {
@@ -383,7 +383,7 @@ export default function myPlugin(): Plugin {
     devtools: {
       setup(ctx) {
         // Broadcast to all connected clients
-        ctx.rpc.boardcast('my-plugin:client-update', {
+        ctx.rpc.broadcast('my-plugin:client-update', {
           message: 'Hello from server!'
         })
       },
@@ -392,7 +392,7 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-The `boardcast` method returns a promise that resolves to an array of results from all clients (some may be `undefined` if the client doesn't implement the function).
+The `broadcast` method returns a promise that resolves to an array of results from all clients (some may be `undefined` if the client doesn't implement the function).
 
 **Example: Broadcasting dock updates**
 
@@ -401,7 +401,7 @@ Here's a real-world example of how the built-in docks system broadcasts updates:
 ```ts
 // When a dock entry is updated, broadcast to all clients
 docksHost.events.on('dock:entry:updated', () => {
-  rpcHost.boardcast('vite:internal:docks:updated')
+  rpcHost.broadcast('vite:internal:docks:updated')
 })
 ```
 

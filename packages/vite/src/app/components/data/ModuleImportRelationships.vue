@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/moduleGraph'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/module-graph'
 
 const props = defineProps<{
   module: ModuleInfo

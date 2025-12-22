@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/moduleGraph'
+import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
 import { computed, nextTick, unref } from 'vue'
-import { createModuleGraph } from '~/composables/moduleGraph'
+import { createModuleGraph } from '~/composables/module-graph'
 
 const props = defineProps<{
   modules: ModuleListItem[]
