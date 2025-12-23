@@ -21,7 +21,7 @@ export function DevToolsViteUI(): PluginWithDevTools {
         ctx.docks.register({
           id: 'vite',
           title: 'Vite',
-          icon: 'builtin:vite-plus-core',
+          icon: 'https://vite.dev/logo.svg',
           type: 'iframe',
           url: '/.devtools-vite/',
         })
