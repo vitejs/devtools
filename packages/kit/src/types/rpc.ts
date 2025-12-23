@@ -1,15 +1,10 @@
+import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-rpc/presets/ws/server'
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'birpc-x'
-import type { WebSocket } from 'ws'
 import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from './rpc-augments'
 import type { DevToolsNodeContext } from './vite-plugin'
 
-export interface DevToolsNodeRpcSessionMeta {
-  id: number
-  ws?: WebSocket
-  clientAuthId?: string
-  isTrusted?: boolean
-}
+export type { DevToolsNodeRpcSessionMeta }
 
 export interface DevToolsNodeRpcSession {
   meta: DevToolsNodeRpcSessionMeta
