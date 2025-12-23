@@ -1,6 +1,7 @@
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'birpc-x'
 import type { WebSocket } from 'ws'
+import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from './rpc-augments'
 import type { DevToolsNodeContext } from './vite-plugin'
 
@@ -34,4 +35,17 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
    * Available in RPC functions to get the current RPC client
    */
   getCurrentRpcSession: () => DevToolsNodeRpcSession | undefined
+
+  /**
+   * The shared state host
+   */
+  sharedState: RpcSharedStateHost
+}
+
+export interface RpcSharedStateGetOptions<T> {
+  initialValue?: T
+}
+
+export interface RpcSharedStateHost {
+  get: <T extends object>(key: string, options?: RpcSharedStateGetOptions<T>) => Promise<SharedState<T>>
 }

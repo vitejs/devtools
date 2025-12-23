@@ -1,7 +1,8 @@
-import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcFunctionsHost as RpcFunctionsHostType } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost } from '@vitejs/devtools-kit'
 import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from 'birpc-x'
+import { createRpcSharedStateServerHost } from './rpc-shared-state'
 
 export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> implements RpcFunctionsHostType {
   /**
@@ -12,7 +13,11 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
   constructor(context: DevToolsNodeContext) {
     super(context)
+
+    this.sharedState = createRpcSharedStateServerHost(this)
   }
+
+  sharedState: RpcSharedStateHost
 
   broadcast<
     T extends keyof DevToolsRpcClientFunctions,
