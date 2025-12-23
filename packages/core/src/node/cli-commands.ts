@@ -27,7 +27,6 @@ export async function start(options: StartOptions) {
   const port = await getPort({
     host,
     port: options.port == null ? undefined : +options.port,
-    portRange: [9999, 15000],
   })
 
   const devtools = await startStandaloneDevTools({
