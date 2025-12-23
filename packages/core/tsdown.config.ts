@@ -31,6 +31,9 @@ export default defineConfig({
   },
   dts: true,
   inputOptions: {
+    resolve: {
+      mainFields: ['module', 'main'],
+    },
     experimental: {
       resolveNewUrlToAsset: false,
     },
