@@ -1,7 +1,8 @@
 import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-rpc/presets/ws/server'
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'birpc-x'
-import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from './rpc-augments'
+import type { SharedState } from '../utils/shared-state'
+import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from './rpc-augments'
 import type { DevToolsNodeContext } from './vite-plugin'
 
 export type { DevToolsNodeRpcSessionMeta }
@@ -9,6 +10,14 @@ export type { DevToolsNodeRpcSessionMeta }
 export interface DevToolsNodeRpcSession {
   meta: DevToolsNodeRpcSessionMeta
   rpc: BirpcReturn<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>
+}
+
+export interface RpcBroadcastOptions<METHOD, Args extends any[]> {
+  method: METHOD
+  args: Args
+  optional?: boolean
+  event?: boolean
+  filter?: (client: BirpcReturn<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>) => boolean | void
 }
 
 export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> & {
@@ -19,9 +28,8 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
   >(
-    name: T,
-    ...args: Args
-  ) => Promise<(Awaited<ReturnType<DevToolsRpcClientFunctions[T]>> | undefined)[]>
+    options: RpcBroadcastOptions<T, Args>,
+  ) => Promise<void>
 
   /**
    * Get the current RPC client
@@ -29,4 +37,17 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
    * Available in RPC functions to get the current RPC client
    */
   getCurrentRpcSession: () => DevToolsNodeRpcSession | undefined
+
+  /**
+   * The shared state host
+   */
+  sharedState: RpcSharedStateHost
+}
+
+export interface RpcSharedStateGetOptions<T> {
+  initialValue?: T
+}
+
+export interface RpcSharedStateHost {
+  get: <T extends keyof DevToolsRpcSharedStates>(key: T, options?: RpcSharedStateGetOptions<DevToolsRpcSharedStates[T]>) => Promise<SharedState<DevToolsRpcSharedStates[T]>>
 }

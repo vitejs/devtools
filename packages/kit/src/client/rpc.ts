@@ -1,6 +1,6 @@
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
+import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import { createRpcClient } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
@@ -9,6 +9,7 @@ import { UAParser } from 'my-ua-parser'
 import { createEventEmitter } from '../utils/events'
 import { nanoid } from '../utils/nanoid'
 import { promiseWithResolver } from '../utils/promise'
+import { createRpcSharedStateClientHost } from './rpc-shared-state'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
 const CONNECTION_AUTH_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_ID__'
@@ -74,6 +75,11 @@ export interface DevToolsRpcClient {
    * The client RPC host
    */
   client: DevToolsClientRpcHost
+
+  /**
+   * The shared state host
+   */
+  sharedState: RpcSharedStateHost
 }
 
 function getConnectionAuthIdFromWindows(userAuthId?: string): string {
@@ -253,7 +259,10 @@ export async function getDevToolsRpcClient(
       )
     },
     client: clientRpc,
+    sharedState: undefined!,
   }
+
+  rpc.sharedState = createRpcSharedStateClientHost(rpc)
 
   // @ts-expect-error assign to readonly property
   context.rpc = rpc

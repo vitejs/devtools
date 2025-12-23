@@ -1,7 +1,8 @@
 import type { Objectish, Patch } from 'immer'
 import type { EventEmitter } from '../types/events'
-import { applyPatches, produce, produceWithPatches } from 'immer'
+import { applyPatches, enablePatches as enableImmerPatches, produce, produceWithPatches } from 'immer'
 import { createEventEmitter } from './events'
+import { nanoid } from './nanoid'
 
 // eslint-disable-next-line ts/no-unsafe-function-type
 type ImmutablePrimitive = undefined | null | boolean | string | number | Function
@@ -17,6 +18,8 @@ export type ImmutableMap<K, V> = ReadonlyMap<Immutable<K>, Immutable<V>>
 export type ImmutableSet<T> = ReadonlySet<Immutable<T>>
 export type ImmutableObject<T> = { readonly [K in keyof T]: Immutable<T[K]> }
 
+export type { Patch as SharedStatePatch } from 'immer'
+
 /**
  * State host that is immutable by default with explicit mutate.
  */
@@ -24,7 +27,7 @@ export interface SharedState<T> {
   /**
    * Get the current state. Immutable.
    */
-  get: () => Immutable<T>
+  value: () => Immutable<T>
   /**
    * Subscribe to state changes.
    */
@@ -32,16 +35,19 @@ export interface SharedState<T> {
   /**
    * Mutate the state.
    */
-  mutate: (fn: (state: T) => void) => void
+  mutate: (fn: (state: T) => void, syncId?: string) => void
   /**
    * Apply patches to the state.
    */
-  patch: (patches: Patch[]) => void
+  patch: (patches: Patch[], syncId?: string) => void
+  /**
+   * Sync IDs that have been applied to the state.
+   */
+  syncIds: Set<string>
 }
 
 export interface SharedStateEvents<T> {
-  updated: (state: T) => void
-  patches: (patches: Patch[]) => void
+  updated: (fullState: T, patches: Patch[] | undefined, syncId: string) => void
 }
 
 export interface SharedStateOptions<T> {
@@ -66,24 +72,36 @@ export function createSharedState<T extends Objectish>(
 
   const events = createEventEmitter<SharedStateEvents<T>>()
   let state = options.initialState
+  const syncIds = new Set<string>()
 
   return {
     on: events.on,
-    get: () => state as Immutable<T>,
-    patch: (patches: Patch[]) => {
+    value: () => state as Immutable<T>,
+    patch: (patches: Patch[], syncId = nanoid()) => {
+      // Avoid loop syncs
+      if (syncIds.has(syncId))
+        return
+      enableImmerPatches()
       state = applyPatches<T>(state, patches)
-      events.emit('updated', state)
+      syncIds.add(syncId)
+      events.emit('updated', state, undefined, syncId)
     },
-    mutate: (fn) => {
+    mutate: (fn, syncId = nanoid()) => {
+      // Avoid loop syncs
+      if (syncIds.has(syncId))
+        return
+
+      syncIds.add(syncId)
       if (enablePatches) {
         const [newState, patches] = produceWithPatches(state, fn)
         state = newState
-        events.emit('patches', patches)
+        events.emit('updated', state, patches, syncId)
       }
       else {
         state = produce(state, fn)
+        events.emit('updated', state, undefined, syncId)
       }
-      events.emit('updated', state)
     },
+    syncIds,
   }
 }

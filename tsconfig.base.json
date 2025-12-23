@@ -9,14 +9,14 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-rpc": [
-        "./packages/rpc/src"
-      ],
       "@vitejs/devtools-rpc/presets/ws/server": [
         "./packages/rpc/src/presets/ws/server.ts"
       ],
       "@vitejs/devtools-rpc/presets/ws/client": [
         "./packages/rpc/src/presets/ws/client.ts"
+      ],
+      "@vitejs/devtools-rpc": [
+        "./packages/rpc/src"
       ],
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"

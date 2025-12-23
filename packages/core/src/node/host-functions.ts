@@ -1,7 +1,8 @@
-import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcFunctionsHost as RpcFunctionsHostType } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcBroadcastOptions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost } from '@vitejs/devtools-kit'
 import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from 'birpc-x'
+import { createRpcSharedStateServerHost } from './rpc-shared-state'
 
 export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> implements RpcFunctionsHostType {
   /**
@@ -12,19 +13,32 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
   constructor(context: DevToolsNodeContext) {
     super(context)
+
+    this.sharedState = createRpcSharedStateServerHost(this)
   }
 
-  broadcast<
+  sharedState: RpcSharedStateHost
+
+  async broadcast<
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
   >(
-    name: T,
-    ...args: Args
-  ): Promise<(Awaited<ReturnType<DevToolsRpcClientFunctions[T]>> | undefined)[]> {
+    options: RpcBroadcastOptions<T, Args>,
+  ): Promise<void> {
     if (!this._rpcGroup)
       throw new Error('RpcFunctionsHost] RpcGroup is not set, it likely to be an internal bug of Vite DevTools')
-    // @ts-expect-error - BirpcGroup.broadcast.$callOptional is not typed correctly
-    return this._rpcGroup.broadcast.$callOptional<T>(name, ...args)
+
+    await Promise.all(
+      this._rpcGroup.clients.map((client) => {
+        if (options.filter?.(client) === false)
+          return undefined
+        return client.$callRaw({
+          optional: true,
+          event: true,
+          ...options,
+        })
+      }),
+    )
   }
 
   getCurrentRpcSession(): DevToolsNodeRpcSession | undefined {

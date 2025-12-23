@@ -79,8 +79,10 @@
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
     "unplugin-vue": "catalog:build",
+    "unplugin-vue-router": "catalog:playground",
     "vite": "catalog:build",
     "vue": "catalog:frontend",
+    "vue-router": "catalog:playground",
     "vue-tsc": "catalog:devtools"
   }
 }
