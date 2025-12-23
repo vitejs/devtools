@@ -34,6 +34,12 @@ watch(
   },
   { immediate: true },
 )
+
+function switchEntry(id: string) {
+  if (id) {
+    context.docks.switchEntry(id)
+  }
+}
 </script>
 
 <template>
@@ -50,7 +56,7 @@ watch(
         class="transition duration-200 p2"
         :is-vertical="false"
         :selected="context.docks.selected"
-        @select="(e) => context.docks.switchEntry(e?.id)"
+        @select="(e) => switchEntry(e?.id)"
       />
     </div>
     <div>
