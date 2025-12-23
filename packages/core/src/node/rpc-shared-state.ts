@@ -16,12 +16,14 @@ export function createRpcSharedStateServerHost(
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:patch',
             args: [key, patches, syncId],
+            // TODO: filter: broadcast to clients only subscribed to its
           })
         }
         else {
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:updated',
             args: [key, syncId],
+            // TODO: filter: broadcast to clients only subscribed to its
           })
         }
       }),
