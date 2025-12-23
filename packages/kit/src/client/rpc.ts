@@ -172,6 +172,7 @@ export async function getDevToolsRpcClient(
     {
       preset: createWsRpcPreset({
         url,
+        authId,
         ...options.wsOptions,
       }),
       rpcOptions,
