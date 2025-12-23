@@ -6,7 +6,6 @@ trustPolicy: no-downgrade
 
 packages:
   - packages/*
-  - packages/core/playground
   - docs
 
 catalogs:
