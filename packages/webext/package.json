@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-webext",
   "type": "module",
-  "version": "0.0.0-alpha.21",
+  "version": "0.0.0-alpha.22",
   "private": true,
   "description": "DevTools browser extension for Vite (work in progress)",
   "author": "VoidZero Inc.",
