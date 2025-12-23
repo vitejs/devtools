@@ -13,10 +13,16 @@ export function createRpcSharedStateServerHost(
     offs.push(
       state.on('updated', (_fullState, patches, syncId) => {
         if (patches) {
-          rpc.broadcast('vite:internal:rpc:client-state:patch', key, patches, syncId)
+          rpc.broadcast({
+            method: 'vite:internal:rpc:client-state:patch',
+            args: [key, patches, syncId],
+          })
         }
         else {
-          rpc.broadcast('vite:internal:rpc:client-state:updated', key, syncId)
+          rpc.broadcast({
+            method: 'vite:internal:rpc:client-state:updated',
+            args: [key, syncId],
+          })
         }
       }),
     )

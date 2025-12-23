@@ -12,6 +12,14 @@ export interface DevToolsNodeRpcSession {
   rpc: BirpcReturn<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>
 }
 
+export interface RpcBroadcastOptions<METHOD, Args extends any[]> {
+  method: METHOD
+  args: Args
+  optional?: boolean
+  event?: boolean
+  filter?: (client: BirpcReturn<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>) => boolean | void
+}
+
 export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> & {
   /**
    * Broadcast a message to all connected clients
@@ -20,9 +28,8 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
   >(
-    name: T,
-    ...args: Args
-  ) => Promise<(Awaited<ReturnType<DevToolsRpcClientFunctions[T]>> | undefined)[]>
+    options: RpcBroadcastOptions<T, Args>,
+  ) => Promise<void>
 
   /**
    * Get the current RPC client

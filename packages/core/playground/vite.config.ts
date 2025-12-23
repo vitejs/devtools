@@ -4,6 +4,7 @@ import UnoCSS from 'unocss/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
+import { alias } from '../../../alias'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsViteUI } from '../../vite/src/node'
@@ -16,6 +17,9 @@ export default defineConfig({
     'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': JSON.stringify(process.env.VITE_DEVTOOLS_LOCAL_DEV),
   },
   base: './',
+  resolve: {
+    alias,
+  },
   plugins: [
     VueRouter(),
     Vue(),

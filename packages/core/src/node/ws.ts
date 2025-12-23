@@ -8,7 +8,7 @@ import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
-import { MARK_CHECK } from './constants'
+import { MARK_INFO } from './constants'
 import { getInternalContext } from './context-internal'
 
 export interface CreateWsServerOptions {
@@ -51,11 +51,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
       }
 
       wsClients.add(ws)
-      console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+      const color = meta.isTrusted ? c.green : c.yellow
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)
-      console.log(c.red`${MARK_CHECK} Websocket client [${meta.id}] disconnected`)
+      console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
     },
   })
 

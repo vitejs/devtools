@@ -6,13 +6,10 @@ import { createSharedState } from '../utils/shared-state'
 export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcSharedStateHost {
   const sharedState = new Map<string, SharedState<any>>()
 
-  console.log('createRpcSharedStateClientHost', { rpc })
-
   rpc.client.register({
     name: 'vite:internal:rpc:client-state:updated',
     type: 'event',
     handler: async (key: string, syncId: string) => {
-      console.log('vite:internal:rpc:client-state:updated', { key, syncId })
       const state = sharedState.get(key)
       if (!state || state.syncIds.has(syncId))
         return
