@@ -624,6 +624,9 @@ importers:
 
   packages/rpc:
     dependencies:
+      '@vitejs/devtools-kit':
+        specifier: workspace:*
+        version: link:../kit
       birpc:
         specifier: catalog:deps
         version: 4.0.0
