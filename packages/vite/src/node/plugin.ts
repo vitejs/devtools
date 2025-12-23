@@ -7,8 +7,6 @@ export function DevToolsViteUI(): PluginWithDevTools {
     name: 'vite:devtools:vite-ui',
     devtools: {
       setup(ctx) {
-        console.log('Vite DevTools Vite plugin setup')
-
         for (const fn of rpcFunctions) {
           ctx.rpc.register(fn)
         }
