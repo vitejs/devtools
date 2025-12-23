@@ -1,4 +1,3 @@
-import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-kit'
 import type { BirpcGroup, BirpcOptions, ChannelOptions } from 'birpc'
 import type { IncomingMessage } from 'node:http'
 import type { WebSocket } from 'ws'
@@ -6,6 +5,13 @@ import type { RpcServerPreset } from '..'
 import { parse, stringify } from 'structured-clone-es'
 import { WebSocketServer } from 'ws'
 import { defineRpcServerPreset } from '..'
+
+export interface DevToolsNodeRpcSessionMeta {
+  id: number
+  ws?: WebSocket
+  clientAuthId?: string
+  isTrusted?: boolean
+}
 
 export interface WebSocketRpcServerOptions {
   port: number
