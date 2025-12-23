@@ -1,6 +1,6 @@
 import type { Objectish, Patch } from 'immer'
 import type { EventEmitter } from '../types/events'
-import { applyPatches, produce, produceWithPatches } from 'immer'
+import { applyPatches, enablePatches as enableImmerPatches, produce, produceWithPatches } from 'immer'
 import { createEventEmitter } from './events'
 import { nanoid } from './nanoid'
 
@@ -27,7 +27,7 @@ export interface SharedState<T> {
   /**
    * Get the current state. Immutable.
    */
-  get: () => Immutable<T>
+  value: () => Immutable<T>
   /**
    * Subscribe to state changes.
    */
@@ -76,11 +76,12 @@ export function createSharedState<T extends Objectish>(
 
   return {
     on: events.on,
-    get: () => state as Immutable<T>,
+    value: () => state as Immutable<T>,
     patch: (patches: Patch[], syncId = nanoid()) => {
       // Avoid loop syncs
       if (syncIds.has(syncId))
         return
+      enableImmerPatches()
       state = applyPatches<T>(state, patches)
       syncIds.add(syncId)
       events.emit('updated', state, undefined, syncId)

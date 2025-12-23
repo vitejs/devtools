@@ -10,14 +10,16 @@ export function createRpcSharedStateServerHost(
   function registerSharedState<T extends object>(key: string, state: SharedState<T>) {
     const offs: (() => void)[] = []
 
-    offs.push(state.on('updated', (_fullState, patches, syncId) => {
-      if (patches) {
-        rpc.broadcast('vite:internal:rpc:client-state:patch', key, patches, syncId)
-      }
-      else {
-        rpc.broadcast('vite:internal:rpc:client-state:updated', key, syncId)
-      }
-    }))
+    offs.push(
+      state.on('updated', (_fullState, patches, syncId) => {
+        if (patches) {
+          rpc.broadcast('vite:internal:rpc:client-state:patch', key, patches, syncId)
+        }
+        else {
+          rpc.broadcast('vite:internal:rpc:client-state:updated', key, syncId)
+        }
+      }),
+    )
 
     return () => {
       for (const off of offs) {

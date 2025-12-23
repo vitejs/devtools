@@ -45,13 +45,13 @@ export async function createWsServer(options: CreateWsServerOptions) {
       if (isClientAuthDisabled) {
         meta.isTrusted = true
       }
-      else if (authId && contextInternal.storage.auth.get().trusted[authId]) {
+      else if (authId && contextInternal.storage.auth.value().trusted[authId]) {
         meta.isTrusted = true
         meta.clientAuthId = authId
       }
 
       wsClients.add(ws)
-      console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected`)
+      console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)

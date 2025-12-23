@@ -25,7 +25,7 @@ export const anonymousAuth = defineRpcFunction({
         if (!session)
           throw new Error('Failed to retrieve the current RPC session')
 
-        if (session.meta.isTrusted || storage.get().trusted[query.authId]) {
+        if (session.meta.isTrusted || storage.value().trusted[query.authId]) {
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
           return {

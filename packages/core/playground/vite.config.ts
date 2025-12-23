@@ -142,7 +142,7 @@ export default defineConfig({
             counterState.mutate((current) => {
               current.count = (current.count + 1) % 5
             })
-            const count = counterState.get().count
+            const count = counterState.value().count
             ctx.docks.update({
               id: 'counter',
               type: 'action',

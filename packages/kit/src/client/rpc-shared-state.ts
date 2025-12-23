@@ -1,20 +1,33 @@
 import type { RpcSharedStateGetOptions, RpcSharedStateHost } from '../types'
-import type { SharedState } from '../utils/shared-state'
+import type { SharedState, SharedStatePatch } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 import { createSharedState } from '../utils/shared-state'
 
 export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcSharedStateHost {
   const sharedState = new Map<string, SharedState<any>>()
 
+  console.log('createRpcSharedStateClientHost', { rpc })
+
   rpc.client.register({
     name: 'vite:internal:rpc:client-state:updated',
     type: 'event',
     handler: async (key: string, syncId: string) => {
+      console.log('vite:internal:rpc:client-state:updated', { key, syncId })
       const state = sharedState.get(key)
       if (!state || state.syncIds.has(syncId))
         return
       const newState = await rpc.call('vite:internal:rpc:server-state:get', key)
       state.mutate(() => newState, syncId)
+    },
+  })
+
+  rpc.client.register({
+    name: 'vite:internal:rpc:client-state:patch',
+    type: 'event',
+    handler: async (key: string, patches: SharedStatePatch[], syncId: string) => {
+      const state = sharedState.get(key)
+      if (state)
+        state.patch(patches, syncId)
     },
   })
 
@@ -28,6 +41,7 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
         rpc.callEvent('vite:internal:rpc:server-state:set', key, fullState, syncId)
       }
     }))
+
     return () => {
       for (const off of offs) {
         off()
