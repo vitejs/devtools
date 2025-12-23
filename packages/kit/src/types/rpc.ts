@@ -2,7 +2,7 @@ import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-rpc/presets/ws
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'birpc-x'
 import type { SharedState } from '../utils/shared-state'
-import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from './rpc-augments'
+import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from './rpc-augments'
 import type { DevToolsNodeContext } from './vite-plugin'
 
 export type { DevToolsNodeRpcSessionMeta }
@@ -49,5 +49,5 @@ export interface RpcSharedStateGetOptions<T> {
 }
 
 export interface RpcSharedStateHost {
-  get: <T extends object>(key: string, options?: RpcSharedStateGetOptions<T>) => Promise<SharedState<T>>
+  get: <T extends keyof DevToolsRpcSharedStates>(key: T, options?: RpcSharedStateGetOptions<DevToolsRpcSharedStates[T]>) => Promise<SharedState<DevToolsRpcSharedStates[T]>>
 }

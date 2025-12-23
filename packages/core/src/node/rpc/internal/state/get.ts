@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, DevToolsRpcSharedStates } from '@vitejs/devtools-kit'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const sharedStateGet = defineRpcFunction({
@@ -7,7 +7,7 @@ export const sharedStateGet = defineRpcFunction({
   setup: (context: DevToolsNodeContext) => {
     return {
       handler: async (key: string) => {
-        const state = await context.rpc.sharedState.get(key)
+        const state = await context.rpc.sharedState.get(key as keyof DevToolsRpcSharedStates)
         return state.value()
       },
     }

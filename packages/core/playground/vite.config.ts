@@ -11,6 +11,12 @@ import { DevToolsViteUI } from '../../vite/src/node'
 import { DevTools } from '../src'
 import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 
+declare module '@vitejs/devtools-kit' {
+  interface DevToolsRpcSharedStates {
+    counter: { count: number }
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {

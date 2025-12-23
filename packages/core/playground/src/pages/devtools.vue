@@ -15,7 +15,7 @@ onMounted(async () => {
     isTrustedRef.value = isTrusted
   })
 
-  const state = await client.sharedState.get<{ count: number }>('counter')
+  const state = await client.sharedState.get('counter')
 
   increment = () => {
     state.mutate((state) => {
