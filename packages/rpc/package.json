@@ -42,6 +42,7 @@
     }
   },
   "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
     "birpc": "catalog:deps",
     "structured-clone-es": "catalog:deps"
   },

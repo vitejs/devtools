@@ -3,11 +3,13 @@ import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevTo
 import type { WebSocket } from 'ws'
 import type { RpcFunctionsHost } from './host-functions'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import process from 'node:process'
 import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
 import { MARK_CHECK } from './constants'
+import { getInternalContext } from './context-internal'
 
 export interface CreateWsServerOptions {
   cwd: string
@@ -26,11 +28,28 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const wsClients = new Set<WebSocket>()
 
+  const context = options.context
+  const contextInternal = getInternalContext(context)
+
+  const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
+  if (isClientAuthDisabled) {
+    console.warn('[Vite DevTools] Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
+  }
+
   const preset = createWsRpcPreset({
     port,
     host,
-    context: options.context,
-    onConnected: (ws, meta) => {
+    onConnected: (ws, req, meta) => {
+      const url = new URL(req.url ?? '', 'http://localhost')
+      const authId = url.searchParams.get('vite_devtools_auth_id') ?? undefined
+      if (isClientAuthDisabled) {
+        meta.isTrusted = true
+      }
+      else if (authId && contextInternal.storage.auth.get().trusted[authId]) {
+        meta.isTrusted = true
+        meta.clientAuthId = authId
+      }
+
       wsClients.add(ws)
       console.log(c.green`${MARK_CHECK} Websocket client [${meta.id}] connected`)
     },
