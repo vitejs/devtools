@@ -73,6 +73,7 @@ export function createSharedState<T extends Objectish>(
   const events = createEventEmitter<SharedStateEvents<T>>()
   let state = options.initialState
   const syncIds = new Set<string>()
+
   return {
     on: events.on,
     get: () => state as Immutable<T>,

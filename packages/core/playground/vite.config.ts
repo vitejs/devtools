@@ -1,6 +1,7 @@
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
+import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 // eslint-disable-next-line ts/ban-ts-comment
@@ -16,6 +17,7 @@ export default defineConfig({
   },
   base: './',
   plugins: [
+    VueRouter(),
     Vue(),
     {
       name: 'build-css',
@@ -38,7 +40,7 @@ export default defineConfig({
     {
       name: 'local',
       devtools: {
-        setup(ctx) {
+        async setup(ctx) {
           ctx.docks.register({
             title: 'Local',
             icon: 'logos:vue',
@@ -95,6 +97,14 @@ export default defineConfig({
           })
 
           ctx.docks.register({
+            id: 'devtools-tab',
+            type: 'iframe',
+            url: '/devtools/',
+            title: 'DevTools',
+            icon: 'ph:gear-duotone',
+          })
+
+          ctx.docks.register({
             id: 'launcher',
             type: 'launcher',
             icon: 'ph:rocket-launch-duotone',
@@ -123,10 +133,16 @@ export default defineConfig({
             },
           })
 
-          let count = 1
+          const counterState = await ctx.rpc.sharedState.get('counter', {
+            initialValue: { count: 1 },
+          })
+
           // eslint-disable-next-line unimport/auto-insert
           setInterval(() => {
-            count = (count + 1) % 5
+            counterState.mutate((current) => {
+              current.count = (current.count + 1) % 5
+            })
+            const count = counterState.get().count
             ctx.docks.update({
               id: 'counter',
               type: 'action',

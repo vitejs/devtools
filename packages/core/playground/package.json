@@ -7,5 +7,9 @@
     "dev": "VITE_DEVTOOLS_LOCAL_DEV=true vite",
     "dev:standalone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../src/node/cli.ts",
     "build": "vite build && vite-devtools"
+  },
+  "devDependencies": {
+    "unplugin-vue-router": "catalog:playground",
+    "vue-router": "catalog:playground"
   }
 }

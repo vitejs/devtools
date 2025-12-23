@@ -29,7 +29,12 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
     if (!this._rpcGroup)
       throw new Error('RpcFunctionsHost] RpcGroup is not set, it likely to be an internal bug of Vite DevTools')
     // @ts-expect-error - BirpcGroup.broadcast.$callOptional is not typed correctly
-    return this._rpcGroup.broadcast.$callOptional<T>(name, ...args)
+    return this._rpcGroup.broadcast.$callRaw<T>({
+      name,
+      args,
+      optional: true,
+      event: true,
+    })
   }
 
   getCurrentRpcSession(): DevToolsNodeRpcSession | undefined {
