@@ -8,7 +8,7 @@ import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
 import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
-import { builtinRpcDecalrations } from './rpc'
+import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
 
@@ -40,7 +40,7 @@ export async function createDevToolsContext(
   context.terminals = terminalsHost
 
   // Build-in function to list all RPC functions
-  for (const fn of builtinRpcDecalrations) {
+  for (const fn of builtinRpcDeclarations) {
     rpcHost.register(fn)
   }
 

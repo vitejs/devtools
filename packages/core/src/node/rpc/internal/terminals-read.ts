@@ -6,12 +6,12 @@ export const terminalsRead = defineRpcFunction({
   setup: (context) => {
     return {
       async handler(id: string) {
-        const seesion = context.terminals.sessions.get(id)
-        if (!seesion) {
+        const session = context.terminals.sessions.get(id)
+        if (!session) {
           throw new Error(`Terminal session with id "${id}" not found`)
         }
         return {
-          buffer: (seesion.buffer ?? []),
+          buffer: (session.buffer ?? []),
           ts: Date.now(),
         }
       },

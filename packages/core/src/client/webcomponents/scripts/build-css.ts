@@ -25,25 +25,25 @@ export async function buildCSS() {
     absolute: true,
   })
 
-  const generater = await createGenerator(config)
+  const generator = await createGenerator(config)
 
   // Extra tokens for UnoCSS
   const tokens = new Set<string>()
   for (const file of files) {
     const content = await fs.readFile(file, 'utf-8')
-    await generater.applyExtractors(content, file, tokens)
+    await generator.applyExtractors(content, file, tokens)
   }
 
   // Read user style
   const userStyle = new MagicString(await fs.readFile(USER_STYLE, 'utf-8').catch(() => ''))
 
-  for (const transformer of generater.config.transformers ?? []) {
+  for (const transformer of generator.config.transformers ?? []) {
     await transformer.transform(userStyle, USER_STYLE, {
-      uno: generater,
+      uno: generator,
     } as any)
   }
 
-  const unoResult = await generater.generate(tokens)
+  const unoResult = await generator.generate(tokens)
   const input = [
     reset,
     xtermCss,
