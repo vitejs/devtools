@@ -76,6 +76,7 @@
     "@vitejs/plugin-vue": "catalog:build",
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
+    "dompurify": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
     "unplugin-vue": "catalog:build",

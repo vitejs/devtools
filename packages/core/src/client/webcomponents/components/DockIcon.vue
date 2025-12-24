@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import IconifyIcon from './IconifyIcon.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<{
@@ -7,41 +8,26 @@ const props = defineProps<{
   title?: string
 }>()
 
-function getIconUrl(str: string, color: 'dark' | 'light') {
-  if (str.includes('/') || str.startsWith('data:') || str.startsWith('builtin:'))
-    return str
-  const match = str.match(/^([\w-]+):([\w-]+)$/)
-  if (match) {
-    const [, collection, icon] = match
-    return `https://api.iconify.design/${collection}/${icon}.svg${color === 'dark' ? '?color=%23eee' : '?color=%23111'}`
-  }
-  return str
-}
-
 const icon = computed(() => {
   if (typeof props.icon === 'string') {
     return {
-      dark: getIconUrl(props.icon, 'dark'),
-      light: getIconUrl(props.icon, 'light'),
+      dark: props.icon,
+      light: props.icon,
     }
   }
-  return {
-    dark: getIconUrl(props.icon.dark, 'dark'),
-    light: getIconUrl(props.icon.light, 'light'),
-  }
+  return props.icon
 })
 </script>
 
 <template>
   <VitePlusCore v-if="icon.light === 'builtin:vite-plus-core'" />
-  <picture v-else>
-    <source :srcset="icon.dark" media="(prefers-color-scheme: dark)">
-    <source :srcset="icon.light" media="(prefers-color-scheme: light)">
-    <img
-      :src="icon.light"
-      :alt="title"
-      class="w-full h-full m-auto"
-      draggable="false"
-    >
-  </picture>
+  <div v-else>
+    <template v-if="icon.light === icon.dark">
+      <IconifyIcon :icon="icon.light" :title="title" />
+    </template>
+    <template v-else>
+      <IconifyIcon class="dark-hidden" :icon="icon.light" :title="title" />
+      <IconifyIcon class="light-hidden" :icon="icon.dark" :title="title" />
+    </template>
+  </div>
 </template>
