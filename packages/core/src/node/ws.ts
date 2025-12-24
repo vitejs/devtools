@@ -8,8 +8,11 @@ import { createRpcServer } from '@vitejs/devtools-rpc'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
+import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
 import { getInternalContext } from './context-internal'
+
+const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
 export interface CreateWsServerOptions {
   cwd: string
@@ -92,6 +95,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
           // Register AsyncContext for the current RPC call
           return async function (this: any, ...args) {
+            debugInvoked(`${JSON.stringify(name)} from #${rpc.$meta.id}`)
             return await asyncStorage.run({
               rpc,
               meta: rpc.$meta,

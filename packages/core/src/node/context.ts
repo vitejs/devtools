@@ -11,7 +11,6 @@ import { DevToolsViewHost } from './host-views'
 import { builtinRpcDecalrations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
-const debugEvent = createDebug('vite:devtools:context:event')
 
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
@@ -47,14 +46,12 @@ export async function createDevToolsContext(
 
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
-    debugEvent('dock:entry:updated')
     rpcHost.broadcast({
       method: 'vite:internal:docks:updated',
       args: [],
     })
   }, 10))
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
-    debugEvent('terminal:session:updated')
     rpcHost.broadcast({
       method: 'vite:internal:terminals:updated',
       args: [],

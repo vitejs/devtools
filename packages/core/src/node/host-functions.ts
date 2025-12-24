@@ -2,7 +2,10 @@ import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunc
 import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from 'birpc-x'
+import { createDebug } from 'obug'
 import { createRpcSharedStateServerHost } from './rpc-shared-state'
+
+const debugBroadcast = createDebug('vite:devtools:rpc:broadcast')
 
 export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> implements RpcFunctionsHostType {
   /**
@@ -27,6 +30,8 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
   ): Promise<void> {
     if (!this._rpcGroup)
       throw new Error('RpcFunctionsHost] RpcGroup is not set, it likely to be an internal bug of Vite DevTools')
+
+    debugBroadcast(JSON.stringify(options.method))
 
     await Promise.all(
       this._rpcGroup.clients.map((client) => {
