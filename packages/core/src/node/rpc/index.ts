@@ -13,17 +13,17 @@ import { openInEditor } from './public/open-in-editor'
 import { openInFinder } from './public/open-in-finder'
 
 // @keep-sorted
-export const builtinPublicRpcDecalrations = [
+export const builtinPublicRpcDeclarations = [
   openInEditor,
   openInFinder,
 ] as const
 
-export const builtinAnonymousRpcDecalrations = [
+export const builtinAnonymousRpcDeclarations = [
   anonymousAuth,
 ] as const
 
 // @keep-sorted
-export const builtinInternalRpcDecalrations = [
+export const builtinInternalRpcDeclarations = [
   docksList,
   docksOnLaunch,
   rpcServerList,
@@ -34,16 +34,16 @@ export const builtinInternalRpcDecalrations = [
   terminalsRead,
 ] as const
 
-export const builtinRpcDecalrations = [
-  ...builtinPublicRpcDecalrations,
-  ...builtinAnonymousRpcDecalrations,
-  ...builtinInternalRpcDecalrations,
+export const builtinRpcDeclarations = [
+  ...builtinPublicRpcDeclarations,
+  ...builtinAnonymousRpcDeclarations,
+  ...builtinInternalRpcDeclarations,
 ] as const
 
-export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDecalrations>
+export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDeclarations>
 
 export type BuiltinServerFunctionsStatic = RpcDefinitionsToFunctions<
-  RpcDefinitionsFilter<typeof builtinRpcDecalrations, 'static'>
+  RpcDefinitionsFilter<typeof builtinRpcDeclarations, 'static'>
 >
 
 export type BuiltinServerFunctionsDump = {
