@@ -83,6 +83,8 @@ export default defineNuxtConfig({
     },
   },
 
+  debug: false,
+
   vite: {
     base: BASE,
     build: {

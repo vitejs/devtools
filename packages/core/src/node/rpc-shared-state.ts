@@ -1,6 +1,9 @@
 import type { RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } from '@vitejs/devtools-kit'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import { createDebug } from 'obug'
+
+const debug = createDebug('vite:devtools:rpc:shared-state')
 
 export function createRpcSharedStateServerHost(
   rpc: RpcFunctionsHost,
@@ -13,6 +16,7 @@ export function createRpcSharedStateServerHost(
     offs.push(
       state.on('updated', (_fullState, patches, syncId) => {
         if (patches) {
+          debug('patch', { key, syncId })
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:patch',
             args: [key, patches, syncId],
@@ -20,6 +24,7 @@ export function createRpcSharedStateServerHost(
           })
         }
         else {
+          debug('updated', { key, syncId })
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:updated',
             args: [key, syncId],
@@ -44,6 +49,7 @@ export function createRpcSharedStateServerHost(
       if (options?.initialValue === undefined) {
         throw new Error(`Shared state of "${key}" is not found, please provide an initial value for the first time`)
       }
+      debug('new-state', key)
       const state = createSharedState<T>({
         initialState: options.initialValue,
         enablePatches: false,

@@ -1,6 +1,6 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
-import Debug from 'debug'
+import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
 import { searchForWorkspaceRoot } from 'vite'
 import { ContextUtils } from './context-utils'
@@ -10,7 +10,8 @@ import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { builtinRpcDecalrations } from './rpc'
 
-const debug = Debug('vite:devtools:context')
+const debugSetup = createDebug('vite:devtools:context:setup')
+const debugEvent = createDebug('vite:devtools:context:event')
 
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
@@ -46,12 +47,14 @@ export async function createDevToolsContext(
 
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
+    debugEvent('dock:entry:updated')
     rpcHost.broadcast({
       method: 'vite:internal:docks:updated',
       args: [],
     })
   }, 10))
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
+    debugEvent('terminal:session:updated')
     rpcHost.broadcast({
       method: 'vite:internal:terminals:updated',
       args: [],
@@ -76,7 +79,7 @@ export async function createDevToolsContext(
     if (!plugin.devtools?.setup)
       continue
     try {
-      debug(`Setting up plugin ${plugin.name}`)
+      debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {
