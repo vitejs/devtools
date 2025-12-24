@@ -7,6 +7,7 @@ import { rpcServerList } from './internal/rpc-server-list'
 import { sharedStateGet } from './internal/state/get'
 import { sharedStatePatch } from './internal/state/patch'
 import { sharedStateSet } from './internal/state/set'
+import { sharedStateSubscribe } from './internal/state/subscribe'
 import { terminalsList } from './internal/terminals-list'
 import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
@@ -30,6 +31,7 @@ export const builtinInternalRpcDeclarations = [
   sharedStateGet,
   sharedStatePatch,
   sharedStateSet,
+  sharedStateSubscribe,
   terminalsList,
   terminalsRead,
 ] as const
@@ -58,7 +60,7 @@ declare module '@vitejs/devtools-kit' {
     'vite:internal:docks:updated': () => Promise<void>
 
     'vite:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
-    'vite:internal:rpc:client-state:updated': (key: string, syncId: string) => Promise<void>
+    'vite:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
     'vite:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
     'vite:internal:terminals:updated': () => Promise<void>

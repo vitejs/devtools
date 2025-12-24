@@ -15,6 +15,9 @@
       "@vitejs/devtools-rpc/presets/ws/client": [
         "./packages/rpc/src/presets/ws/client.ts"
       ],
+      "@vitejs/devtools-rpc/presets": [
+        "./packages/rpc/src/presets/index.ts"
+      ],
       "@vitejs/devtools-rpc": [
         "./packages/rpc/src"
       ],

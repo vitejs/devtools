@@ -11,6 +11,7 @@ export interface DevToolsNodeRpcSessionMeta {
   ws?: WebSocket
   clientAuthId?: string
   isTrusted?: boolean
+  subscribedStates: Set<string>
 }
 
 export interface WebSocketRpcServerOptions {
@@ -59,6 +60,7 @@ export const createWsRpcPreset: RpcServerPreset<
       const meta: DevToolsNodeRpcSessionMeta = {
         id: id++,
         ws,
+        subscribedStates: new Set(),
       }
 
       const channel: ChannelOptions = {

@@ -9,22 +9,22 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
   rpc.client.register({
     name: 'vite:internal:rpc:client-state:updated',
     type: 'event',
-    handler: async (key: string, syncId: string) => {
+    handler: (key: string, fullState: any, syncId: string) => {
       const state = sharedState.get(key)
       if (!state || state.syncIds.has(syncId))
         return
-      const newState = await rpc.call('vite:internal:rpc:server-state:get', key)
-      state.mutate(() => newState, syncId)
+      state.mutate(() => fullState, syncId)
     },
   })
 
   rpc.client.register({
     name: 'vite:internal:rpc:client-state:patch',
     type: 'event',
-    handler: async (key: string, patches: SharedStatePatch[], syncId: string) => {
+    handler: (key: string, patches: SharedStatePatch[], syncId: string) => {
       const state = sharedState.get(key)
-      if (state)
-        state.patch(patches, syncId)
+      if (!state || state.syncIds.has(syncId))
+        return
+      state.patch(patches, syncId)
     },
   })
 
@@ -61,6 +61,7 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
         return state
       }
       else {
+        rpc.callEvent('vite:internal:rpc:server-state:subscribe', key)
         const initialState = await rpc.call('vite:internal:rpc:server-state:get', key) as T
         const state = createSharedState<T>({
           initialState,

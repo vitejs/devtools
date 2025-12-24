@@ -3,7 +3,7 @@ import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createDebug } from 'obug'
 
-const debug = createDebug('vite:devtools:rpc:shared-state')
+const debug = createDebug('vite:devtools:rpc:state:changed')
 
 export function createRpcSharedStateServerHost(
   rpc: RpcFunctionsHost,
@@ -14,21 +14,21 @@ export function createRpcSharedStateServerHost(
     const offs: (() => void)[] = []
 
     offs.push(
-      state.on('updated', (_fullState, patches, syncId) => {
+      state.on('updated', (fullState, patches, syncId) => {
         if (patches) {
           debug('patch', { key, syncId })
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:patch',
             args: [key, patches, syncId],
-            // TODO: filter: broadcast to clients only subscribed to its
+            filter: client => client.$meta.subscribedStates.has(key),
           })
         }
         else {
           debug('updated', { key, syncId })
           rpc.broadcast({
             method: 'vite:internal:rpc:client-state:updated',
-            args: [key, syncId],
-            // TODO: filter: broadcast to clients only subscribed to its
+            args: [key, fullState, syncId],
+            filter: client => client.$meta.subscribedStates.has(key),
           })
         }
       }),
