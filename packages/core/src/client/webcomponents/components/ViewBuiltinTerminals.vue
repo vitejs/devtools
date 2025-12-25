@@ -34,7 +34,7 @@ watchImmediate(
         :class="{ 'bg-active': selectedTerminal?.info.id === terminal.info.id }"
         @click="selectedTerminal = terminal"
       >
-        <DockIcon :icon="terminal.info.icon || 'ph:terminal-duotone'" />
+        <DockIcon :icon="terminal.info.icon || 'ph:terminal-duotone'" class="w-4 h-4" />
         <span>{{ terminal.info.title }}</span>
       </button>
     </div>
