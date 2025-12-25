@@ -51,7 +51,7 @@ export function createRpcSharedStateServerHost(
       }
       debug('new-state', key)
       const state = createSharedState<T>({
-        initialState: options.initialValue,
+        initialValue: options.initialValue,
         enablePatches: false,
       })
       registerSharedState(key, state)

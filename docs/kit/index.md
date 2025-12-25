@@ -396,30 +396,6 @@ export default function myPlugin(): Plugin {
 
 The `broadcast` method returns a promise that resolves to an array of results from all clients (some may be `undefined` if the client doesn't implement the function).
 
-**Example: Broadcasting dock updates**
-
-Here's a real-world example of how the built-in docks system broadcasts updates:
-
-```ts
-// When a dock entry is updated, broadcast to all clients
-docksHost.events.on('dock:entry:updated', () => {
-  rpcHost.broadcast('vite:internal:docks:updated')
-})
-```
-
-And on the client side:
-
-```ts
-rpc.client.register({
-  name: 'vite:internal:docks:updated' satisfies keyof DevToolsRpcClientFunctions,
-  type: 'action',
-  handler: async () => {
-    // Refresh the dock entries list
-    await updateDocksEntries()
-  },
-})
-```
-
 ### Shared State
 
 The DevTools Kit provides a built-in shared state system that enables you to share data between the server and client with automatic synchronization.

@@ -54,7 +54,7 @@ export interface SharedStateOptions<T> {
   /**
    * Initial state.
    */
-  initialState: T
+  initialValue: T
   /**
    * Enable patches.
    *
@@ -71,7 +71,7 @@ export function createSharedState<T extends Objectish>(
   } = options
 
   const events = createEventEmitter<SharedStateEvents<T>>()
-  let state = options.initialState
+  let state = options.initialValue
   const syncIds = new Set<string>()
 
   return {

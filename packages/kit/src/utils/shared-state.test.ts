@@ -6,7 +6,7 @@ describe('shared-state', () => {
   describe('immutability', () => {
     it('should return immutable state from get()', () => {
       const state = createSharedState({
-        initialState: { count: 0, items: ['a', 'b'] },
+        initialValue: { count: 0, items: ['a', 'b'] },
       })
 
       const currentState = state.value()
@@ -21,7 +21,7 @@ describe('shared-state', () => {
 
     it('should not mutate original state when mutating returned state directly', () => {
       const state = createSharedState({
-        initialState: { count: 0, nested: { value: 'test' } },
+        initialValue: { count: 0, nested: { value: 'test' } },
       })
 
       const state1 = state.value()
@@ -43,7 +43,7 @@ describe('shared-state', () => {
 
     it('should return new immutable state after mutation', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       const state1 = state.value()
@@ -60,7 +60,7 @@ describe('shared-state', () => {
 
     it('should maintain immutability for nested objects', () => {
       const state = createSharedState({
-        initialState: {
+        initialValue: {
           user: {
             name: 'Alice',
             profile: {
@@ -94,7 +94,7 @@ describe('shared-state', () => {
 
     it('should maintain immutability for arrays', () => {
       const state = createSharedState({
-        initialState: { items: [1, 2, 3] },
+        initialValue: { items: [1, 2, 3] },
       })
 
       const state1 = state.value()
@@ -120,7 +120,7 @@ describe('shared-state', () => {
   describe('sync dead loop prevention', () => {
     it('should prevent duplicate mutations with same syncId', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       const syncId = 'test-sync-id'
@@ -144,7 +144,7 @@ describe('shared-state', () => {
 
     it('should prevent duplicate patches with same syncId', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
         enablePatches: true,
       })
 
@@ -179,7 +179,7 @@ describe('shared-state', () => {
 
     it('should allow different mutations with different syncIds', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       state.mutate((draft) => {
@@ -199,7 +199,7 @@ describe('shared-state', () => {
 
     it('should prevent sync loop when mutate triggers event listener that mutates again', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       const syncId = 'loop-sync-id'
@@ -226,7 +226,7 @@ describe('shared-state', () => {
 
     it('should prevent sync loop when patch triggers event listener that patches again', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
         enablePatches: true,
       })
 
@@ -262,7 +262,7 @@ describe('shared-state', () => {
 
     it('should generate unique syncIds when not provided', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       // Multiple mutations without syncId should all succeed
@@ -283,7 +283,7 @@ describe('shared-state', () => {
 
     it('should track syncIds correctly', () => {
       const state = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
 
       expect(state.syncIds.size).toBe(0)
@@ -306,10 +306,10 @@ describe('shared-state', () => {
 
     it('should able to sync between two shared states', () => {
       const state1 = createSharedState({
-        initialState: { count: 0 },
+        initialValue: { count: 0 },
       })
       const state2 = createSharedState({
-        initialState: { count: 10 },
+        initialValue: { count: 10 },
       })
 
       const clone = <T>(s: T): T => JSON.parse(JSON.stringify(s)) as T

@@ -44,23 +44,19 @@ export async function createDevToolsContext(
     rpcHost.register(fn)
   }
 
+  const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
+
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
-    rpcHost.broadcast({
-      method: 'vite:internal:docks:updated',
-      args: [],
-    })
+    docksSharedState.mutate(() => context.docks.values())
   }, 10))
+
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
     rpcHost.broadcast({
       method: 'vite:internal:terminals:updated',
       args: [],
     })
-    // New terminals might affect the visibility of the terminals dock entry, we trigger it here as well
-    rpcHost.broadcast({
-      method: 'vite:internal:docks:updated',
-      args: [],
-    })
+    docksSharedState.mutate(() => context.docks.values())
   }, 10))
   terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
     rpcHost.broadcast({

@@ -8,16 +8,16 @@ export interface CreateStorageOptions<T extends object> {
 }
 
 export function createStorage<T extends object>(options: CreateStorageOptions<T>) {
-  let initialState: T
+  let initialValue: T
   if (fs.existsSync(options.filepath)) {
-    initialState = JSON.parse(fs.readFileSync(options.filepath, 'utf-8')) as T
+    initialValue = JSON.parse(fs.readFileSync(options.filepath, 'utf-8')) as T
   }
   else {
-    initialState = options.initialValue
+    initialValue = options.initialValue
   }
 
   const state = createSharedState<T>({
-    initialState,
+    initialValue,
     enablePatches: false,
   })
 

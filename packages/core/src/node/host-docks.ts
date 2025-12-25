@@ -1,4 +1,4 @@
-import type { DevToolsDockHost as DevToolsDockHostType, DevToolsDockUserEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
@@ -10,8 +10,24 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   ) {
   }
 
-  values(): DevToolsDockUserEntry[] {
-    return Array.from(this.views.values())
+  values(): DevToolsDockEntry[] {
+    const context = this.context
+    const builtinDocksEntries: DevToolsViewBuiltin[] = [
+      {
+        type: '~builtin',
+        id: '~terminals',
+        title: 'Terminals',
+        icon: 'ph:terminal-duotone',
+        get isHidden() {
+          return context.terminals.sessions.size === 0
+        },
+      },
+    ]
+
+    return [
+      ...Array.from(this.views.values()),
+      ...builtinDocksEntries,
+    ]
   }
 
   register<T extends DevToolsDockUserEntry>(view: T, force?: boolean): {

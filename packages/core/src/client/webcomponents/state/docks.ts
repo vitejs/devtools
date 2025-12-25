@@ -1,5 +1,6 @@
-import type { DevToolsDockEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient, DockEntryState, DockEntryStateEvents, DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref, ShallowRef } from 'vue'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { markRaw, reactive, shallowRef, watch } from 'vue'
@@ -64,31 +65,20 @@ export function createDockEntryState(
   return state
 }
 
+function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> {
+  const ref = shallowRef<T>(sharedState.value() as T)
+  sharedState.on('updated', (newState: T) => {
+    ref.value = newState
+  })
+  return ref
+}
+
 let _docksEntriesRef: ShallowRef<DevToolsDockEntry[]> | undefined
 export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevToolsDockEntry[]>> {
   if (_docksEntriesRef) {
     return _docksEntriesRef
   }
-  const dockEntries = _docksEntriesRef = shallowRef<DevToolsDockEntry[]>([])
-  async function updateDocksEntries() {
-    if (!rpc.isTrusted) {
-      console.warn('[VITE DEVTOOLS] Untrusted client, skipping docks entries update')
-      return
-    }
-    dockEntries.value = (await rpc.call('vite:internal:docks:list'))
-      .map(entry => Object.freeze(entry))
-    // eslint-disable-next-line no-console
-    console.log('[VITE DEVTOOLS] Docks Entries Updated', [...dockEntries.value])
-  }
-  rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
-    if (isTrusted)
-      updateDocksEntries()
-  })
-  rpc.client.register({
-    name: 'vite:internal:docks:updated' satisfies keyof DevToolsRpcClientFunctions,
-    type: 'action',
-    handler: () => updateDocksEntries(),
-  })
-  await updateDocksEntries()
-  return dockEntries
+  const state = await rpc.sharedState.get('vite:internal:docks', { initialValue: [] })
+  _docksEntriesRef = sharedStateToRef(state)
+  return _docksEntriesRef
 }
