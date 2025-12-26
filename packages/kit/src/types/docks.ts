@@ -10,7 +10,7 @@ export interface DevToolsDockHost {
     update: (patch: Partial<T>) => void
   }
   update: (entry: DevToolsDockUserEntry) => void
-  values: () => DevToolsDockEntry[]
+  values: (options?: { includeBuiltin?: boolean }) => DevToolsDockEntry[]
 }
 
 // TODO: refine categories more clearly

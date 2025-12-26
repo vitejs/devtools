@@ -10,7 +10,11 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   ) {
   }
 
-  values(): DevToolsDockEntry[] {
+  values({
+    includeBuiltin = true,
+  }: {
+    includeBuiltin?: boolean
+  } = {}): DevToolsDockEntry[] {
     const context = this.context
     const builtinDocksEntries: DevToolsViewBuiltin[] = [
       {
@@ -26,7 +30,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
     return [
       ...Array.from(this.views.values()),
-      ...builtinDocksEntries,
+      ...(includeBuiltin ? builtinDocksEntries : []),
     ]
   }
 

@@ -181,7 +181,7 @@ describe('devToolsDockHost', () => {
         url: 'http://localhost:3001',
       })
 
-      const docks = host.values()
+      const docks = host.values({ includeBuiltin: false })
       expect(docks.length).toBe(1)
       expect(docks[0]?.title).toBe('Updated')
     })
