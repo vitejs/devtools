@@ -26,6 +26,19 @@ export class DevToolsDockHost implements DevToolsDockHostType {
           return context.terminals.sessions.size === 0
         },
       },
+      {
+        type: '~builtin',
+        id: '~logs',
+        title: 'Logs',
+        icon: 'ph:notification-duotone',
+        isHidden: true, // TODO: implement logs
+      },
+      {
+        type: '~builtin',
+        id: '~settings',
+        title: 'Settings',
+        icon: 'ph:gear-duotone',
+      },
     ]
 
     return [

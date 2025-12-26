@@ -107,11 +107,11 @@ export default defineConfig({
           })
 
           ctx.docks.register({
-            id: 'devtools-tab',
+            id: 'shared-state',
             type: 'iframe',
             url: '/devtools/',
-            title: 'DevTools',
-            icon: 'ph:gear-duotone',
+            title: 'Shared State',
+            icon: 'ph:database-duotone',
           })
 
           ctx.docks.register({
