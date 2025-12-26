@@ -10,7 +10,7 @@ const isUrlIcon = computed(() => props.icon.includes('/') || props.icon.startsWi
 const iconifyParsed = computed(() => {
   if (isUrlIcon.value)
     return undefined
-  const match = props.icon.match(/^([\w-]+):([\w-]+)$/)
+  const match = props.icon.match(/^(?:i-)?([\w-]+):([\w-]+)$/)
   if (!match)
     return undefined
   return {
