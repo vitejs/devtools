@@ -13,22 +13,22 @@ catalogs:
     '@antfu/ni': ^28.0.0
     '@nuxt/kit': ^4.2.2
     '@nuxt/vite-builder': https://pkg.pr.new/@nuxt/vite-builder@33682
-    '@unocss/nuxt': ^66.5.10
+    '@unocss/nuxt': ^66.5.11
     '@vitejs/plugin-vue': ^6.0.3
     '@vueuse/nuxt': ^14.1.0
     esbuild: ^0.27.2
     magic-string: ^0.30.21
     nitropack: ^2.12.9
     nuxt: ^4.2.2
-    rolldown: ^1.0.0-beta.56
-    tsdown: ^0.18.2
+    rolldown: ^1.0.0-beta.57
+    tsdown: ^0.18.3
     tsx: ^4.21.0
     turbo: ^2.7.2
     unplugin-vue: ^7.1.0
-    vite: ^8.0.0-beta.4
+    vite: ^8.0.0-beta.5
   deps:
     '@pnpm/read-project-manifest': ^1001.2.3
-    '@rolldown/debug': ^1.0.0-beta.56
+    '@rolldown/debug': ^1.0.0-beta.57
     ansis: ^4.2.0
     birpc: ^4.0.0
     birpc-x: 0.0.6
@@ -61,7 +61,7 @@ catalogs:
     '@nuxt/devtools': ^3.1.1
     '@nuxt/eslint': ^1.12.1
     '@typescript-eslint/utils': ^8.50.1
-    '@unocss/eslint-config': ^66.5.10
+    '@unocss/eslint-config': ^66.5.11
     bumpp: ^10.3.2
     chokidar: ^5.0.0
     eslint: ^9.39.2
