@@ -71,6 +71,11 @@
     "vue-tsc": "catalog:devtools",
     "yaml": "catalog:testing"
   },
+  "pnpm": {
+    "overrides": {
+      "twoslash-vue": "^0.3.6"
+    }
+  },
   "resolutions": {
     "@jridgewell/sourcemap-codec": "catalog:resolutions",
     "@nuxt/devtools": "catalog:devtools",

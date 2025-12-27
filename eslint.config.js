@@ -14,4 +14,5 @@ export default antfu({
   })
   .removeRules(
     'vue/no-template-shadow',
+    'pnpm/json-prefer-workspace-settings',
   )
