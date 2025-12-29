@@ -1,4 +1,3 @@
-import type { PnpmError } from '@pnpm/error'
 import type { PackageInfo } from '../../../shared/types'
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
@@ -121,9 +120,8 @@ export const rolldownGetPackages = defineRpcFunction({
                         manifest = await readProjectManifestOnly(getPackageDirPath(i.path))
                       }
                     }
-                    catch (err) {
-                      const pnpmError = err as PnpmError
-                      if (pnpmError.code !== 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
+                    catch (err: any) {
+                      if (err?.code !== 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
                         throw err
                       }
                     }
