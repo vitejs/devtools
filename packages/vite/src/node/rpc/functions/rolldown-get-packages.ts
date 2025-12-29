@@ -1,3 +1,4 @@
+import type { PnpmError } from '@pnpm/error'
 import type { PackageInfo } from '../../../shared/types'
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
@@ -42,8 +43,21 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
     }
   })
   await Promise.all(packages.map(async (p) => {
-    const manifest = await readProjectManifestOnly(p.dir)
-    const packageKey = `${manifest.name!}@${manifest.version!}`
+    let packageKey = ''
+    let manifest = null
+
+    try {
+      manifest = await readProjectManifestOnly(p.dir)
+      packageKey = `${manifest.name!}@${manifest.version!}`
+    }
+    catch (err: any) {
+      if (err?.code === 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
+        packageKey = `${p.dir}`
+      }
+      else {
+        throw err
+      }
+    }
     const packageInfo = packagesManifest.get(packageKey)
     const importers = getImporters(p.path, p.dir).map(i => ({ path: i, version: '' }))
     if (packageInfo) {
@@ -59,8 +73,8 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
     }
     else {
       packagesManifest.set(packageKey, {
-        name: manifest.name!,
-        version: manifest.version!,
+        name: manifest?.name || p.dir,
+        version: manifest?.version || '(unknown)',
         dir: p.dir,
         files: [{
           path: p.path,
@@ -101,7 +115,18 @@ export const rolldownGetPackages = defineRpcFunction({
               if (duplicated) {
                 files = await Promise.all(files.map(async (f) => {
                   const importers = await Promise.all(f.importers.map(async (i) => {
-                    const manifest = isNodeModulePath(i.path) ? await readProjectManifestOnly(getPackageDirPath(i.path)) : null
+                    let manifest = null
+                    try {
+                      if (isNodeModulePath(i.path)) {
+                        manifest = await readProjectManifestOnly(getPackageDirPath(i.path))
+                      }
+                    }
+                    catch (err) {
+                      const pnpmError = err as PnpmError
+                      if (pnpmError.code !== 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
+                        throw err
+                      }
+                    }
                     return { ...i, version: manifest?.version ?? '' }
                   }))
                   return { ...f, importers }
