@@ -51,33 +51,48 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
       if (sharedState.has(key)) {
         return sharedState.get(key)!
       }
-      rpc.callEvent('vite:internal:rpc:server-state:subscribe', key)
-      if (options?.initialValue !== undefined) {
-        const state = createSharedState<T>({
-          initialValue: options.initialValue,
-          enablePatches: false,
-        })
-        sharedState.set(key, state)
-        rpc.call('vite:internal:rpc:server-state:get', key)
-          .then((serverState) => {
-            state.mutate(() => serverState)
-          })
-          .catch((error) => {
-            console.error('Error getting server state', error)
-          })
-        registerSharedState(key, state)
-        return state
+
+      const state = createSharedState<T>({
+        initialValue: options?.initialValue as T,
+        enablePatches: false,
+      })
+
+      async function initSharedState() {
+        rpc.callEvent('vite:internal:rpc:server-state:subscribe', key)
+        if (options?.initialValue !== undefined) {
+          sharedState.set(key, state)
+          rpc.call('vite:internal:rpc:server-state:get', key)
+            .then((serverState) => {
+              state.mutate(() => serverState)
+            })
+            .catch((error) => {
+              console.error('Error getting server state', error)
+            })
+          registerSharedState(key, state)
+          return state
+        }
+        else {
+          const initialValue = await rpc.call('vite:internal:rpc:server-state:get', key) as T
+          state.mutate(() => initialValue)
+          sharedState.set(key, state)
+          registerSharedState(key, state)
+          return state
+        }
       }
-      else {
-        const initialValue = await rpc.call('vite:internal:rpc:server-state:get', key) as T
-        const state = createSharedState<T>({
-          initialValue,
-          enablePatches: false,
-        })
-        sharedState.set(key, state)
-        registerSharedState(key, state)
-        return state
-      }
+
+      return new Promise<SharedState<T>>((resolve) => {
+        if (!rpc.isTrusted) {
+          resolve(state)
+          rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+            if (isTrusted) {
+              initSharedState()
+            }
+          })
+        }
+        else {
+          initSharedState().then(resolve)
+        }
+      })
     },
   }
 }
