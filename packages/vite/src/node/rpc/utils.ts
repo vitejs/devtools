@@ -10,12 +10,12 @@ export function getLogsManager(context: DevToolsNodeContext): RolldownLogsManage
   let manager = weakMap.get(context)!
   if (!manager) {
     const dirs = [
-      join(context.cwd, '.rolldown'),
-      join(process.cwd(), '.rolldown'),
+      join(context.cwd, 'node_modules', '.rolldown'),
+      join(process.cwd(), 'node_modules', '.rolldown'),
     ]
     const dir = dirs.find(dir => existsSync(dir))
     if (!dir) {
-      console.warn('[Vite DevTools] Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.debug` enabled first.')
+      console.warn('[Vite DevTools] Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.')
     }
     manager = new RolldownLogsManager(dir ?? dirs[0]!)
   }
