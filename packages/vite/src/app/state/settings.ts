@@ -22,7 +22,7 @@ export interface ClientSettings {
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
-  chunkViewType: 'list' | 'detailed-list' | 'graph'
+  chunkViewType: 'list' | 'detailed-list' | 'graph' | 'treemap' | 'sunburst' | 'flamegraph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
   packageViewType: 'table' | 'treemap' | 'duplicate-packages'
   packageSizeSortType: string
