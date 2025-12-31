@@ -2,7 +2,7 @@
 import type { PackageInfo, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import { useCycleList } from '@vueuse/core'
-import { Menu as VMenu } from 'floating-vue'
+import { Tooltip, Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'
 
 withDefaults(defineProps<{
@@ -69,9 +69,23 @@ function toggleSizeSortType() {
           :class="[index === packages.length - 1 ? 'border-b-0' : '']"
           :to="{ path: route.path, query: { package: `${item.name}@${item.version}` } }"
         >
-          <div v-if="!groupView" role="cell" font-mono flex-none min-w80 py1.5 px2 ws-nowrap text-sm>
-            <DisplayHighlightedPackageName :name="item.name" />
-          </div>
+          <Tooltip
+            :triggers="['hover']"
+            :delay="1200"
+            :disabled="item.name.length < 30"
+          >
+            <div
+              v-if="!groupView" role="cell" font-mono flex-none w80 py1.5 px2 ws-nowrap text-sm overflow-hidden
+              truncate
+            >
+              <DisplayHighlightedPackageName :name="item.name" />
+            </div>
+            <template #popper>
+              <span font-mono text-sm>
+                {{ item.name }}
+              </span>
+            </template>
+          </Tooltip>
           <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80 :class="{ 'text-primary': item.duplicated }">
             {{ item.version }}
           </div>
