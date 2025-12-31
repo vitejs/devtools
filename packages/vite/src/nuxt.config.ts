@@ -89,7 +89,7 @@ export default defineNuxtConfig({
     base: BASE,
     build: {
       rolldownOptions: {
-        debug: {},
+        devtools: {},
       },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,

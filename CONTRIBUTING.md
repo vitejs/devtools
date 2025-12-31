@@ -12,11 +12,11 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ```bash
 pnpm install
-pnpm build  # Required: generates Rolldown meta under ./packages/vite/.rolldown
+pnpm build  # Required: generates Rolldown meta under ./packages/vite/node_modules/.rolldown
 pnpm dev    # Start dev server
 ```
 
-**Note**: After pulling latest commits, remove `./packages/vite/.rolldown` and rebuild to get the latest data format.
+**Note**: After pulling latest commits, remove `./packages/vite/node_modules/.rolldown` and rebuild to get the latest data format.
 
 ## Project Structure
 
@@ -62,7 +62,7 @@ Built-in UI panel for Vite/Rolldown integration.
 
 **Key files**: `src/index.ts` (plugin entry), `src/` (Nuxt app)
 
-**Note**: Build generates Rolldown metadata in `.rolldown` folder.
+**Note**: Build generates Rolldown metadata in `node_modules/.rolldown` folder.
 
 ---
 
