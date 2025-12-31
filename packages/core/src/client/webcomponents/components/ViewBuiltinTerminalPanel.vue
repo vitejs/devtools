@@ -5,7 +5,7 @@ import type { TerminalState } from '../state/terminals'
 import { useEventListener } from '@vueuse/core'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
-import { markRaw, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { markRaw, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -25,6 +25,15 @@ onMounted(async () => {
   term.loadAddon(fitAddon)
   term.open(container.value!)
   fitAddon.fit()
+
+  watch([
+    () => props.context.panel.store.width,
+    () => props.context.panel.store.height,
+  ], () => {
+    nextTick(() => {
+      fitAddon.fit()
+    })
+  })
 
   useEventListener(window, 'resize', () => {
     fitAddon.fit()
