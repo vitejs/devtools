@@ -20,7 +20,7 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.12.9
     nuxt: ^4.2.2
-    rolldown: https://pkg.pr.new/rolldown/rolldown@567fd28
+    rolldown: ^1.0.0-beta.58
     tsdown: ^0.18.3
     tsx: ^4.21.0
     turbo: ^2.7.2
@@ -28,7 +28,7 @@ catalogs:
     vite: ^8.0.0-beta.5
   deps:
     '@pnpm/read-project-manifest': ^1001.2.3
-    '@rolldown/debug': https://pkg.pr.new/@rolldown/debug@567fd28
+    '@rolldown/debug': ^1.0.0-beta.58
     ansis: ^4.2.0
     birpc: ^4.0.0
     birpc-x: 0.0.6
