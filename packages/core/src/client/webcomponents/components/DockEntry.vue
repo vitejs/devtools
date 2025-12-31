@@ -12,6 +12,10 @@ const props = defineProps<{
   isVertical?: boolean
 }>()
 
+const emit = defineEmits<{
+  (e: 'contextmenu', event: { entry: DevToolsDockEntryBase, position: { x: number, y: number } }): void
+}>()
+
 const button = useTemplateRef<HTMLButtonElement>('button')
 
 function updatePos() {
@@ -35,6 +39,15 @@ function clearTitle() {
   setFloatingTooltip(null)
 }
 
+function onContextMenu(e: MouseEvent) {
+  e.preventDefault()
+  clearTitle()
+  emit('contextmenu', {
+    entry: props.dock,
+    position: { x: e.clientX, y: e.clientY },
+  })
+}
+
 useEventListener('pointerdown', () => {
   setFloatingTooltip(null)
 })
@@ -46,6 +59,7 @@ useEventListener('pointerdown', () => {
     class="relative group vite-devtools-dock-entry"
     @pointerenter="showTitle"
     @pointerleave="clearTitle"
+    @contextmenu="onContextMenu"
   >
     <button
       ref="button"

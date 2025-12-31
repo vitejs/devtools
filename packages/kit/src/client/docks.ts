@@ -79,7 +79,19 @@ export interface DockEntryState {
     iframe?: HTMLIFrameElement | null
     panel?: HTMLDivElement | null
   }
+  /**
+   * Per-entry settings that can be toggled by the user
+   */
+  settings: DockEntrySettings
   events: Raw<EventEmitter<DockEntryStateEvents>>
+}
+
+export interface DockEntrySettings {
+  /**
+   * Whether to show the address bar for iframe entries
+   * @default false
+   */
+  showAddressBar: boolean
 }
 
 export interface DockEntryStateEvents {

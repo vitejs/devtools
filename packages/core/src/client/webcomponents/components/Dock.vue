@@ -307,6 +307,7 @@ onMounted(() => {
         </div>
         <DockEntries
           :entries="context.docks.entries"
+          :context="context"
           class="transition duration-200 flex items-center w-full h-full justify-center px3"
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
           :is-vertical="context.panel.isVertical"

@@ -22,6 +22,8 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         id: '~terminals',
         title: 'Terminals',
         icon: 'ph:terminal-duotone',
+        category: 'advanced',
+        defaultOrder: -100,
         get isHidden() {
           return context.terminals.sessions.size === 0
         },
@@ -31,6 +33,8 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         id: '~logs',
         title: 'Logs',
         icon: 'ph:notification-duotone',
+        category: 'advanced',
+        defaultOrder: -101,
         isHidden: true, // TODO: implement logs
       },
       {
@@ -38,13 +42,15 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         id: '~settings',
         title: 'Settings',
         icon: 'ph:gear-duotone',
+        category: 'advanced',
+        defaultOrder: -999,
       },
     ]
 
     return [
       ...Array.from(this.views.values()),
       ...(includeBuiltin ? builtinDocksEntries : []),
-    ]
+    ].sort((a, b) => (b.defaultOrder ?? 0) - (a.defaultOrder ?? 0))
   }
 
   register<T extends DevToolsDockUserEntry>(view: T, force?: boolean): {

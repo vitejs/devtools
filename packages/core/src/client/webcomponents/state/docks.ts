@@ -28,6 +28,9 @@ export function createDockEntryState(
       return selected.value?.id === entry.id
     },
     domElements: {},
+    settings: {
+      showAddressBar: false,
+    },
     events: markRaw(events),
   })
 
