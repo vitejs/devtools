@@ -1,0 +1,273 @@
+# Logger Migration Examples
+
+This document shows before/after examples of migrating existing `console.*` calls to the unified logger API.
+
+## Node.js (Server) Examples
+
+### packages/core/src/node/ws.ts
+
+**Before:**
+```typescript
+import c from 'ansis'
+import { MARK_INFO } from './constants'
+
+// ...
+
+if (isClientAuthDisabled) {
+  console.warn('[Vite DevTools] Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
+}
+
+// ...
+
+console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+
+// ...
+
+console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
+
+// ...
+
+console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
+console.error(error)
+```
+
+**After:**
+```typescript
+import { createNodeLogger } from '@vitejs/devtools-kit/utils/logger-node'
+
+const logger = createNodeLogger({ scope: 'vite-devtools:ws' })
+
+// ...
+
+if (isClientAuthDisabled) {
+  logger.warn('Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
+}
+
+// ...
+
+logger.info('Websocket client connected', {
+  id: meta.id,
+  clientAuthId: meta.clientAuthId,
+  trusted: meta.isTrusted
+})
+
+// ...
+
+logger.info('Websocket client disconnected', { id: meta.id })
+
+// ...
+
+logger.error('RPC error on executing method', { method: name, error })
+```
+
+---
+
+### packages/core/src/node/context.ts
+
+**Before:**
+```typescript
+catch (error) {
+  console.error(`[Vite DevTools] Error setting up plugin ${plugin.name}:`, error)
+  throw error
+}
+```
+
+**After:**
+```typescript
+import { createNodeLogger } from '@vitejs/devtools-kit/utils/logger-node'
+
+const logger = createNodeLogger({ scope: 'vite-devtools:context' })
+
+// ...
+
+catch (error) {
+  logger.error(`Error setting up plugin ${plugin.name}`, {
+    plugin: plugin.name,
+    error: error as Error
+  })
+  throw error
+}
+```
+
+---
+
+### packages/core/src/node/cli-commands.ts
+
+**Before:**
+```typescript
+console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
+
+console.log(c.cyan`${MARK_NODE} Building static Vite DevTools...`)
+```
+
+**After:**
+```typescript
+import { createNodeLogger } from '@vitejs/devtools-kit/utils/logger-node'
+
+const logger = createNodeLogger({ scope: 'vite-devtools:cli' })
+
+// ...
+
+logger.info(`Vite DevTools started at http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`)
+
+logger.info('Building static Vite DevTools...')
+```
+
+---
+
+## Client (Browser) Examples
+
+### packages/core/src/client/inject/index.ts
+
+**Before:**
+```typescript
+console.log('[VITE DEVTOOLS] Client injected')
+
+// ...
+
+console.log('[VITE DEVTOOLS] Skipping in iframe')
+```
+
+**After:**
+```typescript
+import { createClientLogger } from '@vitejs/devtools-kit/utils/logger-client'
+
+const logger = createClientLogger({ scope: 'vite-devtools:inject' })
+
+// ...
+
+logger.info('Client injected')
+
+// ...
+
+logger.info('Skipping in iframe')
+```
+
+---
+
+### packages/core/src/client/webcomponents/state/setup-script.ts
+
+**Before:**
+```typescript
+.catch((error) => {
+  // TODO: maybe popup a error toast here?
+  // TODO: A unified logger API
+  console.error('[VITE DEVTOOLS] Error executing import action', error)
+  return Promise.reject(error)
+})
+```
+
+**After:**
+```typescript
+import { createClientLogger } from '@vitejs/devtools-kit/utils/logger-client'
+
+const logger = createClientLogger({ scope: 'vite-devtools:setup-script' })
+
+// ...
+
+  .catch((error) => {
+    logger.error('Error executing import action', {
+      entryId: id,
+      error: error as Error
+    })
+    // TODO: integrate with toast notification system
+    return Promise.reject(error)
+  })
+```
+
+---
+
+### packages/vite/src/app/composables/rpc.ts
+
+**Before:**
+```typescript
+rpcOptions: {
+  onGeneralError: (e, name) => {
+    connectionState.error = e
+    console.error(`[vite-devtools] RPC error on executing "${name}":`)
+  },
+  onFunctionError: (e, name) => {
+    connectionState.error = e
+    console.error(`[vite-devtools] RPC error on executing "${name}":`)
+  },
+},
+```
+
+**After:**
+```typescript
+import { createClientLogger } from '@vitejs/devtools-kit/utils/logger-client'
+
+const logger = createClientLogger({ scope: 'vite-devtools:rpc' })
+
+// ...
+
+rpcOptions: {
+  onGeneralError: (e, name) => {
+    connectionState.error = e
+    logger.error(`RPC error on executing "${name}"`, { method: name, error: e })
+  },
+  onFunctionError: (e, name) => {
+    connectionState.error = e
+    logger.error(`RPC error on executing "${name}"`, { method: name, error: e })
+  },
+},
+```
+
+---
+
+## Log Aggregation Integration
+
+To enable the Logs panel in the DevTools, the context needs to collect logs:
+
+```typescript
+// packages/core/src/node/context.ts
+import { createNodeLogger, createLogCollector } from '@vitejs/devtools-kit/utils/logger'
+
+export async function createDevToolsContext(...) {
+  // Create log collector for the Logs panel
+  const logCollector = createLogCollector({ maxEntries: 2000 })
+
+  // Create logger that feeds into collector
+  const logger = createNodeLogger({
+    scope: 'vite-devtools',
+    onLog: (entry) => logCollector.add(entry),
+  })
+
+  const context: DevToolsNodeContext = {
+    // ... existing properties
+    logger,
+    logs: logCollector, // Expose for RPC/UI
+  }
+
+  // Add RPC method to fetch logs
+  context.rpc.register({
+    name: 'vite:internal:logs:get',
+    type: 'action',
+    setup: () => async (filter) => {
+      return logCollector.getEntries(filter)
+    },
+  })
+
+  // Add RPC method to subscribe to live logs (via shared state)
+  const logsSharedState = await context.rpc.sharedState.get('vite:internal:logs', {
+    initialValue: [],
+  })
+
+  logCollector.subscribe((entries) => {
+    // Only send last 100 entries for live view
+    logsSharedState.mutate(() => entries.slice(-100))
+  })
+}
+```
+
+Then enable the Logs panel in `host-docks.ts`:
+
+```typescript
+{
+  type: '~builtin',
+  id: '~logs',
+  title: 'Logs',
+  icon: 'ph:notification-duotone',
+  isHidden: false, // Now enabled!
+},
+```

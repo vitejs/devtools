@@ -24,6 +24,9 @@
     "./utils/events": "./dist/utils/events.mjs",
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
+    "./utils/logger": "./dist/utils/logger.mjs",
+    "./utils/logger-node": "./dist/utils/logger-node.mjs",
+    "./utils/logger-client": "./dist/utils/logger-client.mjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.mjs",

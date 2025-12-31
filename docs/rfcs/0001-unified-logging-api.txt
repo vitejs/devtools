@@ -1,0 +1,557 @@
+# RFC: Unified Logging API for Vite DevTools
+
+## Summary
+
+This RFC proposes a unified logging API for the Vite DevTools project to replace scattered `console.*` calls with a consistent, configurable, and feature-rich logging system that works across both Node.js (server) and browser (client) environments.
+
+## Motivation
+
+Currently, logging in Vite DevTools is inconsistent:
+
+1. **Inconsistent prefixes**: Some logs use `[VITE DEVTOOLS]`, others use `[Vite DevTools]`, `[vite-devtools]`, or `⬢`
+2. **No log levels**: All logs go to console without filtering capability
+3. **No structured logging**: Logs are plain strings with no metadata
+4. **No centralized control**: Debug logs use `obug`/`createDebug`, but regular logs use raw `console.*`
+5. **No log aggregation**: TODOs in the codebase mention wanting a "Logs" panel (see `host-docks.ts`)
+6. **No error toast system**: TODOs mention wanting popup error toasts on the client
+
+### Current State
+
+```typescript
+// Different prefixes used across the codebase:
+console.log('[VITE DEVTOOLS] Client injected')
+console.error('[Vite DevTools] Error setting up plugin...')
+console.error('[vite-devtools] RPC error on executing...')
+console.warn('[Vite DevTools] Client authentication is disabled...')
+console.log(c.green`${MARK_NODE} Vite DevTools started at...`)
+```
+
+## Detailed Design
+
+### 1. Logger Interface
+
+```typescript
+// packages/kit/src/utils/logger.ts
+
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'
+
+export interface LogEntry {
+  level: LogLevel
+  message: string
+  timestamp: number
+  scope?: string
+  meta?: Record<string, unknown>
+  error?: Error
+}
+
+export interface LoggerOptions {
+  /** Minimum log level to output */
+  level?: LogLevel
+  /** Scope/namespace for the logger (e.g., 'rpc', 'ws', 'client') */
+  scope?: string
+  /** Whether to include timestamps */
+  timestamps?: boolean
+  /** Custom log handler for aggregation */
+  onLog?: (entry: LogEntry) => void
+}
+
+export interface Logger {
+  debug: (message: string, meta?: Record<string, unknown>) => void
+  info: (message: string, meta?: Record<string, unknown>) => void
+  warn: (message: string, meta?: Record<string, unknown>) => void
+  error: (message: string | Error, meta?: Record<string, unknown>) => void
+
+  /** Create a child logger with a sub-scope */
+  child: (scope: string) => Logger
+
+  /** Update logger options at runtime */
+  setLevel: (level: LogLevel) => void
+}
+```
+
+### 2. Node.js Logger Implementation
+
+```typescript
+// packages/kit/src/utils/logger-node.ts
+
+import c from 'ansis'
+
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+  silent: 4,
+}
+
+const LEVEL_COLORS = {
+  debug: c.gray,
+  info: c.blue,
+  warn: c.yellow,
+  error: c.red,
+}
+
+const LEVEL_ICONS = {
+  debug: '🔍',
+  info: 'ℹ',
+  warn: '⚠',
+  error: '✖',
+}
+
+export function createNodeLogger(options: LoggerOptions = {}): Logger {
+  const {
+    level = 'info',
+    scope = 'vite-devtools',
+    timestamps = false,
+    onLog,
+  } = options
+
+  let currentLevel = level
+
+  function shouldLog(msgLevel: LogLevel): boolean {
+    return LOG_LEVEL_PRIORITY[msgLevel] >= LOG_LEVEL_PRIORITY[currentLevel]
+  }
+
+  function formatScope(s: string): string {
+    return c.cyan`[${s}]`
+  }
+
+  function log(entry: LogEntry): void {
+    onLog?.(entry)
+
+    if (!shouldLog(entry.level) || entry.level === 'silent')
+      return
+
+    const color = LEVEL_COLORS[entry.level]
+    const icon = LEVEL_ICONS[entry.level]
+    const parts: string[] = []
+
+    if (timestamps) {
+      parts.push(c.gray(new Date(entry.timestamp).toISOString()))
+    }
+
+    parts.push(color(`${icon}`))
+
+    if (entry.scope) {
+      parts.push(formatScope(entry.scope))
+    }
+
+    parts.push(entry.message)
+
+    const method = entry.level === 'debug' ? 'log' : entry.level
+    console[method](parts.join(' '))
+
+    if (entry.error) {
+      console.error(entry.error)
+    }
+
+    if (entry.meta && Object.keys(entry.meta).length > 0) {
+      console.log(c.gray('  Meta:'), entry.meta)
+    }
+  }
+
+  function createLogMethod(level: LogLevel) {
+    return (message: string | Error, meta?: Record<string, unknown>) => {
+      const entry: LogEntry = {
+        level,
+        message: message instanceof Error ? message.message : message,
+        timestamp: Date.now(),
+        scope,
+        meta,
+        error: message instanceof Error ? message : undefined,
+      }
+      log(entry)
+    }
+  }
+
+  return {
+    debug: createLogMethod('debug'),
+    info: createLogMethod('info'),
+    warn: createLogMethod('warn'),
+    error: createLogMethod('error'),
+
+    child(childScope: string): Logger {
+      return createNodeLogger({
+        ...options,
+        level: currentLevel,
+        scope: scope ? `${scope}:${childScope}` : childScope,
+        onLog,
+      })
+    },
+
+    setLevel(newLevel: LogLevel) {
+      currentLevel = newLevel
+    },
+  }
+}
+
+// Singleton for convenience
+export const logger = createNodeLogger()
+```
+
+### 3. Client Logger Implementation
+
+```typescript
+// packages/kit/src/utils/logger-client.ts
+
+import type { LogEntry, Logger, LoggerOptions, LogLevel } from './logger'
+
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+  debug: 0,
+  info: 1,
+  warn: 2,
+  error: 3,
+  silent: 4,
+}
+
+const LEVEL_STYLES = {
+  debug: 'color: gray',
+  info: 'color: #3b82f6',
+  warn: 'color: #f59e0b',
+  error: 'color: #ef4444; font-weight: bold',
+}
+
+export function createClientLogger(options: LoggerOptions = {}): Logger {
+  const {
+    level = 'info',
+    scope = 'vite-devtools',
+    timestamps = false,
+    onLog,
+  } = options
+
+  let currentLevel = level
+
+  function shouldLog(msgLevel: LogLevel): boolean {
+    return LOG_LEVEL_PRIORITY[msgLevel] >= LOG_LEVEL_PRIORITY[currentLevel]
+  }
+
+  function log(entry: LogEntry): void {
+    onLog?.(entry)
+
+    if (!shouldLog(entry.level) || entry.level === 'silent')
+      return
+
+    const style = LEVEL_STYLES[entry.level]
+    const prefix = entry.scope ? `[${entry.scope}]` : '[vite-devtools]'
+    const time = timestamps ? `${new Date(entry.timestamp).toISOString()} ` : ''
+
+    const method = entry.level === 'debug' ? 'log' : entry.level
+    console[method](
+      `%c${time}${prefix}%c ${entry.message}`,
+      style,
+      'color: inherit',
+      ...(entry.meta ? [entry.meta] : []),
+    )
+
+    if (entry.error) {
+      console.error(entry.error)
+    }
+  }
+
+  function createLogMethod(level: LogLevel) {
+    return (message: string | Error, meta?: Record<string, unknown>) => {
+      const entry: LogEntry = {
+        level,
+        message: message instanceof Error ? message.message : message,
+        timestamp: Date.now(),
+        scope,
+        meta,
+        error: message instanceof Error ? message : undefined,
+      }
+      log(entry)
+    }
+  }
+
+  return {
+    debug: createLogMethod('debug'),
+    info: createLogMethod('info'),
+    warn: createLogMethod('warn'),
+    error: createLogMethod('error'),
+
+    child(childScope: string): Logger {
+      return createClientLogger({
+        ...options,
+        level: currentLevel,
+        scope: scope ? `${scope}:${childScope}` : childScope,
+        onLog,
+      })
+    },
+
+    setLevel(newLevel: LogLevel) {
+      currentLevel = newLevel
+    },
+  }
+}
+
+// Singleton for convenience
+export const logger = createClientLogger()
+```
+
+### 4. Universal Entry Point
+
+```typescript
+// packages/kit/src/utils/logger.ts
+
+export type * from './logger-types'
+
+// Re-export the appropriate logger based on environment
+// This allows tree-shaking and proper bundling
+
+export function createLogger(options?: LoggerOptions): Logger {
+  if (typeof window === 'undefined') {
+    // Node.js environment
+    const { createNodeLogger } = await import('./logger-node')
+    return createNodeLogger(options)
+  }
+  else {
+    // Browser environment
+    const { createClientLogger } = await import('./logger-client')
+    return createClientLogger(options)
+  }
+}
+```
+
+### 5. Log Aggregation for DevTools Panel
+
+To support the "Logs" panel mentioned in the TODO, we can collect logs:
+
+```typescript
+// packages/kit/src/utils/log-collector.ts
+
+import type { LogEntry } from './logger-types'
+
+export interface LogCollector {
+  entries: LogEntry[]
+  maxEntries: number
+
+  add: (entry: LogEntry) => void
+  clear: () => void
+  getEntries: (filter?: { level?: LogLevel, scope?: string }) => LogEntry[]
+
+  // For reactive updates
+  subscribe: (callback: (entries: LogEntry[]) => void) => () => void
+}
+
+export function createLogCollector(maxEntries = 1000): LogCollector {
+  const entries: LogEntry[] = []
+  const subscribers = new Set<(entries: LogEntry[]) => void>()
+
+  function notify() {
+    subscribers.forEach(cb => cb([...entries]))
+  }
+
+  return {
+    entries,
+    maxEntries,
+
+    add(entry: LogEntry) {
+      entries.push(entry)
+      if (entries.length > maxEntries) {
+        entries.shift()
+      }
+      notify()
+    },
+
+    clear() {
+      entries.length = 0
+      notify()
+    },
+
+    getEntries(filter) {
+      return entries.filter((entry) => {
+        if (filter?.level && entry.level !== filter.level)
+          return false
+        if (filter?.scope && !entry.scope?.includes(filter.scope))
+          return false
+        return true
+      })
+    },
+
+    subscribe(callback) {
+      subscribers.add(callback)
+      return () => subscribers.delete(callback)
+    },
+  }
+}
+```
+
+### 6. Integration with DevTools Context
+
+```typescript
+// In packages/core/src/node/context.ts
+
+import { createNodeLogger, createLogCollector } from '@vitejs/devtools-kit/utils/logger'
+
+export async function createDevToolsContext(...) {
+  const logCollector = createLogCollector()
+
+  const logger = createNodeLogger({
+    scope: 'vite-devtools',
+    onLog: (entry) => logCollector.add(entry),
+  })
+
+  const context: DevToolsNodeContext = {
+    // ... existing properties
+    logger,
+    logCollector, // Expose for the Logs panel
+  }
+
+  // Usage in setup
+  logger.info('DevTools context created', { cwd, mode: viteConfig.command })
+
+  // For plugins
+  for (const plugin of plugins) {
+    const pluginLogger = logger.child(`plugin:${plugin.name}`)
+    try {
+      await plugin.devtools?.setup?.(context, pluginLogger)
+    } catch (error) {
+      pluginLogger.error(error as Error)
+      throw error
+    }
+  }
+}
+```
+
+### 7. Error Toast System (Client)
+
+```typescript
+// packages/kit/src/client/toast.ts
+
+import type { LogEntry } from '../utils/logger-types'
+
+export interface ToastOptions {
+  duration?: number
+  type?: 'info' | 'warn' | 'error' | 'success'
+}
+
+export interface ToastManager {
+  show: (message: string, options?: ToastOptions) => void
+  showFromLog: (entry: LogEntry) => void
+  dismiss: (id: string) => void
+  dismissAll: () => void
+}
+
+// Implementation would integrate with the UI framework (Vue)
+// This is just the interface definition
+```
+
+## Migration Guide
+
+### Before
+
+```typescript
+// packages/core/src/node/ws.ts
+console.warn('[Vite DevTools] Client authentication is disabled...')
+console.log(color`${MARK_INFO} Websocket client connected...`)
+console.error(c.red`⬢ RPC error on executing...`)
+```
+
+### After
+
+```typescript
+// packages/core/src/node/ws.ts
+import { logger } from '@vitejs/devtools-kit/utils/logger'
+
+const wsLogger = logger.child('ws')
+
+wsLogger.warn('Client authentication is disabled. Any browser can connect to the devtools.')
+wsLogger.info('Websocket client connected', { id: meta.id, trusted: meta.isTrusted })
+wsLogger.error('RPC error on executing', { method: name, error })
+```
+
+## Exports
+
+The logger should be exported from `@vitejs/devtools-kit`:
+
+```typescript
+// packages/kit/src/index.ts
+export { createLogCollector, createLogger } from './utils/logger'
+export type { LogCollector, LogEntry, Logger, LoggerOptions, LogLevel } from './utils/logger-types'
+```
+
+And available via subpath:
+```typescript
+// For tree-shaking when only logger is needed
+import { createLogger } from '@vitejs/devtools-kit/utils/logger'
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Set global log level
+VITE_DEVTOOLS_LOG_LEVEL=debug
+
+# Enable specific scopes (similar to DEBUG env var pattern)
+VITE_DEVTOOLS_LOG_SCOPES=vite-devtools:ws,vite-devtools:rpc
+```
+
+### Runtime Configuration
+
+```typescript
+// In vite.config.ts
+export default defineConfig({
+  plugins: [
+    devtools({
+      logger: {
+        level: 'debug',
+        timestamps: true,
+      }
+    })
+  ]
+})
+```
+
+## Implementation Plan
+
+### Phase 1: Core Logger (packages/kit)
+1. Create logger types in `packages/kit/src/utils/logger-types.ts`
+2. Implement Node logger in `packages/kit/src/utils/logger-node.ts`
+3. Implement Client logger in `packages/kit/src/utils/logger-client.ts`
+4. Create log collector for aggregation
+5. Export from kit package
+
+### Phase 2: Integration (packages/core)
+1. Add logger to `DevToolsNodeContext`
+2. Migrate `packages/core/src/node/*.ts` console calls
+3. Add `onLog` handler for log aggregation
+
+### Phase 3: Client Integration
+1. Migrate `packages/core/src/client/**/*.ts` console calls
+2. Implement toast notifications for errors
+3. Create Logs panel UI component
+
+### Phase 4: Cleanup
+1. Remove `// TODO: A unified logger API` comments
+2. Enable the Logs dock panel (`isHidden: false`)
+3. Update documentation
+
+## Alternatives Considered
+
+### 1. Use existing library (pino, winston, consola)
+- **Pros**: Battle-tested, feature-rich
+- **Cons**: Bundle size, over-engineered for devtools needs, may not work well in both Node and browser
+
+### 2. Extend `obug`/`createDebug`
+- **Pros**: Already used in the project
+- **Cons**: Debug-only, no log levels, not designed for production logging
+
+### 3. Keep console.* with standardized prefixes
+- **Pros**: Simple, no new dependencies
+- **Cons**: No log levels, no aggregation, no structured data
+
+## Open Questions
+
+1. Should logs be persisted to disk in dev mode?
+2. Should we integrate with Vite's own logger?
+3. What should the max buffer size be for log aggregation?
+4. Should we support custom log formatters?
+
+## References
+
+- [Vite Logger](https://vite.dev/guide/api-javascript.html#custom-logger)
+- [consola](https://github.com/unjs/consola) - Similar unified logging approach
+- Related TODOs in codebase:
+  - `packages/core/src/client/webcomponents/state/setup-script.ts:20`
+  - `packages/core/src/node/host-docks.ts:34`
