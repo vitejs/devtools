@@ -67,6 +67,7 @@
     "@types/codemirror": "catalog:types",
     "@types/diff": "catalog:types",
     "@types/split2": "catalog:types",
+    "@types/splitpanes": "catalog:types",
     "@types/stream-json": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/components": "catalog:frontend",
