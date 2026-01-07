@@ -22,6 +22,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         id: '~terminals',
         title: 'Terminals',
         icon: 'ph:terminal-duotone',
+        category: 'builtin',
         get isHidden() {
           return context.terminals.sessions.size === 0
         },
@@ -31,12 +32,14 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         id: '~logs',
         title: 'Logs',
         icon: 'ph:notification-duotone',
+        category: 'builtin',
         isHidden: true, // TODO: implement logs
       },
       {
         type: '~builtin',
         id: '~settings',
         title: 'Settings',
+        category: 'builtin',
         icon: 'ph:gear-duotone',
       },
     ]

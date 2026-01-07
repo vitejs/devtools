@@ -55,7 +55,7 @@ useEventListener('pointerdown', () => {
         isDimmed ? 'op50 saturate-0' : '',
         isSelected ? 'scale-120 text-purple' : '',
       ]"
-      class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-120 transition-all duration-300 relative"
+      class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative"
     >
       <DockIcon :icon="dock.icon" :title="dock.title" class="w-5 h-5 select-none" />
     </button>
