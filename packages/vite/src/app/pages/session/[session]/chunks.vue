@@ -148,7 +148,7 @@ const chunksWithSize = computed(() => {
 
 // Chart graph setup for nanovis visualizations
 const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<
-  RolldownChunkInfo & { id: string, filename: string, size: number },
+  Omit<RolldownChunkInfo, 'type'>,
   ChunkChartInfo,
   ChunkChartNode
 >({
