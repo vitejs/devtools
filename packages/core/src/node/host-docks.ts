@@ -41,6 +41,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         title: 'Settings',
         category: 'builtin',
         icon: 'ph:gear-duotone',
+        isHidden: true, // TODO: implement settings
       },
     ]
 
