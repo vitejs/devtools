@@ -1,7 +1,7 @@
 {
   "name": "playground",
   "type": "module",
-  "version": "0.0.0-alpha.22",
+  "version": "0.0.0-alpha.23",
   "private": true,
   "scripts": {
     "dev": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true vite",
