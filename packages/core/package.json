@@ -27,8 +27,6 @@
     "./dirs": "./dist/dirs.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "vite-devtools": "./bin.js"

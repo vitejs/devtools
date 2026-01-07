@@ -22,8 +22,8 @@ catalogs:
       specifier: ^0.30.21
       version: 0.30.21
     tsdown:
-      specifier: ^0.18.4
-      version: 0.18.4
+      specifier: ^0.19.0-beta.4
+      version: 0.19.0-beta.4
     tsx:
       specifier: ^4.21.0
       version: 4.21.0
@@ -465,7 +465,7 @@ importers:
         version: 2.13.1
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.21.0
@@ -586,7 +586,7 @@ importers:
         version: 3.3.1
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       typescript:
         specifier: catalog:devtools
         version: 5.9.3
@@ -629,7 +629,7 @@ importers:
         version: 2.0.4
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       vite:
         specifier: ^8.0.0-beta.6
         version: 8.0.0-beta.6(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
@@ -645,7 +645,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       ws:
         specifier: catalog:deps
         version: 8.19.0
@@ -802,7 +802,7 @@ importers:
         version: 1.0.0
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       vite-hot-client:
         specifier: catalog:frontend
         version: 2.1.0(vite@8.0.0-beta.6(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -815,7 +815,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+        version: 0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.21.0
@@ -6385,8 +6385,8 @@ packages:
     peerDependencies:
       typescript: '>=4.0.0'
 
-  tsdown@0.18.4:
-    resolution: {integrity: sha512-J/tRS6hsZTkvqmt4+xdELUCkQYDuUCXgBv0fw3ImV09WPGbEKfsPD65E+WUjSu3E7Z6tji9XZ1iWs8rbGqB/ZA==}
+  tsdown@0.19.0-beta.4:
+    resolution: {integrity: sha512-wuKxYF5FisIIVog0hauPkS+Qj3r8fyPbLQih6dA9m6U3PogXZ5xxhDiL0+TkTB2fwSoD7wOv16d3zcNh97bJLw==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
@@ -13344,7 +13344,7 @@ snapshots:
       picomatch: 4.0.3
       typescript: 5.9.3
 
-  tsdown@0.18.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3)):
+  tsdown@0.19.0-beta.4(publint@0.3.16)(synckit@0.11.11)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3)):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14

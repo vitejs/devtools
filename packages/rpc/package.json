@@ -25,8 +25,6 @@
     "./presets/ws/server": "./dist/presets/ws/server.mjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "files": [
     "dist"
