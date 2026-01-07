@@ -83,6 +83,7 @@ export default defineNuxtConfig({
     },
   },
 
+  // Disable Nuxt's internal debugging
   debug: false,
 
   vite: {

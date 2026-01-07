@@ -43,7 +43,7 @@ Install the DevTools plugin:
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools plugin in your Vite config and turn on the debug mode for Rolldown:
+Enable the DevTools plugin in your Vite config and turn on the devtools mode for Rolldown:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -55,7 +55,7 @@ export default defineConfig({
   ],
   build: {
     rolldownOptions: {
-      debug: {}, // enable debug mode
+      devtools: {}, // enable devtools mode
     },
   }
 })
