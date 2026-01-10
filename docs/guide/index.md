@@ -25,14 +25,13 @@ Vite DevTools is a comprehensive set of developer tools for visualizing and anal
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Switch your Vite to [Rolldown Vite](https://vite.dev/guide/rolldown#how-to-try-rolldown):
+Install or upgrade your Vite to the beta version 8:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^7.0.0" // [!code --]
-    "vite": "npm:rolldown-vite@latest" // [!code ++]
+    "vite": "^8.0.0-beta.7"
   }
 }
 ```
