@@ -73,7 +73,7 @@ Asset Treemap View:
 
 ![asset-treemap](/features/asset-treemap.png)
 
-Asset Suburst View:
+Asset Sunburst View:
 
 ![asset-sunburst](/features/asset-sunburst.png)
 
