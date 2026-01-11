@@ -1,8 +1,11 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import * as v from 'valibot'
 
 export const docksOnLaunch = defineRpcFunction({
   name: 'vite:internal:docks:on-launch',
   type: 'action',
+  args: v.string(),
+  returns: v.void(),
   setup: (context) => {
     const launchMap = new Map<string, Promise<void>>()
     return {

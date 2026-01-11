@@ -112,6 +112,9 @@ catalogs:
     unstorage:
       specifier: ^1.17.3
       version: 1.17.3
+    valibot:
+      specifier: ^1.2.0
+      version: 1.2.0
     webext-bridge:
       specifier: ^6.0.1
       version: 6.0.1
@@ -623,6 +626,9 @@ importers:
       immer:
         specifier: catalog:deps
         version: 11.1.3
+      valibot:
+        specifier: catalog:deps
+        version: 1.2.0(typescript@5.9.3)
     devDependencies:
       my-ua-parser:
         specifier: catalog:frontend
@@ -6701,6 +6707,14 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  valibot@1.2.0:
+    resolution: {integrity: sha512-mm1rxUsmOxzrwnX5arGS+U4T25RdvpPjPN4yR0u9pUBov9+zGVtO84tif1eY4r6zWxVxu3KzIyknJy3rxfRZZg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vfile-message@4.0.3:
     resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}
@@ -13748,6 +13762,10 @@ snapshots:
       react: 19.2.3
 
   util-deprecate@1.0.2: {}
+
+  valibot@1.2.0(typescript@5.9.3):
+    optionalDependencies:
+      typescript: 5.9.3
 
   vfile-message@4.0.3:
     dependencies:

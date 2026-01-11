@@ -41,7 +41,7 @@ export async function createDevToolsContext(
 
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcDeclarations) {
-    rpcHost.register(fn)
+    rpcHost.register(fn.fn)
   }
 
   const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
