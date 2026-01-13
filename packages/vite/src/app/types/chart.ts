@@ -1,5 +1,5 @@
 import type { TreeNode } from 'nanovis'
-import type { PackageInfo, PluginBuildInfo, RolldownAssetInfo } from '~~/shared/types'
+import type { PackageInfo, PluginBuildInfo, RolldownAssetInfo, RolldownChunkInfo } from '~~/shared/types'
 
 export type AssetChartInfo = Omit<RolldownAssetInfo, 'type'> & {
   path: string
@@ -7,6 +7,14 @@ export type AssetChartInfo = Omit<RolldownAssetInfo, 'type'> & {
 }
 
 export type AssetChartNode = TreeNode<AssetChartInfo | undefined>
+
+export type ChunkChartInfo = Omit<RolldownChunkInfo, 'type'> & {
+  path: string
+  type: 'folder' | 'chunk'
+  size: number
+}
+
+export type ChunkChartNode = TreeNode<ChunkChartInfo | undefined>
 
 export type PackageChartInfo = PackageInfo & {
   path: string

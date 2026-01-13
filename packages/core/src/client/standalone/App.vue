@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { markRaw, ref, useTemplateRef, watch } from 'vue'
-import DockEntries from '../webcomponents/components/DockEntries.vue'
+import DockEntriesWithCategories from '../webcomponents/components/DockEntriesWithCategories.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewBuiltinClientAuthNotice from '../webcomponents/components/ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
@@ -51,13 +51,18 @@ function switchEntry(id: string) {
       <div class="p2 border-b border-base flex">
         <VitePlus class="w-7 h-7 ma" />
       </div>
-      <DockEntries
-        :entries="context.docks.entries"
-        class="transition duration-200 p2"
-        :is-vertical="false"
-        :selected="context.docks.selected"
-        @select="(e) => switchEntry(e?.id)"
-      />
+      <div class="transition duration-200 p2">
+        <DockEntriesWithCategories
+          :entries="context.docks.entries"
+          :is-vertical="false"
+          :selected="context.docks.selected"
+          @select="(e) => switchEntry(e?.id)"
+        >
+          <template #separator>
+            <div class="border-base border-b w-full my-2" />
+          </template>
+        </DockEntriesWithCategories>
+      </div>
     </div>
     <div>
       <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />

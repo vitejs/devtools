@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.0.0-alpha.22",
+  "version": "0.0.0-alpha.24",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -27,8 +27,6 @@
     "./dirs": "./dist/dirs.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "vite-devtools": "./bin.js"
