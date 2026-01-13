@@ -17,11 +17,14 @@ const emit = defineEmits<{
 const groups = computed(() => {
   const map = new Map<string, DevToolsDockEntry[]>()
   for (const entry of props.entries) {
+    if (entry.isHidden)
+      continue
     const category = entry.category ?? 'default'
     if (!map.has(category))
       map.set(category, [])
     map.get(category)!.push(entry)
   }
+
   const entries = Array
     .from(map.entries())
     .sort(([a], [b]) => {
