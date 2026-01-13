@@ -311,6 +311,7 @@ onMounted(() => {
         >
           <DockEntriesWithCategories
             :context="context"
+            :capacity="5"
             :entries="context.docks.entries"
             :is-vertical="context.panel.isVertical"
             :selected="context.docks.selected"
