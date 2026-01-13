@@ -1,3 +1,4 @@
+/* eslint-disable unimport/auto-insert */
 import { makeCachedFunction } from './cache'
 
 export interface FilterMatchRule {

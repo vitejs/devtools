@@ -1,3 +1,4 @@
+/* eslint-disable unimport/auto-insert */
 export interface ViteDevToolsPayload {
   timestamp: number
   hash: string

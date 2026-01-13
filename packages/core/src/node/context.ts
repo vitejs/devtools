@@ -1,5 +1,6 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { createLogger } from '@vitejs/devtools-kit/utils/logger'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
 import { searchForWorkspaceRoot } from 'vite'
@@ -29,6 +30,7 @@ export async function createDevToolsContext(
     views: undefined!,
     utils: ContextUtils,
     terminals: undefined!,
+    logger: createLogger('vite-devtools'),
   }
   const rpcHost = new RpcFunctionsHost(context)
   const docksHost = new DevToolsDockHost(context)

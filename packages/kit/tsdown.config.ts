@@ -7,8 +7,6 @@ export default defineConfig({
     'utils/nanoid': 'src/utils/nanoid.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
     'utils/logger': 'src/utils/logger.ts',
-    'utils/logger-node': 'src/utils/logger-node.ts',
-    'utils/logger-client': 'src/utils/logger-client.ts',
     'client': 'src/client/index.ts',
   },
   exports: true,

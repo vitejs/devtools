@@ -1,3 +1,4 @@
+/* eslint-disable unimport/auto-insert */
 import type {} from '@vitejs/devtools'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'

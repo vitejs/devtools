@@ -27,6 +27,9 @@
       "@vitejs/devtools-kit/utils/events": [
         "./packages/kit/src/utils/events.ts"
       ],
+      "@vitejs/devtools-kit/utils/logger": [
+        "./packages/kit/src/utils/logger.ts"
+      ],
       "@vitejs/devtools-kit/utils/nanoid": [
         "./packages/kit/src/utils/nanoid.ts"
       ],

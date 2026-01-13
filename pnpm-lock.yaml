@@ -49,6 +49,9 @@ catalogs:
     cac:
       specifier: ^6.7.14
       version: 6.7.14
+    consola:
+      specifier: ^3.2.3
+      version: 3.4.2
     diff:
       specifier: ^8.0.2
       version: 8.0.2
@@ -620,6 +623,9 @@ importers:
       birpc-x:
         specifier: catalog:deps
         version: 0.0.6
+      consola:
+        specifier: catalog:deps
+        version: 3.4.2
       immer:
         specifier: catalog:deps
         version: 11.1.3
@@ -1650,7 +1656,7 @@ packages:
     hasBin: true
 
   '@nuxt/vite-builder@https://pkg.pr.new/@nuxt/vite-builder@33682':
-    resolution: {tarball: https://pkg.pr.new/@nuxt/vite-builder@33682}
+    resolution: {integrity: sha512-z3NZ9bNKvbqC1Yj8tOfzzd4tCwe+QTeqoZwjYuzRmnLATbxt2ZULCtU6EmJO1WCNdE+dKbH9J6bJuAP07T8bdw==, tarball: https://pkg.pr.new/@nuxt/vite-builder@33682}
     version: 4.2.1
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:

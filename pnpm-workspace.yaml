@@ -33,6 +33,7 @@ catalogs:
     birpc: ^4.0.0
     birpc-x: 0.0.6
     cac: ^6.7.14
+    consola: ^3.2.3
     diff: ^8.0.2
     get-port-please: ^3.2.0
     h3: ^1.15.4

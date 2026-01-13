@@ -12,6 +12,7 @@ export const alias = {
   '@vitejs/devtools-rpc': r('rpc/src'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
   '@vitejs/devtools-kit/utils/events': r('kit/src/utils/events.ts'),
+  '@vitejs/devtools-kit/utils/logger': r('kit/src/utils/logger.ts'),
   '@vitejs/devtools-kit/utils/nanoid': r('kit/src/utils/nanoid.ts'),
   '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),

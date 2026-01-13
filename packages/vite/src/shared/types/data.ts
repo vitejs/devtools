@@ -1,3 +1,4 @@
+/* eslint-disable unimport/auto-insert */
 import type { Asset as AssetInfo, ChunkImport, Chunk as ChunkInfo, HookResolveIdCallStart, ModuleImport, PluginItem, SessionMeta } from '@rolldown/debug'
 
 export type { ModuleImport }
