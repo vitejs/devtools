@@ -1,4 +1,3 @@
-/* eslint-disable unimport/auto-insert */
 import { isDark } from '../composables/dark'
 
 export function getHashColorFromString(

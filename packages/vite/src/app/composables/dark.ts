@@ -1,4 +1,3 @@
-/* eslint-disable unimport/auto-insert */
 import { useDark } from '@vueuse/core'
 
 export const isDark = useDark({
