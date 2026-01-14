@@ -53,6 +53,7 @@ function switchEntry(id: string) {
       </div>
       <div class="transition duration-200 p2">
         <DockEntriesWithCategories
+          :context="context"
           :entries="context.docks.entries"
           :is-vertical="false"
           :selected="context.docks.selected"
