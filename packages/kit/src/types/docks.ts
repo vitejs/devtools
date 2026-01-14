@@ -14,7 +14,7 @@ export interface DevToolsDockHost {
 }
 
 // TODO: refine categories more clearly
-export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default' | 'builtin'
+export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default' | '~viteplus' | '~builtin'
 
 export type DevToolsDockEntryIcon = string | { light: string, dark: string }
 

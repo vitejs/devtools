@@ -12,10 +12,11 @@ export const BUILTIN_ENTRIES: readonly DevToolsViewBuiltin[] = Object.freeze([
 ])
 
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
-  default: 0,
-  app: 100,
-  framework: 200,
-  web: 300,
-  advanced: 400,
-  builtin: 500,
+  '~viteplus': -1000,
+  'default': 0,
+  'app': 100,
+  'framework': 200,
+  'web': 300,
+  'advanced': 400,
+  '~builtin': 1000,
 } satisfies Record<DevToolsDockEntryCategory, number>

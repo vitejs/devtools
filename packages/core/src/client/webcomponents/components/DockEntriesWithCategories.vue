@@ -62,7 +62,7 @@ const groups = computed(() => {
         left = 0
       }
       else {
-        left -= entries.length
+        left -= items.length
         visible.push([category, items])
       }
     }
@@ -88,6 +88,6 @@ const groups = computed(() => {
       :selected="selected"
       @select="(e) => emit('select', e)"
     />
-    <slot v-if="groups.overflow.length > 0" name="overflow" :entries="groups.overflow" />
   </template>
+  <slot v-if="groups.overflow.length > 0" name="overflow" :entries="groups.overflow" />
 </template>
