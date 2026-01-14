@@ -1,4 +1,5 @@
 .:
   DevToolsViteUI: function
+  serverRpcSchemas: object
 ./dirs:
   clientPublicDir: string

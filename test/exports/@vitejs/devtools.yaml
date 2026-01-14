@@ -1,4 +1,5 @@
 .:
+  builtinRpcSchemas: object
   createDevToolsContext: function
   createDevToolsMiddleware: function
   DevTools: function
