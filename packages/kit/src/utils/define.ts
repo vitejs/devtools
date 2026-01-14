@@ -1,47 +1,35 @@
-import type { RpcFunctionDefinition, RpcFunctionSetupResult, RpcFunctionType, Thenable } from 'birpc-x'
-import type { GenericSchema, InferInput } from 'valibot'
+import type { RpcFunctionDefinition, RpcFunctionType } from 'birpc-x'
+import type { GenericSchema } from 'valibot'
 import type { DevToolsNodeContext } from '../types'
 import { createDefineWrapperWithContext } from 'birpc-x'
 
-type InferInputsTuple<AS>
-  = AS extends readonly GenericSchema[]
-    ? { -readonly [K in keyof AS]: AS[K] extends GenericSchema ? InferInput<AS[K]> : any }
-    : any[]
-
 export interface RpcOptions<
-  AS,
-  RS,
   NAME extends string,
   TYPE extends RpcFunctionType,
-> extends Omit<
-    RpcFunctionDefinition<
-      NAME,
-      TYPE,
-      InferInputsTuple<AS>,
-      RS extends GenericSchema ? InferInput<RS> : any,
-      DevToolsNodeContext
-    >,
-    'setup'
-  > {
+  A extends any[],
+  R,
+  AS extends GenericSchema[] | undefined = undefined,
+  RS extends GenericSchema | undefined = undefined,
+>
+  extends RpcFunctionDefinition<NAME, TYPE, A, R, DevToolsNodeContext> {
   args?: AS
-  returns?: RS
-
-  setup: (ctx: DevToolsNodeContext) => Thenable<
-    RpcFunctionSetupResult<InferInputsTuple<AS>, RS extends GenericSchema ? InferInput<RS> : any>
-  >
+  return?: RS
 }
 
-export function defineRpcFunction<AS = undefined, RS = undefined, NAME extends string = string, TYPE extends RpcFunctionType = 'query'>(
-  options: RpcOptions<AS, RS, NAME, TYPE>,
+export function defineRpcFunction<
+  NAME extends string,
+  TYPE extends RpcFunctionType,
+  A extends any[],
+  R,
+  AS extends GenericSchema[] | undefined = undefined,
+  RS extends GenericSchema | undefined = undefined,
+>(
+  options: RpcOptions<NAME, TYPE, A, R, AS, RS>,
 ) {
-  const { args: argsSchema, returns: returnsSchema, ...rest } = options
+  const { args, return: ret, ...rest } = options
   const birpc = createDefineWrapperWithContext<DevToolsNodeContext>()
 
-  return {
-    fn: birpc<any, TYPE, InferInputsTuple<AS>, RS extends GenericSchema ? InferInput<RS> : any>({
-      ...rest,
-    }),
-    args: argsSchema,
-    returns: returnsSchema,
-  }
+  const fn = birpc(rest)
+
+  return fn as typeof fn & { argsSchema?: AS, returnSchema?: RS }
 }
