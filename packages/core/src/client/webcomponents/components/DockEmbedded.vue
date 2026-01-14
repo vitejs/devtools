@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
-import FloatingTooltip from './FloatingTooltip'
+import FloatingElements from './FloatingElements.vue'
 
 defineProps<{
   context: DocksContext
@@ -20,5 +20,5 @@ defineProps<{
       />
     </template>
   </Dock>
-  <FloatingTooltip />
+  <FloatingElements />
 </template>

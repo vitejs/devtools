@@ -5,38 +5,42 @@ import { useTemplateRef } from 'vue'
 import { setFloatingTooltip } from '../state/floating-tooltip'
 import DockIcon from './DockIcon.vue'
 
-const props = defineProps<{
-  dock: DevToolsDockEntryBase
-  isSelected?: boolean
-  isDimmed?: boolean
-  isVertical?: boolean
-  badge?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    dock: DevToolsDockEntryBase
+    isSelected?: boolean
+    isDimmed?: boolean
+    isVertical?: boolean
+    badge?: string
+    tooltip?: boolean
+  }>(),
+  {
+    tooltip: true,
+  },
+)
 
 const button = useTemplateRef<HTMLButtonElement>('button')
 
-function updatePos() {
-  const rect = button.value?.getBoundingClientRect()
-  if (rect) {
-    setFloatingTooltip({
-      render: props.dock.title,
-      width: rect.width,
-      height: rect.height,
-      left: rect.left,
-      top: rect.top,
-    })
-  }
-}
-
-function showTitle() {
-  updatePos()
+function updateTooltip() {
+  if (!props.tooltip)
+    return
+  if (!button.value)
+    return
+  setFloatingTooltip({
+    content: props.dock.title,
+    el: button.value,
+  })
 }
 
 function clearTitle() {
+  if (!props.tooltip)
+    return
   setFloatingTooltip(null)
 }
 
 useEventListener('pointerdown', () => {
+  if (!props.tooltip)
+    return
   setFloatingTooltip(null)
 })
 </script>
@@ -45,7 +49,7 @@ useEventListener('pointerdown', () => {
   <div
     :key="dock.id"
     class="relative group vite-devtools-dock-entry"
-    @pointerenter="showTitle"
+    @pointerenter="updateTooltip"
     @pointerleave="clearTitle"
   >
     <button

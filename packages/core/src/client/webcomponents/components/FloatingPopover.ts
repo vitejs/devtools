@@ -1,7 +1,7 @@
-import type { FloatingTooltip } from '../state/floating-tooltip'
-import { useDebounceFn } from '@vueuse/core'
-import { computed, defineComponent, h, ref, watch } from 'vue'
-import { useFloatingTooltip } from '../state/floating-tooltip'
+import type { PropType } from 'vue'
+import type { FloatingPopoverProps } from '../state/floating-tooltip'
+import { useDebounceFn, useElementBounding } from '@vueuse/core'
+import { computed, defineComponent, h, reactive, ref, watch } from 'vue'
 
 // @unocss-include
 
@@ -10,56 +10,62 @@ const GAP = 10
 
 const FloatingTooltipComponent = defineComponent({
   name: 'FloatingTooltip',
-  setup() {
-    const current = useFloatingTooltip()
-    const box = ref<FloatingTooltip | null>(null)
+  props: {
+    item: {
+      type: Object as PropType<FloatingPopoverProps | null | undefined>,
+      required: false,
+    },
+  },
+  setup(props) {
+    const el = ref(props.item?.el)
+    const rect = reactive(useElementBounding(el))
 
     // guess alignment of the tooltip based on viewport position
     const align = computed<'bottom' | 'left' | 'right' | 'top'>(() => {
-      if (!box.value)
+      if (!props.item?.el)
         return 'bottom'
       const vw = window.innerWidth
       const vh = window.innerHeight
-      if (box.value.left < DETECT_MARGIN)
+      if (rect.left < DETECT_MARGIN)
         return 'right'
-      if (box.value.left + box.value.width > vw - DETECT_MARGIN)
+      if (rect.left + rect.width > vw - DETECT_MARGIN)
         return 'left'
-      if (box.value.top < DETECT_MARGIN)
+      if (rect.top < DETECT_MARGIN)
         return 'bottom'
-      if (box.value.top + box.value.height > vh - DETECT_MARGIN)
+      if (rect.top + rect.height > vh - DETECT_MARGIN)
         return 'top'
       return 'bottom'
     })
 
     const style = computed(() => {
-      if (!box.value)
+      if (!props.item?.el)
         return {}
       switch (align.value) {
         case 'bottom': {
           return {
-            left: `${box.value.left + box.value.width / 2}px`,
-            top: `${box.value.top + box.value.height + GAP}px`,
+            left: `${rect.left + rect.width / 2}px`,
+            top: `${rect.top + rect.height + GAP}px`,
             transform: 'translateX(-50%)',
           }
         }
         case 'top': {
           return {
-            left: `${box.value.left + box.value.width / 2}px`,
-            bottom: `${window.innerHeight - box.value.top + GAP}px`,
+            left: `${rect.left + rect.width / 2}px`,
+            bottom: `${window.innerHeight - rect.top + GAP}px`,
             transform: 'translateX(-50%)',
           }
         }
         case 'left': {
           return {
-            right: `${window.innerWidth - box.value.left + GAP}px`,
-            top: `${box.value.top + box.value.height / 2}px`,
+            right: `${window.innerWidth - rect.left + GAP}px`,
+            top: `${rect.top + rect.height / 2}px`,
             transform: 'translateY(-50%)',
           }
         }
         case 'right': {
           return {
-            left: `${box.value.left + box.value.width + GAP}px`,
-            top: `${box.value.top + box.value.height / 2}px`,
+            left: `${rect.left + rect.width + GAP}px`,
+            top: `${rect.top + rect.height / 2}px`,
             transform: 'translateY(-50%)',
           }
         }
@@ -70,15 +76,18 @@ const FloatingTooltipComponent = defineComponent({
     })
 
     const clearThrottled = useDebounceFn(() => {
-      if (current.value == null)
-        box.value = null
+      if (props.item?.el == null)
+        el.value = undefined
     }, 800)
 
     watch(
-      current,
+      () => props.item,
       (value) => {
         if (value) {
-          box.value = { ...value }
+          if (el.value !== value.el)
+            el.value = value.el
+          else
+            rect.update()
         }
         else {
           clearThrottled()
@@ -87,17 +96,17 @@ const FloatingTooltipComponent = defineComponent({
     )
 
     return () => {
-      if (!box.value?.render)
+      if (!props.item?.content)
         return null
 
-      const content = typeof box.value.render === 'string' ? h('span', box.value.render) : box.value.render()
+      const content = typeof props.item.content === 'string' ? h('span', props.item.content) : props.item.content()
 
       return h(
         'div',
         {
           class: [
             'fixed z-floating-tooltip text-xs transition-all duration-300 w-max bg-glass border border-base rounded px2 p1',
-            current ? 'op100' : 'op0 pointer-events-none',
+            props.item ? 'op100' : 'op0 pointer-events-none',
           ],
           style: style.value,
         },

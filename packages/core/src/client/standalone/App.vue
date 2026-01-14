@@ -3,6 +3,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { markRaw, ref, useTemplateRef, watch } from 'vue'
 import DockEntriesWithCategories from '../webcomponents/components/DockEntriesWithCategories.vue'
+import FloatingElements from '../webcomponents/components/FloatingElements.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewBuiltinClientAuthNotice from '../webcomponents/components/ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
@@ -53,6 +54,7 @@ function switchEntry(id: string) {
       </div>
       <div class="transition duration-200 p2">
         <DockEntriesWithCategories
+          :context="context"
           :entries="context.docks.entries"
           :is-vertical="false"
           :selected="context.docks.selected"
@@ -75,4 +77,5 @@ function switchEntry(id: string) {
       />
     </div>
   </div>
+  <FloatingElements />
 </template>
