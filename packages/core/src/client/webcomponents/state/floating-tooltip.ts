@@ -1,3 +1,4 @@
+import type { VNode } from 'vue'
 import { shallowRef } from 'vue'
 
 export interface FloatingTooltip {
@@ -5,7 +6,7 @@ export interface FloatingTooltip {
   top: number
   width: number
   height: number
-  text: string
+  render: string | (() => VNode)
 }
 
 const state = shallowRef<FloatingTooltip | null>(null)

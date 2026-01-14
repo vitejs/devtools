@@ -12,7 +12,7 @@ import { createGenerator } from 'unocss'
 import config from '../uno.config'
 
 const SRC_DIR = fileURLToPath(new URL('..', import.meta.url))
-const GLOBS = ['components/**/*.vue']
+const GLOBS = ['components/**/*.{ts,vue}']
 const USER_STYLE = join(SRC_DIR, 'style.css')
 const GENERATED_CSS = join(SRC_DIR, '.generated/css.ts')
 const MINIFY = true

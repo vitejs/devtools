@@ -49,7 +49,7 @@ export default defineConfig({
 
     logo: {
       light: '/logo.svg',
-      dark: '/logo_dark.svg',
+      dark: '/logo.svg',
     },
 
     footer: {

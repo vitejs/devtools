@@ -19,7 +19,7 @@ function updatePos() {
   const rect = button.value?.getBoundingClientRect()
   if (rect) {
     setFloatingTooltip({
-      text: props.dock.title,
+      render: props.dock.title,
       width: rect.width,
       height: rect.height,
       left: rect.left,

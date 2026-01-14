@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
+  context: DocksContext
   entries: DevToolsDockEntry[]
   selected: DevToolsDockEntry | null
   isVertical: boolean
