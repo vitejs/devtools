@@ -2,7 +2,7 @@
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed } from 'vue'
-import { defaultDocksSettings, groupDockEntries } from '../state/dock-settings'
+import { defaultDocksSettings, docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
 import DockIcon from './DockIcon.vue'
 
@@ -11,11 +11,11 @@ const props = defineProps<{
   entry: DevToolsViewBuiltin
 }>()
 
-const settingsStore = await props.context.docks.getSettingsStore()
+const settingsStore = props.context.docks.settings
 const settings = sharedStateToRef(settingsStore)
 
 const categories = computed(() => {
-  return groupDockEntries(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
+  return docksGroupByCategories(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
 })
 
 function getCategoryLabel(category: string): string {

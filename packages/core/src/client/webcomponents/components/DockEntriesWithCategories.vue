@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { GroupedDockEntries } from '../state/dock-settings'
+import type { DevToolsDockEntriesGrouped } from '../state/dock-settings'
 import DockEntries from './DockEntries.vue'
 
 defineProps<{
   context: DocksContext
-  groups: GroupedDockEntries
+  groups: DevToolsDockEntriesGrouped
   selected: DevToolsDockEntry | null
   isVertical: boolean
 }>()

@@ -4,11 +4,11 @@ import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
 export type { DevToolsDocksUserSettings }
 
-export type GroupedDockEntries = [category: string, entries: DevToolsDockEntry[]][]
+export type DevToolsDockEntriesGrouped = [category: string, entries: DevToolsDockEntry[]][]
 
 export interface SplitGroupsResult {
-  visible: GroupedDockEntries
-  overflow: GroupedDockEntries
+  visible: DevToolsDockEntriesGrouped
+  overflow: DevToolsDockEntriesGrouped
 }
 
 export function defaultDocksSettings(): DevToolsDocksUserSettings {
@@ -24,11 +24,11 @@ export function defaultDocksSettings(): DevToolsDocksUserSettings {
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, sorts by pinned status, custom order, and default order.
  */
-export function groupDockEntries(
+export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
   options?: { includeHidden?: boolean },
-): GroupedDockEntries {
+): DevToolsDockEntriesGrouped {
   const { hiddenDocks, hiddenCategories, customOrder, pinnedDocks } = settings
   const { includeHidden = false } = options ?? {}
 
@@ -85,12 +85,12 @@ export function groupDockEntries(
 /**
  * Split grouped entries into visible and overflow based on capacity.
  */
-export function splitGroupsWithCapacity(
-  groups: GroupedDockEntries,
+export function docksSplitGroupsWithCapacity(
+  groups: DevToolsDockEntriesGrouped,
   capacity: number,
 ): SplitGroupsResult {
-  const visible: GroupedDockEntries = []
-  const overflow: GroupedDockEntries = []
+  const visible: DevToolsDockEntriesGrouped = []
+  const overflow: DevToolsDockEntriesGrouped = []
   let left = capacity
 
   for (const [category, items] of groups) {

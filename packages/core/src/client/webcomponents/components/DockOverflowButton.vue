@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { GroupedDockEntries } from '../state/dock-settings'
+import type { DevToolsDockEntriesGrouped } from '../state/dock-settings'
 import { watchDebounced } from '@vueuse/core'
 import { computed, h, ref, useTemplateRef } from 'vue'
 import { setDocksOverflowPanel, useDocksOverflowPanel } from '../state/floating-tooltip'
@@ -11,7 +11,7 @@ import DockEntry from './DockEntry.vue'
 const props = defineProps<{
   context: DocksContext
   isVertical: boolean
-  groups: GroupedDockEntries
+  groups: DevToolsDockEntriesGrouped
   selected: DevToolsDockEntry | null
 }>()
 
