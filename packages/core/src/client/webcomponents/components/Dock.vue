@@ -333,7 +333,6 @@ onMounted(() => {
           <DockEntriesWithCategories
             :context="context"
             :groups="groupedEntries.visible"
-            :overflow="groupedEntries.overflow"
             :is-vertical="context.panel.isVertical"
             :selected="context.docks.selected"
             @select="(e) => context.docks.switchEntry(e?.id)"

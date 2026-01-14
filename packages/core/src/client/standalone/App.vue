@@ -30,9 +30,7 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
   isRpcTrusted.value = isTrusted
 })
 
-// Load settings from context
-const settingsStore = await context.docks.getSettingsStore()
-const settings = sharedStateToRef(settingsStore)
+const settings = sharedStateToRef(await context.docks.getSettingsStore())
 
 watch(
   () => context.docks.entries,
@@ -45,12 +43,6 @@ watch(
 const groupedEntries = computed(() => {
   return groupDockEntries(context.docks.entries, settings.value)
 })
-
-function switchEntry(id: string) {
-  if (id) {
-    context.docks.switchEntry(id)
-  }
-}
 </script>
 
 <template>
@@ -68,7 +60,7 @@ function switchEntry(id: string) {
           :groups="groupedEntries"
           :is-vertical="false"
           :selected="context.docks.selected"
-          @select="(e) => switchEntry(e?.id)"
+          @select="(e) => context.docks.switchEntry(e?.id)"
         >
           <template #separator>
             <div class="border-base border-b w-full my-2" />
