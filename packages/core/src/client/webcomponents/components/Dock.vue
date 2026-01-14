@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import type { DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
+import { computed, onMounted, reactive, ref, shallowRef, useTemplateRef, watch, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
+import { groupDockEntries, splitGroupsWithCapacity } from '../state/dock-settings'
+import { sharedStateToRef } from '../state/docks'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 import BracketLeft from './icons/BracketLeft.vue'
@@ -73,7 +76,24 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
-onMounted(() => {
+const settings = shallowRef<DevToolsDocksUserSettings>({
+  hiddenDocks: [],
+  hiddenCategories: [],
+  pinnedDocks: [],
+  customOrder: {},
+})
+
+const groupedEntries = computed(() => {
+  const groups = groupDockEntries(context.docks.entries, settings.value)
+  return splitGroupsWithCapacity(groups, 5)
+})
+
+onMounted(async () => {
+  const settingsStore = await context.docks.getSettingsStore()
+  const settingsRef = sharedStateToRef(settingsStore)
+  settings.value = settingsRef.value
+  watch(settingsRef, v => settings.value = v)
+
   windowSize.width = window.innerWidth
   windowSize.height = window.innerHeight
 
@@ -312,23 +332,23 @@ onMounted(() => {
         >
           <DockEntriesWithCategories
             :context="context"
-            :capacity="5"
-            :entries="context.docks.entries"
+            :groups="groupedEntries.visible"
+            :overflow="groupedEntries.overflow"
             :is-vertical="context.panel.isVertical"
             :selected="context.docks.selected"
             @select="(e) => context.docks.switchEntry(e?.id)"
-          >
-            <template #overflow="{ entries }">
-              <div class="border-base m1 h-20px w-px border-r-1.5" />
-              <DockOverflowButton
-                :context="context"
-                :is-vertical="context.panel.isVertical"
-                :entries="entries.flatMap(([_, entries]) => entries)"
-                :selected="context.docks.selected"
-                @select="(e) => context.docks.switchEntry(e?.id)"
-              />
-            </template>
-          </DockEntriesWithCategories>
+          />
+
+          <template v-if="groupedEntries.overflow.length > 0">
+            <div class="border-base m1 h-20px w-px border-r-1.5" />
+            <DockOverflowButton
+              :context="context"
+              :is-vertical="context.panel.isVertical"
+              :groups="groupedEntries.overflow"
+              :selected="context.docks.selected"
+              @select="(e) => context.docks.switchEntry(e?.id)"
+            />
+          </template>
         </div>
       </div>
     </div>

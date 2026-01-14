@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { markRaw, ref, useTemplateRef, watch } from 'vue'
+import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
 import DockEntriesWithCategories from '../webcomponents/components/DockEntriesWithCategories.vue'
 import FloatingElements from '../webcomponents/components/FloatingElements.vue'
 import VitePlus from '../webcomponents/components/icons/VitePlus.vue'
 import ViewBuiltinClientAuthNotice from '../webcomponents/components/ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from '../webcomponents/components/ViewEntry.vue'
 import { createDocksContext } from '../webcomponents/state/context'
+import { groupDockEntries } from '../webcomponents/state/dock-settings'
+import { sharedStateToRef } from '../webcomponents/state/docks'
 import { PersistedDomViewsManager } from '../webcomponents/utils/PersistedDomViewsManager'
 
 const rpc = await getDevToolsRpcClient()
@@ -28,6 +30,10 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
   isRpcTrusted.value = isTrusted
 })
 
+// Load settings from context
+const settingsStore = await context.docks.getSettingsStore()
+const settings = sharedStateToRef(settingsStore)
+
 watch(
   () => context.docks.entries,
   () => {
@@ -35,6 +41,10 @@ watch(
   },
   { immediate: true },
 )
+
+const groupedEntries = computed(() => {
+  return groupDockEntries(context.docks.entries, settings.value)
+})
 
 function switchEntry(id: string) {
   if (id) {
@@ -55,7 +65,7 @@ function switchEntry(id: string) {
       <div class="transition duration-200 p2">
         <DockEntriesWithCategories
           :context="context"
-          :entries="context.docks.entries"
+          :groups="groupedEntries"
           :is-vertical="false"
           :selected="context.docks.selected"
           @select="(e) => switchEntry(e?.id)"

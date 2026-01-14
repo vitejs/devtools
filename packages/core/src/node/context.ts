@@ -39,6 +39,8 @@ export async function createDevToolsContext(
   context.views = viewsHost
   context.terminals = terminalsHost
 
+  await docksHost.init()
+
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcDeclarations) {
     rpcHost.register(fn)

@@ -1,7 +1,10 @@
 import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref } from 'vue'
+import type { DevToolsDocksUserSettings } from './dock-settings'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
+import { defaultDocksSettings } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, useDocksEntries } from './docks'
 import { executeSetupScript } from './setup-script'
 
@@ -78,6 +81,17 @@ export async function createDocksContext(
     return switchEntry(id)
   }
 
+  let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
+  const getSettingsStore = async () => {
+    if (!_settingsStorePromise) {
+      _settingsStorePromise = rpc.sharedState.get(
+        'vite:internal:docks:settings',
+        { initialValue: defaultDocksSettings() },
+      )
+    }
+    return _settingsStorePromise
+  }
+
   _docksContext = reactive({
     panel: {
       store: panelStore,
@@ -91,6 +105,7 @@ export async function createDocksContext(
       entries: dockEntries,
       entryToStateMap: markRaw(dockEntryStateMap),
       getStateById: (id: string) => dockEntryStateMap.get(id),
+      getSettingsStore,
       switchEntry,
       toggleEntry,
     },

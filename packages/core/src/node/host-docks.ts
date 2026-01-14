@@ -1,13 +1,27 @@
-import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
+import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
   public readonly views: DevToolsDockHostType['views'] = new Map()
   public readonly events: DevToolsDockHostType['events'] = createEventEmitter()
+  public userSettings: SharedState<DevToolsDocksUserSettings> = undefined!
 
   constructor(
     public readonly context: DevToolsNodeContext,
   ) {
+
+  }
+
+  async init() {
+    this.userSettings = await this.context.rpc.sharedState.get('vite:internal:docks:settings', {
+      initialValue: {
+        hiddenDocks: [],
+        hiddenCategories: [],
+        pinnedDocks: [],
+        customOrder: {},
+      },
+    })
   }
 
   values({

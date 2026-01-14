@@ -1,6 +1,7 @@
 import type { RpcFunctionsCollector } from 'birpc-x'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -58,6 +59,10 @@ export interface DocksEntriesContext {
    * Get the state of a dock entry by its ID
    */
   getStateById: (id: string) => DockEntryState | undefined
+  /**
+   * Get the user settings store for dock entries (hiddenDocks, pinnedDocks, customOrder, etc.)
+   */
+  getSettingsStore: () => Promise<SharedState<DevToolsDocksUserSettings>>
   /**
    * Switch to the selected dock entry, pass `null` to clear the selection
    *

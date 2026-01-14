@@ -65,7 +65,7 @@ export function createDockEntryState(
   return state
 }
 
-function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> {
+export function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> {
   const ref = shallowRef<T>(sharedState.value() as T)
   sharedState.on('updated', (newState: T) => {
     ref.value = newState
