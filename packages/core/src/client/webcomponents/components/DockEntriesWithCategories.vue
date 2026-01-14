@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, toRefs } from 'vue'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 import DockEntries from './DockEntries.vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
+  context: DocksContext
   entries: DevToolsDockEntry[]
   selected: DevToolsDockEntry | null
   capacity?: number
@@ -88,6 +90,7 @@ const overflowBadge = computed(() => {
       <div class="border-base m1 h-20px w-px border-r-1.5" />
     </slot>
     <DockEntries
+      :context="context"
       :entries="entries"
       :is-vertical="isVertical"
       :selected="selected"

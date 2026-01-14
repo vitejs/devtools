@@ -11,16 +11,31 @@ const params = useRoute().params as {
 
 const rpc = useRpc()
 const sessions = ref<SessionCompareContext[]>([])
+const packages = ref<{ total: number, duplicated: number }[]>([])
+
+async function getPackages(id: string) {
+  const packages = await rpc.value.call('vite:rolldown:get-packages', { session: id })
+  const duplicatedPackages = packages.filter(p => p.duplicated)
+  return {
+    total: packages.length,
+    duplicated: duplicatedPackages.length,
+  }
+}
 
 onMounted(async () => {
   isLoading.value = true
+  const sessionIds = params.sessions.split(',')
 
-  const summary = await rpc.value.call(
-    'vite:rolldown:get-session-compare-summary',
-    { sessions: params.sessions.split(',') },
-  )
+  const [summary, ..._packages] = await Promise.all([
+    rpc.value.call(
+      'vite:rolldown:get-session-compare-summary',
+      { sessions: sessionIds },
+    ),
+    ...sessionIds.map(id => getPackages(id)),
+  ])
 
   sessions.value = summary
+  packages.value = _packages
 
   isLoading.value = false
 })
@@ -59,6 +74,20 @@ const comparisonMetrics = computed(() => {
       icon: 'i-ph-graph-duotone',
       current: sessionB?.modules ?? 0,
       previous: sessionA?.modules ?? 0,
+    },
+    {
+      name: 'Packages',
+      description: 'Total number of packages',
+      icon: 'i-ph-package-duotone',
+      current: packages.value?.[1]?.total ?? 0,
+      previous: packages.value?.[0]?.total ?? 0,
+    },
+    {
+      name: 'Duplicated Packages',
+      description: 'Total number of duplicated packages',
+      icon: 'i-ph-package-duotone',
+      current: packages.value?.[1]?.duplicated ?? 0,
+      previous: packages.value?.[0]?.duplicated ?? 0,
     },
     {
       name: 'Plugins',
@@ -100,8 +129,8 @@ const comparisonMetrics = computed(() => {
       </div>
       <!-- meta info -->
       <CompareSessionMeta :sessions="normalizedSessions" />
-      <div grid="~ cols-4 gap5" w-full pt3>
-        <div v-for="(item, index) of comparisonMetrics" :key="item.name" :class="index < 2 ? 'col-span-2' : 'col-span-1'" border="~ base rounded" p4 flex="~ col" gap2>
+      <div grid="~ cols-6 gap5" w-full pt3>
+        <div v-for="(item, index) of comparisonMetrics" :key="item.name" :class="index < 2 ? 'col-span-3' : 'col-span-2'" border="~ base rounded" p4 flex="~ col" gap2>
           <CompareMetricCard v-bind="item" />
         </div>
       </div>
