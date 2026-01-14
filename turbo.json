@@ -1,10 +1,29 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "dev:prepare": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "**/.nuxt/**"
+      ]
+    },
     "build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"
+      ],
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "@vitejs/devtools-vite#build": {
+      "dependsOn": [
+        "@vitejs/devtools-vite#dev:prepare"
+      ]
+    },
+    "@vitejs/devtools#build": {
+      "dependsOn": [
+        "@vitejs/devtools-vite#dev:prepare"
       ]
     }
   }
