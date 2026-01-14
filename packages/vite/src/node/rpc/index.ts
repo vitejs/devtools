@@ -34,6 +34,13 @@ export const rpcFunctions = [
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
+export const serverRpcSchemas = new Map(
+  rpcFunctions.map(d => [
+    d.name,
+    { args: d.argsSchema, returns: d.returnSchema },
+  ]),
+)
+
 export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
   RpcDefinitionsFilter<typeof rpcFunctions, 'static'>
 >

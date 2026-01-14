@@ -9,6 +9,7 @@ import { UAParser } from 'my-ua-parser'
 import { createEventEmitter } from '../utils/events'
 import { nanoid } from '../utils/nanoid'
 import { promiseWithResolver } from '../utils/promise'
+import { validateRpcArgs, validateRpcReturn } from '../utils/rpc-validation'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
@@ -241,10 +242,12 @@ export async function getDevToolsRpcClient(
     ensureTrusted,
     requestTrust,
     call: (...args: any): any => {
-      return serverRpc.$call(
+      validateRpcArgs(args[0], args.slice(1))
+      const ret = serverRpc.$call(
         // @ts-expect-error casting
         ...args,
       )
+      validateRpcReturn(args[0], ret)
     },
     callEvent: (...args: any): any => {
       return serverRpc.$callEvent(
