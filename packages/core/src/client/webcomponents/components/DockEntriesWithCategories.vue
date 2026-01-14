@@ -63,7 +63,7 @@ const groups = computed(() => {
         left = 0
       }
       else {
-        left -= entries.length
+        left -= items.length
         visible.push([category, items])
       }
     }

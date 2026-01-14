@@ -22,6 +22,7 @@
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
     "./utils/events": "./dist/utils/events.mjs",
+    "./utils/logger": "./dist/utils/logger.mjs",
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./package.json": "./package.json"
@@ -42,6 +43,7 @@
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "birpc-x": "catalog:deps",
+    "consola": "catalog:deps",
     "immer": "catalog:deps"
   },
   "devDependencies": {

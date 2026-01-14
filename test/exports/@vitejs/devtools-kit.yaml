@@ -4,6 +4,9 @@
   getDevToolsRpcClient: function
 ./utils/events:
   createEventEmitter: function
+./utils/logger:
+  createLogger: function
+  logger: object
 ./utils/nanoid:
   nanoid: function
 ./utils/shared-state:

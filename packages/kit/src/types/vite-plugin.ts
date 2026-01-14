@@ -1,3 +1,4 @@
+import type { ConsolaInstance } from 'consola'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DockClientScriptContext } from '../client'
 import type { ClientScriptEntry, DevToolsDockHost } from './docks'
@@ -61,6 +62,23 @@ export interface DevToolsNodeContext {
    * Terminals host, for registering terminal sessions and streaming terminal output
    */
   terminals: DevToolsTerminalHost
+  /**
+   * Logger instance for logging messages.
+   * Uses consola under the hood, similar to Nuxt Kit's logging API.
+   *
+   * @example
+   * ```ts
+   * context.logger.info('Plugin initialized')
+   * context.logger.debug('Debug info')
+   * context.logger.warn('Warning message')
+   * context.logger.error(new Error('Error occurred'))
+   *
+   * // Create child logger with tag
+   * const rpcLogger = context.logger.withTag('rpc')
+   * rpcLogger.info('RPC connected')
+   * ```
+   */
+  logger: ConsolaInstance
 }
 
 export interface DevToolsNodeUtils {

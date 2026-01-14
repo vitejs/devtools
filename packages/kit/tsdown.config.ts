@@ -6,6 +6,7 @@ export default defineConfig({
     'utils/events': 'src/utils/events.ts',
     'utils/nanoid': 'src/utils/nanoid.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
+    'utils/logger': 'src/utils/logger.ts',
     'client': 'src/client/index.ts',
   },
   exports: true,
