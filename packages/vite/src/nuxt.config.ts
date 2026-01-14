@@ -91,6 +91,8 @@ export default defineNuxtConfig({
     build: {
       rolldownOptions: {
         devtools: {},
+        // https://github.com/parcel-bundler/lightningcss/issues/701
+        external: ['lightningcss'],
       },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
