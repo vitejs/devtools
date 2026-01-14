@@ -47,8 +47,11 @@ function selectSession(session: BuildInfo) {
 <template>
   <div p4 flex="~ col gap-4" items-center justify-center relative>
     <VisualLogoBanner />
-    <p op50>
+    <p v-if="sessions.length" op50>
       {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
+    </p>
+    <p v-else op50>
+      No sessions yet, run a build to get started.
     </p>
     <div relative flex="~ col gap3 items-center">
       <PanelSessionSelector
@@ -59,7 +62,7 @@ function selectSession(session: BuildInfo) {
         @select="selectSession"
       />
     </div>
-    <div fixed top-5 right-5 flex="~ col gap2">
+    <div v-if="sessions.length" fixed top-5 right-5 flex="~ col gap2">
       <div flex="~ row justify-around" w20 h8 border="~ base rounded-8" of-hidden>
         <button v-for="mode in modeList" :key="mode.value" :title="mode.label" flex-1 op50 flex="~ items-center justify-center" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" hover="bg-active text-base op100!" @click="sessionMode = mode.value">
           <span :class="mode.icon" class="text-sm" />

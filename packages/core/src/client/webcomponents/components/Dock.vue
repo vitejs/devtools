@@ -3,7 +3,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
-import DockEntries from './DockEntries.vue'
+import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
@@ -305,14 +305,19 @@ onMounted(() => {
             </div>
           </button>
         </div>
-        <DockEntries
-          :entries="context.docks.entries"
-          class="transition duration-200 flex items-center w-full h-full justify-center px3"
+        <div
           :class="isMinimized ? 'opacity-0 pointer-events-none' : 'opacity-100'"
-          :is-vertical="context.panel.isVertical"
-          :selected="context.docks.selected"
-          @select="(e) => context.docks.switchEntry(e?.id)"
-        />
+          class="transition duration-200 flex items-center w-full h-full justify-center px3"
+        >
+          <DockEntriesWithCategories
+            :context="context"
+            :capacity="5"
+            :entries="context.docks.entries"
+            :is-vertical="context.panel.isVertical"
+            :selected="context.docks.selected"
+            @select="(e) => context.docks.switchEntry(e?.id)"
+          />
+        </div>
       </div>
     </div>
   </div>

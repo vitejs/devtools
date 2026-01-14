@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
+  context: DocksContext
   entries: DevToolsDockEntry[]
   selected: DevToolsDockEntry | null
   isVertical: boolean
@@ -24,16 +26,14 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
 </script>
 
 <template>
-  <div>
-    <template v-for="dock of entries" :key="dock.id">
-      <DockEntry
-        v-if="!dock.isHidden"
-        :dock
-        :is-selected="selected?.id === dock.id"
-        :is-dimmed="selected ? (selected.id !== dock.id) : false"
-        :is-vertical="isVertical"
-        @click="toggleDockEntry(dock)"
-      />
-    </template>
-  </div>
+  <template v-for="dock of entries" :key="dock.id">
+    <DockEntry
+      v-if="!dock.isHidden"
+      :dock
+      :is-selected="selected?.id === dock.id"
+      :is-dimmed="selected ? (selected.id !== dock.id) : false"
+      :is-vertical="isVertical"
+      @click="toggleDockEntry(dock)"
+    />
+  </template>
 </template>

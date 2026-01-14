@@ -10,6 +10,7 @@ const props = defineProps<{
   isSelected?: boolean
   isDimmed?: boolean
   isVertical?: boolean
+  badge?: string
 }>()
 
 const button = useTemplateRef<HTMLButtonElement>('button')
@@ -18,7 +19,7 @@ function updatePos() {
   const rect = button.value?.getBoundingClientRect()
   if (rect) {
     setFloatingTooltip({
-      text: props.dock.title,
+      render: props.dock.title,
       width: rect.width,
       height: rect.height,
       left: rect.left,
@@ -55,9 +56,12 @@ useEventListener('pointerdown', () => {
         isDimmed ? 'op50 saturate-0' : '',
         isSelected ? 'scale-120 text-purple' : '',
       ]"
-      class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-120 transition-all duration-300 relative"
+      class="flex items-center justify-center p1.5 rounded-xl hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative"
     >
       <DockIcon :icon="dock.icon" :title="dock.title" class="w-5 h-5 select-none" />
+      <div v-if="badge" class="absolute top-0.5 right-0 bg-gray-6 text-white text-0.6em px-1 rounded-full shadow">
+        {{ badge }}
+      </div>
     </button>
   </div>
 </template>

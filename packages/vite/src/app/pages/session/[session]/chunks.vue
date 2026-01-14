@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
+import type { ChunkChartInfo, ChunkChartNode } from '~/types/chart'
 import { useRpc } from '#imports'
-import { computedWithControl, useAsyncState } from '@vueuse/core'
+import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, ref } from 'vue'
+import { Flamegraph, Sunburst, Treemap } from 'nanovis'
+import { computed, reactive, ref, watch } from 'vue'
+import ChartTreemap from '~/components/chart/Treemap.vue'
+import { useChartGraph } from '~/composables/chart'
 import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 
 const props = defineProps<{
   session: SessionContext
 }>()
+
+const mouse = reactive(useMouse())
 
 const chunkViewTypes = [
   {
@@ -27,6 +33,21 @@ const chunkViewTypes = [
     label: 'Graph',
     value: 'graph',
     icon: 'i-ph-graph-duotone',
+  },
+  {
+    label: 'Treemap',
+    value: 'treemap',
+    icon: 'i-ph-checkerboard-duotone',
+  },
+  {
+    label: 'Sunburst',
+    value: 'sunburst',
+    icon: 'i-ph-chart-donut-duotone',
+  },
+  {
+    label: 'Flamegraph',
+    value: 'flamegraph',
+    icon: 'i-ph-chart-bar-horizontal-duotone',
   },
 ] as const
 
@@ -89,6 +110,95 @@ const { pathSelectorVisible, pathNodes, selectPathNodes, togglePathSelector, nor
 function toggleDisplay(type: ClientSettings['chunkViewType']) {
   settings.value.chunkViewType = type
 }
+
+// Calculate chunk size from modules
+const modulesMap = computed(() => {
+  const map = new Map()
+  for (const module of props.session.modulesList) {
+    map.set(module.id, module)
+  }
+  return map
+})
+
+function getChunkSize(chunk: RolldownChunkInfo): number {
+  // First try to use asset size if available
+  if (chunk.asset?.size) {
+    return chunk.asset.size
+  }
+
+  // Otherwise, calculate from module transforms
+  return chunk.modules.reduce((total, id) => {
+    const moduleInfo = modulesMap.value.get(id)
+    if (!moduleInfo || !moduleInfo.buildMetrics?.transforms?.length)
+      return total
+
+    const transforms = moduleInfo.buildMetrics.transforms
+    return total + transforms[transforms.length - 1]!.transformed_code_size
+  }, 0)
+}
+
+// Normalize chunks with size for chart visualization
+const chunksWithSize = computed(() => {
+  return searched.value.map(chunk => ({
+    ...chunk,
+    filename: chunk.name || `chunk-${chunk.chunk_id}`,
+    size: getChunkSize(chunk),
+  }))
+})
+
+// Chart graph setup for nanovis visualizations
+const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<
+  Omit<RolldownChunkInfo, 'type'>,
+  ChunkChartInfo,
+  ChunkChartNode
+>({
+  data: chunksWithSize,
+  nameKey: 'filename',
+  sizeKey: 'size',
+  rootText: 'Chunks',
+  nodeType: 'chunk',
+  graphOptions: {
+    onClick(node) {
+      if (node)
+        nodeHover.value = node
+    },
+    onHover(node) {
+      if (node)
+        nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
+    },
+    onLeave() {
+      nodeHover.value = undefined
+    },
+    onSelect(node) {
+      nodeSelected.value = node || tree.value.root
+      selectedNode.value = node?.meta
+    },
+  },
+  onUpdate() {
+    switch (settings.value.chunkViewType) {
+      case 'sunburst':
+        graph.value = new Sunburst(tree.value.root, chartOptions.value)
+        break
+      case 'treemap':
+        graph.value = new Treemap(tree.value.root, {
+          ...chartOptions.value,
+          selectedPaddingRatio: 0,
+        })
+        break
+      case 'flamegraph':
+        graph.value = new Flamegraph(tree.value.root, chartOptions.value)
+        break
+    }
+  },
+})
+
+watch(() => settings.value.chunkViewType, () => {
+  if (['treemap', 'sunburst', 'flamegraph'].includes(settings.value.chunkViewType)) {
+    buildGraph()
+  }
+})
 </script>
 
 <template>
@@ -166,5 +276,64 @@ function toggleDisplay(type: ClientSettings['chunkViewType']) {
         :entry-id="pathNodes.start"
       />
     </template>
+    <template v-else-if="settings.chunkViewType === 'treemap'">
+      <div of-auto h-screen flex="~ col gap-2" pt32>
+        <ChartTreemap
+          v-if="graph" :graph="graph"
+          :selected="nodeSelected"
+          @select="x => selectNode(x)"
+        >
+          <template #default="{ selected, options, onSelect }">
+            <ChartNavBreadcrumb
+              border="b base" py2 min-h-10
+              :selected="selected"
+              :options="options"
+              @select="onSelect"
+            />
+          </template>
+        </ChartTreemap>
+      </div>
+    </template>
+    <template v-else-if="settings.chunkViewType === 'sunburst'">
+      <div of-auto h-screen flex="~ col gap-2" pt32>
+        <ChunksSunburst
+          v-if="graph" :graph="graph"
+          :selected="nodeSelected"
+          @select="x => selectNode(x)"
+        />
+      </div>
+    </template>
+    <template v-else-if="settings.chunkViewType === 'flamegraph'">
+      <div of-auto h-screen flex="~ col gap-2" pt32>
+        <ChunksFlamegraph
+          v-if="graph" :graph="graph"
+        />
+      </div>
+    </template>
+    <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+      <div
+        v-if="nodeHover?.meta"
+        border="~ base rounded-lg" bg-base p2
+        flex="~ col gap-2"
+        min-w-50
+        shadow-lg
+      >
+        <div flex="~ gap-2 items-center">
+          <i i-ph-shapes-duotone flex-none />
+          <span truncate>{{ nodeHover.meta.name || '[unnamed]' }}</span>
+        </div>
+        <div flex="~ gap-2 items-center">
+          <span op50 text-xs>Size:</span>
+          <DisplayFileSizeBadge :bytes="nodeHover.meta.size" text-xs />
+        </div>
+        <div v-if="nodeHover.meta.modules?.length" flex="~ gap-2 items-center">
+          <span op50 text-xs>Modules:</span>
+          <span text-xs>{{ nodeHover.meta.modules?.length }}</span>
+        </div>
+        <div v-if="nodeHover.meta.is_initial" flex="~ gap-2 items-center">
+          <DisplayBadge text="initial" />
+        </div>
+      </div>
+    </DisplayGraphHoverView>
   </div>
 </template>

@@ -32,6 +32,7 @@ export default defineConfig({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/' },
+          { text: 'Features', link: '/guide/features/' },
         ],
       },
       {
@@ -48,7 +49,7 @@ export default defineConfig({
 
     logo: {
       light: '/logo.svg',
-      dark: '/logo_dark.svg',
+      dark: '/logo.svg',
     },
 
     footer: {

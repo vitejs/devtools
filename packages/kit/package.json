@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.0.0-alpha.22",
+  "version": "0.0.0-alpha.24",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -26,8 +26,6 @@
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "files": [
     "dist"
