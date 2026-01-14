@@ -4,7 +4,6 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, toRefs } from 'vue'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 import DockEntries from './DockEntries.vue'
-import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -75,13 +74,6 @@ const groups = computed(() => {
     overflow,
   }
 })
-
-const overflowBadge = computed(() => {
-  const count = groups.value.overflow.reduce((acc, [_, entries]) => acc + entries.length, 0)
-  if (count > 9)
-    return '9+'
-  return count.toString()
-})
 </script>
 
 <template>
@@ -96,20 +88,6 @@ const overflowBadge = computed(() => {
       :selected="selected"
       @select="(e) => emit('select', e)"
     />
-    <slot v-if="groups.overflow.length > 0" name="overflow" :entries="groups.overflow">
-      <div class="border-base m1 h-20px w-px border-r-1.5" />
-      <DockEntry
-        :dock="{
-          id: 'overflow',
-          title: 'Overflow',
-          icon: 'ph:dots-three-circle-duotone',
-        }"
-        :badge="overflowBadge"
-        :is-vertical="isVertical"
-        :is-selected="false"
-        :is-dimmed="false"
-      />
-      <!-- TODO: panel -->
-    </slot>
+    <slot v-if="groups.overflow.length > 0" name="overflow" :entries="groups.overflow" />
   </template>
 </template>

@@ -1,84 +1,41 @@
-import type { PropType } from 'vue'
+import type { PropType, VNode } from 'vue'
 import type { FloatingPopoverProps } from '../state/floating-tooltip'
-import { useDebounceFn, useElementBounding } from '@vueuse/core'
-import { computed, defineComponent, h, reactive, ref, watch } from 'vue'
+import { onClickOutside, useDebounceFn } from '@vueuse/core'
+import { defineComponent, h, ref, useTemplateRef, watch } from 'vue'
 
 // @unocss-include
 
 const DETECT_MARGIN = 100
-const GAP = 10
+const DEFAULT_GAP = 10
 
-const FloatingTooltipComponent = defineComponent({
-  name: 'FloatingTooltip',
+const FloatingPopoverComponent = defineComponent({
+  name: 'FloatingPopover',
   props: {
     item: {
       type: Object as PropType<FloatingPopoverProps | null | undefined>,
       required: false,
     },
+    dismissOnClickOutside: {
+      type: Boolean,
+      default: true,
+    },
   },
-  setup(props) {
+  emits: ['dismiss'],
+  setup(props, { emit }) {
+    const panel = useTemplateRef<HTMLDivElement>('panel')
     const el = ref(props.item?.el)
-    const rect = reactive(useElementBounding(el))
-
-    // guess alignment of the tooltip based on viewport position
-    const align = computed<'bottom' | 'left' | 'right' | 'top'>(() => {
-      if (!props.item?.el)
-        return 'bottom'
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      if (rect.left < DETECT_MARGIN)
-        return 'right'
-      if (rect.left + rect.width > vw - DETECT_MARGIN)
-        return 'left'
-      if (rect.top < DETECT_MARGIN)
-        return 'bottom'
-      if (rect.top + rect.height > vh - DETECT_MARGIN)
-        return 'top'
-      return 'bottom'
-    })
-
-    const style = computed(() => {
-      if (!props.item?.el)
-        return {}
-      switch (align.value) {
-        case 'bottom': {
-          return {
-            left: `${rect.left + rect.width / 2}px`,
-            top: `${rect.top + rect.height + GAP}px`,
-            transform: 'translateX(-50%)',
-          }
-        }
-        case 'top': {
-          return {
-            left: `${rect.left + rect.width / 2}px`,
-            bottom: `${window.innerHeight - rect.top + GAP}px`,
-            transform: 'translateX(-50%)',
-          }
-        }
-        case 'left': {
-          return {
-            right: `${window.innerWidth - rect.left + GAP}px`,
-            top: `${rect.top + rect.height / 2}px`,
-            transform: 'translateY(-50%)',
-          }
-        }
-        case 'right': {
-          return {
-            left: `${rect.left + rect.width + GAP}px`,
-            top: `${rect.top + rect.height / 2}px`,
-            transform: 'translateY(-50%)',
-          }
-        }
-        default: {
-          throw new Error('Unreachable')
-        }
-      }
-    })
+    const renderCounter = ref(0)
 
     const clearThrottled = useDebounceFn(() => {
       if (props.item?.el == null)
         el.value = undefined
     }, 800)
+
+    if (props.dismissOnClickOutside) {
+      onClickOutside(panel, () => {
+        emit('dismiss')
+      })
+    }
 
     watch(
       () => props.item,
@@ -87,7 +44,7 @@ const FloatingTooltipComponent = defineComponent({
           if (el.value !== value.el)
             el.value = value.el
           else
-            rect.update()
+            renderCounter.value++
         }
         else {
           clearThrottled()
@@ -95,20 +52,87 @@ const FloatingTooltipComponent = defineComponent({
       },
     )
 
+    let previousContent: VNode | undefined
+
     return () => {
-      if (!props.item?.content)
+      // Force re-render to update the position
+      // eslint-disable-next-line ts/no-unused-expressions
+      renderCounter.value
+
+      if (!el.value)
         return null
 
-      const content = typeof props.item.content === 'string' ? h('span', props.item.content) : props.item.content()
+      const rect = el.value.getBoundingClientRect()
+
+      // guess alignment of the tooltip based on viewport position
+      let align: 'bottom' | 'left' | 'right' | 'top' = 'bottom'
+
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      if (rect.left < DETECT_MARGIN)
+        align = 'right'
+      else if (rect.left + rect.width > vw - DETECT_MARGIN)
+        align = 'left'
+      else if (rect.top < DETECT_MARGIN)
+        align = 'bottom'
+      else if (rect.top + rect.height > vh - DETECT_MARGIN)
+        align = 'top'
+
+      let style: Record<string, string> = {}
+      const gap = props.item?.gap ?? DEFAULT_GAP
+
+      switch (align) {
+        case 'bottom': {
+          style = {
+            left: `${rect.left + rect.width / 2}px`,
+            top: `${rect.top + rect.height + gap}px`,
+            transform: 'translateX(-50%)',
+          }
+          break
+        }
+        case 'top': {
+          style = {
+            left: `${rect.left + rect.width / 2}px`,
+            bottom: `${vh - rect.top + gap}px`,
+            transform: 'translateX(-50%)',
+          }
+          break
+        }
+        case 'left': {
+          style = {
+            right: `${vw - rect.left + gap}px`,
+            top: `${rect.top + rect.height / 2}px`,
+            transform: 'translateY(-50%)',
+          }
+          break
+        }
+        case 'right': {
+          style = {
+            left: `${rect.left + rect.width + gap}px`,
+            top: `${rect.top + rect.height / 2}px`,
+            transform: 'translateY(-50%)',
+          }
+          break
+        }
+      }
+
+      const content = (
+        typeof props.item?.content === 'string'
+          ? h('span', props.item?.content)
+          : props.item?.content()
+      ) ?? previousContent
+
+      previousContent = content
 
       return h(
         'div',
         {
+          ref: 'panel',
           class: [
             'fixed z-floating-tooltip text-xs transition-all duration-300 w-max bg-glass border border-base rounded px2 p1',
             props.item ? 'op100' : 'op0 pointer-events-none',
           ],
-          style: style.value,
+          style,
         },
         content,
       )
@@ -116,4 +140,4 @@ const FloatingTooltipComponent = defineComponent({
   },
 })
 
-export default FloatingTooltipComponent
+export default FloatingPopoverComponent

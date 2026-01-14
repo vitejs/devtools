@@ -4,6 +4,7 @@ import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
+import DockOverflowButton from './DockOverflowButton.vue'
 import BracketLeft from './icons/BracketLeft.vue'
 import BracketRight from './icons/BracketRight.vue'
 import VitePlusCore from './icons/VitePlusCore.vue'
@@ -316,7 +317,18 @@ onMounted(() => {
             :is-vertical="context.panel.isVertical"
             :selected="context.docks.selected"
             @select="(e) => context.docks.switchEntry(e?.id)"
-          />
+          >
+            <template #overflow="{ entries }">
+              <div class="border-base m1 h-20px w-px border-r-1.5" />
+              <DockOverflowButton
+                :context="context"
+                :is-vertical="context.panel.isVertical"
+                :entries="entries.flatMap(([_, entries]) => entries)"
+                :selected="context.docks.selected"
+                @select="(e) => context.docks.switchEntry(e?.id)"
+              />
+            </template>
+          </DockEntriesWithCategories>
         </div>
       </div>
     </div>
