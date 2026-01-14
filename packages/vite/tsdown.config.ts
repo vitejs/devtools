@@ -5,6 +5,9 @@ export default defineConfig({
     index: 'src/index.ts',
     dirs: 'src/dirs.ts',
   },
+  external: [
+    'lightningcss',
+  ],
   tsconfig: '../../tsconfig.base.json',
   target: 'esnext',
   exports: true,
