@@ -40,12 +40,10 @@ export const builtinRpcDeclarations = [
   ...builtinInternalRpcDeclarations,
 ] as const
 
-type BuiltinRpcDecl = typeof builtinRpcDeclarations[number]['fn'][]
-
-export type BuiltinServerFunctions = RpcDefinitionsToFunctions<BuiltinRpcDecl>
+export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDeclarations>
 
 export type BuiltinServerFunctionsStatic = RpcDefinitionsToFunctions<
-  RpcDefinitionsFilter<BuiltinRpcDecl, 'static'>
+  RpcDefinitionsFilter<typeof builtinRpcDeclarations, 'static'>
 >
 
 export type BuiltinServerFunctionsDump = {

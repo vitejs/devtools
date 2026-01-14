@@ -32,10 +32,10 @@ export const rpcFunctions = [
   rolldownGetPackageDetails,
 ] as const
 
-export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions[number]['fn'][]>
+export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
 export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
-  RpcDefinitionsFilter<typeof rpcFunctions[number]['fn'][], 'static'>
+  RpcDefinitionsFilter<typeof rpcFunctions, 'static'>
 >
 
 export type ServerFunctionsDump = {

@@ -8,7 +8,7 @@ export function DevToolsViteUI(): PluginWithDevTools {
     devtools: {
       setup(ctx) {
         for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn.fn)
+          ctx.rpc.register(fn)
         }
 
         ctx.views.hostStatic(
