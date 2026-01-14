@@ -1,4 +1,5 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
+import type { Immutable } from '@vitejs/devtools-kit/utils/shared-state'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
 export type { DevToolsDocksUserSettings }
@@ -25,7 +26,7 @@ export function defaultDocksSettings(): DevToolsDocksUserSettings {
  */
 export function groupDockEntries(
   entries: DevToolsDockEntry[],
-  settings: DevToolsDocksUserSettings,
+  settings: Immutable<DevToolsDocksUserSettings>,
   options?: { includeHidden?: boolean },
 ): GroupedDockEntries {
   const { hiddenDocks, hiddenCategories, customOrder, pinnedDocks } = settings

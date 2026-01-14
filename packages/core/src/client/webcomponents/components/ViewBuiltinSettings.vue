@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type { DevToolsDocksUserSettings, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
+import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
-import { computed, onMounted, shallowRef, watch } from 'vue'
+import { computed } from 'vue'
 import { defaultDocksSettings, groupDockEntries } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
 import DockIcon from './DockIcon.vue'
@@ -12,33 +11,11 @@ const props = defineProps<{
   entry: DevToolsViewBuiltin
 }>()
 
-const settings = shallowRef<DevToolsDocksUserSettings>(defaultDocksSettings())
-const isLoading = shallowRef(true)
-let sharedState: SharedState<DevToolsDocksUserSettings> | undefined
-
-onMounted(async () => {
-  sharedState = await props.context.docks.getSettingsStore()
-  const settingsRef = sharedStateToRef(sharedState)
-  settings.value = settingsRef.value
-  watch(settingsRef, v => settings.value = v)
-
-  isLoading.value = false
-
-  watch(
-    settings,
-    (newSettings) => {
-      sharedState?.mutate(() => newSettings)
-    },
-    { deep: false },
-  )
-})
-
-function updateSettings(patch: Partial<DevToolsDocksUserSettings>) {
-  settings.value = { ...settings.value, ...patch }
-}
+const settingsStore = await props.context.docks.getSettingsStore()
+const settings = sharedStateToRef(settingsStore)
 
 const categories = computed(() => {
-  return groupDockEntries(props.context.docks.entries, settings.value, { includeHidden: true })
+  return groupDockEntries(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
 })
 
 function getCategoryLabel(category: string): string {
@@ -60,10 +37,14 @@ function toggleDock(id: string, visible?: boolean) {
   const shouldShow = visible ?? isHidden
 
   if (shouldShow) {
-    updateSettings({ hiddenDocks: hidden.filter((i: string) => i !== id) })
+    settingsStore.mutate((state) => {
+      state.hiddenDocks = state.hiddenDocks.filter((i: string) => i !== id)
+    })
   }
   else {
-    updateSettings({ hiddenDocks: [...hidden, id] })
+    settingsStore.mutate((state) => {
+      state.hiddenDocks = [...state.hiddenDocks, id]
+    })
   }
 }
 
@@ -73,34 +54,79 @@ function toggleCategory(category: string, visible?: boolean) {
   const shouldShow = visible ?? isHidden
 
   if (shouldShow) {
-    updateSettings({ hiddenCategories: hidden.filter((i: string) => i !== category) })
+    settingsStore.mutate((state) => {
+      state.hiddenCategories = state.hiddenCategories.filter((i: string) => i !== category)
+    })
   }
   else {
-    updateSettings({ hiddenCategories: [...hidden, category] })
+    settingsStore.mutate((state) => {
+      state.hiddenCategories = [...state.hiddenCategories, category]
+    })
   }
 }
 
 function togglePin(id: string) {
   const pinned = settings.value.pinnedDocks
   if (pinned.includes(id)) {
-    updateSettings({ pinnedDocks: pinned.filter((i: string) => i !== id) })
+    settingsStore.mutate((state) => {
+      state.pinnedDocks = state.pinnedDocks.filter((i: string) => i !== id)
+    })
   }
   else {
-    updateSettings({ pinnedDocks: [...pinned, id] })
+    settingsStore.mutate((state) => {
+      state.pinnedDocks = [...state.pinnedDocks, id]
+    })
   }
 }
 
-function moveOrder(id: string, delta: number) {
-  const customOrder = { ...settings.value.customOrder }
-  const current = customOrder[id] ?? 0
-  customOrder[id] = current + delta
-  updateSettings({ customOrder })
+function isInCustomOrder(id: string): boolean {
+  return settings.value.customOrder[id] !== undefined
+}
+
+function moveOrder(category: string, id: string, delta: number) {
+  const items = categories.value.find(([cat]) => cat === category)
+  if (!items)
+    throw new Error(`Category ${category} not found`)
+  const array = [...items[1]]
+  const index = array.findIndex(item => item.id === id)
+  const newIndex = index + delta
+  if (newIndex < 0 || newIndex >= array.length)
+    throw new Error(`Invalid new index ${newIndex} for category ${category}`)
+
+  array.splice(newIndex, 0, array.splice(index, 1)[0]!)
+  items[1] = array
+
+  settingsStore.mutate((state) => {
+    array.forEach((item, index) => {
+      state.customOrder[item.id] = index
+    })
+  })
+}
+
+function doesCategoryHaveCustomOrder(category: string): boolean {
+  const items = categories.value.find(([cat]) => cat === category)
+  if (!items)
+    return false
+  return items[1].some(item => isInCustomOrder(item.id))
+}
+
+function resetCustomOrderForCategory(category: string) {
+  const items = categories.value.find(([cat]) => cat === category)
+  if (!items)
+    return
+  settingsStore.mutate((state) => {
+    items[1].forEach((item) => {
+      delete state.customOrder[item.id]
+    })
+  })
 }
 
 function resetSettings() {
   // eslint-disable-next-line no-alert
   if (confirm('Reset all dock settings to defaults?')) {
-    settings.value = defaultDocksSettings()
+    settingsStore.mutate(() => {
+      return defaultDocksSettings()
+    })
   }
 }
 </script>
@@ -113,133 +139,138 @@ function resetSettings() {
         DevTools Settings
       </h1>
 
-      <div v-if="isLoading" class="flex items-center justify-center py-10">
-        <div class="i-svg-spinners-ring-resize text-2xl op50" />
-      </div>
+      <section class="mb-8">
+        <h2 class="text-lg font-medium mb-4 op75">
+          Dock Entries
+        </h2>
+        <p class="text-sm op50 mb-4">
+          Manage visibility and order of dock entries. Hidden entries will not appear in the dock bar.
+        </p>
 
-      <template v-else>
-        <section class="mb-8">
-          <h2 class="text-lg font-medium mb-4 op75">
-            Dock Entries
-          </h2>
-          <p class="text-sm op50 mb-4">
-            Manage visibility and order of dock entries. Hidden entries will not appear in the dock bar.
-          </p>
-
-          <div class="flex flex-col gap-4">
-            <template v-for="[category, entries] of categories" :key="category">
+        <div class="flex flex-col gap-4">
+          <template v-for="[category, entries] of categories" :key="category">
+            <div
+              class="border border-base rounded-lg overflow-hidden transition-opacity"
+              :class="settings.hiddenCategories.includes(category) ? 'op40' : ''"
+            >
+              <!-- Category header -->
               <div
-                class="border border-base rounded-lg overflow-hidden transition-opacity"
-                :class="settings.hiddenCategories.includes(category) ? 'op40' : ''"
+                class="flex items-center gap-2 px-4 py-3 bg-gray/5 cursor-pointer select-none border-b border-base"
               >
-                <!-- Category header -->
-                <div
-                  class="flex items-center gap-2 px-4 py-3 bg-gray/5 cursor-pointer select-none"
+                <button
+                  class="w-5 h-5 flex items-center justify-center rounded transition-colors"
+                  :class="settings.hiddenCategories.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime'"
                   @click="toggleCategory(category)"
                 >
                   <div
-                    class="w-5 h-5 flex items-center justify-center rounded transition-colors"
-                    :class="settings.hiddenCategories.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime'"
+                    class="transition-transform"
+                    :class="settings.hiddenCategories.includes(category) ? 'i-ph-eye-slash text-sm op50' : 'i-ph-check-bold text-xs'"
+                  />
+                </button>
+                <span class="font-medium capitalize">{{ getCategoryLabel(category) }}</span>
+                <span class="text-xs op40">({{ entries.length }})</span>
+                <span class="flex-auto" />
+                <button
+                  v-if="doesCategoryHaveCustomOrder(category)"
+                  class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                  title="Reset custom order"
+                  @click="resetCustomOrderForCategory(category)"
+                >
+                  <div class="i-ph-arrows-counter-clockwise-duotone text-sm op60" />
+                </button>
+              </div>
+
+              <!-- Entries -->
+              <div>
+                <div
+                  v-for="(dock, index) of entries"
+                  :key="dock.id"
+                  class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray/5 transition-colors group border-b border-base border-t-0"
+                  :class="settings.hiddenDocks.includes(dock.id) ? 'op40' : ''"
+                >
+                  <!-- Visibility toggle -->
+                  <button
+                    class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
+                    :class="settings.hiddenDocks.includes(dock.id) ? 'op50' : ''"
+                    :title="settings.hiddenDocks.includes(dock.id) ? 'Show' : 'Hide'"
+                    @click="toggleDock(dock.id)"
                   >
                     <div
-                      class="transition-transform"
-                      :class="settings.hiddenCategories.includes(category) ? 'i-ph-eye-slash text-sm op50' : 'i-ph-check-bold text-xs'"
-                    />
-                  </div>
-                  <span class="font-medium capitalize">{{ getCategoryLabel(category) }}</span>
-                  <span class="text-xs op40">({{ entries.length }})</span>
-                </div>
-
-                <!-- Entries -->
-                <div class="divide-y border-base">
-                  <div
-                    v-for="dock of entries"
-                    :key="dock.id"
-                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray/5 transition-colors group"
-                    :class="settings.hiddenDocks.includes(dock.id) ? 'op40' : ''"
-                  >
-                    <!-- Visibility toggle -->
-                    <button
-                      class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
-                      :class="settings.hiddenDocks.includes(dock.id) ? 'op50' : ''"
-                      :title="settings.hiddenDocks.includes(dock.id) ? 'Show' : 'Hide'"
-                      @click="toggleDock(dock.id)"
+                      class="w-4 h-4 rounded flex items-center justify-center transition-colors"
+                      :class="settings.hiddenDocks.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
                     >
                       <div
-                        class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                        :class="settings.hiddenDocks.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
-                      >
-                        <div
-                          v-if="!settings.hiddenDocks.includes(dock.id)"
-                          class="i-ph-check-bold text-xs"
-                        />
-                      </div>
-                    </button>
-
-                    <!-- Icon & Title -->
-                    <DockIcon
-                      :icon="dock.icon"
-                      :title="dock.title"
-                      class="w-5 h-5 shrink-0"
-                      :class="settings.hiddenDocks.includes(dock.id) ? 'saturate-0' : ''"
-                    />
-                    <span
-                      class="flex-1 truncate"
-                      :class="settings.hiddenDocks.includes(dock.id) ? 'line-through op60' : ''"
-                    >
-                      {{ dock.title }}
-                    </span>
-
-                    <!-- Order controls -->
-                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
-                        title="Move up (higher priority)"
-                        @click="moveOrder(dock.id, 1)"
-                      >
-                        <div class="i-ph-caret-up text-sm op60" />
-                      </button>
-                      <button
-                        class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
-                        title="Move down (lower priority)"
-                        @click="moveOrder(dock.id, -1)"
-                      >
-                        <div class="i-ph-caret-down text-sm op60" />
-                      </button>
-                    </div>
-
-                    <!-- Pin toggle -->
-                    <button
-                      class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
-                      :class="settings.pinnedDocks.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
-                      :title="settings.pinnedDocks.includes(dock.id) ? 'Unpin' : 'Pin'"
-                      @click="togglePin(dock.id)"
-                    >
-                      <div
-                        :class="settings.pinnedDocks.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
-                        class="text-base"
+                        v-if="!settings.hiddenDocks.includes(dock.id)"
+                        class="i-ph-check-bold text-xs"
                       />
+                    </div>
+                  </button>
+
+                  <!-- Icon & Title -->
+                  <DockIcon
+                    :icon="dock.icon"
+                    :title="dock.title"
+                    class="w-5 h-5 shrink-0"
+                    :class="settings.hiddenDocks.includes(dock.id) ? 'saturate-0' : ''"
+                  />
+                  <span
+                    class="flex-1 truncate"
+                    :class="settings.hiddenDocks.includes(dock.id) ? 'line-through op60' : ''"
+                  >
+                    {{ dock.title }}
+                  </span>
+
+                  <!-- Order controls -->
+                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      v-if="index > 0"
+                      class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                      title="Move up (higher priority)"
+                      @click="moveOrder(category, dock.id, -1)"
+                    >
+                      <div class="i-ph-caret-up text-sm op60" />
+                    </button>
+                    <button
+                      v-if="index < entries.length - 1"
+                      class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                      title="Move down (lower priority)"
+                      @click="moveOrder(category, dock.id, 1)"
+                    >
+                      <div class="i-ph-caret-down text-sm op60" />
                     </button>
                   </div>
+
+                  <!-- Pin toggle -->
+                  <button
+                    class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
+                    :class="settings.pinnedDocks.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
+                    :title="settings.pinnedDocks.includes(dock.id) ? 'Unpin' : 'Pin'"
+                    @click="togglePin(dock.id)"
+                  >
+                    <div
+                      :class="settings.pinnedDocks.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
+                      class="text-base"
+                    />
+                  </button>
                 </div>
               </div>
-            </template>
-          </div>
-        </section>
+            </div>
+          </template>
+        </div>
+      </section>
 
-        <section class="border-t border-base pt-6">
-          <h2 class="text-lg font-medium mb-4 op75">
-            Reset
-          </h2>
-          <button
-            class="px-4 py-2 rounded bg-red/10 text-red hover:bg-red/20 transition-colors flex items-center gap-2"
-            @click="resetSettings"
-          >
-            <div class="i-ph-arrow-counter-clockwise" />
-            Reset Dock Settings
-          </button>
-        </section>
-      </template>
+      <section class="border-t border-base pt-6">
+        <h2 class="text-lg font-medium mb-4 op75">
+          Reset
+        </h2>
+        <button
+          class="px-4 py-2 rounded bg-red/10 text-red hover:bg-red/20 transition-colors flex items-center gap-2"
+          @click="resetSettings"
+        >
+          <div class="i-ph-arrow-counter-clockwise" />
+          Reset Dock Settings
+        </button>
+      </section>
     </div>
   </div>
 </template>
