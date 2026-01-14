@@ -1,5 +1,6 @@
 import type { FloatingTooltip } from '../state/floating-tooltip'
-import { computed, defineComponent, h, ref, watchEffect } from 'vue'
+import { useDebounceFn } from '@vueuse/core'
+import { computed, defineComponent, h, ref, watch } from 'vue'
 import { useFloatingTooltip } from '../state/floating-tooltip'
 
 // @unocss-include
@@ -11,16 +12,12 @@ const FloatingTooltipComponent = defineComponent({
   name: 'FloatingTooltip',
   setup() {
     const current = useFloatingTooltip()
-    const box = ref<FloatingTooltip>({
-      render: '',
-      width: 0,
-      height: 0,
-      left: 0,
-      top: 0,
-    })
+    const box = ref<FloatingTooltip | null>(null)
 
     // guess alignment of the tooltip based on viewport position
     const align = computed<'bottom' | 'left' | 'right' | 'top'>(() => {
+      if (!box.value)
+        return 'bottom'
       const vw = window.innerWidth
       const vh = window.innerHeight
       if (box.value.left < DETECT_MARGIN)
@@ -35,6 +32,8 @@ const FloatingTooltipComponent = defineComponent({
     })
 
     const style = computed(() => {
+      if (!box.value)
+        return {}
       switch (align.value) {
         case 'bottom': {
           return {
@@ -70,14 +69,25 @@ const FloatingTooltipComponent = defineComponent({
       }
     })
 
-    watchEffect(() => {
-      if (current.value) {
-        box.value = { ...current.value }
-      }
-    })
+    const clearThrottled = useDebounceFn(() => {
+      if (current.value == null)
+        box.value = null
+    }, 800)
+
+    watch(
+      current,
+      (value) => {
+        if (value) {
+          box.value = { ...value }
+        }
+        else {
+          clearThrottled()
+        }
+      },
+    )
 
     return () => {
-      if (!box.value.render)
+      if (!box.value?.render)
         return null
 
       const content = typeof box.value.render === 'string' ? h('span', box.value.render) : box.value.render()

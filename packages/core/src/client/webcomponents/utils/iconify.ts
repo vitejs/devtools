@@ -18,7 +18,7 @@ export async function getIconifySvg(collection: string, icon: string) {
   return promise
 
   async function _get() {
-    const url = `https://api.iconify.design/${collection}/${icon}.svg?color=currentColor&width=full`
+    const url = `https://api.iconify.design/${collection}/${icon}.svg?color=currentColor&width=100%`
     const svg = await fetch(url).then(res => res.text())
     return purify.sanitize(svg)
   }
