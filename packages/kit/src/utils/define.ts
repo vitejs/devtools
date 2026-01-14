@@ -31,5 +31,9 @@ export function defineRpcFunction<
 
   const fn = birpc(rest)
 
-  return fn as typeof fn & { argsSchema?: AS, returnSchema?: RS }
+  const augmentedFn = fn as typeof fn & { argsSchema?: AS, returnSchema?: RS }
+  augmentedFn.argsSchema = args
+  augmentedFn.returnSchema = ret
+
+  return augmentedFn
 }
