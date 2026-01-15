@@ -15,7 +15,7 @@
     "play:devtools:standalone": "pnpm -C packages/core run dev:standalone",
     "play:ui": "pnpm -C packages/vite run dev",
     "prepare": "npx simple-git-hooks && pnpm -C packages/vite run dev:prepare && turbo run build",
-    "lint": "eslint",
+    "lint": "eslint --cache",
     "test": "vitest",
     "release": "bumpp -r",
     "typecheck": "vue-tsc -b"

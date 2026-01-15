@@ -4,6 +4,7 @@ dist
 .output
 .nuxt
 .env
+.eslintcache
 .idea/
 .DS_Store
 .vite-devtools
