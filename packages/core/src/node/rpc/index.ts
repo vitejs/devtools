@@ -42,6 +42,13 @@ export const builtinRpcDeclarations = [
 
 export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDeclarations>
 
+export const builtinRpcSchemas = new Map(
+  builtinRpcDeclarations.map(d => [
+    d.name,
+    { args: d.argsSchema, returns: d.returnSchema },
+  ]),
+)
+
 export type BuiltinServerFunctionsStatic = RpcDefinitionsToFunctions<
   RpcDefinitionsFilter<typeof builtinRpcDeclarations, 'static'>
 >
@@ -51,7 +58,7 @@ export type BuiltinServerFunctionsDump = {
 }
 
 declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
+  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions { }
 
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {

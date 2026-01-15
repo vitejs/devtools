@@ -42,7 +42,8 @@
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "birpc-x": "catalog:deps",
-    "immer": "catalog:deps"
+    "immer": "catalog:deps",
+    "valibot": "catalog:deps"
   },
   "devDependencies": {
     "my-ua-parser": "catalog:frontend",

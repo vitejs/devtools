@@ -99,7 +99,7 @@ export async function build(options: BuildOptions) {
 
   console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, '.vdt-rpc-dump.json')}`)
   const dump: Record<string, any> = {}
-  for (const [key, value] of Object.entries(devtools.context.rpc.functions)) {
+  for (const [key, value] of Object.entries(devtools.context.rpc.definitions)) {
     if (value.type === 'static')
       dump[key] = await value.handler?.()
   }

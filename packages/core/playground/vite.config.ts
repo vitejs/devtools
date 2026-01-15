@@ -107,6 +107,17 @@ export default defineConfig({
           })
 
           ctx.docks.register({
+            id: 'test',
+            type: 'action',
+            icon: 'material-symbols:bug-report',
+            title: 'debug',
+            // TODO: HMR
+            action: ctx.utils.createSimpleClientScript(async (ctx) => {
+              console.log(await ctx.rpc.call('vite:internal:rpc:server:list'))
+            }),
+          })
+
+          ctx.docks.register({
             id: 'shared-state',
             type: 'iframe',
             url: '/devtools/',
