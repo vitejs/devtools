@@ -4,182 +4,283 @@ outline: deep
 
 # Dock System
 
-Dock entries are the primary way for users to interact with your DevTools integration. They appear as clickable items in the DevTools dock (similar to macOS Dock), and when activated, they can display:
-- An iframe panel with your custom UI
-- A custom-rendered panel directly in the user's app
-- An action button that triggers client-side scripts
+Dock entries are the primary way for users to interact with your DevTools integration. They appear as clickable items in the DevTools dock (similar to macOS Dock).
 
-The dock can be presented as a floating panel inside the user's app, a sidebar in browser extension mode, or in standalone mode. "Dock" refers to macOS's Dock, where you switch between different applications by clicking on them.
+## Entry Types
 
-## Register A Dock Entry
+DevTools Kit supports three types of dock entries:
 
-To register a dock entry, you can use the `ctx.docks.register` method to add a new dock entry. The easiest approach is to register a iframe-based dock entry. Here we use VueUse's docs as an example:
+| Type | Description | Use Case |
+|------|-------------|----------|
+| `iframe` | Displays your UI in an iframe panel | Full-featured UIs, dashboards, data visualization |
+| `action` | Button that triggers client-side scripts | Inspectors, toggles, one-time actions |
+| `custom-render` | Renders directly in the user's app DOM | When you need direct DOM access or framework integration |
 
-```ts {6-12}
-export default function VueUseDevToolsDocs(): Plugin {
-  return {
-    name: 'vueuse:devtools:docs',
-    devtools: {
-      setup(ctx) {
-        ctx.docks.register({
-          id: 'vueuse:docs',
-          title: 'VueUse',
-          icon: 'https://vueuse.org/favicon.svg',
-          type: 'iframe',
-          url: 'https://vueuse.org',
-        })
-      },
-    }
-  }
+## Iframe Panels
+
+The most common approach—host your UI in an iframe. This keeps your DevTools isolated from the user's app and lets you use any framework.
+
+### Basic Example
+
+```ts
+ctx.docks.register({
+  id: 'my-plugin',
+  title: 'My Plugin',
+  icon: 'https://example.com/logo.svg',
+  type: 'iframe',
+  url: 'https://example.com/devtools',
+})
+```
+
+### Hosting Your Own UI
+
+For most use cases, you'll build and host your own UI. DevTools can serve your static files:
+
+```ts
+import { fileURLToPath } from 'node:url'
+
+// Path to your built SPA
+const clientDist = fileURLToPath(new URL('../dist/client', import.meta.url))
+
+// Host the static files
+ctx.views.hostStatic('/.my-plugin/', clientDist)
+
+// Register the dock entry
+ctx.docks.register({
+  id: 'my-plugin',
+  title: 'My Plugin',
+  icon: 'ph:puzzle-piece-duotone',
+  type: 'iframe',
+  url: '/.my-plugin/',
+})
+```
+
+DevTools handles:
+- Serving files via dev server middleware
+- Copying files to output during production builds
+
+### Dock Entry Options
+
+```ts
+interface DockEntry {
+  /** Unique identifier for this entry */
+  id: string
+  /** Display title shown in the dock */
+  title: string
+  /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
+  icon: string
+  /** Entry type */
+  type: 'iframe' | 'action' | 'custom-render'
+  /** URL to load in the iframe (for type: 'iframe') */
+  url?: string
+  /** Action configuration (for type: 'action') */
+  action?: { importFrom: string, importName: string }
+  /** Renderer configuration (for type: 'custom-render') */
+  renderer?: { importFrom: string, importName: string }
 }
 ```
 
-The more practical usage is to build a local webpage to draw your own views and handle interactions. This allows you to use any frontend framework (Vue, React, Svelte, etc.) to build your DevTools UI.
+### Icons
 
-For example, if you host a local custom view at `/.my-app`, you can register it as a dock entry like this:
+You can specify icons in several ways:
 
-```ts {6}
-ctx.docks.register({
-  id: 'my-app',
-  title: 'My App',
-  icon: 'https://my-app.com/logo.svg',
-  type: 'iframe',
-  url: '/.my-app',
-})
+```ts
+// URL to an image
+icon: 'https://example.com/logo.svg'
+
+// Data URI
+icon: 'data:image/svg+xml,...'
+
+// Iconify icon name (recommended)
+icon: 'ph:chart-bar-duotone' // Phosphor Icons
+icon: 'carbon:analytics' // Carbon Icons
+icon: 'mdi:view-dashboard' // Material Design Icons
 ```
 
-DevTools can also handle the page hosting for you. If you have your built SPA page under `./dist/client`, you can register it as a dock entry like this:
+> [!TIP]
+> Browse available icons at [Iconify](https://icon-sets.iconify.design/). The `ph:` (Phosphor) icon set works well for DevTools UIs.
 
-```ts {2}
-const pathClientDist = fileURLToPath(new URL('../dist/client', import.meta.url))
-ctx.views.hostStatic('/.my-app', pathClientDist)
+## Action Buttons
+
+Action buttons run client-side scripts when clicked. They're perfect for:
+- Temporary inspector tools (DOM inspector, component picker)
+- Feature toggles
+- One-time actions that don't need a panel
+
+### Registration
+
+```ts
 ctx.docks.register({
-  id: 'my-app',
-  title: 'My App',
-  icon: 'https://my-app.com/logo.svg',
-  type: 'iframe',
-  url: '/.my-app',
-})
-```
-
-This way DevTools will handle the dev server middleware to host the static files for you, and also copy the static files to the dist directory when in production build.
-
-## Register An Action
-
-Instead of an iframe panel, sometimes you might want to register an action button that triggers client-side scripts. This is useful when you want to:
-- Enable temporary inspector tools (e.g., DOM inspector, component inspector)
-- Toggle features in the user's app
-- Trigger one-time actions without showing a UI panel
-
-For example, you might want to enable a temporary inspector tool to inspect the DOM of the client app and have the button appear in the DevTools dock.
-
-```ts {6}
-ctx.docks.register({
-  id: 'dom-inspector',
-  title: 'DOM Inspector',
+  id: 'my-inspector',
+  title: 'Inspector',
+  icon: 'ph:cursor-duotone',
   type: 'action',
   action: {
-    importFrom: 'vite-plugin-my-inspector/vite-devtools-action',
+    importFrom: 'my-plugin/devtools-action',
     importName: 'default',
   },
-  icon: 'ph:cursor-duotone',
 })
 ```
 
-In your package, export the sub entrypoint for the action. The action script runs in the user's app context, giving you access to the app's DOM, state, and APIs.
+### Client Script
 
-```ts [src/vite-devtools-action.ts]
+Create the action script that runs in the user's browser:
+
+```ts
+// src/devtools-action.ts
 import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setupDevToolsAction(ctx: DevToolsClientScriptContext) {
-  // Setup action will only execute when the entry is activated the first time
+export default function setupAction(ctx: DevToolsClientScriptContext) {
+  let isActive = false
+  let overlay: HTMLElement | null = null
 
-  // Register listeners to handle events from the dock system
   ctx.current.events.on('entry:activated', () => {
-    // Your action logic here
-    console.log('DOM inspector started!')
+    isActive = true
+    console.log('Inspector activated')
 
-    // Example: Enable DOM inspection
-    document.body.style.cursor = 'crosshair'
+    // Create an overlay
+    overlay = document.createElement('div')
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      cursor: crosshair;
+      z-index: 99999;
+    `
 
-    // You can also communicate with the server using [RPC](./rpc)
+    overlay.addEventListener('click', (e) => {
+      const target = document.elementFromPoint(e.clientX, e.clientY)
+      console.log('Selected element:', target)
+    })
+
+    document.body.appendChild(overlay)
   })
 
   ctx.current.events.on('entry:deactivated', () => {
-    // Cleanup when the entry is deactivated
-    document.body.style.cursor = ''
+    isActive = false
+    console.log('Inspector deactivated')
+
+    // Cleanup
+    overlay?.remove()
+    overlay = null
   })
 }
 ```
 
-And in your package.json, you can export the sub entrypoint:
+### Package Export
 
-```json [package.json]
+Export the action script from your package:
+
+```json
 {
-  "name": "vite-plugin-my-inspector",
+  "name": "my-plugin",
   "exports": {
-    "./vite-devtools-action": "./dist/vite-devtools-action.mjs"
+    ".": "./dist/index.mjs",
+    "./devtools-action": "./dist/devtools-action.mjs"
   }
 }
 ```
 
-That's it! When users install your plugin, they can click your action button in the dock. When activated for the first time, the action script will be loaded and executed in the user's app context, allowing you to interact with their application directly.
+### Available Events
 
-## Register Custom Renderer
+| Event | Description |
+|-------|-------------|
+| `entry:activated` | Fired when the user clicks/activates this dock entry |
+| `entry:deactivated` | Fired when another entry is selected or the dock is closed |
 
-If you want to render your own views directly in the user's app instead of using an iframe, you can register a dock entry with a custom renderer. This gives you full control over the DOM and allows you to use any framework or vanilla JavaScript to build your UI.
+## Custom Renderers
 
-```ts {6}
+Custom renderers let you render directly into the DevTools panel DOM. This gives you full control and is useful when:
+- You need direct DOM access
+- You want to mount a framework app into the panel
+- You need to avoid iframe isolation
+
+### Registration
+
+```ts
 ctx.docks.register({
   id: 'my-custom-view',
-  title: 'My Custom View',
+  title: 'Custom View',
+  icon: 'ph:code-duotone',
   type: 'custom-render',
   renderer: {
-    importFrom: 'vite-plugin-my-inspector/vite-devtools-renderer',
+    importFrom: 'my-plugin/devtools-renderer',
     importName: 'default',
   },
-  icon: 'ph:file-duotone'
 })
 ```
 
-Similar to [Action](#register-an-action), we write the renderer logic in a client script that we export as a sub export. The renderer gives you a DOM element (`panel`) that you can mount your UI to:
+### Renderer Script
 
-```ts [src/vite-devtools-renderer.ts]
+```ts
+// src/devtools-renderer.ts
 import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setupDevToolsCustomRenderer(ctx: DevToolsClientScriptContext) {
-  // Setup will only execute when the entry is activated the first time
-
-  // The 'dom:panel:mounted' event is called once when the panel DOM is ready
-  // The DOM will be preserved when switching between dock entries
+export default function setupRenderer(ctx: DevToolsClientScriptContext) {
   ctx.current.events.on('dom:panel:mounted', (panel) => {
-    // Render your custom DOM and mount to `panel`
-    // You can use vanilla JavaScript or any framework you prefer
-    const el = document.createElement('div')
-    el.style.padding = '16px'
-    el.innerHTML = '<h2>Hello from custom render dock!</h2>'
+    // `panel` is a DOM element you can render into
 
-    const btn = document.createElement('button')
-    btn.textContent = 'Click me'
-    btn.onclick = async () => {
-      // You can communicate with the server using [RPC](./rpc)
-      // const rpc = ctx.current.rpc
-      // const data = await rpc.call('my-plugin:get-data', 'some-id')
+    // Option 1: Vanilla JS
+    panel.innerHTML = `
+      <div style="padding: 16px;">
+        <h2>My Custom View</h2>
+        <button id="my-btn">Click me</button>
+      </div>
+    `
+    panel.querySelector('#my-btn')?.addEventListener('click', () => {
       console.log('Button clicked!')
-    }
-    el.appendChild(btn)
-    panel.appendChild(el)
+    })
 
-    // You can also use frameworks like Vue, React, etc.
+    // Option 2: Mount a Vue app
     // import { createApp } from 'vue'
-    // createApp(MyComponent).mount(panel)
+    // import App from './App.vue'
+    // createApp(App).mount(panel)
+
+    // Option 3: Mount a React app
+    // import { createRoot } from 'react-dom/client'
+    // import App from './App'
+    // createRoot(panel).render(<App />)
   })
 
-  // Cleanup when the entry is deactivated (optional)
   ctx.current.events.on('entry:deactivated', () => {
-    // Cleanup logic if needed
+    // Optional cleanup
   })
 }
 ```
 
-**Note**: The panel DOM is preserved when users switch between dock entries, so you only need to set up your UI once in the `dom:panel:mounted` event. If you need to update the UI based on server state, use [RPC calls](./rpc#call-server-functions-from-client) to fetch fresh data.
+### Available Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `dom:panel:mounted` | `HTMLElement` | Panel DOM is ready for rendering |
+| `entry:activated` | — | Entry was activated |
+| `entry:deactivated` | — | Entry was deactivated |
+
+> [!NOTE]
+> The panel DOM is preserved when users switch between dock entries. Your UI persists, so you only need to set up once in `dom:panel:mounted`.
+
+## Communication with Server
+
+All client scripts (actions and custom renderers) can communicate with the server using [RPC](./rpc):
+
+```ts
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setup(ctx: DevToolsClientScriptContext) {
+  ctx.current.events.on('entry:activated', async () => {
+    // Call a server function
+    const data = await ctx.current.rpc.call('my-plugin:get-data')
+    console.log('Data from server:', data)
+  })
+}
+```
+
+Or use `getDevToolsRpcClient()` in iframe pages:
+
+```ts
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+
+const rpc = await getDevToolsRpcClient()
+const data = await rpc.call('my-plugin:get-data')
+```
+
+See [RPC](./rpc) for complete documentation on server-client communication.

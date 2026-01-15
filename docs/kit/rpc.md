@@ -4,126 +4,283 @@ outline: deep
 
 # Remote Procedure Calls (RPC)
 
-The DevTools Kit provides a built-in RPC (Remote Procedure Call) layer that enables bidirectional communication between the server (Node.js) and client (browser) with full type safety. This allows you to:
+DevTools Kit provides a built-in RPC layer for type-safe bidirectional communication between your Node.js server and browser clients.
 
-- **[Call server functions from client](#call-server-functions-from-client)**: Fetch data, trigger actions, or query server state
-- **[Call client functions from server](#call-client-functions-from-server)**: Broadcast updates, trigger UI changes, or collect client-side data
-- **Type-safe communication**: Full TypeScript support for all RPC functions
+## Overview
 
-## Register Server-Side RPC Functions
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Browser Client                       │
+│                                                         │
+│   await rpc.call('my-plugin:get-data', id)             │
+│                         │                               │
+│                         ▼                               │
+└─────────────────────────┼───────────────────────────────┘
+                          │ WebSocket
+┌─────────────────────────┼───────────────────────────────┐
+│                         ▼                               │
+│   handler: async (id) => fetchData(id)                 │
+│                                                         │
+│                     Node.js Server                      │
+└─────────────────────────────────────────────────────────┘
+```
 
-Server-side RPC functions are functions that run on the Node.js server and can be called from the client. To register a server-side RPC function, use `ctx.rpc.register()` with a function definition created by `defineRpcFunction`.
+## Server-Side Functions
 
-```ts {6-20}
+### Defining RPC Functions
+
+Use `defineRpcFunction` to create type-safe server functions:
+
+```ts
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
-export default function myPlugin(): Plugin {
-  return {
-    name: 'my-plugin',
-    devtools: {
-      setup(ctx) {
-        const getData = defineRpcFunction({
-          name: 'my-plugin:get-data',
-          type: 'query', // 'query' | 'action' | 'static'
-          setup: (context) => {
-            return {
-              handler: async (id: string) => {
-                // Access context.docks, context.views, context.utils, etc.
-                return { id, data: 'some data' }
-              },
-            }
-          },
-        })
+const getModules = defineRpcFunction({
+  name: 'my-plugin:get-modules',
+  type: 'query',
+  setup: ctx => ({
+    handler: async () => {
+      // Access DevTools context
+      console.log('Mode:', ctx.mode)
 
-        ctx.rpc.register(getData)
-      },
+      return [
+        { id: '/src/main.ts', size: 1024 },
+        { id: '/src/App.vue', size: 2048 },
+      ]
+    },
+  }),
+})
+```
+
+### Registering Functions
+
+Register your RPC function in the `devtools.setup`:
+
+```ts
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+      ctx.rpc.register(getModules)
+    }
+  }
+}
+```
+
+### Function Types
+
+| Type | Description | Caching |
+|------|-------------|---------|
+| `query` | Fetch data, read operations | Can be cached |
+| `action` | Side effects, mutations | Not cached |
+| `static` | Constant data that never changes | Cached indefinitely |
+
+### Handler Arguments
+
+Handlers can accept any serializable arguments:
+
+```ts
+const getModule = defineRpcFunction({
+  name: 'my-plugin:get-module',
+  type: 'query',
+  setup: () => ({
+    handler: async (id: string, options?: { includeSource: boolean }) => {
+      // id and options are passed from the client
+      return { id, source: options?.includeSource ? '...' : undefined }
+    },
+  }),
+})
+```
+
+### Context in Setup
+
+The `setup` function receives the full `DevToolsNodeContext`:
+
+```ts
+setup: (ctx) => {
+  // Access Vite config
+  const root = ctx.viteConfig.root
+
+  // Access dev server (if in dev mode)
+  const server = ctx.viteServer
+
+  return {
+    handler: async () => {
+      // Use ctx here too
+      return { root, mode: ctx.mode }
     },
   }
 }
 ```
 
-**RPC Function Types:**
-- `'query'`: For functions that fetch data (can be cached)
-- `'action'`: For functions that perform actions or side effects
-- `'static'`: For functions that return static data
+## Client-Side Calls
 
-The `setup` function receives the `DevToolsNodeContext` which provides access to:
+### In Iframe Pages
 
-- `context.docks`: Manage [dock entries](./dock-system)
-- `context.views`: Host static views (see [Dock System](./dock-system))
-- `context.rpc`: Register more RPC functions or [broadcast to clients](#call-client-functions-from-server)
-- `context.utils`: Utility functions
-- `context.viteConfig`: Vite configuration
-- `context.viteServer`: Vite dev server (in dev mode)
-- `context.mode`: Current mode (`'dev'` or `'build'`)
-
-## Call Server Functions from Client
-
-In your client-side code ([iframe pages](./dock-system#register-a-dock-entry), [action scripts](./dock-system#register-an-action), or [custom renderers](./dock-system#register-custom-renderer)), you can call server-side RPC functions using the RPC client.
-
-First, get the RPC client:
+Use `getDevToolsRpcClient()` to get the RPC client:
 
 ```ts
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 
-const rpc = await getDevToolsRpcClient()
+async function loadData() {
+  const rpc = await getDevToolsRpcClient()
+
+  // Call server function
+  const modules = await rpc.call('my-plugin:get-modules')
+
+  // With arguments
+  const module = await rpc.call('my-plugin:get-module', '/src/main.ts', {
+    includeSource: true,
+  })
+}
 ```
 
-Then call server functions:
+### In Action/Renderer Scripts
+
+Use `ctx.current.rpc` from the script context:
 
 ```ts
-// Call a server function
-const data = await rpc.call('my-plugin:get-data', 'some-id')
-```
-
-## Register Client-Side RPC Functions
-
-Client-side RPC functions are functions that run in the browser and can be called from the server. This is useful for broadcasting updates or triggering UI changes.
-
-To register a client-side RPC function, use `rpc.client.register()` in your client code (e.g., in [action scripts](./dock-system#register-an-action) or [custom renderers](./dock-system#register-custom-renderer)):
-
-```ts [src/vite-devtools-action.ts]
-import type { DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
 import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setupDevToolsAction(ctx: DevToolsClientScriptContext) {
-  // Register a client-side RPC function
+export default function setup(ctx: DevToolsClientScriptContext) {
+  ctx.current.events.on('entry:activated', async () => {
+    const data = await ctx.current.rpc.call('my-plugin:get-modules')
+    console.log(data)
+  })
+}
+```
+
+## Client-Side Functions
+
+You can also define functions on the client that the server can call.
+
+### Registering Client Functions
+
+```ts
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setup(ctx: DevToolsClientScriptContext) {
   ctx.current.rpc.client.register({
-    name: 'my-plugin:client-update' satisfies keyof DevToolsRpcClientFunctions,
+    name: 'my-plugin:highlight-element',
     type: 'action',
-    handler: (data: { message: string }) => {
-      console.log('Received update from server:', data.message)
-      // Update UI, trigger actions, etc.
+    handler: (selector: string) => {
+      const el = document.querySelector(selector)
+      if (el) {
+        el.style.outline = '2px solid red'
+        setTimeout(() => {
+          el.style.outline = ''
+        }, 2000)
+      }
     },
   })
 }
 ```
 
-**Important**: You need to extend the `DevToolsRpcClientFunctions` interface in your plugin's type definitions so TypeScript knows about your client functions:
+### Broadcasting from Server
 
-```ts [src/types.ts]
-import '@vitejs/devtools-kit'
+Use `ctx.rpc.broadcast()` to call client functions from the server:
 
-declare module '@vitejs/devtools-kit' {
-  interface DevToolsRpcClientFunctions {
-    'my-plugin:client-update': (data: { message: string }) => Promise<void>
+```ts
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+    // Later, when you want to notify clients...
+      ctx.rpc.broadcast('my-plugin:highlight-element', '#app')
+    }
   }
 }
 ```
 
-## Call Client Functions from Server
+> [!NOTE]
+> `broadcast` calls all connected clients. The returned promise resolves to an array of results (one per client).
 
-To call client-side functions from the server, use `ctx.rpc.broadcast()` (note: the method name is `broadcast`, which broadcasts to all connected clients):
+## Type Safety
 
-```ts {6-10}
-export default function myPlugin(): Plugin {
+For full type safety, extend the DevTools Kit interfaces.
+
+### Server Functions
+
+```ts
+// src/types.ts
+import '@vitejs/devtools-kit'
+
+declare module '@vitejs/devtools-kit' {
+  interface DevToolsRpcFunctions {
+    'my-plugin:get-modules': () => Promise<Module[]>
+    'my-plugin:get-module': (
+      id: string,
+      options?: { includeSource: boolean }
+    ) => Promise<Module | null>
+  }
+}
+
+interface Module {
+  id: string
+  size: number
+  source?: string
+}
+```
+
+### Client Functions
+
+```ts
+// src/types.ts
+declare module '@vitejs/devtools-kit' {
+  interface DevToolsRpcClientFunctions {
+    'my-plugin:highlight-element': (selector: string) => void
+    'my-plugin:refresh-ui': () => void
+  }
+}
+```
+
+Now TypeScript will autocomplete and validate your RPC calls:
+
+```ts
+// ✓ Type-checked
+const modules = await rpc.call('my-plugin:get-modules')
+
+// ✓ Argument types validated
+const module = await rpc.call('my-plugin:get-module', '/src/main.ts')
+
+// ✗ Error: unknown function name
+const data = await rpc.call('my-plugin:unknown')
+```
+
+## Complete Example
+
+Here's a complete example with both server and client RPC functions:
+
+::: code-group
+
+```ts [plugin.ts]
+/// <reference types="@vitejs/devtools-kit" />
+import type { Plugin } from 'vite'
+import { defineRpcFunction } from '@vitejs/devtools-kit'
+
+export default function analyticsPlugin(): Plugin {
+  const metrics = new Map<string, number>()
+
   return {
-    name: 'my-plugin',
+    name: 'analytics',
+
+    transform(code, id) {
+      metrics.set(id, code.length)
+    },
+
     devtools: {
       setup(ctx) {
-        // Broadcast to all connected clients
-        ctx.rpc.broadcast('my-plugin:client-update', {
-          message: 'Hello from server!'
+        // Server function: get metrics
+        ctx.rpc.register(
+          defineRpcFunction({
+            name: 'analytics:get-metrics',
+            type: 'query',
+            setup: () => ({
+              handler: async () => Object.fromEntries(metrics),
+            }),
+          })
+        )
+
+        // Broadcast to clients when metrics change
+        ctx.viteServer?.watcher.on('change', (file) => {
+          ctx.rpc.broadcast('analytics:metrics-updated', file)
         })
       },
     },
@@ -131,4 +288,39 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-The `broadcast` method returns a promise that resolves to an array of results from all clients (some may be `undefined` if the client doesn't implement the function).
+```ts [client.ts]
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setup(ctx: DevToolsClientScriptContext) {
+  // Register client function
+  ctx.current.rpc.client.register({
+    name: 'analytics:metrics-updated',
+    type: 'action',
+    handler: (file: string) => {
+      console.log('File changed:', file)
+      refreshUI()
+    },
+  })
+
+  async function refreshUI() {
+    const metrics = await ctx.current.rpc.call('analytics:get-metrics')
+    console.log('Updated metrics:', metrics)
+  }
+}
+```
+
+```ts [types.ts]
+import '@vitejs/devtools-kit'
+
+declare module '@vitejs/devtools-kit' {
+  interface DevToolsRpcFunctions {
+    'analytics:get-metrics': () => Promise<Record<string, number>>
+  }
+
+  interface DevToolsRpcClientFunctions {
+    'analytics:metrics-updated': (file: string) => void
+  }
+}
+```
+
+:::
