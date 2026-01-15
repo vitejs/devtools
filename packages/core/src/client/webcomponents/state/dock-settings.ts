@@ -11,15 +11,6 @@ export interface SplitGroupsResult {
   overflow: DevToolsDockEntriesGrouped
 }
 
-export function defaultDocksSettings(): DevToolsDocksUserSettings {
-  return {
-    hiddenDocks: [],
-    hiddenCategories: [],
-    pinnedDocks: [],
-    customOrder: {},
-  }
-}
-
 /**
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, sorts by pinned status, custom order, and default order.

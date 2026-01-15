@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import { DEFAULT_STATE_DOCKS_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
-import { defaultDocksSettings, docksGroupByCategories } from '../state/dock-settings'
+import { docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
 import DockIcon from './DockIcon.vue'
 
@@ -125,7 +126,7 @@ function resetSettings() {
   // eslint-disable-next-line no-alert
   if (confirm('Reset all dock settings to defaults?')) {
     settingsStore.mutate(() => {
-      return defaultDocksSettings()
+      return DEFAULT_STATE_DOCKS_SETTINGS()
     })
   }
 }
