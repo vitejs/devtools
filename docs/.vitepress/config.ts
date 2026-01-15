@@ -17,7 +17,16 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
-      { text: 'DevTools Kit', link: '/kit/' },
+      {
+        text: 'DevTools Kit',
+        items: [
+          { text: 'Introduction', link: '/kit/' },
+          { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
+          { text: 'Dock System', link: '/kit/dock-system' },
+          { text: 'RPC', link: '/kit/rpc' },
+          { text: 'Shared State', link: '/kit/shared-state' },
+        ],
+      },
       {
         text: `v${version}`,
         items: [
@@ -39,6 +48,10 @@ export default defineConfig({
         text: 'DevTools Kit',
         items: [
           { text: 'Introduction', link: '/kit/' },
+          { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
+          { text: 'Dock System', link: '/kit/dock-system' },
+          { text: 'RPC', link: '/kit/rpc' },
+          { text: 'Shared State', link: '/kit/shared-state' },
         ],
       },
     ],
