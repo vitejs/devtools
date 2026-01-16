@@ -551,6 +551,9 @@ importers:
       cac:
         specifier: catalog:deps
         version: 6.7.14
+      h3:
+        specifier: catalog:deps
+        version: 1.15.4
       immer:
         specifier: catalog:deps
         version: 11.1.3

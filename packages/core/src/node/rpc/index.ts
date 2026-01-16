@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -65,5 +65,6 @@ declare module '@vitejs/devtools-kit' {
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
     'vite:internal:docks': DevToolsDockEntry[]
+    'vite:internal:user-settings': DevToolsDocksUserSettings
   }
 }

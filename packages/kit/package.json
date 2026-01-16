@@ -21,6 +21,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
+    "./constants": "./dist/constants.mjs",
     "./utils/events": "./dist/utils/events.mjs",
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",

@@ -44,6 +44,8 @@ export async function createDevToolsContext(
     rpcHost.register(fn)
   }
 
+  await docksHost.init()
+
   const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
 
   // Register hosts side effects
@@ -67,7 +69,6 @@ export async function createDevToolsContext(
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
-
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
       continue
