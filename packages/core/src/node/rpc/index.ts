@@ -55,16 +55,16 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {
-    'vite:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
-    'vite:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
+    'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
+    'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
-    'vite:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
-    'vite:internal:terminals:updated': () => Promise<void>
+    'devtoolskit:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
+    'devtoolskit:internal:terminals:updated': () => Promise<void>
   }
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
-    'vite:internal:docks': DevToolsDockEntry[]
-    'vite:internal:user-settings': DevToolsDocksUserSettings
+    'devtoolskit:internal:docks': DevToolsDockEntry[]
+    'devtoolskit:internal:user-settings': DevToolsDocksUserSettings
   }
 }

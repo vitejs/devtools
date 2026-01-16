@@ -18,7 +18,7 @@ export function createRpcSharedStateServerHost(
         if (patches) {
           debug('patch', { key, syncId })
           rpc.broadcast({
-            method: 'vite:internal:rpc:client-state:patch',
+            method: 'devtoolskit:internal:rpc:client-state:patch',
             args: [key, patches, syncId],
             filter: client => client.$meta.subscribedStates.has(key),
           })
@@ -26,7 +26,7 @@ export function createRpcSharedStateServerHost(
         else {
           debug('updated', { key, syncId })
           rpc.broadcast({
-            method: 'vite:internal:rpc:client-state:updated',
+            method: 'devtoolskit:internal:rpc:client-state:updated',
             args: [key, fullState, syncId],
             filter: client => client.$meta.subscribedStates.has(key),
           })

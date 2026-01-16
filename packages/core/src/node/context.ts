@@ -46,7 +46,7 @@ export async function createDevToolsContext(
 
   await docksHost.init()
 
-  const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
+  const docksSharedState = await rpcHost.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
 
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
@@ -55,14 +55,14 @@ export async function createDevToolsContext(
 
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
     rpcHost.broadcast({
-      method: 'vite:internal:terminals:updated',
+      method: 'devtoolskit:internal:terminals:updated',
       args: [],
     })
     docksSharedState.mutate(() => context.docks.values())
   }, 10))
   terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
     rpcHost.broadcast({
-      method: 'vite:internal:terminals:stream-chunk',
+      method: 'devtoolskit:internal:terminals:stream-chunk',
       args: [data],
     })
   })

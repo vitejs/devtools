@@ -16,7 +16,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   }
 
   async init() {
-    this.userSettings = await this.context.rpc.sharedState.get('vite:internal:user-settings', {
+    this.userSettings = await this.context.rpc.sharedState.get('devtoolskit:internal:user-settings', {
       sharedState: createStorage({
         filepath: join(this.context.workspaceRoot, 'node_modules/.vite/devtools/settings.json'),
         initialValue: {

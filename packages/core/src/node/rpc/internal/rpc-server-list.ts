@@ -1,7 +1,7 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const rpcServerList = defineRpcFunction({
-  name: 'vite:internal:rpc:server:list',
+  name: 'devtoolskit:internal:rpc:server:list',
   type: 'static',
   setup: (context) => {
     return {

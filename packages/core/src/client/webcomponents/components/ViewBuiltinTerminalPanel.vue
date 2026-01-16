@@ -46,7 +46,7 @@ onMounted(async () => {
   props.terminal.terminal = term
 
   if (props.terminal.buffer == null) {
-    const { buffer } = await props.context.rpc.call('vite:internal:terminals:read', props.terminal.info.id)
+    const { buffer } = await props.context.rpc.call('devtoolskit:internal:terminals:read', props.terminal.info.id)
     props.terminal.buffer = markRaw(buffer)
   }
 
