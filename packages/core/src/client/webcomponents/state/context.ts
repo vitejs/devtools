@@ -2,7 +2,7 @@ import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPa
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
-import { DEFAULT_STATE_DOCKS_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
@@ -87,7 +87,7 @@ export async function createDocksContext(
     if (!_settingsStorePromise) {
       _settingsStorePromise = rpc.sharedState.get(
         'devtoolskit:internal:user-settings',
-        { initialValue: DEFAULT_STATE_DOCKS_SETTINGS() },
+        { initialValue: DEFAULT_STATE_USER_SETTINGS() },
       )
     }
     return _settingsStorePromise

@@ -1,7 +1,7 @@
 export interface DevToolsDocksUserSettings {
-  hiddenDocks: string[]
-  hiddenCategories: string[]
-  pinnedDocks: string[]
-  customOrder: Record<string, number>
+  docksHidden: string[]
+  docksCategoriesHidden: string[]
+  docksPinned: string[]
+  docksCustomOrder: Record<string, number>
   showIframeAddressBar: boolean
 }

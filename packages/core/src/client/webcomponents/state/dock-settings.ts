@@ -20,7 +20,7 @@ export function docksGroupByCategories(
   settings: Immutable<DevToolsDocksUserSettings>,
   options?: { includeHidden?: boolean },
 ): DevToolsDockEntriesGrouped {
-  const { hiddenDocks, hiddenCategories, customOrder, pinnedDocks } = settings
+  const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
   const { includeHidden = false } = options ?? {}
 
   const map = new Map<string, DevToolsDockEntry[]>()
@@ -28,12 +28,12 @@ export function docksGroupByCategories(
     // Skip if hidden by entry property
     if (entry.isHidden && !includeHidden)
       continue
-    if (!includeHidden && hiddenDocks.includes(entry.id))
+    if (!includeHidden && docksHidden.includes(entry.id))
       continue
 
     const category = entry.category ?? 'default'
     // Skip if category is hidden
-    if (!includeHidden && hiddenCategories.includes(category))
+    if (!includeHidden && docksCategoriesHidden.includes(category))
       continue
 
     if (!map.has(category))
@@ -52,14 +52,14 @@ export function docksGroupByCategories(
   grouped.forEach(([_, items]) => {
     items.sort((a, b) => {
       // Pinned entries come first
-      const aPinned = pinnedDocks.includes(a.id)
-      const bPinned = pinnedDocks.includes(b.id)
+      const aPinned = docksPinned.includes(a.id)
+      const bPinned = docksPinned.includes(b.id)
       if (aPinned !== bPinned)
         return aPinned ? -1 : 1
 
       // Then sort by custom order
-      const customOrderA = customOrder[a.id] ?? 0
-      const customOrderB = customOrder[b.id] ?? 0
+      const customOrderA = docksCustomOrder[a.id] ?? 0
+      const customOrderB = docksCustomOrder[b.id] ?? 0
       if (customOrderA !== customOrderB)
         return customOrderA - customOrderB
 

@@ -1,5 +1,6 @@
 import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { join } from 'pathe'
 import { createStorage } from './storage'
@@ -19,12 +20,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     this.userSettings = await this.context.rpc.sharedState.get('devtoolskit:internal:user-settings', {
       sharedState: createStorage({
         filepath: join(this.context.workspaceRoot, 'node_modules/.vite/devtools/settings.json'),
-        initialValue: {
-          hiddenDocks: [],
-          hiddenCategories: [],
-          pinnedDocks: [],
-          customOrder: {},
-        },
+        initialValue: DEFAULT_STATE_USER_SETTINGS(),
       }),
     })
   }

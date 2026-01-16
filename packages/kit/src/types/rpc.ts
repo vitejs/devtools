@@ -45,8 +45,8 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
 }
 
 export interface RpcSharedStateGetOptions<T> {
-  initialValue?: T
   sharedState?: SharedState<T>
+  initialValue?: T
 }
 
 export interface RpcSharedStateHost {

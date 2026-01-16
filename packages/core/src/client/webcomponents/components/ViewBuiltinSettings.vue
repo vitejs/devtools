@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { DEFAULT_STATE_DOCKS_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
 import { docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
@@ -33,55 +33,55 @@ function getCategoryLabel(category: string): string {
 }
 
 function toggleDock(id: string, visible?: boolean) {
-  const hidden = settings.value.hiddenDocks
+  const hidden = settings.value.docksHidden
   const isHidden = hidden.includes(id)
   const shouldShow = visible ?? isHidden
 
   if (shouldShow) {
     settingsStore.mutate((state) => {
-      state.hiddenDocks = state.hiddenDocks.filter((i: string) => i !== id)
+      state.docksHidden = state.docksHidden.filter((i: string) => i !== id)
     })
   }
   else {
     settingsStore.mutate((state) => {
-      state.hiddenDocks = [...state.hiddenDocks, id]
+      state.docksHidden = [...state.docksHidden, id]
     })
   }
 }
 
 function toggleCategory(category: string, visible?: boolean) {
-  const hidden = settings.value.hiddenCategories
+  const hidden = settings.value.docksCategoriesHidden
   const isHidden = hidden.includes(category)
   const shouldShow = visible ?? isHidden
 
   if (shouldShow) {
     settingsStore.mutate((state) => {
-      state.hiddenCategories = state.hiddenCategories.filter((i: string) => i !== category)
+      state.docksCategoriesHidden = state.docksCategoriesHidden.filter((i: string) => i !== category)
     })
   }
   else {
     settingsStore.mutate((state) => {
-      state.hiddenCategories = [...state.hiddenCategories, category]
+      state.docksCategoriesHidden = [...state.docksCategoriesHidden, category]
     })
   }
 }
 
 function togglePin(id: string) {
-  const pinned = settings.value.pinnedDocks
+  const pinned = settings.value.docksPinned
   if (pinned.includes(id)) {
     settingsStore.mutate((state) => {
-      state.pinnedDocks = state.pinnedDocks.filter((i: string) => i !== id)
+      state.docksPinned = state.docksPinned.filter((i: string) => i !== id)
     })
   }
   else {
     settingsStore.mutate((state) => {
-      state.pinnedDocks = [...state.pinnedDocks, id]
+      state.docksPinned = [...state.docksPinned, id]
     })
   }
 }
 
 function isInCustomOrder(id: string): boolean {
-  return settings.value.customOrder[id] !== undefined
+  return settings.value.docksCustomOrder[id] !== undefined
 }
 
 function moveOrder(category: string, id: string, delta: number) {
@@ -99,7 +99,7 @@ function moveOrder(category: string, id: string, delta: number) {
 
   settingsStore.mutate((state) => {
     array.forEach((item, index) => {
-      state.customOrder[item.id] = index
+      state.docksCustomOrder[item.id] = index
     })
   })
 }
@@ -117,7 +117,7 @@ function resetCustomOrderForCategory(category: string) {
     return
   settingsStore.mutate((state) => {
     items[1].forEach((item) => {
-      delete state.customOrder[item.id]
+      delete state.docksCustomOrder[item.id]
     })
   })
 }
@@ -126,7 +126,7 @@ function resetSettings() {
   // eslint-disable-next-line no-alert
   if (confirm('Reset all dock settings to defaults?')) {
     settingsStore.mutate(() => {
-      return DEFAULT_STATE_DOCKS_SETTINGS()
+      return DEFAULT_STATE_USER_SETTINGS()
     })
   }
 }
@@ -152,7 +152,7 @@ function resetSettings() {
           <template v-for="[category, entries] of categories" :key="category">
             <div
               class="border border-base rounded-lg overflow-hidden transition-opacity"
-              :class="settings.hiddenCategories.includes(category) ? 'op40' : ''"
+              :class="settings.docksCategoriesHidden.includes(category) ? 'op40' : ''"
             >
               <!-- Category header -->
               <div
@@ -160,12 +160,12 @@ function resetSettings() {
               >
                 <button
                   class="w-5 h-5 flex items-center justify-center rounded transition-colors"
-                  :class="settings.hiddenCategories.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime'"
+                  :class="settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime'"
                   @click="toggleCategory(category)"
                 >
                   <div
                     class="transition-transform"
-                    :class="settings.hiddenCategories.includes(category) ? 'i-ph-eye-slash text-sm op50' : 'i-ph-check-bold text-xs'"
+                    :class="settings.docksCategoriesHidden.includes(category) ? 'i-ph-eye-slash text-sm op50' : 'i-ph-check-bold text-xs'"
                   />
                 </button>
                 <span class="font-medium capitalize">{{ getCategoryLabel(category) }}</span>
@@ -187,21 +187,21 @@ function resetSettings() {
                   v-for="(dock, index) of entries"
                   :key="dock.id"
                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray/5 transition-colors group border-b border-base border-t-0"
-                  :class="settings.hiddenDocks.includes(dock.id) ? 'op40' : ''"
+                  :class="settings.docksHidden.includes(dock.id) ? 'op40' : ''"
                 >
                   <!-- Visibility toggle -->
                   <button
                     class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
-                    :class="settings.hiddenDocks.includes(dock.id) ? 'op50' : ''"
-                    :title="settings.hiddenDocks.includes(dock.id) ? 'Show' : 'Hide'"
+                    :class="settings.docksHidden.includes(dock.id) ? 'op50' : ''"
+                    :title="settings.docksHidden.includes(dock.id) ? 'Show' : 'Hide'"
                     @click="toggleDock(dock.id)"
                   >
                     <div
                       class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                      :class="settings.hiddenDocks.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                      :class="settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
                     >
                       <div
-                        v-if="!settings.hiddenDocks.includes(dock.id)"
+                        v-if="!settings.docksHidden.includes(dock.id)"
                         class="i-ph-check-bold text-xs"
                       />
                     </div>
@@ -212,11 +212,11 @@ function resetSettings() {
                     :icon="dock.icon"
                     :title="dock.title"
                     class="w-5 h-5 shrink-0"
-                    :class="settings.hiddenDocks.includes(dock.id) ? 'saturate-0' : ''"
+                    :class="settings.docksHidden.includes(dock.id) ? 'saturate-0' : ''"
                   />
                   <span
                     class="flex-1 truncate"
-                    :class="settings.hiddenDocks.includes(dock.id) ? 'line-through op60' : ''"
+                    :class="settings.docksHidden.includes(dock.id) ? 'line-through op60' : ''"
                   >
                     {{ dock.title }}
                   </span>
@@ -244,12 +244,12 @@ function resetSettings() {
                   <!-- Pin toggle -->
                   <button
                     class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
-                    :class="settings.pinnedDocks.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
-                    :title="settings.pinnedDocks.includes(dock.id) ? 'Unpin' : 'Pin'"
+                    :class="settings.docksPinned.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
+                    :title="settings.docksPinned.includes(dock.id) ? 'Unpin' : 'Pin'"
                     @click="togglePin(dock.id)"
                   >
                     <div
-                      :class="settings.pinnedDocks.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
+                      :class="settings.docksPinned.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
                       class="text-base"
                     />
                   </button>

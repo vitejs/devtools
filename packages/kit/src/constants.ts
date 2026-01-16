@@ -10,10 +10,10 @@ export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~builtin': 1000,
 } satisfies Record<DevToolsDockEntryCategory, number>
 
-export const DEFAULT_STATE_DOCKS_SETTINGS: () => DevToolsDocksUserSettings = () => ({
-  hiddenDocks: [],
-  hiddenCategories: [],
-  pinnedDocks: [],
-  customOrder: {},
+export const DEFAULT_STATE_USER_SETTINGS: () => DevToolsDocksUserSettings = () => ({
+  docksHidden: [],
+  docksCategoriesHidden: [],
+  docksPinned: [],
+  docksCustomOrder: {},
   showIframeAddressBar: false,
 })
