@@ -5,7 +5,7 @@ import { createDebug } from 'obug'
 const debug = createDebug('vite:devtools:rpc:state:subscribe')
 
 export const sharedStateSubscribe = defineRpcFunction({
-  name: 'vite:internal:rpc:server-state:subscribe',
+  name: 'devtoolskit:internal:rpc:server-state:subscribe',
   type: 'event',
   setup: (context: DevToolsNodeContext) => {
     return {

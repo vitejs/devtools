@@ -35,12 +35,6 @@ watch(
   },
   { immediate: true },
 )
-
-function switchEntry(id: string) {
-  if (id) {
-    context.docks.switchEntry(id)
-  }
-}
 </script>
 
 <template>
@@ -55,10 +49,10 @@ function switchEntry(id: string) {
       <div class="transition duration-200 p2">
         <DockEntriesWithCategories
           :context="context"
-          :entries="context.docks.entries"
+          :groups="context.docks.groupedEntries"
           :is-vertical="false"
           :selected="context.docks.selected"
-          @select="(e) => switchEntry(e?.id)"
+          @select="(e) => context.docks.switchEntry(e?.id)"
         >
           <template #separator>
             <div class="border-base border-b w-full my-2" />

@@ -1,7 +1,7 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const docksOnLaunch = defineRpcFunction({
-  name: 'vite:internal:docks:on-launch',
+  name: 'devtoolskit:internal:docks:on-launch',
   type: 'action',
   setup: (context) => {
     const launchMap = new Map<string, Promise<void>>()

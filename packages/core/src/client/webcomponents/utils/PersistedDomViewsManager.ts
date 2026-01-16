@@ -48,7 +48,7 @@ export class PersistedDomViewsManager {
 export class PersistedDomHolder<ElementType extends HTMLElement> {
   readonly element: ElementType
   readonly id: string
-  parent?: Element
+  anchor?: Element
 
   _cleanups: (() => void)[] = []
 
@@ -63,17 +63,17 @@ export class PersistedDomHolder<ElementType extends HTMLElement> {
   }
 
   mount(parent: Element) {
-    if (this.parent === parent) {
+    if (this.anchor === parent) {
       this.show()
       return
     }
 
     this.cleanup()
-    this.parent = parent
+    this.anchor = parent
 
-    const func = () => this.update()
-    window.addEventListener('resize', func)
-    this._cleanups.push(() => window.removeEventListener('resize', func))
+    const update = () => this.update()
+    window.addEventListener('resize', update)
+    this._cleanups.push(() => window.removeEventListener('resize', update))
     this.show()
   }
 
@@ -87,9 +87,9 @@ export class PersistedDomHolder<ElementType extends HTMLElement> {
   }
 
   update() {
-    if (!this.parent)
+    if (!this.anchor)
       return
-    const rect = this.parent.getBoundingClientRect()
+    const rect = this.anchor.getBoundingClientRect()
     this.element.style.position = 'absolute'
     this.element.style.width = `${rect.width}px`
     this.element.style.height = `${rect.height}px`
@@ -98,6 +98,6 @@ export class PersistedDomHolder<ElementType extends HTMLElement> {
   unmount() {
     this.cleanup()
     this.hide()
-    this.parent = undefined
+    this.anchor = undefined
   }
 }

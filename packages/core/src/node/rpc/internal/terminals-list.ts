@@ -2,7 +2,7 @@ import type { DevToolsTerminalSessionBase } from '@vitejs/devtools-kit'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const terminalsList = defineRpcFunction({
-  name: 'vite:internal:terminals:list',
+  name: 'devtoolskit:internal:terminals:list',
   type: 'static',
   setup: (context) => {
     return {

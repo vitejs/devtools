@@ -1,6 +1,8 @@
 import type { RpcFunctionsCollector } from 'birpc-x'
 import type { Raw } from 'vue'
-import type { DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { DevToolsDockEntriesGrouped } from '../../../core/src/client/webcomponents/state/dock-settings'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
@@ -54,6 +56,8 @@ export interface DocksEntriesContext {
   readonly selected: DevToolsDockEntry | null
   entries: DevToolsDockEntry[]
   entryToStateMap: Map<string, DockEntryState>
+  groupedEntries: DevToolsDockEntriesGrouped
+  settings: SharedState<DevToolsDocksUserSettings>
   /**
    * Get the state of a dock entry by its ID
    */

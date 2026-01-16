@@ -24,6 +24,9 @@
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"
       ],
+      "@vitejs/devtools-kit/constants": [
+        "./packages/kit/src/constants.ts"
+      ],
       "@vitejs/devtools-kit/utils/events": [
         "./packages/kit/src/utils/events.ts"
       ],

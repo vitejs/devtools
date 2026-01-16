@@ -1,7 +1,7 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const terminalsRead = defineRpcFunction({
-  name: 'vite:internal:terminals:read',
+  name: 'devtoolskit:internal:terminals:read',
   type: 'query',
   setup: (context) => {
     return {

@@ -59,7 +59,7 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.19.0
   devtools:
-    '@antfu/eslint-config': ^6.7.3
+    '@antfu/eslint-config': ^7.0.1
     '@nuxt/devtools': ^3.1.1
     '@nuxt/eslint': ^1.12.1
     '@typescript-eslint/utils': ^8.53.0
@@ -78,7 +78,7 @@ catalogs:
     '@voidzero-dev/vitepress-theme': ^4.2.0
     mermaid: ^11.12.2
     vitepress: ^2.0.0-alpha.15
-    vitepress-plugin-group-icons: ^1.6.5
+    vitepress-plugin-group-icons: ^1.6.7
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.7.4

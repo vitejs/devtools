@@ -65,7 +65,7 @@ export function createDockEntryState(
   return state
 }
 
-function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> {
+export function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> {
   const ref = shallowRef<T>(sharedState.value() as T)
   sharedState.on('updated', (newState: T) => {
     ref.value = newState
@@ -78,7 +78,7 @@ export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevTo
   if (_docksEntriesRef) {
     return _docksEntriesRef
   }
-  const state = await rpc.sharedState.get('vite:internal:docks', { initialValue: [] })
+  const state = await rpc.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
   _docksEntriesRef = sharedStateToRef(state)
   return _docksEntriesRef
 }
