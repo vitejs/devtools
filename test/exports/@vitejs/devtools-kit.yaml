@@ -4,7 +4,7 @@
   getDevToolsRpcClient: function
 ./constants:
   DEFAULT_CATEGORIES_ORDER: object
-  DEFAULT_STATE_DOCKS_SETTINGS: function
+  DEFAULT_STATE_USER_SETTINGS: function
 ./utils/events:
   createEventEmitter: function
 ./utils/nanoid:
