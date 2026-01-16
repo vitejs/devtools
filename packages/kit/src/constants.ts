@@ -15,4 +15,5 @@ export const DEFAULT_STATE_DOCKS_SETTINGS: () => DevToolsDocksUserSettings = () 
   hiddenCategories: [],
   pinnedDocks: [],
   customOrder: {},
+  showIframeAddressBar: false,
 })

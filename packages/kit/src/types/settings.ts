@@ -3,4 +3,5 @@ export interface DevToolsDocksUserSettings {
   hiddenCategories: string[]
   pinnedDocks: string[]
   customOrder: Record<string, number>
+  showIframeAddressBar: boolean
 }

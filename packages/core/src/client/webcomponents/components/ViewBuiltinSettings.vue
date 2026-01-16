@@ -260,6 +260,32 @@ function resetSettings() {
         </div>
       </section>
 
+      <section class="border-t border-base pt-6 mb-8">
+        <h2 class="text-lg font-medium mb-4 op75">
+          Appearance
+        </h2>
+
+        <div class="flex flex-col gap-3">
+          <!-- Show iframe address bar toggle -->
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <button
+              class="w-10 h-6 rounded-full transition-colors relative shrink-0"
+              :class="settings.showIframeAddressBar ? 'bg-lime' : 'bg-gray/30'"
+              @click="settingsStore.mutate((s) => { s.showIframeAddressBar = !s.showIframeAddressBar })"
+            >
+              <div
+                class="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                :class="settings.showIframeAddressBar ? 'translate-x-5' : 'translate-x-1'"
+              />
+            </button>
+            <div class="flex flex-col">
+              <span class="text-sm">Show iframe address bar</span>
+              <span class="text-xs op50">Display navigation controls and URL bar for iframe views</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
       <section class="border-t border-base pt-6">
         <h2 class="text-lg font-medium mb-4 op75">
           Reset
