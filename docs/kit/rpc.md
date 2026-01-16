@@ -8,21 +8,14 @@ DevTools Kit provides a built-in RPC layer for type-safe bidirectional communica
 
 ## Overview
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Browser Client                       │
-│                                                         │
-│   await rpc.call('my-plugin:get-data', id)              │
-│                         │                               │
-│                         ▼                               │
-└─────────────────────────┼───────────────────────────────┘
-                          │ WebSocket
-┌─────────────────────────┼───────────────────────────────┐
-│                         ▼                               │
-│   handler: async (id) => fetchData(id)                  │
-│                                                         │
-│                     Node.js Server                      │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+  participant Client as Browser Client
+  participant Server as Node.js Server
+
+  Client->>Server: rpc.call('my-plugin:get-data', id)
+  Note over Server: handler: async (id) =><br/>fetchData(id)
+  Server->>Client: { id, data: '...' }
 ```
 
 ## Server-Side Functions

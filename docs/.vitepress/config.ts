@@ -4,10 +4,11 @@ import {
   groupIconMdPlugin,
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 import { version } from '../../package.json'
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: 'Vite DevTools',
   description: 'Visualize and analyze your Vite build process with powerful developer tools. Extensible architecture for building custom DevTools integrations.',
   head: [
@@ -100,4 +101,4 @@ export default defineConfig({
       groupIconVitePlugin(),
     ],
   },
-})
+}))

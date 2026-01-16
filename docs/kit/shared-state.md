@@ -8,16 +8,22 @@ DevTools Kit provides a built-in shared state system for synchronizing data betw
 
 ## Overview
 
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│   Client A       │     │     Server       │     │   Client B       │
-│                  │     │                  │     │                  │
-│  state.value()   │◄────│  state.mutate()  │────►│  state.value()   │
-│  { count: 1 }    │     │  { count: 1 }    │     │  { count: 1 }    │
-└──────────────────┘     └──────────────────┘     └──────────────────┘
-         │                        ▲                        │
-         │         WebSocket sync │         WebSocket sync │
-         └────────────────────────┴────────────────────────┘
+```mermaid
+flowchart LR
+  subgraph ClientA["Client A"]
+    A_Value["state.value()<br/>{ count: 1 }"]
+  end
+
+  subgraph Server["Server"]
+    S_Mutate["state.mutate()<br/>{ count: 1 }"]
+  end
+
+  subgraph ClientB["Client B"]
+    B_Value["state.value()<br/>{ count: 1 }"]
+  end
+
+  S_Mutate <-->|RPC sync| A_Value
+  S_Mutate <-->|RPC sync| B_Value
 ```
 
 ## Server-Side Usage

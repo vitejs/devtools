@@ -79,6 +79,7 @@
     "@rolldown/debug": "catalog:deps",
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",
+    "langium": "catalog:resolutions",
     "nitropack": "catalog:build",
     "nuxt": "catalog:build",
     "rolldown": "catalog:build",

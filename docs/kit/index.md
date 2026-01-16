@@ -23,35 +23,32 @@ DevTools Kit offers a complete toolkit for building DevTools integrations:
 
 ## Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Browser (Client)                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │   Iframe    │  │   Action    │  │   Custom Renderer   │  │
-│  │   Panel     │  │   Button    │  │       Panel         │  │
-│  └──────┬──────┘  └──────┬──────┘  └──────────┬──────────┘  │
-│         │                │                    │             │
-│         └────────────────┼────────────────────┘             │
-│                          │                                  │
-│                    ┌─────┴─────┐                            │
-│                    │ RPC Client│                            │
-│                    └─────┬─────┘                            │
-└──────────────────────────┼──────────────────────────────────┘
-                           │ WebSocket
-┌──────────────────────────┼──────────────────────────────────┐
-│                    ┌─────┴─────┐                            │
-│                    │ RPC Server│                            │
-│                    └─────┬─────┘                            │
-│                          │                                  │
-│  ┌───────────────────────┼───────────────────────────────┐  │
-│  │              DevTools Node Context                    │  │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌──────────┐  │  │
-│  │  │  Docks  │  │  Views  │  │   RPC   │  │  State   │  │  │
-│  │  │  Host   │  │  Host   │  │  Host   │  │  Host    │  │  │
-│  │  └─────────┘  └─────────┘  └─────────┘  └──────────┘  │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                      Node.js (Server)                       │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+  subgraph Browser["Browser (Client)"]
+    direction TB
+    subgraph DockEntries["Dock Entries"]
+      Iframe["Iframe Panel"]
+      Action["Action Button"]
+      Custom["Custom Renderer"]
+    end
+    RpcClient["RPC Client"]
+    DockEntries --> RpcClient
+  end
+
+  RpcClient <-->|WebSocket| RpcServer
+
+  subgraph Server["Node.js (Server)"]
+    direction TB
+    RpcServer["RPC Server"]
+    subgraph Context["DevTools Node Context"]
+      Docks["Docks Host"]
+      Views["Views Host"]
+      Rpc["RPC Host"]
+      State["State Host"]
+    end
+    RpcServer --> Context
+  end
 ```
 
 ## Why DevTools Kit?

@@ -10,7 +10,9 @@
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "catalog:docs",
     "@vitejs/devtools": "workspace:*",
+    "mermaid": "catalog:docs",
     "vitepress": "catalog:docs",
-    "vitepress-plugin-group-icons": "catalog:docs"
+    "vitepress-plugin-group-icons": "catalog:docs",
+    "vitepress-plugin-mermaid": "catalog:docs"
   }
 }
