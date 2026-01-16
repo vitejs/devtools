@@ -75,6 +75,7 @@ catalogs:
     vue-tsc: ^3.2.2
   docs:
     '@shikijs/vitepress-twoslash': ^3.21.0
+    '@voidzero-dev/vitepress-theme': ^4.2.0
     mermaid: ^11.12.2
     vitepress: ^2.0.0-alpha.15
     vitepress-plugin-group-icons: ^1.6.7
