@@ -101,4 +101,22 @@ export default withMermaid(defineConfig({
       groupIconVitePlugin(),
     ],
   },
+  mermaid: {
+    theme: 'base',
+    flowchart: {
+      curve: 'basis',
+      padding: 20,
+      nodeSpacing: 50,
+      rankSpacing: 60,
+      useMaxWidth: true,
+    },
+    sequence: {
+      actorMargin: 80,
+      boxMargin: 10,
+      boxTextMargin: 5,
+      noteMargin: 10,
+      messageMargin: 40,
+      useMaxWidth: true,
+    },
+  },
 }))

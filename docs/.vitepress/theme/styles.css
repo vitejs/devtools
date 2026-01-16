@@ -1,3 +1,28 @@
 .VPImage.logo {
   height: 18px;
 }
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node polygon,
+.mermaid .node ellipse {
+  rx: 8px;
+  ry: 8px;
+  stroke-width: 2px;
+}
+.mermaid .cluster rect {
+  rx: 12px;
+  ry: 12px;
+  stroke-width: 2px;
+  stroke-dasharray: 0;
+}
+.mermaid .edgePath path {
+  stroke-width: 2px;
+}
+.mermaid .messageText {
+  font-size: 14px;
+}
+.mermaid .actor {
+  rx: 8px;
+  ry: 8px;
+}
