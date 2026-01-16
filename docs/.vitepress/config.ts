@@ -1,4 +1,5 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
+import { extendConfig } from '@voidzero-dev/vitepress-theme/config'
 import { defineConfig } from 'vitepress'
 import {
   groupIconMdPlugin,
@@ -7,26 +8,38 @@ import {
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { version } from '../../package.json'
 
+const DevToolsKitNav = [
+  { text: 'Introduction', link: '/kit/' },
+  { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
+  { text: 'Dock System', link: '/kit/dock-system' },
+  { text: 'RPC', link: '/kit/rpc' },
+  { text: 'Shared State', link: '/kit/shared-state' },
+]
+
+const SocialLinks = [
+  { icon: 'bluesky', link: 'https://bsky.app/profile/vite.dev' },
+  { icon: 'mastodon', link: 'https://elk.zone/m.webtoo.ls/@vite' },
+  { icon: 'x', link: 'https://x.com/vite_js' },
+  { icon: 'discord', link: 'https://chat.vite.dev' },
+  { icon: 'github', link: 'https://github.com/vitejs/devtools' },
+]
+
 // https://vitepress.dev/reference/site-config
-export default withMermaid(defineConfig({
+export default extendConfig(withMermaid(defineConfig({
   title: 'Vite DevTools',
   description: 'Visualize and analyze your Vite build process with powerful developer tools. Extensible architecture for building custom DevTools integrations.',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
   ],
   themeConfig: {
+    variant: 'vite',
+
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
       {
         text: 'DevTools Kit',
-        items: [
-          { text: 'Introduction', link: '/kit/' },
-          { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
-          { text: 'Dock System', link: '/kit/dock-system' },
-          { text: 'RPC', link: '/kit/rpc' },
-          { text: 'Shared State', link: '/kit/shared-state' },
-        ],
+        items: DevToolsKitNav,
       },
       {
         text: `v${version}`,
@@ -69,6 +82,22 @@ export default withMermaid(defineConfig({
     footer: {
       message: `Released under the MIT License.`,
       copyright: 'Copyright © 2025-present VoidZero Inc. & Vite Contributors',
+      nav: [
+        {
+          title: 'Vite DevTools',
+          items: [
+            { text: 'Guide', link: '/guide/' },
+            { text: 'Features', link: '/guide/features' },
+            { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
+            { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
+          ],
+        },
+        {
+          title: 'DevTools Kit',
+          items: DevToolsKitNav,
+        },
+      ],
+      social: SocialLinks,
     },
 
     lastUpdated: {
@@ -80,13 +109,7 @@ export default withMermaid(defineConfig({
       text: 'Suggest changes to this page',
     },
 
-    socialLinks: [
-      { icon: 'bluesky', link: 'https://bsky.app/profile/vite.dev' },
-      { icon: 'mastodon', link: 'https://elk.zone/m.webtoo.ls/@vite' },
-      { icon: 'x', link: 'https://x.com/vite_js' },
-      { icon: 'discord', link: 'https://chat.vite.dev' },
-      { icon: 'github', link: 'https://github.com/vitejs/devtools' },
-    ],
+    socialLinks: SocialLinks,
   },
   markdown: {
     codeTransformers: [
@@ -119,4 +142,4 @@ export default withMermaid(defineConfig({
       useMaxWidth: true,
     },
   },
-}))
+})))

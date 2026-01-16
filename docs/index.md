@@ -1,5 +1,6 @@
 ---
 layout: home
+theme: dark
 
 hero:
   name: Vite DevTools
@@ -13,8 +14,7 @@ hero:
       text: View on GitHub
       link: https://github.com/vitejs/devtools
   image:
-    light: /logo_devtools.svg
-    dark: /logo_devtools_dark.svg
+    src: /hero.svg
     alt: Vite DevTools
 
 features:
@@ -37,3 +37,9 @@ features:
     title: Framework Agnostic
     details: Works with any framework built on Vite. Use Vue, React, Svelte, or any other framework to build your DevTools UI.
 ---
+
+<script setup>
+import Home from './.vitepress/theme/Home.vue'
+</script>
+
+<Home />

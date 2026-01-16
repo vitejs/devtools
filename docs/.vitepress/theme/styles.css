@@ -1,6 +1,7 @@
-.VPImage.logo {
-  height: 18px;
-}
+/* styles.css */
+@import "@voidzero-dev/vitepress-theme/src/styles/index.css";
+
+@source "./**/*.vue";
 
 .mermaid .node rect,
 .mermaid .node circle,
