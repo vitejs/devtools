@@ -61,7 +61,7 @@ export function docksGroupByCategories(
       const customOrderA = customOrder[a.id] ?? 0
       const customOrderB = customOrder[b.id] ?? 0
       if (customOrderA !== customOrderB)
-        return customOrderB - customOrderA
+        return customOrderA - customOrderB
 
       // Finally by default order
       const ia = a.defaultOrder ?? 0

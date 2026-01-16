@@ -64,7 +64,7 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
-    'vite:internal:docks:settings': DevToolsDocksUserSettings
     'vite:internal:docks': DevToolsDockEntry[]
+    'vite:internal:user-settings': DevToolsDocksUserSettings
   }
 }

@@ -39,12 +39,12 @@ export async function createDevToolsContext(
   context.views = viewsHost
   context.terminals = terminalsHost
 
-  await docksHost.init()
-
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcDeclarations) {
     rpcHost.register(fn)
   }
+
+  await docksHost.init()
 
   const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
 
@@ -69,7 +69,6 @@ export async function createDevToolsContext(
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
-
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
       continue

@@ -86,7 +86,7 @@ export async function createDocksContext(
   const getSettingsStore = async () => {
     if (!_settingsStorePromise) {
       _settingsStorePromise = rpc.sharedState.get(
-        'vite:internal:docks:settings',
+        'vite:internal:user-settings',
         { initialValue: DEFAULT_STATE_DOCKS_SETTINGS() },
       )
     }

@@ -46,12 +46,12 @@ export function createRpcSharedStateServerHost(
       if (sharedState.has(key)) {
         return sharedState.get(key)!
       }
-      if (options?.initialValue === undefined) {
+      if (options?.initialValue === undefined && options?.sharedState === undefined) {
         throw new Error(`Shared state of "${key}" is not found, please provide an initial value for the first time`)
       }
       debug('new-state', key)
-      const state = createSharedState<T>({
-        initialValue: options.initialValue,
+      const state = options.sharedState ?? createSharedState<T>({
+        initialValue: options.initialValue as T,
         enablePatches: false,
       })
       registerSharedState(key, state)
