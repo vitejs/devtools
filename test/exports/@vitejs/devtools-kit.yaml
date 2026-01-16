@@ -2,6 +2,9 @@
   defineRpcFunction: function
 ./client:
   getDevToolsRpcClient: function
+./constants:
+  DEFAULT_CATEGORIES_ORDER: object
+  DEFAULT_STATE_DOCKS_SETTINGS: function
 ./utils/events:
   createEventEmitter: function
 ./utils/nanoid:
