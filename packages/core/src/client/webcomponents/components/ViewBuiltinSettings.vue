@@ -133,7 +133,7 @@ function resetSettings() {
 </script>
 
 <template>
-  <div class="h-full w-full overflow-auto p10">
+  <div class="h-screen w-full overflow-auto p10">
     <div class="max-w-200 mx-auto">
       <h1 class="text-xl font-semibold mb-6 flex items-center gap-2 op85">
         <div class="i-ph-gear-duotone text-2xl" />
