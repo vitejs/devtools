@@ -1,4 +1,5 @@
-![Vite DevTools](https://github.com/user-attachments/assets/ac930792-ba80-4eb3-9121-66fcd59dc2a8)
+![Vite DevTools](./docs/public/logo-dark.svg#gh-light-mode-only)
+![Vite DevTools](./docs/public/logo-light.svg#gh-dark-mode-only)
 
 # Vite DevTools
 
