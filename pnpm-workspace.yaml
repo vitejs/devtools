@@ -151,3 +151,4 @@ onlyBuiltDependencies:
   - rolldown
   - simple-git-hooks
   - unrs-resolver
+  - vue-demi
