@@ -153,6 +153,9 @@ function refresh() {
 }
 
 onMounted(() => {
+  if (props.persistedDoms.getHolder(props.entry.id, 'iframe')) {
+    updateCurrentUrl()
+  }
   const holder = props.persistedDoms.getOrCreateHolder(props.entry.id, 'iframe')
   holder.element.style.boxShadow = 'none'
   holder.element.style.outline = 'none'
