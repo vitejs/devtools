@@ -23,10 +23,7 @@ export const presetDevToolsUI = definePreset<PresetDevToolsUIOptions, Theme>((op
     name: '@vitejs/devtools-ui/preset',
     shortcuts,
     extendTheme(defaultTheme) {
-      return {
-        ...defaultTheme,
-        ...theme,
-      }
+      return mergeDeep(defaultTheme, theme)
     },
     presets: [
       presetWind4(),
