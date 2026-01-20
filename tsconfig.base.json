@@ -50,6 +50,12 @@
       ],
       "@vitejs/devtools": [
         "./packages/core/src/index.ts"
+      ],
+      "@vitejs/devtools-ui/unocss": [
+        "./packages/ui/src/unocss/index.ts"
+      ],
+      "@vitejs/devtools-ui/components": [
+        "./packages/ui/src/components"
       ]
     },
     "resolveJsonModule": true,

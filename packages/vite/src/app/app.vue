@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '#app/composables/head'
 
+import VisualLoading from '@vitejs/devtools-ui/components/VisualLoading.vue'
 import { connect, connectionState } from './composables/rpc'
 import 'floating-vue/dist/style.css'
 import './styles/cm.css'

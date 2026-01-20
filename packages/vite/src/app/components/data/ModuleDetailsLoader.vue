@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
 import { useRpc } from '#imports'
+import VisualLoading from '@vitejs/devtools-ui/components/VisualLoading.vue'
 import { computedAsync } from '@vueuse/core'
 import { nextTick, ref, watchEffect } from 'vue'
 import { settings } from '~~/app/state/settings'
