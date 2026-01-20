@@ -7,7 +7,13 @@ outline: deep
 > [!WARNING] Experimental
 > The API is still in development and may change in any version. If you are building on top of it, please mind the version of packages you are using and warn your users about the experimental status.
 
-Vite DevTools Kit is a shared infrastructure for building custom developer tools that integrate seamlessly with Vite and frameworks built on top of it.
+The vision of DevTools Kit is to provide a unified foundation for building custom developer tools that integrate seamlessly with Vite and frameworks built on top of it.
+
+We imagine a future where integrations can provide powerful tools for developers and agents to understand your application better, and be composable based on each specific use case:
+
+![DevTools Kit Vision](/assets/vision-devtools-kit.jpg)
+
+If you are interested in more details, you can also check out [Anthony Fu's talk on ViteConf 2025](https://www.youtube.com/watch?v=tVd0JeSr8kg).
 
 ## What DevTools Kit Provides
 
