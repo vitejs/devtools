@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import VisualLogoBanner from './VisualLogoBanner.vue'
+
 const props = defineProps<{
   text?: string
 }>()

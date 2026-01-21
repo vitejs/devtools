@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { useRpc } from '#imports'
+import VisualLogoBanner from '@vitejs/devtools-ui/components/VisualLogoBanner.vue'
 import { computed, ref } from 'vue'
 
 const sessionMode = ref<'list' | 'compare'>('list')

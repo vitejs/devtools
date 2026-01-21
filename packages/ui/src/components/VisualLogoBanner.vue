@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+import VisualLogo from './VisualLogo.vue'
+</script>
+
 <template>
   <div class="flex gap-2 group" p8 relative>
     <div op10 group-hover="op100" transition duration-800 class="absolute -bottom-[10px] -left-[20px] w-[80px] h-[80px] bg-linear-to-b from-[#61d9ff] to-transparent blur-[30px]" />

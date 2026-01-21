@@ -1,0 +1,38 @@
+{
+  "name": "@vitejs/devtools-ui",
+  "type": "module",
+  "version": "0.0.0-alpha.26",
+  "private": true,
+  "description": "DevTools UI for Vite (work in progress)",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/ui",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite",
+    "devtools",
+    "devtools ui"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./unocss": {
+      "types": "./src/unocss/index.ts",
+      "import": "./src/unocss/index.ts"
+    },
+    "./components/*": {
+      "types": "./src/components/*.vue",
+      "import": "./src/components/*.vue"
+    }
+  },
+  "main": "./src/index.ts",
+  "module": "./src/index.ts"
+}

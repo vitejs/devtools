@@ -2,6 +2,7 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
+import VisualLoading from '@vitejs/devtools-ui/components/VisualLoading.vue'
 import { onKeyDown } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
 import { useSideNav } from '~/state/nav'

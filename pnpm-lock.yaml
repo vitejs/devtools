@@ -672,6 +672,8 @@ importers:
         specifier: catalog:deps
         version: 8.19.0
 
+  packages/ui: {}
+
   packages/vite:
     dependencies:
       '@floating-ui/dom':
@@ -689,6 +691,9 @@ importers:
       '@vitejs/devtools-rpc':
         specifier: workspace:*
         version: link:../rpc
+      '@vitejs/devtools-ui':
+        specifier: workspace:*
+        version: link:../ui
       ansis:
         specifier: catalog:deps
         version: 4.2.0
@@ -10359,7 +10364,7 @@ snapshots:
       '@babel/types': 7.28.5
       '@vue/babel-helper-vue-transform-on': 2.0.1
       '@vue/babel-plugin-resolve-type': 2.0.1(@babel/core@7.28.5)
-      '@vue/shared': 3.5.26
+      '@vue/shared': 3.5.27
     optionalDependencies:
       '@babel/core': 7.28.5
     transitivePeerDependencies:
@@ -10372,7 +10377,7 @@ snapshots:
       '@babel/helper-module-imports': 7.27.1
       '@babel/helper-plugin-utils': 7.27.1
       '@babel/parser': 7.28.5
-      '@vue/compiler-sfc': 3.5.26
+      '@vue/compiler-sfc': 3.5.27
     transitivePeerDependencies:
       - supports-color
 

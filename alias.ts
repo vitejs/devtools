@@ -20,6 +20,8 @@ export const alias = {
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
   '@vitejs/devtools/client/webcomponents': r('core/src/client/webcomponents/index.ts'),
   '@vitejs/devtools': r('core/src/index.ts'),
+  '@vitejs/devtools-ui/unocss': r('ui/src/unocss/index.ts'),
+  '@vitejs/devtools-ui/components': r('ui/src/components'),
 }
 
 // update tsconfig.base.json

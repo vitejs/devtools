@@ -2,6 +2,7 @@
 import type { SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
+import VisualLoading from '@vitejs/devtools-ui/components/VisualLoading.vue'
 import { useAsyncState } from '@vueuse/core'
 
 const props = defineProps<{
