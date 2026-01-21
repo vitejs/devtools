@@ -31,6 +31,6 @@ const formattedCurrent = computed(() => {
     <div v-else>
       <span font-semibold text-5 font-mono>{{ formattedCurrent }}</span>
     </div>
-    <DisplayComparisonMetric :current="current" :previous="previous" />
+    <DisplayComparisonMetric v-if="previous > 0 && current > 0" :current="current" :previous="previous" />
   </div>
 </template>
