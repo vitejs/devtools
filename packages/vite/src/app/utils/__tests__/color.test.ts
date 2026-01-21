@@ -1,5 +1,5 @@
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { isDark } from '../../composables/dark'
 import { getHashColorFromString, getHsla, getPluginColor, predefinedColorMap } from '../color'
 
 describe('getHashColorFromString', () => {

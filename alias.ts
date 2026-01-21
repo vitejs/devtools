@@ -22,6 +22,7 @@ export const alias = {
   '@vitejs/devtools': r('core/src/index.ts'),
   '@vitejs/devtools-ui/unocss': r('ui/src/unocss/index.ts'),
   '@vitejs/devtools-ui/components': r('ui/src/components'),
+  '@vitejs/devtools-ui/composables': r('ui/src/composables'),
 }
 
 // update tsconfig.base.json

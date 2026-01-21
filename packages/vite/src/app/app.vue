@@ -7,7 +7,7 @@ import 'floating-vue/dist/style.css'
 import './styles/cm.css'
 import './styles/splitpanes.css'
 import './styles/global.css'
-import './composables/dark'
+import '@vitejs/devtools-ui/composables/dark'
 
 useHead({
   title: 'Vite DevTools',

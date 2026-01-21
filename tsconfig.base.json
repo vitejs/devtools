@@ -56,6 +56,9 @@
       ],
       "@vitejs/devtools-ui/components": [
         "./packages/ui/src/components"
+      ],
+      "@vitejs/devtools-ui/composables": [
+        "./packages/ui/src/composables"
       ]
     },
     "resolveJsonModule": true,

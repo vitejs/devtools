@@ -87,6 +87,7 @@
     "stream-json": "catalog:inlined",
     "theme-vitesse": "catalog:frontend",
     "tsdown": "catalog:build",
+    "unocss": "catalog:build",
     "vite-hot-client": "catalog:frontend"
   }
 }

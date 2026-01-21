@@ -30,6 +30,9 @@ catalogs:
     turbo:
       specifier: ^2.7.5
       version: 2.7.5
+    unocss:
+      specifier: ^66.6.0
+      version: 66.6.0
     unplugin-vue:
       specifier: ^7.1.0
       version: 7.1.0
@@ -672,7 +675,17 @@ importers:
         specifier: catalog:deps
         version: 8.19.0
 
-  packages/ui: {}
+  packages/ui:
+    dependencies:
+      '@vueuse/core':
+        specifier: '*'
+        version: 14.1.0(vue@3.5.27(typescript@5.9.3))
+      unocss:
+        specifier: '*'
+        version: 66.6.0(@unocss/webpack@66.6.0(webpack@5.104.1(esbuild@0.27.2)))(postcss@8.5.6)(vite@8.0.0-beta.8(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      vue:
+        specifier: '*'
+        version: 3.5.27(typescript@5.9.3)
 
   packages/vite:
     dependencies:
@@ -830,6 +843,9 @@ importers:
       tsdown:
         specifier: catalog:build
         version: 0.19.0(publint@0.3.16)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.2(typescript@5.9.3))
+      unocss:
+        specifier: catalog:build
+        version: 66.6.0(@unocss/webpack@66.6.0(webpack@5.104.1(esbuild@0.27.2)))(postcss@8.5.6)(vite@8.0.0-beta.8(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       vite-hot-client:
         specifier: catalog:frontend
         version: 2.1.0(vite@8.0.0-beta.8(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -10550,7 +10566,7 @@ snapshots:
       '@types/web-bluetooth': 0.0.21
       '@vueuse/metadata': 12.8.2
       '@vueuse/shared': 12.8.2(typescript@5.9.3)
-      vue: 3.5.26(typescript@5.9.3)
+      vue: 3.5.27(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
@@ -10613,7 +10629,7 @@ snapshots:
 
   '@vueuse/shared@12.8.2(typescript@5.9.3)':
     dependencies:
-      vue: 3.5.26(typescript@5.9.3)
+      vue: 3.5.27(typescript@5.9.3)
     transitivePeerDependencies:
       - typescript
 
@@ -13441,7 +13457,7 @@ snapshots:
     dependencies:
       destr: 2.0.5
       node-fetch-native: 1.6.7
-      ufo: 1.6.2
+      ufo: 1.6.3
 
   ohash@2.0.11: {}
 

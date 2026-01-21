@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SideNavItem } from '~/state/nav'
 import { NuxtLink } from '#components'
+import { toggleDark } from '@vitejs/devtools-ui/composables/dark'
 import { computed } from 'vue'
 import { sideNavItems } from '~/state/nav'
 

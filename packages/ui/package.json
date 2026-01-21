@@ -31,8 +31,17 @@
     "./components/*": {
       "types": "./src/components/*.vue",
       "import": "./src/components/*.vue"
+    },
+    "./composables/*": {
+      "types": "./src/composables/*.ts",
+      "import": "./src/composables/*.ts"
     }
   },
   "main": "./src/index.ts",
-  "module": "./src/index.ts"
+  "module": "./src/index.ts",
+  "peerDependencies": {
+    "@vueuse/core": "*",
+    "unocss": "*",
+    "vue": "*"
+  }
 }

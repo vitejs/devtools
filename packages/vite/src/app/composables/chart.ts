@@ -1,10 +1,10 @@
 import type { GraphBase, GraphBaseOptions, TreeNode } from 'nanovis'
 import type { ComputedRef, MaybeRef } from 'vue'
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { createColorGetterSpectrum } from 'nanovis'
 import { computed, nextTick, onUnmounted, ref, shallowRef, unref, watch } from 'vue'
 import { settings } from '~/state/settings'
 import { bytesToHumanSize } from '~/utils/format'
-import { isDark } from './dark'
 
 export interface ChartGraphOptions<T, I, N> {
   data: ComputedRef<T[]> | MaybeRef<T[]>
