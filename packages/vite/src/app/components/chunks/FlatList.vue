@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 
 withDefaults(defineProps<{
   chunks: Array<RolldownChunkInfo & { id: string }>

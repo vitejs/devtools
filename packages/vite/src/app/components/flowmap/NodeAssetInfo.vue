@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo, SessionContext } from '~~/shared/types'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 
 defineProps<{
   item: RolldownAssetInfo

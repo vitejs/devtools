@@ -7,6 +7,7 @@ import type {
   RolldownResolveInfo,
   SessionContext,
 } from '~~/shared/types'
+import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
 import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { normalizeTimestamp } from '~/utils/format'

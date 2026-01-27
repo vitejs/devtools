@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PluginItem } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 
 defineProps<{
   plugins: PluginItem[]

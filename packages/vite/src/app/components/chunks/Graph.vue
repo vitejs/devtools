@@ -3,6 +3,7 @@ import type { ChunkImport } from '@rolldown/debug'
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
 import { useRoute } from '#app/composables/router'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { computed, nextTick, unref } from 'vue'
 import { createModuleGraph } from '~/composables/module-graph'
 

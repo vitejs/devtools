@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types/data'
 import { useRpc } from '#imports'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import VisualLoading from '@vitejs/devtools-ui/components/VisualLoading.vue'
 import { useAsyncState } from '@vueuse/core'
 

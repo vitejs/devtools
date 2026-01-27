@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 
 withDefaults(defineProps<{
   session: SessionContext

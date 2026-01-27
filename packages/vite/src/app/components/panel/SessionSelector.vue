@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { NuxtLink } from '#components'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayTimestamp from '@vitejs/devtools-ui/components/DisplayTimestamp.vue'
 import { computed } from 'vue'
 import { parseReadablePath } from '~/utils/filepath'
 

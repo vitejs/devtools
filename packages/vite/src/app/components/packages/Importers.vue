@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PackageInfo, SessionContext } from '~~/shared/types/data'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{

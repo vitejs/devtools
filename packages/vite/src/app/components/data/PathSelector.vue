@@ -1,6 +1,7 @@
 <script setup lang="ts"  generic="T extends { id:string, imports: Record<string, unknown>[] }">
 import type { SessionContext } from '~~/shared/types'
 import type { GraphPathSelector } from '~/composables/graph-path-selector'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import { computed, watch } from 'vue'
 import { useGraphPathSelector } from '~/composables/graph-path-selector'
 

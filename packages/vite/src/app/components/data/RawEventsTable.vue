@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { RolldownEvent } from '~~/node/rolldown/events-manager'
 import type { SessionContext } from '~~/shared/types'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayTimestamp from '@vitejs/devtools-ui/components/DisplayTimestamp.vue'
 import { Dropdown as VDropdown } from 'floating-vue'
 
 type FIELDS = 'module_id' | 'action' | 'content' | 'timestamp' | 'event_id' | 'plugin_name' | '*'
