@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatDuration } from '~/utils/format'
+import { formatDuration } from '../utils/format'
+import DisplayNumberWithUnit from './DisplayNumberWithUnit.vue'
 
 const props = withDefaults(
   defineProps<{

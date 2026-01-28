@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T">
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{

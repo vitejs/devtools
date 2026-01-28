@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { ClientSettings } from '~~/app/state/settings'
 import type { RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types/data'
+import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
 import { useCycleList, useToggle } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { settings } from '~~/app/state/settings'

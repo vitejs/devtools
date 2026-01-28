@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types/data'
 import type { FilterMatchRule } from '~/utils/icon'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
 import { useCycleList } from '@vueuse/core'
 import { Menu as VMenu } from 'floating-vue'
 import { computed, ref } from 'vue'
