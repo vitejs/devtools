@@ -22,16 +22,16 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.13.1
     nuxt: ^4.2.2
-    rolldown: ^1.0.0-beta.60
-    tsdown: ^0.19.0
+    rolldown: ^1.0.0-rc.2
+    tsdown: ^0.20.1
     tsx: ^4.21.0
-    turbo: ^2.7.5
+    turbo: ^2.7.6
     unocss: ^66.6.0
-    unplugin-vue: ^7.1.0
-    vite: ^8.0.0-beta.8
+    unplugin-vue: ^7.1.1
+    vite: ^8.0.0-beta.10
   deps:
     '@pnpm/read-project-manifest': ^1001.2.4
-    '@rolldown/debug': ^1.0.0-beta.60
+    '@rolldown/debug': ^1.0.0-rc.2
     ansis: ^4.2.0
     birpc: ^4.0.0
     birpc-x: 0.0.6
@@ -48,8 +48,8 @@ catalogs:
     open: ^11.0.0
     p-limit: ^7.2.0
     pathe: ^2.0.3
-    perfect-debounce: ^2.0.0
-    publint: ^0.3.16
+    perfect-debounce: ^2.1.0
+    publint: ^0.3.17
     sirv: ^3.0.2
     split2: ^4.2.0
     structured-clone-es: ^1.0.0
@@ -60,10 +60,10 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.19.0
   devtools:
-    '@antfu/eslint-config': ^7.1.0
+    '@antfu/eslint-config': ^7.2.0
     '@nuxt/devtools': ^3.1.1
-    '@nuxt/eslint': ^1.12.1
-    '@typescript-eslint/utils': ^8.53.1
+    '@nuxt/eslint': ^1.13.0
+    '@typescript-eslint/utils': ^8.54.0
     '@unocss/eslint-config': ^66.6.0
     bumpp: ^10.4.0
     chokidar: ^5.0.0
@@ -73,16 +73,16 @@ catalogs:
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
-    vue-tsc: ^3.2.2
+    vue-tsc: ^3.2.4
   docs:
     '@shikijs/vitepress-twoslash': ^3.21.0
-    '@voidzero-dev/vitepress-theme': ^4.2.1
+    '@voidzero-dev/vitepress-theme': ^4.4.1
     mermaid: ^11.12.2
     vitepress: ^2.0.0-alpha.15
     vitepress-plugin-group-icons: ^1.7.1
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
-    '@floating-ui/dom': ^1.7.4
+    '@floating-ui/dom': ^1.7.5
     '@vueuse/components': ^14.1.0
     '@vueuse/core': ^14.1.0
     '@vueuse/router': ^14.1.0
@@ -109,14 +109,14 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.18
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.39
+    '@iconify-json/codicon': ^1.2.41
     '@iconify-json/fluent': ^1.2.37
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
     '@iconify-json/octicon': ^1.2.20
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.7
-    '@iconify-json/simple-icons': ^1.2.67
+    '@iconify-json/simple-icons': ^1.2.68
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/tabler': ^1.2.26
   inlined:
@@ -129,14 +129,14 @@ catalogs:
     vue-router: ^4.6.4
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
-    langium: ^4.1.3
+    langium: ^4.2.0
     semver: ^7.7.3
   testing:
-    vitest: ^4.0.17
+    vitest: ^4.0.18
     vitest-package-exports: ^1.1.2
     yaml: ^2.8.2
   types:
-    '@types/chrome': ^0.1.35
+    '@types/chrome': ^0.1.36
     '@types/codemirror': ^5.60.17
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
