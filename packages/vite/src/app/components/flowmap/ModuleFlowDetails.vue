@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { RolldownChunkInfo, RolldownModuleFlowNode, SessionContext } from '~~/shared/types'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
 import { computed } from 'vue'
 import { settings } from '~~/app/state/settings'
 import PluginName from '../display/PluginName.vue'

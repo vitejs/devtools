@@ -35,6 +35,10 @@
     "./composables/*": {
       "types": "./src/composables/*.ts",
       "import": "./src/composables/*.ts"
+    },
+    "./utils/*": {
+      "types": "./src/utils/*.ts",
+      "import": "./src/utils/*.ts"
     }
   },
   "main": "./src/index.ts",
@@ -42,6 +46,7 @@
   "peerDependencies": {
     "@vueuse/core": "*",
     "unocss": "*",
-    "vue": "*"
+    "vue": "*",
+    "vue-virtual-scroller": ">=2.0.0-beta.0"
   }
 }

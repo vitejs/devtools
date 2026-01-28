@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { getHashColorFromString } from '@vitejs/devtools-ui/utils/color'
 import { Tooltip } from 'floating-vue'
 import { computed } from 'vue'
-import { getHashColorFromString } from '~/utils/color'
 
 const props = defineProps<{
   cluster: string

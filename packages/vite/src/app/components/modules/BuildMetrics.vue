@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { ModuleBuildMetrics } from '~~/shared/types'
+import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import { formatDuration } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { formatDuration } from '~/utils/format'
 
 const props = defineProps<{
   metrics: ModuleBuildMetrics

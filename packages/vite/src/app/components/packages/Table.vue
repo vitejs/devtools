@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PackageInfo, SessionContext } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 import { useCycleList } from '@vueuse/core'
 import { Tooltip, Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'

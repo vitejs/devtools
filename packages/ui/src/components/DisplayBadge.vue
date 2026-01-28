@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import {
   getHashColorFromString,
   getHsla,
-} from '~/utils/color'
+} from '../utils/color'
 
 const props = withDefaults(
   defineProps<{

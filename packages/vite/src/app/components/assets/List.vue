@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo } from '~~/shared/types'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 
 defineProps<{
   assets: RolldownAssetInfo[]

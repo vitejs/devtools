@@ -2,6 +2,7 @@
 import type { GraphBase, GraphBaseOptions } from 'nanovis'
 import type { SessionContext } from '~~/shared/types'
 import type { PluginChartInfo, PluginChartNode } from '~/types/chart'
+import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
 import { colorToCssBackground } from 'nanovis'
 import { useTemplateRef, watchEffect } from 'vue'
 
