@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
   "references": [
-    { "path": "./packages/vite/src/.nuxt/tsconfig.app.json" },
-    { "path": "./packages/vite/src/.nuxt/tsconfig.server.json" },
-    { "path": "./packages/vite/src/.nuxt/tsconfig.shared.json" },
-    { "path": "./packages/vite/src/.nuxt/tsconfig.node.json" }
+    { "path": "./packages/rolldown/src/.nuxt/tsconfig.app.json" },
+    { "path": "./packages/rolldown/src/.nuxt/tsconfig.server.json" },
+    { "path": "./packages/rolldown/src/.nuxt/tsconfig.shared.json" },
+    { "path": "./packages/rolldown/src/.nuxt/tsconfig.node.json" }
   ],
   "files": []
 }

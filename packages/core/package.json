@@ -53,8 +53,8 @@
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-rolldown": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
-    "@vitejs/devtools-vite": "workspace:*",
     "birpc": "catalog:deps",
     "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@clack/prompts": "catalog:inlined",
-    "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/devtools-rolldown": "workspace:*",
     "@vitejs/plugin-vue": "catalog:build",
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",

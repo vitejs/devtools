@@ -9,7 +9,7 @@ Quick reference for future agents working on this repo.
   - `packages/core` (`@vitejs/devtools`): Vite plugin, CLI, host/runtime (docks, views, terminals), websocket RPC server, standalone/webcomponents client.
   - `packages/kit` (`@vitejs/devtools-kit`): public types/utilities (`defineRpcFunction`, shared state, events) for integration authors; client helpers.
   - `packages/rpc` (`@vitejs/devtools-rpc`): thin typed RPC wrapper over `birpc`, with WS presets.
-  - `packages/vite` (`@vitejs/devtools-vite`): Nuxt-based UI served from the plugin; registers Vite dock and RPC functions for Rolldown build data.
+  - `packages/rolldown` (`@vitejs/devtools-rolldown`): Nuxt-based UI served from the plugin; registers Vite dock and RPC functions for Rolldown build data.
   - `packages/webext`: browser extension scaffolding (currently ancillary).
 - Docs under `docs/` (VitePress); user-facing guides in `docs/guide`.
 - Path aliases defined in `alias.ts` and propagated to `tsconfig.base.json` (do not edit paths manually).
@@ -18,9 +18,9 @@ Quick reference for future agents working on this repo.
 flowchart TD
   core["@vitejs/devtools"] --> kit["@vitejs/devtools-kit"]
   core --> rpc["@vitejs/devtools-rpc"]
-  core --> viteUI["@vitejs/devtools-vite (Nuxt UI)"]
-  viteUI --> kit
-  viteUI --> rpc
+  core --> rolldownUI["@vitejs/devtools-rolldown (Nuxt UI)"]
+  rolldownUI --> kit
+  rolldownUI --> rpc
   webext["@vitejs/devtools-webext"] --> core
 ```
 
@@ -31,8 +31,8 @@ flowchart TD
   - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`), holding dock entries, selected panels, and RPC client; created with `clientType` of `embedded` or `standalone`.
 - Websocket server (`packages/core/src/node/ws.ts`) exposes RPC via `@vitejs/devtools-rpc/presets/ws`. Auth is skipped in build mode or when `devtools.clientAuth` is `false`; trusted IDs stored under `node_modules/.vite/devtools/auth.json`.
 - DevTools middleware (`packages/core/src/node/server.ts`) serves connection meta and standalone client assets.
-- The Vite UI plugin (`packages/vite/src/node/plugin.ts`) registers RPC functions (Rolldown data fetchers) and hosts the Nuxt-generated static UI at `/.devtools-vite/`, adding a dock entry.
-- Nuxt app config (`packages/vite/src/nuxt.config.ts`): SPA, base `/.devtools-vite/`, disables Nuxt devtools, enables typed pages, uses Unocss/VueUse; sets `vite.devtools.clientAuth = false` for UI.
+- The Rolldown UI plugin (`packages/rolldown/src/node/plugin.ts`) registers RPC functions (Rolldown data fetchers) and hosts the Nuxt-generated static UI at `/.devtools-rolldown/`, adding a dock entry.
+- Nuxt app config (`packages/rolldown/src/nuxt.config.ts`): SPA, base `/.devtools-rolldown/`, disables Nuxt devtools, enables typed pages, uses Unocss/VueUse; sets `vite.devtools.clientAuth = false` for UI.
 
 ## Client Modes (kit/core)
 - **Embedded mode**: default overlay injected into the host app; docks render inside the app shell; use `clientType: 'embedded'` when creating client context.
@@ -40,10 +40,10 @@ flowchart TD
 
 ## Development Workflow
 - Install: `pnpm install` (repo requires `pnpm@10.x`).
-- Build all: `pnpm build` (runs `turbo run build`; for UI data, build generates Rolldown metadata under `packages/vite/node_modules/.rolldown`).
+- Build all: `pnpm build` (runs `turbo run build`; for UI data, build generates Rolldown metadata under `packages/rolldown/node_modules/.rolldown`).
 - Dev:
   - Core playground: `pnpm -C packages/core run play`
-  - Vite UI: `pnpm -C packages/vite run dev`
+  - Rolldown UI: `pnpm -C packages/rolldown run dev`
   - Standalone core client: `pnpm -C packages/core run dev:standalone`
 - Tests: `pnpm test` (Vitest; projects under `packages/*` and `test`).
 - Typecheck: `pnpm typecheck` (via `vue-tsc -b`).
@@ -64,7 +64,7 @@ flowchart TD
 - Core webcomponents: `packages/core/src/client/webcomponents`
 - Kit utilities: `packages/kit/src/utils/*`
 - RPC presets: `packages/rpc/src/presets/ws/*`
-- Vite UI app: `packages/vite/src/app`
+- Rolldown UI app: `packages/rolldown/src/app`
 - Docs: `docs/guide/*`
 
 ## Quick Checks Before PRs

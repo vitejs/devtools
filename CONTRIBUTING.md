@@ -12,11 +12,11 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ```bash
 pnpm install
-pnpm build  # Required: generates Rolldown meta under ./packages/vite/node_modules/.rolldown
+pnpm build  # Required: generates Rolldown meta under ./packages/rolldown/node_modules/.rolldown
 pnpm dev    # Start dev server
 ```
 
-**Note**: After pulling latest commits, remove `./packages/vite/node_modules/.rolldown` and rebuild to get the latest data format.
+**Note**: After pulling latest commits, remove `./packages/rolldown/node_modules/.rolldown` and rebuild to get the latest data format.
 
 ## Project Structure
 
@@ -51,9 +51,9 @@ Utility library for integration authors.
 
 ---
 
-### `packages/vite` - `@vitejs/devtools-vite`
+### `packages/rolldown` - `@vitejs/devtools-rolldown`
 
-Built-in UI panel for Vite/Rolldown integration.
+Built-in UI panel for Rolldown integration.
 
 - Vite plugin (enabled by default)
 - Nuxt-based UI for build visualization
@@ -94,7 +94,7 @@ Browser extension (planned for future dev mode). **Not accepting contributions c
 - `pnpm test` - Vitest
 - `pnpm typecheck` - Type check
 
-Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/vite run dev`
+Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/rolldown run dev`
 
 ## Workflow
 
