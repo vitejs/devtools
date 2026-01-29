@@ -18,4 +18,5 @@ export default defineConfig({
       resolveNewUrlToAsset: false,
     },
   },
+  inlineOnly: false,
 })

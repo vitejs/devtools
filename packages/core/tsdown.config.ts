@@ -44,4 +44,5 @@ export default defineConfig({
       await buildCSS()
     },
   },
+  inlineOnly: false,
 })

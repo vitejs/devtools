@@ -16,4 +16,5 @@ export default defineConfig([{
     entryFileNames: '[name].js',
   },
   noExternal: [/^webext-bridge\/.*/],
+  inlineOnly: false,
 }])
