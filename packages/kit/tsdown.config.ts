@@ -13,4 +13,5 @@ export default defineConfig({
   clean: true,
   tsconfig: '../../tsconfig.base.json',
   dts: true,
+  inlineOnly: false,
 })
