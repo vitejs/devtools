@@ -24,7 +24,7 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   if (builtinDevTools) {
     // eslint-disable-next-line ts/ban-ts-comment
     // @ts-ignore ignore the type error
-    plugins.push(await import('@vitejs/devtools-vite').then(m => m.DevToolsViteUI()))
+    plugins.push(await import('@vitejs/devtools-rolldown').then(m => m.DevToolsRolldownUI()))
   }
 
   return plugins

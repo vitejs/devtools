@@ -545,12 +545,12 @@ importers:
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
+      '@vitejs/devtools-rolldown':
+        specifier: workspace:*
+        version: link:../rolldown
       '@vitejs/devtools-rpc':
         specifier: workspace:*
         version: link:../rpc
-      '@vitejs/devtools-vite':
-        specifier: workspace:*
-        version: link:../vite
       birpc:
         specifier: catalog:deps
         version: 4.0.0
@@ -659,38 +659,7 @@ importers:
         specifier: ^8.0.0-beta.12
         version: 8.0.0-beta.12(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  packages/rpc:
-    dependencies:
-      birpc:
-        specifier: catalog:deps
-        version: 4.0.0
-      structured-clone-es:
-        specifier: catalog:deps
-        version: 1.0.0
-    devDependencies:
-      tsdown:
-        specifier: catalog:build
-        version: 0.20.1(publint@0.3.17)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.4(typescript@5.9.3))
-      ws:
-        specifier: catalog:deps
-        version: 8.19.0
-
-  packages/ui:
-    dependencies:
-      '@vueuse/core':
-        specifier: '*'
-        version: 14.2.0(vue@3.5.27(typescript@5.9.3))
-      unocss:
-        specifier: '*'
-        version: 66.6.0(@unocss/webpack@66.6.0(webpack@5.104.1(esbuild@0.27.2)))(postcss@8.5.6)(vite@8.0.0-beta.12(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
-      vue:
-        specifier: '*'
-        version: 3.5.27(typescript@5.9.3)
-      vue-virtual-scroller:
-        specifier: '>=2.0.0-beta.0'
-        version: 2.0.0-beta.8(vue@3.5.27(typescript@5.9.3))
-
-  packages/vite:
+  packages/rolldown:
     dependencies:
       '@floating-ui/dom':
         specifier: catalog:frontend
@@ -852,6 +821,37 @@ importers:
       vite-hot-client:
         specifier: catalog:frontend
         version: 2.1.0(vite@8.0.0-beta.12(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+
+  packages/rpc:
+    dependencies:
+      birpc:
+        specifier: catalog:deps
+        version: 4.0.0
+      structured-clone-es:
+        specifier: catalog:deps
+        version: 1.0.0
+    devDependencies:
+      tsdown:
+        specifier: catalog:build
+        version: 0.20.1(publint@0.3.17)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.4(typescript@5.9.3))
+      ws:
+        specifier: catalog:deps
+        version: 8.19.0
+
+  packages/ui:
+    dependencies:
+      '@vueuse/core':
+        specifier: '*'
+        version: 14.2.0(vue@3.5.27(typescript@5.9.3))
+      unocss:
+        specifier: '*'
+        version: 66.6.0(@unocss/webpack@66.6.0(webpack@5.104.1(esbuild@0.27.2)))(postcss@8.5.6)(vite@8.0.0-beta.12(@types/node@25.0.3)(esbuild@0.27.2)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      vue:
+        specifier: '*'
+        version: 3.5.27(typescript@5.9.3)
+      vue-virtual-scroller:
+        specifier: '>=2.0.0-beta.0'
+        version: 2.0.0-beta.8(vue@3.5.27(typescript@5.9.3))
 
   packages/webext:
     dependencies:

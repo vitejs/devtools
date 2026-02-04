@@ -39,8 +39,8 @@
       "@vitejs/devtools-kit": [
         "./packages/kit/src/index.ts"
       ],
-      "@vitejs/devtools-vite": [
-        "./packages/vite/src/index.ts"
+      "@vitejs/devtools-rolldown": [
+        "./packages/rolldown/src/index.ts"
       ],
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"

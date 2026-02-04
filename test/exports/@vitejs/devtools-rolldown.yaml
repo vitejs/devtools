@@ -1,0 +1,4 @@
+.:
+  DevToolsRolldownUI: function
+./dirs:
+  clientPublicDir: string

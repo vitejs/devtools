@@ -16,7 +16,7 @@ export const alias = {
   '@vitejs/devtools-kit/utils/nanoid': r('kit/src/utils/nanoid.ts'),
   '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
-  '@vitejs/devtools-vite': r('vite/src/index.ts'),
+  '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
   '@vitejs/devtools/client/webcomponents': r('core/src/client/webcomponents/index.ts'),
   '@vitejs/devtools': r('core/src/index.ts'),

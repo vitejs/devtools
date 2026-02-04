@@ -7,7 +7,7 @@ import Tracer from 'vite-plugin-vue-tracer'
 import { alias } from '../../../alias'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
-import { DevToolsViteUI } from '../../vite/src/node'
+import { DevToolsRolldownUI } from '../../rolldown/src/node'
 import { DevTools } from '../src'
 import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
 
@@ -42,7 +42,7 @@ export default defineConfig({
     DevTools({
       builtinDevTools: false,
     }),
-    DevToolsViteUI(),
+    DevToolsRolldownUI(),
     UnoCSS(),
     Tracer({
       viteDevtools: true,

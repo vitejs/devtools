@@ -95,7 +95,7 @@ Vite DevTools consists of several core packages:
 
 - **`@vitejs/devtools`**: The main entry point and CLI
 - **`@vitejs/devtools-kit`**: Utilities and types for building custom integrations
-- **`@vitejs/devtools-vite`**: Built-in UI panel for Vite/Rolldown
+- **`@vitejs/devtools-rolldown`**: Built-in UI panel for Rolldown
 - **`@vitejs/devtools-rpc`**: RPC layer for server-client communication
 
 For more details on extending Vite DevTools, see the [DevTools Kit documentation](/kit/).
