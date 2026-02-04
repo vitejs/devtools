@@ -13,28 +13,28 @@ packages:
 catalogs:
   build:
     '@antfu/ni': ^28.2.0
-    '@nuxt/kit': ^4.2.2
+    '@nuxt/kit': ^4.3.0
     '@nuxt/vite-builder': https://pkg.pr.new/@nuxt/vite-builder@33682
     '@unocss/nuxt': ^66.6.0
-    '@vitejs/plugin-vue': ^6.0.3
-    '@vueuse/nuxt': ^14.1.0
+    '@vitejs/plugin-vue': ^6.0.4
+    '@vueuse/nuxt': ^14.2.0
     esbuild: ^0.27.2
     magic-string: ^0.30.21
     nitropack: ^2.13.1
-    nuxt: ^4.2.2
+    nuxt: ^4.3.0
     rolldown: ^1.0.0-rc.2
     tsdown: ^0.20.1
     tsx: ^4.21.0
-    turbo: ^2.7.6
+    turbo: ^2.8.3
     unocss: ^66.6.0
     unplugin-vue: ^7.1.1
-    vite: ^8.0.0-beta.10
+    vite: ^8.0.0-beta.12
   deps:
     '@pnpm/read-project-manifest': ^1001.2.4
     '@rolldown/debug': ^1.0.0-rc.2
     ansis: ^4.2.0
     birpc: ^4.0.0
-    birpc-x: 0.0.6
+    birpc-x: 0.0.9
     cac: ^6.7.14
     diff: ^8.0.3
     get-port-please: ^3.2.0
@@ -46,7 +46,7 @@ catalogs:
     obug: ^2.1.1
     ohash: ^2.0.11
     open: ^11.0.0
-    p-limit: ^7.2.0
+    p-limit: ^7.3.0
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
     publint: ^0.3.17
@@ -75,17 +75,17 @@ catalogs:
     vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.2.4
   docs:
-    '@shikijs/vitepress-twoslash': ^3.21.0
-    '@voidzero-dev/vitepress-theme': ^4.4.1
+    '@shikijs/vitepress-twoslash': ^3.22.0
+    '@voidzero-dev/vitepress-theme': ^4.4.2
     mermaid: ^11.12.2
-    vitepress: ^2.0.0-alpha.15
+    vitepress: ^2.0.0-alpha.16
     vitepress-plugin-group-icons: ^1.7.1
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.7.5
-    '@vueuse/components': ^14.1.0
-    '@vueuse/core': ^14.1.0
-    '@vueuse/router': ^14.1.0
+    '@vueuse/components': ^14.2.0
+    '@vueuse/core': ^14.2.0
+    '@vueuse/router': ^14.2.0
     '@xterm/addon-fit': ^0.11.0
     '@xterm/xterm': ^6.0.0
     codemirror: ^5.65.20
@@ -109,14 +109,14 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.18
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.41
-    '@iconify-json/fluent': ^1.2.37
+    '@iconify-json/codicon': ^1.2.43
+    '@iconify-json/fluent': ^1.2.38
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
     '@iconify-json/octicon': ^1.2.20
     '@iconify-json/ph': ^1.2.2
-    '@iconify-json/ri': ^1.2.7
-    '@iconify-json/simple-icons': ^1.2.68
+    '@iconify-json/ri': ^1.2.9
+    '@iconify-json/simple-icons': ^1.2.69
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/tabler': ^1.2.26
   inlined:

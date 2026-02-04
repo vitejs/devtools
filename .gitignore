@@ -8,6 +8,9 @@ dist
 .idea/
 .DS_Store
 .vite-devtools
+packages/vite/src/public/fonts
+packages/vite/src/app/public/fonts
+packages/vite/runtime
 packages/rolldown/src/public/fonts
 packages/rolldown/src/app/public/fonts
 packages/rolldown/runtime
