@@ -1,7 +1,7 @@
 import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcBroadcastOptions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost } from '@vitejs/devtools-kit'
 import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
-import { RpcFunctionsCollectorBase } from 'birpc-x'
+import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import { createDebug } from 'obug'
 import { createRpcSharedStateServerHost } from './rpc-shared-state'
 

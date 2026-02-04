@@ -46,9 +46,6 @@ catalogs:
     birpc:
       specifier: ^4.0.0
       version: 4.0.0
-    birpc-x:
-      specifier: 0.0.9
-      version: 0.0.9
     cac:
       specifier: ^6.7.14
       version: 6.7.14
@@ -115,6 +112,9 @@ catalogs:
     unstorage:
       specifier: ^1.17.4
       version: 1.17.4
+    valibot:
+      specifier: ^1.2.0
+      version: 1.2.0
     webext-bridge:
       specifier: ^6.0.1
       version: 6.0.1
@@ -554,9 +554,6 @@ importers:
       birpc:
         specifier: catalog:deps
         version: 4.0.0
-      birpc-x:
-        specifier: catalog:deps
-        version: 0.0.9(typescript@5.9.3)
       cac:
         specifier: catalog:deps
         version: 6.7.14
@@ -642,9 +639,6 @@ importers:
       birpc:
         specifier: catalog:deps
         version: 4.0.0
-      birpc-x:
-        specifier: catalog:deps
-        version: 0.0.9(typescript@5.9.3)
       immer:
         specifier: catalog:deps
         version: 11.1.3
@@ -827,9 +821,18 @@ importers:
       birpc:
         specifier: catalog:deps
         version: 4.0.0
+      ohash:
+        specifier: catalog:deps
+        version: 2.0.11
+      p-limit:
+        specifier: catalog:deps
+        version: 7.3.0
       structured-clone-es:
         specifier: catalog:deps
         version: 1.0.0
+      valibot:
+        specifier: catalog:deps
+        version: 1.2.0(typescript@5.9.3)
     devDependencies:
       tsdown:
         specifier: catalog:build
@@ -3670,9 +3673,6 @@ packages:
 
   bindings@1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-
-  birpc-x@0.0.9:
-    resolution: {integrity: sha512-ngEZ5Eet2nI4YeAUGcZh/gncvuHjBmBZ1mvsb7N7uq8Ik2mPpYRkdwvZcXTECooqILX7k1YprZGg//ZRwBxw8g==}
 
   birpc@2.9.0:
     resolution: {integrity: sha512-KrayHS5pBi69Xi9JmvoqrIgYGDkD6mcSe/i6YKi3w5kekCLzrX4+nawcXqrj2tIp50Kw/mT/s3p+GVK0A0sKxw==}
@@ -10630,16 +10630,6 @@ snapshots:
   bindings@1.5.0:
     dependencies:
       file-uri-to-path: 1.0.0
-
-  birpc-x@0.0.9(typescript@5.9.3):
-    dependencies:
-      birpc: 4.0.0
-      ohash: 2.0.11
-      p-limit: 7.3.0
-      structured-clone-es: 1.0.0
-      valibot: 1.2.0(typescript@5.9.3)
-    transitivePeerDependencies:
-      - typescript
 
   birpc@2.9.0: {}
 

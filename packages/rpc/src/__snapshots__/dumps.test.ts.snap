@@ -1,0 +1,316 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dumps > dump snapshots > should snapshot comprehensive dump with multiple scenarios 1`] = `
+{
+  "definitions": {
+    "add": {
+      "name": "add",
+      "type": undefined,
+    },
+    "divide": {
+      "name": "divide",
+      "type": undefined,
+    },
+    "getConfig": {
+      "name": "getConfig",
+      "type": "static",
+    },
+    "multiply": {
+      "name": "multiply",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "add---KMXmOL3ys81zNdaAp_MtASEYJWGbVMdGiX1IQsRrWHg": {
+      "inputs": [
+        10,
+        20,
+      ],
+      "output": 30,
+    },
+    "add---SaZHF9XUyxmVLm6sKUZBXPaHmtrPmQjn2HIzLTLG5oQ": {
+      "inputs": [
+        1,
+        2,
+      ],
+      "output": 3,
+    },
+    "add---fallback": {
+      "inputs": [],
+      "output": 0,
+    },
+    "divide---Ql6R6f8bSyzgiAJFMv-GGfAebD0Q1EvpkCvtiEN8Ojk": {
+      "inputs": [
+        10,
+        2,
+      ],
+      "output": 5,
+    },
+    "divide---clP6nyWEfmD9PThtSkrVBIT7mo2UYRyJ8lCA18HUJVI": {
+      "error": {
+        "message": "Division by zero",
+        "name": "Error",
+      },
+      "inputs": [
+        10,
+        0,
+      ],
+    },
+    "getConfig---T1PNoYwrqgwDVLtfmj7L5e0Sq02OEbqHPC8RFhICuUU": {
+      "inputs": [],
+      "output": {
+        "version": "1.0.0",
+      },
+    },
+    "multiply---GLBYaJ0BAGKiXNf7lJsqv-oXV9LeRco6vdoX25VuUGs": {
+      "inputs": [
+        2,
+        3,
+      ],
+      "output": 6,
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with context-dependent functions 1`] = `
+{
+  "definitions": {
+    "getConfig": {
+      "name": "getConfig",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "getConfig---Xl4-LA88xSJCWOOL_2hL9CFG3twBWmstDJ_Yqg77nWo": {
+      "inputs": [
+        "apiUrl",
+      ],
+      "output": {
+        "apiUrl": "http://localhost:3000",
+        "debug": true,
+      },
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with errors 1`] = `
+{
+  "definitions": {
+    "divide": {
+      "name": "divide",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "divide---NKq_csykACfT_qAmmFEcDyyuAxmaR7agpibi0BY6-oY": {
+      "inputs": [
+        20,
+        4,
+      ],
+      "output": 5,
+    },
+    "divide---Ql6R6f8bSyzgiAJFMv-GGfAebD0Q1EvpkCvtiEN8Ojk": {
+      "inputs": [
+        10,
+        2,
+      ],
+      "output": 5,
+    },
+    "divide---clP6nyWEfmD9PThtSkrVBIT7mo2UYRyJ8lCA18HUJVI": {
+      "error": {
+        "message": "Division by zero",
+        "name": "Error",
+      },
+      "inputs": [
+        10,
+        0,
+      ],
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with fallback values 1`] = `
+{
+  "definitions": {
+    "greet": {
+      "name": "greet",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "greet---_O8fg6KUjOBNeL20buGWXHbcFzcF4DNQsu_J9Yd8esk": {
+      "inputs": [
+        "Bob",
+      ],
+      "output": "Hello, Bob!",
+    },
+    "greet---acIfQW5j2P6VtOYcCUwCi1SNi7Phz7_1JeqXfb4eb3s": {
+      "inputs": [
+        "Alice",
+      ],
+      "output": "Hello, Alice!",
+    },
+    "greet---fallback": {
+      "inputs": [],
+      "output": "Hello, stranger!",
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with mixed inputs and records 1`] = `
+{
+  "definitions": {
+    "add": {
+      "name": "add",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "add---KMXmOL3ys81zNdaAp_MtASEYJWGbVMdGiX1IQsRrWHg": {
+      "inputs": [
+        10,
+        20,
+      ],
+      "output": 30,
+    },
+    "add---SaZHF9XUyxmVLm6sKUZBXPaHmtrPmQjn2HIzLTLG5oQ": {
+      "inputs": [
+        1,
+        2,
+      ],
+      "output": 3,
+    },
+    "add---i-bWbpCZxo2P61LOQkeNIVPKwnY7eEF0rmrpbNY2tZY": {
+      "inputs": [
+        3,
+        4,
+      ],
+      "output": 7,
+    },
+    "add---mERJaNNmqgwfjCQYdik6YYdy6IwTcTZ1rmtFR7DzNRw": {
+      "inputs": [
+        100,
+        200,
+      ],
+      "output": 300,
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with pre-computed records 1`] = `
+{
+  "definitions": {
+    "multiply": {
+      "name": "multiply",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "multiply---1MepjaVUkLClplzFBX25mqcIpDZgmxd3SFBTQtVpRXs": {
+      "inputs": [
+        4,
+        5,
+      ],
+      "output": 20,
+    },
+    "multiply---GLBYaJ0BAGKiXNf7lJsqv-oXV9LeRco6vdoX25VuUGs": {
+      "inputs": [
+        2,
+        3,
+      ],
+      "output": 6,
+    },
+    "multiply---clP6nyWEfmD9PThtSkrVBIT7mo2UYRyJ8lCA18HUJVI": {
+      "inputs": [
+        10,
+        0,
+      ],
+      "output": 0,
+    },
+  },
+}
+`;
+
+exports[`dumps > dump snapshots > should snapshot dump with static functions 1`] = `
+{
+  "definitions": {
+    "getConfig": {
+      "name": "getConfig",
+      "type": "static",
+    },
+    "getVersion": {
+      "name": "getVersion",
+      "type": "static",
+    },
+  },
+  "records": {
+    "getConfig---T1PNoYwrqgwDVLtfmj7L5e0Sq02OEbqHPC8RFhICuUU": {
+      "inputs": [],
+      "output": {
+        "apiUrl": "https://api.example.com",
+        "features": [
+          "auth",
+          "cache",
+        ],
+        "version": "v1",
+      },
+    },
+    "getVersion---T1PNoYwrqgwDVLtfmj7L5e0Sq02OEbqHPC8RFhICuUU": {
+      "inputs": [],
+      "output": "1.0.0",
+    },
+  },
+}
+`;
+
+exports[`dumps > should snapshot the store structure 1`] = `
+{
+  "definitions": {
+    "add": {
+      "name": "add",
+      "type": undefined,
+    },
+    "greet": {
+      "name": "greet",
+      "type": undefined,
+    },
+  },
+  "records": {
+    "add---SaZHF9XUyxmVLm6sKUZBXPaHmtrPmQjn2HIzLTLG5oQ": {
+      "inputs": [
+        1,
+        2,
+      ],
+      "output": 3,
+    },
+    "add---fallback": {
+      "inputs": [],
+      "output": 0,
+    },
+    "add---i-bWbpCZxo2P61LOQkeNIVPKwnY7eEF0rmrpbNY2tZY": {
+      "inputs": [
+        3,
+        4,
+      ],
+      "output": 7,
+    },
+    "greet---_O8fg6KUjOBNeL20buGWXHbcFzcF4DNQsu_J9Yd8esk": {
+      "inputs": [
+        "Bob",
+      ],
+      "output": "Hello, Bob!",
+    },
+    "greet---acIfQW5j2P6VtOYcCUwCi1SNi7Phz7_1JeqXfb4eb3s": {
+      "inputs": [
+        "Alice",
+      ],
+      "output": "Hello, Alice!",
+    },
+  },
+}
+`;
