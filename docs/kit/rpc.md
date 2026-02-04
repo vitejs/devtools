@@ -198,6 +198,44 @@ const getLiveMetrics = defineRpcFunction({
 > [!TIP]
 > If your data genuinely needs live server state, use `type: 'query'` without dumps. The function will work in dev mode but gracefully fail in build mode.
 
+## Schema Validation (Optional)
+
+The RPC system has built-in support for runtime schema validation using [Valibot](https://valibot.dev). When you provide schemas, TypeScript types are automatically inferred and validation happens at runtime.
+
+```ts
+import { defineRpcFunction } from '@vitejs/devtools-kit'
+import * as v from 'valibot'
+
+const getModule = defineRpcFunction({
+  name: 'my-plugin:get-module',
+  type: 'query',
+  args: [
+    v.string(),
+    v.optional(v.object({
+      includeSource: v.boolean(),
+    })),
+  ],
+  returns: v.object({
+    id: v.string(),
+    source: v.optional(v.string()),
+  }),
+  setup: () => ({
+    handler: (id, options) => {
+      // Types are automatically inferred from schemas
+      // id: string
+      // options: { includeSource: boolean } | undefined
+      return {
+        id,
+        source: options?.includeSource ? '...' : undefined,
+      }
+    },
+  }),
+})
+```
+
+> [!NOTE]
+> Schema validation is optional. If you don't provide `args` or `returns` schemas, the RPC system will work without validation and you can use regular TypeScript types instead.
+
 ## Client-Side Calls
 
 ### In Iframe Pages
