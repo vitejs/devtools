@@ -56,7 +56,6 @@
     "@vitejs/devtools-rolldown": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
-    "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
     "h3": "catalog:deps",
     "immer": "catalog:deps",

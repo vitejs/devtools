@@ -60,11 +60,12 @@ const plugin: Plugin = {
 
 ### Function Types
 
-| Type | Description | Caching |
-|------|-------------|---------|
-| `query` | Fetch data, read operations | Can be cached |
-| `action` | Side effects, mutations | Not cached |
-| `static` | Constant data that never changes | Cached indefinitely |
+| Type | Description | Caching | Dump Support |
+|------|-------------|---------|--------------|
+| `query` | Fetch data, read operations | Can be cached | ✓ (manual) |
+| `static` | Constant data that never changes | Cached indefinitely | ✓ (automatic) |
+| `action` | Side effects, mutations | Not cached | ✗ |
+| `event` | Emit events, no response | Not cached | ✗ |
 
 ### Handler Arguments
 
@@ -103,6 +104,99 @@ setup: (ctx) => {
   }
 }
 ```
+
+> [!IMPORTANT]
+> For build mode compatibility, compute data in the setup function using the context rather than relying on runtime global state. This allows the dump feature to pre-compute results at build time.
+
+### Dump Feature for Build Mode
+
+When using `vite devtools build` to create a static DevTools build, the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
+
+#### How It Works
+
+1. At build time, `dumpFunctions()` executes your RPC handlers with predefined arguments
+2. Results are stored in `.vdt-rpc-dump.json` in the build output
+3. The static client reads from this JSON file instead of making live RPC calls
+
+#### Static Functions (Recommended)
+
+Functions with `type: 'static'` are **automatically dumped** with no arguments:
+
+```ts
+const getConfig = defineRpcFunction({
+  name: 'my-plugin:get-config',
+  type: 'static', // Auto-dumped with inputs: [[]]
+  setup: ctx => ({
+    handler: async () => ({
+      root: ctx.viteConfig.root,
+      plugins: ctx.viteConfig.plugins.map(p => p.name),
+    }),
+  }),
+})
+```
+
+This works in both dev mode (live) and build mode (pre-computed).
+
+#### Query Functions with Dumps
+
+For `query` functions that need arguments, define `dump` in the setup:
+
+```ts
+const getModule = defineRpcFunction({
+  name: 'my-plugin:get-module',
+  type: 'query',
+  setup: (ctx) => {
+    // Collect all module IDs at build time
+    const moduleIds = Array.from(ctx.viteServer?.moduleGraph?.idToModuleMap.keys() || [])
+
+    return {
+      handler: async (id: string) => {
+        const module = ctx.viteServer?.moduleGraph?.getModuleById(id)
+        return module ? { id, size: module.transformResult?.code.length } : null
+      },
+      dump: {
+        inputs: moduleIds.map(id => [id]), // Pre-compute for all modules
+        fallback: null, // Return null for unknown modules
+      },
+    }
+  },
+})
+```
+
+#### Recommendations for Plugin Authors
+
+To ensure your DevTools work in build mode:
+
+1. **Prefer `type: 'static'`** for functions that return constant data
+2. **Return context-based data in setup** rather than accessing global state in handlers
+3. **Define dumps in setup function** for query functions that need pre-computation
+4. **Use fallback values** for graceful degradation when arguments don't match
+
+```ts
+// ✓ Good: Returns static data, works in build mode
+const getPluginInfo = defineRpcFunction({
+  name: 'my-plugin:info',
+  type: 'static',
+  setup: ctx => ({
+    handler: async () => ({
+      version: '1.0.0',
+      root: ctx.viteConfig.root,
+    }),
+  }),
+})
+
+// ✗ Avoid: Depends on runtime server state
+const getLiveMetrics = defineRpcFunction({
+  name: 'my-plugin:metrics',
+  type: 'query', // No dump - won't work in build mode
+  handler: async () => {
+    return getCurrentMetrics() // Requires live server
+  },
+})
+```
+
+> [!TIP]
+> If your data genuinely needs live server state, use `type: 'query'` without dumps. The function will work in dev mode but gracefully fail in build mode.
 
 ## Client-Side Calls
 

@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`collector > get schema 2`] = `
+{
+  "args": [
+    {
+      "async": false,
+      "expects": "number",
+      "kind": "schema",
+      "message": undefined,
+      "reference": [Function],
+      "type": "number",
+      "~run": [Function],
+      "~standard": {
+        "validate": [Function],
+        "vendor": "valibot",
+        "version": 1,
+      },
+    },
+  ],
+  "returns": {
+    "async": false,
+    "expects": "void",
+    "kind": "schema",
+    "message": undefined,
+    "reference": [Function],
+    "type": "void",
+    "~run": [Function],
+    "~standard": {
+      "validate": [Function],
+      "vendor": "valibot",
+      "version": 1,
+    },
+  },
+}
+`;

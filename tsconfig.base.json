@@ -18,6 +18,12 @@
       "@vitejs/devtools-rpc/presets": [
         "./packages/rpc/src/presets/index.ts"
       ],
+      "@vitejs/devtools-rpc/client": [
+        "./packages/rpc/src/client.ts"
+      ],
+      "@vitejs/devtools-rpc/server": [
+        "./packages/rpc/src/server.ts"
+      ],
       "@vitejs/devtools-rpc": [
         "./packages/rpc/src"
       ],

@@ -1,4 +1,4 @@
-import type { RpcFunctionsCollector } from 'birpc-x'
+import type { RpcFunctionsCollector } from '@vitejs/devtools-rpc'
 import type { Raw } from 'vue'
 import type { DevToolsDockEntriesGrouped } from '../../../core/src/client/webcomponents/state/dock-settings'
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'

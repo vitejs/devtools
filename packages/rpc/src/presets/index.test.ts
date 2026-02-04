@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { WebSocket } from 'ws'
-import { createRpcClient, createRpcServer } from '.'
-import { createWsRpcPreset as createWsRpcClientPreset } from './presets/ws/client'
-import { createWsRpcPreset as createWsRpcServerPreset } from './presets/ws/server'
+import { createRpcClient } from '../client'
+import { createRpcServer } from '../server'
+import { createWsRpcPreset as createWsRpcClientPreset } from './ws/client'
+import { createWsRpcPreset as createWsRpcServerPreset } from './ws/server'
 
 vi.stubGlobal('WebSocket', WebSocket)
 
