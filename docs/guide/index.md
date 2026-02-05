@@ -25,13 +25,13 @@ Vite DevTools is a comprehensive set of developer tools for visualizing and anal
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Install or upgrade your Vite to the beta version 8:
+Install or upgrade your Vite to the beta version 13+:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0-beta.7"
+    "vite": "^8.0.0-beta.13"
   }
 }
 ```
@@ -42,21 +42,15 @@ Install the DevTools plugin:
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools plugin in your Vite config and turn on the devtools mode for Rolldown:
+Enable the DevTools in your Vite config:
 
 ```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    DevTools(),
-  ],
-  build: {
-    rolldownOptions: {
-      devtools: {}, // enable devtools mode
-    },
-  }
+  devtools: {
+    enabled: true,
+  },
 })
 ```
 
