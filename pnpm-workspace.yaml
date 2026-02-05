@@ -22,16 +22,16 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.13.1
     nuxt: ^4.3.0
-    rolldown: ^1.0.0-rc.2
-    tsdown: ^0.20.1
+    rolldown: ^1.0.0-rc.3
+    tsdown: ^0.20.2
     tsx: ^4.21.0
     turbo: ^2.8.3
     unocss: ^66.6.0
     unplugin-vue: ^7.1.1
-    vite: ^8.0.0-beta.12
+    vite: ^8.0.0-beta.13
   deps:
     '@pnpm/read-project-manifest': ^1001.2.4
-    '@rolldown/debug': ^1.0.0-rc.2
+    '@rolldown/debug': ^1.0.0-rc.3
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^6.7.14
@@ -65,7 +65,7 @@ catalogs:
     '@nuxt/eslint': ^1.13.0
     '@typescript-eslint/utils': ^8.54.0
     '@unocss/eslint-config': ^66.6.0
-    bumpp: ^10.4.0
+    bumpp: ^10.4.1
     chokidar: ^5.0.0
     eslint: ^9.39.2
     lint-staged: ^16.2.7
@@ -121,19 +121,19 @@ catalogs:
     '@iconify-json/tabler': ^1.2.26
   inlined:
     '@antfu/utils': ^9.3.0
-    '@clack/prompts': ^0.11.0
+    '@clack/prompts': ^1.0.0
     stream-json: ^1.9.1
   playground:
     unplugin-vue-router: ^0.19.2
     vite-plugin-vue-tracer: ^1.2.0
-    vue-router: ^4.6.4
+    vue-router: ^5.0.2
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
     langium: ^4.2.0
     semver: ^7.7.3
   testing:
     vitest: ^4.0.18
-    vitest-package-exports: ^1.1.2
+    vitest-package-exports: ^1.2.0
     yaml: ^2.8.2
   types:
     '@types/chrome': ^0.1.36
