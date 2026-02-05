@@ -39,7 +39,6 @@
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
-    "@vitejs/devtools-ui": "workspace:*",
     "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
