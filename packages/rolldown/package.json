@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rolldown",
   "type": "module",
-  "version": "0.0.0-alpha.26",
+  "version": "0.0.0-alpha.28",
   "description": "DevTools for Rolldown (work in progress)",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -39,7 +39,6 @@
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
-    "@vitejs/devtools-ui": "workspace:*",
     "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
