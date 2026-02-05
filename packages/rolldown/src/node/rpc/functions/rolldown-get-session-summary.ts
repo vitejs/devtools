@@ -4,6 +4,7 @@ import { getLogsManager } from '../utils'
 export const rolldownGetSessionSummary = defineRpcFunction({
   name: 'vite:rolldown:get-session-summary',
   type: 'query',
+  cacheable: true,
   setup: async (context) => {
     const manager = getLogsManager(context)
     return {

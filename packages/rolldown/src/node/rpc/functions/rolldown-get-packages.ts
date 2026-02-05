@@ -90,6 +90,7 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
 export const rolldownGetPackages = defineRpcFunction({
   name: 'vite:rolldown:get-packages',
   type: 'query',
+  cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

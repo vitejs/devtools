@@ -48,12 +48,12 @@ export async function connect() {
       },
     })
 
-    // const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+    const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+    const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
 
-    // const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
-    // rpc.value.cacheManager.updateOptions({
-    //   functions: [...cacheableFunctions],
-    // })
+    rpc.value.cacheManager.updateOptions({
+      functions: [...cacheableFunctions],
+    })
 
     connectionState.connected = true
   }
