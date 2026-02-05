@@ -1,8 +1,9 @@
+import type { RpcCacheOptions } from '@vitejs/devtools-rpc'
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
-import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
+import { RpcCacheManager, RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import { createRpcClient } from '@vitejs/devtools-rpc/client'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
 import { UAParser } from 'my-ua-parser'
@@ -29,6 +30,7 @@ export interface DevToolsRpcClientOptions {
   authId?: string
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
+  cacheOptions?: boolean | Partial<RpcCacheOptions>
 }
 
 export interface DevToolsRpcClient {
@@ -80,6 +82,10 @@ export interface DevToolsRpcClient {
    * The shared state host
    */
   sharedState: RpcSharedStateHost
+  /**
+   * The RPC cache manager
+   */
+  cacheManager: RpcCacheManager
 }
 
 function getConnectionAuthIdFromWindows(userAuthId?: string): string {
@@ -133,6 +139,7 @@ export async function getDevToolsRpcClient(
   const {
     baseURL = '/.devtools/',
     rpcOptions = {},
+    cacheOptions = false,
   } = options
   const events = createEventEmitter<RpcClientEvents>()
   const bases = Array.isArray(baseURL) ? baseURL : [baseURL]
@@ -162,6 +169,7 @@ export async function getDevToolsRpcClient(
     ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${connectionMeta.websocket}`
     : connectionMeta.websocket as string
 
+  const cacheManager = new RpcCacheManager({ functions: [], ...(typeof options.cacheOptions === 'object' ? options.cacheOptions : {}) })
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
@@ -181,7 +189,25 @@ export async function getDevToolsRpcClient(
         authId,
         ...options.wsOptions,
       }),
-      rpcOptions,
+      rpcOptions: {
+        ...rpcOptions,
+        async onRequest(req, next, resolve) {
+          await rpcOptions.onRequest?.call(this, req, next, resolve)
+          if (cacheOptions && cacheManager?.validate(req.m)) {
+            const cached = cacheManager.cached(req.m, req.a)
+            if (cached) {
+              return resolve(cached)
+            }
+            else {
+              const res = await next(req)
+              cacheManager?.apply(req, res)
+            }
+          }
+          else {
+            await next(req)
+          }
+        },
+      },
     },
   )
 
@@ -240,6 +266,7 @@ export async function getDevToolsRpcClient(
     connectionMeta,
     ensureTrusted,
     requestTrust,
+    cacheManager,
     call: (...args: any): any => {
       return serverRpc.$call(
         // @ts-expect-error casting

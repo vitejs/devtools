@@ -11,6 +11,7 @@ export const rpcServerList = defineRpcFunction({
           Array.from(context.rpc.definitions.entries())
             .map(([name, fn]) => [name, {
               type: fn.type,
+              cacheable: fn.cacheable || false,
             }]),
         )
       },

@@ -14,7 +14,7 @@ catalogs:
   build:
     '@antfu/ni': ^28.2.0
     '@nuxt/kit': ^4.3.0
-    '@nuxt/vite-builder': https://pkg.pr.new/@nuxt/vite-builder@33682
+    '@nuxt/vite-builder': ^4.3.0
     '@unocss/nuxt': ^66.6.0
     '@vitejs/plugin-vue': ^6.0.4
     '@vueuse/nuxt': ^14.2.0
