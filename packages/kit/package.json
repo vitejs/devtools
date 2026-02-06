@@ -29,12 +29,13 @@
   },
   "types": "./dist/index.d.mts",
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "tsdown",
     "watch": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build && cp -r ../../skills ./skills"
   },
   "peerDependencies": {
     "vite": "*"
