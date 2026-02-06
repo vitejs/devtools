@@ -28,8 +28,8 @@ export function normalizeDevToolsConfig(
     enabled: config === true || !!(config && config.enabled),
     config: {
       ...(isObject(config) ? config : {}),
-      clientAuth: isObject(config) ? config.clientAuth : true,
-      host: isObject(config) ? (config?.host ?? host) : host,
+      clientAuth: isObject(config) ? (config.clientAuth ?? true) : true,
+      host: isObject(config) ? (config.host ?? host) : host,
     },
   }
 }
