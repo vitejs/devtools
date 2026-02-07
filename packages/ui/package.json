@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-ui",
   "type": "module",
-  "version": "0.0.0-alpha.28",
+  "version": "0.0.0-alpha.29",
   "private": true,
   "description": "DevTools UI for Vite (work in progress)",
   "author": "VoidZero Inc.",
