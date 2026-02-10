@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.0.0-alpha.30",
+  "version": "0.0.0-alpha.31",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
