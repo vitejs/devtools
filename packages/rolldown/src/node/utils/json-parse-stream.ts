@@ -56,7 +56,7 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
         catch (e) {
           const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line
           console.warn(
-            `[vite-devtools] JSON parse stream skip bad line ${lineNumber}: ${(e as Error).message}\n${preview}`,
+            `[rolldown-devtools] JSON parse stream skip bad line ${lineNumber}: ${(e as Error).message}\n${preview}`,
           )
         }
       }

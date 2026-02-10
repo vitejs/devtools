@@ -11,7 +11,7 @@ export default defineNuxtModule({
     const resolver = createResolver(import.meta.url)
 
     addVitePlugin({
-      name: 'vite:devtools',
+      name: 'vite:devtools:rolldown',
       devtools: {
         setup(ctx) {
           for (const fn of rpcFunctions) {
