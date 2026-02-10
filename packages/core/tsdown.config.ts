@@ -26,6 +26,7 @@ export default defineConfig({
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
     'cli-commands': 'src/node/cli-commands.ts',
+    'config': 'src/node/config.ts',
     'client/inject': 'src/client/inject/index.ts',
     'client/webcomponents': 'src/client/webcomponents/index.ts',
   },

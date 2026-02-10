@@ -25,6 +25,7 @@
     "./cli-commands": "./dist/cli-commands.js",
     "./client/inject": "./dist/client/inject.js",
     "./client/webcomponents": "./dist/client/webcomponents.js",
+    "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",
     "./package.json": "./package.json"
   },
