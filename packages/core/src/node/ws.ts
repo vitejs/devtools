@@ -34,7 +34,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   const context = options.context
   const contextInternal = getInternalContext(context)
 
-  const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
+  const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
     console.warn('[Vite DevTools] Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
   }

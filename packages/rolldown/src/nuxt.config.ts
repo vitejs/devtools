@@ -89,9 +89,6 @@ export default defineNuxtConfig({
   vite: {
     base: BASE,
     build: {
-      rolldownOptions: {
-        devtools: {},
-      },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
     },
@@ -132,6 +129,7 @@ export default defineNuxtConfig({
       clientAuth: false,
     },
     plugins: [
+      // @ts-expect-error skip type check
       NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
     ],
   },
