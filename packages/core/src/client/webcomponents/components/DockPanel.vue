@@ -5,6 +5,7 @@ import type { CSSProperties } from 'vue'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import { openDockContextMenu } from './DockContextMenu'
 import DockPanelResizer from './DockPanelResizer.vue'
 import ViewEntry from './ViewEntry.vue'
 
@@ -28,6 +29,21 @@ const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
+}
+
+function openContextMenu(e: MouseEvent) {
+  if (!dockPanel.value)
+    return
+  const entry = selected.value
+  if (!entry)
+    return
+  e.preventDefault()
+  openDockContextMenu({
+    context,
+    entry,
+    el: dockPanel.value,
+    gap: 6,
+  })
 }
 
 const anchorPos = computed(() => {
@@ -165,6 +181,7 @@ onMounted(() => {
     ref="dockPanel"
     class="bg-glass:75 rounded-lg border border-base shadow overflow-hidden"
     :style="panelStyle"
+    @contextmenu="openContextMenu"
   >
     <DockPanelResizer :panel="context.panel" />
     <ViewEntry
