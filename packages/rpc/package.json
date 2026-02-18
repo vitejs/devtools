@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rpc",
   "type": "module",
-  "version": "0.0.0-alpha.31",
+  "version": "0.0.0-alpha.32",
   "description": "Vite DevTools RPC Layer",
   "author": "VoidZero Inc.",
   "license": "MIT",
