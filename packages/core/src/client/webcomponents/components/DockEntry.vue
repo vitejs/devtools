@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { DevToolsDockEntryBase } from '@vitejs/devtools-kit'
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
 import { setFloatingTooltip } from '../state/floating-tooltip'
+import { openDockContextMenu } from './DockContextMenu'
 import DockIcon from './DockIcon.vue'
 
 const props = withDefaults(
   defineProps<{
+    context: DocksContext
     dock: DevToolsDockEntryBase
     isSelected?: boolean
     isDimmed?: boolean
@@ -38,6 +41,24 @@ function clearTitle() {
   setFloatingTooltip(null)
 }
 
+function openContextMenu(e: MouseEvent) {
+  if (!button.value)
+    return
+  if (props.dock.id === 'overflow')
+    return
+  e.preventDefault()
+  clearTitle()
+  const entry = props.context.docks.entries.find(item => item.id === props.dock.id)
+  if (!entry)
+    return
+  openDockContextMenu({
+    context: props.context,
+    entry,
+    el: button.value,
+    gap: 6,
+  })
+}
+
 useEventListener('pointerdown', () => {
   if (!props.tooltip)
     return
@@ -51,6 +72,7 @@ useEventListener('pointerdown', () => {
     class="relative group vite-devtools-dock-entry"
     @pointerenter="updateTooltip"
     @pointerleave="clearTitle"
+    @contextmenu="openContextMenu"
   >
     <button
       ref="button"
