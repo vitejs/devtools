@@ -6,7 +6,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
-import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, useDocksEntries } from './docks'
+import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { executeSetupScript } from './setup-script'
 
 let _docksContext: DocksContext | undefined
@@ -95,8 +95,9 @@ export async function createDocksContext(
 
   // Get settings store and create computed grouped entries
   const settingsStore = markRaw(await getSettingsStore())
+  const settings = sharedStateToRef(settingsStore)
   const groupedEntries = computed(() => {
-    return docksGroupByCategories(dockEntries.value, settingsStore.value())
+    return docksGroupByCategories(dockEntries.value, settings.value)
   })
 
   _docksContext = reactive({

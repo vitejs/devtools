@@ -75,6 +75,7 @@ function hideOverflowPanel() {
 <template>
   <div ref="overflowButton">
     <DockEntry
+      :context="context"
       :dock="{
         id: 'overflow',
         title: 'Overflow',
