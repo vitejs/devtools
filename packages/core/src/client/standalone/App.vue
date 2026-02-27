@@ -36,7 +36,7 @@ watch(
   { immediate: true },
 )
 
-function switchEntry(id: string) {
+function switchEntry(id: string | undefined) {
   if (id) {
     context.docks.switchEntry(id)
   }
