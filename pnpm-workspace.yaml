@@ -60,23 +60,23 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.19.0
   devtools:
-    '@antfu/eslint-config': ^7.4.3
-    '@nuxt/devtools': ^3.2.1
-    '@nuxt/eslint': ^1.15.1
-    '@typescript-eslint/utils': ^8.56.0
-    '@unocss/eslint-config': ^66.6.0
+    '@antfu/eslint-config': ^7.6.1
+    '@nuxt/devtools': ^3.2.2
+    '@nuxt/eslint': ^1.15.2
+    '@typescript-eslint/utils': ^8.56.1
+    '@unocss/eslint-config': ^66.6.2
     bumpp: ^10.4.1
     chokidar: ^5.0.0
-    eslint: ^10.0.1
-    lint-staged: ^16.2.7
+    eslint: ^10.0.2
+    lint-staged: ^16.3.0
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.2.5
   docs:
-    '@shikijs/vitepress-twoslash': ^3.22.0
-    '@voidzero-dev/vitepress-theme': ^4.5.0
+    '@shikijs/vitepress-twoslash': ^4.0.0
+    '@voidzero-dev/vitepress-theme': ^4.5.1
     mermaid: ^11.12.3
     vitepress: ^2.0.0-alpha.16
     vitepress-plugin-group-icons: ^1.7.1
@@ -104,13 +104,13 @@ catalogs:
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
-    vue: ^3.5.28
+    vue: ^3.5.29
     vue-virtual-scroller: ^2.0.0-beta.8
   icons:
-    '@iconify-json/carbon': ^1.2.18
+    '@iconify-json/carbon': ^1.2.19
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.45
-    '@iconify-json/fluent': ^1.2.39
+    '@iconify-json/codicon': ^1.2.47
+    '@iconify-json/fluent': ^1.2.40
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
     '@iconify-json/octicon': ^1.2.21
@@ -118,7 +118,7 @@ catalogs:
     '@iconify-json/ri': ^1.2.10
     '@iconify-json/simple-icons': ^1.2.71
     '@iconify-json/svg-spinners': ^1.2.4
-    '@iconify-json/tabler': ^1.2.26
+    '@iconify-json/tabler': ^1.2.28
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.0.1
