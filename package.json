@@ -8,6 +8,7 @@
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
     "watch": "pnpm -r run watch",
     "dev": "pnpm -C packages/rolldown run dev",
+    "dev:vite": "pnpm -C packages/vite run dev",
     "docs": "pnpm -C docs run docs",
     "docs:build": "pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
