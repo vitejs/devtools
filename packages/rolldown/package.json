@@ -7,13 +7,13 @@
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
-    "directory": "/vite",
+    "directory": "/rolldown",
     "type": "git",
     "url": "git+https://github.com/vitejs/devtools.git"
   },
   "bugs": "https://github.com/vitejs/devtools/issues",
   "keywords": [
-    "vite",
+    "rolldown",
     "devtools"
   ],
   "sideEffects": false,
@@ -29,7 +29,7 @@
   "scripts": {
     "build": "pnpm dev:prepare && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
-    "dev": "DEBUG='vite:devtools:*' ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
+    "dev": "DEBUG='rolldown:devtools:*' ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
     "prepack": "pnpm build"
   },
