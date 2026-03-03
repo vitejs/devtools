@@ -7,7 +7,7 @@
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
-    "directory": "/rolldown",
+    "directory": "packages/rolldown",
     "type": "git",
     "url": "git+https://github.com/vitejs/devtools.git"
   },
