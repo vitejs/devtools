@@ -8,7 +8,7 @@
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
-    "directory": "/vite",
+    "directory": "packages/vite",
     "type": "git",
     "url": "git+https://github.com/vitejs/devtools.git"
   },
@@ -28,7 +28,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm dev:prepare && nuxi build src && tsdown",
+    "build": "pnpm dev:prepare && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
     "dev": "DEBUG='vite:devtools:*' ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
     "dev:prepare": "nuxi prepare src",
