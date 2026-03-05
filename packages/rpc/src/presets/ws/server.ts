@@ -1,7 +1,9 @@
 import type { BirpcGroup, BirpcOptions, ChannelOptions } from 'birpc'
 import type { IncomingMessage } from 'node:http'
+import type { ServerOptions as HttpsServerOptions } from 'node:https'
 import type { WebSocket } from 'ws'
 import type { RpcServerPreset } from '..'
+import { createServer as createHttpsServer } from 'node:https'
 import { parse, stringify } from 'structured-clone-es'
 import { WebSocketServer } from 'ws'
 import { defineRpcServerPreset } from '..'
@@ -17,6 +19,7 @@ export interface DevToolsNodeRpcSessionMeta {
 export interface WebSocketRpcServerOptions {
   port: number
   host?: string
+  https?: HttpsServerOptions | undefined
   onConnected?: (ws: WebSocket, req: IncomingMessage, meta: DevToolsNodeRpcSessionMeta) => void
   onDisconnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
 }
@@ -37,15 +40,20 @@ export const createWsRpcPreset: RpcServerPreset<
 > = defineRpcServerPreset((options: WebSocketRpcServerOptions) => {
   const {
     port,
+    https,
     host = 'localhost',
     onConnected = NOOP,
     onDisconnected = NOOP,
   } = options
 
-  const wss = new WebSocketServer({
-    port,
-    host,
-  })
+  const httpsServer = https ? createHttpsServer(https) : undefined
+
+  const wss = https
+    ? new WebSocketServer({ server: httpsServer })
+    : new WebSocketServer({
+        port,
+        host,
+      })
 
   return <ClientFunctions extends object, ServerFunctions extends object>(
     rpcGroup: BirpcGroup<ClientFunctions, ServerFunctions, false>,
@@ -93,5 +101,7 @@ export const createWsRpcPreset: RpcServerPreset<
       })
       onConnected(ws, req, meta)
     })
+
+    httpsServer?.listen(port, host)
   }
 })

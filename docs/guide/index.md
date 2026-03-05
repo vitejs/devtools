@@ -36,13 +36,32 @@ Install or upgrade your Vite to the beta version 13+:
 }
 ```
 
-Install the DevTools plugin:
+Install the required DevTools plugin for both client modes:
 
 ```bash
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools in your Vite config:
+Vite DevTools supports two client modes: embedded and standalone. You can choose the mode in your Vite config.
+
+Use embedded mode:
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools(),
+  ],
+  build: {
+    rolldownOptions: {
+      devtools: {}, // enable devtools mode
+    },
+  }
+})
+```
+Or use standalone mode:
 
 ```ts [vite.config.ts] twoslash
 import { defineConfig } from 'vite'
@@ -54,13 +73,14 @@ export default defineConfig({
 })
 ```
 
-Run your Vite build, to generate the Rolldown build metadata:
+Run a Vite build to generate Rolldown build metadata. In standalone mode, DevTools also starts a local server to host the client after the build completes.
 
 ```bash
 pnpm build
 ```
 
-Open the DevTools panel in your browser to play with the DevTools:
+
+If you're using embedded mode, start your app and open the DevTools panel in the browser:
 
 ```bash
 pnpm dev

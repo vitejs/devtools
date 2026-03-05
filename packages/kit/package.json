@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.0.0-alpha.28",
+  "version": "0.0.0-alpha.32",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -29,12 +29,13 @@
   },
   "types": "./dist/index.d.mts",
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "tsdown",
     "watch": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build && cp -r ../../skills ./skills"
   },
   "peerDependencies": {
     "vite": "*"

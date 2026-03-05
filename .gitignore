@@ -14,6 +14,7 @@ packages/vite/runtime
 packages/rolldown/src/public/fonts
 packages/rolldown/src/app/public/fonts
 packages/rolldown/runtime
+packages/kit/skills
 .rolldown
 *.tsbuildinfo
 docs/.vitepress/cache

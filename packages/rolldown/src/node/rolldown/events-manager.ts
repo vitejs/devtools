@@ -10,7 +10,6 @@ export type RolldownEvent = Event & {
 
 type ModuleBuildHookEvents = (Exclude<Event, 'StringRef'> & (HookResolveIdCallStart | HookResolveIdCallEnd | HookLoadCallStart | HookLoadCallEnd | HookTransformCallStart | HookTransformCallEnd)) & { event_id: string }
 
-const DURATION_THRESHOLD = 10
 const MODULE_BUILD_START_HOOKS = ['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart']
 const MODULE_BUILD_END_HOOKS = ['HookResolveIdCallEnd', 'HookLoadCallEnd', 'HookTransformCallEnd']
 
@@ -77,9 +76,6 @@ export class RolldownEventsManager {
           })
         }
         else if (event.action === 'HookLoadCallEnd') {
-          if (!event.content && info.duration < DURATION_THRESHOLD) {
-            return
-          }
           module_build_metrics.loads.push({
             ...info,
             type: 'load',
@@ -95,10 +91,6 @@ export class RolldownEventsManager {
         else if (event.action === 'HookTransformCallEnd') {
           const _start = start as HookTransformCallStart
           const _end = event as HookTransformCallEnd
-          const no_changes = _start.content === _end.content
-          if (no_changes && info.duration < DURATION_THRESHOLD) {
-            return
-          }
 
           module_build_metrics.transforms.push({
             ...info,
