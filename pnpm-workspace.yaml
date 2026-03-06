@@ -88,8 +88,6 @@ catalogs:
     '@vueuse/router': ^14.2.1
     '@xterm/addon-fit': ^0.11.0
     '@xterm/xterm': ^6.0.0
-    codemirror: ^5.65.21
-    codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
     d3: ^7.9.0
     d3-hierarchy: ^3.1.2
@@ -99,6 +97,7 @@ catalogs:
     floating-vue: ^5.2.2
     fuse.js: ^7.1.0
     idb-keyval: ^6.2.2
+    modern-monaco: ^0.4.0
     my-ua-parser: ^2.0.4
     nanovis: ^1.0.0
     splitpanes: ^4.0.4
@@ -137,7 +136,6 @@ catalogs:
     yaml: ^2.8.2
   types:
     '@types/chrome': ^0.1.37
-    '@types/codemirror': ^5.60.17
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7

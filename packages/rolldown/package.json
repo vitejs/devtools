@@ -62,7 +62,6 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
-    "@types/codemirror": "catalog:types",
     "@types/diff": "catalog:types",
     "@types/split2": "catalog:types",
     "@types/splitpanes": "catalog:types",
@@ -72,8 +71,6 @@
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
     "@vueuse/router": "catalog:frontend",
-    "codemirror": "catalog:frontend",
-    "codemirror-theme-vars": "catalog:frontend",
     "comlink": "catalog:frontend",
     "d3": "catalog:frontend",
     "d3-hierarchy": "catalog:frontend",
@@ -81,6 +78,7 @@
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
     "idb-keyval": "catalog:frontend",
+    "modern-monaco": "catalog:frontend",
     "nanovis": "catalog:frontend",
     "splitpanes": "catalog:frontend",
     "stream-json": "catalog:inlined",

@@ -1,36 +1,92 @@
 <script setup lang="ts">
-import type CodeMirror from 'codemirror'
-import { onMounted, toRefs, useTemplateRef, watchEffect } from 'vue'
-import { useCodeMirror } from '~/composables/codemirror'
+import type * as Monaco from 'modern-monaco/editor-core'
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
+import { onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
+import { applyMonacoTheme, getMonaco } from '~/composables/monaco'
 import { settings } from '~/state/settings'
 
 const props = defineProps<{
   code: string
-}
->()
-
-const { code } = toRefs(props)
-
-let cm: CodeMirror.Editor
+}>()
 
 const codeEl = useTemplateRef('codeEl')
+let monaco: typeof Monaco | null = null
+let editor: Monaco.editor.IStandaloneCodeEditor | null = null
+let model: Monaco.editor.ITextModel | null = null
+let contentSizeDisposable: Monaco.IDisposable | null = null
 
-onMounted(() => {
-  cm = useCodeMirror(
-    codeEl,
-    code,
-    {
-      mode: 'javascript',
-      readOnly: true,
-      lineNumbers: true,
+function updateEditorHeight() {
+  if (!editor || !codeEl.value)
+    return
+
+  const contentHeight = Math.max(editor.getContentHeight(), 80)
+  codeEl.value.style.height = `${contentHeight}px`
+  editor.layout()
+}
+
+onMounted(async () => {
+  if (!codeEl.value)
+    return
+
+  monaco = await getMonaco()
+
+  model = monaco.editor.createModel(props.code, 'javascript')
+  editor = monaco.editor.create(codeEl.value, {
+    automaticLayout: true,
+    fontFamily: '\'Input Mono\', \'FiraCode\', monospace',
+    fontSize: 13,
+    lineNumbers: 'on',
+    minimap: { enabled: false },
+    readOnly: true,
+    renderLineHighlight: 'none',
+    scrollBeyondLastLine: false,
+    scrollbar: {
+      vertical: 'hidden',
+      verticalScrollbarSize: 0,
     },
-  )
-  watchEffect(() => {
-    cm.setOption('lineWrapping', settings.value.codeviewerLineWrap)
+    wordWrap: settings.value.codeviewerLineWrap ? 'on' : 'off',
   })
+
+  editor.setModel(model)
+  contentSizeDisposable = editor.onDidContentSizeChange(updateEditorHeight)
+  applyMonacoTheme(monaco)
+  updateEditorHeight()
+})
+
+watch(
+  () => props.code,
+  (value) => {
+    if (!editor || !model || value === model.getValue())
+      return
+    model.setValue(value)
+    editor.setScrollTop(0)
+    editor.setScrollLeft(0)
+    updateEditorHeight()
+  },
+)
+
+watch(
+  () => settings.value.codeviewerLineWrap,
+  (enabled) => {
+    editor?.updateOptions({
+      wordWrap: enabled ? 'on' : 'off',
+    })
+  },
+  { immediate: true },
+)
+
+watch(isDark, () => {
+  if (monaco)
+    applyMonacoTheme(monaco)
+})
+
+onBeforeUnmount(() => {
+  contentSizeDisposable?.dispose()
+  editor?.dispose()
+  model?.dispose()
 })
 </script>
 
 <template>
-  <div ref="codeEl" />
+  <div ref="codeEl" class="code-viewer" />
 </template>
