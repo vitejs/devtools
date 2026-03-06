@@ -105,14 +105,14 @@ const plugin: Plugin = {
 
 ### Accessing Shared State
 
-Use `client.rpc.sharedState.get()` to access the shared state:
+Use `client.sharedState.get()` to access the shared state:
 
 ```ts
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 
 const client = await getDevToolsRpcClient()
 
-const state = await client.rpc.sharedState.get('my-plugin:state')
+const state = await client.sharedState.get('my-plugin:state')
 
 // Read current value
 console.log(state.value())
@@ -123,7 +123,7 @@ console.log(state.value())
 Use `state.on('updated', ...)` to react to state changes:
 
 ```ts
-const state = await client.rpc.sharedState.get('my-plugin:state')
+const state = await client.sharedState.get('my-plugin:state')
 
 // Initial value
 console.log(state.value()) // { count: 0 }
@@ -147,7 +147,7 @@ import { shallowRef } from 'vue'
 
 export async function useSharedState<T>(name: string) {
   const client = await getDevToolsRpcClient()
-  const sharedState = await client.rpc.sharedState.get<T>(name)
+  const sharedState = await client.sharedState.get<T>(name)
 
   const state = shallowRef(sharedState.value())
 
@@ -179,7 +179,7 @@ const state = shallowRef<PluginState | null>(null)
 
 onMounted(async () => {
   const client = await getDevToolsRpcClient()
-  const shared = await client.rpc.sharedState.get<PluginState>('my-plugin:state')
+  const shared = await client.sharedState.get<PluginState>('my-plugin:state')
 
   state.value = shared.value()
 
@@ -215,7 +215,7 @@ function useSharedState<T>(name: string, fallback: T) {
 
     async function init() {
       const client = await getDevToolsRpcClient()
-      const sharedState = await client.rpc.sharedState.get<T>(name)
+      const sharedState = await client.sharedState.get<T>(name)
 
       if (mounted) {
         setState(sharedState.value() ?? fallback)
@@ -267,7 +267,7 @@ function MyComponent() {
 
   onMount(async () => {
     const client = await getDevToolsRpcClient()
-    const sharedState = await client.rpc.sharedState.get<PluginState>('my-plugin:state')
+    const sharedState = await client.sharedState.get<PluginState>('my-plugin:state')
 
     state.set(sharedState.value())
 

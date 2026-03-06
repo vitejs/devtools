@@ -1,10 +1,9 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
 import type { Immutable } from '@vitejs/devtools-kit/utils/shared-state'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
 export type { DevToolsDocksUserSettings }
-
-export type DevToolsDockEntriesGrouped = [category: string, entries: DevToolsDockEntry[]][]
+export type { DevToolsDockEntriesGrouped }
 
 export interface SplitGroupsResult {
   visible: DevToolsDockEntriesGrouped

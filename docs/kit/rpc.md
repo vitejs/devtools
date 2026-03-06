@@ -260,14 +260,14 @@ async function loadData() {
 
 ### In Action/Renderer Scripts
 
-Use `ctx.current.rpc` from the script context:
+Use `ctx.rpc` from the script context:
 
 ```ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
+export default function setup(ctx: DockClientScriptContext) {
   ctx.current.events.on('entry:activated', async () => {
-    const data = await ctx.current.rpc.call('my-plugin:get-modules')
+    const data = await ctx.rpc.call('my-plugin:get-modules')
     console.log(data)
   })
 }
@@ -280,10 +280,10 @@ You can also define functions on the client that the server can call.
 ### Registering Client Functions
 
 ```ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
-  ctx.current.rpc.client.register({
+export default function setup(ctx: DockClientScriptContext) {
+  ctx.rpc.client.register({
     name: 'my-plugin:highlight-element',
     type: 'action',
     handler: (selector: string) => {
@@ -308,14 +308,17 @@ const plugin: Plugin = {
   devtools: {
     setup(ctx) {
     // Later, when you want to notify clients...
-      ctx.rpc.broadcast('my-plugin:highlight-element', '#app')
+      ctx.rpc.broadcast({
+        method: 'my-plugin:highlight-element',
+        args: ['#app'],
+      })
     }
   }
 }
 ```
 
 > [!NOTE]
-> `broadcast` calls all connected clients. The returned promise resolves to an array of results (one per client).
+> `broadcast` sends an event-style call to all connected clients and resolves when dispatch completes.
 
 ## Type Safety
 
@@ -328,7 +331,7 @@ For full type safety, extend the DevTools Kit interfaces.
 import '@vitejs/devtools-kit'
 
 declare module '@vitejs/devtools-kit' {
-  interface DevToolsRpcFunctions {
+  interface DevToolsRpcServerFunctions {
     'my-plugin:get-modules': () => Promise<Module[]>
     'my-plugin:get-module': (
       id: string,
@@ -405,7 +408,10 @@ export default function analyticsPlugin(): Plugin {
 
         // Broadcast to clients when metrics change
         ctx.viteServer?.watcher.on('change', (file) => {
-          ctx.rpc.broadcast('analytics:metrics-updated', file)
+          ctx.rpc.broadcast({
+            method: 'analytics:metrics-updated',
+            args: [file],
+          })
         })
       },
     },
@@ -414,11 +420,11 @@ export default function analyticsPlugin(): Plugin {
 ```
 
 ```ts [client.ts]
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
+export default function setup(ctx: DockClientScriptContext) {
   // Register client function
-  ctx.current.rpc.client.register({
+  ctx.rpc.client.register({
     name: 'analytics:metrics-updated',
     type: 'action',
     handler: (file: string) => {
@@ -428,7 +434,7 @@ export default function setup(ctx: DevToolsClientScriptContext) {
   })
 
   async function refreshUI() {
-    const metrics = await ctx.current.rpc.call('analytics:get-metrics')
+    const metrics = await ctx.rpc.call('analytics:get-metrics')
     console.log('Updated metrics:', metrics)
   }
 }
@@ -438,7 +444,7 @@ export default function setup(ctx: DevToolsClientScriptContext) {
 import '@vitejs/devtools-kit'
 
 declare module '@vitejs/devtools-kit' {
-  interface DevToolsRpcFunctions {
+  interface DevToolsRpcServerFunctions {
     'analytics:get-metrics': () => Promise<Record<string, number>>
   }
 

@@ -9,8 +9,21 @@ import { RpcFunctionsHost } from './host-functions'
 import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { builtinRpcDeclarations } from './rpc'
+import { isObject } from './utils'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
+
+function shouldSkipSetupByCapabilities(
+  plugin: ResolvedConfig['plugins'][number],
+  mode: 'dev' | 'build',
+): boolean {
+  const modeCapabilities = plugin.devtools?.capabilities?.[mode]
+  if (modeCapabilities === false)
+    return true
+  if (!isObject(modeCapabilities))
+    return false
+  return Object.values(modeCapabilities).includes(false)
+}
 
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
@@ -72,6 +85,10 @@ export async function createDevToolsContext(
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
       continue
+    if (shouldSkipSetupByCapabilities(plugin, context.mode)) {
+      debugSetup(`skipping plugin ${JSON.stringify(plugin.name)} due to disabled capabilities in ${context.mode} mode`)
+      continue
+    }
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
       await plugin.devtools?.setup?.(context)

@@ -16,13 +16,17 @@ export function createStorage<T extends object>(options: CreateStorageOptions<T>
     debounce: debounceTime = 100,
   } = options
 
-  let initialValue: T
+  let initialValue: T = options.initialValue
   if (fs.existsSync(options.filepath)) {
-    const savedValue = JSON.parse(fs.readFileSync(options.filepath, 'utf-8')) as T
-    initialValue = mergeInitialValue ? mergeInitialValue(options.initialValue, savedValue) : savedValue
-  }
-  else {
-    initialValue = options.initialValue
+    try {
+      const savedValue = JSON.parse(fs.readFileSync(options.filepath, 'utf-8')) as T
+      initialValue = mergeInitialValue ? mergeInitialValue(options.initialValue, savedValue) : savedValue
+    }
+    catch (error) {
+      console.warn(`[Vite DevTools] Failed to parse storage file: ${options.filepath}, falling back to defaults.`)
+      console.warn(error)
+      initialValue = options.initialValue
+    }
   }
 
   const state = createSharedState<T>({

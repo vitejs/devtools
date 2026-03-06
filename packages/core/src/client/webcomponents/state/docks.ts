@@ -73,12 +73,13 @@ export function sharedStateToRef<T>(sharedState: SharedState<T>): ShallowRef<T> 
   return ref
 }
 
-let _docksEntriesRef: ShallowRef<DevToolsDockEntry[]> | undefined
+const docksEntriesRefByRpc = new WeakMap<DevToolsRpcClient, ShallowRef<DevToolsDockEntry[]>>()
 export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevToolsDockEntry[]>> {
-  if (_docksEntriesRef) {
-    return _docksEntriesRef
+  if (docksEntriesRefByRpc.has(rpc)) {
+    return docksEntriesRefByRpc.get(rpc)!
   }
   const state = await rpc.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
-  _docksEntriesRef = sharedStateToRef(state)
-  return _docksEntriesRef
+  const docksEntriesRef = sharedStateToRef(state)
+  docksEntriesRefByRpc.set(rpc, docksEntriesRef)
+  return docksEntriesRef
 }

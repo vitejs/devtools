@@ -102,3 +102,5 @@ export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
 export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
 
 export type DevToolsDockEntry = DevToolsDockUserEntry | DevToolsViewBuiltin
+
+export type DevToolsDockEntriesGrouped = [category: string, entries: DevToolsDockEntry[]][]

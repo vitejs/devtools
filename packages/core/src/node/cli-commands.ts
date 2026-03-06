@@ -106,6 +106,6 @@ export async function build(options: BuildOptions) {
   await fs.writeFile(resolve(devToolsRoot, '.vdt-rpc-dump.json'), JSON.stringify(dump, null, 2), 'utf-8')
 
   console.log(c.green`${MARK_NODE} Built to ${relative(devtools.config.root, outDir)}`)
-
-  throw new Error('[Vite DevTools] Build mode of Vite DevTools is not yet complete')
+  console.warn(c.yellow`${MARK_NODE} Static build is still experimental and not yet complete.`)
+  console.warn(c.yellow`${MARK_NODE} Generated output may be missing features and can change without notice.`)
 }

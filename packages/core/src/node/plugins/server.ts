@@ -1,4 +1,4 @@
-import type { ClientScriptEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ClientScriptEntry, DevToolsDockEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import { createDevToolsContext } from '../context'
 import { createDevToolsMiddleware } from '../server'
@@ -7,6 +7,29 @@ import '../rpc'
 /**
  * Core plugin for enabling Vite DevTools
  */
+export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string {
+  const map = new Map<string, ClientScriptEntry>()
+  for (const dock of docks) {
+    const id = `${dock.type}:${dock.id}`
+    if (dock.type === 'action') {
+      map.set(id, dock.action)
+    }
+    else if (dock.type === 'custom-render') {
+      map.set(id, dock.renderer)
+    }
+    else if (dock.type === 'iframe' && dock.clientScript) {
+      map.set(id, dock.clientScript)
+    }
+  }
+  return [
+    `export const importsMap = {`,
+    ...[...map.entries()]
+      .filter(([, entry]) => entry != null)
+      .map(([id, { importFrom, importName }]) => `  [${JSON.stringify(id)}]: () => import(${JSON.stringify(importFrom)}).then(r => r[${JSON.stringify(importName ?? 'default')}]),`),
+    '}',
+  ].join('\n')
+}
+
 export function DevToolsServer(): Plugin {
   let context: DevToolsNodeContext
   return {
@@ -37,27 +60,7 @@ export function DevToolsServer(): Plugin {
         if (!context) {
           throw new Error('DevTools context is not initialized')
         }
-        const docks = Array.from(context.docks.values())
-        const map = new Map<string, ClientScriptEntry>()
-        for (const dock of docks) {
-          const id = `${dock.type}:${dock.id}`
-          if (dock.type === 'action') {
-            map.set(id, dock.action)
-          }
-          else if (dock.type === 'custom-render') {
-            map.set(id, dock.renderer)
-          }
-          else if (dock.type === 'iframe' && dock.clientScript) {
-            map.set(id, dock.clientScript)
-          }
-        }
-        return [
-          `export const importsMap = {`,
-          ...[...map.entries()]
-            .filter(([, entry]) => entry != null)
-            .map(([id, { importFrom, importName }]) => `  [${JSON.stringify(id)}]: () => import(${JSON.stringify(importFrom)}).then(r => r[${JSON.stringify(importName)}]),`),
-          '}',
-        ].join('\n')
+        return renderDockImportsMap(context.docks.values())
       }
     },
   }

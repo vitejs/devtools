@@ -9,14 +9,14 @@ import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { executeSetupScript } from './setup-script'
 
-let _docksContext: DocksContext | undefined
+const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
   panelStore?: Ref<DockPanelStorage>,
 ): Promise<DocksContext> {
-  if (_docksContext) {
-    return _docksContext
+  if (docksContextByRpc.has(rpc)) {
+    return docksContextByRpc.get(rpc)!
   }
 
   const dockEntries = await useDocksEntries(rpc)
@@ -42,6 +42,7 @@ export async function createDocksContext(
   })
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
+  let docksContext: DocksContext
 
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
@@ -65,7 +66,7 @@ export async function createDocksContext(
     ) {
       const current = dockEntryStateMap.get(id)!
       const scriptContext: DockClientScriptContext = reactive({
-        ...toRefs(_docksContext!) as any,
+        ...toRefs(docksContext) as any,
         current,
       })
       await executeSetupScript(entry, scriptContext)
@@ -100,7 +101,7 @@ export async function createDocksContext(
     return docksGroupByCategories(dockEntries.value, settings.value)
   })
 
-  _docksContext = reactive({
+  docksContext = reactive({
     panel: {
       store: panelStore,
       isDragging: false,
@@ -122,5 +123,6 @@ export async function createDocksContext(
     clientType,
   })
 
-  return _docksContext!
+  docksContextByRpc.set(rpc, docksContext)
+  return docksContext
 }

@@ -39,6 +39,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
   }
 
   remove(session: DevToolsTerminalSession): void {
+    this._boundStreams.get(session.id)?.dispose()
     this.sessions.delete(session.id)
     this.events.emit('terminal:session:updated', session)
     this._boundStreams.delete(session.id)
