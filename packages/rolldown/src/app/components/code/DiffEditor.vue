@@ -3,7 +3,16 @@ import type * as Monaco from 'modern-monaco/editor-core'
 import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { Pane, Splitpanes } from 'splitpanes'
 import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
-import { applyMonacoTheme, getMonaco, guessMonacoLanguage, setupMonacoScrollSync, syncMonacoEditorScrolls } from '~/composables/monaco'
+import {
+  applyMonacoTheme,
+  createReadOnlyMonacoEditor,
+  getMonaco,
+  getMonacoWordWrap,
+  guessMonacoLanguage,
+  setModelLanguageIfNeeded,
+  setupMonacoScrollSync,
+  syncMonacoEditorScrolls,
+} from '~/composables/monaco'
 import { settings } from '~/state/settings'
 import { calculateDiffWithWorker } from '~/worker/diff'
 
@@ -26,23 +35,6 @@ let fromDecorations: Monaco.editor.IEditorDecorationsCollection | null = null
 let toDecorations: Monaco.editor.IEditorDecorationsCollection | null = null
 let disposeScrollSync: (() => void) | null = null
 let diffVersion = 0
-
-function createReadOnlyEditor(container: HTMLElement) {
-  if (!monaco)
-    throw new Error('Monaco is not initialized')
-
-  return monaco.editor.create(container, {
-    automaticLayout: true,
-    fontFamily: '\'Input Mono\', \'FiraCode\', monospace',
-    fontSize: 13,
-    lineNumbers: 'on',
-    minimap: { enabled: false },
-    readOnly: true,
-    renderLineHighlight: 'none',
-    scrollBeyondLastLine: false,
-    wordWrap: settings.value.codeviewerLineWrap ? 'on' : 'off',
-  })
-}
 
 function setModelValue(model: Monaco.editor.ITextModel, value: string) {
   if (model.getValue() !== value)
@@ -133,8 +125,12 @@ onMounted(async () => {
 
   monaco = await getMonaco()
 
-  fromEditor = createReadOnlyEditor(fromEl.value)
-  toEditor = createReadOnlyEditor(toEl.value)
+  fromEditor = createReadOnlyMonacoEditor(monaco, fromEl.value, {
+    wordWrap: getMonacoWordWrap(settings.value.codeviewerLineWrap),
+  })
+  toEditor = createReadOnlyMonacoEditor(monaco, toEl.value, {
+    wordWrap: getMonacoWordWrap(settings.value.codeviewerLineWrap),
+  })
 
   fromModel = monaco.editor.createModel(props.from, guessMonacoLanguage(props.from))
   toModel = monaco.editor.createModel(props.to, guessMonacoLanguage(props.to))
@@ -151,12 +147,14 @@ onMounted(async () => {
 
   if (!props.oneColumn)
     syncMonacoEditorScrolls(toEditor, fromEditor)
+
+  await updateDiffDecorations(props.from, props.to, props.diff)
 })
 
 watch(
   () => settings.value.codeviewerLineWrap,
   (enabled) => {
-    const wordWrap = enabled ? 'on' : 'off'
+    const wordWrap = getMonacoWordWrap(enabled)
     fromEditor?.updateOptions({ wordWrap })
     toEditor?.updateOptions({ wordWrap })
   },
@@ -187,33 +185,36 @@ watch(
   { immediate: true },
 )
 
+async function updateDiffDecorations(from: string, to: string, diffEnabled: boolean) {
+  if (!monaco || !fromModel || !toModel || !fromDecorations || !toDecorations)
+    return
+
+  const currentVersion = ++diffVersion
+
+  setModelValue(fromModel, from)
+  setModelValue(toModel, to)
+
+  setModelLanguageIfNeeded(monaco, fromModel, guessMonacoLanguage(from))
+  setModelLanguageIfNeeded(monaco, toModel, guessMonacoLanguage(to))
+
+  fromDecorations.set([])
+  toDecorations.set([])
+
+  if (!diffEnabled || !from || from === to)
+    return
+
+  const changes = await calculateDiffWithWorker(from, to)
+  if (currentVersion !== diffVersion)
+    return
+
+  applyDiffDecorations(changes)
+}
+
 watch(
   () => [props.from, props.to, props.diff] as const,
-  async ([from, to, diffEnabled]) => {
-    if (!monaco || !fromModel || !toModel || !fromDecorations || !toDecorations)
-      return
-
-    const currentVersion = ++diffVersion
-
-    setModelValue(fromModel, from)
-    setModelValue(toModel, to)
-
-    monaco.editor.setModelLanguage(fromModel, guessMonacoLanguage(from))
-    monaco.editor.setModelLanguage(toModel, guessMonacoLanguage(to))
-
-    fromDecorations.set([])
-    toDecorations.set([])
-
-    if (!diffEnabled || !from)
-      return
-
-    const changes = await calculateDiffWithWorker(from, to)
-    if (currentVersion !== diffVersion)
-      return
-
-    applyDiffDecorations(changes)
+  ([from, to, diffEnabled]) => {
+    updateDiffDecorations(from, to, diffEnabled)
   },
-  { immediate: true },
 )
 
 const leftPanelSize = computed(() => {

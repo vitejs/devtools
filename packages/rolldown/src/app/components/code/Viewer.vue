@@ -2,7 +2,7 @@
 import type * as Monaco from 'modern-monaco/editor-core'
 import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
-import { applyMonacoTheme, getMonaco } from '~/composables/monaco'
+import { applyMonacoTheme, createReadOnlyMonacoEditor, getMonaco, getMonacoWordWrap } from '~/composables/monaco'
 import { settings } from '~/state/settings'
 
 const props = defineProps<{
@@ -31,20 +31,12 @@ onMounted(async () => {
   monaco = await getMonaco()
 
   model = monaco.editor.createModel(props.code, 'javascript')
-  editor = monaco.editor.create(codeEl.value, {
-    automaticLayout: true,
-    fontFamily: '\'Input Mono\', \'FiraCode\', monospace',
-    fontSize: 13,
-    lineNumbers: 'on',
-    minimap: { enabled: false },
-    readOnly: true,
-    renderLineHighlight: 'none',
-    scrollBeyondLastLine: false,
+  editor = createReadOnlyMonacoEditor(monaco, codeEl.value, {
     scrollbar: {
       vertical: 'hidden',
       verticalScrollbarSize: 0,
     },
-    wordWrap: settings.value.codeviewerLineWrap ? 'on' : 'off',
+    wordWrap: getMonacoWordWrap(settings.value.codeviewerLineWrap),
   })
 
   editor.setModel(model)
@@ -69,7 +61,7 @@ watch(
   () => settings.value.codeviewerLineWrap,
   (enabled) => {
     editor?.updateOptions({
-      wordWrap: enabled ? 'on' : 'off',
+      wordWrap: getMonacoWordWrap(enabled),
     })
   },
   { immediate: true },
