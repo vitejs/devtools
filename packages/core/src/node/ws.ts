@@ -26,8 +26,9 @@ const ANONYMOUS_SCOPE = 'vite:anonymous:'
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
-  const port = options.portWebSocket ?? await getPort({ port: 7812, random: true })!
   const host = options.hostWebSocket ?? 'localhost'
+  const https = options.context.viteConfig.server.https
+  const port = options.portWebSocket ?? await getPort({ port: 7812, host, random: true })!
 
   const wsClients = new Set<WebSocket>()
 
@@ -42,6 +43,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   const preset = createWsRpcPreset({
     port,
     host,
+    https,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
       const authId = url.searchParams.get('vite_devtools_auth_id') ?? undefined

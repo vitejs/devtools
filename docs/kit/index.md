@@ -110,3 +110,4 @@ The docs might not cover all the details—please help us improve them by submit
 - **[vite-plugin-vue-tracer](https://github.com/antfu/vite-plugin-vue-tracer)** - An action button that triggers a DOM inspector
   - [Plugin hook](https://github.com/antfu/vite-plugin-vue-tracer/blob/9f86fe723543405eea5d30588fe783796193bfd8/src/plugin.ts#L139-L157)
   - [Client script](https://github.com/antfu/vite-plugin-vue-tracer/blob/main/src/client/vite-devtools.ts)
+- **[Oxc Inspector](https://github.com/yuyinws/oxc-inspector/blob/main/src/vite.ts)** - An iframe-based dock entry with custom RPC functions

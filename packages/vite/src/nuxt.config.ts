@@ -1,11 +1,10 @@
 import process from 'node:process'
 import { defineNuxtConfig } from 'nuxt/config'
-import Inspect from 'vite-plugin-inspect'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const BASE = '/.devtools-rolldown/'
+const BASE = '/.devtools-vite/'
 
 export default defineNuxtConfig({
   ssr: false,
@@ -15,7 +14,6 @@ export default defineNuxtConfig({
     '@unocss/nuxt',
     '@nuxt/eslint',
     'nuxt-eslint-auto-explicit-import',
-    './modules/rpc',
   ],
 
   alias,
@@ -56,7 +54,6 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        // headers,
       },
     },
     sourceMap: false,
@@ -65,13 +62,13 @@ export default defineNuxtConfig({
   app: {
     baseURL: BASE,
     head: {
-      title: 'Rolldown DevTools',
+      title: 'Vite DevTools',
       charset: 'utf-8',
       viewport: 'width=device-width,initial-scale=1',
       meta: [
-        { name: 'description', content: 'DevTools for Rolldown' },
-        { property: 'og:title', content: 'Rolldown DevTools' },
-        { property: 'og:description', content: 'DevTools for Rolldown' },
+        { name: 'description', content: 'DevTools for Vite' },
+        { property: 'og:title', content: 'Vite DevTools' },
+        { property: 'og:description', content: 'DevTools for Vite' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg` },
@@ -83,59 +80,24 @@ export default defineNuxtConfig({
     },
   },
 
-  // Disable Nuxt's internal debugging
   debug: false,
 
   vite: {
     base: BASE,
     build: {
-      // @ts-expect-error skip type check
-      rolldownOptions: {
-        devtools: {},
-      },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
     },
     optimizeDeps: {
-      include: [
-        '@antfu/utils',
-        '@vueuse/core',
-        '@floating-ui/dom',
-        'd3-hierarchy',
-        'd3-shape',
-        'fuse.js',
-        'codemirror',
-        'codemirror/addon/dialog/dialog',
-        'codemirror/addon/display/placeholder',
-        'codemirror/addon/search/jump-to-line',
-        'codemirror/addon/search/search',
-        'codemirror/mode/css/css',
-        'codemirror/mode/handlebars/handlebars',
-        'codemirror/mode/htmlmixed/htmlmixed',
-        'codemirror/mode/javascript/javascript',
-        'codemirror/mode/markdown/markdown',
-        'codemirror/mode/pug/pug',
-        'codemirror/mode/sass/sass',
-        'codemirror/mode/vue/vue',
-        'codemirror/mode/xml/xml',
-        'comlink',
-        'floating-vue',
-        'splitpanes',
-        'vue-virtual-scroller',
-        'nanovis',
-      ],
       exclude: [
         'structured-clone-es',
         'birpc',
       ],
     },
+    // @ts-expect-error skip type check
     devtools: {
       clientAuth: false,
     },
-    plugins: [
-      // @ts-expect-error skip type check
-      NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
-    ],
   },
 
   devtools: {
@@ -143,13 +105,6 @@ export default defineNuxtConfig({
   },
 
   typescript: {
-    tsConfig: {
-      compilerOptions: {
-        types: ['chrome'], // for devtools-webext package
-      },
-    },
-    // Temporary disable type check for nuxt, rely on CI for now
-    // typeCheck: true,
     includeWorkspace: true,
   },
 
