@@ -3,6 +3,8 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { h } from 'vue'
 import { setDockContextMenu } from '../state/floating-tooltip'
 
+// @unocss-include
+
 interface DockMenuItem {
   label: string
   icon: string
@@ -81,6 +83,6 @@ export function openDockContextMenu(options: {
   setDockContextMenu({
     el,
     gap,
-    content: () => h('div', { class: 'flex flex-col text-sm min-w-36' }, items.map(renderMenuItem)),
+    content: () => h('div', { class: 'flex flex-col text-sm min-w-36 mx--1' }, items.map(renderMenuItem)),
   })
 }
