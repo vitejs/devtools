@@ -6,7 +6,7 @@ import { computed } from 'vue'
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
-    const [metaInfo, envInfo] = await Promise.all([
+    const [metadata, envInfo] = await Promise.all([
       rpc.value.call(
         'vite:meta-info',
       ),
@@ -16,15 +16,96 @@ const { state, isLoading } = useAsyncState(
     ])
 
     return {
-      metaInfo,
+      metadata,
       envInfo,
     }
   },
   null,
 )
 
-const envInfo = computed(() => state.value?.envInfo)
-const metaInfo = computed(() => state.value?.metaInfo)
+const projectMetadata = computed(() => state.value?.metadata)
+const environmentMetadata = computed(() => state.value?.envInfo)
+
+const metadata = computed(() => [
+  {
+    id: 'project',
+    icon: 'i-material-icon-theme:vite',
+    rows: [
+      {
+        id: 'root',
+        icon: 'i-ph-folder-duotone',
+        label: 'Root',
+        value: projectMetadata.value?.root,
+      },
+      {
+        id: 'base',
+        icon: 'i-ph-folder-duotone',
+        label: 'Base',
+        value: projectMetadata.value?.base,
+      },
+      {
+        id: 'plugins',
+        icon: 'i-ph-plugs-duotone',
+        label: 'Plugins',
+        value: projectMetadata.value?.plugins.length ?? 0,
+      },
+    ],
+  },
+  {
+    id: 'system',
+    icon: 'i-ph:desktop',
+    rows: [
+      {
+        id: 'os',
+        icon: 'i-ph-folder-duotone',
+        label: 'OS',
+        value: environmentMetadata.value?.os,
+      },
+      {
+        id: 'cpu',
+        icon: 'i-ph:cpu',
+        label: 'CPU',
+        value: environmentMetadata.value?.cpu,
+      },
+      {
+        id: 'memory',
+        icon: 'i-ph:memory',
+        label: 'Memory',
+        value: environmentMetadata.value?.memory,
+      },
+    ],
+  },
+  {
+    id: 'runtime',
+    icon: 'i-system-uicons:version',
+    rows: [
+      {
+        id: 'node',
+        icon: 'i-ri:nodejs-fill',
+        label: 'Node',
+        value: environmentMetadata.value?.node,
+      },
+      {
+        id: 'npm',
+        icon: 'i-ri:npmjs-fill',
+        label: 'NPM',
+        value: environmentMetadata.value?.npm,
+      },
+      {
+        id: 'pnpm',
+        icon: 'i-material-icon-theme:pnpm',
+        label: 'PNPM',
+        value: environmentMetadata.value?.pnpm,
+      },
+      {
+        id: 'yarn',
+        icon: 'i-logos:yarn',
+        label: 'Yarn',
+        value: environmentMetadata.value?.yarn,
+      },
+    ],
+  },
+])
 </script>
 
 <template>
@@ -36,107 +117,25 @@ const metaInfo = computed(() => state.value?.metaInfo)
     <VisualLogoBanner />
 
     <div border="~ base rounded" p2 flex="~ col gap-4 justify-center">
-      <div p4 flex="~ gap-14 items-center">
-        <div i-material-icon-theme:vite text-3xl flex ml3 />
+      <div
+        v-for="section in metadata"
+        :key="section.id"
+        p4
+        flex="~ gap-14 items-center"
+      >
+        <div class="text-3xl flex ml3" :class="section.icon" />
         <div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph-folder-duotone" />
+          <div
+            v-for="row in section.rows"
+            :key="row.id"
+            grid="~ cols-[max-content_80px_2fr] gap-2 items-center"
+          >
+            <div :class="row.icon" />
             <div>
-              Root
+              {{ row.label }}
             </div>
             <div font-mono>
-              {{ metaInfo?.root }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph-folder-duotone" />
-            <div>
-              Base
-            </div>
-            <div font-mono>
-              {{ metaInfo?.base }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph-plugs-duotone" />
-            <div>
-              Plugins
-            </div>
-            <div font-mono>
-              {{ metaInfo?.plugins.length ?? 0 }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div p4 flex="~ gap-14 items-center">
-        <div i-ph:desktop text-3xl flex ml3 />
-        <div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph-folder-duotone" />
-            <div>
-              OS
-            </div>
-            <div font-mono>
-              {{ envInfo?.os }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph:cpu" />
-            <div>
-              CPU
-            </div>
-            <div font-mono>
-              {{ envInfo?.cpu }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ph:memory" />
-            <div>
-              Memory
-            </div>
-            <div font-mono>
-              {{ envInfo?.memory }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div p4 flex="~ gap-14 items-center">
-        <div i-system-uicons:version text-3xl flex ml3 />
-        <div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ri:nodejs-fill" />
-            <div>
-              Node
-            </div>
-            <div font-mono>
-              {{ envInfo?.node }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-ri:npmjs-fill" />
-            <div>
-              NPM
-            </div>
-            <div font-mono>
-              {{ envInfo?.npm }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-material-icon-theme:pnpm" />
-            <div>
-              PNPM
-            </div>
-            <div font-mono>
-              {{ envInfo?.pnpm }}
-            </div>
-          </div>
-          <div grid="~ cols-[max-content_80px_2fr] gap-2 items-center">
-            <div class="i-logos:yarn" />
-            <div>
-              Yarn
-            </div>
-            <div font-mono>
-              {{ envInfo?.yarn }}
+              {{ row.value }}
             </div>
           </div>
         </div>
