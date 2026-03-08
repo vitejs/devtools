@@ -12,10 +12,10 @@ import {
   transformerVariantGroup,
 } from 'unocss'
 import { shortcuts } from './shortcuts'
-import { theme } from './theme'
 
 export interface PresetDevToolsUIOptions {
   webFonts?: WebFontsOptions
+  theme?: Theme
 }
 
 export const presetDevToolsUI = definePreset<PresetDevToolsUIOptions, Theme>((options) => {
@@ -23,7 +23,7 @@ export const presetDevToolsUI = definePreset<PresetDevToolsUIOptions, Theme>((op
     name: '@vitejs/devtools-ui/preset',
     shortcuts,
     extendTheme(defaultTheme) {
-      return mergeDeep(defaultTheme, theme)
+      return mergeDeep(defaultTheme, options?.theme ?? {})
     },
     presets: [
       presetWind4(),
