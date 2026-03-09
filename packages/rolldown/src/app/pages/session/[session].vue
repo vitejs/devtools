@@ -2,9 +2,10 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import { useRoute, useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
+import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
+import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { onKeyDown } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'
-import { useSideNav } from '~/state/nav'
 import { getFileTypeFromName } from '~/utils/icon'
 
 const params = useRoute().params as {

@@ -9,29 +9,28 @@ export interface SideNavItem {
   action?: () => void
 }
 
-let __id = 0
+let id = 0
 const sideNavItemsMap = reactive(new Map<number, SideNavItem[]>())
 
 export const sideNavItems = computed(() => Array.from(sideNavItemsMap.values()).flat())
 
 export function useSideNav(items: MaybeRefOrGetter<SideNavItem[]>) {
-  const r = toRef(items)
+  const itemsRef = toRef(items)
 
   let clear = () => {}
-  function add(items: SideNavItem[]) {
+  function add(nextItems: SideNavItem[]) {
     clear()
-    const id = __id++
-    sideNavItemsMap.set(id, items)
+    const currentId = id++
+    sideNavItemsMap.set(currentId, nextItems)
     clear = () => {
-      sideNavItemsMap.delete(id)
+      sideNavItemsMap.delete(currentId)
     }
-    return id
   }
 
   watch(
-    r,
-    (items) => {
-      add(items)
+    itemsRef,
+    (nextItems) => {
+      add(nextItems)
     },
     { immediate: true },
   )
