@@ -95,7 +95,7 @@ const searched = computed(() => (
 
 const normalizedPackages = computed(() => {
   const packagesSizeSortType = settings.value.packageSizeSortType
-  const data = [...searched.value].sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+  const data = searched.value.toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
 
   const sortedPackages = packagesSizeSortType
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)

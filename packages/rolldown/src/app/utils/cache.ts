@@ -74,13 +74,13 @@ export class FixedTupleMap<K extends readonly any[], V> {
       throw new Error(`Expect tuple of length ${this.length}, got ${key.length}`)
     }
     const lastMap = this._getLastMap(key)
-    lastMap.set(key[key.length - 1], value)
+    lastMap.set(key.at(-1), value)
     return this
   }
 
   get(key: K): V | undefined {
     const lastMap = this._getLastMap(key)
-    return lastMap.get(key[key.length - 1])
+    return lastMap.get(key.at(-1))
   }
 
   clear(): void {
@@ -89,7 +89,7 @@ export class FixedTupleMap<K extends readonly any[], V> {
 
   delete(key: K): boolean {
     const lastMap = this._getLastMap(key)
-    return lastMap.delete(key[key.length - 1])
+    return lastMap.delete(key.at(-1))
   }
 
   get size(): number {

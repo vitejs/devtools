@@ -123,9 +123,9 @@ export function setModelLanguageIfNeeded(
 export function guessMonacoLanguage(code: string) {
   if (code.trimStart().startsWith('<'))
     return 'html'
-  if (code.match(/^import\s/))
+  if (/^import\s/.test(code))
     return 'javascript'
-  if (code.match(/^[.#].+\{/))
+  if (/^[.#].+\{/.test(code))
     return 'css'
   return 'javascript'
 }

@@ -23,7 +23,7 @@ const selectedSessionIds = computed(() => {
   return selectedSessions.value.map(session => session.id).sort()
 })
 const normalizedSelectedSessions = computed(() => {
-  const sortedSessions = [...selectedSessions.value].sort((a, b) => a.timestamp - b.timestamp)
+  const sortedSessions = selectedSessions.value.toSorted((a, b) => a.timestamp - b.timestamp)
   return sortedSessions.map((session, index) => ({
     ...session,
     createdAt: new Date(session.timestamp),
