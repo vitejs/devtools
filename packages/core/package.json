@@ -85,5 +85,23 @@
     "vue": "catalog:frontend",
     "vue-router": "catalog:playground",
     "vue-tsc": "catalog:devtools"
+  },
+  "inlinedDependencies": {
+    "@vue/shared": "3.5.30",
+    "@vue/reactivity": "3.5.30",
+    "@vue/runtime-core": "3.5.30",
+    "csstype": "3.2.3",
+    "@vue/runtime-dom": "3.5.30",
+    "vue": "3.5.30",
+    "dompurify": "3.3.2",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/xterm": "6.0.0",
+    "@vueuse/shared": "14.2.1",
+    "@vueuse/core": "14.2.1",
+    "sisteransi": "1.0.5",
+    "@clack/core": "1.1.0",
+    "@clack/prompts": "1.1.0",
+    "ansis": "4.2.0",
+    "get-port-please": "3.2.0"
   }
 }

@@ -49,5 +49,14 @@
     "my-ua-parser": "catalog:frontend",
     "tsdown": "catalog:build",
     "vite": "catalog:build"
+  },
+  "inlinedDependencies": {
+    "my-ua-parser": "2.0.4",
+    "@vue/shared": "3.5.30",
+    "@vue/reactivity": "3.5.30",
+    "@vue/runtime-core": "3.5.30",
+    "csstype": "3.2.3",
+    "@vue/runtime-dom": "3.5.30",
+    "vue": "3.5.30"
   }
 }

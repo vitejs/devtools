@@ -12,32 +12,32 @@ packages:
 
 catalogs:
   build:
-    '@antfu/ni': ^28.2.0
+    '@antfu/ni': ^28.3.0
     '@nuxt/kit': ^4.3.1
     '@nuxt/vite-builder': ^4.3.1
-    '@unocss/nuxt': ^66.6.5
+    '@unocss/nuxt': ^66.6.6
     '@vitejs/plugin-vue': ^6.0.4
     '@vueuse/nuxt': ^14.2.1
     esbuild: ^0.27.3
     magic-string: ^0.30.21
     nitropack: ^2.13.1
     nuxt: ^4.3.1
-    rolldown: ^1.0.0-rc.7
-    tsdown: ^0.20.3
+    rolldown: ^1.0.0-rc.8
+    tsdown: ^0.21.1
     tsx: ^4.21.0
-    turbo: ^2.8.13
-    unocss: ^66.6.5
+    turbo: ^2.8.14
+    unocss: ^66.6.6
     unplugin-vue: ^7.1.1
-    vite: ^8.0.0-beta.16
+    vite: ^8.0.0-beta.18
   deps:
     '@pnpm/read-project-manifest': ^1001.2.5
-    '@rolldown/debug': ^1.0.0-rc.7
+    '@rolldown/debug': ^1.0.0-rc.8
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
     diff: ^8.0.3
     get-port-please: ^3.2.0
-    h3: ^1.15.5
+    h3: ^1.15.6
     immer: ^11.1.4
     launch-editor: ^2.13.1
     mlly: ^1.8.1
@@ -60,14 +60,14 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.19.0
   devtools:
-    '@antfu/eslint-config': ^7.6.1
-    '@nuxt/devtools': ^3.2.2
+    '@antfu/eslint-config': ^7.7.0
+    '@nuxt/devtools': ^3.2.3
     '@nuxt/eslint': ^1.15.2
     '@typescript-eslint/utils': ^8.56.1
-    '@unocss/eslint-config': ^66.6.5
+    '@unocss/eslint-config': ^66.6.6
     bumpp: ^10.4.1
     chokidar: ^5.0.0
-    eslint: ^10.0.2
+    eslint: ^10.0.3
     lint-staged: ^16.3.2
     nuxt-eslint-auto-explicit-import: ^0.1.1
     simple-git-hooks: ^2.13.1
@@ -75,9 +75,9 @@ catalogs:
     vite-plugin-inspect: ^11.3.3
     vue-tsc: ^3.2.5
   docs:
-    '@shikijs/vitepress-twoslash': ^4.0.1
-    '@voidzero-dev/vitepress-theme': ^4.8.0
-    mermaid: ^11.12.3
+    '@shikijs/vitepress-twoslash': ^4.0.2
+    '@voidzero-dev/vitepress-theme': ^4.8.2
+    mermaid: ^11.13.0
     vitepress: ^2.0.0-alpha.16
     vitepress-plugin-group-icons: ^1.7.1
     vitepress-plugin-mermaid: ^2.0.17
@@ -103,12 +103,12 @@ catalogs:
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
-    vue: ^3.5.29
+    vue: ^3.5.30
     vue-virtual-scroller: ^2.0.0-beta.8
   icons:
     '@iconify-json/carbon': ^1.2.19
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.47
+    '@iconify-json/codicon': ^1.2.48
     '@iconify-json/fluent': ^1.2.40
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
@@ -117,7 +117,7 @@ catalogs:
     '@iconify-json/ri': ^1.2.10
     '@iconify-json/simple-icons': ^1.2.72
     '@iconify-json/svg-spinners': ^1.2.4
-    '@iconify-json/tabler': ^1.2.29
+    '@iconify-json/tabler': ^1.2.30
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.1.0
