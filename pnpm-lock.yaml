@@ -196,12 +196,6 @@ catalogs:
     '@xterm/xterm':
       specifier: ^6.0.0
       version: 6.0.0
-    codemirror:
-      specifier: ^5.65.21
-      version: 5.65.21
-    codemirror-theme-vars:
-      specifier: ^0.1.2
-      version: 0.1.2
     comlink:
       specifier: ^4.4.2
       version: 4.4.2
@@ -229,6 +223,9 @@ catalogs:
     idb-keyval:
       specifier: ^6.2.2
       version: 6.2.2
+    modern-monaco:
+      specifier: ^0.4.0
+      version: 0.4.0
     my-ua-parser:
       specifier: ^2.0.4
       version: 2.0.4
@@ -321,9 +318,6 @@ catalogs:
     '@types/chrome':
       specifier: ^0.1.37
       version: 0.1.37
-    '@types/codemirror':
-      specifier: ^5.60.17
-      version: 5.60.17
     '@types/connect':
       specifier: ^3.4.38
       version: 3.4.38
@@ -734,9 +728,6 @@ importers:
         specifier: catalog:deps
         version: 8.19.0
     devDependencies:
-      '@types/codemirror':
-        specifier: catalog:types
-        version: 5.60.17
       '@types/diff':
         specifier: catalog:types
         version: 8.0.0
@@ -764,12 +755,6 @@ importers:
       '@vueuse/router':
         specifier: catalog:frontend
         version: 14.2.1(vue-router@5.0.3(@vue/compiler-sfc@3.5.29)(vue@3.5.29(typescript@5.9.3)))(vue@3.5.29(typescript@5.9.3))
-      codemirror:
-        specifier: catalog:frontend
-        version: 5.65.21
-      codemirror-theme-vars:
-        specifier: catalog:frontend
-        version: 0.1.2
       comlink:
         specifier: catalog:frontend
         version: 4.4.2
@@ -791,6 +776,9 @@ importers:
       idb-keyval:
         specifier: catalog:frontend
         version: 6.2.2
+      modern-monaco:
+        specifier: catalog:frontend
+        version: 0.4.0(typescript@5.9.3)
       nanovis:
         specifier: catalog:frontend
         version: 1.0.0
@@ -2917,9 +2905,6 @@ packages:
   '@types/chrome@0.1.37':
     resolution: {integrity: sha512-IJE4ceuDO7lrEuua7Pow47zwNcI8E6qqkowRP7aFPaZ0lrjxh6y836OPqqkIZeTX64FTogbw+4RNH0+QrweCTQ==}
 
-  '@types/codemirror@5.60.17':
-    resolution: {integrity: sha512-AZq2FIsUHVMlp7VSe2hTfl5w4pcUkoFkM3zVsRKsn1ca8CXRDYvnin04+HP2REkwsxemuHqvDofdlhUWNpbwfw==}
-
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
@@ -3091,9 +3076,6 @@ packages:
 
   '@types/stream-json@1.7.8':
     resolution: {integrity: sha512-MU1OB1eFLcYWd1LjwKXrxdoPtXSRzRmAnnxs4Js/ayB5O/NvHraWwuOaqMWIebpYwM6khFlsJOHEhI9xK/ab4Q==}
-
-  '@types/tern@0.23.9':
-    resolution: {integrity: sha512-ypzHFE/wBzh+BlH6rrBgS5I/Z7RD21pGhZ2rltb/+ZrVM1awdZwjx7hE5XfuYgHWk9uvV5HLZN3SloevCAp3Bw==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -4004,12 +3986,6 @@ packages:
   cluster-key-slot@1.1.2:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
-
-  codemirror-theme-vars@0.1.2:
-    resolution: {integrity: sha512-WTau8X2q58b0SOAY9DO+iQVw8JKVEgyQIqArp2D732tcc+pobbMta3bnVMdQdmgwuvNrOFFr6HoxPRoQOgooFA==}
-
-  codemirror@5.65.21:
-    resolution: {integrity: sha512-6teYk0bA0nR3QP0ihGMoxuKzpl5W80FpnHpBJpgy66NK3cZv5b/d/HY8PnRvfSsCG1MTfr92u2WUl+wT0E40mQ==}
 
   color-convert@2.0.1:
     resolution: {integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==}
@@ -5814,6 +5790,11 @@ packages:
 
   mocked-exports@0.1.1:
     resolution: {integrity: sha512-aF7yRQr/Q0O2/4pIXm6PZ5G+jAd7QS4Yu8m+WEeEHGnbo+7mE36CbLSDQiXYV8bVL3NfmdeqPJct0tUlnjVSnA==}
+
+  modern-monaco@0.4.0:
+    resolution: {integrity: sha512-yAdBtGkSG4CzBfvBIhW4tSQMhLCc3GKIGAWchEqiyDl7lAcwD8DjmF6h0co/ZV1VQ1c3nP58zhMnapazlzZqUw==}
+    peerDependencies:
+      typescript: '>= 5.0.0'
 
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9731,10 +9712,6 @@ snapshots:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
 
-  '@types/codemirror@5.60.17':
-    dependencies:
-      '@types/tern': 0.23.9
-
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 25.0.3
@@ -9935,10 +9912,6 @@ snapshots:
     dependencies:
       '@types/node': 25.0.3
       '@types/stream-chain': 2.1.0
-
-  '@types/tern@0.23.9':
-    dependencies:
-      '@types/estree': 1.0.8
 
   '@types/trusted-types@2.0.7':
     optional: true
@@ -11086,10 +11059,6 @@ snapshots:
       wrap-ansi: 7.0.0
 
   cluster-key-slot@1.1.2: {}
-
-  codemirror-theme-vars@0.1.2: {}
-
-  codemirror@5.65.21: {}
 
   color-convert@2.0.1:
     dependencies:
@@ -13088,6 +13057,10 @@ snapshots:
       ufo: 1.6.3
 
   mocked-exports@0.1.1: {}
+
+  modern-monaco@0.4.0(typescript@5.9.3):
+    dependencies:
+      typescript: 5.9.3
 
   mri@1.2.0: {}
 

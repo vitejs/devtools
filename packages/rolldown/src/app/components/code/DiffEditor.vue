@@ -1,8 +1,18 @@
 <script setup lang="ts">
-import type CodeMirror from 'codemirror'
+import type * as Monaco from 'modern-monaco/editor-core'
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { Pane, Splitpanes } from 'splitpanes'
-import { computed, nextTick, onMounted, toRefs, useTemplateRef, watchEffect } from 'vue'
-import { guessCodemirrorMode, syncEditorScrolls, syncScrollListeners, useCodeMirror } from '~/composables/codemirror'
+import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
+import {
+  applyMonacoTheme,
+  createReadOnlyMonacoEditor,
+  getMonaco,
+  getMonacoWordWrap,
+  guessMonacoLanguage,
+  setModelLanguageIfNeeded,
+  setupMonacoScrollSync,
+  syncMonacoEditorScrolls,
+} from '~/composables/monaco'
 import { settings } from '~/state/settings'
 import { calculateDiffWithWorker } from '~/worker/diff'
 
@@ -13,114 +23,199 @@ const props = defineProps<{
   diff: boolean
 }>()
 
-const { from, to } = toRefs(props)
-
 const fromEl = useTemplateRef('fromEl')
 const toEl = useTemplateRef('toEl')
 
-let cm1: CodeMirror.Editor
-let cm2: CodeMirror.Editor
+let monaco: typeof Monaco | null = null
+let fromEditor: Monaco.editor.IStandaloneCodeEditor | null = null
+let toEditor: Monaco.editor.IStandaloneCodeEditor | null = null
+let fromModel: Monaco.editor.ITextModel | null = null
+let toModel: Monaco.editor.ITextModel | null = null
+let fromDecorations: Monaco.editor.IEditorDecorationsCollection | null = null
+let toDecorations: Monaco.editor.IEditorDecorationsCollection | null = null
+let disposeScrollSync: (() => void) | null = null
+let diffVersion = 0
 
-onMounted(() => {
-  cm1 = useCodeMirror(
-    fromEl,
-    from,
-    {
-      mode: 'javascript',
-      readOnly: true,
-      lineNumbers: true,
-    },
-  )
+function setModelValue(model: Monaco.editor.ITextModel, value: string) {
+  if (model.getValue() !== value)
+    model.setValue(value)
+}
 
-  cm2 = useCodeMirror(
-    toEl,
-    to,
-    {
-      mode: 'javascript',
-      readOnly: true,
-      lineNumbers: true,
-    },
-  )
+function applyDiffDecorations(changes: Array<[number, string]>) {
+  if (!monaco || !fromModel || !toModel || !fromDecorations || !toDecorations)
+    return
 
-  syncScrollListeners(cm1, cm2)
+  const fromEntries: Monaco.editor.IModelDeltaDecoration[] = []
+  const toEntries: Monaco.editor.IModelDeltaDecoration[] = []
 
-  watchEffect(() => {
-    cm1.setOption('lineWrapping', settings.value.codeviewerLineWrap)
-    cm2.setOption('lineWrapping', settings.value.codeviewerLineWrap)
-  })
+  const addedLines = new Set<number>()
+  const removedLines = new Set<number>()
 
-  watchEffect(async () => {
-    cm1.getWrapperElement().style.display = props.oneColumn ? 'none' : ''
-    if (!props.oneColumn) {
-      await nextTick()
-      // Force sync to current scroll
-      cm1.refresh()
-      syncEditorScrolls(cm2, cm1)
+  let fromIndex = 0
+  let toIndex = 0
+
+  for (const [type, change] of changes) {
+    if (type === 1) {
+      const start = toModel.getPositionAt(toIndex)
+      toIndex += change.length
+      const end = toModel.getPositionAt(toIndex)
+
+      if (start.lineNumber !== end.lineNumber || start.column !== end.column) {
+        toEntries.push({
+          range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+          options: {
+            inlineClassName: 'diff-added-inline',
+          },
+        })
+      }
+
+      for (let i = start.lineNumber; i <= end.lineNumber; i++)
+        addedLines.add(i)
     }
+    else if (type === -1) {
+      const start = fromModel.getPositionAt(fromIndex)
+      fromIndex += change.length
+      const end = fromModel.getPositionAt(fromIndex)
+
+      if (start.lineNumber !== end.lineNumber || start.column !== end.column) {
+        fromEntries.push({
+          range: new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column),
+          options: {
+            inlineClassName: 'diff-removed-inline',
+          },
+        })
+      }
+
+      for (let i = start.lineNumber; i <= end.lineNumber; i++)
+        removedLines.add(i)
+    }
+    else {
+      fromIndex += change.length
+      toIndex += change.length
+    }
+  }
+
+  for (const line of removedLines) {
+    fromEntries.push({
+      range: new monaco.Range(line, 1, line, 1),
+      options: {
+        className: 'diff-removed',
+        isWholeLine: true,
+      },
+    })
+  }
+
+  for (const line of addedLines) {
+    toEntries.push({
+      range: new monaco.Range(line, 1, line, 1),
+      options: {
+        className: 'diff-added',
+        isWholeLine: true,
+      },
+    })
+  }
+
+  fromDecorations.set(fromEntries)
+  toDecorations.set(toEntries)
+}
+
+onMounted(async () => {
+  if (!fromEl.value || !toEl.value)
+    return
+
+  monaco = await getMonaco()
+
+  fromEditor = createReadOnlyMonacoEditor(monaco, fromEl.value, {
+    wordWrap: getMonacoWordWrap(settings.value.codeviewerLineWrap),
+  })
+  toEditor = createReadOnlyMonacoEditor(monaco, toEl.value, {
+    wordWrap: getMonacoWordWrap(settings.value.codeviewerLineWrap),
   })
 
-  watchEffect(async () => {
-    const l = from.value
-    const r = to.value
-    const diffEnabled = props.diff
+  fromModel = monaco.editor.createModel(props.from, guessMonacoLanguage(props.from))
+  toModel = monaco.editor.createModel(props.to, guessMonacoLanguage(props.to))
 
-    cm1.setOption('mode', guessCodemirrorMode(l))
-    cm2.setOption('mode', guessCodemirrorMode(r))
+  fromEditor.setModel(fromModel)
+  toEditor.setModel(toModel)
+
+  fromDecorations = fromEditor.createDecorationsCollection()
+  toDecorations = toEditor.createDecorationsCollection()
+
+  disposeScrollSync = setupMonacoScrollSync(fromEditor, toEditor)
+
+  applyMonacoTheme(monaco)
+
+  if (!props.oneColumn)
+    syncMonacoEditorScrolls(toEditor, fromEditor)
+
+  await updateDiffDecorations(props.from, props.to, props.diff)
+})
+
+watch(
+  () => settings.value.codeviewerLineWrap,
+  (enabled) => {
+    const wordWrap = getMonacoWordWrap(enabled)
+    fromEditor?.updateOptions({ wordWrap })
+    toEditor?.updateOptions({ wordWrap })
+  },
+  { immediate: true },
+)
+
+watch(isDark, () => {
+  if (monaco)
+    applyMonacoTheme(monaco)
+})
+
+watch(
+  () => props.oneColumn,
+  async (oneColumn) => {
+    if (!fromEditor || !toEditor)
+      return
+
+    fromEl.value!.style.display = oneColumn ? 'none' : ''
 
     await nextTick()
 
-    cm1.startOperation()
-    cm2.startOperation()
+    fromEditor.layout()
+    toEditor.layout()
 
-    // clean up marks
-    cm1.getAllMarks().forEach(i => i.clear())
-    cm2.getAllMarks().forEach(i => i.clear())
-    for (let i = 0; i < cm1.lineCount() + 2; i++)
-      cm1.removeLineClass(i, 'background', 'diff-removed')
-    for (let i = 0; i < cm2.lineCount() + 2; i++)
-      cm2.removeLineClass(i, 'background', 'diff-added')
+    if (!oneColumn)
+      syncMonacoEditorScrolls(toEditor, fromEditor)
+  },
+  { immediate: true },
+)
 
-    if (diffEnabled && from.value) {
-      const changes = await calculateDiffWithWorker(l, r)
+async function updateDiffDecorations(from: string, to: string, diffEnabled: boolean) {
+  if (!monaco || !fromModel || !toModel || !fromDecorations || !toDecorations)
+    return
 
-      const addedLines = new Set()
-      const removedLines = new Set()
+  const currentVersion = ++diffVersion
 
-      let indexL = 0
-      let indexR = 0
-      changes.forEach(([type, change]) => {
-        if (type === 1) {
-          const start = cm2.posFromIndex(indexR)
-          indexR += change.length
-          const end = cm2.posFromIndex(indexR)
-          cm2.markText(start, end, { className: 'diff-added-inline' })
-          for (let i = start.line; i <= end.line; i++) addedLines.add(i)
-        }
-        else if (type === -1) {
-          const start = cm1.posFromIndex(indexL)
-          indexL += change.length
-          const end = cm1.posFromIndex(indexL)
-          cm1.markText(start, end, { className: 'diff-removed-inline' })
-          for (let i = start.line; i <= end.line; i++) removedLines.add(i)
-        }
-        else {
-          indexL += change.length
-          indexR += change.length
-        }
-      })
+  setModelValue(fromModel, from)
+  setModelValue(toModel, to)
 
-      Array.from(removedLines).forEach(i =>
-        cm1.addLineClass(i, 'background', 'diff-removed'),
-      )
-      Array.from(addedLines).forEach(i =>
-        cm2.addLineClass(i, 'background', 'diff-added'),
-      )
-    }
+  setModelLanguageIfNeeded(monaco, fromModel, guessMonacoLanguage(from))
+  setModelLanguageIfNeeded(monaco, toModel, guessMonacoLanguage(to))
 
-    cm1.endOperation()
-    cm2.endOperation()
-  })
-})
+  fromDecorations.set([])
+  toDecorations.set([])
+
+  if (!diffEnabled || !from || from === to)
+    return
+
+  const changes = await calculateDiffWithWorker(from, to)
+  if (currentVersion !== diffVersion)
+    return
+
+  applyDiffDecorations(changes)
+}
+
+watch(
+  () => [props.from, props.to, props.diff] as const,
+  ([from, to, diffEnabled]) => {
+    updateDiffDecorations(from, to, diffEnabled)
+  },
+)
 
 const leftPanelSize = computed(() => {
   return props.oneColumn
@@ -129,13 +224,22 @@ const leftPanelSize = computed(() => {
 })
 
 function onUpdate(size: number) {
-  // Refresh sizes
-  cm1?.refresh()
-  cm2?.refresh()
+  fromEditor?.layout()
+  toEditor?.layout()
+
   if (props.oneColumn)
     return
+
   settings.value.codeviewerDiffPanelSize = size
 }
+
+onBeforeUnmount(() => {
+  disposeScrollSync?.()
+  fromEditor?.dispose()
+  toEditor?.dispose()
+  fromModel?.dispose()
+  toModel?.dispose()
+})
 </script>
 
 <template>
