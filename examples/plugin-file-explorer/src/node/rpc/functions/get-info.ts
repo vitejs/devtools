@@ -4,12 +4,12 @@ import { resolve } from 'pathe'
 import { getFileExplorerOptions } from '../context'
 
 export const fileExplorerGetInfo = defineRpcFunction<
-  'plugin-file-explorer:getInfo',
+  'plugin-file-explorer:get-info',
   'static',
   [],
   Promise<FileExplorerInfo>
 >({
-  name: 'plugin-file-explorer:getInfo',
+  name: 'plugin-file-explorer:get-info',
   type: 'static',
   setup: async (context) => {
     const { targetDir } = getFileExplorerOptions(context)

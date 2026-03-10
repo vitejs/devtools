@@ -5,12 +5,12 @@ import { resolveSafePath } from '../../utils'
 import { getFileExplorerOptions } from '../context'
 
 export const fileExplorerWriteFile = defineRpcFunction<
-  'plugin-file-explorer:writeFile',
+  'plugin-file-explorer:write-file',
   'action',
   [path: string, content: string],
   Promise<void>
 >({
-  name: 'plugin-file-explorer:writeFile',
+  name: 'plugin-file-explorer:write-file',
   type: 'action',
   setup: async (context) => {
     return {

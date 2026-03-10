@@ -44,6 +44,17 @@ const getModules = defineRpcFunction({
 })
 ```
 
+### Naming Convention
+
+Recommended RPC function naming:
+
+1. Scope functions with your package prefix: `<package-name>:...`
+2. Use kebab-case for the function part after `:`
+
+Examples:
+- `my-plugin:get-modules`
+- `my-plugin:read-file`
+
 ### Registering Functions
 
 Register your RPC function in the `devtools.setup`:

@@ -8,12 +8,12 @@ import { toPosixPath } from '../../utils'
 import { getFileExplorerOptions } from '../context'
 
 export const fileExplorerListFiles = defineRpcFunction<
-  'plugin-file-explorer:listFiles',
+  'plugin-file-explorer:list-files',
   'query',
   [],
   Promise<FileExplorerFileEntry[]>
 >({
-  name: 'plugin-file-explorer:listFiles',
+  name: 'plugin-file-explorer:list-files',
   type: 'query',
   setup: async (context) => {
     return {

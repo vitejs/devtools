@@ -4,10 +4,10 @@ import { createRoot } from 'react-dom/client'
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
 
-const GET_INFO_RPC = 'plugin-file-explorer:getInfo'
-const LIST_FILES_RPC = 'plugin-file-explorer:listFiles'
-const READ_FILE_RPC = 'plugin-file-explorer:readFile'
-const WRITE_FILE_RPC = 'plugin-file-explorer:writeFile'
+const GET_INFO_RPC = 'plugin-file-explorer:get-info'
+const LIST_FILES_RPC = 'plugin-file-explorer:list-files'
+const READ_FILE_RPC = 'plugin-file-explorer:read-file'
+const WRITE_FILE_RPC = 'plugin-file-explorer:write-file'
 const rpcPromise = getDevToolsRpcClient()
 
 interface FileExplorerInfo {
