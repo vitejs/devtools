@@ -252,6 +252,7 @@ onMounted(() => {
       'vite-devtools-vertical': context.panel.isVertical,
       'vite-devtools-minimized': isMinimized,
     }"
+    class="color-base"
     @mousemove="bringUp"
   >
     <div

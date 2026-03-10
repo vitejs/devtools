@@ -29,7 +29,7 @@ export class RolldownLogsManager {
       .map(async (d): Promise<BuildInfo> => {
         const reader = RolldownEventsReader.get(join(this.dir, d.name, 'meta.json'))
         await reader.read()
-        const meta = reader.manager.events[reader.manager.events.length - 1] as SessionMeta
+        const meta = reader.manager.events.at(-1) as SessionMeta
         return {
           id: d.name,
           // @ts-expect-error missing type

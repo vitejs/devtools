@@ -33,13 +33,13 @@ export default defineComponent({
           type = 'query'
 
         if (type === 'path') {
-          if (part.match(/^\.+$/)) {
+          if (/^\.+$/.test(part)) {
             classes[index]?.push('op50')
           }
           else if (part === '/') {
             classes[index]?.push('op50')
           }
-          else if (part === 'node_modules' || part === 'dist' || part === 'lib' || part.match(/^\.\w/)) {
+          else if (part === 'node_modules' || part === 'dist' || part === 'lib' || /^\.\w/.test(part)) {
             classes[index]?.push('op60')
           }
 

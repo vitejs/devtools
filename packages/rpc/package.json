@@ -51,5 +51,8 @@
   "devDependencies": {
     "tsdown": "catalog:build",
     "ws": "catalog:deps"
+  },
+  "inlinedDependencies": {
+    "ws": "8.19.0"
   }
 }
