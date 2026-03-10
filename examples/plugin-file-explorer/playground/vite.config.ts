@@ -16,4 +16,9 @@ export default defineConfig({
       configFile: unoConfig,
     }),
   ],
+  build: {
+    rollupOptions: {
+      devtools: {},
+    },
+  },
 })
