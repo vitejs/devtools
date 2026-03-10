@@ -1,0 +1,39 @@
+:root {
+  color-scheme: light;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 20%, #f4f9ff, #ecf4ff 45%, #dce9ff);
+  color: #10203d;
+}
+
+#app {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.card {
+  border: 1px solid #bed0f6;
+  border-radius: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 40px rgba(45, 80, 160, 0.12);
+}
+
+.card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.6;
+}

@@ -8,6 +8,7 @@ trustPolicyExclude:
 
 packages:
   - packages/*
+  - examples/*
   - docs
 
 catalogs:
@@ -70,6 +71,7 @@ catalogs:
     eslint: ^10.0.2
     lint-staged: ^16.3.2
     nuxt-eslint-auto-explicit-import: ^0.1.1
+    serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
@@ -101,6 +103,8 @@ catalogs:
     idb-keyval: ^6.2.2
     my-ua-parser: ^2.0.4
     nanovis: ^1.0.0
+    react: ^19.2.0
+    react-dom: ^19.2.0
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
