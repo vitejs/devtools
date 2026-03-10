@@ -1,19 +1,12 @@
 import { hash } from 'ohash'
 import { describe, expect, it } from 'vitest'
-import {
-  DEVTOOLS_RPC_DUMP_QUERY_DIR,
-  DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME,
-  DEVTOOLS_RPC_DUMP_STATIC_DIR,
-} from '../constants'
+import { DEVTOOLS_RPC_DUMP_DIRNAME } from '../constants'
 import { createStaticRpcCaller } from './static-rpc'
 
-const DEMO_STATIC_VERSION_PATH = `${DEVTOOLS_RPC_DUMP_STATIC_DIR}/demo%3Aversion.json`
-const DEMO_QUERY_BASE_PATH = `${DEVTOOLS_RPC_DUMP_QUERY_DIR}/demo%3Aget-item`
-const DEMO_QUERY_INDEX_PATH = `${DEMO_QUERY_BASE_PATH}/${DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME}`
-const DEMO_QUERY_RECORDS_PATH = `${DEMO_QUERY_BASE_PATH}/${DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME}`
-const DEMO_QUERY_FALLBACK_PATH = `${DEMO_QUERY_BASE_PATH}/${DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME}`
+const DEMO_STATIC_VERSION_PATH = `${DEVTOOLS_RPC_DUMP_DIRNAME}/demo~version.static.json`
+const DEMO_QUERY_BASE_PATH = `${DEVTOOLS_RPC_DUMP_DIRNAME}/demo~get-item`
+const DEMO_QUERY_RECORDS_PATH = `${DEMO_QUERY_BASE_PATH}.record`
+const DEMO_QUERY_FALLBACK_PATH = `${DEMO_QUERY_BASE_PATH}.fallback.json`
 
 describe('createStaticRpcCaller', () => {
   it('loads static rpc shards lazily and caches by file path', async () => {
@@ -41,26 +34,21 @@ describe('createStaticRpcCaller', () => {
       {
         'demo:get-item': {
           type: 'query',
-          index: DEMO_QUERY_INDEX_PATH,
+          records: {
+            [hash(['a'])]: `${DEMO_QUERY_RECORDS_PATH}.ok.json`,
+            [hash(['boom'])]: `${DEMO_QUERY_RECORDS_PATH}.error.json`,
+          },
+          fallback: DEMO_QUERY_FALLBACK_PATH,
         },
       },
       async (path) => {
-        if (path === DEMO_QUERY_INDEX_PATH) {
-          return {
-            records: {
-              [hash(['a'])]: `${DEMO_QUERY_RECORDS_PATH}/ok.json`,
-              [hash(['boom'])]: `${DEMO_QUERY_RECORDS_PATH}/error.json`,
-            },
-            fallback: DEMO_QUERY_FALLBACK_PATH,
-          }
-        }
-        if (path.endsWith('/ok.json')) {
+        if (path.endsWith('.ok.json')) {
           return {
             inputs: ['a'],
             output: { id: 'a' },
           }
         }
-        if (path.endsWith('/error.json')) {
+        if (path.endsWith('.error.json')) {
           return {
             inputs: ['boom'],
             error: {
@@ -69,7 +57,7 @@ describe('createStaticRpcCaller', () => {
             },
           }
         }
-        if (path.endsWith('/fallback.json')) {
+        if (path.endsWith('.fallback.json')) {
           return {
             inputs: [],
             output: null,

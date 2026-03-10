@@ -7,7 +7,8 @@ export interface StaticRpcManifestStaticEntry {
 
 export interface StaticRpcManifestQueryEntry {
   type: 'query'
-  index: string
+  records: Record<string, string>
+  fallback?: string
 }
 
 export type StaticRpcManifestEntry
@@ -26,11 +27,6 @@ export interface StaticRpcRecord {
   }
 }
 
-export interface StaticRpcQueryIndex {
-  records: Record<string, string>
-  fallback?: string
-}
-
 function isStaticEntry(value: unknown): value is StaticRpcManifestStaticEntry {
   return typeof value === 'object'
     && value !== null
@@ -42,7 +38,8 @@ function isQueryEntry(value: unknown): value is StaticRpcManifestQueryEntry {
   return typeof value === 'object'
     && value !== null
     && (value as any).type === 'query'
-    && typeof (value as any).index === 'string'
+    && typeof (value as any).records === 'object'
+    && (value as any).records !== null
 }
 
 function isRecord(value: unknown): value is StaticRpcRecord {
@@ -65,7 +62,6 @@ export function createStaticRpcCaller(
   fetchJson: (path: string) => Promise<any>,
 ) {
   const staticCache = new Map<string, Promise<any>>()
-  const queryIndexCache = new Map<string, Promise<StaticRpcQueryIndex>>()
   const queryRecordCache = new Map<string, Promise<StaticRpcRecord>>()
 
   async function loadStatic(entry: StaticRpcManifestStaticEntry): Promise<any> {
@@ -77,13 +73,6 @@ export function createStaticRpcCaller(
       return resolveRecordOutput(data)
     }
     return data
-  }
-
-  async function loadQueryIndex(entry: StaticRpcManifestQueryEntry): Promise<StaticRpcQueryIndex> {
-    if (!queryIndexCache.has(entry.index)) {
-      queryIndexCache.set(entry.index, fetchJson(entry.index))
-    }
-    return await queryIndexCache.get(entry.index)!
   }
 
   async function loadQueryRecord(path: string): Promise<StaticRpcRecord> {
@@ -109,17 +98,16 @@ export function createStaticRpcCaller(
     }
 
     if (isQueryEntry(entry)) {
-      const index = await loadQueryIndex(entry)
       const argsHash = hash(args)
-      const recordPath = index.records[argsHash]
+      const recordPath = entry.records[argsHash]
 
       if (recordPath) {
         const record = await loadQueryRecord(recordPath)
         return resolveRecordOutput(record)
       }
 
-      if (index.fallback) {
-        const fallback = await loadQueryRecord(index.fallback)
+      if (entry.fallback) {
+        const fallback = await loadQueryRecord(entry.fallback)
         return resolveRecordOutput(fallback)
       }
 

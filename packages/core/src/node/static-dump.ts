@@ -1,10 +1,6 @@
 import type { RpcDumpRecord, RpcFunctionDefinitionAny } from '@vitejs/devtools-rpc'
 import {
-  DEVTOOLS_RPC_DUMP_QUERY_DIR,
-  DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME,
-  DEVTOOLS_RPC_DUMP_STATIC_DIR,
+  DEVTOOLS_RPC_DUMP_DIRNAME,
 } from '@vitejs/devtools-kit/constants'
 import { dumpFunctions, getRpcHandler } from '@vitejs/devtools-rpc'
 
@@ -15,7 +11,8 @@ export interface StaticRpcDumpManifestStaticEntry {
 
 export interface StaticRpcDumpManifestQueryEntry {
   type: 'query'
-  index: string
+  records: Record<string, string>
+  fallback?: string
 }
 
 export type StaticRpcDumpManifestValue
@@ -30,24 +27,20 @@ export interface StaticRpcDumpCollection {
   files: Record<string, any>
 }
 
-function encodeName(name: string): string {
-  return encodeURIComponent(name)
+function makeDumpKey(name: string): string {
+  return encodeURIComponent(name.replaceAll(':', '~'))
 }
 
 function makeStaticPath(name: string): string {
-  return `${DEVTOOLS_RPC_DUMP_STATIC_DIR}/${encodeName(name)}.json`
-}
-
-function makeQueryIndexPath(name: string): string {
-  return `${DEVTOOLS_RPC_DUMP_QUERY_DIR}/${encodeName(name)}/${DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME}`
+  return `${DEVTOOLS_RPC_DUMP_DIRNAME}/${makeDumpKey(name)}.static.json`
 }
 
 function makeQueryRecordPath(name: string, hash: string): string {
-  return `${DEVTOOLS_RPC_DUMP_QUERY_DIR}/${encodeName(name)}/${DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME}/${hash}.json`
+  return `${DEVTOOLS_RPC_DUMP_DIRNAME}/${makeDumpKey(name)}.record.${hash}.json`
 }
 
 function makeQueryFallbackPath(name: string): string {
-  return `${DEVTOOLS_RPC_DUMP_QUERY_DIR}/${encodeName(name)}/${DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME}`
+  return `${DEVTOOLS_RPC_DUMP_DIRNAME}/${makeDumpKey(name)}.fallback.json`
 }
 
 async function resolveRecord(record: RpcDumpRecord | (() => Promise<RpcDumpRecord>)): Promise<RpcDumpRecord> {
@@ -87,11 +80,8 @@ export async function collectStaticRpcDump(
     if (!(definition.name in store.definitions))
       continue
 
-    const indexPath = makeQueryIndexPath(definition.name)
-    const index: {
-      records: Record<string, string>
-      fallback?: string
-    } = {
+    const queryEntry: StaticRpcDumpManifestQueryEntry = {
+      type: 'query',
       records: {},
     }
 
@@ -107,23 +97,19 @@ export async function collectStaticRpcDump(
       if (key === 'fallback') {
         const path = makeQueryFallbackPath(definition.name)
         files[path] = record
-        index.fallback = path
+        queryEntry.fallback = path
       }
       else {
         const path = makeQueryRecordPath(definition.name, key)
         files[path] = record
-        index.records[key] = path
+        queryEntry.records[key] = path
       }
     }
 
-    if (!Object.keys(index.records).length && !index.fallback)
+    if (!Object.keys(queryEntry.records).length && !queryEntry.fallback)
       continue
 
-    files[indexPath] = index
-    manifest[definition.name] = {
-      type: 'query',
-      index: indexPath,
-    }
+    manifest[definition.name] = queryEntry
   }
 
   return {

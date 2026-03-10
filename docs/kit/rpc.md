@@ -115,8 +115,11 @@ When using `vite devtools build` to create a static DevTools build, the server c
 #### How It Works
 
 1. At build time, `dumpFunctions()` executes your RPC handlers with predefined arguments
-2. Results are stored in `.vdt-rpc-dump.json` in the build output
+2. Results are stored in `.rpc-dump/index.json` in the build output
 3. The static client reads from this JSON file instead of making live RPC calls
+
+Dump shard files are written to `.rpc-dump/*.json`. Function names in shard file keys replace `:` with `~` (for example `my-plugin:get-data` -> `my-plugin~get-data`).
+Query record maps are embedded directly in `.rpc-dump/index.json`; no per-function index files are generated.
 
 #### Static Functions (Recommended)
 

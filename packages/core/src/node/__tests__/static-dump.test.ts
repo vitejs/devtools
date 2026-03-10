@@ -1,11 +1,5 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import {
-  DEVTOOLS_RPC_DUMP_QUERY_DIR,
-  DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME,
-  DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME,
-  DEVTOOLS_RPC_DUMP_STATIC_DIR,
-} from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_RPC_DUMP_DIRNAME } from '@vitejs/devtools-kit/constants'
 import { describe, expect, it } from 'vitest'
 import { collectStaticRpcDump } from '../static-dump'
 
@@ -18,7 +12,7 @@ describe('collectStaticRpcDump', () => {
     })
 
     const result = await collectStaticRpcDump([getVersion], {})
-    const expectedPath = `${DEVTOOLS_RPC_DUMP_STATIC_DIR}/test%3Aget-version.json`
+    const expectedPath = `${DEVTOOLS_RPC_DUMP_DIRNAME}/test~get-version.static.json`
 
     expect(result.manifest['test:get-version']).toEqual({
       type: 'static',
@@ -44,26 +38,28 @@ describe('collectStaticRpcDump', () => {
     })
 
     const result = await collectStaticRpcDump([getItem], {})
-    const basePath = `${DEVTOOLS_RPC_DUMP_QUERY_DIR}/test%3Aget-item`
-    const queryRecordsPath = `${basePath}/${DEVTOOLS_RPC_DUMP_QUERY_RECORDS_DIRNAME}/`
-    const manifest = result.manifest['test:get-item'] as { type: 'query', index: string }
-    const index = result.files[manifest.index] as {
+    const basePath = `${DEVTOOLS_RPC_DUMP_DIRNAME}/test~get-item`
+    const manifest = result.manifest['test:get-item'] as {
+      type: 'query'
       records: Record<string, string>
       fallback?: string
     }
 
     expect(manifest).toEqual({
       type: 'query',
-      index: `${basePath}/${DEVTOOLS_RPC_DUMP_QUERY_INDEX_FILENAME}`,
+      records: expect.any(Object),
+      fallback: `${basePath}.fallback.json`,
     })
-    expect(Object.keys(index.records)).toHaveLength(2)
-    expect(index.fallback).toBe(`${basePath}/${DEVTOOLS_RPC_DUMP_QUERY_FALLBACK_FILENAME}`)
+    expect(Object.keys(manifest.records)).toHaveLength(2)
 
-    const recordPaths = Object.values(index.records)
+    const recordPaths = Object.values(manifest.records)
     for (const path of recordPaths) {
-      expect(path.startsWith(queryRecordsPath)).toBe(true)
+      expect(path.startsWith(`${basePath}.record.`)).toBe(true)
+      expect(path.endsWith('.json')).toBe(true)
       expect(path in result.files).toBe(true)
     }
+
+    expect(Object.keys(result.files).some(path => path.endsWith('.index.json'))).toBe(false)
   })
 
   it('skips query functions without dump config', async () => {

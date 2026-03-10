@@ -8,7 +8,7 @@ import {
   DEVTOOLS_DIRNAME,
   DEVTOOLS_DOCK_IMPORTS_FILENAME,
   DEVTOOLS_MOUNT_PATH,
-  DEVTOOLS_RPC_DUMP_API_DIRNAME,
+  DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
@@ -104,7 +104,7 @@ export async function build(options: BuildOptions) {
     await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })
   }
 
-  await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_API_DIRNAME), { recursive: true })
+  await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(devtools.context.docks.values()), 'utf-8')
 
