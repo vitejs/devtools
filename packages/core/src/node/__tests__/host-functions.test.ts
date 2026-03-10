@@ -128,4 +128,22 @@ describe('rpcFunctionsHost', () => {
       expect(updateMissing).toThrow()
     })
   })
+
+  describe('broadcast() without rpc group', () => {
+    it('should not throw in build mode', async () => {
+      const host = new RpcFunctionsHost({ mode: 'build' } as DevToolsNodeContext)
+      await expect(host.broadcast({
+        method: 'devtoolskit:internal:terminals:updated',
+        args: [],
+      })).resolves.toBeUndefined()
+    })
+
+    it('should throw in dev mode', async () => {
+      const host = new RpcFunctionsHost({ mode: 'dev' } as DevToolsNodeContext)
+      await expect(host.broadcast({
+        method: 'devtoolskit:internal:terminals:updated',
+        args: [],
+      })).rejects.toThrow('RpcFunctionsHost] RpcGroup is not set')
+    })
+  })
 })

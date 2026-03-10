@@ -19,12 +19,12 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs",
-    "./client": "./dist/client.mjs",
-    "./constants": "./dist/constants.mjs",
-    "./utils/events": "./dist/utils/events.mjs",
-    "./utils/nanoid": "./dist/utils/nanoid.mjs",
-    "./utils/shared-state": "./dist/utils/shared-state.mjs",
+    ".": "./dist/index.js",
+    "./client": "./dist/client.js",
+    "./constants": "./dist/constants.js",
+    "./utils/events": "./dist/utils/events.js",
+    "./utils/nanoid": "./dist/utils/nanoid.js",
+    "./utils/shared-state": "./dist/utils/shared-state.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.mts",

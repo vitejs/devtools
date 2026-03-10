@@ -14,4 +14,5 @@ export default defineConfig({
   tsconfig: '../../tsconfig.base.json',
   dts: true,
   inlineOnly: false,
+  platform: 'neutral',
 })

@@ -28,8 +28,11 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
   >(
     options: RpcBroadcastOptions<T, Args>,
   ): Promise<void> {
-    if (!this._rpcGroup)
+    if (!this._rpcGroup) {
+      if (this.context.mode === 'build')
+        return
       throw new Error('RpcFunctionsHost] RpcGroup is not set, it likely to be an internal bug of Vite DevTools')
+    }
 
     debugBroadcast(JSON.stringify(options.method))
 

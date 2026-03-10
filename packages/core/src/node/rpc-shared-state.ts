@@ -41,7 +41,7 @@ export function createRpcSharedStateServerHost(
     }
   }
 
-  return {
+  const host: RpcSharedStateHost = {
     get: async <T extends object>(key: string, options?: RpcSharedStateGetOptions<T>) => {
       if (sharedState.has(key)) {
         return sharedState.get(key)!
@@ -58,5 +58,10 @@ export function createRpcSharedStateServerHost(
       sharedState.set(key, state)
       return state
     },
+    keys() {
+      return Array.from(sharedState.keys())
+    },
   }
+
+  return host
 }

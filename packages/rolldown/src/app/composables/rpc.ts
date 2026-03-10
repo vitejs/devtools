@@ -3,6 +3,7 @@ import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
 import { useRuntimeConfig } from '#app/nuxt'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
 
 export const connectionState = reactive<{
@@ -20,7 +21,7 @@ export async function connect() {
   try {
     rpc.value = await getDevToolsRpcClient({
       baseURL: [
-        '/.devtools/',
+        DEVTOOLS_MOUNT_PATH,
         runtimeConfig.app.baseURL,
       ],
       connectionMeta: runtimeConfig.app.connection,

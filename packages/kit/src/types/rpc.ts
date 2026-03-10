@@ -51,4 +51,5 @@ export interface RpcSharedStateGetOptions<T> {
 
 export interface RpcSharedStateHost {
   get: <T extends keyof DevToolsRpcSharedStates>(key: T, options?: RpcSharedStateGetOptions<DevToolsRpcSharedStates[T]>) => Promise<SharedState<DevToolsRpcSharedStates[T]>>
+  keys: () => string[]
 }
