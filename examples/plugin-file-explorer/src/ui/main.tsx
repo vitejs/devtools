@@ -12,8 +12,6 @@ const rpcPromise = getDevToolsRpcClient()
 
 interface FileExplorerInfo {
   rootDir: string
-  generatedAt: string
-  fileCount: number
 }
 
 interface FileEntry {
@@ -181,7 +179,7 @@ function App() {
         <header className="border-b border-slate-200 px-4 py-3 backdrop-blur-sm dark:border-slate-700">
           <h1 className="m-0 text-lg font-semibold sm:text-xl">File Explorer</h1>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Stat label="Files" value={info.fileCount} />
+            <Stat label="Files" value={files.length} />
             <Stat label="Root" value={info.rootDir} />
             <Stat label="Backend" value={isStaticMode ? 'static' : 'websocket'} />
           </div>
@@ -260,8 +258,6 @@ function App() {
                   Size:
                   {' '}
                   {formatBytes(detail.size)}
-                  {' · Generated: '}
-                  {new Date(info.generatedAt).toLocaleString()}
                 </div>
                 {!isStaticMode && (
                   <div className="flex gap-2">

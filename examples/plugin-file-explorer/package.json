@@ -29,6 +29,8 @@
     "tinyglobby": "catalog:deps"
   },
   "devDependencies": {
+    "@types/react": "catalog:types",
+    "@types/react-dom": "catalog:types",
     "react": "catalog:frontend",
     "react-dom": "catalog:frontend",
     "serve": "catalog:devtools",

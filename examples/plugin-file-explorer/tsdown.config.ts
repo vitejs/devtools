@@ -4,7 +4,6 @@ export default defineConfig({
   entry: {
     index: 'src/node/index.ts',
   },
-  tsconfig: '../../tsconfig.base.json',
   clean: true,
   dts: true,
   format: 'esm',
