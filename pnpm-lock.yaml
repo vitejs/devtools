@@ -549,7 +549,7 @@ importers:
         specifier: catalog:docs
         version: 2.0.17(mermaid@11.12.3)(vitepress@2.0.0-alpha.16(@types/node@25.0.3)(@vitejs/devtools@packages+core)(change-case@5.4.4)(esbuild@0.27.3)(fuse.js@7.1.0)(idb-keyval@6.2.2)(jiti@2.6.1)(oxc-minify@0.112.0)(postcss@8.5.6)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
 
-  examples/plugin-basic:
+  examples/plugin-file-explorer:
     dependencies:
       '@vitejs/devtools':
         specifier: workspace:*
@@ -576,6 +576,9 @@ importers:
       tsdown:
         specifier: catalog:build
         version: 0.20.3(@vitejs/devtools@packages+core)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+      unocss:
+        specifier: catalog:build
+        version: 66.6.5(@unocss/webpack@66.6.5(webpack@5.104.1(esbuild@0.27.3)))(vite@8.0.0-beta.16(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       vite:
         specifier: ^8.0.0-beta.16
         version: 8.0.0-beta.16(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)

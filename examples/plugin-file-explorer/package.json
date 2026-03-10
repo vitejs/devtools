@@ -1,5 +1,5 @@
 {
-  "name": "example-plugin-basic",
+  "name": "example-plugin-file-explorer",
   "type": "module",
   "version": "0.0.0",
   "private": true,
@@ -33,6 +33,7 @@
     "react-dom": "catalog:frontend",
     "serve": "catalog:devtools",
     "tsdown": "catalog:build",
+    "unocss": "catalog:build",
     "vite": "catalog:build"
   }
 }
