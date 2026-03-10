@@ -4,10 +4,10 @@ import { createRoot } from 'react-dom/client'
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
 
-const GET_INFO_RPC = 'kit-plugin-file-explorer:getInfo'
-const LIST_FILES_RPC = 'kit-plugin-file-explorer:listFiles'
-const READ_FILE_RPC = 'kit-plugin-file-explorer:readFile'
-const WRITE_FILE_RPC = 'kit-plugin-file-explorer:writeFile'
+const GET_INFO_RPC = 'plugin-file-explorer:getInfo'
+const LIST_FILES_RPC = 'plugin-file-explorer:listFiles'
+const READ_FILE_RPC = 'plugin-file-explorer:readFile'
+const WRITE_FILE_RPC = 'plugin-file-explorer:writeFile'
 const rpcPromise = getDevToolsRpcClient()
 
 interface FileExplorerInfo {
@@ -74,9 +74,7 @@ function App() {
         if (!active)
           return
 
-        const sortedFiles = filesValue
-          .slice()
-          .sort((a, b) => a.path.localeCompare(b.path))
+        const sortedFiles = filesValue.toSorted((a, b) => a.path.localeCompare(b.path))
 
         setInfo(infoValue)
         setFiles(sortedFiles)

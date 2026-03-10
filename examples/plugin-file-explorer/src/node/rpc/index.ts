@@ -1,8 +1,8 @@
 import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { fileExplorerGetInfo } from './functions/file-explorer-get-info'
-import { fileExplorerListFiles } from './functions/file-explorer-list-files'
-import { fileExplorerReadFile } from './functions/file-explorer-read-file'
-import { fileExplorerWriteFile } from './functions/file-explorer-write-file'
+import { fileExplorerGetInfo } from './functions/get-info'
+import { fileExplorerListFiles } from './functions/list-files'
+import { fileExplorerReadFile } from './functions/read-file'
+import { fileExplorerWriteFile } from './functions/write-file'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [

@@ -6,12 +6,12 @@ import { resolveSafePath } from '../../utils'
 import { getFileExplorerOptions } from '../context'
 
 export const fileExplorerReadFile = defineRpcFunction<
-  'kit-plugin-file-explorer:readFile',
+  'plugin-file-explorer:readFile',
   'query',
   [path: string],
   Promise<FileExplorerFileDetail | null>
 >({
-  name: 'kit-plugin-file-explorer:readFile',
+  name: 'plugin-file-explorer:readFile',
   type: 'query',
   setup: async (context) => {
     return {
@@ -45,7 +45,7 @@ export const fileExplorerReadFile = defineRpcFunction<
     }
   },
   dump: async (context) => {
-    const files = await context.rpc.invokeLocal('kit-plugin-file-explorer:listFiles') as FileExplorerFileEntry[]
+    const files = await context.rpc.invokeLocal('plugin-file-explorer:listFiles') as FileExplorerFileEntry[]
     return {
       inputs: files.map(file => [file.path] as [string]),
     }

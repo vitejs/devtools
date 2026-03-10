@@ -34,7 +34,7 @@ export function createKitPluginFileExplorerDevToolsPlugin(options: KitPluginFile
 
         context.views.hostStatic(uiBase, resolve(iframeDist))
         context.docks.register({
-          id: 'kit-plugin-file-explorer:file-explorer',
+          id: 'plugin-file-explorer:file-explorer',
           title: 'File Explorer',
           icon: 'ph:folder-open-duotone',
           type: 'iframe',

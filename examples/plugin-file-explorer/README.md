@@ -19,10 +19,10 @@ The example has three main parts:
 - registers a dock entry (`type: 'iframe'`) for the panel
 
 2. RPC functions (`src/node/rpc/functions/*`)
-- `kit-plugin-file-explorer:getInfo` (`type: 'static'`)
-- `kit-plugin-file-explorer:listFiles` (`type: 'query'`, dumped with empty args)
-- `kit-plugin-file-explorer:readFile` (`type: 'query'`, fallback `null`)
-- `kit-plugin-file-explorer:writeFile` (`type: 'action'`, dev-only behavior)
+- `plugin-file-explorer:getInfo` (`type: 'static'`)
+- `plugin-file-explorer:listFiles` (`type: 'query'`, dumped with empty args)
+- `plugin-file-explorer:readFile` (`type: 'query'`, fallback `null`)
+- `plugin-file-explorer:writeFile` (`type: 'action'`, dev-only behavior)
 
 3. UI app (`src/ui/main.tsx`)
 - connects using `getDevToolsRpcClient()`
