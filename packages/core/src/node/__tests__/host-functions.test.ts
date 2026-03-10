@@ -146,4 +146,24 @@ describe('rpcFunctionsHost', () => {
       })).rejects.toThrow('RpcFunctionsHost] RpcGroup is not set')
     })
   })
+
+  describe('invokeLocal()', () => {
+    it('should invoke a locally registered function', async () => {
+      const host = new RpcFunctionsHost(mockContext)
+      host.register(defineRpcFunction({
+        name: 'test:invoke-local',
+        type: 'query',
+        setup: () => ({
+          handler: async (a: number, b: number) => a + b,
+        }),
+      }))
+
+      await expect(host.invokeLocal('test:invoke-local' as any, 2, 3)).resolves.toBe(5)
+    })
+
+    it('should throw when invoking a missing local function', async () => {
+      const host = new RpcFunctionsHost(mockContext)
+      await expect(host.invokeLocal('test:missing' as any)).rejects.toThrow('RPC function "test:missing" is not registered')
+    })
+  })
 })

@@ -119,6 +119,24 @@ export async function build(options: BuildOptions) {
     await fs.writeFile(fullpath, JSON.stringify(data, null, 2), 'utf-8')
   }
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME), JSON.stringify(dump.manifest, null, 2), 'utf-8')
+  await fs.writeFile(
+    resolve(outDir, 'index.html'),
+    [
+      '<!doctype html>',
+      '<html lang="en">',
+      '<head>',
+      '  <meta charset="UTF-8">',
+      '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      '  <title>Vite DevTools</title>',
+      `  <meta http-equiv="refresh" content="0; url=${DEVTOOLS_MOUNT_PATH}">`,
+      '</head>',
+      '<body>',
+      `  <script>location.replace(${JSON.stringify(DEVTOOLS_MOUNT_PATH)})</script>`,
+      '</body>',
+      '</html>',
+    ].join('\n'),
+    'utf-8',
+  )
 
   console.log(c.green`${MARK_NODE} Built to ${relative(devtools.config.root, outDir)}`)
   console.warn(c.yellow`${MARK_NODE} Static build is still experimental and not yet complete.`)

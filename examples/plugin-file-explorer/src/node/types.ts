@@ -23,3 +23,8 @@ export interface KitPluginFileExplorerOptions {
   uiBase?: string
   targetDir?: string
 }
+
+export interface KitPluginFileExplorerResolvedOptions {
+  uiBase: string
+  targetDir: string
+}

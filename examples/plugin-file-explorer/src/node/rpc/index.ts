@@ -1,13 +1,19 @@
-import { createFileExplorerGetInfoRpc } from './functions/file-explorer-get-info'
-import { createFileExplorerListFilesRpc } from './functions/file-explorer-list-files'
-import { createFileExplorerReadFileRpc } from './functions/file-explorer-read-file'
-import { createFileExplorerWriteFileRpc } from './functions/file-explorer-write-file'
+import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import { fileExplorerGetInfo } from './functions/file-explorer-get-info'
+import { fileExplorerListFiles } from './functions/file-explorer-list-files'
+import { fileExplorerReadFile } from './functions/file-explorer-read-file'
+import { fileExplorerWriteFile } from './functions/file-explorer-write-file'
+import '@vitejs/devtools-kit'
 
-export function createFileExplorerRpcFunctions(targetDir: string) {
-  return [
-    createFileExplorerGetInfoRpc(targetDir),
-    createFileExplorerListFilesRpc(targetDir),
-    createFileExplorerReadFileRpc(targetDir),
-    createFileExplorerWriteFileRpc(targetDir),
-  ] as const
+export const rpcFunctions = [
+  fileExplorerGetInfo,
+  fileExplorerListFiles,
+  fileExplorerReadFile,
+  fileExplorerWriteFile,
+] as const
+
+export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
+
+declare module '@vitejs/devtools-kit' {
+  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
 }

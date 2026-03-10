@@ -10,6 +10,7 @@
     "noEmit": true,
     "outDir": "./dist",
     "sourceMap": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "isolatedDeclarations": false
   }
 }

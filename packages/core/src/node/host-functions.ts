@@ -22,6 +22,23 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
   sharedState: RpcSharedStateHost
 
+  async invokeLocal<
+    T extends keyof DevToolsRpcServerFunctions,
+    Args extends Parameters<DevToolsRpcServerFunctions[T]>,
+  >(
+    method: T,
+    ...args: Args
+  ): Promise<Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>> {
+    if (!this.definitions.has(method as string)) {
+      throw new Error(`RPC function "${String(method)}" is not registered`)
+    }
+
+    const handler = await this.getHandler(method)
+    return await Promise.resolve(
+      (handler as (...args: Args) => ReturnType<DevToolsRpcServerFunctions[T]>)(...args),
+    ) as Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>
+  }
+
   async broadcast<
     T extends keyof DevToolsRpcClientFunctions,
     Args extends Parameters<DevToolsRpcClientFunctions[T]>,
