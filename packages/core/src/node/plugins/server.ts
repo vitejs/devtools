@@ -1,5 +1,9 @@
 import type { ClientScriptEntry, DevToolsDockEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
+import {
+  DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
+  DEVTOOLS_MOUNT_PATH,
+} from '@vitejs/devtools-kit/constants'
 import { createDevToolsContext } from '../context'
 import { createDevToolsMiddleware } from '../server'
 import '../rpc'
@@ -48,15 +52,15 @@ export function DevToolsServer(): Plugin {
         hostWebSocket: host,
         context,
       })
-      viteDevServer.middlewares.use('/.devtools/', middleware)
+      viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
     },
     resolveId(id) {
-      if (id === '/.devtools-imports') {
+      if (id === DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID) {
         return id
       }
     },
     load(id) {
-      if (id === '/.devtools-imports') {
+      if (id === DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID) {
         if (!context) {
           throw new Error('DevTools context is not initialized')
         }

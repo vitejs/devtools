@@ -22,6 +22,19 @@ export interface RpcBroadcastOptions<METHOD, Args extends any[]> {
 
 export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFunctions, DevToolsNodeContext> & {
   /**
+   * Invoke a locally registered server RPC function directly.
+   *
+   * This bypasses transport and is useful for server-side cross-function calls.
+   */
+  invokeLocal: <
+    T extends keyof DevToolsRpcServerFunctions,
+    Args extends Parameters<DevToolsRpcServerFunctions[T]>,
+  >(
+    method: T,
+    ...args: Args
+  ) => Promise<Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>>
+
+  /**
    * Broadcast a message to all connected clients
    */
   broadcast: <
@@ -51,4 +64,5 @@ export interface RpcSharedStateGetOptions<T> {
 
 export interface RpcSharedStateHost {
   get: <T extends keyof DevToolsRpcSharedStates>(key: T, options?: RpcSharedStateGetOptions<DevToolsRpcSharedStates[T]>) => Promise<SharedState<DevToolsRpcSharedStates[T]>>
+  keys: () => string[]
 }

@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 import Inspect from 'vite-plugin-inspect'
 import { alias } from '../../../alias'
@@ -60,6 +61,10 @@ export default defineNuxtConfig({
       },
     },
     sourceMap: false,
+  },
+
+  unocss: {
+    configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
   },
 
   app: {

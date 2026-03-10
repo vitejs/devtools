@@ -8,6 +8,7 @@ trustPolicyExclude:
 
 packages:
   - packages/*
+  - examples/*
   - docs
 
 catalogs:
@@ -70,6 +71,7 @@ catalogs:
     eslint: ^10.0.3
     lint-staged: ^16.3.3
     nuxt-eslint-auto-explicit-import: ^0.1.1
+    serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
@@ -100,6 +102,8 @@ catalogs:
     modern-monaco: ^0.4.0
     my-ua-parser: ^2.0.4
     nanovis: ^1.0.0
+    react: ^19.2.0
+    react-dom: ^19.2.0
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
     vite-hot-client: ^2.1.0
@@ -140,6 +144,8 @@ catalogs:
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/diff': ^8.0.0
+    '@types/react': ^19.2.14
+    '@types/react-dom': ^19.2.3
     '@types/split2': ^4.2.3
     '@types/splitpanes': ^2.2.6
     '@types/stream-json': ^1.7.8

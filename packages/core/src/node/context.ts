@@ -64,7 +64,7 @@ export async function createDevToolsContext(
   // Register hosts side effects
   docksHost.events.on('dock:entry:updated', debounce(() => {
     docksSharedState.mutate(() => context.docks.values())
-  }, 10))
+  }, context.mode === 'build' ? 0 : 10))
 
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
     rpcHost.broadcast({
@@ -72,7 +72,8 @@ export async function createDevToolsContext(
       args: [],
     })
     docksSharedState.mutate(() => context.docks.values())
-  }, 10))
+  }, context.mode === 'build' ? 0 : 10))
+
   terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
     rpcHost.broadcast({
       method: 'devtoolskit:internal:terminals:stream-chunk',

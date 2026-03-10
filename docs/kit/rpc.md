@@ -44,19 +44,16 @@ const getModules = defineRpcFunction({
 })
 ```
 
-### Registering Functions
+### Naming Convention
 
-Register your RPC function in the `devtools.setup`:
+Recommended RPC function naming:
 
-```ts
-const plugin: Plugin = {
-  devtools: {
-    setup(ctx) {
-      ctx.rpc.register(getModules)
-    }
-  }
-}
-```
+1. Scope functions with your package prefix: `<package-name>:...`
+2. Use kebab-case for the function part after `:`
+
+Examples:
+- `my-plugin:get-modules`
+- `my-plugin:read-file`
 
 ### Function Types
 
@@ -108,6 +105,20 @@ setup: (ctx) => {
 > [!IMPORTANT]
 > For build mode compatibility, compute data in the setup function using the context rather than relying on runtime global state. This allows the dump feature to pre-compute results at build time.
 
+### Registering Functions
+
+Register your RPC function in the `devtools.setup`:
+
+```ts
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+      ctx.rpc.register(getModules)
+    }
+  }
+}
+```
+
 ### Dump Feature for Build Mode
 
 When using `vite devtools build` to create a static DevTools build, the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
@@ -115,8 +126,11 @@ When using `vite devtools build` to create a static DevTools build, the server c
 #### How It Works
 
 1. At build time, `dumpFunctions()` executes your RPC handlers with predefined arguments
-2. Results are stored in `.vdt-rpc-dump.json` in the build output
+2. Results are stored in `.rpc-dump/index.json` in the build output
 3. The static client reads from this JSON file instead of making live RPC calls
+
+Dump shard files are written to `.rpc-dump/*.json`. Function names in shard file keys replace `:` with `~` (for example `my-plugin:get-data` -> `my-plugin~get-data`).
+Query record maps are embedded directly in `.rpc-dump/index.json`; no per-function index files are generated.
 
 #### Static Functions (Recommended)
 
@@ -197,6 +211,109 @@ const getLiveMetrics = defineRpcFunction({
 
 > [!TIP]
 > If your data genuinely needs live server state, use `type: 'query'` without dumps. The function will work in dev mode but gracefully fail in build mode.
+
+### Organization Convention
+
+For plugin-scale RPC modules, we recommend this structure:
+
+General guidelines:
+
+1. Keep function definitions small and focused: one RPC function per file.
+2. Use `src/node/rpc/index.ts` as the single composition point for registration and type augmentation.
+3. Store plugin-specific runtime options in `src/node/rpc/context.ts` (instead of mutating the base DevTools context object).
+4. Use `context.rpc.invokeLocal(...)` for server-side cross-function composition.
+
+Rough file tree:
+
+```text
+src/node/rpc/
+├─ index.ts                # exports rpcFunctions + module augmentation
+├─ context.ts              # WeakMap-backed helpers (set/get shared rpc context)
+└─ functions/
+   ├─ get-info.ts          # metadata-style query/static function
+   ├─ list-files.ts        # list operation, reusable by other functions
+   ├─ read-file.ts         # can invoke `list-files` via invokeLocal
+   └─ write-file.ts        # mutation-oriented function
+```
+
+1. `src/node/rpc/index.ts`
+Keep all RPC declarations in one exported list (for example `rpcFunctions`) and centralize type augmentation (`DevToolsRpcServerFunctions`) in the same file.
+
+```ts
+// src/node/rpc/index.ts
+import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import { getInfo } from './functions/get-info'
+import { listFiles } from './functions/list-files'
+import { readFile } from './functions/read-file'
+import '@vitejs/devtools-kit'
+
+export const rpcFunctions = [
+  getInfo,
+  listFiles,
+  readFile,
+] as const // use `as const` to allow type inference
+
+export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
+
+declare module '@vitejs/devtools-kit' {
+  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+}
+```
+
+2. `src/node/rpc/context.ts`
+Use a shared context helper (for example `WeakMap`-backed `set/get`) to provide plugin-specific options across RPC functions without mutating the base context shape.
+
+```ts
+// src/node/rpc/context.ts
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+
+const rpcContext = new WeakMap<DevToolsNodeContext, { targetDir: string }>()
+
+export function setRpcContext(context: DevToolsNodeContext, options: { targetDir: string }) {
+  rpcContext.set(context, options)
+}
+
+export function getRpcContext(context: DevToolsNodeContext) {
+  const value = rpcContext.get(context)
+  if (!value)
+    throw new Error('Missing RPC context')
+  return value
+}
+```
+
+```ts
+// plugin setup
+const plugin = {
+  devtools: {
+    setup(context) {
+      setRpcContext(context, { targetDir: 'src' })
+      rpcFunctions.forEach(fn => context.rpc.register(fn))
+    },
+  },
+}
+```
+
+3. `src/node/rpc/functions/read-file.ts`
+For cross-function calls on the server, use `context.rpc.invokeLocal('<package-name>:list-files')` rather than network-style calls.
+
+```ts
+// src/node/rpc/functions/read-file.ts
+export const readFile = defineRpcFunction({
+  name: 'my-plugin:read-file',
+  type: 'query',
+  dump: async (context) => {
+    const files = await context.rpc.invokeLocal('my-plugin:list-files')
+    return {
+      inputs: files.map(file => [file.path] as [string]),
+    }
+  },
+  setup: () => ({
+    handler: async (path: string) => {
+      // ...
+    },
+  }),
+})
+```
 
 ## Schema Validation (Optional)
 
