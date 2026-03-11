@@ -53,8 +53,8 @@
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",
     "eslint": "catalog:devtools",
-    "lint-staged": "catalog:devtools",
     "magic-string": "catalog:build",
+    "nano-staged": "catalog:devtools",
     "nuxt": "catalog:build",
     "nuxt-eslint-auto-explicit-import": "catalog:devtools",
     "p-limit": "catalog:deps",
@@ -89,9 +89,9 @@
     "vite": "catalog:build"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx lint-staged"
+    "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx nano-staged"
   },
-  "lint-staged": {
+  "nano-staged": {
     "*": "eslint --fix"
   }
 }
