@@ -15,6 +15,11 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
   ) {}
 
   add(input: DevToolsLogEntryInput): DevToolsLogEntry {
+    // Dedup: if an entry with the same explicit id exists, update it instead
+    if (input.id && this.entries.has(input.id)) {
+      return this.update(input.id, input)!
+    }
+
     const entry: DevToolsLogEntry = {
       ...input,
       id: input.id ?? nanoid(),
@@ -38,6 +43,39 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     }
 
     return entry
+  }
+
+  update(id: string, patch: Partial<DevToolsLogEntryInput>): DevToolsLogEntry | undefined {
+    const existing = this.entries.get(id)
+    if (!existing)
+      return undefined
+
+    const updated: DevToolsLogEntry = {
+      ...existing,
+      ...patch,
+      id: existing.id,
+      source: existing.source,
+      timestamp: existing.timestamp,
+    }
+
+    this.entries.set(id, updated)
+    this.events.emit('log:updated', updated)
+
+    // Reset autoDelete timer if changed
+    if (patch.autoDelete !== undefined) {
+      const timer = this._autoDeleteTimers.get(id)
+      if (timer) {
+        clearTimeout(timer)
+        this._autoDeleteTimers.delete(id)
+      }
+      if (patch.autoDelete) {
+        this._autoDeleteTimers.set(id, setTimeout(() => {
+          this.remove(id)
+        }, patch.autoDelete))
+      }
+    }
+
+    return updated
   }
 
   remove(id: string): void {

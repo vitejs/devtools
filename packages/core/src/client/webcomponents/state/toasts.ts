@@ -15,9 +15,18 @@ export function useToasts(): Reactive<ToastItem[]> {
 }
 
 export function addToast(entry: DevToolsLogEntry): void {
-  // Avoid duplicates
-  if (toasts.some(t => t.id === entry.id))
+  // Dedup: update existing toast with same id
+  const existing = toasts.find(t => t.id === entry.id)
+  if (existing) {
+    existing.entry = entry
+    // Reset auto-dismiss timer
+    const timer = timers.get(entry.id)
+    if (timer)
+      clearTimeout(timer)
+    const timeout = entry.autoDismiss ?? 5000
+    timers.set(entry.id, setTimeout(dismissToast, timeout, entry.id))
     return
+  }
 
   const item: ToastItem = { id: entry.id, entry }
   toasts.push(item)

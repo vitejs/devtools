@@ -94,6 +94,7 @@ export async function createDevToolsContext(
   }, context.mode === 'build' ? 0 : 10)
 
   logsHost.events.on('log:added', () => debouncedLogsUpdate())
+  logsHost.events.on('log:updated', () => debouncedLogsUpdate())
   logsHost.events.on('log:removed', () => debouncedLogsUpdate())
   logsHost.events.on('log:cleared', () => debouncedLogsUpdate())
 

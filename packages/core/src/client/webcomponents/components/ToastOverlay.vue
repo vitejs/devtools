@@ -51,8 +51,13 @@ function openLogs(toastId: string) {
           @click="openLogs(toast.id)"
         >
           <DockIcon
+            v-if="toast.entry.status !== 'loading'"
             :icon="levelIcons[toast.entry.level] || 'ph:info-duotone'"
             class="w-4 h-4 flex-none mt-0.5"
+          />
+          <div
+            v-else
+            class="w-4 h-4 flex-none mt-0.5 border-2 border-current border-t-transparent rounded-full animate-spin op50"
           />
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium truncate">

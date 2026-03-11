@@ -64,7 +64,7 @@ const allLabels = computed(() => {
         labels.add(label)
     }
   }
-  return labels.toSorted()
+  return Array.from(labels).sort()
 })
 
 const filteredEntries = computed(() => {
@@ -191,12 +191,17 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           @click="selectedId = selectedId === entry.id ? null : entry.id"
         >
           <DockIcon
+            v-if="entry.status !== 'loading'"
             :icon="levelIcons[entry.level]"
             class="w-4 h-4 flex-none mt-0.5"
             :class="levelColors[entry.level]"
           />
+          <div
+            v-else
+            class="w-4 h-4 flex-none mt-0.5 border-2 border-current border-t-transparent rounded-full animate-spin op50"
+          />
           <div class="flex-1 min-w-0">
-            <div class="truncate font-medium">
+            <div class="truncate font-medium" :class="entry.status === 'loading' ? 'op60' : ''">
               {{ entry.message }}
             </div>
             <div class="flex items-center gap-2 mt-0.5">
@@ -226,12 +231,17 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
       <div v-if="selectedEntry" class="h-full of-y-auto border-l border-base p-4">
         <div class="flex items-start gap-2 mb-3">
           <DockIcon
+            v-if="selectedEntry.status !== 'loading'"
             :icon="levelIcons[selectedEntry.level]"
             class="w-5 h-5 flex-none mt-0.5"
             :class="levelColors[selectedEntry.level]"
           />
+          <div
+            v-else
+            class="w-5 h-5 flex-none mt-0.5 border-2 border-current border-t-transparent rounded-full animate-spin op50"
+          />
           <div class="flex-1">
-            <div class="font-medium text-base">
+            <div class="font-medium text-base" :class="selectedEntry.status === 'loading' ? 'op60' : ''">
               {{ selectedEntry.message }}
             </div>
             <div v-if="selectedEntry.source" class="text-xs op50 mt-0.5">

@@ -90,6 +90,11 @@ export interface DevToolsLogEntry {
    * Timestamp when the log was created (auto-generated if not provided)
    */
   timestamp: number
+  /**
+   * Status of the log entry (e.g., 'loading' while an operation is in progress).
+   * Defaults to 'idle' when not specified.
+   */
+  status?: 'loading' | 'idle'
 }
 
 /**
@@ -105,14 +110,19 @@ export interface DevToolsLogsHost {
   readonly entries: Map<string, DevToolsLogEntry>
   readonly events: EventEmitter<{
     'log:added': (entry: DevToolsLogEntry) => void
+    'log:updated': (entry: DevToolsLogEntry) => void
     'log:removed': (id: string) => void
     'log:cleared': () => void
   }>
 
   /**
-   * Add a new log entry
+   * Add a new log entry. If an entry with the same `id` already exists, it will be updated instead.
    */
   add: (entry: DevToolsLogEntryInput) => DevToolsLogEntry
+  /**
+   * Update an existing log entry by id (partial update)
+   */
+  update: (id: string, patch: Partial<DevToolsLogEntryInput>) => DevToolsLogEntry | undefined
   /**
    * Remove a log entry by id
    */

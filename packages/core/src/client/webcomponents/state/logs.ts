@@ -20,21 +20,32 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
     unreadCount: 0,
   })
 
+  const prevEntryMap = new Map<string, DevToolsLogEntry>()
+
   async function updateLogs() {
     const logs = await context.rpc.call('devtoolskit:internal:logs:list')
-    const prevCount = state.entries.length
-    state.entries = logs
-    const newCount = Math.max(0, logs.length - prevCount)
-    state.unreadCount += newCount
+    let newCount = 0
 
-    // Show toast notifications for new entries with notify flag
-    if (newCount > 0) {
-      const newEntries = logs.slice(logs.length - newCount)
-      for (const entry of newEntries) {
+    for (const entry of logs) {
+      const prev = prevEntryMap.get(entry.id)
+      if (!prev) {
+        // New entry
+        newCount++
         if (entry.notify)
           addToast(entry)
       }
+      else if (entry.notify && entry !== prev && JSON.stringify(entry) !== JSON.stringify(prev)) {
+        // Updated entry with notify flag — update the toast
+        addToast(entry)
+      }
     }
+
+    state.entries = logs
+    state.unreadCount += newCount
+
+    prevEntryMap.clear()
+    for (const entry of logs)
+      prevEntryMap.set(entry.id, entry)
   }
 
   context.rpc.client.register({

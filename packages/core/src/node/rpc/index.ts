@@ -7,6 +7,7 @@ import { logsAutofix } from './internal/logs-autofix'
 import { logsClear } from './internal/logs-clear'
 import { logsList } from './internal/logs-list'
 import { logsRemove } from './internal/logs-remove'
+import { logsUpdate } from './internal/logs-update'
 import { rpcServerList } from './internal/rpc-server-list'
 import { sharedStateGet } from './internal/state/get'
 import { sharedStatePatch } from './internal/state/patch'
@@ -35,6 +36,7 @@ export const builtinInternalRpcDeclarations = [
   logsClear,
   logsList,
   logsRemove,
+  logsUpdate,
   rpcServerList,
   sharedStateGet,
   sharedStatePatch,
