@@ -36,7 +36,7 @@ function showOverflowPanel() {
   isOverflowPanelVisible.value = true
   setDocksOverflowPanel({
     content: () => h('div', {
-      class: 'flex gap-0 flex-wrap max-w-200px',
+      class: 'flex gap-0 flex-wrap max-w-220px',
     }, [
       h(DockEntriesWithCategories, {
         context: props.context,
