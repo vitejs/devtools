@@ -81,8 +81,6 @@ function resolveColorMode(): ColorMode {
 
 function applyPopupColorMode(popup: Window, mode: ColorMode) {
   popup.document.documentElement?.style.setProperty('color-scheme', mode)
-  if (popupDockElement)
-    popupDockElement.style.colorScheme = mode
 }
 
 function setupPopupColorModeSync(popup: Window): () => void {
