@@ -881,6 +881,43 @@ importers:
         specifier: catalog:deps
         version: 8.19.0
 
+  packages/self-inspect:
+    dependencies:
+      '@vitejs/devtools-kit':
+        specifier: workspace:*
+        version: link:../kit
+      '@vitejs/devtools-rpc':
+        specifier: workspace:*
+        version: link:../rpc
+      birpc:
+        specifier: catalog:deps
+        version: 4.0.0
+      pathe:
+        specifier: catalog:deps
+        version: 2.0.3
+    devDependencies:
+      '@unocss/nuxt':
+        specifier: catalog:build
+        version: 66.6.6(magicast@0.5.2)(vite@8.0.0-beta.18(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.104.1(esbuild@0.27.3))
+      '@vueuse/core':
+        specifier: catalog:frontend
+        version: 14.2.1(vue@3.5.30(typescript@5.9.3))
+      '@vueuse/nuxt':
+        specifier: catalog:build
+        version: 14.2.1(magicast@0.5.2)(nuxt@4.3.1(@parcel/watcher@2.5.1)(@types/node@25.0.3)(@vue/compiler-sfc@3.5.30)(cac@6.7.14)(db0@0.3.4)(eslint@10.0.3(jiti@2.6.1))(idb-keyval@6.2.2)(ioredis@5.9.1)(magicast@0.5.2)(optionator@0.9.4)(rolldown@1.0.0-rc.8)(rollup@4.55.1)(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@8.0.0-beta.18(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.2.5(typescript@5.9.3))(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
+      structured-clone-es:
+        specifier: catalog:deps
+        version: 1.0.0
+      tsdown:
+        specifier: catalog:build
+        version: 0.21.1(@vitejs/devtools@packages+core)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+      unocss:
+        specifier: catalog:build
+        version: 66.6.6(@unocss/webpack@66.6.6(webpack@5.104.1(esbuild@0.27.3)))(vite@8.0.0-beta.18(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      vite-hot-client:
+        specifier: catalog:frontend
+        version: 2.1.0(vite@8.0.0-beta.18(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+
   packages/ui:
     dependencies:
       '@vueuse/core':

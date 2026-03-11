@@ -1,0 +1,50 @@
+{
+  "name": "@vitejs/devtools-self-inspect",
+  "type": "module",
+  "version": "0.0.0-alpha.34",
+  "description": "DevTools for inspecting the DevTools itself",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/self-inspect",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "devtools",
+    "self-inspect"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./dirs": "./dist/dirs.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm dev:prepare && nuxi build src && tsdown",
+    "dev": "nuxi dev src",
+    "dev:prepare": "nuxi prepare src",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-rpc": "workspace:*",
+    "birpc": "catalog:deps",
+    "pathe": "catalog:deps"
+  },
+  "devDependencies": {
+    "@unocss/nuxt": "catalog:build",
+    "@vueuse/core": "catalog:frontend",
+    "@vueuse/nuxt": "catalog:build",
+    "structured-clone-es": "catalog:deps",
+    "tsdown": "catalog:build",
+    "unocss": "catalog:build",
+    "vite-hot-client": "catalog:frontend"
+  }
+}
