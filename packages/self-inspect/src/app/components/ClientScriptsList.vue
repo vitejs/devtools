@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientScriptInfo } from '~~/node/rpc/functions/get-client-scripts'
+import type { ClientScriptInfo } from '../../types'
 
 defineProps<{
   scripts: ClientScriptInfo[]

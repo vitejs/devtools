@@ -1,12 +1,5 @@
-import type { ClientScriptEntry } from '@vitejs/devtools-kit'
+import type { ClientScriptInfo } from '../../../types'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-
-export interface ClientScriptInfo {
-  dockId: string
-  dockTitle: string
-  dockType: string
-  script: ClientScriptEntry
-}
 
 export const getClientScripts = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-client-scripts',

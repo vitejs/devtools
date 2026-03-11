@@ -1,14 +1,5 @@
+import type { DevtoolsPluginInfo } from '../../../types'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-
-export interface DevtoolsPluginInfo {
-  name: string
-  hasDevtools: boolean
-  hasSetup: boolean
-  capabilities?: {
-    dev?: unknown
-    build?: unknown
-  }
-}
 
 export const getDevtoolsPlugins = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-devtools-plugins',
