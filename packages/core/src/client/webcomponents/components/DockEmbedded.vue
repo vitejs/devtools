@@ -30,5 +30,5 @@ onUnmounted(() => {
     </template>
   </Dock>
   <FloatingElements v-if="!isDockPopupOpen" />
-  <ToastOverlay />
+  <ToastOverlay :context />
 </template>

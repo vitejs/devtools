@@ -80,5 +80,5 @@ function switchEntry(id: string | undefined) {
     </div>
   </div>
   <FloatingElements />
-  <ToastOverlay />
+  <ToastOverlay :context />
 </template>

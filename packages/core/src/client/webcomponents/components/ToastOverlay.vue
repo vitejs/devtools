@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { dismissToast, useToasts } from '../state/toasts'
 import DockIcon from './DockIcon.vue'
+
+const props = defineProps<{
+  context?: DocksContext
+}>()
 
 const toasts = useToasts()
 
@@ -19,6 +24,11 @@ const levelIcons: Record<string, string> = {
   success: 'ph:check-circle-duotone',
   debug: 'ph:bug-duotone',
 }
+
+function openLogs(toastId: string) {
+  dismissToast(toastId)
+  props.context?.docks.switchEntry('~logs')
+}
 </script>
 
 <template>
@@ -36,8 +46,9 @@ const levelIcons: Record<string, string> = {
         <div
           v-for="toast of toasts"
           :key="toast.id"
-          class="bg-base border border-base rounded-lg shadow-lg flex items-start gap-2 px-3 py-2 border-l-3"
+          class="bg-base border border-base rounded-lg shadow-lg flex items-start gap-2 px-3 py-2 border-l-3 cursor-pointer"
           :class="levelColors[toast.entry.level] || 'border-gray'"
+          @click="openLogs(toast.id)"
         >
           <DockIcon
             :icon="levelIcons[toast.entry.level] || 'ph:info-duotone'"
@@ -53,7 +64,7 @@ const levelIcons: Record<string, string> = {
           </div>
           <button
             class="flex-none op50 hover:op100 p-0.5"
-            @click="dismissToast(toast.id)"
+            @click.stop="dismissToast(toast.id)"
           >
             <DockIcon icon="ph:x" class="w-3 h-3" />
           </button>

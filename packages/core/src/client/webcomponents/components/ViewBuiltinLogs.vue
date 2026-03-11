@@ -38,6 +38,7 @@ const levelBorderColors: Record<DevToolsLogLevel, string> = {
 const search = ref('')
 const selectedId = ref<string | null>(null)
 const activeFilters = ref<Set<DevToolsLogLevel>>(new Set())
+const activeLabelFilters = ref<Set<string>>(new Set())
 
 function toggleFilter(level: DevToolsLogLevel) {
   const filters = activeFilters.value
@@ -47,10 +48,31 @@ function toggleFilter(level: DevToolsLogLevel) {
     filters.add(level)
 }
 
+function toggleLabelFilter(label: string) {
+  const filters = activeLabelFilters.value
+  if (filters.has(label))
+    filters.delete(label)
+  else
+    filters.add(label)
+}
+
+const allLabels = computed(() => {
+  const labels = new Set<string>()
+  for (const entry of logsState.entries) {
+    if (entry.labels) {
+      for (const label of entry.labels)
+        labels.add(label)
+    }
+  }
+  return labels.toSorted()
+})
+
 const filteredEntries = computed(() => {
   let entries = logsState.entries
   if (activeFilters.value.size > 0)
     entries = entries.filter(e => activeFilters.value.has(e.level))
+  if (activeLabelFilters.value.size > 0)
+    entries = entries.filter(e => e.labels?.some(l => activeLabelFilters.value.has(l)))
   if (search.value) {
     const q = search.value.toLowerCase()
     entries = entries.filter(e =>
@@ -111,7 +133,7 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
 <template>
   <div class="w-full h-full grid grid-rows-[max-content_1fr]">
     <!-- Toolbar -->
-    <div class="border-base border-b flex items-center gap-1 px-2 py-1">
+    <div class="border-base border-b flex flex-wrap items-center gap-1 px-2 py-1">
       <button
         v-for="level of allLevels"
         :key="level"
@@ -123,6 +145,18 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
       >
         <DockIcon :icon="levelIcons[level]" class="w-3.5 h-3.5" />
         <span class="capitalize">{{ level }}</span>
+      </button>
+      <div v-if="allLabels.length > 0" class="border-l border-base h-4 mx-0.5" />
+      <button
+        v-for="label of allLabels"
+        :key="label"
+        class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
+        :class="[
+          activeLabelFilters.size === 0 || activeLabelFilters.has(label) ? 'text-purple bg-purple/10' : 'op30',
+        ]"
+        @click="toggleLabelFilter(label)"
+      >
+        {{ label }}
       </button>
       <div class="flex-1" />
       <input
@@ -146,10 +180,10 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
         <div v-if="filteredEntries.length === 0" class="flex items-center justify-center h-full op50 text-sm">
           No logs
         </div>
-        <button
+        <div
           v-for="entry of filteredEntries"
           :key="entry.id"
-          class="w-full text-left px-3 py-2 border-b border-base hover:bg-active flex items-start gap-2 transition border-l-2 text-sm"
+          class="w-full text-left px-3 py-2 border-b border-base hover:bg-active flex items-start gap-2 transition border-l-2 text-sm group cursor-pointer"
           :class="[
             levelBorderColors[entry.level],
             selectedId === entry.id ? 'bg-active' : '',
@@ -179,12 +213,13 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
             <span class="text-xs op40">{{ formatTime(entry.timestamp) }}</span>
             <button
               class="op0 group-hover:op50 hover:op100! p-0.5 rounded hover:bg-active"
+              title="Dismiss"
               @click.stop="removeEntry(entry.id)"
             >
               <DockIcon icon="ph:x" class="w-3 h-3" />
             </button>
           </div>
-        </button>
+        </div>
       </div>
 
       <!-- Detail panel -->
@@ -203,7 +238,7 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
               {{ selectedEntry.source }}
             </div>
           </div>
-          <button class="op50 hover:op100 p-1" @click="selectedId = null">
+          <button class="op50 hover:op100 p-1" title="Close detail" @click="selectedId = null">
             <DockIcon icon="ph:x" class="w-4 h-4" />
           </button>
         </div>
@@ -252,15 +287,26 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           <pre class="text-xs bg-gray/5 rounded p-2 of-x-auto whitespace-pre-wrap font-mono">{{ selectedEntry.stacktrace }}</pre>
         </div>
 
-        <!-- Autofix -->
-        <button
-          v-if="selectedEntry.autofix"
-          class="flex items-center gap-1.5 text-sm bg-purple/10 text-purple px-3 py-1.5 rounded hover:bg-purple/20 transition"
-          @click="runAutofix(selectedEntry!)"
-        >
-          <DockIcon icon="ph:wrench-duotone" class="w-4 h-4" />
-          Autofix
-        </button>
+        <!-- Actions -->
+        <div class="flex gap-2">
+          <!-- Autofix -->
+          <button
+            v-if="selectedEntry.autofix"
+            class="flex items-center gap-1.5 text-sm bg-purple/10 text-purple px-3 py-1.5 rounded hover:bg-purple/20 transition"
+            @click="runAutofix(selectedEntry!)"
+          >
+            <DockIcon icon="ph:wrench-duotone" class="w-4 h-4" />
+            Autofix
+          </button>
+          <!-- Dismiss -->
+          <button
+            class="flex items-center gap-1.5 text-sm op50 hover:op100 px-3 py-1.5 rounded hover:bg-active transition"
+            @click="removeEntry(selectedEntry!.id)"
+          >
+            <DockIcon icon="ph:trash-duotone" class="w-4 h-4" />
+            Dismiss
+          </button>
+        </div>
       </div>
     </div>
   </div>
