@@ -12,6 +12,7 @@ type ColorMode = 'dark' | 'light'
 interface DockPopupEvents {
   'popup:open-requested': (context: DocksContext) => void
 }
+type MainFrameDockActionHandler = (entryId: string) => Promise<boolean> | boolean
 
 const PANEL_MIN_SIZE = 20
 const PANEL_MAX_SIZE = 100
@@ -19,6 +20,7 @@ const POPUP_MIN_WIDTH = 320
 const POPUP_MIN_HEIGHT = 240
 const POPUP_DOCK_ID = '~popup'
 const POPUP_WINDOW_ATTRIBUTE = 'data-vite-devtools-popup-window'
+const MAIN_FRAME_ACTION_HANDLER_KEY = '__VITE_DEVTOOLS_TRIGGER_DOCK_ACTION__'
 
 const popupWindow = shallowRef<Window | null>(null)
 const isPopupOpen = shallowRef(false)
@@ -196,6 +198,40 @@ export function isRunningInDockPopupWindow(): boolean {
   if (typeof window === 'undefined')
     return false
   return !!window.document?.documentElement?.hasAttribute?.(POPUP_WINDOW_ATTRIBUTE)
+}
+
+export function registerMainFrameDockActionHandler(
+  handler: MainFrameDockActionHandler,
+) {
+  if (typeof window === 'undefined') {
+    return
+  }
+  if (isRunningInDockPopupWindow()) {
+    return
+  }
+  ;(window as Window & { [MAIN_FRAME_ACTION_HANDLER_KEY]?: MainFrameDockActionHandler })[MAIN_FRAME_ACTION_HANDLER_KEY] = handler
+}
+
+export async function triggerMainFrameDockAction(
+  entryId: string,
+): Promise<boolean | undefined> {
+  if (typeof window === 'undefined')
+    return undefined
+  if (!isRunningInDockPopupWindow())
+    return undefined
+
+  try {
+    const opener = window.opener as (Window & { [MAIN_FRAME_ACTION_HANDLER_KEY]?: MainFrameDockActionHandler }) | null
+    if (!opener || opener.closed)
+      return undefined
+    const handler = opener[MAIN_FRAME_ACTION_HANDLER_KEY]
+    if (typeof handler !== 'function')
+      return undefined
+    return await handler(entryId)
+  }
+  catch {
+    return undefined
+  }
 }
 
 export function isDockPopupEntryVisible(): boolean {
