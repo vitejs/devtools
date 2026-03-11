@@ -8,7 +8,7 @@ export const DEVTOOLS_DIRNAME = '.devtools'
 export const DEVTOOLS_CONNECTION_META_FILENAME = '.connection.json'
 export const DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME = '.rpc-dump/index.json'
 export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '.client-imports.js'
-export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools/client-imports'
+export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools-client-imports.js'
 export const DEVTOOLS_RPC_DUMP_DIRNAME = '.rpc-dump'
 
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {

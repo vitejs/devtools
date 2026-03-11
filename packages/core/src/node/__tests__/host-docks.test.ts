@@ -5,6 +5,16 @@ import { DevToolsDockHost } from '../host-docks'
 describe('devToolsDockHost', () => {
   const mockContext = {} as DevToolsNodeContext
 
+  describe('builtin entries', () => {
+    it('includes popup in builtin docks', () => {
+      const host = new DevToolsDockHost(mockContext)
+      const builtinEntries = host.values().filter(entry => entry.type === '~builtin')
+      const builtinIds = builtinEntries.map(entry => entry.id)
+
+      expect(builtinIds).toContain('~popup')
+    })
+  })
+
   describe('register() collision detection', () => {
     it('should register a new dock successfully', () => {
       const host = new DevToolsDockHost(mockContext)
