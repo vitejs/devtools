@@ -63,7 +63,7 @@ export interface DevToolsNodeContext {
    */
   terminals: DevToolsTerminalHost
   /**
-   * Logs host, for emitting structured log entries
+   * Logs host, for emitting and managing structured log entries
    */
   logs: DevToolsLogsHost
 }

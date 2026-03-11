@@ -7,6 +7,7 @@ import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
+import { createClientLogsClient } from './logs-client'
 import { registerMainFrameDockActionHandler, requestDockPopupOpen, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
@@ -80,6 +81,7 @@ export async function createDocksContext(
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
+        logs: createClientLogsClient(rpc, entry.id),
       })
       await executeSetupScript(entry, scriptContext)
     }

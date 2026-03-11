@@ -106,6 +106,26 @@ export type DevToolsLogEntryInput = Omit<DevToolsLogEntry, 'id' | 'timestamp' | 
   timestamp?: number
 }
 
+export interface DevToolsLogHandle {
+  /** The underlying log entry data */
+  readonly entry: DevToolsLogEntry
+  /** Shortcut to entry.id */
+  readonly id: string
+  /** Partial update of this log entry */
+  update: (patch: Partial<DevToolsLogEntryInput>) => Promise<DevToolsLogEntry | undefined>
+  /** Remove this log entry */
+  dismiss: () => Promise<void>
+}
+
+export interface DevToolsLogsClient {
+  /** Add a log entry, returns a handle for subsequent updates/dismissal */
+  add: (input: DevToolsLogEntryInput) => Promise<DevToolsLogHandle>
+  /** Remove a log entry by id */
+  remove: (id: string) => Promise<void>
+  /** Clear all log entries */
+  clear: () => Promise<void>
+}
+
 export interface DevToolsLogsHost {
   readonly entries: Map<string, DevToolsLogEntry>
   readonly events: EventEmitter<{

@@ -25,48 +25,41 @@ The Logs system allows plugins to emit structured log entries from both the serv
 | `labels` | `string[]` | No | Tags for filtering |
 | `autoDismiss` | `number` | No | Time in ms to auto-dismiss the toast (default: 5000) |
 | `autoDelete` | `number` | No | Time in ms to auto-delete the log entry |
+| `status` | `'loading' \| 'idle'` | No | Status indicator (shows spinner when `'loading'`) |
+| `id` | `string` | No | Explicit id for deduplication — re-adding with the same id updates the existing entry |
 
 ## Server-Side Usage
 
-In your plugin's `devtools.setup`, use `context.logs` to emit log entries:
+In your plugin's `devtools.setup`, use `context.logs` to emit log entries. The `add()` method returns a **handle** with `.update()` and `.dismiss()` helpers:
 
 ```ts
 export function myPlugin() {
   return {
     name: 'my-plugin',
     devtools: {
-      setup(context) {
+      async setup(context) {
         // Simple log
-        context.logs.add({
+        await context.logs.add({
           message: 'Plugin initialized',
           level: 'info',
         })
 
-        // Warning with file position
-        context.logs.add({
-          message: 'Deprecated API usage detected',
-          level: 'warn',
-          description: 'The `foo()` API is deprecated. Use `bar()` instead.',
-          filePosition: { file: 'src/app.ts', line: 42, column: 5 },
-          category: 'lint',
+        // Log with loading state, then update
+        const log = await context.logs.add({
+          message: 'Building...',
+          level: 'info',
+          status: 'loading',
         })
 
-        // Error with stack trace
-        context.logs.add({
-          message: 'Build failed',
-          level: 'error',
-          stacktrace: error.stack,
-          category: 'build',
-        })
-
-        // Short notification
-        context.logs.add({
-          message: 'Configuration reloaded',
+        // Later, update via the handle
+        await log.update({
+          message: 'Build complete',
           level: 'success',
-          notify: true,
-          autoDismiss: 3000,
-          autoDelete: 10000,
+          status: 'idle',
         })
+
+        // Or dismiss it
+        await log.dismiss()
       },
     },
   }
@@ -77,27 +70,54 @@ The `source` field is automatically set to the plugin name.
 
 ## Client-Side Usage
 
-From client-side code (running in the user's browser), emit logs via the RPC client:
+In dock action scripts, use `context.logs` — the same API as on the server:
 
 ```ts
-import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-const client = await getDevToolsRpcClient()
+export default async function (context: DockClientScriptContext) {
+  const log1 = await context.logs.add({
+    message: 'Running audit...',
+    level: 'info',
+    status: 'loading',
+    notify: true,
+    category: 'a11y',
+  })
 
-await client.call('devtoolskit:internal:logs:add', {
-  message: 'Accessibility issue: missing alt text',
-  level: 'warn',
-  description: 'Images should have alt attributes for screen readers.',
-  elementPosition: {
-    selector: 'img.hero-image',
-    description: 'Hero image in the header',
-  },
-  category: 'a11y',
-  labels: ['wcag-2.1', 'images'],
-}, 'axe-plugin')
+  // ... do work ...
+
+  await log1.update({
+    message: 'Audit complete — 3 issues found',
+    level: 'warn',
+    status: 'idle',
+  })
+}
 ```
 
-The second argument to `logs:add` is the `source` identifier.
+The `source` is automatically set to the dock entry id.
+
+## Log Handle
+
+`context.logs.add()` returns a `DevToolsLogHandle` with:
+
+| Property/Method | Description |
+|-----------------|-------------|
+| `handle.id` | The log entry id |
+| `handle.entry` | The current `DevToolsLogEntry` data |
+| `handle.update(patch)` | Partially update the log entry |
+| `handle.dismiss()` | Remove the log entry |
+
+## Deduplication
+
+When you call `context.logs.add()` with an explicit `id` that already exists, the existing entry is **updated** instead of duplicated. This is useful for logs that represent ongoing operations:
+
+```ts
+// First call creates the entry
+await context.logs.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
+
+// Second call with same id updates it
+await context.logs.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
+```
 
 ## Autofix
 
@@ -118,7 +138,7 @@ context.rpc.register(defineRpcFunction({
   }),
 }))
 
-context.logs.add({
+await context.logs.add({
   message: 'Deprecated API usage',
   level: 'warn',
   autofix: { type: 'rpc', name: 'my-plugin:fix-deprecated-api' },
@@ -130,7 +150,7 @@ context.logs.add({
 For server-side plugins, you can pass a function directly:
 
 ```ts
-context.logs.add({
+await context.logs.add({
   message: 'Missing configuration',
   level: 'warn',
   autofix: async () => {
@@ -144,7 +164,7 @@ context.logs.add({
 Set `notify: true` to show the log entry as a toast notification overlay. Toasts appear regardless of whether the Logs panel is open.
 
 ```ts
-context.logs.add({
+await context.logs.add({
   message: 'URL copied to clipboard',
   level: 'success',
   notify: true,
@@ -157,11 +177,11 @@ The default auto-dismiss time for toasts is 5 seconds.
 ## Managing Logs
 
 ```ts
-// Remove a specific log
-context.logs.remove(entry.id)
+// Remove a specific log by id
+await context.logs.remove(entryId)
 
 // Clear all logs
-context.logs.clear()
+await context.logs.clear()
 ```
 
 Logs have a maximum capacity of 1000 entries. When the limit is reached, the oldest entries are automatically removed.
