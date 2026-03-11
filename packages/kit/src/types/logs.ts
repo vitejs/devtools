@@ -1,0 +1,124 @@
+import type { EventEmitter } from './events'
+
+export type DevToolsLogLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
+
+export interface DevToolsLogElementPosition {
+  /** CSS selector for the element */
+  selector?: string
+  /** Bounding box of the element */
+  boundingBox?: { x: number, y: number, width: number, height: number }
+  /** Human-readable description of the element */
+  description?: string
+}
+
+export interface DevToolsLogFilePosition {
+  /** Absolute or relative file path */
+  file: string
+  /** Line number (1-based) */
+  line?: number
+  /** Column number (1-based) */
+  column?: number
+}
+
+export interface DevToolsLogAutofixRpc {
+  /** Autofix via a registered RPC function */
+  type: 'rpc'
+  /** Name of the registered RPC function to invoke */
+  name: string
+}
+
+export type DevToolsLogAutofix = DevToolsLogAutofixRpc | (() => void | Promise<void>)
+
+export interface DevToolsLogEntry {
+  /**
+   * Unique identifier for this log entry (auto-generated if not provided)
+   */
+  id: string
+  /**
+   * Short title or summary of the log
+   */
+  message: string
+  /**
+   * Optional detailed description or explanation
+   */
+  description?: string
+  /**
+   * Severity level, determines color and icon
+   */
+  level: DevToolsLogLevel
+  /**
+   * Optional stack trace string
+   */
+  stacktrace?: string
+  /**
+   * Optional DOM element position info (e.g., for a11y issues)
+   */
+  elementPosition?: DevToolsLogElementPosition
+  /**
+   * Optional source file position info (e.g., for lint errors)
+   */
+  filePosition?: DevToolsLogFilePosition
+  /**
+   * Optional autofix action — either an RPC function reference or a callback
+   */
+  autofix?: DevToolsLogAutofix
+  /**
+   * Whether this log should also appear as a toast notification
+   */
+  notify?: boolean
+  /**
+   * Identifier of the plugin or module that emitted this log
+   */
+  source: string
+  /**
+   * Grouping category (e.g., 'a11y', 'lint', 'runtime', 'test')
+   */
+  category?: string
+  /**
+   * Optional tags/labels for filtering
+   */
+  labels?: string[]
+  /**
+   * Time in ms to auto-dismiss the toast notification (client-side)
+   */
+  autoDismiss?: number
+  /**
+   * Time in ms to auto-delete this log entry (server-side)
+   */
+  autoDelete?: number
+  /**
+   * Timestamp when the log was created (auto-generated if not provided)
+   */
+  timestamp: number
+}
+
+/**
+ * Input type for creating a log entry.
+ * `id`, `timestamp`, and `source` are auto-filled by the host.
+ */
+export type DevToolsLogEntryInput = Omit<DevToolsLogEntry, 'id' | 'timestamp' | 'source'> & {
+  id?: string
+  timestamp?: number
+}
+
+export interface DevToolsLogsHost {
+  readonly entries: Map<string, DevToolsLogEntry>
+  readonly events: EventEmitter<{
+    'log:added': (entry: DevToolsLogEntry) => void
+    'log:removed': (id: string) => void
+    'log:cleared': () => void
+  }>
+
+  /**
+   * Add a new log entry
+   */
+  add: (entry: DevToolsLogEntryInput) => DevToolsLogEntry
+  /**
+   * Remove a log entry by id
+   */
+  remove: (id: string) => void
+  /**
+   * Clear all log entries
+   */
+  clear: () => void
+}

@@ -48,7 +48,13 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         title: 'Logs',
         icon: 'ph:notification-duotone',
         category: '~builtin',
-        isHidden: true, // TODO: implement logs
+        get isHidden() {
+          return context.logs.entries.size === 0
+        },
+        get badge() {
+          const size = context.logs.entries.size
+          return size > 0 ? String(size) : undefined
+        },
       },
       {
         type: '~builtin',

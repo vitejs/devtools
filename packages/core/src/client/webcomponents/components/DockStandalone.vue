@@ -6,6 +6,7 @@ import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import FloatingElements from './FloatingElements.vue'
 import VitePlus from './icons/VitePlus.vue'
+import ToastOverlay from './ToastOverlay.vue'
 import ViewBuiltinClientAuthNotice from './ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from './ViewEntry.vue'
 
@@ -79,4 +80,5 @@ function switchEntry(id: string | undefined) {
     </div>
   </div>
   <FloatingElements />
+  <ToastOverlay />
 </template>

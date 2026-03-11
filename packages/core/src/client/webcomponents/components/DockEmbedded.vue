@@ -5,6 +5,7 @@ import { closeDockPopup, useIsDockPopupOpen } from '../state/popup'
 import Dock from './Dock.vue'
 import DockPanel from './DockPanel.vue'
 import FloatingElements from './FloatingElements.vue'
+import ToastOverlay from './ToastOverlay.vue'
 
 defineProps<{
   context: DocksContext
@@ -29,4 +30,5 @@ onUnmounted(() => {
     </template>
   </Dock>
   <FloatingElements v-if="!isDockPopupOpen" />
+  <ToastOverlay />
 </template>

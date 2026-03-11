@@ -38,6 +38,10 @@ export interface DevToolsDockEntryBase {
    * @default false
    */
   isHidden?: boolean
+  /**
+   * Badge text to display on the dock icon (e.g., unread count)
+   */
+  badge?: string
 }
 
 export interface ClientScriptEntry {
