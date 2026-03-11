@@ -4,4 +4,5 @@ export interface DevToolsDocksUserSettings {
   docksPinned: string[]
   docksCustomOrder: Record<string, number>
   showIframeAddressBar: boolean
+  closeOnOutsideClick: boolean
 }
