@@ -19,7 +19,6 @@ const PANEL_MAX_SIZE = 100
 const POPUP_MIN_WIDTH = 320
 const POPUP_MIN_HEIGHT = 240
 const POPUP_DOCK_ID = '~popup'
-const POPUP_WINDOW_ATTRIBUTE = 'data-vite-devtools-popup-window'
 const MAIN_FRAME_ACTION_HANDLER_KEY = '__VITE_DEVTOOLS_TRIGGER_DOCK_ACTION__'
 
 const popupWindow = shallowRef<Window | null>(null)
@@ -81,9 +80,9 @@ function resolveColorMode(): ColorMode {
 }
 
 function applyPopupColorMode(popup: Window, mode: ColorMode) {
-  popup.document.documentElement?.setAttribute('data-vite-devtools-color-mode', mode)
   popup.document.documentElement?.style.setProperty('color-scheme', mode)
-  popupDockElement?.setAttribute('data-vite-devtools-color-mode', mode)
+  if (popupDockElement)
+    popupDockElement.style.colorScheme = mode
 }
 
 function setupPopupColorModeSync(popup: Window): () => void {
@@ -177,7 +176,6 @@ async function mountStandaloneApp(context: DocksContext, popup: Window) {
   ].join('\n')
 
   popup.document.title = 'Vite DevTools'
-  popup.document.documentElement?.setAttribute(POPUP_WINDOW_ATTRIBUTE, '')
   popup.document.head?.appendChild(baseStyle)
   popup.document.body.textContent = ''
 
@@ -194,30 +192,26 @@ export function isDockPopupSupported(): boolean {
   return !!getDocumentPictureInPicture()?.requestWindow
 }
 
-export function isRunningInDockPopupWindow(): boolean {
-  if (typeof window === 'undefined')
-    return false
-  return !!window.document?.documentElement?.hasAttribute?.(POPUP_WINDOW_ATTRIBUTE)
-}
-
 export function registerMainFrameDockActionHandler(
+  clientType: 'embedded' | 'standalone',
   handler: MainFrameDockActionHandler,
 ) {
   if (typeof window === 'undefined') {
     return
   }
-  if (isRunningInDockPopupWindow()) {
+  if (clientType === 'standalone') {
     return
   }
   ;(window as Window & { [MAIN_FRAME_ACTION_HANDLER_KEY]?: MainFrameDockActionHandler })[MAIN_FRAME_ACTION_HANDLER_KEY] = handler
 }
 
 export async function triggerMainFrameDockAction(
+  clientType: 'embedded' | 'standalone',
   entryId: string,
 ): Promise<boolean | undefined> {
   if (typeof window === 'undefined')
     return undefined
-  if (!isRunningInDockPopupWindow())
+  if (clientType !== 'standalone')
     return undefined
 
   try {
@@ -234,8 +228,8 @@ export async function triggerMainFrameDockAction(
   }
 }
 
-export function isDockPopupEntryVisible(): boolean {
-  return isDockPopupSupported() && !isPopupOpen.value && !isRunningInDockPopupWindow()
+export function isDockPopupEntryVisible(clientType: 'embedded' | 'standalone'): boolean {
+  return isDockPopupSupported() && !isPopupOpen.value && clientType !== 'standalone'
 }
 
 export function filterPopupDockEntry(
