@@ -75,7 +75,7 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
-const isPopupEntryVisible = computed(() => isDockPopupEntryVisible())
+const isPopupEntryVisible = computed(() => isDockPopupEntryVisible(context.clientType))
 const groupedEntries = computed(() => {
   if (isPopupEntryVisible.value)
     return context.docks.groupedEntries
