@@ -46,17 +46,12 @@
     "immer": "catalog:deps"
   },
   "devDependencies": {
-    "my-ua-parser": "catalog:frontend",
     "tsdown": "catalog:build",
+    "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
   },
   "inlinedDependencies": {
     "ohash": "2.0.11",
-    "@vue/shared": "3.5.30",
-    "@vue/reactivity": "3.5.30",
-    "@vue/runtime-core": "3.5.30",
-    "csstype": "3.2.3",
-    "@vue/runtime-dom": "3.5.30",
-    "vue": "3.5.30"
+    "ua-parser-modern": "0.1.1"
   }
 }

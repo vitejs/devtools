@@ -3,7 +3,7 @@ import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
 import { createRpcClient } from '@vitejs/devtools-rpc/client'
 import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
-import { UAParser } from 'my-ua-parser'
+import { parseUA } from 'ua-parser-modern'
 import { promiseWithResolver } from '../utils/promise'
 
 export interface CreateWsRpcClientModeOptions {
@@ -55,7 +55,7 @@ export function createWsRpcClientMode(
     if (isTrusted)
       return true
 
-    const info = new UAParser(navigator.userAgent).getResult()
+    const info = parseUA(navigator.userAgent)
     const ua = [
       info.browser.name,
       info.browser.version,

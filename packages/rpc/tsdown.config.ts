@@ -13,5 +13,4 @@ export default defineConfig({
   clean: true,
   dts: true,
   exports: true,
-  inlineOnly: false,
 })

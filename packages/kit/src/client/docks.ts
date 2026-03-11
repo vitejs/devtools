@@ -1,5 +1,4 @@
 import type { RpcFunctionsCollector } from '@vitejs/devtools-rpc'
-import type { Raw } from 'vue'
 import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
@@ -82,7 +81,7 @@ export interface DockEntryState {
     iframe?: HTMLIFrameElement | null
     panel?: HTMLDivElement | null
   }
-  events: Raw<EventEmitter<DockEntryStateEvents>>
+  events: EventEmitter<DockEntryStateEvents>
 }
 
 export interface DockEntryStateEvents {

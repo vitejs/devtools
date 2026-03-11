@@ -28,8 +28,8 @@ catalogs:
       specifier: ^4.21.0
       version: 4.21.0
     turbo:
-      specifier: ^2.8.15
-      version: 2.8.15
+      specifier: ^2.8.16
+      version: 2.8.16
     unocss:
       specifier: ^66.6.6
       version: 66.6.6
@@ -229,17 +229,14 @@ catalogs:
     modern-monaco:
       specifier: ^0.4.0
       version: 0.4.0
-    my-ua-parser:
-      specifier: ^2.0.4
-      version: 2.0.4
     nanovis:
       specifier: ^1.0.0
       version: 1.0.0
     react:
-      specifier: ^19.2.0
+      specifier: ^19.2.4
       version: 19.2.4
     react-dom:
-      specifier: ^19.2.0
+      specifier: ^19.2.4
       version: 19.2.4
     splitpanes:
       specifier: ^4.0.4
@@ -247,6 +244,9 @@ catalogs:
     theme-vitesse:
       specifier: ^1.0.0
       version: 1.0.0
+    ua-parser-modern:
+      specifier: ^0.1.0
+      version: 0.1.1
     vite-hot-client:
       specifier: ^2.1.0
       version: 2.1.0
@@ -254,8 +254,8 @@ catalogs:
       specifier: ^3.5.30
       version: 3.5.30
     vue-virtual-scroller:
-      specifier: ^2.0.0-beta.8
-      version: 2.0.0-beta.8
+      specifier: ^2.0.0-beta.9
+      version: 2.0.0-beta.9
   icons:
     '@iconify-json/carbon':
       specifier: ^1.2.19
@@ -285,14 +285,14 @@ catalogs:
       specifier: ^1.2.10
       version: 1.2.10
     '@iconify-json/simple-icons':
-      specifier: ^1.2.72
-      version: 1.2.72
+      specifier: ^1.2.73
+      version: 1.2.73
     '@iconify-json/svg-spinners':
       specifier: ^1.2.4
       version: 1.2.4
     '@iconify-json/tabler':
-      specifier: ^1.2.30
-      version: 1.2.30
+      specifier: ^1.2.31
+      version: 1.2.31
   inlined:
     '@antfu/utils':
       specifier: ^9.3.0
@@ -415,13 +415,13 @@ importers:
         version: 1.2.10
       '@iconify-json/simple-icons':
         specifier: catalog:icons
-        version: 1.2.72
+        version: 1.2.73
       '@iconify-json/svg-spinners':
         specifier: catalog:icons
         version: 1.2.4
       '@iconify-json/tabler':
         specifier: catalog:icons
-        version: 1.2.30
+        version: 1.2.31
       '@nuxt/devtools':
         specifier: ^3.2.3
         version: 3.2.3(vite@8.0.0-beta.18(@types/node@25.0.3)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))
@@ -493,7 +493,7 @@ importers:
         version: 4.21.0
       turbo:
         specifier: catalog:build
-        version: 2.8.15
+        version: 2.8.16
       typescript:
         specifier: catalog:devtools
         version: 5.9.3
@@ -692,12 +692,12 @@ importers:
         specifier: catalog:deps
         version: 11.1.4
     devDependencies:
-      my-ua-parser:
-        specifier: catalog:frontend
-        version: 2.0.4
       tsdown:
         specifier: catalog:build
         version: 0.21.1(@vitejs/devtools@packages+core)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+      ua-parser-modern:
+        specifier: catalog:frontend
+        version: 0.1.1
       vite:
         specifier: ^8.0.0-beta.18
         version: 8.0.0-beta.18(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.27.3)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
@@ -778,7 +778,7 @@ importers:
         version: 1.17.4(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)
       vue-virtual-scroller:
         specifier: catalog:frontend
-        version: 2.0.0-beta.8(vue@3.5.30(typescript@5.9.3))
+        version: 2.0.0-beta.9(vue@3.5.30(typescript@5.9.3))
       ws:
         specifier: catalog:deps
         version: 8.19.0
@@ -1565,11 +1565,14 @@ packages:
   '@iconify-json/simple-icons@1.2.72':
     resolution: {integrity: sha512-wkcixntHvaCoqPqerGrNFcHQ3Yx1ux4ZkhscCDK0DEHpP62XCH+cxq1HTsRjbUiQl/M9K8bj03HF6Wgn5iE2rQ==}
 
+  '@iconify-json/simple-icons@1.2.73':
+    resolution: {integrity: sha512-nQZTwul4c2zBqH/aLP4zMOiElj93T6HawbrP+sFQKpxmBdS5x1duCK3cAnkj6dntHz84EYkzaQRM83V2pj4qxA==}
+
   '@iconify-json/svg-spinners@1.2.4':
     resolution: {integrity: sha512-ayn0pogFPwJA1WFZpDnoq9/hjDxN+keeCMyThaX4d3gSJ3y0mdKUxIA/b1YXWGtY9wVtZmxwcvOIeEieG4+JNg==}
 
-  '@iconify-json/tabler@1.2.30':
-    resolution: {integrity: sha512-fhy+uBj3zwRpwWIKLc5qAaS9GB4XPvLW9/WhKqGbjNpNQeAnkcM3i3B5kylOmqlUmWwO0Pq/7qyiKqFmLyE73w==}
+  '@iconify-json/tabler@1.2.31':
+    resolution: {integrity: sha512-Jfcw5TpGhfKKWyz1dGk7e79zIgDmpMKNYL0bjt17sURBPifAxowQcWAzcEhuiWU7FGXUM2NT6UhvACFZp7Hnjw==}
 
   '@iconify-json/vscode-icons@1.2.39':
     resolution: {integrity: sha512-ycXYaWkho1nJE+HsArpphb+Ug/bVVAZzPHqvGhSJULE3rutdz9cqxg//AmrU/oEBPTi7ximyoEKpJ2ICVhR1aw==}
@@ -6037,9 +6040,6 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  my-ua-parser@2.0.4:
-    resolution: {integrity: sha512-lhPyjoce3SRNXqgozoVti8XWC6oWY/rMcXljvov9IAgHKj2ZTU3dR5iQ7jLrIj02xD4Ggn6doTi7K2pnSbjzeg==}
-
   nanoevents@6.0.2:
     resolution: {integrity: sha512-FRS2otuFcPPYDPYViNWQ42+1iZqbXydinkRHTHFxrF4a1CpBfmydR9zkI44WSXAXCyPrkcGtPk5CnpW6Y3lFKQ==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -7227,38 +7227,38 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  turbo-darwin-64@2.8.15:
-    resolution: {integrity: sha512-EElCh+Ltxex9lXYrouV3hHjKP3HFP31G91KMghpNHR/V99CkFudRcHcnWaorPbzAZizH1m8o2JkLL8rptgb8WQ==}
+  turbo-darwin-64@2.8.16:
+    resolution: {integrity: sha512-KWa4hUMWrpADC6Q/wIHRkBLw6X6MV9nx6X7hSXbTrrMz0KdaKhmfudUZ3sS76bJFmgArBU25cSc0AUyyrswYxg==}
     cpu: [x64]
     os: [darwin]
 
-  turbo-darwin-arm64@2.8.15:
-    resolution: {integrity: sha512-ORmvtqHiHwvNynSWvLIleyU8dKtwQ4ILk39VsEwfKSEzSHWYWYxZhBmD9GAGRPlNl7l7S1irrziBlDEGVpq+vQ==}
+  turbo-darwin-arm64@2.8.16:
+    resolution: {integrity: sha512-NBgaqBDLQSZlJR4D5XCkQq6noaO0RvIgwm5eYFJYL3bH5dNu8o0UBpq7C5DYnQI8+ybyoHFjT5/icN4LeUYLow==}
     cpu: [arm64]
     os: [darwin]
 
-  turbo-linux-64@2.8.15:
-    resolution: {integrity: sha512-Bk1E61a+PCWUTfhqfXFlhEJMLp6nak0J0Qt14IZX1og1zyaiBLkM6M1GQFbPpiWfbUcdLwRaYQhO0ySB07AJ8w==}
+  turbo-linux-64@2.8.16:
+    resolution: {integrity: sha512-VYPdcCRevI9kR/hr1H1xwXy7QQt/jNKiim1e1mjANBXD2E9VZWMkIL74J1Huad5MbU3/jw7voHOqDPLJPC2p6w==}
     cpu: [x64]
     os: [linux]
 
-  turbo-linux-arm64@2.8.15:
-    resolution: {integrity: sha512-3BX0Vk+XkP0uiZc8pkjQGNsAWjk5ojC53bQEMp6iuhSdWpEScEFmcT6p7DL7bcJmhP2mZ1HlAu0A48wrTGCtvg==}
+  turbo-linux-arm64@2.8.16:
+    resolution: {integrity: sha512-beq8tgUVI3uwkQkXJMiOr/hfxQRw54M3elpBwqgYFfemiK5LhCjjcwO0DkE8GZZfElBIlk+saMAQOZy3885wNQ==}
     cpu: [arm64]
     os: [linux]
 
-  turbo-windows-64@2.8.15:
-    resolution: {integrity: sha512-m14ogunMF+grHZ1jzxSCO6q0gEfF1tmr+0LU+j1QNd/M1X33tfKnQqmpkeUR/REsGjfUlkQlh6PAzqlT3cA3Pg==}
+  turbo-windows-64@2.8.16:
+    resolution: {integrity: sha512-Ig7b46iUgiOIkea/D3Z7H+zNzvzSnIJcLYFpZLA0RxbUTrbLhv9qIPwv3pT9p/abmu0LXVKHxaOo+p26SuDhzw==}
     cpu: [x64]
     os: [win32]
 
-  turbo-windows-arm64@2.8.15:
-    resolution: {integrity: sha512-HWh6dnzhl7nu5gRwXeqP61xbyDBNmQ4UCeWNa+si4/6RAtHlKEcZTNs7jf4U+oqBnbtv4uxbKZZPf/kN0EK4+A==}
+  turbo-windows-arm64@2.8.16:
+    resolution: {integrity: sha512-fOWjbEA2PiE2HEnFQrwNZKYEdjewyPc2no9GmrXklZnTCuMsxeCN39aVlKpKpim03Zq/ykIuvApGwq8ZbfS2Yw==}
     cpu: [arm64]
     os: [win32]
 
-  turbo@2.8.15:
-    resolution: {integrity: sha512-ERZf7pKOR155NKs/PZt1+83NrSEJfUL7+p9/TGZg/8xzDVMntXEFQlX4CsNJQTyu4h3j+dZYiQWOOlv5pssuHQ==}
+  turbo@2.8.16:
+    resolution: {integrity: sha512-u6e9e3cTTpE2adQ1DYm3A3r8y3LAONEx1jYvJx6eIgSY4bMLxIxs0riWzI0Z/IK903ikiUzRPZ2c1Ph5lVLkhA==}
     hasBin: true
 
   twoslash-protocol@0.3.6:
@@ -7293,6 +7293,10 @@ packages:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  ua-parser-modern@0.1.1:
+    resolution: {integrity: sha512-7w/roxPc8S0HCZi8JvmZsg5rAdjLi6Tiw1Qs5bXJkZRpSiKhEP3HObm8F/oNGB9oOaQAIGZ27p8tO82mtMcOyA==}
+    engines: {node: '>=20.19.0'}
 
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
@@ -7789,6 +7793,11 @@ packages:
 
   vue-virtual-scroller@2.0.0-beta.8:
     resolution: {integrity: sha512-b8/f5NQ5nIEBRTNi6GcPItE4s7kxNHw2AIHLtDp+2QvqdTjVN0FgONwX9cr53jWRgnu+HRLPaWDOR2JPI5MTfQ==}
+    peerDependencies:
+      vue: ^3.2.0
+
+  vue-virtual-scroller@2.0.0-beta.9:
+    resolution: {integrity: sha512-jSCydaV6ngPQ8NlLhrz5CtnYpe8Hothy7POe5n4gsrsh1F19J5Bp+1zWvtk6igOu3wIqaIU6Utskj+tK8b31gg==}
     peerDependencies:
       vue: ^3.2.0
 
@@ -8546,11 +8555,15 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/simple-icons@1.2.73':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/svg-spinners@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/tabler@1.2.30':
+  '@iconify-json/tabler@1.2.31':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -13544,8 +13557,6 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  my-ua-parser@2.0.4: {}
-
   nanoevents@6.0.2: {}
 
   nanoid@3.3.11: {}
@@ -15153,32 +15164,32 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  turbo-darwin-64@2.8.15:
+  turbo-darwin-64@2.8.16:
     optional: true
 
-  turbo-darwin-arm64@2.8.15:
+  turbo-darwin-arm64@2.8.16:
     optional: true
 
-  turbo-linux-64@2.8.15:
+  turbo-linux-64@2.8.16:
     optional: true
 
-  turbo-linux-arm64@2.8.15:
+  turbo-linux-arm64@2.8.16:
     optional: true
 
-  turbo-windows-64@2.8.15:
+  turbo-windows-64@2.8.16:
     optional: true
 
-  turbo-windows-arm64@2.8.15:
+  turbo-windows-arm64@2.8.16:
     optional: true
 
-  turbo@2.8.15:
+  turbo@2.8.16:
     optionalDependencies:
-      turbo-darwin-64: 2.8.15
-      turbo-darwin-arm64: 2.8.15
-      turbo-linux-64: 2.8.15
-      turbo-linux-arm64: 2.8.15
-      turbo-windows-64: 2.8.15
-      turbo-windows-arm64: 2.8.15
+      turbo-darwin-64: 2.8.16
+      turbo-darwin-arm64: 2.8.16
+      turbo-linux-64: 2.8.16
+      turbo-linux-arm64: 2.8.16
+      turbo-windows-64: 2.8.16
+      turbo-windows-arm64: 2.8.16
 
   twoslash-protocol@0.3.6: {}
 
@@ -15212,6 +15223,8 @@ snapshots:
   type-level-regexp@0.1.17: {}
 
   typescript@5.9.3: {}
+
+  ua-parser-modern@0.1.1: {}
 
   uc.micro@2.1.0: {}
 
@@ -15833,6 +15846,11 @@ snapshots:
       vue: 3.5.30(typescript@5.9.3)
       vue-observe-visibility: 2.0.0-alpha.1(vue@3.5.30(typescript@5.9.3))
       vue-resize: 2.0.0-alpha.1(vue@3.5.30(typescript@5.9.3))
+
+  vue-virtual-scroller@2.0.0-beta.9(vue@3.5.30(typescript@5.9.3)):
+    dependencies:
+      mitt: 2.1.0
+      vue: 3.5.30(typescript@5.9.3)
 
   vue@2.7.16:
     dependencies:
