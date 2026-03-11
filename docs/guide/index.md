@@ -25,24 +25,26 @@ Vite DevTools is a comprehensive set of developer tools for visualizing and anal
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Install or upgrade your Vite to the beta version 8:
+Install or upgrade your Vite to the beta version 13+:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0-beta.7"
+    "vite": "^8.0.0-beta.13"
   }
 }
 ```
 
-Install the DevTools plugin:
+Install the required DevTools plugin for both client modes:
 
 ```bash
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools plugin in your Vite config and turn on the devtools mode for Rolldown:
+Vite DevTools supports two client modes: embedded and standalone. You can choose the mode in your Vite config.
+
+Use embedded mode:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -59,14 +61,26 @@ export default defineConfig({
   }
 })
 ```
+Or use standalone mode:
 
-Run your Vite build, to generate the Rolldown build metadata:
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    enabled: true,
+  },
+})
+```
+
+Run a Vite build to generate Rolldown build metadata. In standalone mode, DevTools also starts a local server to host the client after the build completes.
 
 ```bash
 pnpm build
 ```
 
-Open the DevTools panel in your browser to play with the DevTools:
+
+If you're using embedded mode, start your app and open the DevTools panel in the browser:
 
 ```bash
 pnpm dev

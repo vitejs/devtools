@@ -42,7 +42,7 @@ const { state: durationSortType, next } = useCycleList(['', 'desc', 'asc'], {
 })
 const filtered = computed(() => {
   const sorted = durationSortType.value
-    ? [...props.buildMetrics.calls].sort((a, b) => {
+    ? props.buildMetrics.calls.toSorted((a, b) => {
         if (durationSortType.value === 'asc') {
           return a.duration - b.duration
         }

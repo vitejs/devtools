@@ -284,6 +284,24 @@ function resetSettings() {
                 <span class="text-xs op50">Display navigation controls and URL bar for iframe views</span>
               </div>
             </label>
+
+            <!-- Close on outside click toggle -->
+            <label class="flex items-center gap-3 cursor-pointer group">
+              <button
+                class="w-10 h-6 rounded-full transition-colors relative shrink-0"
+                :class="settings.closeOnOutsideClick ? 'bg-lime' : 'bg-gray/30'"
+                @click="settingsStore.mutate((s) => { s.closeOnOutsideClick = !s.closeOnOutsideClick })"
+              >
+                <div
+                  class="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                  :class="settings.closeOnOutsideClick ? 'translate-x-5' : 'translate-x-1'"
+                />
+              </button>
+              <div class="flex flex-col">
+                <span class="text-sm">Close panel on outside click</span>
+                <span class="text-xs op50">Close the DevTools panel when clicking outside of it (embedded mode only)</span>
+              </div>
+            </label>
           </div>
         </section>
 

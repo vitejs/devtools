@@ -45,7 +45,7 @@ const endTime = computed(() => {
   if (!calls?.length) {
     return
   }
-  return calls[calls.length - 1]!.timestamp_end
+  return calls.at(-1)!.timestamp_end
 })
 </script>
 

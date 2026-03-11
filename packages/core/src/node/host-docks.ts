@@ -52,6 +52,13 @@ export class DevToolsDockHost implements DevToolsDockHostType {
       },
       {
         type: '~builtin',
+        id: '~popup',
+        title: 'Popup',
+        category: '~builtin',
+        icon: 'ph:arrow-square-out-duotone',
+      },
+      {
+        type: '~builtin',
         id: '~settings',
         title: 'Settings',
         category: '~builtin',

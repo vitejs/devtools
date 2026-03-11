@@ -96,7 +96,7 @@ export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
 
 export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
   type: '~builtin'
-  id: '~terminals' | '~logs' | '~client-auth-notice' | '~settings'
+  id: '~terminals' | '~logs' | '~client-auth-notice' | '~settings' | '~popup'
 }
 
 export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher

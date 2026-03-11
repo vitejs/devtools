@@ -87,7 +87,7 @@ function navigateTo(url: string) {
 
   // Ensure URL has protocol
   let normalizedUrl = url.trim()
-  if (normalizedUrl && !normalizedUrl.match(/^https?:\/\//i)) {
+  if (normalizedUrl && !/^https?:\/\//i.test(normalizedUrl)) {
     // If it starts with /, treat as same-origin path
     if (normalizedUrl.startsWith('/')) {
       normalizedUrl = `${window.location.origin}${normalizedUrl}`

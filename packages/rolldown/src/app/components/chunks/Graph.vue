@@ -132,7 +132,7 @@ createModuleGraph<ChunkInfo, ChunkImport>({
 
       const _additionalLinks = chunks.value.flatMap(chunk =>
         chunk.imports
-          .filter(_import => !_links.find(x => x.id === `${chunk.chunk_id}|${_import.chunk_id}`))
+          .filter(_import => !_links.some(x => x.id === `${chunk.chunk_id}|${_import.chunk_id}`))
           .map(_import => ({
             source: nodesMap.get(`${chunk.chunk_id}`)!,
             target: nodesMap.get(`${_import.chunk_id}`)!,

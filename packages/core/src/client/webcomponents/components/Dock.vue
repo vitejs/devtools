@@ -4,6 +4,7 @@ import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
 import { docksSplitGroupsWithCapacity } from '../state/dock-settings'
+import { filterPopupDockEntry, isDockPopupEntryVisible } from '../state/popup'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 import BracketLeft from './icons/BracketLeft.vue'
@@ -74,8 +75,19 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
+const isPopupEntryVisible = computed(() => isDockPopupEntryVisible())
+const groupedEntries = computed(() => {
+  if (isPopupEntryVisible.value)
+    return context.docks.groupedEntries
+  return filterPopupDockEntry(context.docks.groupedEntries)
+})
+
 const splitedEntries = computed(() => {
-  return docksSplitGroupsWithCapacity(context.docks.groupedEntries, 5)
+  return docksSplitGroupsWithCapacity(groupedEntries.value, 5)
+})
+
+const selectedEntry = computed(() => {
+  return context.docks.selected
 })
 
 onMounted(async () => {
@@ -252,6 +264,7 @@ onMounted(() => {
       'vite-devtools-vertical': context.panel.isVertical,
       'vite-devtools-minimized': isMinimized,
     }"
+    class="color-base"
     @mousemove="bringUp"
   >
     <div
@@ -319,7 +332,7 @@ onMounted(() => {
             :context="context"
             :groups="splitedEntries.visible"
             :is-vertical="context.panel.isVertical"
-            :selected="context.docks.selected"
+            :selected="selectedEntry"
             @select="(e) => context.docks.switchEntry(e?.id)"
           />
 
@@ -329,7 +342,7 @@ onMounted(() => {
               :context="context"
               :is-vertical="context.panel.isVertical"
               :groups="splitedEntries.overflow"
-              :selected="context.docks.selected"
+              :selected="selectedEntry"
               @select="(e) => context.docks.switchEntry(e?.id)"
             />
           </template>

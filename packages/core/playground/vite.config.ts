@@ -147,7 +147,6 @@ export default defineConfig({
             initialValue: { count: 1 },
           })
 
-          // eslint-disable-next-line unimport/auto-insert
           setInterval(() => {
             counterState.mutate((current) => {
               current.count = (current.count + 1) % 5

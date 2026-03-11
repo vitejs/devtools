@@ -39,7 +39,7 @@ const relativePath = computed(() => {
     relate = `./${relate}`
   if (relate.startsWith('./'))
     return relate
-  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
+  if (/^(?:\.\.\/){1,3}[^.]/.test(relate))
     return relate
   return id
 })

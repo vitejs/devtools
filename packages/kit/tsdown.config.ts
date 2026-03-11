@@ -13,5 +13,11 @@ export default defineConfig({
   clean: true,
   tsconfig: '../../tsconfig.base.json',
   dts: true,
-  inlineOnly: false,
+  platform: 'neutral',
+  deps: {
+    onlyAllowBundle: [
+      'ohash',
+      'ua-parser-modern',
+    ],
+  },
 })

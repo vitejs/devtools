@@ -38,7 +38,7 @@ const sourceCodeSize = computed(() => {
 
 const transformedCodeSize = computed(() => {
   const data = props.metrics?.transforms.filter(t => t.transformed_code_size)
-  return data?.[data.length - 1]?.transformed_code_size
+  return data.at(-1)?.transformed_code_size
 })
 </script>
 
