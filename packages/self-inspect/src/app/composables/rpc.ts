@@ -39,11 +39,11 @@ export async function connect() {
       rpcOptions: {
         onGeneralError: (e, name) => {
           connectionState.error = e
-          console.error(`[self-inspect] RPC error on executing "${name}":`)
+          console.error(`[self-inspect] RPC error on executing "${name}":`, e)
         },
         onFunctionError: (e, name) => {
           connectionState.error = e
-          console.error(`[self-inspect] RPC error on executing "${name}":`)
+          console.error(`[self-inspect] RPC error on executing "${name}":`, e)
         },
       },
     })
