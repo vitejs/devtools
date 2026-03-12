@@ -4,6 +4,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../state/logs'
 import DockIcon from './DockIcon.vue'
+import LogItem from './LogItem.vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -25,14 +26,6 @@ const levelColors: Record<DevToolsLogLevel, string> = {
   error: 'text-red',
   success: 'text-green',
   debug: 'text-gray',
-}
-
-const levelBorderColors: Record<DevToolsLogLevel, string> = {
-  info: 'border-l-blue',
-  warn: 'border-l-amber',
-  error: 'border-l-red',
-  success: 'border-l-green',
-  debug: 'border-l-gray',
 }
 
 const search = ref('')
@@ -92,10 +85,6 @@ const selectedEntry = computed(() => {
   return logsState.entries.find(e => e.id === selectedId.value) ?? null
 })
 
-function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString()
-}
-
 async function openFile(entry: DevToolsLogEntry) {
   if (!entry.filePosition)
     return
@@ -106,10 +95,6 @@ async function openFile(entry: DevToolsLogEntry) {
   if (column)
     path += `:${column}`
   await props.context.rpc.call('vite:core:open-in-editor', path)
-}
-
-async function runAutofix(entry: DevToolsLogEntry) {
-  await props.context.rpc.call('devtoolskit:internal:logs:autofix', entry.id)
 }
 
 async function clearAll() {
@@ -183,47 +168,23 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
         <div
           v-for="entry of filteredEntries"
           :key="entry.id"
-          class="w-full text-left px-3 py-2 border-b border-base hover:bg-active flex items-start gap-2 transition border-l-2 text-sm group cursor-pointer"
+          class="w-full text-left border-b border-base hover:bg-active transition border-l-2 text-sm group cursor-pointer"
           :class="[
-            levelBorderColors[entry.level],
             selectedId === entry.id ? 'bg-active' : '',
           ]"
           @click="selectedId = selectedId === entry.id ? null : entry.id"
         >
-          <DockIcon
-            v-if="entry.status !== 'loading'"
-            :icon="levelIcons[entry.level]"
-            class="w-4 h-4 flex-none mt-0.5"
-            :class="levelColors[entry.level]"
-          />
-          <div
-            v-else
-            class="w-4 h-4 flex-none mt-0.5 border-2 border-current border-t-transparent rounded-full animate-spin op50"
-          />
-          <div class="flex-1 min-w-0">
-            <div class="truncate font-medium" :class="entry.status === 'loading' ? 'op60' : ''">
-              {{ entry.message }}
-            </div>
-            <div class="flex items-center gap-2 mt-0.5">
-              <span v-if="entry.source" class="text-xs op50">{{ entry.source }}</span>
-              <span v-if="entry.category" class="text-xs bg-gray/10 px-1 rounded">{{ entry.category }}</span>
-              <span
-                v-for="label of entry.labels"
-                :key="label"
-                class="text-xs bg-purple/10 text-purple px-1 rounded"
-              >{{ label }}</span>
-            </div>
-          </div>
-          <div class="flex items-center gap-1 flex-none">
-            <span class="text-xs op40">{{ formatTime(entry.timestamp) }}</span>
-            <button
-              class="op0 group-hover:op50 hover:op100! p-0.5 rounded hover:bg-active"
-              title="Dismiss"
-              @click.stop="removeEntry(entry.id)"
-            >
-              <DockIcon icon="ph:x" class="w-3 h-3" />
-            </button>
-          </div>
+          <LogItem :entry class="px-3 py-2.5">
+            <template #actions>
+              <button
+                class="op0 group-hover:op50 hover:op100! p-0.5 rounded hover:bg-active flex-none"
+                title="Dismiss"
+                @click.stop="removeEntry(entry.id)"
+              >
+                <DockIcon icon="ph:x" class="w-3 h-3" />
+              </button>
+            </template>
+          </LogItem>
         </div>
       </div>
 
@@ -243,9 +204,6 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           <div class="flex-1">
             <div class="font-medium text-base" :class="selectedEntry.status === 'loading' ? 'op60' : ''">
               {{ selectedEntry.message }}
-            </div>
-            <div v-if="selectedEntry.source" class="text-xs op50 mt-0.5">
-              {{ selectedEntry.source }}
             </div>
           </div>
           <button class="op50 hover:op100 p-1" title="Close detail" @click="selectedId = null">
@@ -299,16 +257,6 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
 
         <!-- Actions -->
         <div class="flex gap-2">
-          <!-- Autofix -->
-          <button
-            v-if="selectedEntry.autofix"
-            class="flex items-center gap-1.5 text-sm bg-purple/10 text-purple px-3 py-1.5 rounded hover:bg-purple/20 transition"
-            @click="runAutofix(selectedEntry!)"
-          >
-            <DockIcon icon="ph:wrench-duotone" class="w-4 h-4" />
-            Autofix
-          </button>
-          <!-- Dismiss -->
           <button
             class="flex items-center gap-1.5 text-sm op50 hover:op100 px-3 py-1.5 rounded hover:bg-active transition"
             @click="removeEntry(selectedEntry!.id)"

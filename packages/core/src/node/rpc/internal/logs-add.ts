@@ -6,8 +6,8 @@ export const logsAdd = defineRpcFunction({
   type: 'action',
   setup: (context) => {
     return {
-      async handler(input: DevToolsLogEntryInput, source: string): Promise<DevToolsLogEntry> {
-        return context.logs.add(Object.assign(input, { source }))
+      async handler(input: DevToolsLogEntryInput): Promise<DevToolsLogEntry> {
+        return context.logs.add(Object.assign(input, { source: 'client' as const }))
       },
     }
   },

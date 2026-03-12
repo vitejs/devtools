@@ -81,7 +81,7 @@ export async function createDocksContext(
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
-        logs: createClientLogsClient(rpc, entry.id),
+        logs: createClientLogsClient(rpc),
       })
       await executeSetupScript(entry, scriptContext)
     }

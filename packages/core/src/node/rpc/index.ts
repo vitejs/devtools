@@ -3,7 +3,6 @@ import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { docksOnLaunch } from './internal/docks-on-launch'
 import { logsAdd } from './internal/logs-add'
-import { logsAutofix } from './internal/logs-autofix'
 import { logsClear } from './internal/logs-clear'
 import { logsList } from './internal/logs-list'
 import { logsRemove } from './internal/logs-remove'
@@ -32,7 +31,6 @@ export const builtinAnonymousRpcDeclarations = [
 export const builtinInternalRpcDeclarations = [
   docksOnLaunch,
   logsAdd,
-  logsAutofix,
   logsClear,
   logsList,
   logsRemove,

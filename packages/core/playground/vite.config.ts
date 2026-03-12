@@ -52,14 +52,6 @@ export default defineConfig({
       devtools: {
         async setup(ctx) {
           ctx.docks.register({
-            title: 'Local',
-            icon: 'logos:vue',
-            id: 'local',
-            type: 'iframe',
-            url: 'https://antfu.me',
-          })
-
-          ctx.docks.register({
             type: 'action',
             action: ctx.utils.createSimpleClientScript((ctx) => {
               // eslint-disable-next-line no-alert
@@ -107,11 +99,11 @@ export default defineConfig({
           })
 
           ctx.docks.register({
-            id: 'shared-state',
+            id: 'debug',
             type: 'iframe',
             url: '/devtools/',
-            title: 'Shared State',
-            icon: 'ph:database-duotone',
+            title: 'Debug Dashboard',
+            icon: 'ph:bug-duotone',
           })
 
           ctx.docks.register({

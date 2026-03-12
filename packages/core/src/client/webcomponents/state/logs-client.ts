@@ -18,10 +18,10 @@ function createRpcHandle(rpc: DevToolsRpcClient, initialEntry: DevToolsLogEntry)
   }
 }
 
-export function createClientLogsClient(rpc: DevToolsRpcClient, source: string): DevToolsLogsClient {
+export function createClientLogsClient(rpc: DevToolsRpcClient): DevToolsLogsClient {
   return {
     async add(input: DevToolsLogEntryInput): Promise<DevToolsLogHandle> {
-      const entry = await rpc.call('devtoolskit:internal:logs:add', input, source)
+      const entry = await rpc.call('devtoolskit:internal:logs:add', input)
       return createRpcHandle(rpc, entry)
     },
     async remove(id: string): Promise<void> {

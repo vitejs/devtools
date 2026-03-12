@@ -20,15 +20,6 @@ export interface DevToolsLogFilePosition {
   column?: number
 }
 
-export interface DevToolsLogAutofixRpc {
-  /** Autofix via a registered RPC function */
-  type: 'rpc'
-  /** Name of the registered RPC function to invoke */
-  name: string
-}
-
-export type DevToolsLogAutofix = DevToolsLogAutofixRpc | (() => void | Promise<void>)
-
 export interface DevToolsLogEntry {
   /**
    * Unique identifier for this log entry (auto-generated if not provided)
@@ -59,17 +50,13 @@ export interface DevToolsLogEntry {
    */
   filePosition?: DevToolsLogFilePosition
   /**
-   * Optional autofix action — either an RPC function reference or a callback
-   */
-  autofix?: DevToolsLogAutofix
-  /**
    * Whether this log should also appear as a toast notification
    */
   notify?: boolean
   /**
-   * Identifier of the plugin or module that emitted this log
+   * Origin of the log entry, automatically set by the context
    */
-  source: string
+  source: 'server' | 'client'
   /**
    * Grouping category (e.g., 'a11y', 'lint', 'runtime', 'test')
    */
