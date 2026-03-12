@@ -138,12 +138,12 @@ describe('rpcFunctionsHost', () => {
       })).resolves.toBeUndefined()
     })
 
-    it('should throw in dev mode', async () => {
+    it('should not throw in dev mode when rpc group is not yet set', async () => {
       const host = new RpcFunctionsHost({ mode: 'dev' } as DevToolsNodeContext)
       await expect(host.broadcast({
         method: 'devtoolskit:internal:terminals:updated',
         args: [],
-      })).rejects.toThrow('RpcFunctionsHost] RpcGroup is not set')
+      })).resolves.toBeUndefined()
     })
   })
 
