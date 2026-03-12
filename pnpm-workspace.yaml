@@ -14,25 +14,25 @@ packages:
 catalogs:
   build:
     '@antfu/ni': ^28.3.0
-    '@nuxt/kit': ^4.3.1
-    '@nuxt/vite-builder': ^4.3.1
+    '@nuxt/kit': ^4.4.2
+    '@nuxt/vite-builder': ^4.4.2
     '@unocss/nuxt': ^66.6.6
-    '@vitejs/plugin-vue': ^6.0.4
+    '@vitejs/plugin-vue': ^6.0.5
     '@vueuse/nuxt': ^14.2.1
-    esbuild: ^0.27.3
+    esbuild: ^0.27.4
     magic-string: ^0.30.21
     nitropack: ^2.13.1
-    nuxt: ^4.3.1
-    rolldown: ^1.0.0-rc.8
-    tsdown: ^0.21.1
+    nuxt: ^4.4.2
+    rolldown: ^1.0.0-rc.9
+    tsdown: ^0.21.2
     tsx: ^4.21.0
     turbo: ^2.8.16
     unocss: ^66.6.6
     unplugin-vue: ^7.1.1
-    vite: ^8.0.0-beta.18
+    vite: ^8.0.0
   deps:
     '@pnpm/read-project-manifest': ^1001.2.5
-    '@rolldown/debug': ^1.0.0-rc.8
+    '@rolldown/debug': ^1.0.0-rc.9
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
@@ -61,26 +61,26 @@ catalogs:
     webext-bridge: ^6.0.1
     ws: ^8.19.0
   devtools:
-    '@antfu/eslint-config': ^7.7.0
+    '@antfu/eslint-config': ^7.7.2
     '@nuxt/devtools': ^3.2.3
     '@nuxt/eslint': ^1.15.2
     '@typescript-eslint/utils': ^8.57.0
     '@unocss/eslint-config': ^66.6.6
-    axe-core: ^4.10.0
+    axe-core: ^4.11.1
     bumpp: ^10.4.1
     chokidar: ^5.0.0
     eslint: ^10.0.3
     nano-staged: ^0.9.0
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
-    solid-js: ^1.9.0
+    solid-js: ^1.9.11
     typescript: ^5.9.3
     vite-plugin-inspect: ^11.3.3
-    vite-plugin-solid: ^2.11.0
+    vite-plugin-solid: ^2.11.10
     vue-tsc: ^3.2.5
   docs:
     '@shikijs/vitepress-twoslash': ^4.0.2
-    '@voidzero-dev/vitepress-theme': ^4.8.2
+    '@voidzero-dev/vitepress-theme': ^4.8.3
     mermaid: ^11.13.0
     vitepress: ^2.0.0-alpha.16
     vitepress-plugin-group-icons: ^1.7.1
@@ -97,7 +97,7 @@ catalogs:
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
     diff-match-patch-es: ^1.0.1
-    dompurify: ^3.3.2
+    dompurify: ^3.3.3
     floating-vue: ^5.2.2
     fuse.js: ^7.1.0
     idb-keyval: ^6.2.2
@@ -114,7 +114,7 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.19
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.48
+    '@iconify-json/codicon': ^1.2.49
     '@iconify-json/fluent': ^1.2.40
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
@@ -137,7 +137,7 @@ catalogs:
     langium: ^4.2.1
     semver: ^7.7.4
   testing:
-    vitest: ^4.0.18
+    vitest: ^4.1.0
     vitest-package-exports: ^1.2.0
     yaml: ^2.8.2
   types:
