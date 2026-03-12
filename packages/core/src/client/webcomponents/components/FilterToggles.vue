@@ -6,7 +6,7 @@ defineProps<{
   /** Map item key → { icon, color, label } for styled items */
   styles?: Record<string, { icon?: string, color?: string, label?: string }>
   /** Compute inline color via hash for items without predefined styles */
-  hashColor?: (item: string) => string
+  hashColor?: (item: string, opacity: number) => string
 }>()
 
 defineEmits<{
@@ -16,7 +16,7 @@ defineEmits<{
 
 <template>
   <span class="text-xs op40">{{ label }}</span>
-  <div class="flex flex-wrap items-center gap-0">
+  <div class="flex flex-wrap items-center gap-0.5">
     <button
       v-for="item of items"
       :key="item"
@@ -26,7 +26,10 @@ defineEmits<{
           ? (styles?.[item]?.color || '')
           : 'op30',
       ]"
-      :style="!styles?.[item]?.color && hashColor ? { color: active.size === 0 || active.has(item) ? hashColor(item) : undefined } : undefined"
+      :style="!styles?.[item]?.color && hashColor ? {
+        color: active.size === 0 || active.has(item) ? hashColor(item, 1) : undefined,
+        backgroundColor: active.size === 0 || active.has(item) ? hashColor(item, 0.1) : undefined,
+      } : undefined"
       @click="$emit('toggle', item)"
     >
       <div v-if="styles?.[item]?.icon" :class="styles[item]!.icon" class="w-3.5 h-3.5" />

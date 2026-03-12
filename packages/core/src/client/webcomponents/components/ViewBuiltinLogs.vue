@@ -6,6 +6,7 @@ import { useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../state/logs'
 import FilterToggles from './FilterToggles.vue'
+import HashBadge from './HashBadge.vue'
 import LogItem from './LogItem.vue'
 import { getHashColorFromString, levels, sources } from './LogItemConstants'
 
@@ -277,7 +278,7 @@ onMounted(() => {
             label="Category"
             :items="allCategories"
             :active="(activeCategories as Set<string>)"
-            :hash-color="(item: string) => getHashColorFromString(item)"
+            :hash-color="getHashColorFromString"
             @toggle="toggleCategory"
           />
         </template>
@@ -288,7 +289,7 @@ onMounted(() => {
             label="Labels"
             :items="allLabels"
             :active="(activeLabelFilters as Set<string>)"
-            :hash-color="(item: string) => getHashColorFromString(item)"
+            :hash-color="getHashColorFromString"
             @toggle="toggleLabelFilter"
           />
         </template>
@@ -374,25 +375,8 @@ onMounted(() => {
 
         <!-- Category + Labels -->
         <div v-if="selectedEntry.category || (selectedEntry.labels && selectedEntry.labels.length)" class="flex flex-wrap gap-1 mb-3">
-          <span
-            v-if="selectedEntry.category"
-            class="text-xs px-1.5 py-0.5 rounded border-l-2"
-            :style="{
-              color: getHashColorFromString(selectedEntry.category),
-              borderColor: getHashColorFromString(selectedEntry.category, 0.4),
-              backgroundColor: getHashColorFromString(selectedEntry.category, 0.1),
-            }"
-          >{{ selectedEntry.category }}</span>
-          <span
-            v-for="label of selectedEntry.labels"
-            :key="label"
-            class="text-xs px-1.5 py-0.5 rounded border-l-2"
-            :style="{
-              color: getHashColorFromString(label),
-              borderColor: getHashColorFromString(label, 0.4),
-              backgroundColor: getHashColorFromString(label, 0.1),
-            }"
-          >{{ label }}</span>
+          <HashBadge v-if="selectedEntry.category" :label="selectedEntry.category" />
+          <HashBadge v-for="label of selectedEntry.labels" :key="label" :label="label" />
         </div>
 
         <!-- File position -->

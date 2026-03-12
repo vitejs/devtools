@@ -49,6 +49,7 @@
     "@unocss/eslint-config": "catalog:devtools",
     "@vueuse/core": "catalog:frontend",
     "ansis": "catalog:deps",
+    "axe-core": "catalog:devtools",
     "bumpp": "catalog:devtools",
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",

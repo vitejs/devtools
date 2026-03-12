@@ -3,10 +3,13 @@ import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { normalizePath } from 'vite'
 
-function resolveClientScript(): string {
-  const distFromBundle = fileURLToPath(new URL('./client/run-axe.js', import.meta.url))
-  const distFromSource = fileURLToPath(new URL('../../dist/client/run-axe.js', import.meta.url))
-  return fs.existsSync(distFromBundle) ? distFromBundle : distFromSource
+function resolveClientScript(): string | undefined {
+  const paths = [
+    fileURLToPath(new URL('./client/run-axe.js', import.meta.url)),
+    fileURLToPath(new URL('../../dist/client/run-axe.js', import.meta.url)),
+    fileURLToPath(new URL('../client/run-axe.ts', import.meta.url)),
+  ]
+  return paths.find(path => fs.existsSync(path))
 }
 
 export function A11yCheckerPlugin(): PluginWithDevTools {
@@ -15,6 +18,9 @@ export function A11yCheckerPlugin(): PluginWithDevTools {
     devtools: {
       setup(context) {
         const clientScript = resolveClientScript()
+        if (!clientScript) {
+          throw new Error('[plugin-a11y-checker] Client script not found, did you build the plugin?')
+        }
 
         context.docks.register({
           type: 'action',
