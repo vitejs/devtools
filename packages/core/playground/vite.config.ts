@@ -5,6 +5,7 @@ import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import { alias } from '../../../alias'
+import { A11yCheckerPlugin } from '../../../examples/plugin-a11y-checker/src/node'
 import { DevTools } from '../../core/src'
 import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
 // eslint-disable-next-line ts/ban-ts-comment
@@ -49,18 +50,11 @@ export default defineConfig({
     Tracer({
       viteDevtools: true,
     }),
+    A11yCheckerPlugin(),
     {
       name: 'local',
       devtools: {
         async setup(ctx) {
-          ctx.docks.register({
-            title: 'Local',
-            icon: 'logos:vue',
-            id: 'local',
-            type: 'iframe',
-            url: 'https://antfu.me',
-          })
-
           ctx.docks.register({
             type: 'action',
             action: ctx.utils.createSimpleClientScript((ctx) => {
@@ -109,11 +103,11 @@ export default defineConfig({
           })
 
           ctx.docks.register({
-            id: 'shared-state',
+            id: 'debug',
             type: 'iframe',
             url: '/devtools/',
-            title: 'Shared State',
-            icon: 'ph:database-duotone',
+            title: 'Debug Dashboard',
+            icon: 'ph:bug-duotone',
           })
 
           ctx.docks.register({

@@ -6,6 +6,7 @@ import { searchForWorkspaceRoot } from 'vite'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
+import { DevToolsLogsHost } from './host-logs'
 import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { builtinRpcDeclarations } from './rpc'
@@ -42,15 +43,18 @@ export async function createDevToolsContext(
     views: undefined!,
     utils: ContextUtils,
     terminals: undefined!,
+    logs: undefined!,
   }
   const rpcHost = new RpcFunctionsHost(context)
   const docksHost = new DevToolsDockHost(context)
   const viewsHost = new DevToolsViewHost(context)
   const terminalsHost = new DevToolsTerminalHost(context)
+  const logsHost = new DevToolsLogsHost(context)
   context.rpc = rpcHost
   context.docks = docksHost
   context.views = viewsHost
   context.terminals = terminalsHost
+  context.logs = logsHost
 
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcDeclarations) {
@@ -80,6 +84,19 @@ export async function createDevToolsContext(
       args: [data],
     })
   })
+
+  const debouncedLogsUpdate = debounce(() => {
+    rpcHost.broadcast({
+      method: 'devtoolskit:internal:logs:updated',
+      args: [],
+    })
+    docksSharedState.mutate(() => context.docks.values())
+  }, context.mode === 'build' ? 0 : 10)
+
+  logsHost.events.on('log:added', () => debouncedLogsUpdate())
+  logsHost.events.on('log:updated', () => debouncedLogsUpdate())
+  logsHost.events.on('log:removed', () => debouncedLogsUpdate())
+  logsHost.events.on('log:cleared', () => debouncedLogsUpdate())
 
   // Register plugins
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
