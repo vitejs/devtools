@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevtoolsPluginInfo } from '../../types'
+import type { DevtoolsPluginInfo } from '~~/types'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
@@ -7,6 +7,8 @@ const props = defineProps<{
 }>()
 
 const showAll = ref(false)
+
+const devtoolsCount = computed(() => props.plugins.filter(p => p.hasDevtools).length)
 
 const filtered = computed(() => {
   if (showAll.value)
@@ -16,32 +18,40 @@ const filtered = computed(() => {
 </script>
 
 <template>
-  <div flex="~ col gap-3">
-    <div flex="~ items-center gap-2">
-      <label flex="~ items-center gap-1.5" text-sm op60 cursor-pointer select-none>
+  <div flex="~ col gap-3" p4>
+    <div flex="~ items-center gap-3" text-xs>
+      <span op60>
+        {{ devtoolsCount }} devtools plugins / {{ plugins.length }} total
+      </span>
+      <label flex="~ items-center gap-1.5" op60 cursor-pointer select-none>
         <input v-model="showAll" type="checkbox">
-        Show all Vite plugins ({{ plugins.length }} total)
+        Show all
       </label>
     </div>
+
     <table w-full text-sm>
       <thead>
         <tr border="b base" text-left>
-          <th px2 py1.5 font-medium op60>
+          <th px2 py1 font-medium op60 text-xs>
             Plugin Name
           </th>
-          <th px2 py1.5 font-medium op60 text-center>
+          <th px2 py1 font-medium op60 text-xs text-center>
             DevTools
           </th>
-          <th px2 py1.5 font-medium op60 text-center>
+          <th px2 py1 font-medium op60 text-xs text-center>
             Setup
           </th>
-          <th px2 py1.5 font-medium op60>
+          <th px2 py1 font-medium op60 text-xs>
             Capabilities
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="plugin in filtered" :key="plugin.name" border="b base" hover:bg-active>
+        <tr
+          v-for="plugin in filtered" :key="plugin.name"
+          border="b base" hover:bg-active
+          :class="!plugin.hasDevtools ? 'op40' : ''"
+        >
           <td px2 py1.5 font-mono text-xs>
             {{ plugin.name }}
           </td>
@@ -53,10 +63,11 @@ const filtered = computed(() => {
             <span v-if="plugin.hasSetup" i-ph-check text-green />
             <span v-else op20>-</span>
           </td>
-          <td px2 py1.5 text-xs>
-            <span v-if="plugin.capabilities" font-mono op60>
-              {{ JSON.stringify(plugin.capabilities) }}
-            </span>
+          <td px2 py1.5 flex="~ items-center gap-1">
+            <template v-if="plugin.capabilities">
+              <DisplayBadge v-if="plugin.capabilities.dev" text="dev" />
+              <DisplayBadge v-if="plugin.capabilities.build" text="build" />
+            </template>
             <span v-else op20>-</span>
           </td>
         </tr>
