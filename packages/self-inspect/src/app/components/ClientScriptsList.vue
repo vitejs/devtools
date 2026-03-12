@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientScriptInfo } from '~~/types'
+import type { ClientScriptInfo } from '../../types'
 import { computed } from 'vue'
 
 const props = defineProps<{

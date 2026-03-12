@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ClientScriptInfo } from '~~/types'
+import type { ClientScriptInfo } from '../../types'
 import { useRpc } from '#imports'
 import { onMounted, shallowRef } from 'vue'
 import { useRefreshProvider } from '../composables/refresh'

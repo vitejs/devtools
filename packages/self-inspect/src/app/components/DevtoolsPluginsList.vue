@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevtoolsPluginInfo } from '~~/types'
+import type { DevtoolsPluginInfo } from '../../types'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
