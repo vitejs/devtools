@@ -93,13 +93,13 @@ const metadata = computed(() => [
       },
       {
         id: 'pnpm',
-        icon: 'i-material-icon-theme:pnpm',
+        icon: 'i-catppuccin:pnpm',
         label: 'PNPM',
         value: environmentMetadata.value?.pnpm,
       },
       {
         id: 'yarn',
-        icon: 'i-logos:yarn',
+        icon: 'i-catppuccin:yarn',
         label: 'Yarn',
         value: environmentMetadata.value?.yarn,
       },
