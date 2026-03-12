@@ -17,7 +17,7 @@ html {
 }
 html.dark {
   color-scheme: dark;
-  background-color: black;
+  background-color: #121212;
 }
 body {
   --uno: color-base;

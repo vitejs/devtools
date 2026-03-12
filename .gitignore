@@ -19,3 +19,4 @@ packages/kit/skills
 *.tsbuildinfo
 docs/.vitepress/cache
 .turbo
+.context
