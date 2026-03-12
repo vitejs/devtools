@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { ClientScriptInfo, DevtoolsPluginInfo } from '~~/types'
 import { useRpc } from '#imports'
-import { ref } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
 
 const rpc = useRpc()
 
@@ -13,15 +15,53 @@ const tabs = [
   { label: 'DevTools Plugins', value: 'plugins' as const, icon: 'i-ph-puzzle-piece-duotone' },
 ] as const
 
-const rpcFunctions = await rpc.value.call('devtoolskit:self-inspect:get-rpc-functions')
-const docks = await rpc.value.call('devtoolskit:self-inspect:get-docks')
-const clientScripts = await rpc.value.call('devtoolskit:self-inspect:get-client-scripts')
-const devtoolsPlugins = await rpc.value.call('devtoolskit:self-inspect:get-devtools-plugins')
+interface RpcFunctionInfo {
+  name: string
+  type: string
+  cacheable: boolean
+  hasArgs: boolean
+  hasReturns: boolean
+  hasDump: boolean
+  hasSetup: boolean
+  hasHandler: boolean
+}
+
+const rpcFunctions = shallowRef<RpcFunctionInfo[]>()
+const docks = shallowRef<DevToolsDockEntry[]>()
+const clientScripts = shallowRef<ClientScriptInfo[]>()
+const devtoolsPlugins = shallowRef<DevtoolsPluginInfo[]>()
+
+const loading = ref(false)
+
+async function fetchCurrentTab() {
+  loading.value = true
+  try {
+    switch (currentTab.value) {
+      case 'rpc':
+        rpcFunctions.value = await rpc.value.call('devtoolskit:self-inspect:get-rpc-functions')
+        break
+      case 'docks':
+        docks.value = await rpc.value.call('devtoolskit:self-inspect:get-docks')
+        break
+      case 'scripts':
+        clientScripts.value = await rpc.value.call('devtoolskit:self-inspect:get-client-scripts')
+        break
+      case 'plugins':
+        devtoolsPlugins.value = await rpc.value.call('devtoolskit:self-inspect:get-devtools-plugins')
+        break
+    }
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+watch(currentTab, () => fetchCurrentTab(), { immediate: true })
 </script>
 
 <template>
   <div flex="~ col" h-full>
-    <div flex="~ row" border="b base" bg-base>
+    <div flex="~ row items-center" border="b base" bg-base>
       <button
         v-for="tab in tabs"
         :key="tab.value"
@@ -34,19 +74,28 @@ const devtoolsPlugins = await rpc.value.call('devtoolskit:self-inspect:get-devto
       >
         <span :class="tab.icon" />
         {{ tab.label }}
-        <DisplayNumberBadge
-          :value="tab.value === 'rpc' ? rpcFunctions.length
-            : tab.value === 'docks' ? docks.length
-              : tab.value === 'scripts' ? clientScripts.length
-                : devtoolsPlugins.filter(p => p.hasDevtools).length"
-        />
+      </button>
+      <div flex-1 />
+      <button
+        mr2 p1.5 rounded
+        hover:bg-active
+        op50 hover:op100
+        transition-colors
+        title="Refresh"
+        :disabled="loading"
+        @click="fetchCurrentTab"
+      >
+        <span i-ph-arrow-clockwise :class="loading ? 'animate-spin' : ''" />
       </button>
     </div>
     <div flex-1 of-auto p4>
-      <RpcFunctionsList v-if="currentTab === 'rpc'" :functions="rpcFunctions" />
-      <DocksList v-else-if="currentTab === 'docks'" :docks="docks" />
-      <ClientScriptsList v-else-if="currentTab === 'scripts'" :scripts="clientScripts" />
-      <DevtoolsPluginsList v-else-if="currentTab === 'plugins'" :plugins="devtoolsPlugins" />
+      <div v-if="loading && !rpcFunctions && !docks && !clientScripts && !devtoolsPlugins" flex="~ items-center justify-center" h-full op50>
+        Loading...
+      </div>
+      <RpcFunctionsList v-else-if="currentTab === 'rpc' && rpcFunctions" :functions="rpcFunctions" />
+      <DocksList v-else-if="currentTab === 'docks' && docks" :docks="docks" />
+      <ClientScriptsList v-else-if="currentTab === 'scripts' && clientScripts" :scripts="clientScripts" />
+      <DevtoolsPluginsList v-else-if="currentTab === 'plugins' && devtoolsPlugins" :plugins="devtoolsPlugins" />
     </div>
   </div>
 </template>
