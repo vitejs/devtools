@@ -37,7 +37,7 @@ function openLogs(toastId: string) {
       <div
         v-for="toast of toasts"
         :key="toast.id"
-        class="bg-glass border border-base shadow-xl cursor-pointer hover:bg-active transition-colors rounded"
+        class="bg-glass border color-base border-base shadow-xl cursor-pointer hover:bg-active transition-colors rounded"
         @click="openLogs(toast.id)"
       >
         <LogItem :entry="toast.entry" compact class="px-3 py-2.5">

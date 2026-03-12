@@ -9,7 +9,7 @@ export const logsAdd = defineRpcFunction({
     return {
       async handler(input: DevToolsLogEntryInput): Promise<DevToolsLogEntry> {
         // @ts-expect-error - source is not in the type
-        const handle = await context.logs.add({ ...input, source: 'client' as LogSource })
+        const handle = await context.logs.add({ ...input, source: 'browser' as LogSource })
         return handle.entry
       },
     }

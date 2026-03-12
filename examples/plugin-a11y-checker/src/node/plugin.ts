@@ -9,7 +9,7 @@ function resolveClientScript(): string {
   return fs.existsSync(distFromBundle) ? distFromBundle : distFromSource
 }
 
-export function createA11yCheckerPlugin(): PluginWithDevTools {
+export function A11yCheckerPlugin(): PluginWithDevTools {
   return {
     name: 'plugin-a11y-checker-devtools',
     devtools: {
@@ -21,7 +21,7 @@ export function createA11yCheckerPlugin(): PluginWithDevTools {
           id: 'a11y-checker',
           title: 'Run A11y Check',
           icon: 'ph:wheelchair-duotone',
-          category: 'tools',
+          category: 'web',
           action: {
             importFrom: `/@fs/${normalizePath(clientScript)}`,
           },
@@ -39,5 +39,3 @@ export function createA11yCheckerPlugin(): PluginWithDevTools {
     },
   }
 }
-
-export default createA11yCheckerPlugin

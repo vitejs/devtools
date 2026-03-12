@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
 import { useTimeAgo } from '@vueuse/core'
-import { levels } from './LogItemConstants'
+import { getHashColorFromString, levels } from './LogItemConstants'
 
 const props = defineProps<{
   entry: DevToolsLogEntry
@@ -33,11 +33,16 @@ const timeAgo = useTimeAgo(() => props.entry.timestamp)
         {{ entry.description }}
       </div>
       <div v-if="!compact" class="flex items-center gap-2 mt-0.5">
-        <span v-if="entry.category" class="text-xs bg-gray/10 px-1 rounded">{{ entry.category }}</span>
+        <span
+          v-if="entry.category"
+          class="text-xs px-1 rounded"
+          :style="{ color: getHashColorFromString(entry.category), backgroundColor: getHashColorFromString(entry.category, 0.1) }"
+        >{{ entry.category }}</span>
         <span
           v-for="label of entry.labels"
           :key="label"
-          class="text-xs bg-purple/10 text-purple px-1 rounded"
+          class="text-xs px-1 rounded"
+          :style="{ color: getHashColorFromString(label), backgroundColor: getHashColorFromString(label, 0.1) }"
         >{{ label }}</span>
       </div>
     </div>

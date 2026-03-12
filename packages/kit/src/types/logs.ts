@@ -56,7 +56,7 @@ export interface DevToolsLogEntry {
   /**
    * Origin of the log entry, automatically set by the context
    */
-  source: 'server' | 'client'
+  source: 'server' | 'browser'
   /**
    * Grouping category (e.g., 'a11y', 'lint', 'runtime', 'test')
    */

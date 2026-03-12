@@ -1,2 +1,1 @@
-export { default } from './plugin'
-export * from './plugin'
+export { A11yCheckerPlugin } from './plugin'

@@ -5,8 +5,9 @@ import type { LogSource } from './LogItemConstants'
 import { useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../state/logs'
+import FilterToggles from './FilterToggles.vue'
 import LogItem from './LogItem.vue'
-import { levels, sources } from './LogItemConstants'
+import { getHashColorFromString, levels, sources } from './LogItemConstants'
 
 const props = defineProps<{
   context: DocksContext
@@ -57,12 +58,12 @@ const levelPriority: Record<DevToolsLogLevel, number> = {
   debug: 4,
 }
 
-function toggleFilter(level: DevToolsLogLevel) {
+function toggleFilter(level: string) {
   const filters = activeFilters.value
-  if (filters.has(level))
-    filters.delete(level)
+  if (filters.has(level as DevToolsLogLevel))
+    filters.delete(level as DevToolsLogLevel)
   else
-    filters.add(level)
+    filters.add(level as DevToolsLogLevel)
 }
 
 function toggleLabelFilter(label: string) {
@@ -73,12 +74,12 @@ function toggleLabelFilter(label: string) {
     filters.add(label)
 }
 
-function toggleSource(source: LogSource) {
+function toggleSource(source: string) {
   const s = activeSources.value
-  if (s.has(source))
-    s.delete(source)
+  if (s.has(source as LogSource))
+    s.delete(source as LogSource)
   else
-    s.add(source)
+    s.add(source as LogSource)
 }
 
 function toggleCategory(category: string) {
@@ -132,7 +133,7 @@ const filteredEntries = computed(() => {
   if (activeLabelFilters.value.size > 0)
     entries = entries.filter(e => e.labels?.some(l => activeLabelFilters.value.has(l)))
   if (activeSources.value.size > 0)
-    entries = entries.filter(e => activeSources.value.has(e.source))
+    entries = entries.filter(e => activeSources.value.has(e.source as LogSource))
   if (activeCategories.value.size > 0)
     entries = entries.filter(e => e.category && activeCategories.value.has(e.category))
   if (search.value) {
@@ -252,70 +253,44 @@ onMounted(() => {
 
       <!-- Row 2: Level + source + category + label filters -->
       <div class="flex flex-wrap items-center gap-1">
-        <span class="text-xs op40">Level</span>
-        <div class="flex flex-wrap items-center gap-0">
-          <button
-            v-for="level of allLevels"
-            :key="level"
-            class="px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5 hover:bg-active transition"
-            :class="[
-              activeFilters.size === 0 || activeFilters.has(level) ? levels[level].color : 'op30',
-            ]"
-            @click="toggleFilter(level)"
-          >
-            <div :class="levels[level].icon" class="w-3.5 h-3.5" />
-            <span class="capitalize">{{ level }}</span>
-          </button>
-        </div>
+        <FilterToggles
+          label="Level"
+          :items="allLevels"
+          :active="(activeFilters as Set<string>)"
+          :styles="levels"
+          @toggle="toggleFilter"
+        />
 
         <div class="border-l border-base h-4 mx-0.5" />
 
-        <span class="text-xs op40">Source</span>
-        <div class="flex flex-wrap items-center gap-0">
-          <button
-            v-for="source of allSources"
-            :key="source"
-            class="px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5 hover:bg-active transition"
-            :class="[
-              activeSources.size === 0 || activeSources.has(source) ? sources[source].color : 'op30',
-            ]"
-            @click="toggleSource(source)"
-          >
-            <div :class="sources[source].icon" class="w-3.5 h-3.5" />
-            <span class="capitalize">{{ sources[source].label }}</span>
-          </button>
-        </div>
+        <FilterToggles
+          label="Source"
+          :items="allSources"
+          :active="(activeSources as Set<string>)"
+          :styles="sources"
+          @toggle="toggleSource"
+        />
 
         <template v-if="allCategories.length > 0">
           <div class="border-l border-base h-4 mx-1" />
-          <span class="text-xs op40">Category</span>
-          <button
-            v-for="cat of allCategories"
-            :key="cat"
-            class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
-            :class="[
-              activeCategories.size === 0 || activeCategories.has(cat) ? 'text-teal bg-teal/10' : 'op30',
-            ]"
-            @click="toggleCategory(cat)"
-          >
-            {{ cat }}
-          </button>
+          <FilterToggles
+            label="Category"
+            :items="allCategories"
+            :active="(activeCategories as Set<string>)"
+            :hash-color="(item: string) => getHashColorFromString(item)"
+            @toggle="toggleCategory"
+          />
         </template>
 
         <template v-if="allLabels.length > 0">
           <div class="border-l border-base h-4 mx-1" />
-          <span class="text-xs op40">Labels</span>
-          <button
-            v-for="label of allLabels"
-            :key="label"
-            class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
-            :class="[
-              activeLabelFilters.size === 0 || activeLabelFilters.has(label) ? 'text-purple bg-purple/10' : 'op30',
-            ]"
-            @click="toggleLabelFilter(label)"
-          >
-            {{ label }}
-          </button>
+          <FilterToggles
+            label="Labels"
+            :items="allLabels"
+            :active="(activeLabelFilters as Set<string>)"
+            :hash-color="(item: string) => getHashColorFromString(item)"
+            @toggle="toggleLabelFilter"
+          />
         </template>
       </div>
     </div>
@@ -343,7 +318,7 @@ onMounted(() => {
                 title="Dismiss"
                 @click.stop="removeEntry(entry.id)"
               >
-                <div class="i-ph-x w-3 h-3" />
+                <div class="i-ph-trash-duotone w-3 h-3" />
               </button>
             </template>
           </LogItem>
@@ -354,20 +329,16 @@ onMounted(() => {
       <div v-if="selectedEntry" class="h-full of-y-auto border-l border-base p-4">
         <!-- Header -->
         <div class="flex items-start gap-2 mb-3">
-          <div
-            v-if="selectedEntry.status !== 'loading'"
-            :class="[levels[selectedEntry.level].icon, levels[selectedEntry.level].color]"
-            class="w-5 h-5 flex-none mt-0.5"
-          />
-          <div
-            v-else
-            class="w-5 h-5 flex-none mt-0.5 border-2 border-current border-t-transparent rounded-full animate-spin op50"
-          />
           <div class="flex-1">
-            <div class="font-medium text-base" :class="selectedEntry.status === 'loading' ? 'op60' : ''">
+            <div class="font-medium text-lg">
               {{ selectedEntry.message }}
             </div>
           </div>
+          <!-- Dismiss button -->
+          <button class="op50 hover:op100 p-1" title="Dismiss" @click="removeEntry(selectedEntry!.id)">
+            <div class="i-ph-trash-duotone w-4 h-4" />
+          </button>
+          <!-- Close button -->
           <button class="op50 hover:op100 p-1" title="Close detail" @click="selectedId = null">
             <div class="i-ph-x w-4 h-4" />
           </button>
@@ -379,9 +350,9 @@ onMounted(() => {
             <div :class="levels[selectedEntry.level].icon" class="w-3.5 h-3.5" />
             <span class="capitalize">{{ selectedEntry.level }}</span>
           </span>
-          <span class="flex items-center gap-1" :class="sources[selectedEntry.source].color">
-            <div :class="sources[selectedEntry.source].icon" class="w-3.5 h-3.5" />
-            {{ sources[selectedEntry.source].label }}
+          <span v-if="sources[selectedEntry.source as LogSource]" class="flex items-center gap-1" :class="sources[selectedEntry.source as LogSource].color">
+            <div :class="sources[selectedEntry.source as LogSource].icon" class="w-3.5 h-3.5" />
+            {{ sources[selectedEntry.source as LogSource].label }}
           </span>
           <span v-if="selectedEntry.status === 'loading'" class="flex items-center gap-1 text-amber">
             <div class="w-3 h-3 border-1.5 border-current border-t-transparent rounded-full animate-spin" />
@@ -403,11 +374,24 @@ onMounted(() => {
 
         <!-- Category + Labels -->
         <div v-if="selectedEntry.category || (selectedEntry.labels && selectedEntry.labels.length)" class="flex flex-wrap gap-1 mb-3">
-          <span v-if="selectedEntry.category" class="text-xs bg-gray/15 px-1.5 py-0.5 rounded">{{ selectedEntry.category }}</span>
+          <span
+            v-if="selectedEntry.category"
+            class="text-xs px-1.5 py-0.5 rounded border-l-2"
+            :style="{
+              color: getHashColorFromString(selectedEntry.category),
+              borderColor: getHashColorFromString(selectedEntry.category, 0.4),
+              backgroundColor: getHashColorFromString(selectedEntry.category, 0.1),
+            }"
+          >{{ selectedEntry.category }}</span>
           <span
             v-for="label of selectedEntry.labels"
             :key="label"
-            class="text-xs bg-purple/10 text-purple px-1.5 py-0.5 rounded"
+            class="text-xs px-1.5 py-0.5 rounded border-l-2"
+            :style="{
+              color: getHashColorFromString(label),
+              borderColor: getHashColorFromString(label, 0.4),
+              backgroundColor: getHashColorFromString(label, 0.1),
+            }"
           >{{ label }}</span>
         </div>
 
@@ -459,20 +443,9 @@ onMounted(() => {
         </div>
 
         <!-- ID + Timestamp -->
-        <div class="flex flex-col gap-1 mb-3 text-xs op40 font-mono">
+        <div class="flex flex-col gap-1 mb-3 text-xs op40 font-mono border-t border-base pt-3">
           <span>ID: {{ selectedEntry.id }}</span>
           <span>{{ formatAbsoluteTime(selectedEntry.timestamp) }} ({{ new Date(selectedEntry.timestamp).toLocaleDateString() }})</span>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex gap-2">
-          <button
-            class="flex items-center gap-1.5 text-sm op50 hover:op100 px-2 py-1 rounded hover:bg-active transition border border-base"
-            @click="removeEntry(selectedEntry!.id)"
-          >
-            <div class="i-ph:trash-duotone w-4 h-4" />
-            Dismiss
-          </button>
         </div>
       </div>
     </div>
