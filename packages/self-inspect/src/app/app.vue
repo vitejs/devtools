@@ -5,7 +5,7 @@ import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { useRefresh } from './composables/refresh'
 import { connect, connectionState } from './composables/rpc'
 import './styles/global.css'
-import './composables/dark'
+import '@vitejs/devtools-ui/composables/dark'
 
 useHead({
   title: 'DevTools Self Inspect',
