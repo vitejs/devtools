@@ -10,13 +10,15 @@ export default defineConfig({
   exports: true,
   dts: true,
   clean: false,
-  noExternal: [
-    '@pnpm/read-project-manifest',
-  ],
+  deps: {
+    alwaysBundle: [
+      '@pnpm/read-project-manifest',
+    ],
+    onlyBundle: false,
+  },
   inputOptions: {
     experimental: {
       resolveNewUrlToAsset: false,
     },
   },
-  inlineOnly: false,
 })
