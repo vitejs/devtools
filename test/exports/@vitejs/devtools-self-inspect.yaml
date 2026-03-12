@@ -1,4 +1,2 @@
 .:
   DevToolsSelfInspect: function
-./dirs:
-  clientPublicDir: string
