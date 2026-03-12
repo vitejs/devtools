@@ -37,6 +37,7 @@ catalogs:
     birpc: ^4.0.0
     cac: ^7.0.0
     diff: ^8.0.3
+    envinfo: ^7.21.0
     get-port-please: ^3.2.0
     h3: ^1.15.6
     immer: ^11.1.4
@@ -118,11 +119,13 @@ catalogs:
     '@iconify-json/fluent': ^1.2.40
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
+    '@iconify-json/material-icon-theme': ^1.2.54
     '@iconify-json/octicon': ^1.2.21
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.10
     '@iconify-json/simple-icons': ^1.2.73
     '@iconify-json/svg-spinners': ^1.2.4
+    '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.31
   inlined:
     '@antfu/utils': ^9.3.0
@@ -146,6 +149,7 @@ catalogs:
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/diff': ^8.0.0
+    '@types/envinfo': ^7.8.4
     '@types/react': ^19.2.14
     '@types/react-dom': ^19.2.3
     '@types/split2': ^4.2.3
