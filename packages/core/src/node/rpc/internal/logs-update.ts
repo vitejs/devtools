@@ -7,7 +7,7 @@ export const logsUpdate = defineRpcFunction({
   setup: (context) => {
     return {
       async handler(id: string, patch: Partial<DevToolsLogEntryInput>): Promise<DevToolsLogEntry | null> {
-        return context.logs.update(id, patch) ?? null
+        return await context.logs.update(id, patch) ?? null
       },
     }
   },

@@ -37,7 +37,8 @@ export default async function runA11yCheck(context: DockClientScriptContext): Pr
       const level = impactToLevel(violation.impact)
       const firstNode = violation.nodes[0]
 
-      await logs.add({
+      // Fire-and-forget — no need to await when handle isn't needed
+      logs.add({
         id: `a11y-violation-${violation.id}`,
         message: violation.description,
         level,

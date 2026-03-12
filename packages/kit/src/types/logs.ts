@@ -105,7 +105,10 @@ export interface DevToolsLogHandle {
 }
 
 export interface DevToolsLogsClient {
-  /** Add a log entry, returns a handle for subsequent updates/dismissal */
+  /**
+   * Add a log entry. Returns a Promise resolving to a handle for subsequent updates/dismissal.
+   * Can be used without `await` for fire-and-forget usage.
+   */
   add: (input: DevToolsLogEntryInput) => Promise<DevToolsLogHandle>
   /** Remove a log entry by id */
   remove: (id: string) => Promise<void>
@@ -124,18 +127,19 @@ export interface DevToolsLogsHost {
 
   /**
    * Add a new log entry. If an entry with the same `id` already exists, it will be updated instead.
+   * Returns a handle for subsequent updates/dismissal. Can be used without `await` for fire-and-forget.
    */
-  add: (entry: DevToolsLogEntryInput) => DevToolsLogEntry
+  add: (entry: DevToolsLogEntryInput) => Promise<DevToolsLogHandle>
   /**
    * Update an existing log entry by id (partial update)
    */
-  update: (id: string, patch: Partial<DevToolsLogEntryInput>) => DevToolsLogEntry | undefined
+  update: (id: string, patch: Partial<DevToolsLogEntryInput>) => Promise<DevToolsLogEntry | undefined>
   /**
    * Remove a log entry by id
    */
-  remove: (id: string) => void
+  remove: (id: string) => Promise<void>
   /**
    * Clear all log entries
    */
-  clear: () => void
+  clear: () => Promise<void>
 }

@@ -6,7 +6,7 @@ export const logsClear = defineRpcFunction({
   setup: (context) => {
     return {
       async handler(): Promise<void> {
-        context.logs.clear()
+        await context.logs.clear()
       },
     }
   },

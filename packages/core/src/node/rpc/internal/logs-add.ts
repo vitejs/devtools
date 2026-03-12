@@ -1,4 +1,5 @@
 import type { DevToolsLogEntry, DevToolsLogEntryInput } from '@vitejs/devtools-kit'
+import type { LogSource } from '../../../client/webcomponents/components/LogItemConstants'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const logsAdd = defineRpcFunction({
@@ -7,7 +8,9 @@ export const logsAdd = defineRpcFunction({
   setup: (context) => {
     return {
       async handler(input: DevToolsLogEntryInput): Promise<DevToolsLogEntry> {
-        return context.logs.add(Object.assign(input, { source: 'client' as const }))
+        // @ts-expect-error - source is not in the type
+        const handle = await context.logs.add({ ...input, source: 'client' as LogSource })
+        return handle.entry
       },
     }
   },

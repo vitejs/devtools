@@ -6,7 +6,7 @@ export const logsRemove = defineRpcFunction({
   setup: (context) => {
     return {
       async handler(id: string): Promise<void> {
-        context.logs.remove(id)
+        await context.logs.remove(id)
       },
     }
   },

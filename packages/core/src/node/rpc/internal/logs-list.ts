@@ -13,7 +13,7 @@ export const logsList = defineRpcFunction({
   name: 'devtoolskit:internal:logs:list',
   type: 'static',
   setup: (context) => {
-    const host = context.logs as DevToolsLogsHost
+    const host = context.logs as unknown as DevToolsLogsHost
 
     return {
       async handler(since?: number): Promise<LogsListResult> {
@@ -46,7 +46,7 @@ export const logsList = defineRpcFunction({
         // Prune old removals that all clients have consumed
         // (keep only removals newer than `since` — conservative, but simple)
         const pruneThreshold = since
-        while (host.removals.length > 0 && host.removals[0].time <= pruneThreshold)
+        while (host.removals.length > 0 && host.removals[0]!.time <= pruneThreshold)
           host.removals.shift()
 
         return { entries, removedIds, version: currentVersion }

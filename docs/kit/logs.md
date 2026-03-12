@@ -29,9 +29,45 @@ The Logs system allows plugins to emit structured log entries from both the serv
 
 The `source` field is automatically set to `'server'` or `'client'` depending on where the log was emitted.
 
-## Server-Side Usage
+## Usage
 
-In your plugin's `devtools.setup`, use `context.logs` to emit log entries:
+Both server-side and client-side share the same `context.logs` API. All methods return Promises, but you don't need to `await` them for fire-and-forget usage.
+
+### Fire-and-Forget
+
+```ts
+// No await needed — just emit the log
+context.logs.add({
+  message: 'Plugin initialized',
+  level: 'info',
+})
+```
+
+### With Handle
+
+`await` the `add()` call to get a `DevToolsLogHandle` for subsequent updates:
+
+```ts
+// Await to get a handle for later updates
+const handle = await context.logs.add({
+  id: 'my-build',
+  message: 'Building...',
+  level: 'info',
+  status: 'loading',
+})
+
+// Later, update via the handle
+await handle.update({
+  message: 'Build complete',
+  level: 'success',
+  status: 'idle',
+})
+
+// Or dismiss it
+await handle.dismiss()
+```
+
+### Server-Side Example
 
 ```ts
 export function myPlugin() {
@@ -39,25 +75,10 @@ export function myPlugin() {
     name: 'my-plugin',
     devtools: {
       setup(context) {
-        // Simple log
+        // Fire-and-forget
         context.logs.add({
           message: 'Plugin initialized',
           level: 'info',
-        })
-
-        // Log with loading state, then update
-        const entry = context.logs.add({
-          id: 'my-build',
-          message: 'Building...',
-          level: 'info',
-          status: 'loading',
-        })
-
-        // Later, update via update()
-        context.logs.update(entry.id, {
-          message: 'Build complete',
-          level: 'success',
-          status: 'idle',
         })
       },
     },
@@ -65,25 +86,24 @@ export function myPlugin() {
 }
 ```
 
-## Client-Side Usage
-
-In dock action scripts, use `context.logs` — an async client that communicates via RPC:
+### Client-Side Example
 
 ```ts
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
 export default async function (context: DockClientScriptContext) {
+  // Await to get the handle
   const log = await context.logs.add({
     message: 'Running audit...',
     level: 'info',
     status: 'loading',
     notify: true,
-    category: 'a11y',
   })
 
   // ... do work ...
 
-  await log.update({
+  // Update via handle — can also be fire-and-forget
+  log.update({
     message: 'Audit complete — 3 issues found',
     level: 'warn',
     status: 'idle',
@@ -91,16 +111,18 @@ export default async function (context: DockClientScriptContext) {
 }
 ```
 
-## Log Handle (Client-Side)
+## Log Handle
 
-`context.logs.add()` on the client returns a `DevToolsLogHandle` with:
+`context.logs.add()` returns a `Promise<DevToolsLogHandle>` with:
 
 | Property/Method | Description |
 |-----------------|-------------|
 | `handle.id` | The log entry id |
 | `handle.entry` | The current `DevToolsLogEntry` data |
-| `handle.update(patch)` | Partially update the log entry |
-| `handle.dismiss()` | Remove the log entry |
+| `handle.update(patch)` | Partially update the log entry (returns `Promise`) |
+| `handle.dismiss()` | Remove the log entry (returns `Promise`) |
+
+Both `handle.update()` and `handle.dismiss()` return Promises but can be used without `await` for fire-and-forget.
 
 ## Deduplication
 

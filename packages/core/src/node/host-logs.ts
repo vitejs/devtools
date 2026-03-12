@@ -1,4 +1,4 @@
-import type { DevToolsLogEntry, DevToolsLogEntryInput, DevToolsLogsHost as DevToolsLogsHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsLogEntry, DevToolsLogEntryInput, DevToolsLogHandle, DevToolsLogsHost as DevToolsLogsHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { nanoid } from '@vitejs/devtools-kit/utils/nanoid'
 
@@ -24,10 +24,11 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     public readonly context: DevToolsNodeContext,
   ) {}
 
-  add(input: DevToolsLogEntryInput): DevToolsLogEntry {
-    // Dedup: if an entry with the same explicit id exists, update it instead
+  async add(input: DevToolsLogEntryInput): Promise<DevToolsLogHandle> {
+    // Dedupe: if an entry with the same explicit id exists, update it instead
     if (input.id && this.entries.has(input.id)) {
-      return this.update(input.id, input)!
+      await this.update(input.id, input)
+      return this._createHandle(input.id)
     }
 
     const entry: DevToolsLogEntry = {
@@ -40,7 +41,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     // FIFO eviction when at capacity
     if (this.entries.size >= MAX_ENTRIES) {
       const oldest = this.entries.keys().next().value!
-      this.remove(oldest)
+      await this.remove(oldest)
     }
 
     this.entries.set(entry.id, entry)
@@ -53,10 +54,10 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
       }, entry.autoDelete))
     }
 
-    return entry
+    return this._createHandle(entry.id)
   }
 
-  update(id: string, patch: Partial<DevToolsLogEntryInput>): DevToolsLogEntry | undefined {
+  async update(id: string, patch: Partial<DevToolsLogEntryInput>): Promise<DevToolsLogEntry | undefined> {
     const existing = this.entries.get(id)
     if (!existing)
       return undefined
@@ -90,7 +91,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     return updated
   }
 
-  remove(id: string): void {
+  async remove(id: string): Promise<void> {
     const timer = this._autoDeleteTimers.get(id)
     if (timer) {
       clearTimeout(timer)
@@ -102,7 +103,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     this.events.emit('log:removed', id)
   }
 
-  clear(): void {
+  async clear(): Promise<void> {
     for (const timer of this._autoDeleteTimers.values())
       clearTimeout(timer)
     this._autoDeleteTimers.clear()
@@ -112,5 +113,16 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     this.entries.clear()
     this.lastModified.clear()
     this.events.emit('log:cleared')
+  }
+
+  private _createHandle(id: string): DevToolsLogHandle {
+    // eslint-disable-next-line ts/no-this-alias
+    const host = this
+    return {
+      get entry() { return host.entries.get(id)! },
+      get id() { return id },
+      update: patch => host.update(id, patch),
+      dismiss: () => host.remove(id),
+    }
   }
 }
