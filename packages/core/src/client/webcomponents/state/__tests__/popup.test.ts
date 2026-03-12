@@ -1,25 +1,23 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setDocksOverflowPanel, useDocksOverflowPanel } from '../floating-tooltip'
-import { closeDockPopup, filterPopupDockEntry, isDockPopupEntryVisible, isDockPopupSupported, isRunningInDockPopupWindow, openDockPopup, setDockStandaloneLoaderForTest, useDockPopupWindow, useIsDockPopupOpen } from '../popup'
+import { closeDockPopup, filterPopupDockEntry, isDockPopupEntryVisible, isDockPopupSupported, openDockPopup, setDockStandaloneLoaderForTest, useDockPopupWindow, useIsDockPopupOpen } from '../popup'
 
 const {
   DockStandaloneElementMock,
   dockStandaloneCtorCalls,
   dockElementRemoveMock,
-  dockElementSetAttributeMock,
 } = vi.hoisted(() => {
   const dockElementRemoveMock = vi.fn()
-  const dockElementSetAttributeMock = vi.fn()
   const dockStandaloneCtorCalls: Array<{ context: DocksContext }> = []
   class DockStandaloneElementMock {
     context: DocksContext
     remove: () => void
-    setAttribute: (name: string, value: string) => void
+    style: Record<string, string>
     constructor({ context }: { context: DocksContext }) {
       this.context = context
       this.remove = dockElementRemoveMock
-      this.setAttribute = dockElementSetAttributeMock
+      this.style = {}
       dockStandaloneCtorCalls.push({ context })
     }
   }
@@ -27,7 +25,6 @@ const {
     DockStandaloneElementMock: DockStandaloneElementMock as unknown as new (props: { context: DocksContext }) => HTMLElement,
     dockStandaloneCtorCalls,
     dockElementRemoveMock,
-    dockElementSetAttributeMock,
   }
 })
 
@@ -135,7 +132,6 @@ describe('dock popup state', () => {
     setDockStandaloneLoaderForTest(async () => DockStandaloneElementMock)
     dockStandaloneCtorCalls.length = 0
     dockElementRemoveMock.mockClear()
-    dockElementSetAttributeMock.mockClear()
     ;(globalThis as { window?: any }).window = {
       innerWidth: 1200,
       innerHeight: 800,
@@ -149,7 +145,7 @@ describe('dock popup state', () => {
 
   it('returns null when the API is unavailable', async () => {
     expect(isDockPopupSupported()).toBe(false)
-    expect(isDockPopupEntryVisible()).toBe(false)
+    expect(isDockPopupEntryVisible('embedded')).toBe(false)
     const popup = await openDockPopup(createMockContext())
     expect(popup).toBeNull()
     expect(useIsDockPopupOpen().value).toBe(false)
@@ -160,21 +156,15 @@ describe('dock popup state', () => {
     const requestWindow = vi.fn().mockResolvedValue(popup)
     ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow }
 
-    expect(isDockPopupEntryVisible()).toBe(true)
+    expect(isDockPopupEntryVisible('embedded')).toBe(true)
     await openDockPopup(createMockContext())
-    expect(isDockPopupEntryVisible()).toBe(false)
+    expect(isDockPopupEntryVisible('embedded')).toBe(false)
   })
 
   it('hides popup entry when running inside popup window', () => {
     ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow: vi.fn() }
-    ;(window as Window & { document?: unknown }).document = {
-      documentElement: {
-        hasAttribute: vi.fn((name: string) => name === 'data-vite-devtools-popup-window'),
-      },
-    } as any
 
-    expect(isRunningInDockPopupWindow()).toBe(true)
-    expect(isDockPopupEntryVisible()).toBe(false)
+    expect(isDockPopupEntryVisible('standalone')).toBe(false)
   })
 
   it('filters popup entry from grouped entries', () => {
@@ -220,7 +210,6 @@ describe('dock popup state', () => {
     expect(appRoot).toBeTruthy()
     expect(appRoot.id).toBe('vite-devtools-popup-root')
     expect(appRoot.appended).toHaveLength(1)
-    expect(dockElementSetAttributeMock).toHaveBeenCalledWith('data-vite-devtools-color-mode', 'light')
   })
 
   it('hides dock overflow panel when opening popup', async () => {

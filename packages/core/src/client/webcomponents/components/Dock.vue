@@ -75,14 +75,14 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
-const isPopupEntryVisible = computed(() => isDockPopupEntryVisible())
+const isPopupEntryVisible = computed(() => isDockPopupEntryVisible(context.clientType))
 const groupedEntries = computed(() => {
   if (isPopupEntryVisible.value)
     return context.docks.groupedEntries
   return filterPopupDockEntry(context.docks.groupedEntries)
 })
 
-const splitedEntries = computed(() => {
+const splitEntries = computed(() => {
   return docksSplitGroupsWithCapacity(groupedEntries.value, 5)
 })
 
@@ -330,18 +330,18 @@ onMounted(() => {
         >
           <DockEntriesWithCategories
             :context="context"
-            :groups="splitedEntries.visible"
+            :groups="splitEntries.visible"
             :is-vertical="context.panel.isVertical"
             :selected="selectedEntry"
             @select="(e) => context.docks.switchEntry(e?.id)"
           />
 
-          <template v-if="splitedEntries.overflow.length > 0">
+          <template v-if="splitEntries.overflow.length > 0">
             <div class="border-base m1 h-20px w-px border-r-1.5" />
             <DockOverflowButton
               :context="context"
               :is-vertical="context.panel.isVertical"
-              :groups="splitedEntries.overflow"
+              :groups="splitEntries.overflow"
               :selected="selectedEntry"
               @select="(e) => context.docks.switchEntry(e?.id)"
             />

@@ -15,7 +15,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@unocss/nuxt',
     '@nuxt/eslint',
-    'nuxt-eslint-auto-explicit-import',
     './modules/rpc',
   ],
 

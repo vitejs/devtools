@@ -56,7 +56,6 @@
     "magic-string": "catalog:build",
     "nano-staged": "catalog:devtools",
     "nuxt": "catalog:build",
-    "nuxt-eslint-auto-explicit-import": "catalog:devtools",
     "p-limit": "catalog:deps",
     "simple-git-hooks": "catalog:devtools",
     "tsdown": "catalog:build",

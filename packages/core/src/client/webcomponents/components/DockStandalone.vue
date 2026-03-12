@@ -31,7 +31,7 @@ watch(
 )
 
 const groupedEntries = computed(() => {
-  if (isDockPopupEntryVisible())
+  if (isDockPopupEntryVisible('standalone'))
     return context.docks.groupedEntries
 
   return filterPopupDockEntry(context.docks.groupedEntries)
