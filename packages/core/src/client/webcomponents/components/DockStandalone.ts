@@ -4,20 +4,11 @@ import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
 import Component from './DockStandalone.vue'
 
-const forcedColorModeCss = `
-:host([data-vite-devtools-color-mode='dark']) {
-  color-scheme: dark;
-}
-:host([data-vite-devtools-color-mode='light']) {
-  color-scheme: light;
-}
-`
-
 export const DockStandalone = defineCustomElement(
   Component,
   {
     shadowRoot: true,
-    styles: [css, forcedColorModeCss],
+    styles: [css],
   },
 ) as VueElementConstructor<{
   context: DocksContext

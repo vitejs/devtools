@@ -5,11 +5,12 @@ import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import { alias } from '../../../alias'
+import { DevTools } from '../../core/src'
+import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
-import { DevTools } from '../src'
-import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
+import { DevToolsSelfInspect } from '../../self-inspect/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {
@@ -29,6 +30,7 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
+    DevToolsSelfInspect(),
     {
       name: 'build-css',
       handleHotUpdate({ file }) {
@@ -139,23 +141,34 @@ export default defineConfig({
             initialValue: { count: 1 },
           })
 
-          // eslint-disable-next-line unimport/auto-insert
-          setInterval(() => {
-            counterState.mutate((current) => {
-              current.count = (current.count + 1) % 5
-            })
-            const count = counterState.value().count
+          counterState.on('updated', (newState) => {
             ctx.docks.update({
               id: 'counter',
               type: 'action',
-              icon: `material-symbols:counter-${count}`,
-              title: `Counter ${count}`,
-              // TODO: HMR?
+              icon: `material-symbols:counter-${newState.count}`,
+              title: `Counter ${newState.count}`,
               action: ctx.utils.createSimpleClientScript(`() => {
-                alert('Counter ${count}')
+                alert('Counter ${newState.count}')
               }`),
             })
-          }, 1000)
+          })
+
+          // setInterval(() => {
+          //   counterState.mutate((current) => {
+          //     current.count = (current.count + 1) % 5
+          //   })
+          //   const count = counterState.value().count
+          //   ctx.docks.update({
+          //     id: 'counter',
+          //     type: 'action',
+          //     icon: `material-symbols:counter-${count}`,
+          //     title: `Counter ${count}`,
+          //     // TODO: HMR?
+          //     action: ctx.utils.createSimpleClientScript(`() => {
+          //       alert('Counter ${count}')
+          //     }`),
+          //   })
+          // }, 1000)
         },
       },
     },

@@ -26,6 +26,12 @@
         "dist/**"
       ]
     },
+    "@vitejs/devtools-self-inspect#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@vitejs/devtools-rpc#build": {
       "outputLogs": "new-only",
       "outputs": [

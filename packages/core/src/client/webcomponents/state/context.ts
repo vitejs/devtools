@@ -66,7 +66,7 @@ export async function createDocksContext(
 
     // If the action is in a popup, delegate to the main frame
     if (entry.type === 'action') {
-      const delegated = await triggerMainFrameDockAction(entry.id)
+      const delegated = await triggerMainFrameDockAction(clientType, entry.id)
       if (delegated != null)
         return false
     }
@@ -137,7 +137,7 @@ export async function createDocksContext(
     clientType,
   })
 
-  registerMainFrameDockActionHandler(async (id) => {
+  registerMainFrameDockActionHandler(clientType, async (id) => {
     const entry = dockEntries.value.find(e => e.id === id)
     if (!entry || entry.type !== 'action')
       return false
