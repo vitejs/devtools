@@ -2,7 +2,6 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useLogs } from '../state/logs'
 import { dismissToast, useToasts } from '../state/toasts'
-import DockIcon from './DockIcon.vue'
 import LogItem from './LogItem.vue'
 
 // @unocss-include
@@ -47,7 +46,7 @@ function openLogs(toastId: string) {
               class="flex-none op30 hover:op100 p-0.5 rounded hover:bg-active transition"
               @click.stop="dismissToast(toast.id)"
             >
-              <DockIcon icon="ph:x" class="w-3 h-3" />
+              <div class="i-ph-x w-3 h-3" />
             </button>
           </template>
         </LogItem>

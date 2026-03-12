@@ -1,37 +1,61 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { LogSource } from './LogItemConstants'
+import { useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../state/logs'
-import DockIcon from './DockIcon.vue'
 import LogItem from './LogItem.vue'
+import { levels, sources } from './LogItemConstants'
 
 const props = defineProps<{
   context: DocksContext
 }>()
 
-const logsState = useLogs(props.context)
-
-const levelIcons: Record<DevToolsLogLevel, string> = {
-  info: 'ph:info-duotone',
-  warn: 'ph:warning-duotone',
-  error: 'ph:x-circle-duotone',
-  success: 'ph:check-circle-duotone',
-  debug: 'ph:bug-duotone',
+function formatAbsoluteTime(ts: number): string {
+  return new Date(ts).toLocaleTimeString()
 }
 
-const levelColors: Record<DevToolsLogLevel, string> = {
-  info: 'text-blue',
-  warn: 'text-amber',
-  error: 'text-red',
-  success: 'text-green',
-  debug: 'text-gray',
+type SortMode = 'newest' | 'oldest' | 'level'
+
+const logsState = useLogs(props.context)
+
+const allLevels: DevToolsLogLevel[] = Object.keys(levels) as DevToolsLogLevel[]
+const allSources: LogSource[] = Object.keys(sources) as LogSource[]
+
+const sortLabels: Record<SortMode, string> = {
+  newest: 'Newest first',
+  oldest: 'Oldest first',
+  level: 'By severity',
+}
+const sortIcons: Record<SortMode, string> = {
+  newest: 'i-ph:sort-descending-duotone',
+  oldest: 'i-ph:sort-ascending-duotone',
+  level: 'i-ph:warning-diamond-duotone',
 }
 
 const search = ref('')
 const selectedId = ref<string | null>(null)
 const activeFilters = ref<Set<DevToolsLogLevel>>(new Set())
 const activeLabelFilters = ref<Set<string>>(new Set())
+const activeSources = ref<Set<LogSource>>(new Set())
+const activeCategories = ref<Set<string>>(new Set())
+const sortBy = ref<SortMode>('newest')
+
+const sortModes: SortMode[] = ['newest', 'oldest', 'level']
+
+function cycleSortMode() {
+  const idx = sortModes.indexOf(sortBy.value)!
+  sortBy.value = sortModes[(idx + 1) % sortModes.length] as SortMode
+}
+
+const levelPriority: Record<DevToolsLogLevel, number> = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  success: 3,
+  debug: 4,
+}
 
 function toggleFilter(level: DevToolsLogLevel) {
   const filters = activeFilters.value
@@ -49,6 +73,38 @@ function toggleLabelFilter(label: string) {
     filters.add(label)
 }
 
+function toggleSource(source: LogSource) {
+  const s = activeSources.value
+  if (s.has(source))
+    s.delete(source)
+  else
+    s.add(source)
+}
+
+function toggleCategory(category: string) {
+  const c = activeCategories.value
+  if (c.has(category))
+    c.delete(category)
+  else
+    c.add(category)
+}
+
+const hasActiveFilter = computed(() => {
+  return activeFilters.value.size > 0
+    || activeLabelFilters.value.size > 0
+    || activeSources.value.size > 0
+    || activeCategories.value.size > 0
+    || search.value.length > 0
+})
+
+function resetFilters() {
+  activeFilters.value.clear()
+  activeLabelFilters.value.clear()
+  activeSources.value.clear()
+  activeCategories.value.clear()
+  search.value = ''
+}
+
 const allLabels = computed(() => {
   const labels = new Set<string>()
   for (const entry of logsState.entries) {
@@ -60,12 +116,25 @@ const allLabels = computed(() => {
   return Array.from(labels).sort()
 })
 
+const allCategories = computed(() => {
+  const cats = new Set<string>()
+  for (const entry of logsState.entries) {
+    if (entry.category)
+      cats.add(entry.category)
+  }
+  return Array.from(cats).sort()
+})
+
 const filteredEntries = computed(() => {
   let entries = logsState.entries
   if (activeFilters.value.size > 0)
     entries = entries.filter(e => activeFilters.value.has(e.level))
   if (activeLabelFilters.value.size > 0)
     entries = entries.filter(e => e.labels?.some(l => activeLabelFilters.value.has(l)))
+  if (activeSources.value.size > 0)
+    entries = entries.filter(e => activeSources.value.has(e.source))
+  if (activeCategories.value.size > 0)
+    entries = entries.filter(e => e.category && activeCategories.value.has(e.category))
   if (search.value) {
     const q = search.value.toLowerCase()
     entries = entries.filter(e =>
@@ -76,6 +145,12 @@ const filteredEntries = computed(() => {
       || e.labels?.some(l => l.toLowerCase().includes(q)),
     )
   }
+
+  // Sort
+  if (sortBy.value === 'oldest')
+    return [...entries]
+  if (sortBy.value === 'level')
+    return entries.toSorted((a, b) => levelPriority[a.level] - levelPriority[b.level])
   return entries.toReversed()
 })
 
@@ -84,6 +159,8 @@ const selectedEntry = computed(() => {
     return null
   return logsState.entries.find(e => e.id === selectedId.value) ?? null
 })
+
+const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
 
 async function openFile(entry: DevToolsLogEntry) {
   if (!entry.filePosition)
@@ -108,54 +185,139 @@ async function removeEntry(id: string) {
     selectedId.value = null
 }
 
+async function dismissFiltered() {
+  const ids = filteredEntries.value.map(e => e.id)
+  for (const id of ids)
+    await props.context.rpc.call('devtoolskit:internal:logs:remove', id)
+  selectedId.value = null
+}
+
 onMounted(() => {
   markLogsAsRead()
 })
-
-const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debug']
 </script>
 
 <template>
   <div class="w-full h-full grid grid-rows-[max-content_1fr]">
     <!-- Toolbar -->
-    <div class="border-base border-b flex flex-wrap items-center gap-1 px-2 py-1">
-      <button
-        v-for="level of allLevels"
-        :key="level"
-        class="px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5 hover:bg-active transition"
-        :class="[
-          activeFilters.size === 0 || activeFilters.has(level) ? levelColors[level] : 'op30',
-        ]"
-        @click="toggleFilter(level)"
-      >
-        <DockIcon :icon="levelIcons[level]" class="w-3.5 h-3.5" />
-        <span class="capitalize">{{ level }}</span>
-      </button>
-      <div v-if="allLabels.length > 0" class="border-l border-base h-4 mx-0.5" />
-      <button
-        v-for="label of allLabels"
-        :key="label"
-        class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
-        :class="[
-          activeLabelFilters.size === 0 || activeLabelFilters.has(label) ? 'text-purple bg-purple/10' : 'op30',
-        ]"
-        @click="toggleLabelFilter(label)"
-      >
-        {{ label }}
-      </button>
-      <div class="flex-1" />
-      <input
-        v-model="search"
-        type="text"
-        placeholder="Filter..."
-        class="bg-transparent border border-base rounded px-2 py-0.5 text-xs w-40 outline-none focus:border-purple"
-      >
-      <button
-        class="text-xs op50 hover:op100 px-1.5 py-0.5 hover:bg-active rounded transition"
-        @click="clearAll"
-      >
-        Clear
-      </button>
+    <div class="border-base border-b p3 flex flex-col gap-2">
+      <!-- Row 1: Search + sort + actions -->
+      <div class="flex items-center gap-1">
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search logs..."
+          class="bg-transparent border border-base rounded px-2 py-0.5 text-xs w-48 outline-none focus:border-purple"
+        >
+        <button
+          class="flex items-center gap-0.5 op50 hover:op100 p-1 rounded hover:bg-active transition"
+          :title="sortLabels[sortBy]"
+          @click="cycleSortMode"
+        >
+          <div :class="sortIcons[sortBy]" class="w-4 h-4" />
+        </button>
+        <div class="flex-1" />
+        <span v-if="filteredEntries.length !== logsState.entries.length" class="text-xs op40">
+          {{ filteredEntries.length }}/{{ logsState.entries.length }}
+        </span>
+        <button
+          v-if="hasActiveFilter"
+          class="text-xs op50 hover:op100 px-1.5 py-0.5 hover:bg-active rounded transition flex items-center gap-0.5"
+          title="Reset all filters"
+          @click="resetFilters"
+        >
+          <div class="i-ph:funnel-x-duotone w-3.5 h-3.5" />
+          Reset Filters
+        </button>
+        <div v-if="hasActiveFilter" class="border-l border-base h-4 mx-0.5" />
+        <button
+          v-if="hasActiveFilter && filteredEntries.length > 0"
+          class="text-xs op50 hover:op100 px-1.5 py-0.5 hover:bg-active rounded transition flex items-center gap-0.5"
+          title="Dismiss all matching the current filter"
+          @click="dismissFiltered"
+        >
+          <div class="i-ph:trash-duotone w-3.5 h-3.5" />
+          Dismiss filtered
+        </button>
+        <button
+          v-if="!hasActiveFilter && logsState.entries.length > 0"
+          class="text-xs op50 hover:op100 px-1.5 py-0.5 hover:bg-active rounded transition flex items-center gap-0.5"
+          title="Dismiss all logs"
+          @click="clearAll"
+        >
+          <div class="i-ph:trash-duotone w-3.5 h-3.5" />
+          Dismiss all
+        </button>
+      </div>
+
+      <!-- Row 2: Level + source + category + label filters -->
+      <div class="flex flex-wrap items-center gap-1">
+        <span class="text-xs op40">Level</span>
+        <div class="flex flex-wrap items-center gap-0">
+          <button
+            v-for="level of allLevels"
+            :key="level"
+            class="px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5 hover:bg-active transition"
+            :class="[
+              activeFilters.size === 0 || activeFilters.has(level) ? levels[level].color : 'op30',
+            ]"
+            @click="toggleFilter(level)"
+          >
+            <div :class="levels[level].icon" class="w-3.5 h-3.5" />
+            <span class="capitalize">{{ level }}</span>
+          </button>
+        </div>
+
+        <div class="border-l border-base h-4 mx-0.5" />
+
+        <span class="text-xs op40">Source</span>
+        <div class="flex flex-wrap items-center gap-0">
+          <button
+            v-for="source of allSources"
+            :key="source"
+            class="px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5 hover:bg-active transition"
+            :class="[
+              activeSources.size === 0 || activeSources.has(source) ? sources[source].color : 'op30',
+            ]"
+            @click="toggleSource(source)"
+          >
+            <div :class="sources[source].icon" class="w-3.5 h-3.5" />
+            <span class="capitalize">{{ sources[source].label }}</span>
+          </button>
+        </div>
+
+        <template v-if="allCategories.length > 0">
+          <div class="border-l border-base h-4 mx-1" />
+          <span class="text-xs op40">Category</span>
+          <button
+            v-for="cat of allCategories"
+            :key="cat"
+            class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
+            :class="[
+              activeCategories.size === 0 || activeCategories.has(cat) ? 'text-teal bg-teal/10' : 'op30',
+            ]"
+            @click="toggleCategory(cat)"
+          >
+            {{ cat }}
+          </button>
+        </template>
+
+        <template v-if="allLabels.length > 0">
+          <div class="border-l border-base h-4 mx-1" />
+          <span class="text-xs op40">Labels</span>
+          <button
+            v-for="label of allLabels"
+            :key="label"
+            class="px-1.5 py-0.5 rounded text-xs hover:bg-active transition"
+            :class="[
+              activeLabelFilters.size === 0 || activeLabelFilters.has(label) ? 'text-purple bg-purple/10' : 'op30',
+            ]"
+            @click="toggleLabelFilter(label)"
+          >
+            {{ label }}
+          </button>
+        </template>
+      </div>
     </div>
 
     <!-- Content -->
@@ -181,7 +343,7 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
                 title="Dismiss"
                 @click.stop="removeEntry(entry.id)"
               >
-                <DockIcon icon="ph:x" class="w-3 h-3" />
+                <div class="i-ph-x w-3 h-3" />
               </button>
             </template>
           </LogItem>
@@ -190,12 +352,12 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
 
       <!-- Detail panel -->
       <div v-if="selectedEntry" class="h-full of-y-auto border-l border-base p-4">
+        <!-- Header -->
         <div class="flex items-start gap-2 mb-3">
-          <DockIcon
+          <div
             v-if="selectedEntry.status !== 'loading'"
-            :icon="levelIcons[selectedEntry.level]"
+            :class="[levels[selectedEntry.level].icon, levels[selectedEntry.level].color]"
             class="w-5 h-5 flex-none mt-0.5"
-            :class="levelColors[selectedEntry.level]"
           />
           <div
             v-else
@@ -207,14 +369,39 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
             </div>
           </div>
           <button class="op50 hover:op100 p-1" title="Close detail" @click="selectedId = null">
-            <DockIcon icon="ph:x" class="w-4 h-4" />
+            <div class="i-ph-x w-4 h-4" />
           </button>
         </div>
 
+        <!-- Metadata row -->
+        <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+          <span class="flex items-center gap-1" :class="levels[selectedEntry.level].color">
+            <div :class="levels[selectedEntry.level].icon" class="w-3.5 h-3.5" />
+            <span class="capitalize">{{ selectedEntry.level }}</span>
+          </span>
+          <span class="flex items-center gap-1" :class="sources[selectedEntry.source].color">
+            <div :class="sources[selectedEntry.source].icon" class="w-3.5 h-3.5" />
+            {{ sources[selectedEntry.source].label }}
+          </span>
+          <span v-if="selectedEntry.status === 'loading'" class="flex items-center gap-1 text-amber">
+            <div class="w-3 h-3 border-1.5 border-current border-t-transparent rounded-full animate-spin" />
+            Loading
+          </span>
+          <span class="op40" :title="formatAbsoluteTime(selectedEntry.timestamp)">
+            {{ selectedTimeAgo }}
+          </span>
+          <span v-if="selectedEntry.notify" class="flex items-center gap-0.5 op40">
+            <div class="i-ph:bell-duotone w-3.5 h-3.5" />
+            notify
+          </span>
+        </div>
+
+        <!-- Description -->
         <div v-if="selectedEntry.description" class="text-sm op80 mb-3 whitespace-pre-wrap">
           {{ selectedEntry.description }}
         </div>
 
+        <!-- Category + Labels -->
         <div v-if="selectedEntry.category || (selectedEntry.labels && selectedEntry.labels.length)" class="flex flex-wrap gap-1 mb-3">
           <span v-if="selectedEntry.category" class="text-xs bg-gray/15 px-1.5 py-0.5 rounded">{{ selectedEntry.category }}</span>
           <span
@@ -230,8 +417,8 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           class="flex items-center gap-1.5 text-sm text-blue hover:underline mb-3"
           @click="openFile(selectedEntry!)"
         >
-          <DockIcon icon="ph:file-code-duotone" class="w-4 h-4" />
-          <span>{{ selectedEntry.filePosition.file }}<template v-if="selectedEntry.filePosition.line">:{{ selectedEntry.filePosition.line }}</template></span>
+          <div class="i-ph:file-code-duotone w-4 h-4" />
+          <span>{{ selectedEntry.filePosition.file }}<template v-if="selectedEntry.filePosition.line">:{{ selectedEntry.filePosition.line }}</template><template v-if="selectedEntry.filePosition.column">:{{ selectedEntry.filePosition.column }}</template></span>
         </button>
 
         <!-- Element position -->
@@ -245,6 +432,10 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           <div v-if="selectedEntry.elementPosition.description" class="text-xs op70 mt-1">
             {{ selectedEntry.elementPosition.description }}
           </div>
+          <div v-if="selectedEntry.elementPosition.boundingBox" class="text-xs op50 mt-1 font-mono">
+            {{ selectedEntry.elementPosition.boundingBox.x }}, {{ selectedEntry.elementPosition.boundingBox.y }}
+            ({{ selectedEntry.elementPosition.boundingBox.width }} × {{ selectedEntry.elementPosition.boundingBox.height }})
+          </div>
         </div>
 
         <!-- Stacktrace -->
@@ -255,13 +446,31 @@ const allLevels: DevToolsLogLevel[] = ['error', 'warn', 'info', 'success', 'debu
           <pre class="text-xs bg-gray/5 rounded p-2 of-x-auto whitespace-pre-wrap font-mono">{{ selectedEntry.stacktrace }}</pre>
         </div>
 
+        <!-- Timers -->
+        <div v-if="selectedEntry.autoDismiss || selectedEntry.autoDelete" class="flex flex-wrap gap-3 mb-3 text-xs op50">
+          <span v-if="selectedEntry.autoDismiss" class="flex items-center gap-1">
+            <div class="i-ph:bell-slash-duotone w-3.5 h-3.5" />
+            Auto-dismiss: {{ selectedEntry.autoDismiss / 1000 }}s
+          </span>
+          <span v-if="selectedEntry.autoDelete" class="flex items-center gap-1">
+            <div class="i-ph:timer-duotone w-3.5 h-3.5" />
+            Auto-delete: {{ selectedEntry.autoDelete / 1000 }}s
+          </span>
+        </div>
+
+        <!-- ID + Timestamp -->
+        <div class="flex flex-col gap-1 mb-3 text-xs op40 font-mono">
+          <span>ID: {{ selectedEntry.id }}</span>
+          <span>{{ formatAbsoluteTime(selectedEntry.timestamp) }} ({{ new Date(selectedEntry.timestamp).toLocaleDateString() }})</span>
+        </div>
+
         <!-- Actions -->
         <div class="flex gap-2">
           <button
-            class="flex items-center gap-1.5 text-sm op50 hover:op100 px-3 py-1.5 rounded hover:bg-active transition"
+            class="flex items-center gap-1.5 text-sm op50 hover:op100 px-2 py-1 rounded hover:bg-active transition border border-base"
             @click="removeEntry(selectedEntry!.id)"
           >
-            <DockIcon icon="ph:trash-duotone" class="w-4 h-4" />
+            <div class="i-ph:trash-duotone w-4 h-4" />
             Dismiss
           </button>
         </div>

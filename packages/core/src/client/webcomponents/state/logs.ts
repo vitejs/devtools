@@ -21,6 +21,7 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
   })
 
   const prevEntryMap = new Map<string, DevToolsLogEntry>()
+  let isInitialFetch = true
 
   async function updateLogs() {
     const logs = await context.rpc.call('devtoolskit:internal:logs:list')
@@ -31,10 +32,17 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
       if (!prev) {
         // New entry
         newCount++
-        if (entry.notify)
-          addToast(entry)
+        if (isInitialFetch) {
+          // On initial fetch (page refresh), only toast entries still loading
+          if (entry.notify && entry.status === 'loading')
+            addToast(entry)
+        }
+        else {
+          if (entry.notify)
+            addToast(entry)
+        }
       }
-      else if (entry.notify && entry !== prev && JSON.stringify(entry) !== JSON.stringify(prev)) {
+      else if (entry.notify && JSON.stringify(entry) !== JSON.stringify(prev)) {
         // Updated entry with notify flag — update the toast
         addToast(entry)
       }
@@ -42,6 +50,7 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
 
     state.entries = logs
     state.unreadCount += newCount
+    isInitialFetch = false
 
     prevEntryMap.clear()
     for (const entry of logs)
