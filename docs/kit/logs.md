@@ -1,10 +1,10 @@
-# Logs
+# Logs & Notifications
 
 The Logs system allows plugins to emit structured log entries from both the server (Node.js) and client (browser) contexts. Logs are displayed in the built-in **Logs** panel in the DevTools dock, and can optionally appear as toast notifications.
 
 ## Use Cases
 
-- **Accessibility audits** — Run axe or similar tools on the client side, report warnings with element positions
+- **Accessibility audits** — Run a11y checks or similar tools on the client side, report warnings with element positions
 - **Runtime errors** — Capture and display errors with stack traces
 - **Linting & testing** — Run ESLint or test runners alongside the dev server and surface results with file positions
 - **Notifications** — Short-lived messages like "URL copied" that auto-dismiss

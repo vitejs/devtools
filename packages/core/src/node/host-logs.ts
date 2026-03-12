@@ -8,7 +8,17 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
   public readonly entries: DevToolsLogsHostType['entries'] = new Map()
   public readonly events: DevToolsLogsHostType['events'] = createEventEmitter()
 
+  /** Tracks when each entry was last added or updated (monotonic) */
+  readonly lastModified = new Map<string, number>()
+  /** Tracks recently removed entry IDs with their removal time */
+  readonly removals: Array<{ id: string, time: number }> = []
+
   private _autoDeleteTimers = new Map<string, ReturnType<typeof setTimeout>>()
+  private _clock = 0
+
+  private _tick(): number {
+    return ++this._clock
+  }
 
   constructor(
     public readonly context: DevToolsNodeContext,
@@ -34,6 +44,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     }
 
     this.entries.set(entry.id, entry)
+    this.lastModified.set(entry.id, this._tick())
     this.events.emit('log:added', entry)
 
     if (entry.autoDelete) {
@@ -59,6 +70,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     }
 
     this.entries.set(id, updated)
+    this.lastModified.set(id, this._tick())
     this.events.emit('log:updated', updated)
 
     // Reset autoDelete timer if changed
@@ -85,6 +97,8 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
       this._autoDeleteTimers.delete(id)
     }
     this.entries.delete(id)
+    this.lastModified.delete(id)
+    this.removals.push({ id, time: this._tick() })
     this.events.emit('log:removed', id)
   }
 
@@ -92,7 +106,11 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     for (const timer of this._autoDeleteTimers.values())
       clearTimeout(timer)
     this._autoDeleteTimers.clear()
+    const tick = this._tick()
+    for (const id of this.entries.keys())
+      this.removals.push({ id, time: tick })
     this.entries.clear()
+    this.lastModified.clear()
     this.events.emit('log:cleared')
   }
 }
