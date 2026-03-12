@@ -1,0 +1,1 @@
+export { DevToolsSelfInspect } from './plugin'

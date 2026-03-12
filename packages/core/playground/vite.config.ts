@@ -5,11 +5,12 @@ import VueRouter from 'unplugin-vue-router/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import { alias } from '../../../alias'
+import { DevTools } from '../../core/src'
+import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
-import { DevTools } from '../src'
-import { buildCSS } from '../src/client/webcomponents/scripts/build-css'
+import { DevToolsSelfInspect } from '../../self-inspect/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {
@@ -29,6 +30,7 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
+    DevToolsSelfInspect(),
     {
       name: 'build-css',
       handleHotUpdate({ file }) {
