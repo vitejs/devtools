@@ -6,7 +6,6 @@ import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
 
-// eslint-disable-next-line unimport/auto-insert -- locally defined, not from rolldown
 export const connectionState = reactive<{
   connected: boolean
   error: Error | null

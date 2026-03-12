@@ -37,6 +37,11 @@ function getNamespace(name: string) {
   return parts.slice(0, -1).join(':')
 }
 
+function getShortName(name: string) {
+  const parts = name.split(':')
+  return parts.at(-1)!
+}
+
 const grouped = computed(() => {
   const groups = new Map<string, typeof filtered.value>()
   for (const fn of filtered.value) {
@@ -100,8 +105,8 @@ const grouped = computed(() => {
         </thead>
         <tbody>
           <tr v-for="fn in fns" :key="fn.name" border="b base" hover:bg-active>
-            <td px2 py1.5 font-mono text-xs>
-              {{ fn.name }}
+            <td px2 py1.5 font-mono text-xs :title="fn.name">
+              {{ getShortName(fn.name) }}
             </td>
             <td px2 py1.5>
               <DisplayBadge :text="fn.type" />
@@ -111,8 +116,9 @@ const grouped = computed(() => {
               <span v-else op20>-</span>
             </td>
             <td px2 py1.5 text-center>
-              <span v-if="fn.hasArgs || fn.hasReturns" text-xs op60>
-                {{ fn.hasArgs ? 'args' : '' }}{{ fn.hasArgs && fn.hasReturns ? ' + ' : '' }}{{ fn.hasReturns ? 'returns' : '' }}
+              <span v-if="fn.hasArgs || fn.hasReturns" flex="~ items-center justify-center gap-1">
+                <DisplayBadge v-if="fn.hasArgs" text="args" />
+                <DisplayBadge v-if="fn.hasReturns" text="returns" />
               </span>
               <span v-else op20>-</span>
             </td>

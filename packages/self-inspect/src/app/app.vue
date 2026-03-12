@@ -47,10 +47,10 @@ const { refresh, loading } = useRefresh()
     v-else-if="!connectionState.connected"
     text="Connecting..."
   />
-  <div v-else grid="~ cols-[max-content_1fr]" h-vh>
-    <PanelSideNav :show-dark-mode-toggle="false" />
-    <div flex="~ col" of-hidden>
-      <div flex="~ items-center justify-end" border="b base" px2 h8 shrink-0>
+  <div v-else h-vh w-screen max-w-screen max-h-screen of-hidden>
+    <PanelSideNav />
+    <div pl-12 h-full flex="~ col" of-hidden>
+      <div flex="~ items-center justify-end" border="b base" px3 h8 shrink-0>
         <button
           p1.5 rounded
           hover:bg-active

@@ -16,8 +16,6 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div v-if="!data" flex="~ items-center justify-center" h-full op50>
-    Loading...
-  </div>
+  <VisualLoading v-if="!data" />
   <DevtoolsPluginsList v-else :plugins="data" />
 </template>

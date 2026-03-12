@@ -26,8 +26,6 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div v-if="!data" flex="~ items-center justify-center" h-full op50>
-    Loading...
-  </div>
+  <VisualLoading v-if="!data" />
   <RpcFunctionsList v-else :functions="data" />
 </template>
