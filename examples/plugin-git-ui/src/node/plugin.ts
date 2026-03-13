@@ -1,17 +1,20 @@
-import type { JsonRenderSpec, PluginWithDevTools } from '@vitejs/devtools-kit'
-import { exec as execCb } from 'node:child_process'
-import { promisify } from 'node:util'
+import type { JsonRenderElement, JsonRenderer, JsonRenderSpec, PluginWithDevTools } from '@vitejs/devtools-kit'
 import { defineJsonRenderSpec, defineRpcFunction } from '@vitejs/devtools-kit'
+import { exec } from 'tinyexec'
 
-const execAsync = promisify(execCb)
+interface GitResult {
+  stdout: string
+  stderr: string
+  ok: boolean
+}
 
-async function run(cmd: string, cwd: string): Promise<string> {
+async function git(args: string[], cwd: string): Promise<GitResult> {
   try {
-    const { stdout } = await execAsync(cmd, { cwd, encoding: 'utf-8' })
-    return stdout
+    const result = await exec('git', args, { nodeOptions: { cwd }, throwOnError: true })
+    return { stdout: result.stdout, stderr: result.stderr, ok: true }
   }
-  catch {
-    return ''
+  catch (e: any) {
+    return { stdout: e.stdout ?? '', stderr: e.stderr ?? String(e), ok: false }
   }
 }
 
@@ -22,12 +25,15 @@ interface GitState {
   unstaged: Array<{ status: string, file: string }>
 }
 
-async function getGitState(cwd: string): Promise<GitState> {
-  const [branch, log, status] = await Promise.all([
-    run('git branch --show-current', cwd),
-    run('git log --oneline -20 --format="%h\t%s\t%an\t%cr"', cwd),
-    run('git status --porcelain', cwd),
+async function getGitState(gitRoot: string): Promise<GitState> {
+  const [branchResult, logResult, statusResult] = await Promise.all([
+    git(['branch', '--show-current'], gitRoot),
+    git(['log', '--oneline', '-20', '--format=%h\t%s\t%an\t%cr'], gitRoot),
+    git(['status', '--porcelain'], gitRoot),
   ])
+  const branch = branchResult.stdout
+  const log = logResult.stdout
+  const status = statusResult.stdout
 
   const staged: GitState['staged'] = []
   const unstaged: GitState['unstaged'] = []
@@ -54,7 +60,53 @@ async function getGitState(cwd: string): Promise<GitState> {
   }
 }
 
-function buildSpec(git: GitState): JsonRenderSpec {
+function buildFileRows(
+  files: Array<{ status: string, file: string }>,
+  prefix: string,
+  actionName: string,
+  actionIcon: string,
+): { children: string[], elements: Record<string, JsonRenderElement> } {
+  const children: string[] = []
+  const elements: Record<string, JsonRenderElement> = {}
+
+  for (let i = 0; i < files.length; i++) {
+    const { status, file } = files[i]
+    const rowId = `${prefix}-row-${i}`
+    const statusId = `${prefix}-status-${i}`
+    const fileId = `${prefix}-file-${i}`
+    const btnId = `${prefix}-btn-${i}`
+
+    children.push(rowId)
+    elements[rowId] = {
+      type: 'Stack',
+      props: { direction: 'horizontal', gap: 8, align: 'center' },
+      children: [statusId, fileId, btnId],
+    }
+    elements[statusId] = {
+      type: 'Badge',
+      props: {
+        text: status,
+        variant: status === '?' ? 'warning' : status === 'D' ? 'error' : 'info',
+      },
+    }
+    elements[fileId] = {
+      type: 'Text',
+      props: { content: file, variant: 'code' },
+    }
+    elements[btnId] = {
+      type: 'Button',
+      props: { icon: actionIcon, variant: 'ghost' },
+      on: { press: { action: actionName, params: { file } } },
+    }
+  }
+
+  return { children, elements }
+}
+
+function buildSpec(gitState: GitState): JsonRenderSpec {
+  const stagedRows = buildFileRows(gitState.staged, 'staged', 'git-ui:unstage', 'ph:minus-circle')
+  const unstagedRows = buildFileRows(gitState.unstaged, 'unstaged', 'git-ui:stage', 'ph:plus-circle')
+
   return defineJsonRenderSpec({
     root: 'root',
     state: {
@@ -77,7 +129,7 @@ function buildSpec(git: GitState): JsonRenderSpec {
       },
       'refresh-btn': {
         type: 'Button',
-        props: { label: 'Refresh', variant: 'secondary' },
+        props: { label: 'Refresh', variant: 'secondary', icon: 'ph:arrows-clockwise' },
         on: { press: { action: 'git-ui:refresh' } },
       },
       'branch-info': {
@@ -86,18 +138,18 @@ function buildSpec(git: GitState): JsonRenderSpec {
         children: ['branch-icon', 'branch-text', 'changes-badge'],
       },
       'branch-icon': {
-        type: 'Text',
-        props: { content: '⎇', variant: 'body' },
+        type: 'Icon',
+        props: { name: 'ph:git-branch', size: 16 },
       },
       'branch-text': {
         type: 'Text',
-        props: { content: git.branch || '(detached)', variant: 'code' },
+        props: { content: gitState.branch || '(detached)', variant: 'code' },
       },
       'changes-badge': {
         type: 'Badge',
         props: {
-          text: `${git.staged.length + git.unstaged.length} changes`,
-          variant: (git.staged.length + git.unstaged.length) > 0 ? 'warning' : 'success',
+          text: `${gitState.staged.length + gitState.unstaged.length} changes`,
+          variant: (gitState.staged.length + gitState.unstaged.length) > 0 ? 'warning' : 'success',
         },
       },
       'commit-section': {
@@ -114,7 +166,7 @@ function buildSpec(git: GitState): JsonRenderSpec {
       },
       'commit-btn': {
         type: 'Button',
-        props: { label: 'Commit', variant: 'primary' },
+        props: { label: 'Commit', variant: 'primary', icon: 'ph:check' },
         on: {
           press: {
             action: 'git-ui:commit',
@@ -126,44 +178,52 @@ function buildSpec(git: GitState): JsonRenderSpec {
         type: 'Divider',
         props: {},
       },
+
+      // Staged files
       'staged-card': {
         type: 'Card',
-        props: { title: `Staged (${git.staged.length})`, collapsible: true },
-        children: git.staged.length > 0 ? ['staged-table'] : ['staged-empty'],
+        props: { title: `Staged (${gitState.staged.length})`, collapsible: true },
+        children: gitState.staged.length > 0 ? ['staged-files'] : ['staged-empty'],
       },
-      'staged-table': {
-        type: 'DataTable',
-        props: {
-          columns: [
-            { key: 'status', label: 'Status', width: '60px' },
-            { key: 'file', label: 'File' },
-          ],
-          rows: git.staged,
-        },
+      'staged-files': {
+        type: 'Stack',
+        props: { direction: 'vertical', gap: 4 },
+        children: stagedRows.children,
       },
+      ...stagedRows.elements,
       'staged-empty': {
         type: 'Text',
         props: { content: 'No staged files', variant: 'caption' },
       },
+
+      // Unstaged files
       'unstaged-card': {
         type: 'Card',
-        props: { title: `Unstaged (${git.unstaged.length})`, collapsible: true },
-        children: git.unstaged.length > 0 ? ['unstaged-table'] : ['unstaged-empty'],
+        props: { title: `Unstaged (${gitState.unstaged.length})`, collapsible: true },
+        children: gitState.unstaged.length > 0 ? ['unstaged-header', 'unstaged-files'] : ['unstaged-empty'],
       },
-      'unstaged-table': {
-        type: 'DataTable',
-        props: {
-          columns: [
-            { key: 'status', label: 'Status', width: '60px' },
-            { key: 'file', label: 'File' },
-          ],
-          rows: git.unstaged,
-        },
+      'unstaged-header': {
+        type: 'Stack',
+        props: { direction: 'horizontal', justify: 'end' },
+        children: ['stage-all-btn'],
       },
+      'stage-all-btn': {
+        type: 'Button',
+        props: { label: 'Stage All', variant: 'secondary', icon: 'ph:plus-circle' },
+        on: { press: { action: 'git-ui:stage-all' } },
+      },
+      'unstaged-files': {
+        type: 'Stack',
+        props: { direction: 'vertical', gap: 4 },
+        children: unstagedRows.children,
+      },
+      ...unstagedRows.elements,
       'unstaged-empty': {
         type: 'Text',
         props: { content: 'No unstaged files', variant: 'caption' },
       },
+
+      // Commits
       'commits-card': {
         type: 'Card',
         props: { title: 'Recent Commits', collapsible: true },
@@ -178,7 +238,7 @@ function buildSpec(git: GitState): JsonRenderSpec {
             { key: 'author', label: 'Author', width: '120px' },
             { key: 'date', label: 'Date', width: '100px' },
           ],
-          rows: git.commits,
+          rows: gitState.commits,
           maxHeight: '300px',
         },
       },
@@ -186,110 +246,137 @@ function buildSpec(git: GitState): JsonRenderSpec {
   })
 }
 
-const gitUiRefresh = defineRpcFunction({
-  name: 'git-ui:refresh',
-  type: 'event',
-  setup: ctx => ({
-    handler: async () => {
-      const git = await getGitState(ctx.cwd)
-      const uiState = await ctx.rpc.sharedState.get('git-ui:spec')
-      uiState.mutate(() => buildSpec(git))
+async function refreshUi(ctx: { cwd: string, docks: any }, ui: JsonRenderer) {
+  const gitState = await getGitState(ctx.cwd)
+  await ui.updateSpec(buildSpec(gitState))
+  const total = gitState.staged.length + gitState.unstaged.length
+  ctx.docks.update({
+    id: 'git-ui',
+    type: 'json-render',
+    title: 'Git',
+    icon: 'ph:git-branch-duotone',
+    ui,
+    badge: total > 0 ? String(total) : undefined,
+  })
+}
 
-      const total = git.staged.length + git.unstaged.length
-      ctx.docks.update({
-        id: 'git-ui',
-        type: 'json-render',
-        title: 'Git',
-        icon: 'ph:git-branch-duotone',
-        badge: total > 0 ? String(total) : undefined,
-      })
-    },
-  }),
-})
+function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
+  return [
+    defineRpcFunction({
+      name: 'git-ui:refresh',
+      type: 'action',
+      setup: ctx => ({
+        handler: async () => {
+          await refreshUi(ctx, getUi())
+        },
+      }),
+    }),
 
-const gitUiCommit = defineRpcFunction({
-  name: 'git-ui:commit',
-  type: 'event',
-  setup: ctx => ({
-    handler: async (params: { message?: string }) => {
-      const message = params?.message
-      if (!message) {
-        ctx.logs.add({
-          message: 'Commit message is empty',
-          level: 'warning',
-          category: 'git-ui',
-        })
-        return
-      }
+    defineRpcFunction({
+      name: 'git-ui:stage',
+      type: 'action',
+      setup: ctx => ({
+        handler: async (params: { file?: string }) => {
+          if (!params?.file)
+            return
+          const result = await git(['add', '--', params.file], gitRoot)
+          if (result.ok) {
+            ctx.logs.add({ message: `Staged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
+          }
+          else {
+            ctx.logs.add({ message: `Stage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+          }
+          await refreshUi(ctx, getUi())
+        },
+      }),
+    }),
 
-      try {
-        // Escape the message for shell
-        const escaped = message.replace(/"/g, '\\"')
-        await run(`git commit -m "${escaped}"`, ctx.cwd)
-        ctx.logs.add({
-          message: `Committed: ${message}`,
-          level: 'info',
-          category: 'git-ui',
-        })
-      }
-      catch (e) {
-        ctx.logs.add({
-          message: `Commit failed: ${e}`,
-          level: 'error',
-          category: 'git-ui',
-        })
-      }
+    defineRpcFunction({
+      name: 'git-ui:unstage',
+      type: 'action',
+      setup: ctx => ({
+        handler: async (params: { file?: string }) => {
+          if (!params?.file)
+            return
+          const result = await git(['restore', '--staged', '--', params.file], gitRoot)
+          if (result.ok) {
+            ctx.logs.add({ message: `Unstaged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
+          }
+          else {
+            ctx.logs.add({ message: `Unstage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+          }
+          await refreshUi(ctx, getUi())
+        },
+      }),
+    }),
 
-      // Refresh after commit
-      const git = await getGitState(ctx.cwd)
-      const uiState = await ctx.rpc.sharedState.get('git-ui:spec')
-      uiState.mutate(() => buildSpec(git))
+    defineRpcFunction({
+      name: 'git-ui:stage-all',
+      type: 'action',
+      setup: ctx => ({
+        handler: async () => {
+          const result = await git(['add', '-A'], gitRoot)
+          if (result.ok) {
+            ctx.logs.add({ message: 'Staged all files', level: 'info', category: 'git-ui', notify: true })
+          }
+          else {
+            ctx.logs.add({ message: `Stage all failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+          }
+          await refreshUi(ctx, getUi())
+        },
+      }),
+    }),
 
-      const total = git.staged.length + git.unstaged.length
-      ctx.docks.update({
-        id: 'git-ui',
-        type: 'json-render',
-        title: 'Git',
-        icon: 'ph:git-branch-duotone',
-        badge: total > 0 ? String(total) : undefined,
-      })
-    },
-  }),
-})
+    defineRpcFunction({
+      name: 'git-ui:commit',
+      type: 'action',
+      setup: ctx => ({
+        handler: async (params: { message?: string }) => {
+          const message = params?.message
+          if (!message) {
+            ctx.logs.add({ message: 'Commit message is empty', level: 'warn', category: 'git-ui', notify: true })
+            return
+          }
 
-const rpcFunctions = [gitUiRefresh, gitUiCommit]
+          const result = await git(['commit', '-m', message], gitRoot)
+          if (result.ok) {
+            ctx.logs.add({ message: `Committed: ${message}`, level: 'info', category: 'git-ui', notify: true })
+          }
+          else {
+            ctx.logs.add({ message: `Commit failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+          }
+
+          await refreshUi(ctx, getUi())
+        },
+      }),
+    }),
+  ]
+}
 
 export function GitUIPlugin(): PluginWithDevTools {
   return {
     name: 'plugin-git-ui',
     devtools: {
       async setup(ctx) {
-        const stateKey = 'git-ui:spec'
+        const gitRoot = (await exec('git', ['rev-parse', '--show-toplevel'], { nodeOptions: { cwd: ctx.cwd }, throwOnError: true })).stdout.trim() || ctx.cwd
+        const gitState = await getGitState(gitRoot)
+        const ui = ctx.createJsonRenderer(buildSpec(gitState))
 
-        // Register RPC functions
-        for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn)
-        }
-
-        // Get initial git state
-        const git = await getGitState(ctx.cwd)
-
-        // Register shared state with initial spec
-        await ctx.rpc.sharedState.get(stateKey, {
-          initialValue: buildSpec(git),
-        })
-
-        // Register dock entry
-        const total = git.staged.length + git.unstaged.length
+        const total = gitState.staged.length + gitState.unstaged.length
         ctx.docks.register({
           type: 'json-render',
           id: 'git-ui',
           title: 'Git',
           icon: 'ph:git-branch-duotone',
           category: 'app',
-          sharedStateKey: stateKey,
+          ui,
           badge: total > 0 ? String(total) : undefined,
         })
+
+        const rpcFunctions = createRpcFunctions(gitRoot, () => ui)
+        for (const fn of rpcFunctions) {
+          ctx.rpc.register(fn)
+        }
       },
     },
   }

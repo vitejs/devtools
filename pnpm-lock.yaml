@@ -643,6 +643,9 @@ importers:
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../../packages/kit
+      tinyexec:
+        specifier: catalog:deps
+        version: 1.0.2
     devDependencies:
       vite:
         specifier: ^8.0.0

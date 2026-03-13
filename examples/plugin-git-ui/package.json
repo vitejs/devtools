@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
-    "@vitejs/devtools-kit": "workspace:*"
+    "@vitejs/devtools-kit": "workspace:*",
+    "tinyexec": "catalog:deps"
   },
   "devDependencies": {
     "vite": "catalog:build"

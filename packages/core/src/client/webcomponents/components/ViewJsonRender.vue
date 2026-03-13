@@ -3,7 +3,7 @@ import type { Spec } from '@json-render/core'
 import type { DevToolsViewJsonRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue'
 import { devtoolsRegistry } from '../json-render/registry'
 
 const props = defineProps<{
@@ -15,20 +15,16 @@ const spec = shallowRef<Spec | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
-// Resolve spec from sharedStateKey or inline spec
+// Resolve spec from entry.ui._stateKey
 async function loadSpec() {
   try {
-    if (props.entry.sharedStateKey) {
-      const state = await props.context.rpc.sharedState.get(props.entry.sharedStateKey)
-      // Set initial value
+    const stateKey = props.entry.ui?._stateKey
+    if (stateKey) {
+      const state = await props.context.rpc.sharedState.get(stateKey)
       spec.value = state.value() as Spec
-      // Watch for updates
       state.on('updated', (newValue) => {
         spec.value = newValue as Spec
       })
-    }
-    else if (props.entry.spec) {
-      spec.value = props.entry.spec as unknown as Spec
     }
   }
   catch (e) {
@@ -39,23 +35,45 @@ async function loadSpec() {
   }
 }
 
-// Action handlers bridge: action names → RPC event calls
-// Uses a Proxy so any action name is forwarded to the server as an RPC call
-const actionHandlers = new Proxy({} as Record<string, (params: Record<string, unknown>) => Promise<unknown>>, {
-  get(_target, actionName: string) {
-    return async (params?: Record<string, unknown>) => {
+// Action handlers bridge: action names → RPC calls
+// Use a plain object cache instead of a Proxy to avoid issues with Vue's
+// reactivity system and Promise detection accessing `then`/`catch` on the proxy
+const actionHandlerCache = new Map<string, (params?: Record<string, unknown>) => Promise<void>>()
+function getActionHandler(actionName: string) {
+  console.log('getActionHandler', actionName)
+  let handler = actionHandlerCache.get(actionName)
+  if (!handler) {
+    handler = async (params?: Record<string, unknown>) => {
       try {
-        await props.context.rpc.callEvent(actionName as any, params as any)
+        console.log('actionHandlers', actionName, params)
+        await props.context.rpc.call(actionName as any, params as any)
       }
       catch (e) {
         console.error(`[json-render] Action "${actionName}" failed:`, e)
       }
     }
+    actionHandlerCache.set(actionName, handler)
+  }
+  return handler
+}
+const actionHandlers = markRaw(new Proxy({} as Record<string, (params: Record<string, unknown>) => Promise<unknown>>, {
+  get(_target, prop: string | symbol) {
+    if (typeof prop === 'symbol')
+      return undefined
+    // Avoid intercepting Promise/JS internals that Vue reactivity checks
+    if (prop === 'then' || prop === 'catch' || prop === 'finally')
+      return undefined
+    console.log('actionHandlers', prop)
+    return getActionHandler(prop)
   },
-  has() {
+  has(_target, prop: string | symbol) {
+    if (typeof prop === 'symbol')
+      return false
+    if (prop === 'then' || prop === 'catch' || prop === 'finally')
+      return false
     return true
   },
-})
+}))
 
 // Initial state from spec
 const initialState = computed(() => {
@@ -68,12 +86,7 @@ const initialState = computed(() => {
 onMounted(loadSpec)
 
 // Re-load when entry changes
-watch(() => props.entry.sharedStateKey, loadSpec)
-watch(() => props.entry.spec, () => {
-  if (!props.entry.sharedStateKey && props.entry.spec) {
-    spec.value = props.entry.spec as unknown as Spec
-  }
-})
+watch(() => props.entry.ui?._stateKey, loadSpec)
 </script>
 
 <template>

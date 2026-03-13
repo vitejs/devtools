@@ -124,17 +124,19 @@ export interface JsonRenderSpec {
   state?: Record<string, unknown>
 }
 
+export interface JsonRenderer {
+  /** Replace the entire spec */
+  updateSpec: (spec: JsonRenderSpec) => void | Promise<void>
+  /** Update json-render state values (shallow merge into spec.state) */
+  updateState: (state: Record<string, unknown>) => void | Promise<void>
+  /** Internal: shared state key used by the client to subscribe */
+  readonly _stateKey: string
+}
+
 export interface DevToolsViewJsonRender extends DevToolsDockEntryBase {
   type: 'json-render'
-  /**
-   * Inline static spec. Use for simple, non-dynamic UIs.
-   */
-  spec?: JsonRenderSpec
-  /**
-   * Shared state key that holds the JsonRenderSpec.
-   * Takes precedence over `spec` if both are provided.
-   */
-  sharedStateKey?: string
+  /** JsonRenderer handle created by ctx.createJsonRenderer() */
+  ui: JsonRenderer
 }
 
 export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher | DevToolsViewJsonRender
