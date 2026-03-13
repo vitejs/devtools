@@ -163,6 +163,9 @@ context.logs.clear()
 
 Logs have a maximum capacity of 1000 entries. When the limit is reached, the oldest entries are automatically removed.
 
+> [!TIP]
+> See the [A11y Checker example](/kit/examples#a11y-checker) for a plugin that uses logs to report accessibility violations with severity levels, element positions, and WCAG labels.
+
 ## Dock Badge
 
 The Logs dock icon automatically shows a badge with the total log count. The icon is hidden when there are no logs.

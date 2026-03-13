@@ -109,6 +109,9 @@ icon: 'mdi:view-dashboard' // Material Design Icons
 > [!TIP]
 > Browse available icons at [Iconify](https://icon-sets.iconify.design/). The `ph:` (Phosphor) icon set works well for DevTools UIs.
 
+> [!TIP]
+> See the [File Explorer example](/kit/examples#file-explorer) for a iframe dock plugin with RPC and static build support.
+
 ## Action Buttons
 
 Action buttons run client-side scripts when clicked. They're perfect for:
@@ -195,6 +198,9 @@ Export the action script from your package:
 |-------|-------------|
 | `entry:activated` | Fired when the user clicks/activates this dock entry |
 | `entry:deactivated` | Fired when another entry is selected or the dock is closed |
+
+> [!TIP]
+> See the [A11y Checker example](/kit/examples#a11y-checker) for a real-world action dock that runs axe-core audits and reports violations as logs.
 
 ## Custom Renderers
 

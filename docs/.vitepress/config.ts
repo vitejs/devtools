@@ -15,6 +15,7 @@ const DevToolsKitNav = [
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
   { text: 'Logs & Notifications', link: '/kit/logs' },
+  { text: 'Examples', link: '/kit/examples' },
 ]
 
 const SocialLinks = [
@@ -68,6 +69,7 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'RPC', link: '/kit/rpc' },
           { text: 'Shared State', link: '/kit/shared-state' },
           { text: 'Logs', link: '/kit/logs' },
+          { text: 'Examples', link: '/kit/examples' },
         ],
       },
     ],
