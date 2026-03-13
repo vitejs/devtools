@@ -27,7 +27,7 @@ The Logs system allows plugins to emit structured log entries from both the serv
 | `status` | `'loading' \| 'idle'` | No | Status indicator (shows spinner when `'loading'`) |
 | `id` | `string` | No | Explicit id for deduplication — re-adding with the same id updates the existing entry |
 
-The `source` field is automatically set to `'server'` or `'client'` depending on where the log was emitted.
+The `from` field is automatically set to `'server'` or `'browser'` depending on where the log was emitted.
 
 ## Usage
 
