@@ -14,6 +14,7 @@ interface DockEntryBase {
   category?: string // Grouping category
   defaultOrder?: number // Sort order (higher = earlier)
   isHidden?: boolean // Hide from dock
+  badge?: string // Badge text on dock icon (e.g., count)
 }
 ```
 
@@ -199,6 +200,60 @@ export default function setup(ctx: DevToolsClientScriptContext) {
   })
 }
 ```
+
+## Launcher Entries
+
+Actionable setup cards for running initialization tasks. Shows a card with title, description, and a launch button.
+
+```ts
+type LauncherStatus = 'idle' | 'loading' | 'success' | 'error'
+
+interface LauncherEntry extends DockEntryBase {
+  type: 'launcher'
+  launcher: {
+    title: string // Card title
+    description?: string // Card description
+    icon?: string | { light: string, dark: string } // Card icon
+    buttonStart?: string // Start button text
+    buttonLoading?: string // Loading button text
+    status?: LauncherStatus // Current status
+    error?: string // Error message when status is 'error'
+    onLaunch: () => Promise<void> // Callback when user clicks launch
+  }
+}
+
+// Registration
+const entry = ctx.docks.register({
+  id: 'my-setup',
+  title: 'My Setup',
+  icon: 'ph:rocket-launch-duotone',
+  type: 'launcher',
+  launcher: {
+    title: 'Initialize My Plugin',
+    description: 'Run the initial setup before the plugin can be used',
+    buttonStart: 'Start Setup',
+    buttonLoading: 'Setting up...',
+    onLaunch: async () => {
+      // Perform initialization
+      await runSetup()
+    },
+  },
+})
+
+// Update status after launch completes
+entry.update({
+  launcher: {
+    ...entry.launcher,
+    status: 'success',
+  },
+})
+```
+
+### Launcher Use Cases
+
+- **First-run setup** — Run initial scans or configuration before showing results
+- **Build triggers** — Start a build or analysis pass on demand
+- **Authentication** — Prompt user to connect external services
 
 ## Client Script Events
 

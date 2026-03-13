@@ -237,9 +237,18 @@ export default defineConfig({
 })
 ```
 
-## Real-World Reference
+## Real-World References
 
-See [packages/vite](https://github.com/user/vite-devtools/tree/main/packages/vite) for a complete implementation example with:
+### In-Repo Examples
+
+Reference these for code structure and patterns when building new integrations:
+
+- [`examples/plugin-a11y-checker`](https://github.com/vitejs/devtools/tree/main/examples/plugin-a11y-checker) — Action entry, client-side audits, logs with element positions, log handle updates
+- [`examples/plugin-file-explorer`](https://github.com/vitejs/devtools/tree/main/examples/plugin-file-explorer) — Iframe entry, multiple RPC types, hosted UI panel, RPC dump for static builds
+
+### Internal Packages
+
+See [packages/vite](https://github.com/vitejs/devtools/tree/main/packages/vite) for a complete implementation with:
 
 - Multiple RPC functions organized by feature
 - Nuxt-based client UI
