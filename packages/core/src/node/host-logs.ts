@@ -35,7 +35,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
       ...input,
       id: input.id ?? nanoid(),
       timestamp: input.timestamp ?? Date.now(),
-      source: (input as any).source ?? 'server',
+      from: (input as any).from ?? 'server',
     }
 
     // FIFO eviction when at capacity
@@ -66,7 +66,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
       ...existing,
       ...patch,
       id: existing.id,
-      source: existing.source,
+      from: existing.from,
       timestamp: existing.timestamp,
     }
 

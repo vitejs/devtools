@@ -18,7 +18,7 @@ describe('devToolsLogsHost', () => {
       expect(handle.entry.message).toBe('test')
       expect(handle.entry.level).toBe('info')
       expect(handle.entry.timestamp).toBeTypeOf('number')
-      expect(handle.entry.source).toBe('server')
+      expect(handle.entry.from).toBe('server')
       expect(host.entries.size).toBe(1)
     })
 
@@ -50,7 +50,7 @@ describe('devToolsLogsHost', () => {
       expect(handle.entry.level).toBe('warn')
       // Preserves original id, source, timestamp
       expect(handle.id).toBe('dup')
-      expect(handle.entry.source).toBe('server')
+      expect(handle.entry.from).toBe('server')
     })
 
     it('should evict oldest entry when at capacity', async () => {
@@ -81,7 +81,7 @@ describe('devToolsLogsHost', () => {
       expect(updated!.level).toBe('error')
       // Preserved fields
       expect(updated!.id).toBe('u1')
-      expect(updated!.source).toBe('server')
+      expect(updated!.from).toBe('server')
     })
 
     it('should return undefined for non-existent id', async () => {
@@ -108,7 +108,7 @@ describe('devToolsLogsHost', () => {
       const updated = await host.update('u3', { message: 'new' })
 
       expect(updated!.id).toBe(original.id)
-      expect(updated!.source).toBe(original.source)
+      expect(updated!.from).toBe(original.from)
       expect(updated!.timestamp).toBe(original.timestamp)
     })
   })

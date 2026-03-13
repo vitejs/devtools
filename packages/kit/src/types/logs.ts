@@ -1,6 +1,7 @@
 import type { EventEmitter } from './events'
 
 export type DevToolsLogLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
+export type DevToolsLogEntryFrom = 'server' | 'browser'
 
 export interface DevToolsLogElementPosition {
   /** CSS selector for the element */
@@ -56,7 +57,7 @@ export interface DevToolsLogEntry {
   /**
    * Origin of the log entry, automatically set by the context
    */
-  source: 'server' | 'browser'
+  from: DevToolsLogEntryFrom
   /**
    * Grouping category (e.g., 'a11y', 'lint', 'runtime', 'test')
    */
@@ -88,7 +89,7 @@ export interface DevToolsLogEntry {
  * Input type for creating a log entry.
  * `id`, `timestamp`, and `source` are auto-filled by the host.
  */
-export type DevToolsLogEntryInput = Omit<DevToolsLogEntry, 'id' | 'timestamp' | 'source'> & {
+export type DevToolsLogEntryInput = Omit<DevToolsLogEntry, 'id' | 'timestamp' | 'from'> & {
   id?: string
   timestamp?: number
 }

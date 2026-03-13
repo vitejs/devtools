@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import type { DevToolsLogEntry, DevToolsLogLevel } from '@vitejs/devtools-kit'
+import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { LogSource } from './LogItemConstants'
 import { useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../state/logs'
 import FilterToggles from './FilterToggles.vue'
 import HashBadge from './HashBadge.vue'
 import LogItem from './LogItem.vue'
-import { getHashColorFromString, levels, sources } from './LogItemConstants'
+import { formEntries, getHashColorFromString, levels } from './LogItemConstants'
 
 const props = defineProps<{
   context: DocksContext
@@ -23,7 +22,7 @@ type SortMode = 'newest' | 'oldest' | 'level'
 const logsState = useLogs(props.context)
 
 const allLevels: DevToolsLogLevel[] = Object.keys(levels) as DevToolsLogLevel[]
-const allSources: LogSource[] = Object.keys(sources) as LogSource[]
+const allFroms: DevToolsLogEntryFrom[] = Object.keys(formEntries) as DevToolsLogEntryFrom[]
 
 const sortLabels: Record<SortMode, string> = {
   newest: 'Newest first',
@@ -40,7 +39,7 @@ const search = ref('')
 const selectedId = ref<string | null>(null)
 const activeFilters = ref<Set<DevToolsLogLevel>>(new Set())
 const activeLabelFilters = ref<Set<string>>(new Set())
-const activeSources = ref<Set<LogSource>>(new Set())
+const activeFromFilters = ref<Set<DevToolsLogEntryFrom>>(new Set())
 const activeCategories = ref<Set<string>>(new Set())
 const sortBy = ref<SortMode>('newest')
 
@@ -75,12 +74,12 @@ function toggleLabelFilter(label: string) {
     filters.add(label)
 }
 
-function toggleSource(source: string) {
-  const s = activeSources.value
-  if (s.has(source as LogSource))
-    s.delete(source as LogSource)
+function toggleFrom(from: DevToolsLogEntryFrom) {
+  const s = activeFromFilters.value
+  if (s.has(from))
+    s.delete(from)
   else
-    s.add(source as LogSource)
+    s.add(from)
 }
 
 function toggleCategory(category: string) {
@@ -94,7 +93,7 @@ function toggleCategory(category: string) {
 const hasActiveFilter = computed(() => {
   return activeFilters.value.size > 0
     || activeLabelFilters.value.size > 0
-    || activeSources.value.size > 0
+    || activeFromFilters.value.size > 0
     || activeCategories.value.size > 0
     || search.value.length > 0
 })
@@ -102,7 +101,7 @@ const hasActiveFilter = computed(() => {
 function resetFilters() {
   activeFilters.value.clear()
   activeLabelFilters.value.clear()
-  activeSources.value.clear()
+  activeFromFilters.value.clear()
   activeCategories.value.clear()
   search.value = ''
 }
@@ -133,8 +132,8 @@ const filteredEntries = computed(() => {
     entries = entries.filter(e => activeFilters.value.has(e.level))
   if (activeLabelFilters.value.size > 0)
     entries = entries.filter(e => e.labels?.some(l => activeLabelFilters.value.has(l)))
-  if (activeSources.value.size > 0)
-    entries = entries.filter(e => activeSources.value.has(e.source as LogSource))
+  if (activeFromFilters.value.size > 0)
+    entries = entries.filter(e => activeFromFilters.value.has(e.from as DevToolsLogEntryFrom))
   if (activeCategories.value.size > 0)
     entries = entries.filter(e => e.category && activeCategories.value.has(e.category))
   if (search.value) {
@@ -142,7 +141,7 @@ const filteredEntries = computed(() => {
     entries = entries.filter(e =>
       e.message.toLowerCase().includes(q)
       || e.description?.toLowerCase().includes(q)
-      || e.source?.toLowerCase().includes(q)
+      || e.from?.toLowerCase().includes(q)
       || e.category?.toLowerCase().includes(q)
       || e.labels?.some(l => l.toLowerCase().includes(q)),
     )
@@ -265,11 +264,11 @@ onMounted(() => {
         <div class="border-l border-base h-4 mx-0.5" />
 
         <FilterToggles
-          label="Source"
-          :items="allSources"
-          :active="(activeSources as Set<string>)"
-          :styles="sources"
-          @toggle="toggleSource"
+          label="From"
+          :items="allFroms"
+          :active="(activeFromFilters as Set<DevToolsLogEntryFrom>)"
+          :styles="formEntries"
+          @toggle="(toggleFrom as (item: string) => void)"
         />
 
         <template v-if="allCategories.length > 0">
@@ -351,9 +350,9 @@ onMounted(() => {
             <div :class="levels[selectedEntry.level].icon" class="w-3.5 h-3.5" />
             <span class="capitalize">{{ selectedEntry.level }}</span>
           </span>
-          <span v-if="sources[selectedEntry.source as LogSource]" class="flex items-center gap-1" :class="sources[selectedEntry.source as LogSource].color">
-            <div :class="sources[selectedEntry.source as LogSource].icon" class="w-3.5 h-3.5" />
-            {{ sources[selectedEntry.source as LogSource].label }}
+          <span v-if="formEntries[selectedEntry.from as DevToolsLogEntryFrom]" class="flex items-center gap-1" :class="formEntries[selectedEntry.from as DevToolsLogEntryFrom].color">
+            <div :class="formEntries[selectedEntry.from as DevToolsLogEntryFrom].icon" class="w-3.5 h-3.5" />
+            {{ formEntries[selectedEntry.from as DevToolsLogEntryFrom].label }}
           </span>
           <span v-if="selectedEntry.status === 'loading'" class="flex items-center gap-1 text-amber">
             <div class="w-3 h-3 border-1.5 border-current border-t-transparent rounded-full animate-spin" />
