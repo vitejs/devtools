@@ -87,6 +87,8 @@ catalogs:
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.7.6
+    '@json-render/core': 0.13.0
+    '@json-render/vue': 0.13.0
     '@vueuse/components': ^14.2.1
     '@vueuse/core': ^14.2.1
     '@vueuse/router': ^14.2.1

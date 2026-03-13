@@ -6,6 +6,7 @@ import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import { alias } from '../../../alias'
 import { A11yCheckerPlugin } from '../../../examples/plugin-a11y-checker/src/node'
+import { GitUIPlugin } from '../../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../core/src'
 import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
 // eslint-disable-next-line ts/ban-ts-comment
@@ -51,6 +52,7 @@ export default defineConfig({
       viteDevtools: true,
     }),
     A11yCheckerPlugin(),
+    GitUIPlugin(),
     {
       name: 'local',
       devtools: {

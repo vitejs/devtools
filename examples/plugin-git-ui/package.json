@@ -1,0 +1,23 @@
+{
+  "name": "example-plugin-git-ui",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/node/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "play:dev": "cd playground && DEBUG='vite:devtools:*' vite"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "dependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "catalog:build"
+  }
+}

@@ -23,6 +23,8 @@ export default defineConfig({
     onlyAllowBundle: [
       '@clack/core',
       '@clack/prompts',
+      '@json-render/core',
+      '@json-render/vue',
       '@vue/reactivity',
       '@vue/runtime-core',
       '@vue/runtime-dom',
@@ -37,6 +39,7 @@ export default defineConfig({
       'get-port-please',
       'sisteransi',
       'vue',
+      'zod',
     ],
   },
   clean: true,

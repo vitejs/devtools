@@ -8,7 +8,7 @@ Dock entries are the primary way for users to interact with your DevTools integr
 
 ## Entry Types
 
-DevTools Kit supports four types of dock entries:
+DevTools Kit supports five types of dock entries:
 
 | Type | Description | Use Case |
 |------|-------------|----------|
@@ -16,6 +16,7 @@ DevTools Kit supports four types of dock entries:
 | `action` | Button that triggers client-side scripts | Inspectors, toggles, one-time actions |
 | `custom-render` | Renders directly in the user's app DOM | When you need direct DOM access or framework integration |
 | `launcher` | Actionable setup card shown in panel | Run one-time setup tasks before showing other tools |
+| `json-render` | Renders UI from a JSON spec — no client code needed | Data panels, config viewers, simple interactive tools |
 
 ## Iframe Panels
 
@@ -71,7 +72,7 @@ interface DockEntry {
   /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
   icon: string
   /** Entry type */
-  type: 'iframe' | 'action' | 'custom-render' | 'launcher'
+  type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render'
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
@@ -86,6 +87,10 @@ interface DockEntry {
     buttonStart?: string
     buttonLoading?: string
   }
+  /** Inline JSON spec (for type: 'json-render') */
+  spec?: JsonRenderSpec
+  /** Shared state key holding the JSON spec (for type: 'json-render') */
+  sharedStateKey?: string
 }
 ```
 
@@ -295,6 +300,163 @@ ctx.docks.register({
 
 > [!NOTE]
 > Built-in logs panel (`~logs`) is currently reserved and hidden while log UI is under development.
+
+## JSON Render Panels
+
+JSON render panels let you describe your UI as a JSON spec on the server side. The DevTools client renders it with built-in components powered by [json-render](https://github.com/vercel-labs/json-render). **No client code needed.**
+
+This is the simplest way to add a DevTools panel — you only write server-side TypeScript.
+
+### Basic Example
+
+```ts
+import { defineJsonRenderSpec } from '@vitejs/devtools-kit'
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  spec: defineJsonRenderSpec({
+    root: 'root',
+    elements: {
+      root: {
+        type: 'Stack',
+        props: { direction: 'vertical', gap: 12 },
+        children: ['heading', 'info'],
+      },
+      heading: {
+        type: 'Text',
+        props: { content: 'Hello from JSON!', variant: 'heading' },
+      },
+      info: {
+        type: 'KeyValueTable',
+        props: {
+          entries: [
+            { key: 'Version', value: '1.0.0' },
+            { key: 'Status', value: 'Running' },
+          ],
+        },
+      },
+    },
+  }),
+})
+```
+
+### Dynamic Data with Shared State
+
+For dynamic UIs that update over time, store the spec in a [shared state](./shared-state) key:
+
+```ts
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  sharedStateKey: 'my-plugin:ui',
+})
+
+const ui = await ctx.rpc.sharedState.get('my-plugin:ui', {
+  initialValue: defineJsonRenderSpec({ /* spec */ }),
+})
+
+// Later, update the UI reactively:
+ui.mutate((draft) => {
+  draft.elements.heading.props.content = 'Updated!'
+})
+```
+
+### Handling Actions via RPC
+
+Buttons in the spec can trigger RPC functions on the server:
+
+```ts
+// In the spec:
+defineJsonRenderSpec({
+  // ...
+  elements: {
+    'refresh-btn': {
+      type: 'Button',
+      props: { label: 'Refresh' },
+      on: { press: { action: 'my-plugin:refresh' } },
+    },
+  },
+})
+```
+
+```ts
+// On the server:
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:refresh',
+  type: 'event',
+  setup: ctx => ({
+    handler: async () => {
+      // Fetch new data, then update the spec
+      ui.mutate((draft) => { /* ... */ })
+    },
+  }),
+}))
+```
+
+### Text Input with Two-Way Binding
+
+Use `$bindState` for two-way binding on text inputs, and `$state` to read the bound value in action params:
+
+```ts
+defineJsonRenderSpec({
+  // ...
+  elements: {
+    'my-input': {
+      type: 'TextInput',
+      props: {
+        placeholder: 'Type here...',
+        value: { $bindState: '/inputValue' },
+      },
+    },
+    'submit-btn': {
+      type: 'Button',
+      props: { label: 'Submit' },
+      on: {
+        press: {
+          action: 'my-plugin:submit',
+          params: { text: { $state: '/inputValue' } },
+        },
+      },
+    },
+  }
+})
+```
+
+The initial state can be set in the spec:
+
+```ts
+defineJsonRenderSpec({
+  root: 'root',
+  state: { inputValue: '' },
+  elements: { /* ... */ },
+})
+```
+
+### Available Components
+
+| Component | Description |
+|-----------|-------------|
+| `Stack` | Flex layout container (vertical/horizontal) |
+| `Card` | Container with optional title, collapsible |
+| `Text` | Text display (heading, body, caption, code variants) |
+| `Badge` | Status label (info, success, warning, error) |
+| `Button` | Clickable button — emits `press` event for actions |
+| `Icon` | Iconify icon by name |
+| `Divider` | Visual separator with optional label |
+| `TextInput` | Text input with `$bindState` two-way binding |
+| `KeyValueTable` | Key-value pairs display |
+| `DataTable` | Tabular data with columns and rows |
+| `CodeBlock` | Code display with optional filename |
+| `Progress` | Progress bar with label |
+| `Tree` | Expandable tree view for nested objects |
+
+> [!TIP]
+> See the [Git UI example](/kit/examples#git-ui) for a complete interactive plugin using json-render with RPC actions, text input, and dynamic state.
 
 ## Communication with Server
 
