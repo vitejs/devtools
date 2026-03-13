@@ -5,8 +5,7 @@ outline: deep
 # Getting Started
 
 > [!WARNING]
-> Vite DevTools is still in development and not yet ready for production use.
-> And currently Vite DevTools is designed only for Vite-Rolldown's build mode.
+> Vite DevTools currently only supports Vite-Rolldown's build mode.
 > Dev mode and normal Vite are not supported yet.
 
 ## What is Vite DevTools?
