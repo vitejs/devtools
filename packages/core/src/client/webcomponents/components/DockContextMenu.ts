@@ -48,6 +48,8 @@ function refreshDock(context: DocksContext, entry: DevToolsDockEntry) {
 }
 
 function canHide(context: DocksContext, entry: DevToolsDockEntry) {
+  if (entry.id === '~settings')
+    return false
   return context.docks.entries.some(item => item.id === entry.id)
 }
 
