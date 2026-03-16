@@ -20,7 +20,7 @@ export default defineConfig({
       /^node:/,
     ],
     // @keep-sorted
-    onlyAllowBundle: [
+    onlyBundle: [
       '@clack/core',
       '@clack/prompts',
       '@json-render/core',
