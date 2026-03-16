@@ -15,6 +15,7 @@ const DevToolsKitNav = [
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
   { text: 'Logs & Notifications', link: '/kit/logs' },
+  { text: 'Terminals & Processes', link: '/kit/terminals' },
   { text: 'Examples', link: '/kit/examples' },
 ]
 
@@ -70,6 +71,7 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'Shared State', link: '/kit/shared-state' },
           { text: 'Logs', link: '/kit/logs' },
           { text: 'JSON Render', link: '/kit/json-render' },
+          { text: 'Terminals', link: '/kit/terminals' },
           { text: 'Examples', link: '/kit/examples' },
         ],
       },
