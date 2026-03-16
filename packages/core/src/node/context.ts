@@ -61,19 +61,19 @@ export async function createDevToolsContext(
   let jrCounter = 0
   context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
     const stateKey = `__jr:${jrCounter++}`
-    const statePromise = rpcHost.sharedState.get(stateKey, {
-      initialValue: initialSpec,
+    const statePromise = rpcHost.sharedState.get(stateKey as any, {
+      initialValue: initialSpec as any,
     })
 
     return {
       _stateKey: stateKey,
       async updateSpec(spec) {
         const state = await statePromise
-        state.mutate(() => spec)
+        state.mutate(() => spec as any)
       },
       async updateState(newState) {
         const state = await statePromise
-        state.mutate((draft) => {
+        state.mutate((draft: any) => {
           draft.state = { ...draft.state, ...newState }
         })
       },

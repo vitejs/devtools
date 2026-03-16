@@ -26,7 +26,8 @@ export const Button = defineComponent({
           innerHTML: iconSvg.value,
         }))
       }
-      if (label) children.push(label)
+      if (label)
+        children.push(label)
 
       return h('button', {
         class: `jr-button jr-button-${variant}`,

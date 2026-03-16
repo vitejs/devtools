@@ -111,7 +111,7 @@ export const devtoolsCatalog = defineCatalog(devtoolsSchema, {
           label: z.string(),
           width: z.string().optional(),
         })),
-        rows: z.array(z.record(z.unknown())),
+        rows: z.array(z.record(z.string(), z.unknown())),
         maxHeight: z.string().optional(),
       }),
       description: 'Tabular data display with columns and rows. Bind "rowClick" event for row selection.',

@@ -20,10 +20,10 @@ async function loadSpec() {
   try {
     const stateKey = props.entry.ui?._stateKey
     if (stateKey) {
-      const state = await props.context.rpc.sharedState.get(stateKey)
-      spec.value = state.value() as Spec
+      const state = await props.context.rpc.sharedState.get(stateKey as any)
+      spec.value = state.value() as unknown as Spec
       state.on('updated', (newValue) => {
-        spec.value = newValue as Spec
+        spec.value = newValue as unknown as Spec
       })
     }
   }
@@ -40,12 +40,10 @@ async function loadSpec() {
 // reactivity system and Promise detection accessing `then`/`catch` on the proxy
 const actionHandlerCache = new Map<string, (params?: Record<string, unknown>) => Promise<void>>()
 function getActionHandler(actionName: string) {
-  console.log('getActionHandler', actionName)
   let handler = actionHandlerCache.get(actionName)
   if (!handler) {
     handler = async (params?: Record<string, unknown>) => {
       try {
-        console.log('actionHandlers', actionName, params)
         await props.context.rpc.call(actionName as any, params as any)
       }
       catch (e) {
@@ -63,7 +61,6 @@ const actionHandlers = markRaw(new Proxy({} as Record<string, (params: Record<st
     // Avoid intercepting Promise/JS internals that Vue reactivity checks
     if (prop === 'then' || prop === 'catch' || prop === 'finally')
       return undefined
-    console.log('actionHandlers', prop)
     return getActionHandler(prop)
   },
   has(_target, prop: string | symbol) {

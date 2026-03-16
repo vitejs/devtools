@@ -18,7 +18,7 @@ export function useIconSvg(getName: () => string | undefined) {
       return
     }
     const match = name.match(/^(?:i-)?([\w-]+):([\w-]+)$/)
-    if (match) {
+    if (match && match[1] && match[2]) {
       svg.value = await getIconifySvg(match[1], match[2])
     }
   })

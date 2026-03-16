@@ -6,7 +6,7 @@ export const Stack = defineComponent({
   props: ['element', 'emit', 'on', 'bindings', 'loading'],
   setup(ctx: RegistryComponentProps, { slots }) {
     return () => {
-      const { direction = 'vertical', gap = 8, align, justify, padding } = ctx.element.props
+      const { direction = 'vertical', gap = 8, align, justify, padding, flex } = ctx.element.props
       const isHorizontal = direction === 'horizontal'
       return h('div', {
         class: 'jr-stack',
@@ -17,6 +17,7 @@ export const Stack = defineComponent({
           alignItems: align || (isHorizontal ? 'center' : 'stretch'),
           justifyContent: justify,
           padding: padding ? `${padding}px` : undefined,
+          flex: flex != null ? String(flex) : undefined,
         },
       }, slots.default?.())
     }
