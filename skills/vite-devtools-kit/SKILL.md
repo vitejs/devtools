@@ -18,11 +18,13 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 
 | Property | Purpose |
 |----------|---------|
-| `ctx.docks` | Register dock entries (iframe, action, custom-render, launcher) |
+| `ctx.docks` | Register dock entries (iframe, action, custom-render, launcher, json-render) |
 | `ctx.views` | Host static files for UI |
 | `ctx.rpc` | Register RPC functions, broadcast to clients |
 | `ctx.rpc.sharedState` | Synchronized server-client state |
 | `ctx.logs` | Emit structured log entries and toast notifications |
+| `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
+| `ctx.createJsonRenderer` | Create server-side JSON render specs for zero-client-code UIs |
 | `ctx.viteConfig` | Resolved Vite configuration |
 | `ctx.viteServer` | Dev server instance (dev mode only) |
 | `ctx.mode` | `'dev'` or `'build'` |
@@ -122,6 +124,7 @@ export default function myAnalyzer(): Plugin {
 | Type | Use Case |
 |------|----------|
 | `iframe` | Full UI panels, dashboards (most common) |
+| `json-render` | Server-side JSON specs — zero client code needed |
 | `action` | Buttons that trigger client-side scripts (inspectors, toggles) |
 | `custom-render` | Direct DOM access in panel (framework mounting) |
 | `launcher` | Actionable setup cards for initialization tasks |
@@ -168,6 +171,44 @@ ctx.docks.register({
 })
 ```
 
+### JSON Render Entry
+
+Build UIs entirely from server-side TypeScript — no client code needed:
+
+```ts
+const ui = ctx.createJsonRenderer({
+  root: 'root',
+  elements: {
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'Hello from JSON!', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Version', value: '1.0.0' },
+          { key: 'Status', value: 'Running' },
+        ],
+      },
+    },
+  },
+})
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
+})
+```
+
 ### Launcher Entry
 
 ```ts
@@ -187,6 +228,31 @@ const entry = ctx.docks.register({
   },
 })
 ```
+
+## Terminals & Subprocesses
+
+Spawn and manage child processes with streaming terminal output:
+
+```ts
+const session = await ctx.terminals.startChildProcess(
+  {
+    command: 'vite',
+    args: ['build', '--watch'],
+    cwd: process.cwd(),
+  },
+  {
+    id: 'my-plugin:build-watcher',
+    title: 'Build Watcher',
+    icon: 'ph:terminal-duotone',
+  },
+)
+
+// Lifecycle controls
+await session.terminate()
+await session.restart()
+```
+
+A common pattern is combining with launcher docks — see [Terminals Patterns](./references/terminals-patterns.md).
 
 ## Logs & Notifications
 
@@ -426,6 +492,7 @@ Real-world example plugins in the repo — reference their code structure and pa
 
 - **A11y Checker** ([`examples/plugin-a11y-checker`](https://github.com/vitejs/devtools/tree/main/examples/plugin-a11y-checker)) — Action dock entry, client-side axe-core audits, logs with severity levels and element positions, log handle updates
 - **File Explorer** ([`examples/plugin-file-explorer`](https://github.com/vitejs/devtools/tree/main/examples/plugin-file-explorer)) — Iframe dock entry, RPC functions (static/query/action), hosted UI panel, RPC dump for static builds, backend mode detection
+- **Git UI** ([`examples/plugin-git-ui`](https://github.com/vitejs/devtools/tree/main/examples/plugin-git-ui)) — JSON render dock entry, server-side JSON specs, `$bindState` two-way binding, `$state` in action params, dynamic badge updates
 
 ## Further Reading
 
@@ -433,4 +500,6 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [Dock Entry Types](./references/dock-entry-types.md) - Detailed dock configuration options
 - [Shared State Patterns](./references/shared-state-patterns.md) - Framework integration examples
 - [Project Structure](./references/project-structure.md) - Recommended file organization
+- [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
+- [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
 - [Logs Patterns](./references/logs-patterns.md) - Log entries, toast notifications, and handle patterns

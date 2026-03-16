@@ -201,6 +201,93 @@ export default function setup(ctx: DevToolsClientScriptContext) {
 }
 ```
 
+## JSON Render Entries
+
+Server-side JSON specs rendered by the built-in component library. No client code needed.
+
+```ts
+interface JsonRenderEntry extends DockEntryBase {
+  type: 'json-render'
+  ui: JsonRenderer // Handle from ctx.createJsonRenderer()
+}
+
+// Registration
+const ui = ctx.createJsonRenderer({
+  root: 'root',
+  state: { query: '' },
+  elements: {
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'My Panel', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Status', value: 'Running' },
+        ],
+      },
+    },
+  },
+})
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
+})
+```
+
+### Dynamic Updates
+
+```ts
+// Replace the entire spec
+await ui.updateSpec(buildSpec(newData))
+
+// Shallow-merge into spec.state
+await ui.updateState({ query: 'vue' })
+```
+
+### Action Handling
+
+Buttons trigger server-side RPC functions via `on.press.action`:
+
+```ts
+// In spec element
+{
+  type: 'Button',
+  props: { label: 'Refresh', icon: 'ph:arrows-clockwise' },
+  on: { press: { action: 'my-plugin:refresh' } },
+}
+
+// Matching RPC function
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:refresh',
+  type: 'action',
+  setup: ctx => ({
+    handler: async () => {
+      await ui.updateSpec(buildSpec(await fetchData()))
+    },
+  }),
+}))
+```
+
+### JSON Render Use Cases
+
+- **Build reports** — Display build stats, module lists, timing data
+- **Configuration viewers** — Show resolved config with key-value tables
+- **Status dashboards** — Progress bars, badges, real-time updates
+- **Simple forms** — Text inputs with state binding + action buttons
+
+See [JSON Render Patterns](./json-render-patterns.md) for the full component library and state binding details.
+
 ## Launcher Entries
 
 Actionable setup cards for running initialization tasks. Shows a card with title, description, and a launch button.
