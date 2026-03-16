@@ -87,10 +87,8 @@ interface DockEntry {
     buttonStart?: string
     buttonLoading?: string
   }
-  /** Inline JSON spec (for type: 'json-render') */
-  spec?: JsonRenderSpec
-  /** Shared state key holding the JSON spec (for type: 'json-render') */
-  sharedStateKey?: string
+  /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
+  ui?: JsonRenderer
 }
 ```
 
@@ -303,160 +301,45 @@ ctx.docks.register({
 
 ## JSON Render Panels
 
-JSON render panels let you describe your UI as a JSON spec on the server side. The DevTools client renders it with built-in components powered by [json-render](https://github.com/vercel-labs/json-render). **No client code needed.**
+JSON render panels let you describe your UI as a JSON spec on the server side — **no client code needed.** This is the simplest way to add a DevTools panel.
 
-This is the simplest way to add a DevTools panel — you only write server-side TypeScript.
-
-### Basic Example
+Use `ctx.createJsonRenderer()` to create a renderer handle, then pass it as `ui` when registering a `json-render` dock entry:
 
 ```ts
-import { defineJsonRenderSpec } from '@vitejs/devtools-kit'
-
-ctx.docks.register({
-  id: 'my-panel',
-  title: 'My Panel',
-  icon: 'ph:chart-bar-duotone',
-  type: 'json-render',
-  spec: defineJsonRenderSpec({
-    root: 'root',
-    elements: {
-      root: {
-        type: 'Stack',
-        props: { direction: 'vertical', gap: 12 },
-        children: ['heading', 'info'],
-      },
-      heading: {
-        type: 'Text',
-        props: { content: 'Hello from JSON!', variant: 'heading' },
-      },
-      info: {
-        type: 'KeyValueTable',
-        props: {
-          entries: [
-            { key: 'Version', value: '1.0.0' },
-            { key: 'Status', value: 'Running' },
-          ],
-        },
-      },
-    },
-  }),
-})
-```
-
-### Dynamic Data with Shared State
-
-For dynamic UIs that update over time, store the spec in a [shared state](./shared-state) key:
-
-```ts
-ctx.docks.register({
-  id: 'my-panel',
-  title: 'My Panel',
-  icon: 'ph:chart-bar-duotone',
-  type: 'json-render',
-  sharedStateKey: 'my-plugin:ui',
-})
-
-const ui = await ctx.rpc.sharedState.get('my-plugin:ui', {
-  initialValue: defineJsonRenderSpec({ /* spec */ }),
-})
-
-// Later, update the UI reactively:
-ui.mutate((draft) => {
-  draft.elements.heading.props.content = 'Updated!'
-})
-```
-
-### Handling Actions via RPC
-
-Buttons in the spec can trigger RPC functions on the server:
-
-```ts
-// In the spec:
-defineJsonRenderSpec({
-  // ...
+const ui = ctx.createJsonRenderer({
+  root: 'root',
   elements: {
-    'refresh-btn': {
-      type: 'Button',
-      props: { label: 'Refresh' },
-      on: { press: { action: 'my-plugin:refresh' } },
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'Hello from JSON!', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Version', value: '1.0.0' },
+          { key: 'Status', value: 'Running' },
+        ],
+      },
     },
   },
 })
-```
 
-```ts
-// On the server:
-ctx.rpc.register(defineRpcFunction({
-  name: 'my-plugin:refresh',
-  type: 'event',
-  setup: ctx => ({
-    handler: async () => {
-      // Fetch new data, then update the spec
-      ui.mutate((draft) => { /* ... */ })
-    },
-  }),
-}))
-```
-
-### Text Input with Two-Way Binding
-
-Use `$bindState` for two-way binding on text inputs, and `$state` to read the bound value in action params:
-
-```ts
-defineJsonRenderSpec({
-  // ...
-  elements: {
-    'my-input': {
-      type: 'TextInput',
-      props: {
-        placeholder: 'Type here...',
-        value: { $bindState: '/inputValue' },
-      },
-    },
-    'submit-btn': {
-      type: 'Button',
-      props: { label: 'Submit' },
-      on: {
-        press: {
-          action: 'my-plugin:submit',
-          params: { text: { $state: '/inputValue' } },
-        },
-      },
-    },
-  }
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
 })
 ```
 
-The initial state can be set in the spec:
-
-```ts
-defineJsonRenderSpec({
-  root: 'root',
-  state: { inputValue: '' },
-  elements: { /* ... */ },
-})
-```
-
-### Available Components
-
-| Component | Description |
-|-----------|-------------|
-| `Stack` | Flex layout container (vertical/horizontal) |
-| `Card` | Container with optional title, collapsible |
-| `Text` | Text display (heading, body, caption, code variants) |
-| `Badge` | Status label (info, success, warning, error) |
-| `Button` | Clickable button — emits `press` event for actions |
-| `Icon` | Iconify icon by name |
-| `Divider` | Visual separator with optional label |
-| `TextInput` | Text input with `$bindState` two-way binding |
-| `KeyValueTable` | Key-value pairs display |
-| `DataTable` | Tabular data with columns and rows |
-| `CodeBlock` | Code display with optional filename |
-| `Progress` | Progress bar with label |
-| `Tree` | Expandable tree view for nested objects |
-
-> [!TIP]
-> See the [Git UI example](/kit/examples#git-ui) for a complete interactive plugin using json-render with RPC actions, text input, and dynamic state.
+See the [JSON Render](/kit/json-render) page for the full component reference, dynamic updates, actions, state bindings, and examples.
 
 ## Communication with Server
 

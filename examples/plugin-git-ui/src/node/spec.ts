@@ -1,6 +1,5 @@
 import type { JsonRenderElement, JsonRenderSpec } from '@vitejs/devtools-kit'
 import type { GitState } from './git'
-import { defineJsonRenderSpec } from '@vitejs/devtools-kit'
 
 const statusMeta: Record<string, { label: string, title: string, variant: string }> = {
   'M': { label: 'M', title: 'Modified', variant: 'warning' },
@@ -71,7 +70,7 @@ export function buildSpec(gitState: GitState): JsonRenderSpec {
   const stagedRows = buildFileRows(gitState.staged, 'staged', 'git-ui:unstage', 'ph:minus-circle')
   const unstagedRows = buildFileRows(gitState.unstaged, 'unstaged', 'git-ui:stage', 'ph:plus-circle')
 
-  return defineJsonRenderSpec({
+  return {
     root: 'root',
     state: {
       commitMessage: '',
@@ -207,5 +206,5 @@ export function buildSpec(gitState: GitState): JsonRenderSpec {
         },
       },
     },
-  })
+  }
 }
