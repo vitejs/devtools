@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
@@ -44,6 +44,7 @@ export async function createDevToolsContext(
     utils: ContextUtils,
     terminals: undefined!,
     logs: undefined!,
+    createJsonRenderer: undefined!,
   }
   const rpcHost = new RpcFunctionsHost(context)
   const docksHost = new DevToolsDockHost(context)
@@ -55,6 +56,29 @@ export async function createDevToolsContext(
   context.views = viewsHost
   context.terminals = terminalsHost
   context.logs = logsHost
+
+  // json-render factory
+  let jrCounter = 0
+  context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
+    const stateKey = `__jr:${jrCounter++}`
+    const statePromise = rpcHost.sharedState.get(stateKey as any, {
+      initialValue: initialSpec as any,
+    })
+
+    return {
+      _stateKey: stateKey,
+      async updateSpec(spec) {
+        const state = await statePromise
+        state.mutate(() => spec as any)
+      },
+      async updateState(newState) {
+        const state = await statePromise
+        state.mutate((draft: any) => {
+          draft.state = { ...draft.state, ...newState }
+        })
+      },
+    }
+  }
 
   // Build-in function to list all RPC functions
   for (const fn of builtinRpcDeclarations) {

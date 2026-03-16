@@ -1,4 +1,5 @@
 .:
+  defineJsonRenderSpec: function
   defineRpcFunction: function
 ./client:
   getDevToolsRpcClient: function

@@ -32,3 +32,18 @@ A file explorer dock that lists, reads, and writes files through RPC.
 - Detecting backend mode (`websocket` vs `static`) on the client
 
 **Source:** [`examples/plugin-file-explorer`](https://github.com/vitejs/devtools/tree/main/examples/plugin-file-explorer)
+
+## Git UI
+
+An interactive Git panel built entirely with server-side JSON specs — no client code at all.
+
+**Features demonstrated:**
+
+- Using the `json-render` dock type for zero-client-code panels
+- Building a `JsonRenderSpec` from server-side data (git branch, status, log)
+- Dynamic spec updates via shared state (`sharedStateKey`)
+- Button actions bridged to RPC functions (`git-ui:refresh`, `git-ui:commit`)
+- Text input with `$bindState` two-way binding and `$state` in action params
+- Updating dock badge text reactively
+
+**Source:** [`examples/plugin-git-ui`](https://github.com/vitejs/devtools/tree/main/examples/plugin-git-ui)

@@ -38,6 +38,8 @@
     "@iconify-json/simple-icons": "catalog:icons",
     "@iconify-json/svg-spinners": "catalog:icons",
     "@iconify-json/tabler": "catalog:icons",
+    "@json-render/core": "catalog:frontend",
+    "@json-render/vue": "catalog:frontend",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/eslint": "catalog:devtools",
     "@types/chrome": "catalog:types",

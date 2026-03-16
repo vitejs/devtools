@@ -69,6 +69,7 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'RPC', link: '/kit/rpc' },
           { text: 'Shared State', link: '/kit/shared-state' },
           { text: 'Logs', link: '/kit/logs' },
+          { text: 'JSON Render', link: '/kit/json-render' },
           { text: 'Examples', link: '/kit/examples' },
         ],
       },
