@@ -28,6 +28,15 @@
       "types": "./src/unocss/index.ts",
       "import": "./src/unocss/index.ts"
     },
+    "./unocss/theme": {
+      "types": "./src/unocss/theme.ts",
+      "import": "./src/unocss/theme.ts"
+    },
+    "./unocss/shared-shortcuts": {
+      "types": "./src/unocss/shared-shortcuts.ts",
+      "import": "./src/unocss/shared-shortcuts.ts"
+    },
+    "./styles/global.css": "./src/styles/global.css",
     "./components/*": {
       "types": "./src/components/*.vue",
       "import": "./src/components/*.vue"
