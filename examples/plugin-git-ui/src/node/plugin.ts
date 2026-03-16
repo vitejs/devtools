@@ -4,9 +4,9 @@ import { exec } from 'tinyexec'
 import { getGitState, git } from './git'
 import { buildSpec } from './spec'
 
-async function refreshUi(ctx: { cwd: string, docks: any }, ui: JsonRenderer) {
+async function refreshUi(ctx: { cwd: string, docks: any }, ui: JsonRenderer, interactive: boolean) {
   const gitState = await getGitState(ctx.cwd)
-  await ui.updateSpec(buildSpec(gitState))
+  await ui.updateSpec(buildSpec(gitState, { interactive }))
   const total = gitState.staged.length + gitState.unstaged.length
   ctx.docks.update({
     id: 'git-ui',
@@ -18,14 +18,14 @@ async function refreshUi(ctx: { cwd: string, docks: any }, ui: JsonRenderer) {
   })
 }
 
-function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
+function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interactive: boolean) {
   return [
     defineRpcFunction({
       name: 'git-ui:refresh',
       type: 'action',
       setup: ctx => ({
         handler: async () => {
-          await refreshUi(ctx, getUi())
+          await refreshUi(ctx, getUi(), interactive)
         },
       }),
     }),
@@ -44,7 +44,7 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
           else {
             ctx.logs.add({ message: `Stage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
-          await refreshUi(ctx, getUi())
+          await refreshUi(ctx, getUi(), interactive)
         },
       }),
     }),
@@ -63,7 +63,7 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
           else {
             ctx.logs.add({ message: `Unstage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
-          await refreshUi(ctx, getUi())
+          await refreshUi(ctx, getUi(), interactive)
         },
       }),
     }),
@@ -80,7 +80,7 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
           else {
             ctx.logs.add({ message: `Stage all failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
-          await refreshUi(ctx, getUi())
+          await refreshUi(ctx, getUi(), interactive)
         },
       }),
     }),
@@ -104,7 +104,7 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer) {
             ctx.logs.add({ message: `Commit failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
 
-          await refreshUi(ctx, getUi())
+          await refreshUi(ctx, getUi(), interactive)
         },
       }),
     }),
@@ -116,9 +116,10 @@ export function GitUIPlugin(): PluginWithDevTools {
     name: 'plugin-git-ui',
     devtools: {
       async setup(ctx) {
+        const interactive = ctx.mode === 'dev'
         const gitRoot = (await exec('git', ['rev-parse', '--show-toplevel'], { nodeOptions: { cwd: ctx.cwd }, throwOnError: true })).stdout.trim() || ctx.cwd
         const gitState = await getGitState(gitRoot)
-        const ui = ctx.createJsonRenderer(buildSpec(gitState))
+        const ui = ctx.createJsonRenderer(buildSpec(gitState, { interactive }))
 
         const total = gitState.staged.length + gitState.unstaged.length
         ctx.docks.register({
@@ -131,9 +132,11 @@ export function GitUIPlugin(): PluginWithDevTools {
           badge: total > 0 ? String(total) : undefined,
         })
 
-        const rpcFunctions = createRpcFunctions(gitRoot, () => ui)
-        for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn)
+        if (interactive) {
+          const rpcFunctions = createRpcFunctions(gitRoot, () => ui, interactive)
+          for (const fn of rpcFunctions) {
+            ctx.rpc.register(fn)
+          }
         }
       },
     },

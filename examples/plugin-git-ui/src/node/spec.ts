@@ -20,6 +20,7 @@ function buildFileRows(
   prefix: string,
   actionName: string,
   actionIcon: string,
+  interactive: boolean,
 ): { children: string[], elements: Record<string, JsonRenderElement> } {
   const children: string[] = []
   const elements: Record<string, JsonRenderElement> = {}
@@ -30,14 +31,29 @@ function buildFileRows(
     const rowId = `${prefix}-row-${i}`
     const statusId = `${prefix}-status-${i}`
     const fileId = `${prefix}-file-${i}`
-    const spacerId = `${prefix}-spacer-${i}`
-    const btnId = `${prefix}-btn-${i}`
 
     children.push(rowId)
+    const rowChildren = [statusId, fileId]
+
+    if (interactive) {
+      const spacerId = `${prefix}-spacer-${i}`
+      const btnId = `${prefix}-btn-${i}`
+      rowChildren.push(spacerId, btnId)
+      elements[spacerId] = {
+        type: 'Stack',
+        props: { direction: 'horizontal', flex: 1 },
+      }
+      elements[btnId] = {
+        type: 'Button',
+        props: { icon: actionIcon, variant: 'ghost' },
+        on: { press: { action: actionName, params: { file } } },
+      }
+    }
+
     elements[rowId] = {
       type: 'Stack',
       props: { direction: 'horizontal', gap: 8, align: 'center' },
-      children: [statusId, fileId, spacerId, btnId],
+      children: rowChildren,
     }
     elements[statusId] = {
       type: 'Badge',
@@ -52,23 +68,20 @@ function buildFileRows(
       type: 'Text',
       props: { content: file, variant: 'code' },
     }
-    elements[spacerId] = {
-      type: 'Stack',
-      props: { direction: 'horizontal', flex: 1 },
-    }
-    elements[btnId] = {
-      type: 'Button',
-      props: { icon: actionIcon, variant: 'ghost' },
-      on: { press: { action: actionName, params: { file } } },
-    }
   }
 
   return { children, elements }
 }
 
-export function buildSpec(gitState: GitState): JsonRenderSpec {
-  const stagedRows = buildFileRows(gitState.staged, 'staged', 'git-ui:unstage', 'ph:minus-circle')
-  const unstagedRows = buildFileRows(gitState.unstaged, 'unstaged', 'git-ui:stage', 'ph:plus-circle')
+export function buildSpec(gitState: GitState, options?: { interactive?: boolean }): JsonRenderSpec {
+  const interactive = options?.interactive ?? true
+  const stagedRows = buildFileRows(gitState.staged, 'staged', 'git-ui:unstage', 'ph:minus-circle', interactive)
+  const unstagedRows = buildFileRows(gitState.unstaged, 'unstaged', 'git-ui:stage', 'ph:plus-circle', interactive)
+
+  const rootChildren = ['header', 'branch-info']
+  if (interactive)
+    rootChildren.push('commit-section')
+  rootChildren.push('divider1', 'staged-card', 'unstaged-card', 'commits-card')
 
   return {
     root: 'root',
@@ -79,12 +92,12 @@ export function buildSpec(gitState: GitState): JsonRenderSpec {
       'root': {
         type: 'Stack',
         props: { direction: 'vertical', gap: 12, padding: 4 },
-        children: ['header', 'branch-info', 'commit-section', 'divider1', 'staged-card', 'unstaged-card', 'commits-card'],
+        children: rootChildren,
       },
       'header': {
         type: 'Stack',
         props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
-        children: ['title', 'refresh-btn'],
+        children: interactive ? ['title', 'refresh-btn'] : ['title'],
       },
       'title': {
         type: 'Text',
@@ -163,7 +176,9 @@ export function buildSpec(gitState: GitState): JsonRenderSpec {
       'unstaged-card': {
         type: 'Card',
         props: { title: `Unstaged (${gitState.unstaged.length})`, collapsible: true },
-        children: gitState.unstaged.length > 0 ? ['unstaged-header', 'unstaged-files'] : ['unstaged-empty'],
+        children: gitState.unstaged.length > 0
+          ? (interactive ? ['unstaged-header', 'unstaged-files'] : ['unstaged-files'])
+          : ['unstaged-empty'],
       },
       'unstaged-header': {
         type: 'Stack',
