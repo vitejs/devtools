@@ -28,6 +28,9 @@ export const formEntries: Record<DevToolsLogEntryFrom, FromStyle> = {
   browser: { icon: 'i-ph:globe-simple-duotone', color: 'text-amber-800 dark:text-amber-200', label: 'Browser' },
 }
 
+// Intentionally uses fixed saturation/lightness (unlike @vitejs/devtools-ui/utils/color which
+// is dark-mode-aware via Vue reactivity). Webcomponents run in shadow DOM with media-based dark
+// mode, so they can't access the isDark composable.
 export function getHashColorFromString(name: string, opacity: number = 1): string {
   let hash = 0
   for (let i = 0; i < name.length; i++)

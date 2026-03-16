@@ -1,13 +1,10 @@
 import type { UserShortcuts } from '@unocss/core'
 import type { Theme } from '@unocss/preset-wind4'
+import { sharedShortcuts } from './shared-shortcuts'
 
 export const shortcuts: UserShortcuts<Theme> = [
+  ...sharedShortcuts,
   {
-    'color-base': 'color-neutral-800 dark:color-neutral-300',
-    'bg-base': 'bg-white dark:bg-#111',
-    'bg-secondary': 'bg-#eee dark:bg-#222',
-    'border-base': 'border-#8884',
-
     'border-flow': 'border-#8885',
     'border-flow-line': 'border-#ccc dark:border-#222',
     'border-flow-active': 'border-primary-700/50 dark:border-primary-300/50',
@@ -20,10 +17,6 @@ export const shortcuts: UserShortcuts<Theme> = [
     'bg-code': 'bg-gray-500:5',
 
     'bg-gradient-more': 'bg-gradient-to-t from-white via-white:80 to-white:0 dark:from-#111 dark:via-#111:80 dark:to-#111:0',
-
-    'color-active': 'color-primary-600 dark:color-primary-300',
-    'border-active': 'border-primary-600/25 dark:border-primary-400/25',
-    'bg-active': 'bg-#8881',
 
     'btn-action': 'border border-base rounded flex gap-2 items-center px2 py1 op75 hover:op100 hover:bg-active disabled:pointer-events-none disabled:op30!',
     'btn-action-sm': 'btn-action text-sm',
@@ -58,5 +51,4 @@ export const shortcuts: UserShortcuts<Theme> = [
     'page-padding-collapsed': 'pt-24 pl-14 pr-8 pb-8',
   },
   [/^badge-color-(\w+)$/, ([, color]) => `bg-${color}-400:20 dark:bg-${color}-400:10 text-${color}-700 dark:text-${color}-300 border-${color}-600:10 dark:border-${color}-300:10`],
-  [/^bg-glass(:\d+)?$/, ([, opacity = ':75']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-5`],
 ]
