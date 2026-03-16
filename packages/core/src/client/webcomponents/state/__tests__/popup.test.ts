@@ -1,7 +1,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setDocksOverflowPanel, useDocksOverflowPanel } from '../floating-tooltip'
-import { closeDockPopup, filterPopupDockEntry, isDockPopupEntryVisible, isDockPopupSupported, openDockPopup, setDockStandaloneLoaderForTest, useDockPopupWindow, useIsDockPopupOpen } from '../popup'
+import { closeDockPopup, isDockPopupSupported, openDockPopup, setDockStandaloneLoaderForTest, useDockPopupWindow, useIsDockPopupOpen } from '../popup'
 
 const {
   DockStandaloneElementMock,
@@ -48,6 +48,9 @@ function createMockContext(
         open: false,
         inactiveTimeout: 3_000,
       },
+    },
+    docks: {
+      switchEntry: vi.fn(),
     },
   } as unknown as DocksContext
 }
@@ -145,47 +148,9 @@ describe('dock popup state', () => {
 
   it('returns null when the API is unavailable', async () => {
     expect(isDockPopupSupported()).toBe(false)
-    expect(isDockPopupEntryVisible('embedded')).toBe(false)
     const popup = await openDockPopup(createMockContext())
     expect(popup).toBeNull()
     expect(useIsDockPopupOpen().value).toBe(false)
-  })
-
-  it('hides popup entry when popup is already open', async () => {
-    const popup = createMockPopupWindow()
-    const requestWindow = vi.fn().mockResolvedValue(popup)
-    ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow }
-
-    expect(isDockPopupEntryVisible('embedded')).toBe(true)
-    await openDockPopup(createMockContext())
-    expect(isDockPopupEntryVisible('embedded')).toBe(false)
-  })
-
-  it('hides popup entry when running inside popup window', () => {
-    ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow: vi.fn() }
-
-    expect(isDockPopupEntryVisible('standalone')).toBe(false)
-  })
-
-  it('filters popup entry from grouped entries', () => {
-    const groups = [
-      ['~builtin', [
-        { type: '~builtin', id: '~popup', title: 'Popup', icon: 'test' },
-        { type: '~builtin', id: '~settings', title: 'Settings', icon: 'test' },
-      ]],
-      ['default', [
-        { type: 'iframe', id: 'app', title: 'App', icon: 'test', url: 'http://example.com' },
-      ]],
-    ] as const as Parameters<typeof filterPopupDockEntry>[0]
-
-    expect(filterPopupDockEntry(groups)).toEqual([
-      ['~builtin', [
-        { type: '~builtin', id: '~settings', title: 'Settings', icon: 'test' },
-      ]],
-      ['default', [
-        { type: 'iframe', id: 'app', title: 'App', icon: 'test', url: 'http://example.com' },
-      ]],
-    ])
   })
 
   it('opens popup window and mounts standalone frame', async () => {
@@ -240,12 +205,13 @@ describe('dock popup state', () => {
     expect(popup.focus).toHaveBeenCalledTimes(1)
   })
 
-  it('clears popup state when popup is closed', async () => {
+  it('clears popup state and closes panel when popup is closed', async () => {
     const popup = createMockPopupWindow()
     const requestWindow = vi.fn().mockResolvedValue(popup)
     ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow }
 
-    await openDockPopup(createMockContext())
+    const context = createMockContext()
+    await openDockPopup(context)
     expect(useIsDockPopupOpen().value).toBe(true)
 
     popup.dispatchEvent(new Event('pagehide'))
@@ -253,19 +219,22 @@ describe('dock popup state', () => {
     expect(dockElementRemoveMock).toHaveBeenCalledTimes(1)
     expect(useIsDockPopupOpen().value).toBe(false)
     expect(useDockPopupWindow().value).toBeNull()
+    expect(context.docks.switchEntry).toHaveBeenCalledWith(null)
   })
 
-  it('closes popup window via closeDockPopup', async () => {
+  it('closes popup window and panel via closeDockPopup', async () => {
     const popup = createMockPopupWindow()
     const requestWindow = vi.fn().mockResolvedValue(popup)
     ;(window as Window & { documentPictureInPicture?: unknown }).documentPictureInPicture = { requestWindow }
 
-    await openDockPopup(createMockContext())
+    const context = createMockContext()
+    await openDockPopup(context)
     closeDockPopup()
 
     expect(dockElementRemoveMock).toHaveBeenCalledTimes(1)
     expect(popup.close).toHaveBeenCalledTimes(1)
     expect(useIsDockPopupOpen().value).toBe(false)
     expect(useDockPopupWindow().value).toBeNull()
+    expect(context.docks.switchEntry).toHaveBeenCalledWith(null)
   })
 })

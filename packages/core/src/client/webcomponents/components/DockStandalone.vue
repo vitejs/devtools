@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
-import { filterPopupDockEntry, isDockPopupEntryVisible } from '../state/popup'
 import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import FloatingElements from './FloatingElements.vue'
@@ -31,12 +30,7 @@ watch(
   { immediate: true },
 )
 
-const groupedEntries = computed(() => {
-  if (isDockPopupEntryVisible('standalone'))
-    return context.docks.groupedEntries
-
-  return filterPopupDockEntry(context.docks.groupedEntries)
-})
+const groupedEntries = computed(() => context.docks.groupedEntries)
 
 function switchEntry(id: string | undefined) {
   if (id) {

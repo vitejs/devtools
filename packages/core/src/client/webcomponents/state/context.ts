@@ -8,7 +8,7 @@ import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientLogsClient } from './logs-client'
-import { registerMainFrameDockActionHandler, requestDockPopupOpen, triggerMainFrameDockAction } from './popup'
+import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
 const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
@@ -54,10 +54,6 @@ export async function createDocksContext(
     if (id === '~client-auth-notice') {
       selectedId.value = id
       panelStore.value.open = true
-      return true
-    }
-    if (id === '~popup') {
-      requestDockPopupOpen(docksContext)
       return true
     }
     const entry = dockEntries.value.find(e => e.id === id)
