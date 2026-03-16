@@ -23,7 +23,7 @@ import { renderDockImportsMap } from './plugins/server'
 import { createDevToolsMiddleware } from './server'
 import { startStandaloneDevTools } from './standalone'
 import { collectStaticRpcDump } from './static-dump'
-import { normalizeHttpHost } from './utils'
+import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
   root?: string
@@ -69,7 +69,7 @@ export async function start(options: StartOptions) {
   const server = createServer(toNodeListener(app))
 
   server.listen(port, host, async () => {
-    const url = normalizeHttpHost(host, port)
+    const url = normalizeHttpServerUrl(host, port)
     console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(url), '\n')
     if (options.open)
       await open(url)

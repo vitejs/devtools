@@ -4,7 +4,7 @@ export function isObject(value: unknown): value is Record<string, any> {
   return Object.prototype.toString.call(value) === '[object Object]'
 }
 
-export function normalizeHttpHost(host: string, port: number | string): string {
+export function normalizeHttpServerUrl(host: string, port: number | string): string {
   const normalizedHost
     = host === '127.0.0.1'
       ? 'localhost'
