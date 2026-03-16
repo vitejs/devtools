@@ -9,4 +9,9 @@ export default defineConfig({
     }),
     GitUIPlugin(),
   ],
+  build: {
+    rollupOptions: {
+      devtools: {},
+    },
+  },
 })
