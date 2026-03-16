@@ -1,4 +1,3 @@
-import type { DevToolsDockEntriesGrouped, DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { shallowRef } from 'vue'
@@ -18,7 +17,6 @@ const PANEL_MIN_SIZE = 20
 const PANEL_MAX_SIZE = 100
 const POPUP_MIN_WIDTH = 320
 const POPUP_MIN_HEIGHT = 240
-const POPUP_DOCK_ID = '~popup'
 const MAIN_FRAME_ACTION_HANDLER_KEY = '__VITE_DEVTOOLS_TRIGGER_DOCK_ACTION__'
 
 const popupWindow = shallowRef<Window | null>(null)
@@ -27,6 +25,7 @@ const popupEvents = createEventEmitter<DockPopupEvents>()
 let detachPopupListeners: (() => void) | undefined
 let detachColorModeSync: (() => void) | undefined
 let popupDockElement: (HTMLElement & { remove: () => void }) | undefined
+let popupContext: DocksContext | undefined
 let loadDockStandalone: () => Promise<new (props: { context: DocksContext }) => HTMLElement> = async () => {
   return await import('../components/DockStandalone').then(m => m.DockStandalone)
 }
@@ -136,6 +135,9 @@ function clearPopupState() {
   unmountPopupElement()
   popupWindow.value = null
   isPopupOpen.value = false
+  const ctx = popupContext
+  popupContext = undefined
+  ctx?.docks.switchEntry(null)
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -226,18 +228,6 @@ export async function triggerMainFrameDockAction(
   }
 }
 
-export function isDockPopupEntryVisible(clientType: 'embedded' | 'standalone'): boolean {
-  return isDockPopupSupported() && !isPopupOpen.value && clientType !== 'standalone'
-}
-
-export function filterPopupDockEntry(
-  groups: DevToolsDockEntriesGrouped,
-): DevToolsDockEntriesGrouped {
-  return groups
-    .map(([category, entries]) => [category, entries.filter(entry => entry.id !== POPUP_DOCK_ID)] as [string, DevToolsDockEntry[]])
-    .filter(([, entries]) => entries.length > 0)
-}
-
 export function useDockPopupWindow() {
   return popupWindow as Readonly<typeof popupWindow>
 }
@@ -304,6 +294,7 @@ export async function openDockPopup(context: DocksContext): Promise<Window | nul
       popup.removeEventListener('pagehide', onPageHide)
     }
 
+    popupContext = context
     popupWindow.value = popup
     isPopupOpen.value = true
     return popup

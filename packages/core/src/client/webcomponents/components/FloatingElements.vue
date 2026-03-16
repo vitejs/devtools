@@ -16,7 +16,7 @@ useEventListener(window, 'keydown', (e: KeyboardEvent) => {
 </script>
 
 <template>
-  <FloatingPopover :item="dockContextMenu" @dismiss="() => setDockContextMenu(null)" />
   <FloatingPopover :item="docksOverflowPanel" @dismiss="() => setDocksOverflowPanel(null)" />
+  <FloatingPopover :item="dockContextMenu" @dismiss="() => setDockContextMenu(null)" />
   <FloatingPopover :item="tooltip" />
 </template>

@@ -4,7 +4,6 @@ import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
 import { docksSplitGroupsWithCapacity } from '../state/dock-settings'
-import { filterPopupDockEntry, isDockPopupEntryVisible } from '../state/popup'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 import BracketLeft from './icons/BracketLeft.vue'
@@ -75,12 +74,7 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
-const isPopupEntryVisible = computed(() => isDockPopupEntryVisible(context.clientType))
-const groupedEntries = computed(() => {
-  if (isPopupEntryVisible.value)
-    return context.docks.groupedEntries
-  return filterPopupDockEntry(context.docks.groupedEntries)
-})
+const groupedEntries = computed(() => context.docks.groupedEntries)
 
 const splitEntries = computed(() => {
   return docksSplitGroupsWithCapacity(groupedEntries.value, 5)
