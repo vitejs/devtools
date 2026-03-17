@@ -37,7 +37,7 @@ function hasClientScript(dock: DevToolsDockEntry): boolean {
     <div v-for="[category, categoryDocks] in grouped" :key="category">
       <div flex="~ items-center gap-2" mb1 mt2>
         <span text-xs font-medium op50>{{ category }}</span>
-        <DisplayNumberBadge :value="categoryDocks.length" />
+        <DisplayNumberBadge :number="categoryDocks.length" />
       </div>
       <table w-full text-sm>
         <thead>

@@ -37,7 +37,7 @@ function shortPath(path: string): string {
     <div v-for="[type, typeScripts] in grouped" :key="type">
       <div flex="~ items-center gap-2" mb1 mt2>
         <DisplayBadge :text="type" />
-        <DisplayNumberBadge :value="typeScripts.length" />
+        <DisplayNumberBadge :number="typeScripts.length" />
       </div>
       <table w-full text-sm>
         <thead>
