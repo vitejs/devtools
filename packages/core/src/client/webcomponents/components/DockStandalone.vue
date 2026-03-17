@@ -50,11 +50,11 @@ function switchEntry(id: string | undefined) {
     <ViewBuiltinClientAuthNotice :context="context" />
   </div>
   <div v-else class="h-screen w-screen of-hidden grid cols-[max-content_1fr]">
-    <div class="border-r border-base flex flex-col">
+    <div class="border-r border-base flex flex-col min-h-0">
       <div class="p2 border-b border-base flex">
         <VitePlus class="w-7 h-7 ma" />
       </div>
-      <div class="transition duration-200 p2">
+      <div class="transition duration-200 p2 of-y-auto">
         <DockEntriesWithCategories
           :context="context"
           :groups="groupedEntries"
@@ -68,7 +68,7 @@ function switchEntry(id: string | undefined) {
         </DockEntriesWithCategories>
       </div>
     </div>
-    <div>
+    <div class="min-h-0">
       <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
       <ViewEntry
         v-if="context.docks.selected && viewsContainer"
