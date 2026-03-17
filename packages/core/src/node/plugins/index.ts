@@ -9,16 +9,21 @@ export interface DevToolsOptions {
    * @default true
    */
   builtinDevTools?: boolean
+  /**
+   * Use a fixed auth id for all clients connecting to the devtools.
+   */
+  authId?: string
 }
 
 export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
   const {
     builtinDevTools = true,
+    authId,
   } = options
 
   const plugins = [
     DevToolsInjection(),
-    DevToolsServer(),
+    DevToolsServer({ authId }),
   ]
 
   if (builtinDevTools) {

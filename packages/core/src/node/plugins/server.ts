@@ -34,7 +34,11 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export function DevToolsServer(): Plugin {
+export interface DevToolsServerOptions {
+  authId?: string
+}
+
+export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
   let context: DevToolsNodeContext
   return {
     name: 'vite:devtools:server',
@@ -51,6 +55,7 @@ export function DevToolsServer(): Plugin {
         cwd: viteDevServer.config.root,
         hostWebSocket: host,
         context,
+        authId: options.authId,
       })
       viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
     },

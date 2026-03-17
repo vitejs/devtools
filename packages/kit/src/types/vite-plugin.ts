@@ -86,4 +86,5 @@ export interface DevToolsNodeUtils {
 export interface ConnectionMeta {
   backend: 'websocket' | 'static'
   websocket?: number | string
+  authId?: string
 }

@@ -20,6 +20,7 @@ export interface CreateWsServerOptions {
   hostWebSocket: string
   base?: string
   context: DevToolsNodeContext
+  authId?: string
 }
 
 const ANONYMOUS_SCOPE = 'vite:anonymous:'
@@ -117,6 +118,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     return {
       backend: 'websocket',
       websocket: port,
+      ...(options.authId ? { authId: options.authId } : {}),
     }
   }
 

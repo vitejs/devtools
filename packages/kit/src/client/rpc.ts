@@ -184,7 +184,7 @@ export async function getDevToolsRpcClient(
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
-  const authId = getConnectionAuthIdFromWindows(options.authId)
+  const authId = getConnectionAuthIdFromWindows(options.authId ?? connectionMeta.authId)
   const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
 
   async function fetchJsonFromBases(path: string): Promise<any> {

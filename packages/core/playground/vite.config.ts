@@ -45,6 +45,7 @@ export default defineConfig({
     // For local playground only. As a user you don't install this plugin directly.
     DevTools({
       builtinDevTools: false,
+      authId: 'test-fixed-auth-id',
     }),
     DevToolsRolldownUI(),
     UnoCSS(),
