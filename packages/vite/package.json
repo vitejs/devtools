@@ -39,6 +39,7 @@
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
+    "envinfo": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
     "ohash": "catalog:deps",
@@ -48,6 +49,7 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
+    "@types/envinfo": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",

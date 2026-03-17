@@ -52,6 +52,9 @@ catalogs:
     diff:
       specifier: ^8.0.3
       version: 8.0.3
+    envinfo:
+      specifier: ^7.21.0
+      version: 7.21.0
     get-port-please:
       specifier: ^3.2.0
       version: 3.2.0
@@ -290,6 +293,9 @@ catalogs:
     '@iconify-json/logos':
       specifier: ^1.2.10
       version: 1.2.10
+    '@iconify-json/material-icon-theme':
+      specifier: ^1.2.54
+      version: 1.2.54
     '@iconify-json/octicon':
       specifier: ^1.2.21
       version: 1.2.21
@@ -303,6 +309,9 @@ catalogs:
       specifier: ^1.2.73
       version: 1.2.73
     '@iconify-json/svg-spinners':
+      specifier: ^1.2.4
+      version: 1.2.4
+    '@iconify-json/system-uicons':
       specifier: ^1.2.4
       version: 1.2.4
     '@iconify-json/tabler':
@@ -354,6 +363,9 @@ catalogs:
     '@types/diff':
       specifier: ^8.0.0
       version: 8.0.0
+    '@types/envinfo':
+      specifier: ^7.8.4
+      version: 7.8.4
     '@types/react':
       specifier: ^19.2.14
       version: 19.2.14
@@ -419,6 +431,9 @@ importers:
       '@iconify-json/logos':
         specifier: catalog:icons
         version: 1.2.10
+      '@iconify-json/material-icon-theme':
+        specifier: catalog:icons
+        version: 1.2.54
       '@iconify-json/octicon':
         specifier: catalog:icons
         version: 1.2.21
@@ -432,6 +447,9 @@ importers:
         specifier: catalog:icons
         version: 1.2.73
       '@iconify-json/svg-spinners':
+        specifier: catalog:icons
+        version: 1.2.4
+      '@iconify-json/system-uicons':
         specifier: catalog:icons
         version: 1.2.4
       '@iconify-json/tabler':
@@ -1024,6 +1042,9 @@ importers:
       birpc:
         specifier: catalog:deps
         version: 4.0.0
+      envinfo:
+        specifier: catalog:deps
+        version: 7.21.0
       get-port-please:
         specifier: catalog:deps
         version: 3.2.0
@@ -1046,6 +1067,9 @@ importers:
         specifier: catalog:deps
         version: 8.19.0
     devDependencies:
+      '@types/envinfo':
+        specifier: catalog:types
+        version: 7.8.4
       '@unocss/nuxt':
         specifier: catalog:build
         version: 66.6.6(magicast@0.5.2)(vite@8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(webpack@5.104.1(esbuild@0.27.4))
@@ -1670,6 +1694,9 @@ packages:
   '@iconify-json/logos@1.2.10':
     resolution: {integrity: sha512-qxaXKJ6fu8jzTMPQdHtNxlfx6tBQ0jXRbHZIYy5Ilh8Lx9US9FsAdzZWUR8MXV8PnWTKGDFO4ZZee9VwerCyMA==}
 
+  '@iconify-json/material-icon-theme@1.2.54':
+    resolution: {integrity: sha512-m5GpLcWICmtaLntgaSbQBWYzzScp2wQIBj0I/9ak2xUFXWxQUws42mZGWRA5W5e1Nn7DsyyMYVBgisnnCQSlhA==}
+
   '@iconify-json/octicon@1.2.21':
     resolution: {integrity: sha512-iMW8IT7suHRKVcHnci9wHKY79LU9mQ4rCAcVgKQQsI5SHoBi0r6z0leOXrI/oRCGJDiJDy9cLqweF3C5wSnm0A==}
 
@@ -1684,6 +1711,9 @@ packages:
 
   '@iconify-json/svg-spinners@1.2.4':
     resolution: {integrity: sha512-ayn0pogFPwJA1WFZpDnoq9/hjDxN+keeCMyThaX4d3gSJ3y0mdKUxIA/b1YXWGtY9wVtZmxwcvOIeEieG4+JNg==}
+
+  '@iconify-json/system-uicons@1.2.4':
+    resolution: {integrity: sha512-9WB9dmEm+TRCXI5Ml2IY8zQAPZES8euKxY0VOaf8D6E6ZaEr7ztO6DChMlGg7qWECs3m3FjFUqNgBx8ZpB+djw==}
 
   '@iconify-json/tabler@1.2.31':
     resolution: {integrity: sha512-Jfcw5TpGhfKKWyz1dGk7e79zIgDmpMKNYL0bjt17sURBPifAxowQcWAzcEhuiWU7FGXUM2NT6UhvACFZp7Hnjw==}
@@ -3235,6 +3265,9 @@ packages:
   '@types/diff@8.0.0':
     resolution: {integrity: sha512-o7jqJM04gfaYrdCecCVMbZhNdG6T1MHg/oQoRFdERLV+4d+V7FijhiEAbFu0Usww84Yijk9yH58U4Jk4HbtzZw==}
     deprecated: This is a stub types definition. diff provides its own type definitions, so you do not need this installed.
+
+  '@types/envinfo@7.8.4':
+    resolution: {integrity: sha512-K5WaRgSlqjc408IyPbxOFnz7rVG9E8ELhj7XR3Ncui15EgeyIXTcCfmwrRnU4uEOCJQhzZRAQurYznEEc1dD2g==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -4861,6 +4894,11 @@ packages:
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
+
+  envinfo@7.21.0:
+    resolution: {integrity: sha512-Lw7I8Zp5YKHFCXL7+Dz95g4CcbMEpgvqZNNq3AmlT5XAV6CgAAk6gyAMqn2zjw08K9BHfcNuKrMiCPLByGafow==}
+    engines: {node: '>=4'}
+    hasBin: true
 
   error-ex@1.3.4:
     resolution: {integrity: sha512-sqQamAnR14VgCr1A618A3sGrygcpK+HEbenA/HiEAkkUwcZIIB/tgWqHFxWgOyDh4nB4JCRimh79dR5Ywc9MDQ==}
@@ -8707,6 +8745,10 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/material-icon-theme@1.2.54':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/octicon@1.2.21':
     dependencies:
       '@iconify/types': 2.0.0
@@ -8724,6 +8766,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/svg-spinners@1.2.4':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/system-uicons@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -10374,6 +10420,8 @@ snapshots:
   '@types/diff@8.0.0':
     dependencies:
       diff: 8.0.3
+
+  '@types/envinfo@7.8.4': {}
 
   '@types/eslint-scope@3.7.7':
     dependencies:
@@ -12340,6 +12388,8 @@ snapshots:
   entities@6.0.1: {}
 
   entities@7.0.1: {}
+
+  envinfo@7.21.0: {}
 
   error-ex@1.3.4:
     dependencies:

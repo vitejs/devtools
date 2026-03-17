@@ -1,7 +1,9 @@
+<script lang="ts" setup>
+import { navigateTo } from '#app/composables/router'
+
+navigateTo('/home')
+</script>
+
 <template>
-  <div p10 flex="~ col" items-center justify-center>
-    <h1 text-2xl font-bold>
-      Vite DevTools
-    </h1>
-  </div>
+  <div p10 flex="~ col" items-center justify-center />
 </template>
