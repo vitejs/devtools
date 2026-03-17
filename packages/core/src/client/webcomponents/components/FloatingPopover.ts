@@ -53,6 +53,7 @@ const FloatingPopoverComponent = defineComponent({
     )
 
     let previousContent: VNode | undefined
+    let previousStyle: Record<string, string> = {}
 
     return () => {
       // Force re-render to update the position
@@ -61,6 +62,23 @@ const FloatingPopoverComponent = defineComponent({
 
       if (!el.value)
         return null
+
+      // When dismissing (item is null), keep the last known position
+      // so the popover fades out in place instead of jumping
+      if (!props.item) {
+        return h(
+          'div',
+          {
+            ref: 'panel',
+            class: [
+              'fixed z-floating-tooltip text-xs transition-all duration-300 w-max bg-glass color-base border border-base rounded px2 p1',
+              'op0 pointer-events-none',
+            ],
+            style: previousStyle,
+          },
+          previousContent,
+        )
+      }
 
       const rect = el.value.getBoundingClientRect()
 
@@ -115,6 +133,8 @@ const FloatingPopoverComponent = defineComponent({
           break
         }
       }
+
+      previousStyle = style
 
       const content = (
         typeof props.item?.content === 'string'
