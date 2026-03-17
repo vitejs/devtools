@@ -37,9 +37,10 @@ const items = computed<SideNavItem[]>(() => {
       <template v-for="item in items" :key="item.title">
         <component
           :is="item.to ? NuxtLink : 'button'"
-          v-bind="item.to ? { to: item.to } : {}"
+          v-bind="item.to ? { to: item.to } : { type: 'button' }"
           v-tooltip="{ placement: 'right', content: item.title }"
           :title="item.title"
+          :aria-label="item.title"
           rounded-full
           p2 hover:bg-active op-fade hover:op100
           flex="~ items-center justify-center"
