@@ -1,3 +1,5 @@
+import { sharedShortcuts } from '@vitejs/devtools-ui/unocss/shared-shortcuts'
+import { theme } from '@vitejs/devtools-ui/unocss/theme'
 import {
   defineConfig,
   presetIcons,
@@ -7,42 +9,21 @@ import {
 
 export default defineConfig({
   shortcuts: [
+    ...sharedShortcuts,
     {
-      'color-base': 'color-neutral-800 dark:color-neutral-200',
-      'bg-base': 'bg-white dark:bg-#111',
-      'bg-active': 'bg-#8881',
-      'bg-secondary': 'bg-#eee dark:bg-#222',
-      'border-base': 'border-#8882',
-      'ring-base': 'ring-#8882',
-
+      // webcomponent-specific z-index
       'z-viewframe': 'z-20',
       'z-viewframe-resizer': 'z-30',
       'z-floating-dock': 'z-50',
       'z-floating-anchor': 'z-[2147483644]',
       'z-floating-tooltip': 'z-[2147483645]',
     },
-    [/^bg-glass(:\d+)?$/, ([, opacity = ':50']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-7`],
   ],
   transformers: [
     transformerDirectives(),
   ],
   theme: {
-    colors: {
-      primary: {
-        50: '#fcf4ff',
-        100: '#f7e5ff',
-        200: '#f0d0ff',
-        300: '#e5acff',
-        400: '#d577ff',
-        DEFAULT: '#d577ff',
-        500: '#c543ff',
-        600: '#bd34fe',
-        700: '#9f0fe1',
-        800: '#8512b7',
-        900: '#6d1093',
-        950: '#4d006e',
-      },
-    },
+    colors: theme.colors,
   },
   presets: [
     presetWind3({

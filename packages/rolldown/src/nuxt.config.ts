@@ -93,7 +93,6 @@ export default defineNuxtConfig({
   vite: {
     base: BASE,
     build: {
-      // @ts-expect-error skip type check
       rolldownOptions: {
         devtools: {},
       },
@@ -121,10 +120,10 @@ export default defineNuxtConfig({
       ],
     },
     devtools: {
+      enabled: false,
       clientAuth: false,
     },
     plugins: [
-      // @ts-expect-error skip type check
       NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
     ],
   },

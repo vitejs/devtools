@@ -86,6 +86,12 @@ const metadata = computed(() => [
         value: environmentMetadata.value?.node,
       },
       {
+        id: 'bun',
+        icon: 'i-catppuccin:bun',
+        label: 'Bun',
+        value: environmentMetadata.value?.bun,
+      },
+      {
         id: 'npm',
         icon: 'i-ri:npmjs-fill',
         label: 'NPM',

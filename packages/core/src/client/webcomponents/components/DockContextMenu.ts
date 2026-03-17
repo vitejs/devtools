@@ -2,6 +2,7 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { h } from 'vue'
 import { setDockContextMenu } from '../state/floating-tooltip'
+import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../state/popup'
 
 // @unocss-include
 
@@ -48,6 +49,8 @@ function refreshDock(context: DocksContext, entry: DevToolsDockEntry) {
 }
 
 function canHide(context: DocksContext, entry: DevToolsDockEntry) {
+  if (entry.id === '~settings')
+    return false
   return context.docks.entries.some(item => item.id === entry.id)
 }
 
@@ -74,6 +77,15 @@ export function openDockContextMenu(options: {
       icon: 'i-ph-arrow-clockwise-duotone',
       action: () => refreshDock(context, entry),
       visible: canRefresh(entry),
+    },
+    {
+      label: 'Popup',
+      icon: 'i-ph-arrow-square-out-duotone',
+      action: () => {
+        setDockContextMenu(null)
+        requestDockPopupOpen(context)
+      },
+      visible: isDockPopupSupported() && !useIsDockPopupOpen().value && context.clientType === 'embedded',
     },
   ].filter(item => item.visible)
 

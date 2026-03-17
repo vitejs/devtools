@@ -21,6 +21,7 @@ defineProps<{
 // Lazy load some less frequently used builtin views
 const ViewBuiltinTerminals = defineAsyncComponent(() => import('./ViewBuiltinTerminals.vue'))
 const ViewBuiltinLogs = defineAsyncComponent(() => import('./ViewBuiltinLogs.vue'))
+const ViewJsonRender = defineAsyncComponent(() => import('./ViewJsonRender.vue'))
 </script>
 
 <template>
@@ -70,6 +71,11 @@ const ViewBuiltinLogs = defineAsyncComponent(() => import('./ViewBuiltinLogs.vue
     />
     <ViewLauncher
       v-else-if="entry.type === 'launcher'"
+      :context
+      :entry
+    />
+    <ViewJsonRender
+      v-else-if="entry.type === 'json-render'"
       :context
       :entry
     />

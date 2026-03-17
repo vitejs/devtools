@@ -15,7 +15,7 @@ export default defineConfig({
   dts: true,
   platform: 'neutral',
   deps: {
-    onlyAllowBundle: [
+    onlyBundle: [
       'ohash',
       'ua-parser-modern',
     ],

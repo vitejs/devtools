@@ -7,7 +7,8 @@ import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
-import { registerMainFrameDockActionHandler, requestDockPopupOpen, triggerMainFrameDockAction } from './popup'
+import { createClientLogsClient } from './logs-client'
+import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
 const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
@@ -55,10 +56,6 @@ export async function createDocksContext(
       panelStore.value.open = true
       return true
     }
-    if (id === '~popup') {
-      requestDockPopupOpen(docksContext)
-      return true
-    }
     const entry = dockEntries.value.find(e => e.id === id)
     if (!entry)
       return false
@@ -80,6 +77,7 @@ export async function createDocksContext(
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
+        logs: createClientLogsClient(rpc),
       })
       await executeSetupScript(entry, scriptContext)
     }

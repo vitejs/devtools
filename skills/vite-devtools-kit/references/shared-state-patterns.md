@@ -4,6 +4,8 @@ Synchronized state between server and all clients.
 
 ## Basic Usage
 
+Shared state is available during `devtools.setup()` — you can initialize it directly in the setup hook.
+
 ### Server-Side
 
 ```ts

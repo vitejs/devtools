@@ -1,0 +1,34 @@
+{
+  "name": "example-plugin-a11y-checker",
+  "type": "module",
+  "version": "0.1.2",
+  "private": true,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:node": "tsdown --config-loader=tsx",
+    "build": "pnpm run build:node",
+    "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "dependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*",
+    "axe-core": "catalog:devtools"
+  },
+  "devDependencies": {
+    "solid-js": "catalog:devtools",
+    "tsdown": "catalog:build",
+    "unocss": "catalog:build",
+    "vite": "catalog:build",
+    "vite-plugin-solid": "catalog:devtools"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "example-plugin-git-ui",
+  "type": "module",
+  "version": "0.1.2",
+  "private": true,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader=tsx",
+    "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite",
+    "play:build": "pnpm run build && cd playground && vite build && vite-devtools build",
+    "play:preview": "serve ./playground/.vite-devtools"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "dependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*",
+    "tinyexec": "catalog:deps"
+  },
+  "devDependencies": {
+    "serve": "catalog:devtools",
+    "tsdown": "catalog:build",
+    "vite": "catalog:build"
+  }
+}

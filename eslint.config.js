@@ -4,6 +4,9 @@ import nuxt from './packages/rolldown/src/.nuxt/eslint.config.mjs'
 
 export default antfu({
   pnpm: true,
+  ignores: [
+    'skills',
+  ],
 })
   .append(nuxt())
   .append({

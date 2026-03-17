@@ -34,6 +34,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
       :is-selected="selected?.id === dock.id"
       :is-dimmed="selected ? (selected.id !== dock.id) : false"
       :is-vertical="isVertical"
+      :badge="dock.badge"
       @click="toggleDockEntry(dock)"
     />
   </template>

@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const props = defineProps<{
+const {
+  src,
+  alt = '',
+} = defineProps<{
   src: string
+  alt?: string
 }>()
 
 const success = ref(false)
 
 onMounted(() => {
   const img = new Image()
-  img.src = props.src
+  img.src = src
   img.onload = () => {
     success.value = true
   }
@@ -19,7 +23,8 @@ onMounted(() => {
 <template>
   <img
     v-if="success"
-    :src="props.src"
+    :src="src"
+    :alt="alt"
     @error="success = false"
   >
 </template>

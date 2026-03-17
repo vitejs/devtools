@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
-import { filterPopupDockEntry, isDockPopupEntryVisible } from '../state/popup'
 import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import FloatingElements from './FloatingElements.vue'
 import VitePlus from './icons/VitePlus.vue'
+import ToastOverlay from './ToastOverlay.vue'
 import ViewBuiltinClientAuthNotice from './ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from './ViewEntry.vue'
 
@@ -30,12 +30,7 @@ watch(
   { immediate: true },
 )
 
-const groupedEntries = computed(() => {
-  if (isDockPopupEntryVisible('standalone'))
-    return context.docks.groupedEntries
-
-  return filterPopupDockEntry(context.docks.groupedEntries)
-})
+const groupedEntries = computed(() => context.docks.groupedEntries)
 
 function switchEntry(id: string | undefined) {
   if (id) {
@@ -49,11 +44,11 @@ function switchEntry(id: string | undefined) {
     <ViewBuiltinClientAuthNotice :context="context" />
   </div>
   <div v-else class="h-screen w-screen of-hidden grid cols-[max-content_1fr]">
-    <div class="border-r border-base flex flex-col">
+    <div class="border-r border-base flex flex-col min-h-0">
       <div class="p2 border-b border-base flex">
         <VitePlus class="w-7 h-7 ma" />
       </div>
-      <div class="transition duration-200 p2">
+      <div class="transition duration-200 p2 of-y-auto">
         <DockEntriesWithCategories
           :context="context"
           :groups="groupedEntries"
@@ -67,7 +62,7 @@ function switchEntry(id: string | undefined) {
         </DockEntriesWithCategories>
       </div>
     </div>
-    <div>
+    <div class="min-h-0">
       <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
       <ViewEntry
         v-if="context.docks.selected && viewsContainer"
@@ -79,4 +74,5 @@ function switchEntry(id: string | undefined) {
     </div>
   </div>
   <FloatingElements />
+  <ToastOverlay :context />
 </template>

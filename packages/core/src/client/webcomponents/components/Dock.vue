@@ -4,7 +4,6 @@ import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
 import { docksSplitGroupsWithCapacity } from '../state/dock-settings'
-import { filterPopupDockEntry, isDockPopupEntryVisible } from '../state/popup'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 import BracketLeft from './icons/BracketLeft.vue'
@@ -75,14 +74,9 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
 })
 
-const isPopupEntryVisible = computed(() => isDockPopupEntryVisible(context.clientType))
-const groupedEntries = computed(() => {
-  if (isPopupEntryVisible.value)
-    return context.docks.groupedEntries
-  return filterPopupDockEntry(context.docks.groupedEntries)
-})
+const groupedEntries = computed(() => context.docks.groupedEntries)
 
-const splitedEntries = computed(() => {
+const splitEntries = computed(() => {
   return docksSplitGroupsWithCapacity(groupedEntries.value, 5)
 })
 
@@ -330,18 +324,18 @@ onMounted(() => {
         >
           <DockEntriesWithCategories
             :context="context"
-            :groups="splitedEntries.visible"
+            :groups="splitEntries.visible"
             :is-vertical="context.panel.isVertical"
             :selected="selectedEntry"
             @select="(e) => context.docks.switchEntry(e?.id)"
           />
 
-          <template v-if="splitedEntries.overflow.length > 0">
+          <template v-if="splitEntries.overflow.length > 0">
             <div class="border-base m1 h-20px w-px border-r-1.5" />
             <DockOverflowButton
               :context="context"
               :is-vertical="context.panel.isVertical"
-              :groups="splitedEntries.overflow"
+              :groups="splitEntries.overflow"
               :selected="selectedEntry"
               @select="(e) => context.docks.switchEntry(e?.id)"
             />

@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "version": "0.0.0-alpha.34",
+  "version": "0.1.2",
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "scripts": {
@@ -40,6 +40,8 @@
     "@iconify-json/svg-spinners": "catalog:icons",
     "@iconify-json/system-uicons": "catalog:icons",
     "@iconify-json/tabler": "catalog:icons",
+    "@json-render/core": "catalog:frontend",
+    "@json-render/vue": "catalog:frontend",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/eslint": "catalog:devtools",
     "@types/chrome": "catalog:types",
@@ -49,8 +51,10 @@
     "@types/ws": "catalog:types",
     "@typescript-eslint/utils": "catalog:devtools",
     "@unocss/eslint-config": "catalog:devtools",
+    "@unocss/preset-web-fonts": "catalog:devtools",
     "@vueuse/core": "catalog:frontend",
     "ansis": "catalog:deps",
+    "axe-core": "catalog:devtools",
     "bumpp": "catalog:devtools",
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",

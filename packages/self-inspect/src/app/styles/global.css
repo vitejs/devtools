@@ -1,0 +1,9 @@
+@import '@vitejs/devtools-ui/styles/global.css';
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+  background-color: #121212;
+}

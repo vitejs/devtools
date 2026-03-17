@@ -6,12 +6,12 @@ describe('devToolsDockHost', () => {
   const mockContext = {} as DevToolsNodeContext
 
   describe('builtin entries', () => {
-    it('includes popup in builtin docks', () => {
+    it('does not include popup in builtin docks', () => {
       const host = new DevToolsDockHost(mockContext)
       const builtinEntries = host.values().filter(entry => entry.type === '~builtin')
       const builtinIds = builtinEntries.map(entry => entry.id)
 
-      expect(builtinIds).toContain('~popup')
+      expect(builtinIds).not.toContain('~popup')
     })
   })
 

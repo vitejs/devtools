@@ -56,9 +56,11 @@ export function executeSetupScript(
   entry: DevToolsDockUserEntry,
   context: DockClientScriptContext,
 ): Promise<void> {
-  if (_setupPromises.has(entry.id))
+  // Actions should re-execute on every click; only cache non-action scripts
+  if (entry.type !== 'action' && _setupPromises.has(entry.id))
     return _setupPromises.get(entry.id)!
   const promise = _executeSetupScript(entry, context)
-  _setupPromises.set(entry.id, promise)
+  if (entry.type !== 'action')
+    _setupPromises.set(entry.id, promise)
   return promise
 }

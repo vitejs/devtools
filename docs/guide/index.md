@@ -5,8 +5,7 @@ outline: deep
 # Getting Started
 
 > [!WARNING]
-> Vite DevTools is still in development and not yet ready for production use.
-> And currently Vite DevTools is designed only for Vite-Rolldown's build mode.
+> Vite DevTools currently only supports Vite-Rolldown's build mode.
 > Dev mode and normal Vite are not supported yet.
 
 ## What is Vite DevTools?
@@ -25,26 +24,54 @@ Vite DevTools is a comprehensive set of developer tools for visualizing and anal
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Install or upgrade your Vite to the beta version 13+:
+Install or upgrade your Vite to version 8:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0-beta.13"
+    "vite": "^8.0.0"
   }
 }
 ```
 
-Install the required DevTools plugin for both client modes:
+Install the required DevTools package:
 
 ```bash
 pnpm add -D @vitejs/devtools
 ```
 
-Vite DevTools supports two client modes: embedded and standalone. You can choose the mode in your Vite config.
+Vite DevTools has two client modes. Configure one mode at a time.
 
-Use embedded mode:
+### Standalone mode
+
+The DevTools client runs in a standalone window (no user app).
+
+Configure `vite.config.ts`:
+
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    enabled: true,
+  },
+})
+```
+
+Run:
+
+```bash
+pnpm build
+```
+
+After the build completes, open the DevTools URL shown in the terminal.
+
+### Embedded mode
+
+The DevTools client runs inside an embedded floating panel.
+
+Configure `vite.config.ts`:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -61,30 +88,15 @@ export default defineConfig({
   }
 })
 ```
-Or use standalone mode:
 
-```ts [vite.config.ts] twoslash
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  devtools: {
-    enabled: true,
-  },
-})
-```
-
-Run a Vite build to generate Rolldown build metadata. In standalone mode, DevTools also starts a local server to host the client after the build completes.
+Run:
 
 ```bash
 pnpm build
-```
-
-
-If you're using embedded mode, start your app and open the DevTools panel in the browser:
-
-```bash
 pnpm dev
 ```
+
+Then open your app in the browser and open the DevTools panel.
 
 ## What's Next?
 

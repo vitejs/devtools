@@ -315,6 +315,9 @@ export const readFile = defineRpcFunction({
 })
 ```
 
+> [!TIP]
+> See the [File Explorer example](/kit/examples#file-explorer) for a plugin using RPC functions with dump support, organized following the conventions above.
+
 ## Schema Validation (Optional)
 
 The RPC system has built-in support for runtime schema validation using [Valibot](https://valibot.dev). When you provide schemas, TypeScript types are automatically inferred and validation happens at runtime.
