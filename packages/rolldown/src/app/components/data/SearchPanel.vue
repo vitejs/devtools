@@ -71,7 +71,7 @@ function unselectToggle() {
 </script>
 
 <template>
-  <div flex="col gap-2" max-w-90vw min-w-30vw border="~ base rounded-xl" bg-glass>
+  <div flex="col gap-2" min-w-30vw border="~ base rounded-xl" bg-glass>
     <slot name="search">
       <div v-if="modelValue.search !== false" class="flex items-center">
         <input

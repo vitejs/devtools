@@ -136,10 +136,10 @@ watch(() => settings.value.assetViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative max-h-screen of-hidden>
-    <div absolute left-4 top-4 z-panel-nav>
+  <div v-else relative>
+    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="[]">
-        <div flex="~ gap-2 items-center" p2 border="t base">
+        <div flex="~ wrap gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
             v-for="viewType of assetViewTypes"
@@ -154,47 +154,45 @@ watch(() => settings.value.assetViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <div of-auto h-screen flex="~ col gap-2" pt32>
-      <template v-if="settings.assetViewType === 'list'">
-        <AssetsList v-if="searched?.length" :assets="searched" :session="session" />
-        <div
-          absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
-        >
-          <span op50>{{ searched.length }} of {{ assets?.length || 0 }}</span>
-        </div>
-      </template>
-      <template v-else-if="settings.assetViewType === 'folder'">
-        <AssetsFolder v-if="searched?.length" :assets="searched" :session="session" />
-      </template>
-      <template v-else-if="settings.assetViewType === 'treemap'">
-        <ChartTreemap
-          v-if="graph" :graph="graph"
-          :selected="nodeSelected"
-          @select="x => selectNode(x)"
-        >
-          <template #default="{ selected, options, onSelect }">
-            <ChartNavBreadcrumb
-              border="b base" py2 min-h-10
-              :selected="selected"
-              :options="options"
-              @select="onSelect"
-            />
-          </template>
-        </ChartTreemap>
-      </template>
-      <template v-else-if="settings.assetViewType === 'sunburst'">
-        <AssetsSunburst
-          v-if="graph" :graph="graph"
-          :selected="nodeSelected"
-          @select="x => selectNode(x)"
-        />
-      </template>
-      <template v-else-if="settings.assetViewType === 'flamegraph'">
-        <AssetsFlamegraph
-          v-if="graph" :graph="graph"
-        />
-      </template>
-    </div>
+    <template v-if="settings.assetViewType === 'list'">
+      <AssetsList v-if="searched?.length" :assets="searched" :session="session" />
+      <div
+        fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      >
+        <span op50>{{ searched.length }} of {{ assets?.length || 0 }}</span>
+      </div>
+    </template>
+    <template v-else-if="settings.assetViewType === 'folder'">
+      <AssetsFolder v-if="searched?.length" :assets="searched" :session="session" />
+    </template>
+    <template v-else-if="settings.assetViewType === 'treemap'">
+      <ChartTreemap
+        v-if="graph" :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
+      >
+        <template #default="{ selected, options, onSelect }">
+          <ChartNavBreadcrumb
+            border="b base" py2 min-h-10
+            :selected="selected"
+            :options="options"
+            @select="onSelect"
+          />
+        </template>
+      </ChartTreemap>
+    </template>
+    <template v-else-if="settings.assetViewType === 'sunburst'">
+      <AssetsSunburst
+        v-if="graph" :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
+      />
+    </template>
+    <template v-else-if="settings.assetViewType === 'flamegraph'">
+      <AssetsFlamegraph
+        v-if="graph" :graph="graph"
+      />
+    </template>
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
