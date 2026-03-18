@@ -15,7 +15,8 @@ const props = defineProps<{
 
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
-const ADDRESS_BAR_HEIGHT = 50
+const isEdgeMode = computed(() => props.context.panel.store.mode === 'edge')
+const ADDRESS_BAR_HEIGHT = 40
 
 const isLoading = ref(true)
 const isIframeLoading = ref(false)
@@ -177,13 +178,19 @@ onMounted(() => {
     Object.assign(holder.element.style, props.iframeStyle)
     if (showAddressBar.value) {
       holder.element.style.marginTop = `${ADDRESS_BAR_HEIGHT}px`
-      holder.element.style.borderTopLeftRadius = '0px'
-      holder.element.style.borderTopRightRadius = '0px'
+      if (!isEdgeMode.value) {
+        holder.element.style.borderTopLeftRadius = '0px'
+        holder.element.style.borderTopRightRadius = '0px'
+      }
     }
     else {
       holder.element.style.marginTop = '0px'
       holder.element.style.borderTopLeftRadius = ''
       holder.element.style.borderTopRightRadius = ''
+    }
+    if (isEdgeMode.value) {
+      holder.element.style.borderRadius = '0px'
+      holder.element.style.border = 'none'
     }
   })
 
@@ -219,7 +226,8 @@ onUnmounted(() => {
   <div class="w-full h-full flex flex-col">
     <div
       v-if="showAddressBar"
-      class="flex-none px-2 w-full flex items-center gap-1 border rounded-t-md border-base border-b-0 bg-gray/5"
+      class="flex-none px-2 w-full flex items-center gap-1"
+      :class="isEdgeMode ? 'border-b border-base' : 'border rounded-t-md border-base border-b-0'"
       :style="{ height: `${ADDRESS_BAR_HEIGHT}px` }"
     >
       <!-- Navigation buttons (hidden for cross-origin) -->
@@ -230,7 +238,7 @@ onUnmounted(() => {
           title="Back"
           @click="goBack"
         >
-          <div class="i-ph-caret-left text-base op60" />
+          <div class="i-ph-caret-left op60 w-4.5 h-4.5" />
         </button>
 
         <!-- Refresh button -->
@@ -239,14 +247,14 @@ onUnmounted(() => {
           title="Refresh"
           @click="refresh"
         >
-          <div class="i-ph-arrow-clockwise text-base op60" />
+          <div class="i-ph-arrow-clockwise op60 w-4.5 h-4.5" />
         </button>
       </template>
 
       <!-- Cross-origin badge -->
       <div
         v-else
-        class="flex items-center gap-1 px-2 py-1 rounded text-xs bg-amber/10 text-amber border border-amber/20 shrink-0"
+        class="flex items-center gap-1 px2 py1 rounded text-xs bg-amber/10 text-amber border border-amber/20 shrink-0"
         title="Cross-origin iframe - navigation controls unavailable"
       >
         <div class="i-ph-globe text-sm" />
@@ -254,7 +262,7 @@ onUnmounted(() => {
       </div>
 
       <!-- URL input -->
-      <div class="flex-1 flex items-center h-8 px-2.5 rounded bg-gray/10 border border-transparent hover:border-gray/20 focus-within:border-gray/30 transition-colors">
+      <div class="flex-1 flex items-center h-7 px-2.5 rounded bg-gray/5 border border-transparent hover:border-gray/10 focus-within:border-gray/15 transition-colors">
         <input
           ref="urlInput"
           :value="isEditing ? editingUrl : displayUrl"

@@ -4,6 +4,7 @@ import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {
+  mode: 'float' | 'edge'
   width: number
   height: number
   top: number
