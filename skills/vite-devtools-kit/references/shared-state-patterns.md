@@ -33,7 +33,7 @@ state.mutate((draft) => {
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 
 const client = await getDevToolsRpcClient()
-const state = await client.rpc.sharedState.get('my-plugin:state')
+const state = await client.sharedState.get('my-plugin:state')
 
 // Read
 console.log(state.value())
@@ -42,6 +42,17 @@ console.log(state.value())
 state.on('updated', (newState) => {
   console.log('Updated:', newState)
 })
+```
+
+You can also access shared state through the global client context:
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  const state = await ctx.rpc.sharedState.get('my-plugin:state')
+}
 ```
 
 ## Type-Safe Shared State
