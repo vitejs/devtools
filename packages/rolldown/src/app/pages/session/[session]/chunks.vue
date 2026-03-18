@@ -204,8 +204,8 @@ watch(() => settings.value.chunkViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative max-h-screen of-hidden>
-    <div absolute left-4 top-4 z-panel-nav>
+  <div v-else relative min-h-screen>
+    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :session="session" :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
@@ -248,69 +248,76 @@ watch(() => settings.value.chunkViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <template v-if="settings.chunkViewType === 'list'">
-      <div class="px5 pt32 of-auto h-screen" flex="~ col gap-4">
-        <ChunksFlatList
-          :session="session"
-          :chunks="searched"
-        />
-      </div>
-    </template>
-    <template v-if="settings.chunkViewType === 'detailed-list'">
-      <div class="px5 pt32 of-auto h-screen" flex="~ col gap-4">
-        <template v-for="chunk of searched" :key="chunk.id">
-          <DataChunkDetails
-            border="~ base rounded-lg"
-            p3
-            :chunk="chunk"
-            :chunks="searched!"
-            :session="session"
+    <div
+      v-if="settings.chunkViewType === 'list'"
+      class="px5 pt-4" flex="~ col gap-4"
+    >
+      <ChunksFlatList
+        :session="session"
+        :chunks="searched"
+      />
+    </div>
+    <div
+      v-if="settings.chunkViewType === 'detailed-list'"
+      class="px5 pt-4" flex="~ col gap-4"
+    >
+      <DataChunkDetails
+        v-for="chunk of searched"
+        :key="chunk.id"
+        border="~ base rounded-lg"
+        p3
+        :chunk="chunk"
+        :chunks="searched!"
+        :session="session"
+      />
+    </div>
+    <ChunksGraph
+      v-else-if="settings.chunkViewType === 'graph'"
+      class="pt32"
+      :session="session"
+      :chunks="normalizedGraph"
+      :entry-id="pathNodes.start"
+    />
+    <div
+      v-else-if="settings.chunkViewType === 'treemap'"
+      flex="~ col gap-2"
+    >
+      <ChartTreemap
+        v-if="graph"
+        :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
+      >
+        <template #default="{ selected, options, onSelect }">
+          <ChartNavBreadcrumb
+            border="b base" py2 min-h-10
+            :selected="selected"
+            :options="options"
+            @select="onSelect"
           />
         </template>
-      </div>
-    </template>
-    <template v-else-if="settings.chunkViewType === 'graph'">
-      <ChunksGraph
-        class="pt32"
-        :session="session"
-        :chunks="normalizedGraph"
-        :entry-id="pathNodes.start"
+      </ChartTreemap>
+    </div>
+    <div
+      v-else-if="settings.chunkViewType === 'sunburst'"
+      flex="~ col gap-2" pt-4
+    >
+      <ChunksSunburst
+        v-if="graph"
+        :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
       />
-    </template>
-    <template v-else-if="settings.chunkViewType === 'treemap'">
-      <div of-auto h-screen flex="~ col gap-2" pt32>
-        <ChartTreemap
-          v-if="graph" :graph="graph"
-          :selected="nodeSelected"
-          @select="x => selectNode(x)"
-        >
-          <template #default="{ selected, options, onSelect }">
-            <ChartNavBreadcrumb
-              border="b base" py2 min-h-10
-              :selected="selected"
-              :options="options"
-              @select="onSelect"
-            />
-          </template>
-        </ChartTreemap>
-      </div>
-    </template>
-    <template v-else-if="settings.chunkViewType === 'sunburst'">
-      <div of-auto h-screen flex="~ col gap-2" pt32>
-        <ChunksSunburst
-          v-if="graph" :graph="graph"
-          :selected="nodeSelected"
-          @select="x => selectNode(x)"
-        />
-      </div>
-    </template>
-    <template v-else-if="settings.chunkViewType === 'flamegraph'">
-      <div of-auto h-screen flex="~ col gap-2" pt32>
-        <ChunksFlamegraph
-          v-if="graph" :graph="graph"
-        />
-      </div>
-    </template>
+    </div>
+    <div
+      v-else-if="settings.chunkViewType === 'flamegraph'"
+      flex="~ col gap-2" pt-4
+    >
+      <ChunksFlamegraph
+        v-if="graph" :graph="graph"
+      />
+    </div>
+
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
