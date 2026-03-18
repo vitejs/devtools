@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
 import { useTimeAgo } from '@vueuse/core'
-import HashBadge from './HashBadge.vue'
+import HashBadge from '../display/HashBadge.vue'
 import { levels } from './LogItemConstants'
 
 const props = defineProps<{

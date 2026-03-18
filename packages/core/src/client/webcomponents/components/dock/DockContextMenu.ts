@@ -1,8 +1,8 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { h } from 'vue'
-import { setDockContextMenu } from '../state/floating-tooltip'
-import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../state/popup'
+import { setDockContextMenu } from '../../state/floating-tooltip'
+import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
 
 // @unocss-include
 

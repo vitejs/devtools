@@ -4,10 +4,10 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
-import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import ViewEntry from '../views/ViewEntry.vue'
 import { openDockContextMenu } from './DockContextMenu'
 import DockPanelResizer from './DockPanelResizer.vue'
-import ViewEntry from './ViewEntry.vue'
 
 const props = defineProps<{
   context: DocksContext

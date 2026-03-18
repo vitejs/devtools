@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getHashColorFromString } from './LogItemConstants'
+import { getHashColorFromString } from '../log/LogItemConstants'
 
 const props = defineProps<{
   label: string

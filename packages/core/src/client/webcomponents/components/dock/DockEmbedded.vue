@@ -2,13 +2,13 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
 import { onUnmounted } from 'vue'
-import { sharedStateToRef } from '../state/docks'
-import { closeDockPopup, useIsDockPopupOpen } from '../state/popup'
+import { sharedStateToRef } from '../../state/docks'
+import { closeDockPopup, useIsDockPopupOpen } from '../../state/popup'
+import ToastOverlay from '../display/ToastOverlay.vue'
+import FloatingElements from '../floating/FloatingElements.vue'
 import Dock from './Dock.vue'
 import DockEdge from './DockEdge.vue'
 import DockPanel from './DockPanel.vue'
-import FloatingElements from './FloatingElements.vue'
-import ToastOverlay from './ToastOverlay.vue'
 
 const props = defineProps<{
   context: DocksContext

@@ -4,7 +4,7 @@ import type { DevToolsViewJsonRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue'
-import { devtoolsRegistry } from '../json-render/registry'
+import { devtoolsRegistry } from '../../json-render/registry'
 
 const props = defineProps<{
   context: DocksContext

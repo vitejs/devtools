@@ -2,13 +2,13 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener, useScreenSafeArea } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
-import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../constants'
-import { docksSplitGroupsWithCapacity } from '../state/dock-settings'
+import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../../constants'
+import { docksSplitGroupsWithCapacity } from '../../state/dock-settings'
+import BracketLeft from '../icons/BracketLeft.vue'
+import BracketRight from '../icons/BracketRight.vue'
+import VitePlusCore from '../icons/VitePlusCore.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
-import BracketLeft from './icons/BracketLeft.vue'
-import BracketRight from './icons/BracketRight.vue'
-import VitePlusCore from './icons/VitePlusCore.vue'
 
 const props = defineProps<{
   context: DocksContext

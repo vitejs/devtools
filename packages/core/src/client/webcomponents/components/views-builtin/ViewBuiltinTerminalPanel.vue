@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { TerminalState } from '../state/terminals'
+import type { TerminalState } from '../../state/terminals'
 import { useEventListener } from '@vueuse/core'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'

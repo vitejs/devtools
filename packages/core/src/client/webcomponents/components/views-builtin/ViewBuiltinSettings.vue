@@ -3,10 +3,10 @@ import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
-import { docksGroupByCategories } from '../state/dock-settings'
-import { sharedStateToRef } from '../state/docks'
-import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../state/popup'
-import DockIcon from './DockIcon.vue'
+import { docksGroupByCategories } from '../../state/dock-settings'
+import { sharedStateToRef } from '../../state/docks'
+import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
+import DockIcon from '../dock/DockIcon.vue'
 
 const props = defineProps<{
   context: DocksContext

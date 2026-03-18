@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { TerminalState } from '../state/terminals'
+import type { TerminalState } from '../../state/terminals'
 import { watchImmediate } from '@vueuse/core'
 import { shallowRef } from 'vue'
-import { useTerminals } from '../state/terminals'
-import DockIcon from './DockIcon.vue'
+import { useTerminals } from '../../state/terminals'
+import DockIcon from '../dock/DockIcon.vue'
 import ViewBuiltinTerminalPanel from './ViewBuiltinTerminalPanel.vue'
 
 const props = defineProps<{

@@ -3,7 +3,7 @@ import type { DevToolsDockEntryBase } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
 import { useTemplateRef } from 'vue'
-import { setFloatingTooltip } from '../state/floating-tooltip'
+import { setFloatingTooltip } from '../../state/floating-tooltip'
 import { openDockContextMenu } from './DockContextMenu'
 import DockIcon from './DockIcon.vue'
 

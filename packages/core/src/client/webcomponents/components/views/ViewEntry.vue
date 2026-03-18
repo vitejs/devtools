@@ -2,10 +2,10 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { defineAsyncComponent } from 'vue'
-import ViewBuiltinClientAuthNotice from './ViewBuiltinClientAuthNotice.vue'
-import ViewBuiltinSettings from './ViewBuiltinSettings.vue'
+import ViewBuiltinClientAuthNotice from '../views-builtin/ViewBuiltinClientAuthNotice.vue'
+import ViewBuiltinSettings from '../views-builtin/ViewBuiltinSettings.vue'
 import ViewCustomRenderer from './ViewCustomRenderer.vue'
 import ViewIframe from './ViewIframe.vue'
 import ViewLauncher from './ViewLauncher.vue'
@@ -19,8 +19,8 @@ defineProps<{
 }>()
 
 // Lazy load some less frequently used builtin views
-const ViewBuiltinTerminals = defineAsyncComponent(() => import('./ViewBuiltinTerminals.vue'))
-const ViewBuiltinLogs = defineAsyncComponent(() => import('./ViewBuiltinLogs.vue'))
+const ViewBuiltinTerminals = defineAsyncComponent(() => import('../views-builtin/ViewBuiltinTerminals.vue'))
+const ViewBuiltinLogs = defineAsyncComponent(() => import('../views-builtin/ViewBuiltinLogs.vue'))
 const ViewJsonRender = defineAsyncComponent(() => import('./ViewJsonRender.vue'))
 </script>
 
