@@ -393,6 +393,22 @@ export default function setup(ctx: DockClientScriptContext) {
 }
 ```
 
+### Global Client Context
+
+Use `getDevToolsClientContext()` to access the client context (`DevToolsClientContext`) from anywhere on the client side. This is set automatically when DevTools initializes in embedded or standalone mode.
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  const modules = await ctx.rpc.call('my-plugin:get-modules')
+}
+```
+
+Returns `undefined` if the context has not been initialized yet.
+```
+
 ## Client-Side Functions
 
 You can also define functions on the client that the server can call.

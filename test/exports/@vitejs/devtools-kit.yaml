@@ -2,6 +2,8 @@
   defineJsonRenderSpec: function
   defineRpcFunction: function
 ./client:
+  CLIENT_CONTEXT_KEY: string
+  getDevToolsClientContext: function
   getDevToolsRpcClient: function
 ./constants:
   DEFAULT_CATEGORIES_ORDER: object

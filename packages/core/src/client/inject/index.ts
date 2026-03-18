@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
-import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { useLocalStorage } from '@vueuse/core'
 import { createDocksContext } from '../webcomponents/state/context'
 
@@ -31,6 +31,7 @@ export async function init(): Promise<void> {
     rpc,
     state,
   )
+  ;(globalThis as any)[CLIENT_CONTEXT_KEY] = context
 
   const { DockEmbedded } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
     ? await import('../webcomponents')

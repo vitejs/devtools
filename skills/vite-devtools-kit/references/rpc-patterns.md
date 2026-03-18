@@ -119,6 +119,21 @@ ctx.rpc.broadcast({
 })
 ```
 
+## Global Client Context
+
+Use `getDevToolsClientContext()` to access the client context (`DevToolsClientContext`) globally. Returns `undefined` if the context has not been initialized yet.
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  await ctx.rpc.call('my-plugin:get-modules')
+}
+```
+
+This is set automatically when DevTools initializes in embedded or standalone mode. For iframe pages, `getDevToolsRpcClient()` is still the recommended way to get the RPC client directly.
+
 ## Client Function Registration
 
 ```ts

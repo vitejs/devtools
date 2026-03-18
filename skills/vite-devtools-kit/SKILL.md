@@ -360,6 +360,19 @@ export default function setup(ctx: DevToolsClientScriptContext) {
 }
 ```
 
+## Client Context
+
+The global client context (`DevToolsClientContext`) provides access to the RPC client and is set automatically when DevTools initializes (embedded or standalone). Use `getDevToolsClientContext()` to access it from anywhere on the client side:
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  const modules = await ctx.rpc.call('my-plugin:get-modules')
+}
+```
+
 ### Broadcasting to Clients
 
 ```ts

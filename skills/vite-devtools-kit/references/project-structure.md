@@ -187,6 +187,15 @@ export function useRpc() {
 }
 ```
 
+Alternatively, use `getDevToolsClientContext()` to access the global client context synchronously (returns `undefined` if not yet initialized):
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+// ctx?.rpc is the DevToolsRpcClient
+```
+
 ## Client App Component (src/client/App.vue)
 
 ```vue
