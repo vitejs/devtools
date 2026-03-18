@@ -76,17 +76,15 @@ watchDebounced(
 </script>
 
 <template>
-  <div relative max-h-screen of-hidden>
-    <div absolute left-4 top-4 z-panel-nav>
+  <div relative min-h-screen>
+    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes" />
     </div>
-    <div of-auto h-screen flex="~ col gap-2" pt32>
-      <PluginsFlatList :plugins="searched ?? []" />
-      <div
-        absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
-      >
-        <span op50>{{ searched.length }} of {{ session?.meta?.plugins?.length || 0 }}</span>
-      </div>
+    <PluginsFlatList :plugins="searched ?? []" />
+    <div
+      fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+    >
+      <span op50>{{ searched.length }} of {{ session?.meta?.plugins?.length || 0 }}</span>
     </div>
   </div>
 </template>

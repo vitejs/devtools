@@ -134,8 +134,8 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
 </script>
 
 <template>
-  <div relative max-h-screen>
-    <div sticky left-4 top-4 right-4 z-panel-nav p-4>
+  <div relative min-h-screen>
+    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :session="session" :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
