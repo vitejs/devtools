@@ -5,6 +5,7 @@ import { onUnmounted } from 'vue'
 import { sharedStateToRef } from '../state/docks'
 import { closeDockPopup, useIsDockPopupOpen } from '../state/popup'
 import Dock from './Dock.vue'
+import DockEdge from './DockEdge.vue'
 import DockPanel from './DockPanel.vue'
 import FloatingElements from './FloatingElements.vue'
 import ToastOverlay from './ToastOverlay.vue'
@@ -42,16 +43,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Dock v-if="!isDockPopupOpen" :context>
-    <template #default="{ dockEl, panelMargins, selected }">
-      <DockPanel
-        :context
-        :selected
-        :dock-el="dockEl!"
-        :panel-margins="panelMargins"
-      />
+  <template v-if="!isDockPopupOpen">
+    <template v-if="context.panel.store.mode === 'edge'">
+      <DockEdge :context />
     </template>
-  </Dock>
-  <FloatingElements v-if="!isDockPopupOpen" />
+    <template v-else>
+      <Dock :context>
+        <template #default="{ dockEl, panelMargins, selected }">
+          <DockPanel
+            :context
+            :selected
+            :dock-el="dockEl!"
+            :panel-margins="panelMargins"
+          />
+        </template>
+      </Dock>
+    </template>
+    <FloatingElements />
+  </template>
   <ToastOverlay :context />
 </template>

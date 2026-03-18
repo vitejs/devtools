@@ -15,6 +15,7 @@ export async function init(): Promise<void> {
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',
     {
+      mode: 'float',
       width: 80,
       height: 80,
       top: 0,

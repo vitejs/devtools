@@ -65,6 +65,7 @@ export function openDockContextMenu(options: {
   gap?: number
 }) {
   const { context, entry, el, gap = 6 } = options
+  const isEdgeMode = context.panel.store.mode === 'edge'
   const items: DockMenuItem[] = [
     {
       label: 'Hide',
@@ -77,6 +78,40 @@ export function openDockContextMenu(options: {
       icon: 'i-ph-arrow-clockwise-duotone',
       action: () => refreshDock(context, entry),
       visible: canRefresh(entry),
+    },
+    {
+      label: isEdgeMode ? 'Float Mode' : 'Edge Mode',
+      icon: isEdgeMode ? 'i-ph-arrows-out-duotone' : 'i-ph-square-half-bottom-duotone',
+      action: () => {
+        if (isEdgeMode) {
+          // Reset float position defaults based on current edge position
+          const store = context.panel.store
+          switch (store.position) {
+            case 'bottom':
+              store.left = 50
+              store.top = 100
+              break
+            case 'top':
+              store.left = 50
+              store.top = 0
+              break
+            case 'left':
+              store.left = 0
+              store.top = 50
+              break
+            case 'right':
+              store.left = 100
+              store.top = 50
+              break
+          }
+          store.mode = 'float'
+        }
+        else {
+          context.panel.store.mode = 'edge'
+        }
+        setDockContextMenu(null)
+      },
+      visible: context.clientType === 'embedded',
     },
     {
       label: 'Popup',
