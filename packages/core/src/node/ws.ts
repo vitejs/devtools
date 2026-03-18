@@ -54,6 +54,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
         meta.isTrusted = true
         meta.clientAuthId = authId
       }
+      else if (authId && ((context.viteConfig.devtools?.config as any)?.clientAuthPasswords ?? []).includes(authId)) {
+        meta.isTrusted = true
+        meta.clientAuthId = authId
+      }
 
       wsClients.add(ws)
       const color = meta.isTrusted ? c.green : c.yellow

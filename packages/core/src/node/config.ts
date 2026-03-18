@@ -13,6 +13,13 @@ export interface DevToolsConfig extends Partial<StartOptions> {
    * @default true
    */
   clientAuth?: boolean
+  /**
+   * Pre-configured auth passwords that are automatically trusted.
+   *
+   * Clients connecting with an auth ID matching one of these passwords
+   * will be auto-approved without a terminal prompt.
+   */
+  clientAuthPasswords?: string[]
 }
 
 export interface ResolvedDevToolsConfig {
@@ -29,6 +36,7 @@ export function normalizeDevToolsConfig(
     config: {
       ...(isObject(config) ? config : {}),
       clientAuth: isObject(config) ? (config.clientAuth ?? true) : true,
+      clientAuthPasswords: isObject(config) ? (config.clientAuthPasswords ?? []) : [],
       host: isObject(config) ? (config.host ?? host) : host,
     },
   }

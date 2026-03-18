@@ -3,12 +3,12 @@ import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
+import { humanId } from 'human-id'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
 } from '../constants'
 import { createEventEmitter } from '../utils/events'
-import { nanoid } from '../utils/nanoid'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
@@ -112,7 +112,7 @@ function getConnectionAuthIdFromWindows(userAuthId?: string): string {
   }
 
   if (!value)
-    value = nanoid()
+    value = humanId({ separator: '-', capitalize: false })
 
   localStorage.setItem(CONNECTION_AUTH_ID_KEY, value)
   ;(globalThis as any)[CONNECTION_AUTH_ID_KEY] = value
@@ -246,6 +246,18 @@ export async function getDevToolsRpcClient(
   // @ts-expect-error assign to readonly property
   context.rpc = rpc
   void mode.requestTrust()
+
+  // Listen for auth updates from other tabs (e.g., auth URL page)
+  try {
+    const bc = new BroadcastChannel('vite-devtools-auth')
+    bc.onmessage = (event) => {
+      if (event.data?.type === 'auth-update' && event.data.authId) {
+        localStorage.setItem(CONNECTION_AUTH_ID_KEY, event.data.authId)
+        window.location.reload()
+      }
+    }
+  }
+  catch {}
 
   return rpc
 }

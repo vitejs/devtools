@@ -37,6 +37,7 @@ export default defineConfig({
       'csstype',
       'dompurify',
       'get-port-please',
+      'human-id',
       'sisteransi',
       'vue',
       'zod',

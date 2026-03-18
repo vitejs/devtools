@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import { ref } from 'vue'
 import VitePlus from '../icons/VitePlus.vue'
 
 defineProps<{
   context: DocksContext
 }>()
+
+const passwordInput = ref('')
+
+function submitPassword() {
+  const value = passwordInput.value.trim()
+  if (!value)
+    return
+  localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_ID__', value)
+  window.location.reload()
+}
 </script>
 
 <template>
@@ -23,6 +34,24 @@ defineProps<{
       <p class="font-bold bg-green:5 p1 px3 rounded mt8 text-green">
         Check your terminal for the authorization prompt and come back.
       </p>
+      <div class="mt6 op50">
+        or
+      </div>
+      <form class="mt2 flex items-center gap-2" @submit.prevent="submitPassword">
+        <input
+          v-model="passwordInput"
+          type="text"
+          placeholder="Enter auth password"
+          class="px3 py1.5 rounded border border-base bg-transparent text-sm outline-none focus:border-violet"
+        >
+        <button
+          type="submit"
+          class="px3 py1.5 rounded bg-violet text-white text-sm hover:op80 disabled:op40"
+          :disabled="!passwordInput.trim()"
+        >
+          Authorize
+        </button>
+      </form>
     </div>
   </div>
 </template>

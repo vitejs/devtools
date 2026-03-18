@@ -16,6 +16,7 @@ export default defineConfig({
   platform: 'neutral',
   deps: {
     onlyBundle: [
+      'human-id',
       'ohash',
       'ua-parser-modern',
     ],

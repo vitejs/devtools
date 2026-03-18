@@ -324,6 +324,9 @@ catalogs:
     '@clack/prompts':
       specifier: ^1.1.0
       version: 1.1.0
+    human-id:
+      specifier: ^4.1.3
+      version: 4.1.3
     stream-json:
       specifier: ^1.9.1
       version: 1.9.1
@@ -529,7 +532,7 @@ importers:
         version: 2.13.1
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.21.0
@@ -544,7 +547,7 @@ importers:
         version: 1.17.4(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)
       vite:
         specifier: ^8.0.0
-        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       vite-plugin-inspect:
         specifier: catalog:devtools
         version: 11.3.3(@nuxt/kit@4.4.2(magicast@0.5.2))(vite@8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -747,9 +750,12 @@ importers:
       dompurify:
         specifier: catalog:frontend
         version: 3.3.3
+      human-id:
+        specifier: catalog:inlined
+        version: 4.1.3
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       typescript:
         specifier: catalog:devtools
         version: 5.9.3
@@ -761,7 +767,7 @@ importers:
         version: 0.19.2(@vue/compiler-sfc@3.5.30)(vue-router@5.0.3(@vue/compiler-sfc@3.5.30)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
       vite:
         specifier: ^8.0.0
-        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       vue:
         specifier: catalog:frontend
         version: 3.5.30(typescript@5.9.3)
@@ -784,15 +790,18 @@ importers:
         specifier: catalog:deps
         version: 11.1.4
     devDependencies:
+      human-id:
+        specifier: catalog:inlined
+        version: 4.1.3
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       ua-parser-modern:
         specifier: catalog:frontend
         version: 0.1.1
       vite:
         specifier: ^8.0.0
-        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+        version: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/rolldown:
     dependencies:
@@ -940,7 +949,7 @@ importers:
         version: 1.0.0
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       unocss:
         specifier: catalog:build
         version: 66.6.6(@unocss/webpack@66.6.6(webpack@5.104.1(esbuild@0.27.4)))(vite@8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -968,7 +977,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       ws:
         specifier: catalog:deps
         version: 8.19.0
@@ -1002,7 +1011,7 @@ importers:
         version: 1.0.0
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       unocss:
         specifier: catalog:build
         version: 66.6.6(@unocss/webpack@66.6.6(webpack@5.104.1(esbuild@0.27.4)))(vite@8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -1084,7 +1093,7 @@ importers:
         version: 5.2.2(@nuxt/kit@4.4.2(magicast@0.5.2))(vue@3.5.30(typescript@5.9.3))
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       unocss:
         specifier: catalog:build
         version: 66.6.6(@unocss/webpack@66.6.6(webpack@5.104.1(esbuild@0.27.4)))(vite@8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -1097,7 +1106,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: catalog:build
-        version: 0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
+        version: 0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.21.0
@@ -3679,24 +3688,24 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  '@vitejs/devtools-kit@0.1.0':
-    resolution: {integrity: sha512-2pgT0piuxc5XG6N1RODS3BbRQz+OKQk4KRoedM8g3rCEx6P440rUPl5tTTxucKcvPmKNYaS/Jqe1KX7pgSLpeA==}
+  '@vitejs/devtools-kit@0.1.3':
+    resolution: {integrity: sha512-nqHtYJ/qyo3lh1i9KwWcS1DWFCUkKZ5L0UWfWScSoxtyOIbFe/b4qKILBNViX8rvdJNsfVOU35kWefPQKtjpig==}
     peerDependencies:
       vite: ^8.0.0
 
-  '@vitejs/devtools-rolldown@0.1.0':
-    resolution: {integrity: sha512-wqRJGBJDPeSXHatFmpl6DKmS/6fdBOJrM33NNdUcTILuyTW5WyC3a8uyURalfsF/pL8ZSvf6Aethd+A+oZJ5cw==}
+  '@vitejs/devtools-rolldown@0.1.3':
+    resolution: {integrity: sha512-Ag614GiPeAU3nQ+4YJWEbftV7CFH1a3dSrAYPCGp0J2NYCka+PXPHikvmRcA7XNP21bYIo2g51zGi7vVdbiqkA==}
 
-  '@vitejs/devtools-rpc@0.1.0':
-    resolution: {integrity: sha512-tN3qI2sP4Nablu+oMpUMkpJvQFpD5AIOrqgA8i+ZYa7I0HPAB7h3Vj85FHYwQWfgQH1SCvndH3RfKkEDQFep2w==}
+  '@vitejs/devtools-rpc@0.1.3':
+    resolution: {integrity: sha512-7Y8IVE4AHOPVdUH2fp+lZHhZN3ts6tUOqrRSXfTko/1nLNlAd9ltKAiP0KunP3LnR+C8OKd/s61xhiQzNAEONA==}
     peerDependencies:
       ws: '*'
     peerDependenciesMeta:
       ws:
         optional: true
 
-  '@vitejs/devtools@0.1.0':
-    resolution: {integrity: sha512-jU0g+5mLtXgyFME66rzsLCqXjyScQ5nYK8toI6LEO0gu+1QFK3t3pIRk/PR+RM05X/oeED1YFe+YY2uBunTYMQ==}
+  '@vitejs/devtools@0.1.3':
+    resolution: {integrity: sha512-Zj2JYLzROptlw6PTGNdoA60eHQKwaEBilHMDROP35+EeKseZDb8GZmlJCiIw03mI1qUh8XCrA0p8/LHz4N3Bhw==}
     hasBin: true
     peerDependencies:
       vite: ^8.0.0
@@ -5452,6 +5461,10 @@ packages:
 
   httpxy@0.1.7:
     resolution: {integrity: sha512-pXNx8gnANKAndgga5ahefxc++tJvNL87CXoRwxn1cJE2ZkWEojF3tNfQIEhZX/vfpt+wzeAzpUI4qkediX1MLQ==}
+
+  human-id@4.1.3:
+    resolution: {integrity: sha512-tsYlhAYpjCKa//8rXZ9DqKEawhPoSytweBC2eNvcaDK+57RZLHGqNs3PZTQO6yekLFSuvA6AlnAfrw1uBvtb+Q==}
+    hasBin: true
 
   human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
@@ -10982,24 +10995,24 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vitejs/devtools-kit@0.1.0(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)':
+  '@vitejs/devtools-kit@0.1.3(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)':
     dependencies:
-      '@vitejs/devtools-rpc': 0.1.0(typescript@5.9.3)(ws@8.19.0)
+      '@vitejs/devtools-rpc': 0.1.3(typescript@5.9.3)(ws@8.19.0)
       birpc: 4.0.0
       immer: 11.1.4
-      vite: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - typescript
       - ws
     optional: true
 
-  '@vitejs/devtools-rolldown@0.1.0(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))':
+  '@vitejs/devtools-rolldown@0.1.3(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.6
       '@pnpm/read-project-manifest': 1001.2.5(@pnpm/logger@1001.0.1)
       '@rolldown/debug': 1.0.0-rc.9
-      '@vitejs/devtools-kit': 0.1.0(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)
-      '@vitejs/devtools-rpc': 0.1.0(typescript@5.9.3)(ws@8.19.0)
+      '@vitejs/devtools-kit': 0.1.3(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)
+      '@vitejs/devtools-rpc': 0.1.3(typescript@5.9.3)(ws@8.19.0)
       ansis: 4.2.0
       birpc: 4.0.0
       cac: 7.0.0
@@ -11049,7 +11062,7 @@ snapshots:
       - vue
     optional: true
 
-  '@vitejs/devtools-rpc@0.1.0(typescript@5.9.3)(ws@8.19.0)':
+  '@vitejs/devtools-rpc@0.1.3(typescript@5.9.3)(ws@8.19.0)':
     dependencies:
       birpc: 4.0.0
       ohash: 2.0.11
@@ -11062,11 +11075,11 @@ snapshots:
       - typescript
     optional: true
 
-  '@vitejs/devtools@0.1.0(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))':
+  '@vitejs/devtools@0.1.3(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))':
     dependencies:
-      '@vitejs/devtools-kit': 0.1.0(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)
-      '@vitejs/devtools-rolldown': 0.1.0(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
-      '@vitejs/devtools-rpc': 0.1.0(typescript@5.9.3)(ws@8.19.0)
+      '@vitejs/devtools-kit': 0.1.3(typescript@5.9.3)(vite@8.0.0)(ws@8.19.0)
+      '@vitejs/devtools-rolldown': 0.1.3(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
+      '@vitejs/devtools-rpc': 0.1.3(typescript@5.9.3)(ws@8.19.0)
       birpc: 4.0.0
       cac: 7.0.0
       h3: 1.15.6
@@ -11079,7 +11092,7 @@ snapshots:
       perfect-debounce: 2.1.0
       sirv: 3.0.2
       tinyexec: 1.0.2
-      vite: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       ws: 8.19.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -13049,6 +13062,8 @@ snapshots:
       - supports-color
 
   httpxy@0.1.7: {}
+
+  human-id@4.1.3: {}
 
   human-signals@2.1.0: {}
 
@@ -15499,7 +15514,7 @@ snapshots:
 
   ts-dedent@2.2.0: {}
 
-  tsdown@0.21.2(@vitejs/devtools@0.1.0)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3)):
+  tsdown@0.21.2(@vitejs/devtools@0.1.3)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.5(typescript@5.9.3)):
     dependencies:
       ansis: 4.2.0
       cac: 7.0.0
@@ -15518,7 +15533,7 @@ snapshots:
       unconfig-core: 7.5.0
       unrun: 0.2.32(synckit@0.11.12)
     optionalDependencies:
-      '@vitejs/devtools': 0.1.0(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
+      '@vitejs/devtools': 0.1.3(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
       publint: 0.3.18
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -16039,7 +16054,7 @@ snapshots:
       vite: 8.0.0(@types/node@25.0.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
       vue: 3.5.30(typescript@5.9.3)
 
-  vite@8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.0)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
+  vite@8.0.0(@types/node@25.0.3)(@vitejs/devtools@0.1.3)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@oxc-project/runtime': 0.115.0
       lightningcss: 1.32.0
@@ -16049,7 +16064,7 @@ snapshots:
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 25.0.3
-      '@vitejs/devtools': 0.1.0(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
+      '@vitejs/devtools': 0.1.3(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.9.1)(typescript@5.9.3)(vite@8.0.0)(vue@3.5.30(typescript@5.9.3))
       esbuild: 0.27.4
       fsevents: 2.3.3
       jiti: 2.6.1
