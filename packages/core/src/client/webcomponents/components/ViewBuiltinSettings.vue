@@ -5,7 +5,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
 import { docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
-import { isDockPopupSupported, requestDockPopupOpen } from '../state/popup'
+import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../state/popup'
 import DockIcon from './DockIcon.vue'
 
 const props = defineProps<{
@@ -17,6 +17,7 @@ const settingsStore = props.context.docks.settings
 const settings = sharedStateToRef(settingsStore)
 const panelStore = props.context.panel.store
 const isEmbedded = props.context.clientType === 'embedded'
+const isDockPopupOpen = useIsDockPopupOpen()
 
 const dockModeOptions = computed(() => {
   const options = [
@@ -173,7 +174,7 @@ function resetSettings() {
 
           <div class="flex flex-col gap-4">
             <!-- Dock mode -->
-            <div v-if="isEmbedded" class="flex flex-col gap-2">
+            <div v-if="isEmbedded && !isDockPopupOpen" class="flex flex-col gap-2">
               <div class="flex flex-col">
                 <span class="text-sm">Dock mode</span>
                 <span class="text-xs op50">How the DevTools panel is displayed</span>
