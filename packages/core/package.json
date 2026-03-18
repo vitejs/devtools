@@ -100,6 +100,7 @@
     "@json-render/vue": "0.13.0",
     "@vueuse/shared": "14.2.1",
     "@vueuse/core": "14.2.1",
+    "@vueuse/components": "14.2.1",
     "dompurify": "3.3.3",
     "sisteransi": "1.0.5",
     "@clack/core": "1.1.0",

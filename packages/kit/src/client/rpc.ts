@@ -4,6 +4,7 @@ import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunct
 import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import {
+  CONNECTION_AUTH_ID_KEY,
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
 } from '../constants'
@@ -14,7 +15,6 @@ import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
-const CONNECTION_AUTH_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_ID__'
 
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta

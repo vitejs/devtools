@@ -1,6 +1,7 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
+import { authIdUpdate } from './internal/auth-id-update'
 import { docksOnLaunch } from './internal/docks-on-launch'
 import { logsAdd } from './internal/logs-add'
 import { logsClear } from './internal/logs-clear'
@@ -29,6 +30,7 @@ export const builtinAnonymousRpcDeclarations = [
 
 // @keep-sorted
 export const builtinInternalRpcDeclarations = [
+  authIdUpdate,
   docksOnLaunch,
   logsAdd,
   logsClear,

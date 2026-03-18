@@ -11,6 +11,8 @@ export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '.client-imports.js'
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools-client-imports.js'
 export const DEVTOOLS_RPC_DUMP_DIRNAME = '.rpc-dump'
 
+export const CONNECTION_AUTH_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_ID__'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~viteplus': -1000,
   'default': 0,

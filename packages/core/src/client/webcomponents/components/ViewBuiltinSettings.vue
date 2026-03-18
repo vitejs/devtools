@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
-import { computed } from 'vue'
+import { CONNECTION_AUTH_ID_KEY, DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { UseClipboard } from '@vueuse/components'
+import { computed, ref } from 'vue'
 import { docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
 import DockIcon from './DockIcon.vue'
@@ -129,6 +130,17 @@ function resetSettings() {
       return DEFAULT_STATE_USER_SETTINGS()
     })
   }
+}
+
+const originalAuthId = localStorage.getItem(CONNECTION_AUTH_ID_KEY) ?? ''
+const authId = ref(originalAuthId)
+const isAuthIdChanged = computed(() => authId.value !== originalAuthId)
+
+async function updateAuthId() {
+  await props.context.rpc.call('devtoolskit:internal:auth-id:update', authId.value)
+  localStorage.setItem(CONNECTION_AUTH_ID_KEY, authId.value)
+  // TODO: Automatically reconnect to the server
+  location.reload()
 }
 </script>
 
@@ -302,6 +314,45 @@ function resetSettings() {
                 <span class="text-xs op50">Close the DevTools panel when clicking outside of it (embedded mode only)</span>
               </div>
             </label>
+          </div>
+        </section>
+
+        <section class="border-t border-base pt-6 mb-8">
+          <h2 class="text-lg font-medium mb-4 op75">
+            Advanced
+          </h2>
+
+          <div>
+            <label class="text-sm op60 mb-1 block">Auth ID</label>
+            <div class="flex items-center gap-2">
+              <input
+                v-model.trim="authId"
+                type="text"
+                class="flex-1 px-3 py-2 rounded bg-gray/10 text-sm font-mono border border-base outline-none focus:border-violet transition-colors"
+                @keydown.enter="updateAuthId"
+              >
+              <UseClipboard v-slot="{ copy, copied }" :source="authId">
+                <button
+                  class="px-3 py-2 rounded border border-base hover:bg-gray/10 transition-colors flex items-center gap-1 shrink-0"
+                  @click="copy()"
+                >
+                  <div :class="copied ? 'i-ph-check' : 'i-ph-copy'" class="text-sm" />
+                  <span class="text-sm">{{ copied ? 'Copied' : 'Copy' }}</span>
+                </button>
+              </UseClipboard>
+              <button
+                class="px-3 py-2 rounded bg-violet/15 text-violet hover:bg-violet/25 transition-colors flex items-center gap-1 shrink-0 disabled:op40 disabled:pointer-events-none"
+                :disabled="!isAuthIdChanged"
+                title="Save and reload page"
+                @click="updateAuthId"
+              >
+                <div class="i-ph-floppy-disk text-sm" />
+                <span class="text-sm">Save</span>
+              </button>
+            </div>
+            <p class="text-xs op40 mt-1">
+              Used to authenticate with the DevTools server.
+            </p>
           </div>
         </section>
 
