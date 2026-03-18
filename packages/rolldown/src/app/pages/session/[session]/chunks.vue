@@ -236,7 +236,7 @@ watch(() => settings.value.chunkViewType, () => {
             </button>
           </div>
         </template>
-        <div flex="~ gap-2 items-center" p2 border="t base">
+        <div flex="~ wrap gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
             v-for="viewType of chunkViewTypes"

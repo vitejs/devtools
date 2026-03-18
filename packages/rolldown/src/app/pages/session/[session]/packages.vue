@@ -154,7 +154,7 @@ watch(() => settings.value.packageViewType, () => {
   <div v-else relative>
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="packageTypeRules">
-        <div flex="~ gap-2 items-center" p2 border="t base">
+        <div flex="~ wrap gap-2 items-center" p2 border="t base">
           <span op50 pl2 text-sm>View as</span>
           <button
             v-for="viewType of packageViewTypes"
@@ -173,7 +173,7 @@ watch(() => settings.value.packageViewType, () => {
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div
-          absolute bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+          fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
         >
           <span op50>{{ searched.length }} of {{ packages?.length || 0 }}</span>
         </div>
