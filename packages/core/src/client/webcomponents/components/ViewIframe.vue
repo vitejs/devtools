@@ -15,6 +15,7 @@ const props = defineProps<{
 
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
+const isEdgeMode = computed(() => props.context.panel.store.mode === 'edge')
 const ADDRESS_BAR_HEIGHT = 50
 
 const isLoading = ref(true)
@@ -177,13 +178,19 @@ onMounted(() => {
     Object.assign(holder.element.style, props.iframeStyle)
     if (showAddressBar.value) {
       holder.element.style.marginTop = `${ADDRESS_BAR_HEIGHT}px`
-      holder.element.style.borderTopLeftRadius = '0px'
-      holder.element.style.borderTopRightRadius = '0px'
+      if (!isEdgeMode.value) {
+        holder.element.style.borderTopLeftRadius = '0px'
+        holder.element.style.borderTopRightRadius = '0px'
+      }
     }
     else {
       holder.element.style.marginTop = '0px'
       holder.element.style.borderTopLeftRadius = ''
       holder.element.style.borderTopRightRadius = ''
+    }
+    if (isEdgeMode.value) {
+      holder.element.style.borderRadius = '0px'
+      holder.element.style.border = 'none'
     }
   })
 
@@ -219,7 +226,8 @@ onUnmounted(() => {
   <div class="w-full h-full flex flex-col">
     <div
       v-if="showAddressBar"
-      class="flex-none px-2 w-full flex items-center gap-1 border rounded-t-md border-base border-b-0 bg-gray/5"
+      class="flex-none px-2 w-full flex items-center gap-1 bg-gray/5"
+      :class="isEdgeMode ? 'border-b border-base' : 'border rounded-t-md border-base border-b-0'"
       :style="{ height: `${ADDRESS_BAR_HEIGHT}px` }"
     >
       <!-- Navigation buttons (hidden for cross-origin) -->

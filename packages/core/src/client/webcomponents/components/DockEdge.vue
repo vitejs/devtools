@@ -4,7 +4,6 @@ import type { CSSProperties } from 'vue'
 import { computed, h, markRaw, useTemplateRef } from 'vue'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../state/floating-tooltip'
 import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
-import { openDockContextMenu } from './DockContextMenu'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 import ViewEntry from './ViewEntry.vue'
@@ -19,7 +18,6 @@ const context = props.context
 const store = context.panel.store
 
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const edgePanel = useTemplateRef<HTMLDivElement>('edgePanel')
 const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 
 const isVertical = computed(() => store.position === 'left' || store.position === 'right')
@@ -107,21 +105,6 @@ function switchToFloat() {
   store.mode = 'float'
 }
 
-function openContextMenu(e: MouseEvent) {
-  if (!edgePanel.value)
-    return
-  const entry = selectedEntry.value
-  if (!entry)
-    return
-  e.preventDefault()
-  openDockContextMenu({
-    context,
-    entry,
-    el: edgePanel.value,
-    gap: 6,
-  })
-}
-
 const panelStyle = computed<CSSProperties>(() => {
   const style: CSSProperties = {
     position: 'fixed',
@@ -182,11 +165,9 @@ const contentClass = computed(() => {
 <template>
   <div
     id="vite-devtools-edge-panel"
-    ref="edgePanel"
     class="bg-glass:75 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
     :class="`flex ${isVertical ? 'flex-row' : 'flex-col'}`"
     :style="panelStyle"
-    @contextmenu="openContextMenu"
   >
     <DockPanelResizer :panel="context.panel" edge-mode />
 
