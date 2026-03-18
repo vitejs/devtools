@@ -134,7 +134,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
 </script>
 
 <template>
-  <div relative min-h-screen>
+  <div relative :class="{ 'max-h-screen of-hidden': settings.moduleGraphViewType === 'graph' }">
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>

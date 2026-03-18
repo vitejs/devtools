@@ -204,7 +204,7 @@ watch(() => settings.value.chunkViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative min-h-screen>
+  <div v-else relative :class="{ 'max-h-screen of-hidden': settings.chunkViewType === 'graph' }">
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
@@ -224,7 +224,10 @@ watch(() => settings.value.chunkViewType, () => {
           </DataPathSelector>
         </template>
         <template #search-end>
-          <div v-if="settings.chunkViewType === 'graph'" h10 mr2 flex="~ items-center">
+          <div
+            v-if="settings.chunkViewType === 'graph'"
+            h10 mr2 flex="~ items-center"
+          >
             <button
               w-8 h-8 rounded-full flex items-center justify-center
               hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
