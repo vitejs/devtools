@@ -1,5 +1,6 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import { homedir } from 'node:os'
 import { join } from 'pathe'
 import { createStorage } from './storage'
 
@@ -25,7 +26,7 @@ export function getInternalContext(context: DevToolsNodeContext): DevToolsIntern
     const internalContext: DevToolsInternalContext = {
       storage: {
         auth: createStorage<InternalAnonymousAuthStorage>({
-          filepath: join(context.workspaceRoot, 'node_modules/.vite/devtools/auth.json'),
+          filepath: join(homedir(), '.vite/devtools/auth.json'),
           initialValue: {
             trusted: {},
           },
