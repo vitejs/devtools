@@ -67,7 +67,7 @@ function togglePositionDropdown() {
         ],
         onClick: () => switchPosition(pos),
       }, [
-        h('div', { class: `${positionIcons[pos]} w-4 h-4` }),
+        h('div', { class: `${positionIcons[pos]} w-4.5 h-4.5` }),
         h('span', positionLabels[pos]),
       ]),
     )),
@@ -190,6 +190,7 @@ const contentClass = computed(() => {
           :context="context"
           :groups="groupedEntries"
           :is-vertical="isVertical"
+          :rotate="false"
           :selected="selectedEntry"
           @select="(e) => context.docks.switchEntry(e?.id)"
         />
@@ -206,14 +207,14 @@ const contentClass = computed(() => {
           title="Switch edge position"
           @click="togglePositionDropdown"
         >
-          <div :class="positionIcons[store.position]" class="w-4 h-4" />
+          <div :class="positionIcons[store.position]" class="w-4.5 h-4.5" />
         </button>
         <button
           class="p1.5 rounded hover:bg-active transition op50 hover:op100"
           title="Switch to float mode"
           @click="switchToFloat"
         >
-          <div class="i-ph-cards-three-duotone w-4 h-4" />
+          <div class="i-ph-cards-three-duotone w-4.5 h-4.5" />
         </button>
       </div>
     </div>
