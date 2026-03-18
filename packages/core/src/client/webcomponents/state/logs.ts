@@ -62,10 +62,13 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
   context.rpc.client.register({
     name: 'devtoolskit:internal:logs:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
-    handler: () => updateLogs(),
+    handler: () => {
+      if (context.rpc.isTrusted)
+        updateLogs()
+    },
   })
 
-  updateLogs()
+  context.rpc.ensureTrusted().then(() => updateLogs())
   return state
 }
 
