@@ -20,10 +20,13 @@ const importers = computed(() => {
 
 <template>
   <div flex="~ row gap-1" of-hidden>
-    <div flex="~ row gap-1" ws-nowrap>
-      <DisplayModuleId :id="importers[0]!.path" :session="session" link />
-      <DisplayBadge v-if="importers[0]!.version && showVersion" :text="importers[0]!.version" as="span" />
+    <div v-if="importers[0]" flex="~ row gap-1" ws-nowrap>
+      <DisplayModuleId :id="importers[0].path" :session="session" link />
+      <DisplayBadge v-if="importers[0].version && showVersion" :text="importers[0].version" as="span" />
     </div>
+    <span v-else>
+      -
+    </span>
     <VMenu v-if="importers.length > 1" :delay="{ show: 200, hide: 0 }" flex-none>
       <DisplayBadge :text="`+${importers.length}`" :color="100" class="text-xs rounded px1" />
       <template #popper>
