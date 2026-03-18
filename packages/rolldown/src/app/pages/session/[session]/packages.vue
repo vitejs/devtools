@@ -169,7 +169,7 @@ watch(() => settings.value.packageViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <div flex="~ col gap-2" pt4 px4 pb4>
+    <div flex="~ col gap-2" pt4 px4 pb4 overflow-x-auto>
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div
