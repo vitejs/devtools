@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { computed, h, markRaw, useTemplateRef } from 'vue'
-import { setEdgePositionDropdown, useEdgePositionDropdown } from '../state/floating-tooltip'
+import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../state/floating-tooltip'
 import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
 import { openDockContextMenu } from './DockContextMenu'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
@@ -47,7 +47,17 @@ function switchPosition(pos: 'top' | 'right' | 'bottom' | 'left') {
 }
 
 const positionButton = useTemplateRef<HTMLButtonElement>('positionButton')
+const floatButton = useTemplateRef<HTMLButtonElement>('floatButton')
 const edgePositionDropdown = useEdgePositionDropdown()
+
+function showTooltip(el: HTMLElement | null, text: string) {
+  if (!el)
+    return
+  setFloatingTooltip({ content: text, el })
+}
+function hideTooltip() {
+  setFloatingTooltip(null)
+}
 
 function togglePositionDropdown() {
   if (!positionButton.value)
@@ -204,14 +214,19 @@ const contentClass = computed(() => {
         <button
           ref="positionButton"
           class="p1.5 rounded hover:bg-active transition op75 hover:op100"
-          title="Switch edge position"
+          @pointerenter="showTooltip(positionButton, 'Edge position')"
+          @pointerleave="hideTooltip"
+          @pointerdown="hideTooltip"
           @click="togglePositionDropdown"
         >
           <div :class="positionIcons[store.position]" class="w-4.5 h-4.5" />
         </button>
         <button
+          ref="floatButton"
           class="p1.5 rounded hover:bg-active transition op50 hover:op100"
-          title="Switch to float mode"
+          @pointerenter="showTooltip(floatButton, 'Float mode')"
+          @pointerleave="hideTooltip"
+          @pointerdown="hideTooltip"
           @click="switchToFloat"
         >
           <div class="i-ph-cards-three-duotone w-4.5 h-4.5" />

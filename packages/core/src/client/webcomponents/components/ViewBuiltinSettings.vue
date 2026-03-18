@@ -5,6 +5,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
 import { docksGroupByCategories } from '../state/dock-settings'
 import { sharedStateToRef } from '../state/docks'
+import { isDockPopupSupported, requestDockPopupOpen } from '../state/popup'
 import DockIcon from './DockIcon.vue'
 
 const props = defineProps<{
@@ -14,6 +15,30 @@ const props = defineProps<{
 
 const settingsStore = props.context.docks.settings
 const settings = sharedStateToRef(settingsStore)
+const panelStore = props.context.panel.store
+const isEmbedded = props.context.clientType === 'embedded'
+
+const dockModeOptions = computed(() => {
+  const options = [
+    { value: 'float', label: 'Float', icon: 'i-ph-cards-three-duotone' },
+    { value: 'edge', label: 'Edge', icon: 'i-ph-square-half-bottom-duotone' },
+  ]
+  if (isDockPopupSupported()) {
+    options.push({ value: 'popup', label: 'Popup', icon: 'i-ph-arrow-square-out-duotone' })
+  }
+  return options
+})
+
+const currentDockMode = computed(() => panelStore.mode)
+
+function setDockMode(mode: string) {
+  if (mode === 'popup') {
+    requestDockPopupOpen(props.context)
+  }
+  else {
+    panelStore.mode = mode as 'float' | 'edge'
+  }
+}
 
 const categories = computed(() => {
   return docksGroupByCategories(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
@@ -146,7 +171,29 @@ function resetSettings() {
             Appearance
           </h2>
 
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-4">
+            <!-- Dock mode -->
+            <div v-if="isEmbedded" class="flex flex-col gap-2">
+              <div class="flex flex-col">
+                <span class="text-sm">Dock mode</span>
+                <span class="text-xs op50">How the DevTools panel is displayed</span>
+              </div>
+              <div class="flex items-center gap-1 bg-gray/10 rounded-lg p1 w-fit">
+                <button
+                  v-for="option of dockModeOptions"
+                  :key="option.value"
+                  class="flex items-center gap-1.5 px3 py1.5 rounded-md text-sm transition-all"
+                  :class="currentDockMode === option.value
+                    ? 'bg-base shadow text-primary font-medium'
+                    : 'op60 hover:op100 hover:bg-gray/10'"
+                  @click="setDockMode(option.value)"
+                >
+                  <div :class="option.icon" class="w-4 h-4" />
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+
             <!-- Show iframe address bar toggle -->
             <label class="flex items-center gap-3 cursor-pointer group">
               <button
