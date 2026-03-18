@@ -2,9 +2,9 @@
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
-import { sharedStateToRef } from '../state/docks'
+import { sharedStateToRef } from '../../state/docks'
 
 const props = defineProps<{
   context: DocksContext

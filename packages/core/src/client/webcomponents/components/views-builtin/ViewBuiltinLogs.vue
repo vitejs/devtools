@@ -3,11 +3,11 @@ import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
-import { markLogsAsRead, useLogs } from '../state/logs'
-import FilterToggles from './FilterToggles.vue'
-import HashBadge from './HashBadge.vue'
-import LogItem from './LogItem.vue'
-import { formEntries, getHashColorFromString, levels } from './LogItemConstants'
+import { markLogsAsRead, useLogs } from '../../state/logs'
+import FilterToggles from '../display/FilterToggles.vue'
+import HashBadge from '../display/HashBadge.vue'
+import LogItem from '../log/LogItem.vue'
+import { formEntries, getHashColorFromString, levels } from '../log/LogItemConstants'
 
 const props = defineProps<{
   context: DocksContext

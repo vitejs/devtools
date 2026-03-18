@@ -2,13 +2,11 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { computed, h, markRaw, useTemplateRef } from 'vue'
-import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../state/floating-tooltip'
-import { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
+import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
-import ViewEntry from './ViewEntry.vue'
-
-// @unocss-include
 
 const props = defineProps<{
   context: DocksContext

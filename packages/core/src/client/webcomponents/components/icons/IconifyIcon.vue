@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
-import { getIconifySvg } from '../utils/iconify'
+import { getIconifySvg } from '../../utils/iconify'
 
 const props = defineProps<{
   icon: string

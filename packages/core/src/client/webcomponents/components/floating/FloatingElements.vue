@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
-import { setDockContextMenu, setDocksOverflowPanel, setEdgePositionDropdown, useDockContextMenu, useDocksOverflowPanel, useEdgePositionDropdown, useFloatingTooltip } from '../state/floating-tooltip'
+import { setDockContextMenu, setDocksOverflowPanel, setEdgePositionDropdown, useDockContextMenu, useDocksOverflowPanel, useEdgePositionDropdown, useFloatingTooltip } from '../../state/floating-tooltip'
 import FloatingPopover from './FloatingPopover'
 
 const tooltip = useFloatingTooltip()

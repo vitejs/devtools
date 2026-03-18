@@ -2,7 +2,7 @@
 import type { DevToolsViewCustomRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../utils/PersistedDomViewsManager'
+import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 
 const props = defineProps<{

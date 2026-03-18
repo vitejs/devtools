@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { useLogs } from '../state/logs'
-import { dismissToast, useToasts } from '../state/toasts'
-import LogItem from './LogItem.vue'
-
-// @unocss-include
+import { useLogs } from '../../state/logs'
+import { dismissToast, useToasts } from '../../state/toasts'
+import LogItem from '../log/LogItem.vue'
 
 const props = defineProps<{
   context?: DocksContext

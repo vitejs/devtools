@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import IconifyIcon from './IconifyIcon.vue'
-import VitePlusCore from './icons/VitePlusCore.vue'
+import IconifyIcon from '../icons/IconifyIcon.vue'
+import VitePlusCore from '../icons/VitePlusCore.vue'
 
 const props = defineProps<{
   icon: string | { dark: string, light: string }

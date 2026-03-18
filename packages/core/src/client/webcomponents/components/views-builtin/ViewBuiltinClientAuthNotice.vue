@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import VitePlus from './icons/VitePlus.vue'
+import VitePlus from '../icons/VitePlus.vue'
 
 defineProps<{
   context: DocksContext

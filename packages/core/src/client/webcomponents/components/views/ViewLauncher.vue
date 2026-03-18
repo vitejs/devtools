@@ -2,7 +2,7 @@
 import type { DevToolsViewLauncher, DevToolsViewLauncherStatus } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed } from 'vue'
-import DockIcon from './DockIcon.vue'
+import DockIcon from '../dock/DockIcon.vue'
 
 const props = defineProps<{
   context: DocksContext

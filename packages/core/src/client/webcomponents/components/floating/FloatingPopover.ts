@@ -1,5 +1,5 @@
 import type { PropType, VNode } from 'vue'
-import type { FloatingPopoverProps } from '../state/floating-tooltip'
+import type { FloatingPopoverProps } from '../../state/floating-tooltip'
 import { onClickOutside, useDebounceFn } from '@vueuse/core'
 import { defineComponent, h, ref, useTemplateRef, watch } from 'vue'
 
