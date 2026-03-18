@@ -81,7 +81,7 @@ const grouped = computed(() => {
     <div v-for="[ns, fns] in grouped" :key="ns">
       <div flex="~ items-center gap-2" mb1 mt2>
         <span font-mono text-xs op50>{{ ns }}</span>
-        <DisplayNumberBadge :value="fns.length" />
+        <DisplayNumberBadge :number="fns.length" />
       </div>
       <table w-full text-sm>
         <thead>
