@@ -5,8 +5,8 @@ outline: deep
 # Getting Started
 
 > [!WARNING]
-> Vite DevTools currently only supports Vite-Rolldown's build mode.
-> Dev mode and normal Vite are not supported yet.
+> Vite DevTools currently only supports build mode of Vite 8+.
+> Dev mode and Vite versions under 8 are not supported yet.
 
 ## What is Vite DevTools?
 
@@ -113,7 +113,7 @@ Now that you have Vite DevTools set up, you can:
 
 - **Build mode only**: Currently works with Vite-Rolldown's build mode
 - **Dev mode**: Not yet supported (planned for future releases)
-- **Standard Vite**: Requires Rolldown Vite for now
+- **Vite Version**: Requires Vite 8 or higher versions for now
 
 ## Architecture Overview
 
