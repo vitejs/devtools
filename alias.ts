@@ -20,6 +20,7 @@ export const alias = {
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
   '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
   '@vitejs/devtools-self-inspect': r('self-inspect/src/index.ts'),
+  '@vitejs/devtools/internal': r('core/src/internal.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
   '@vitejs/devtools/client/webcomponents': r('core/src/client/webcomponents/index.ts'),
   '@vitejs/devtools': r('core/src/index.ts'),

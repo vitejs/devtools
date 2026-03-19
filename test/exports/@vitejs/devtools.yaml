@@ -2,8 +2,6 @@
   createDevToolsContext: function
   createDevToolsMiddleware: function
   DevTools: function
-  getInternalContext: function
-  revokeAuthToken: function
 ./cli-commands:
   build: function
   start: function
@@ -12,3 +10,5 @@
 ./dirs:
   dirClientStandalone: string
   dirDist: string
+./internal:
+  getInternalContext: function

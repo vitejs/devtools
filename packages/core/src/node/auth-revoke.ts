@@ -1,15 +1,17 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { InternalAnonymousAuthStorage } from './context-internal'
 import type { RpcFunctionsHost } from './host-functions'
-import { getInternalContext } from './context-internal'
 
 /**
  * Revoke an auth token: remove from storage and notify all connected clients
  * using this token that they are no longer trusted.
  */
-export async function revokeAuthToken(context: DevToolsNodeContext, token: string): Promise<void> {
-  const internal = getInternalContext(context)
-  const storage = internal.storage.auth
-
+export async function revokeAuthToken(
+  context: DevToolsNodeContext,
+  storage: SharedState<InternalAnonymousAuthStorage>,
+  token: string,
+): Promise<void> {
   // Remove from persistent storage
   storage.mutate((state) => {
     delete state.trusted[token]

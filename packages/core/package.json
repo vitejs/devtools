@@ -27,6 +27,7 @@
     "./client/webcomponents": "./dist/client/webcomponents.js",
     "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",
+    "./internal": "./dist/internal.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",

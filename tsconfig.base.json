@@ -51,6 +51,9 @@
       "@vitejs/devtools-self-inspect": [
         "./packages/self-inspect/src/index.ts"
       ],
+      "@vitejs/devtools/internal": [
+        "./packages/core/src/internal.ts"
+      ],
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"
       ],
