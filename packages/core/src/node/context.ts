@@ -2,7 +2,7 @@ import type { DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from '@vitejs/
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
-import { searchForWorkspaceRoot } from 'vite'
+import { searchForWorkspaceRoot, version as viteVersion } from 'vite'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -37,6 +37,7 @@ export async function createDevToolsContext(
     workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
     viteConfig,
     viteServer,
+    viteVersion,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     rpc: undefined!,
     docks: undefined!,

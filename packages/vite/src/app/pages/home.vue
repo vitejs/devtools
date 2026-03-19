@@ -32,6 +32,12 @@ const metadata = computed(() => [
     icon: 'i-material-icon-theme:vite',
     rows: [
       {
+        id: 'version',
+        icon: 'i-system-uicons:version',
+        label: 'Version',
+        value: projectMetadata.value?.version,
+      },
+      {
         id: 'root',
         icon: 'i-ph-folder-duotone',
         label: 'Root',
