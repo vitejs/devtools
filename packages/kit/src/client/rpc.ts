@@ -60,6 +60,12 @@ export interface DevToolsRpcClient {
   requestTrust: () => Promise<boolean>
 
   /**
+   * Request trust from the server using a specific auth token.
+   * Updates the stored token and re-requests trust without reloading the page.
+   */
+  requestTrustWithToken: (token: string) => Promise<boolean>
+
+  /**
    * Call a RPC function on the server
    */
   call: DevToolsRpcClientCall
@@ -86,6 +92,7 @@ export interface DevToolsRpcClientMode {
   readonly isTrusted: boolean
   ensureTrusted: DevToolsRpcClient['ensureTrusted']
   requestTrust: DevToolsRpcClient['requestTrust']
+  requestTrustWithToken: DevToolsRpcClient['requestTrustWithToken']
   call: DevToolsRpcClient['call']
   callEvent: DevToolsRpcClient['callEvent']
   callOptional: DevToolsRpcClient['callOptional']
@@ -234,6 +241,12 @@ export async function getDevToolsRpcClient(
     connectionMeta,
     ensureTrusted: mode.ensureTrusted,
     requestTrust: mode.requestTrust,
+    requestTrustWithToken: async (token: string) => {
+      // Update stored token for future reconnections
+      localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, token)
+      ;(globalThis as any)[CONNECTION_AUTH_TOKEN_KEY] = token
+      return mode.requestTrustWithToken(token)
+    },
     call: mode.call,
     callEvent: mode.callEvent,
     callOptional: mode.callOptional,
@@ -252,8 +265,7 @@ export async function getDevToolsRpcClient(
     const bc = new BroadcastChannel('vite-devtools-auth')
     bc.onmessage = (event) => {
       if (event.data?.type === 'auth-update' && event.data.authToken) {
-        localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, event.data.authToken)
-        window.location.reload()
+        rpc.requestTrustWithToken(event.data.authToken)
       }
     }
   }

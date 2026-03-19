@@ -61,9 +61,10 @@ export function createWsRpcClientMode(
     },
   })
 
-  async function requestTrust() {
-    if (isTrusted)
-      return true
+  let currentAuthToken = authToken
+
+  async function requestTrustWithToken(token: string) {
+    currentAuthToken = token
 
     const info = parseUA(navigator.userAgent)
     const ua = [
@@ -76,7 +77,7 @@ export function createWsRpcClientMode(
     ].filter(i => i).join(' ')
 
     const result = await serverRpc.$call('vite:anonymous:auth', {
-      authToken,
+      authToken: token,
       ua,
       origin: location.origin,
     })
@@ -85,6 +86,12 @@ export function createWsRpcClientMode(
     trustedPromise.resolve(isTrusted)
     events.emit('rpc:is-trusted:updated', isTrusted)
     return result.isTrusted
+  }
+
+  async function requestTrust() {
+    if (isTrusted)
+      return true
+    return requestTrustWithToken(currentAuthToken)
   }
 
   async function ensureTrusted(timeout = 60_000): Promise<boolean> {
@@ -113,6 +120,7 @@ export function createWsRpcClientMode(
       return isTrusted
     },
     requestTrust,
+    requestTrustWithToken,
     ensureTrusted,
     call: (...args: any): any => {
       return serverRpc.$call(

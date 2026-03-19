@@ -15,6 +15,7 @@ export async function createStaticRpcClientMode(
   return {
     isTrusted: true,
     requestTrust: async () => true,
+    requestTrustWithToken: async () => true,
     ensureTrusted: async () => true,
     call: (...args: any): any => staticCaller.call(
       args[0] as string,
