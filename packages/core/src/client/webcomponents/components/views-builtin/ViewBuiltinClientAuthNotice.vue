@@ -7,10 +7,10 @@ defineProps<{
   context: DocksContext
 }>()
 
-const passwordInput = ref('')
+const tokenInput = ref('')
 
-function submitPassword() {
-  const value = passwordInput.value.trim()
+function submitToken() {
+  const value = tokenInput.value.trim()
   if (!value)
     return
   localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_ID__', value)
@@ -37,17 +37,17 @@ function submitPassword() {
       <div class="mt6 op50">
         or
       </div>
-      <form class="mt2 flex items-center gap-2" @submit.prevent="submitPassword">
+      <form class="mt2 flex items-center gap-2" @submit.prevent="submitToken">
         <input
-          v-model="passwordInput"
+          v-model="tokenInput"
           type="text"
-          placeholder="Enter auth password"
+          placeholder="Enter auth token"
           class="px3 py1.5 rounded border border-base bg-transparent text-sm outline-none focus:border-violet"
         >
         <button
           type="submit"
           class="px3 py1.5 rounded bg-violet text-white text-sm hover:op80 disabled:op40"
-          :disabled="!passwordInput.trim()"
+          :disabled="!tokenInput.trim()"
         >
           Authorize
         </button>

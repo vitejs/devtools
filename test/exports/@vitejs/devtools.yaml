@@ -3,6 +3,7 @@
   createDevToolsMiddleware: function
   DevTools: function
   getInternalContext: function
+  revokeAuthToken: function
 ./cli-commands:
   build: function
   start: function

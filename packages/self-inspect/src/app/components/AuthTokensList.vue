@@ -35,7 +35,7 @@ function formatDate(timestamp: number): string {
       <thead>
         <tr border="b base" text-left>
           <th px2 py1 font-medium op60 text-xs>
-            Auth ID
+            Auth Token
           </th>
           <th px2 py1 font-medium op60 text-xs>
             User Agent

@@ -38,9 +38,9 @@ export const anonymousAuth = defineRpcFunction({
           }
         }
 
-        // Auto-approve if authId matches a configured password
-        const passwords = (context.viteConfig.devtools?.config as any)?.clientAuthPasswords as string[] ?? []
-        if (passwords.includes(query.authId)) {
+        // Auto-approve if authId matches a configured auth token
+        const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
+        if (tokens.includes(query.authId)) {
           storage.mutate((state) => {
             state.trusted[query.authId] = {
               authId: query.authId,

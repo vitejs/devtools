@@ -51,6 +51,16 @@ export function createWsRpcClientMode(
     },
   )
 
+  // Handle server-initiated auth revocation
+  clientRpc.register({
+    name: 'devtoolskit:internal:auth:revoked',
+    type: 'event',
+    handler: () => {
+      isTrusted = false
+      events.emit('rpc:is-trusted:updated', false)
+    },
+  })
+
   async function requestTrust() {
     if (isTrusted)
       return true

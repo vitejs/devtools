@@ -4,7 +4,7 @@ import { getClientScripts } from './functions/get-client-scripts'
 import { getDevtoolsPlugins } from './functions/get-devtools-plugins'
 import { getDocks } from './functions/get-docks'
 import { getRpcFunctions } from './functions/get-rpc-functions'
-import { revokeAuthToken } from './functions/revoke-auth-token'
+import { revokeAuthTokenRpc } from './functions/revoke-auth-token'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
@@ -13,7 +13,7 @@ export const rpcFunctions = [
   getClientScripts,
   getDevtoolsPlugins,
   getAuthTokens,
-  revokeAuthToken,
+  revokeAuthTokenRpc,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
