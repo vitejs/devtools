@@ -74,10 +74,9 @@ context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
     context.docks.switchEntry(null)
   }
   else if (!isTrusted) {
-    // On revocation: close current tab and force float mode
+    // On revocation: close current tab and panel
     context.docks.switchEntry(null)
     context.panel.store.open = false
-    context.panel.store.mode = 'float'
   }
 })
 

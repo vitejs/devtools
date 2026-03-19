@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
-import { onUnmounted } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { closeDockPopup, useIsDockPopupOpen } from '../../state/popup'
 import ToastOverlay from '../display/ToastOverlay.vue'
@@ -16,6 +16,12 @@ const props = defineProps<{
 
 const isDockPopupOpen = useIsDockPopupOpen()
 const settings = sharedStateToRef(props.context.docks.settings)
+
+// Force float mode when unauthorized, regardless of store setting
+const isRpcTrusted = ref(props.context.rpc.isTrusted)
+props.context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
+  isRpcTrusted.value = isTrusted
+})
 
 // Close the dock when clicking outside of it
 useEventListener(window, 'mousedown', (e: MouseEvent) => {
@@ -44,7 +50,7 @@ onUnmounted(() => {
 
 <template>
   <template v-if="!isDockPopupOpen">
-    <template v-if="context.panel.store.mode === 'edge'">
+    <template v-if="isRpcTrusted && context.panel.store.mode === 'edge'">
       <DockEdge :context />
     </template>
     <template v-else>
