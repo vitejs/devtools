@@ -24,10 +24,10 @@ export async function revokeAuthToken(
   // Collect affected session IDs before modifying meta
   const affectedSessionIds = new Set<string>()
   for (const client of rpcHost._rpcGroup.clients) {
-    if (client.$meta.clientAuthId === token) {
+    if (client.$meta.clientAuthToken === token) {
       affectedSessionIds.add(client.$meta.id)
       client.$meta.isTrusted = false
-      client.$meta.clientAuthId = undefined!
+      client.$meta.clientAuthToken = undefined!
     }
   }
 

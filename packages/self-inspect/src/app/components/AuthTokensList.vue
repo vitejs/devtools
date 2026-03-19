@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface AuthToken {
-  authId: string
+  authToken: string
   ua: string
   origin: string
   timestamp: number
@@ -11,7 +11,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  revoke: [authId: string]
+  revoke: [authToken: string]
 }>()
 
 function formatDate(timestamp: number): string {
@@ -53,11 +53,11 @@ function formatDate(timestamp: number): string {
       </thead>
       <tbody>
         <tr
-          v-for="token in tokens" :key="token.authId"
+          v-for="token in tokens" :key="token.authToken"
           border="b base" hover:bg-active
         >
           <td px2 py1.5 font-mono text-xs>
-            {{ token.authId }}
+            {{ token.authToken }}
           </td>
           <td px2 py1.5 text-xs op75 max-w-60 truncate>
             {{ token.ua || '-' }}
@@ -73,7 +73,7 @@ function formatDate(timestamp: number): string {
               text-xs px2 py0.5 rounded
               text-red border="~ red/30"
               hover:bg-red:10
-              @click="emit('revoke', token.authId)"
+              @click="emit('revoke', token.authToken)"
             >
               Revoke
             </button>

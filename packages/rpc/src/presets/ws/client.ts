@@ -8,15 +8,15 @@ export interface WebSocketRpcClientOptions {
   onConnected?: (e: Event) => void
   onError?: (e: Error) => void
   onDisconnected?: (e: CloseEvent) => void
-  authId?: string
+  authToken?: string
 }
 
 function NOOP() {}
 
 export const createWsRpcPreset: RpcClientPreset<(options: WebSocketRpcClientOptions) => ChannelOptions> = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
   let url = options.url
-  if (options.authId) {
-    url = `${url}?vite_devtools_auth_token=${encodeURIComponent(options.authId)}`
+  if (options.authToken) {
+    url = `${url}?vite_devtools_auth_token=${encodeURIComponent(options.authToken)}`
   }
   const ws = new WebSocket(url)
   const {

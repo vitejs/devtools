@@ -13,7 +13,7 @@ function submitToken() {
   const value = tokenInput.value.trim()
   if (!value)
     return
-  localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_ID__', value)
+  localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__', value)
   window.location.reload()
 }
 </script>

@@ -4,7 +4,7 @@ import type { InternalAnonymousAuthStorage } from './context-internal'
 import { humanId } from '@vitejs/devtools-kit/utils/human-id'
 
 export interface PendingAuthRequest {
-  clientAuthId: string
+  clientAuthToken: string
   session: DevToolsNodeRpcSession
   ua: string
   origin: string
@@ -14,19 +14,19 @@ export interface PendingAuthRequest {
 }
 
 let pendingAuth: PendingAuthRequest | null = null
-let tempAuthId: string = generateTempId()
+let tempAuthToken: string = generateTempId()
 
 function generateTempId(): string {
   return humanId({ separator: '-', capitalize: false })
 }
 
-export function getTempAuthId(): string {
-  return tempAuthId
+export function getTempAuthToken(): string {
+  return tempAuthToken
 }
 
-export function refreshTempAuthId(): string {
-  tempAuthId = generateTempId()
-  return tempAuthId
+export function refreshTempAuthToken(): string {
+  tempAuthToken = generateTempId()
+  return tempAuthToken
 }
 
 export function getPendingAuth(): PendingAuthRequest | null {
@@ -50,28 +50,28 @@ export function abortPendingAuth(): void {
 
 /**
  * Consume the temp auth ID: verify it matches, trust the pending client, and clean up.
- * Returns the client's authId if successful, null otherwise.
+ * Returns the client's authToken if successful, null otherwise.
  */
-export function consumeTempAuthId(
+export function consumeTempAuthToken(
   id: string,
   storage: SharedState<InternalAnonymousAuthStorage>,
 ): string | null {
-  if (id !== tempAuthId || !pendingAuth) {
+  if (id !== tempAuthToken || !pendingAuth) {
     return null
   }
 
-  const { clientAuthId, session, ua, origin, resolve } = pendingAuth
+  const { clientAuthToken, session, ua, origin, resolve } = pendingAuth
 
   // Trust the pending client
   storage.mutate((state) => {
-    state.trusted[clientAuthId] = {
-      authId: clientAuthId,
+    state.trusted[clientAuthToken] = {
+      authToken: clientAuthToken,
       ua,
       origin,
       timestamp: Date.now(),
     }
   })
-  session.meta.clientAuthId = clientAuthId
+  session.meta.clientAuthToken = clientAuthToken
   session.meta.isTrusted = true
 
   // Resolve the pending auth RPC call
@@ -81,7 +81,7 @@ export function consumeTempAuthId(
   abortPendingAuth()
 
   // Generate a new temp ID for next use
-  refreshTempAuthId()
+  refreshTempAuthToken()
 
-  return clientAuthId
+  return clientAuthToken
 }

@@ -3,12 +3,12 @@ import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
-import { abortPendingAuth, getTempAuthId, refreshTempAuthId, setPendingAuth } from '../../auth-state'
+import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from '../../auth-state'
 import { MARK_INFO } from '../../constants'
 import { getInternalContext } from '../../context-internal'
 
 export interface DevToolsAuthInput {
-  authId: string
+  authToken: string
   ua: string
   origin: string
 }
@@ -31,29 +31,29 @@ export const anonymousAuth = defineRpcFunction({
         if (!session)
           throw new Error('Failed to retrieve the current RPC session')
 
-        if (session.meta.isTrusted || storage.value().trusted[query.authId]) {
-          console.log('trusted', { isTrusted: session.meta.isTrusted, trusted: storage.value().trusted[query.authId] })
-          session.meta.clientAuthId = query.authId
+        if (session.meta.isTrusted || storage.value().trusted[query.authToken]) {
+          console.log('trusted', { isTrusted: session.meta.isTrusted, trusted: storage.value().trusted[query.authToken] })
+          session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true
           return {
             isTrusted: true,
           }
         }
 
-        // Auto-approve if authId matches a configured auth token or the temp auth ID
+        // Auto-approve if authToken matches a configured auth token or the temp auth ID
         const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
-        if (tokens.includes(query.authId) || query.authId === getTempAuthId()) {
+        if (tokens.includes(query.authToken) || query.authToken === getTempAuthToken()) {
           storage.mutate((state) => {
-            state.trusted[query.authId] = {
-              authId: query.authId,
+            state.trusted[query.authToken] = {
+              authToken: query.authToken,
               ua: query.ua,
               origin: query.origin,
               timestamp: Date.now(),
             }
           })
-          session.meta.clientAuthId = query.authId
+          session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true
-          refreshTempAuthId()
+          refreshTempAuthToken()
           return {
             isTrusted: true,
           }
@@ -63,7 +63,7 @@ export const anonymousAuth = defineRpcFunction({
         abortPendingAuth()
 
         // Generate a fresh temp ID for the auth URL
-        const tempId = getTempAuthId()
+        const tempId = getTempAuthToken()
 
         // Derive the server URL for the auth link
         const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
@@ -75,7 +75,7 @@ export const anonymousAuth = defineRpcFunction({
           '',
           `User Agent   : ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
           `Origin       : ${c.yellow(c.bold(query.origin || 'Unknown'))}`,
-          `Client Token : ${c.green(c.bold(query.authId))}`,
+          `Client Token : ${c.green(c.bold(query.authToken))}`,
           '',
           `Manual Auth URL   : ${c.cyan(c.underline(authUrl))}`,
           `Manual Auth Token : ${c.cyan(c.bold(tempId))}`,
@@ -103,13 +103,13 @@ export const anonymousAuth = defineRpcFunction({
           const timeout = setTimeout(() => {
             abortController.abort()
             setPendingAuth(null)
-            console.log(c.yellow`${MARK_INFO} Auth request timed out for ${c.bold(query.authId)}`)
+            console.log(c.yellow`${MARK_INFO} Auth request timed out for ${c.bold(query.authToken)}`)
             resolve({ isTrusted: false })
           }, AUTH_TIMEOUT_MS)
 
           // Register as pending auth so auth-verify endpoint can resolve it
           setPendingAuth({
-            clientAuthId: query.authId,
+            clientAuthToken: query.authToken,
             session,
             ua: query.ua,
             origin: query.origin,
@@ -120,7 +120,7 @@ export const anonymousAuth = defineRpcFunction({
 
           // Show terminal confirm prompt with abort signal
           p.confirm({
-            message: c.bold(`Do you trust this client (${c.green(c.bold(query.authId))})?`),
+            message: c.bold(`Do you trust this client (${c.green(c.bold(query.authToken))})?`),
             initialValue: false,
             signal: abortController.signal,
           }).then((answer) => {
@@ -135,21 +135,21 @@ export const anonymousAuth = defineRpcFunction({
 
             if (answer) {
               storage.mutate((state) => {
-                state.trusted[query.authId] = {
-                  authId: query.authId,
+                state.trusted[query.authToken] = {
+                  authToken: query.authToken,
                   ua: query.ua,
                   origin: query.origin,
                   timestamp: Date.now(),
                 }
               })
-              session.meta.clientAuthId = query.authId
+              session.meta.clientAuthToken = query.authToken
               session.meta.isTrusted = true
 
-              p.outro(c.green(c.bold(`You have granted permissions to ${c.bold(query.authId)}`)))
+              p.outro(c.green(c.bold(`You have granted permissions to ${c.bold(query.authToken)}`)))
               resolve({ isTrusted: true })
             }
             else {
-              p.outro(c.red(c.bold(`You have denied permissions to ${c.bold(query.authId)}`)))
+              p.outro(c.red(c.bold(`You have denied permissions to ${c.bold(query.authToken)}`)))
               resolve({ isTrusted: false })
             }
           }).catch(() => {

@@ -52,16 +52,16 @@ export async function createWsServer(options: CreateWsServerOptions) {
       }
       else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
         meta.isTrusted = true
-        meta.clientAuthId = authToken
+        meta.clientAuthToken = authToken
       }
       else if (authToken && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authToken)) {
         meta.isTrusted = true
-        meta.clientAuthId = authToken
+        meta.clientAuthToken = authToken
       }
 
       wsClients.add(ws)
       const color = meta.isTrusted ? c.green : c.yellow
-      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)

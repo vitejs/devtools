@@ -7,8 +7,8 @@ export const revokeAuthTokenRpc = defineRpcFunction({
   setup: (context) => {
     const internal = getInternalContext(context)
     return {
-      handler: async (authId: string) => {
-        await internal.revokeAuthToken(authId)
+      handler: async (authToken: string) => {
+        await internal.revokeAuthToken(authToken)
       },
     }
   },

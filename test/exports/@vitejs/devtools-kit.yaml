@@ -18,6 +18,8 @@
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
 ./utils/events:
   createEventEmitter: function
+./utils/human-id:
+  humanId: function
 ./utils/nanoid:
   nanoid: function
 ./utils/shared-state:

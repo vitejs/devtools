@@ -4,7 +4,7 @@ import { onMounted, shallowRef } from 'vue'
 import { useRefreshProvider } from '../composables/refresh'
 
 interface AuthToken {
-  authId: string
+  authToken: string
   ua: string
   origin: string
   timestamp: number
@@ -17,8 +17,8 @@ async function fetchData() {
   data.value = await rpc.value.call('devtoolskit:self-inspect:get-auth-tokens')
 }
 
-async function revoke(authId: string) {
-  await rpc.value.call('devtoolskit:self-inspect:revoke-auth-token', authId)
+async function revoke(authToken: string) {
+  await rpc.value.call('devtoolskit:self-inspect:revoke-auth-token', authToken)
   await fetchData()
 }
 

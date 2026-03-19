@@ -14,15 +14,15 @@ import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
-const CONNECTION_AUTH_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_ID__'
+const CONNECTION_AUTH_TOKEN_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__'
 
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
   baseURL?: string | string[]
   /**
-   * The auth id to use for the client
+   * The auth token to use for the client
    */
-  authId?: string
+  authToken?: string
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
 }
@@ -91,13 +91,13 @@ export interface DevToolsRpcClientMode {
   callOptional: DevToolsRpcClient['callOptional']
 }
 
-function getConnectionAuthIdFromWindows(userAuthId?: string): string {
+function getConnectionAuthTokenFromWindows(userAuthToken?: string): string {
   const getters = [
-    () => userAuthId,
-    () => localStorage.getItem(CONNECTION_AUTH_ID_KEY),
-    () => (window as any)?.[CONNECTION_AUTH_ID_KEY],
-    () => (globalThis as any)?.[CONNECTION_AUTH_ID_KEY],
-    () => (parent.window as any)?.[CONNECTION_AUTH_ID_KEY],
+    () => userAuthToken,
+    () => localStorage.getItem(CONNECTION_AUTH_TOKEN_KEY),
+    () => (window as any)?.[CONNECTION_AUTH_TOKEN_KEY],
+    () => (globalThis as any)?.[CONNECTION_AUTH_TOKEN_KEY],
+    () => (parent.window as any)?.[CONNECTION_AUTH_TOKEN_KEY],
   ]
 
   let value: string | undefined
@@ -114,8 +114,8 @@ function getConnectionAuthIdFromWindows(userAuthId?: string): string {
   if (!value)
     value = humanId({ separator: '-', capitalize: false })
 
-  localStorage.setItem(CONNECTION_AUTH_ID_KEY, value)
-  ;(globalThis as any)[CONNECTION_AUTH_ID_KEY] = value
+  localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, value)
+  ;(globalThis as any)[CONNECTION_AUTH_TOKEN_KEY] = value
   return value
 }
 
@@ -184,7 +184,7 @@ export async function getDevToolsRpcClient(
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
-  const authId = getConnectionAuthIdFromWindows(options.authId)
+  const authToken = getConnectionAuthTokenFromWindows(options.authToken)
   const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
 
   async function fetchJsonFromBases(path: string): Promise<any> {
@@ -218,7 +218,7 @@ export async function getDevToolsRpcClient(
         fetchJsonFromBases,
       })
     : createWsRpcClientMode({
-        authId,
+        authToken,
         connectionMeta,
         events,
         clientRpc,
@@ -251,8 +251,8 @@ export async function getDevToolsRpcClient(
   try {
     const bc = new BroadcastChannel('vite-devtools-auth')
     bc.onmessage = (event) => {
-      if (event.data?.type === 'auth-update' && event.data.authId) {
-        localStorage.setItem(CONNECTION_AUTH_ID_KEY, event.data.authId)
+      if (event.data?.type === 'auth-update' && event.data.authToken) {
+        localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, event.data.authToken)
         window.location.reload()
       }
     }

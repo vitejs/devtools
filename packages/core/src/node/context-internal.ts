@@ -7,7 +7,7 @@ import { createStorage } from './storage'
 
 export interface InternalAnonymousAuthStorage {
   trusted: Record<string, {
-    authId: string
+    authToken: string
     ua: string
     origin: string
     timestamp: number

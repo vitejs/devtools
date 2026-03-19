@@ -7,7 +7,7 @@ import { parseUA } from 'ua-parser-modern'
 import { promiseWithResolver } from '../utils/promise'
 
 export interface CreateWsRpcClientModeOptions {
-  authId: string
+  authToken: string
   connectionMeta: ConnectionMeta
   events: EventEmitter<RpcClientEvents>
   clientRpc: DevToolsClientRpcHost
@@ -25,7 +25,7 @@ export function createWsRpcClientMode(
   options: CreateWsRpcClientModeOptions,
 ): DevToolsRpcClientMode {
   const {
-    authId,
+    authToken,
     connectionMeta,
     events,
     clientRpc,
@@ -44,7 +44,7 @@ export function createWsRpcClientMode(
     {
       preset: createWsRpcPreset({
         url,
-        authId,
+        authToken,
         ...wsOptions,
       }),
       rpcOptions,
@@ -76,7 +76,7 @@ export function createWsRpcClientMode(
     ].filter(i => i).join(' ')
 
     const result = await serverRpc.$call('vite:anonymous:auth', {
-      authId,
+      authToken,
       ua,
       origin: location.origin,
     })

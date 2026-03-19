@@ -3,7 +3,7 @@ import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constant
 import { createApp, eventHandler, fromNodeMiddleware, getQuery, toNodeListener } from 'h3'
 import sirv from 'sirv'
 import { dirClientStandalone } from '../dirs'
-import { consumeTempAuthId } from './auth-state'
+import { consumeTempAuthToken } from './auth-state'
 import { getInternalContext } from './context-internal'
 import { createWsServer } from './ws'
 
@@ -27,20 +27,20 @@ function generateAuthPageHtml(): string {
     const el = document.getElementById('message')
 
     if (!id) {
-      el.textContent = '\\u26a0\\ufe0f No auth ID found. Please check your URL.'
+      el.textContent = '\\u26a0\\ufe0f No auth token found. Please check your URL.'
       el.style.color = '#df513f'
     } else {
       fetch(location.pathname.replace(/\\/$/, '') + '-verify?id=' + encodeURIComponent(id))
         .then(async (r) => {
           if (r.status !== 200) throw new Error(await r.text())
           const data = await r.json()
-          const authId = data.authId
+          const authToken = data.authToken
 
-          localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_ID__', authId)
+          localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__', authToken)
 
           try {
             const bc = new BroadcastChannel('vite-devtools-auth')
-            bc.postMessage({ type: 'auth-update', authId: authId })
+            bc.postMessage({ type: 'auth-update', authToken: authToken })
           } catch {}
 
           el.textContent = '\\u2705 Authorized! You can close this window now.'
@@ -74,14 +74,14 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
       return event.node.res.end('Missing id parameter')
     }
 
-    const clientAuthId = consumeTempAuthId(id, contextInternal.storage.auth)
-    if (!clientAuthId) {
+    const clientAuthToken = consumeTempAuthToken(id, contextInternal.storage.auth)
+    if (!clientAuthToken) {
       event.node.res.statusCode = 403
-      return event.node.res.end('Invalid or expired auth ID')
+      return event.node.res.end('Invalid or expired auth token')
     }
 
     event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify({ authId: clientAuthId }))
+    return event.node.res.end(JSON.stringify({ authToken: clientAuthToken }))
   }))
 
   h3.use('/auth', eventHandler((event) => {
