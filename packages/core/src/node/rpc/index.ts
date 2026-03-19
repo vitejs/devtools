@@ -65,7 +65,7 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {
-
+    'devtoolskit:internal:auth:revoked': () => Promise<void>
     'devtoolskit:internal:logs:updated': () => Promise<void>
     'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
     'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>

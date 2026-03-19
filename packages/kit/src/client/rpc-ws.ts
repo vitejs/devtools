@@ -7,7 +7,7 @@ import { parseUA } from 'ua-parser-modern'
 import { promiseWithResolver } from '../utils/promise'
 
 export interface CreateWsRpcClientModeOptions {
-  authId: string
+  authToken: string
   connectionMeta: ConnectionMeta
   events: EventEmitter<RpcClientEvents>
   clientRpc: DevToolsClientRpcHost
@@ -25,7 +25,7 @@ export function createWsRpcClientMode(
   options: CreateWsRpcClientModeOptions,
 ): DevToolsRpcClientMode {
   const {
-    authId,
+    authToken,
     connectionMeta,
     events,
     clientRpc,
@@ -44,16 +44,27 @@ export function createWsRpcClientMode(
     {
       preset: createWsRpcPreset({
         url,
-        authId,
+        authToken,
         ...wsOptions,
       }),
       rpcOptions,
     },
   )
 
-  async function requestTrust() {
-    if (isTrusted)
-      return true
+  // Handle server-initiated auth revocation
+  clientRpc.register({
+    name: 'devtoolskit:internal:auth:revoked',
+    type: 'event',
+    handler: () => {
+      isTrusted = false
+      events.emit('rpc:is-trusted:updated', false)
+    },
+  })
+
+  let currentAuthToken = authToken
+
+  async function requestTrustWithToken(token: string) {
+    currentAuthToken = token
 
     const info = parseUA(navigator.userAgent)
     const ua = [
@@ -66,7 +77,7 @@ export function createWsRpcClientMode(
     ].filter(i => i).join(' ')
 
     const result = await serverRpc.$call('vite:anonymous:auth', {
-      authId,
+      authToken: token,
       ua,
       origin: location.origin,
     })
@@ -75,6 +86,12 @@ export function createWsRpcClientMode(
     trustedPromise.resolve(isTrusted)
     events.emit('rpc:is-trusted:updated', isTrusted)
     return result.isTrusted
+  }
+
+  async function requestTrust() {
+    if (isTrusted)
+      return true
+    return requestTrustWithToken(currentAuthToken)
   }
 
   async function ensureTrusted(timeout = 60_000): Promise<boolean> {
@@ -103,6 +120,7 @@ export function createWsRpcClientMode(
       return isTrusted
     },
     requestTrust,
+    requestTrustWithToken,
     ensureTrusted,
     call: (...args: any): any => {
       return serverRpc.$call(

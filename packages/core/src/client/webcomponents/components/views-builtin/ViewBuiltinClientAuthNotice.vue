@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import { ref } from 'vue'
 import VitePlus from '../icons/VitePlus.vue'
 
-defineProps<{
+const props = defineProps<{
   context: DocksContext
 }>()
+
+const tokenInput = ref('')
+
+function submitToken() {
+  const value = tokenInput.value.trim()
+  if (!value)
+    return
+  props.context.rpc.requestTrustWithToken(value)
+}
 </script>
 
 <template>
@@ -12,7 +22,7 @@ defineProps<{
     <div class="max-w-150 flex flex-col items-center justify-center gap-2">
       <VitePlus class="w-20 h-20" />
       <h1 class="text-2xl font-bold text-violet mb2">
-        Vite DevTools is Unauthorized
+        Vite DevTools needs Authorization
       </h1>
       <p class="op75">
         Vite DevTools offers advanced features that can access your server, view your filesystem, and execute commands.
@@ -23,6 +33,24 @@ defineProps<{
       <p class="font-bold bg-green:5 p1 px3 rounded mt8 text-green">
         Check your terminal for the authorization prompt and come back.
       </p>
+      <div class="mt6 op50">
+        or
+      </div>
+      <form class="mt2 flex items-center gap-2" @submit.prevent="submitToken">
+        <input
+          v-model="tokenInput"
+          type="text"
+          placeholder="Enter auth token"
+          class="px3 py1.5 rounded border border-base bg-transparent text-sm outline-none focus:border-violet"
+        >
+        <button
+          type="submit"
+          class="px3 py1.5 rounded bg-violet text-white text-sm hover:op80 disabled:op40"
+          :disabled="!tokenInput.trim()"
+        >
+          Authorize
+        </button>
+      </form>
     </div>
   </div>
 </template>

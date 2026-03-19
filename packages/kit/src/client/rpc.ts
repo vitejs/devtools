@@ -8,21 +8,21 @@ import {
   DEVTOOLS_MOUNT_PATH,
 } from '../constants'
 import { createEventEmitter } from '../utils/events'
-import { nanoid } from '../utils/nanoid'
+import { humanId } from '../utils/human-id'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
-const CONNECTION_AUTH_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_ID__'
+const CONNECTION_AUTH_TOKEN_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__'
 
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
   baseURL?: string | string[]
   /**
-   * The auth id to use for the client
+   * The auth token to use for the client
    */
-  authId?: string
+  authToken?: string
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
 }
@@ -60,6 +60,12 @@ export interface DevToolsRpcClient {
   requestTrust: () => Promise<boolean>
 
   /**
+   * Request trust from the server using a specific auth token.
+   * Updates the stored token and re-requests trust without reloading the page.
+   */
+  requestTrustWithToken: (token: string) => Promise<boolean>
+
+  /**
    * Call a RPC function on the server
    */
   call: DevToolsRpcClientCall
@@ -86,18 +92,19 @@ export interface DevToolsRpcClientMode {
   readonly isTrusted: boolean
   ensureTrusted: DevToolsRpcClient['ensureTrusted']
   requestTrust: DevToolsRpcClient['requestTrust']
+  requestTrustWithToken: DevToolsRpcClient['requestTrustWithToken']
   call: DevToolsRpcClient['call']
   callEvent: DevToolsRpcClient['callEvent']
   callOptional: DevToolsRpcClient['callOptional']
 }
 
-function getConnectionAuthIdFromWindows(userAuthId?: string): string {
+function getConnectionAuthTokenFromWindows(userAuthToken?: string): string {
   const getters = [
-    () => userAuthId,
-    () => localStorage.getItem(CONNECTION_AUTH_ID_KEY),
-    () => (window as any)?.[CONNECTION_AUTH_ID_KEY],
-    () => (globalThis as any)?.[CONNECTION_AUTH_ID_KEY],
-    () => (parent.window as any)?.[CONNECTION_AUTH_ID_KEY],
+    () => userAuthToken,
+    () => localStorage.getItem(CONNECTION_AUTH_TOKEN_KEY),
+    () => (window as any)?.[CONNECTION_AUTH_TOKEN_KEY],
+    () => (globalThis as any)?.[CONNECTION_AUTH_TOKEN_KEY],
+    () => (parent.window as any)?.[CONNECTION_AUTH_TOKEN_KEY],
   ]
 
   let value: string | undefined
@@ -112,10 +119,10 @@ function getConnectionAuthIdFromWindows(userAuthId?: string): string {
   }
 
   if (!value)
-    value = nanoid()
+    value = humanId({ separator: '-', capitalize: false })
 
-  localStorage.setItem(CONNECTION_AUTH_ID_KEY, value)
-  ;(globalThis as any)[CONNECTION_AUTH_ID_KEY] = value
+  localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, value)
+  ;(globalThis as any)[CONNECTION_AUTH_TOKEN_KEY] = value
   return value
 }
 
@@ -184,7 +191,7 @@ export async function getDevToolsRpcClient(
   const context: DevToolsClientContext = {
     rpc: undefined!,
   }
-  const authId = getConnectionAuthIdFromWindows(options.authId)
+  const authToken = getConnectionAuthTokenFromWindows(options.authToken)
   const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
 
   async function fetchJsonFromBases(path: string): Promise<any> {
@@ -218,7 +225,7 @@ export async function getDevToolsRpcClient(
         fetchJsonFromBases,
       })
     : createWsRpcClientMode({
-        authId,
+        authToken,
         connectionMeta,
         events,
         clientRpc,
@@ -234,6 +241,12 @@ export async function getDevToolsRpcClient(
     connectionMeta,
     ensureTrusted: mode.ensureTrusted,
     requestTrust: mode.requestTrust,
+    requestTrustWithToken: async (token: string) => {
+      // Update stored token for future reconnections
+      localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, token)
+      ;(globalThis as any)[CONNECTION_AUTH_TOKEN_KEY] = token
+      return mode.requestTrustWithToken(token)
+    },
     call: mode.call,
     callEvent: mode.callEvent,
     callOptional: mode.callOptional,
@@ -246,6 +259,17 @@ export async function getDevToolsRpcClient(
   // @ts-expect-error assign to readonly property
   context.rpc = rpc
   void mode.requestTrust()
+
+  // Listen for auth updates from other tabs (e.g., auth URL page)
+  try {
+    const bc = new BroadcastChannel('vite-devtools-auth')
+    bc.onmessage = (event) => {
+      if (event.data?.type === 'auth-update' && event.data.authToken) {
+        rpc.requestTrustWithToken(event.data.authToken)
+      }
+    }
+  }
+  catch {}
 
   return rpc
 }
