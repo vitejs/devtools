@@ -4,6 +4,9 @@ import nuxt from './packages/rolldown/src/.nuxt/eslint.config.mjs'
 
 export default antfu({
   pnpm: true,
+  ignores: [
+    'skills',
+  ],
 })
   .append(nuxt())
   .append({
@@ -16,4 +19,6 @@ export default antfu({
     'vue/no-template-shadow',
     'pnpm/json-prefer-workspace-settings',
     'markdown/fenced-code-language',
+    'e18e/prefer-static-regex',
+    'e18e/prefer-spread-syntax',
   )

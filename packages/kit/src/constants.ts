@@ -1,5 +1,16 @@
 import type { DevToolsDockEntryCategory, DevToolsDocksUserSettings } from './types'
 
+// DevTools runtime routes and static output conventions.
+export const DEVTOOLS_MOUNT_PATH = '/.devtools/'
+export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/.devtools'
+export const DEVTOOLS_DIRNAME = '.devtools'
+
+export const DEVTOOLS_CONNECTION_META_FILENAME = '.connection.json'
+export const DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME = '.rpc-dump/index.json'
+export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '.client-imports.js'
+export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools-client-imports.js'
+export const DEVTOOLS_RPC_DUMP_DIRNAME = '.rpc-dump'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~viteplus': -1000,
   'default': 0,
@@ -16,4 +27,5 @@ export const DEFAULT_STATE_USER_SETTINGS: () => DevToolsDocksUserSettings = () =
   docksPinned: [],
   docksCustomOrder: {},
   showIframeAddressBar: false,
+  closeOnOutsideClick: false,
 })

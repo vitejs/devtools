@@ -7,6 +7,8 @@ import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
+import { createClientLogsClient } from './logs-client'
+import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
 const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
@@ -58,6 +60,13 @@ export async function createDocksContext(
     if (!entry)
       return false
 
+    // If the action is in a popup, delegate to the main frame
+    if (entry.type === 'action') {
+      const delegated = await triggerMainFrameDockAction(clientType, entry.id)
+      if (delegated != null)
+        return false
+    }
+
     // If has import script, run it
     if (
       (entry.type === 'action')
@@ -68,6 +77,7 @@ export async function createDocksContext(
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
+        logs: createClientLogsClient(rpc),
       })
       await executeSetupScript(entry, scriptContext)
     }
@@ -121,6 +131,13 @@ export async function createDocksContext(
     },
     rpc,
     clientType,
+  })
+
+  registerMainFrameDockActionHandler(clientType, async (id) => {
+    const entry = dockEntries.value.find(e => e.id === id)
+    if (!entry || entry.type !== 'action')
+      return false
+    return switchEntry(entry.id)
   })
 
   docksContextByRpc.set(rpc, docksContext)

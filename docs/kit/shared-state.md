@@ -118,6 +118,17 @@ const state = await client.sharedState.get('my-plugin:state')
 console.log(state.value())
 ```
 
+You can also access shared state through the global client context:
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  const state = await ctx.rpc.sharedState.get('my-plugin:state')
+}
+```
+
 ### Subscribing to Changes
 
 Use `state.on('updated', ...)` to react to state changes:

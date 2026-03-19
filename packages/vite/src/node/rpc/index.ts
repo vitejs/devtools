@@ -1,9 +1,11 @@
 import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { viteHi } from './functions/hi'
+import { viteEnvInfo } from './functions/vite-env-info'
+import { viteMetaInfo } from './functions/vite-meta-info'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
-  viteHi,
+  viteMetaInfo,
+  viteEnvInfo,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>

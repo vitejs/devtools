@@ -10,3 +10,5 @@
 ./dirs:
   dirClientStandalone: string
   dirDist: string
+./internal:
+  getInternalContext: function

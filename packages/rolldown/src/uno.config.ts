@@ -5,7 +5,6 @@ import { defineConfig } from 'unocss'
 
 export default defineConfig({
   presets: [
-
     presetDevToolsUI({
       theme: {
         colors: {

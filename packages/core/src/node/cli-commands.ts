@@ -3,16 +3,27 @@
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { createServer } from 'node:http'
+import {
+  DEVTOOLS_CONNECTION_META_FILENAME,
+  DEVTOOLS_DIRNAME,
+  DEVTOOLS_DOCK_IMPORTS_FILENAME,
+  DEVTOOLS_MOUNT_PATH,
+  DEVTOOLS_RPC_DUMP_DIRNAME,
+  DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
+} from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
 import { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } from 'h3'
 import open from 'open'
-import { join, relative, resolve } from 'pathe'
+import { dirname, join, relative, resolve } from 'pathe'
 import sirv from 'sirv'
 import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
+import { renderDockImportsMap } from './plugins/server'
 import { createDevToolsMiddleware } from './server'
 import { startStandaloneDevTools } from './standalone'
+import { collectStaticRpcDump } from './static-dump'
+import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
   root?: string
@@ -49,18 +60,19 @@ export async function start(options: StartOptions) {
     })))
   }
 
-  app.use('/.devtools/', h3.handler)
+  app.use(DEVTOOLS_MOUNT_PATH, h3.handler)
   app.use('/', eventHandler(async (event) => {
     if (event.node.req.url === '/')
-      return sendRedirect(event, '/.devtools/')
+      return sendRedirect(event, DEVTOOLS_MOUNT_PATH)
   }))
 
   const server = createServer(toNodeListener(app))
 
   server.listen(port, host, async () => {
-    console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`), '\n')
+    const url = normalizeHttpServerUrl(host, port)
+    console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(url), '\n')
     if (options.open)
-      await open(`http://${host === '127.0.0.1' ? 'localhost' : host}:${port}`)
+      await open(url)
   })
 }
 
@@ -84,7 +96,7 @@ export async function build(options: BuildOptions) {
   if (existsSync(outDir))
     await fs.rm(outDir, { recursive: true })
 
-  const devToolsRoot = join(outDir, '.devtools')
+  const devToolsRoot = join(outDir, DEVTOOLS_DIRNAME)
   await fs.mkdir(devToolsRoot, { recursive: true })
   await fs.cp(dirClientStandalone, devToolsRoot, { recursive: true })
 
@@ -94,16 +106,39 @@ export async function build(options: BuildOptions) {
     await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })
   }
 
-  await fs.mkdir(resolve(devToolsRoot, 'api'), { recursive: true })
-  await fs.writeFile(resolve(devToolsRoot, '.vdt-connection.json'), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
+  await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
+  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
+  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(devtools.context.docks.values()), 'utf-8')
 
-  console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, '.vdt-rpc-dump.json')}`)
-  const dump: Record<string, any> = {}
-  for (const [key, value] of Object.entries(devtools.context.rpc.functions)) {
-    if (value.type === 'static')
-      dump[key] = await value.handler?.()
+  console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
+  const dump = await collectStaticRpcDump(
+    devtools.context.rpc.definitions.values(),
+    devtools.context,
+  )
+  for (const [filepath, data] of Object.entries(dump.files)) {
+    const fullpath = resolve(devToolsRoot, filepath)
+    await fs.mkdir(dirname(fullpath), { recursive: true })
+    await fs.writeFile(fullpath, JSON.stringify(data, null, 2), 'utf-8')
   }
-  await fs.writeFile(resolve(devToolsRoot, '.vdt-rpc-dump.json'), JSON.stringify(dump, null, 2), 'utf-8')
+  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME), JSON.stringify(dump.manifest, null, 2), 'utf-8')
+  await fs.writeFile(
+    resolve(outDir, 'index.html'),
+    [
+      '<!doctype html>',
+      '<html lang="en">',
+      '<head>',
+      '  <meta charset="UTF-8">',
+      '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      '  <title>Vite DevTools</title>',
+      `  <meta http-equiv="refresh" content="0; url=${DEVTOOLS_MOUNT_PATH}">`,
+      '</head>',
+      '<body>',
+      `  <script>location.replace(${JSON.stringify(DEVTOOLS_MOUNT_PATH)})</script>`,
+      '</body>',
+      '</html>',
+    ].join('\n'),
+    'utf-8',
+  )
 
   console.log(c.green`${MARK_NODE} Built to ${relative(devtools.config.root, outDir)}`)
   console.warn(c.yellow`${MARK_NODE} Static build is still experimental and not yet complete.`)

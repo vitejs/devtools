@@ -14,15 +14,41 @@ export default defineConfig({
       isProduction: true,
     }),
   ],
-  external: [
-    '@vitejs/devtools/client/webcomponents',
-    /^node:/,
-  ],
+  deps: {
+    neverBundle: [
+      '@vitejs/devtools/client/webcomponents',
+      /^node:/,
+    ],
+    // @keep-sorted
+    onlyBundle: [
+      '@clack/core',
+      '@clack/prompts',
+      '@json-render/core',
+      '@json-render/vue',
+      '@vue/reactivity',
+      '@vue/runtime-core',
+      '@vue/runtime-dom',
+      '@vue/shared',
+      '@vueuse/core',
+      '@vueuse/shared',
+      '@xterm/addon-fit',
+      '@xterm/xterm',
+      'ansis',
+      'csstype',
+      'dompurify',
+      'get-port-please',
+      'human-id',
+      'sisteransi',
+      'vue',
+      'zod',
+    ],
+  },
   clean: true,
   platform: 'neutral',
   tsconfig: '../../tsconfig.base.json',
   entry: {
     'index': 'src/index.ts',
+    'internal': 'src/internal.ts',
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
     'cli-commands': 'src/node/cli-commands.ts',
@@ -45,5 +71,4 @@ export default defineConfig({
       await buildCSS()
     },
   },
-  inlineOnly: false,
 })

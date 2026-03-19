@@ -14,6 +14,9 @@ const DevToolsKitNav = [
   { text: 'Dock System', link: '/kit/dock-system' },
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
+  { text: 'Logs & Notifications', link: '/kit/logs' },
+  { text: 'Terminals & Processes', link: '/kit/terminals' },
+  { text: 'Examples', link: '/kit/examples' },
 ]
 
 const SocialLinks = [
@@ -66,6 +69,10 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'Dock System', link: '/kit/dock-system' },
           { text: 'RPC', link: '/kit/rpc' },
           { text: 'Shared State', link: '/kit/shared-state' },
+          { text: 'Logs', link: '/kit/logs' },
+          { text: 'JSON Render', link: '/kit/json-render' },
+          { text: 'Terminals', link: '/kit/terminals' },
+          { text: 'Examples', link: '/kit/examples' },
         ],
       },
     ],

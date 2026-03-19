@@ -5,9 +5,8 @@ outline: deep
 # Getting Started
 
 > [!WARNING]
-> Vite DevTools is still in development and not yet ready for production use.
-> And currently Vite DevTools is designed only for Vite-Rolldown's build mode.
-> Dev mode and normal Vite are not supported yet.
+> Vite DevTools currently only supports build mode of Vite 8+.
+> Dev mode and Vite versions under 8 are not supported yet.
 
 ## What is Vite DevTools?
 
@@ -25,24 +24,54 @@ Vite DevTools is a comprehensive set of developer tools for visualizing and anal
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Install or upgrade your Vite to the beta version 8:
+Install or upgrade your Vite to version 8:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0-beta.7"
+    "vite": "^8.0.0"
   }
 }
 ```
 
-Install the DevTools plugin:
+Install the required DevTools package:
 
 ```bash
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools plugin in your Vite config and turn on the devtools mode for Rolldown:
+Vite DevTools has two client modes. Configure one mode at a time.
+
+### Standalone mode
+
+The DevTools client runs in a standalone window (no user app).
+
+Configure `vite.config.ts`:
+
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    enabled: true,
+  },
+})
+```
+
+Run:
+
+```bash
+pnpm build
+```
+
+After the build completes, open the DevTools URL shown in the terminal.
+
+### Embedded mode
+
+The DevTools client runs inside an embedded floating panel.
+
+Configure `vite.config.ts`:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -60,17 +89,14 @@ export default defineConfig({
 })
 ```
 
-Run your Vite build, to generate the Rolldown build metadata:
+Run:
 
 ```bash
 pnpm build
-```
-
-Open the DevTools panel in your browser to play with the DevTools:
-
-```bash
 pnpm dev
 ```
+
+Then open your app in the browser and open the DevTools panel.
 
 ## What's Next?
 
@@ -87,7 +113,7 @@ Now that you have Vite DevTools set up, you can:
 
 - **Build mode only**: Currently works with Vite-Rolldown's build mode
 - **Dev mode**: Not yet supported (planned for future releases)
-- **Standard Vite**: Requires Rolldown Vite for now
+- **Vite Version**: Requires Vite 8 or higher versions for now
 
 ## Architecture Overview
 

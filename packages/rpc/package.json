@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rpc",
   "type": "module",
-  "version": "0.0.0-alpha.33",
+  "version": "0.1.3",
   "description": "Vite DevTools RPC Layer",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -35,6 +35,9 @@
     "build": "tsdown",
     "watch": "tsdown --watch",
     "prepack": "pnpm build"
+  },
+  "peerDependencies": {
+    "ws": "*"
   },
   "peerDependenciesMeta": {
     "ws": {

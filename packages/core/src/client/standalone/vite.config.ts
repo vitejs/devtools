@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url'
+import { DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH } from '@vitejs/devtools-kit/constants'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
@@ -26,7 +27,7 @@ export default defineConfig({
           hostWebSocket: host,
           context,
         })
-        viteDevServer.middlewares.use('/.devtools', middleware)
+        viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH, middleware)
       },
     },
   ],

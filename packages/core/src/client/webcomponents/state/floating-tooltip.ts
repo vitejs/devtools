@@ -34,3 +34,13 @@ export function setDockContextMenu(info: FloatingPopoverProps | null) {
 export function useDockContextMenu() {
   return dockContextMenu
 }
+
+const edgePositionDropdown = shallowRef<FloatingPopoverProps | null>(null)
+
+export function setEdgePositionDropdown(info: FloatingPopoverProps | null) {
+  edgePositionDropdown.value = info
+}
+
+export function useEdgePositionDropdown() {
+  return edgePositionDropdown
+}

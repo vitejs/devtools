@@ -8,7 +8,7 @@ Dock entries are the primary way for users to interact with your DevTools integr
 
 ## Entry Types
 
-DevTools Kit supports four types of dock entries:
+DevTools Kit supports five types of dock entries:
 
 | Type | Description | Use Case |
 |------|-------------|----------|
@@ -16,6 +16,7 @@ DevTools Kit supports four types of dock entries:
 | `action` | Button that triggers client-side scripts | Inspectors, toggles, one-time actions |
 | `custom-render` | Renders directly in the user's app DOM | When you need direct DOM access or framework integration |
 | `launcher` | Actionable setup card shown in panel | Run one-time setup tasks before showing other tools |
+| `json-render` | Renders UI from a JSON spec — no client code needed | Data panels, config viewers, simple interactive tools |
 
 ## Iframe Panels
 
@@ -71,7 +72,7 @@ interface DockEntry {
   /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
   icon: string
   /** Entry type */
-  type: 'iframe' | 'action' | 'custom-render' | 'launcher'
+  type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render'
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
@@ -86,6 +87,8 @@ interface DockEntry {
     buttonStart?: string
     buttonLoading?: string
   }
+  /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
+  ui?: JsonRenderer
 }
 ```
 
@@ -108,6 +111,9 @@ icon: 'mdi:view-dashboard' // Material Design Icons
 
 > [!TIP]
 > Browse available icons at [Iconify](https://icon-sets.iconify.design/). The `ph:` (Phosphor) icon set works well for DevTools UIs.
+
+> [!TIP]
+> See the [File Explorer example](/kit/examples#file-explorer) for a iframe dock plugin with RPC and static build support.
 
 ## Action Buttons
 
@@ -195,6 +201,9 @@ Export the action script from your package:
 |-------|-------------|
 | `entry:activated` | Fired when the user clicks/activates this dock entry |
 | `entry:deactivated` | Fired when another entry is selected or the dock is closed |
+
+> [!TIP]
+> See the [A11y Checker example](/kit/examples#a11y-checker) for a real-world action dock that runs axe-core audits and reports violations as logs.
 
 ## Custom Renderers
 
@@ -289,6 +298,48 @@ ctx.docks.register({
 
 > [!NOTE]
 > Built-in logs panel (`~logs`) is currently reserved and hidden while log UI is under development.
+
+## JSON Render Panels
+
+JSON render panels let you describe your UI as a JSON spec on the server side — **no client code needed.** This is the simplest way to add a DevTools panel.
+
+Use `ctx.createJsonRenderer()` to create a renderer handle, then pass it as `ui` when registering a `json-render` dock entry:
+
+```ts
+const ui = ctx.createJsonRenderer({
+  root: 'root',
+  elements: {
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'Hello from JSON!', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Version', value: '1.0.0' },
+          { key: 'Status', value: 'Running' },
+        ],
+      },
+    },
+  },
+})
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
+})
+```
+
+See the [JSON Render](/kit/json-render) page for the full component reference, dynamic updates, actions, state bindings, and examples.
 
 ## Communication with Server
 

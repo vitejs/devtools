@@ -42,7 +42,7 @@ export async function buildDevToolsApp(buildDir: string): Promise<void> {
             name: 'mount-app-dynamically',
             enforce: 'pre',
             transform(code, id) {
-              if (id.match(/nuxt(3|-nightly)?\/.*\/entry\./)) {
+              if (/nuxt(?:3|-nightly)?\/.*\/entry\./.test(id)) {
                 return `${code
                   .replace(/vueAppPromise = entry\(\)\.catch\(\(error\) => \{[\s\S]*?\}\);/g, '')
                   .replace(/export default \(ssrContext\) => entry\(ssrContext\)/g, '')

@@ -30,7 +30,7 @@ function getModuleSize(modules: string[]) {
       return total
 
     const transforms = moduleInfo.buildMetrics.transforms
-    return total + transforms[transforms.length - 1]!.transformed_code_size
+    return total + transforms.at(-1)!.transformed_code_size
   }, 0)
 }
 

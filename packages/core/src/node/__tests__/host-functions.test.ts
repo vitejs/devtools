@@ -128,4 +128,42 @@ describe('rpcFunctionsHost', () => {
       expect(updateMissing).toThrow()
     })
   })
+
+  describe('broadcast() without rpc group', () => {
+    it('should not throw in build mode', async () => {
+      const host = new RpcFunctionsHost({ mode: 'build' } as DevToolsNodeContext)
+      await expect(host.broadcast({
+        method: 'devtoolskit:internal:terminals:updated',
+        args: [],
+      })).resolves.toBeUndefined()
+    })
+
+    it('should not throw in dev mode when rpc group is not yet set', async () => {
+      const host = new RpcFunctionsHost({ mode: 'dev' } as DevToolsNodeContext)
+      await expect(host.broadcast({
+        method: 'devtoolskit:internal:terminals:updated',
+        args: [],
+      })).resolves.toBeUndefined()
+    })
+  })
+
+  describe('invokeLocal()', () => {
+    it('should invoke a locally registered function', async () => {
+      const host = new RpcFunctionsHost(mockContext)
+      host.register(defineRpcFunction({
+        name: 'test:invoke-local',
+        type: 'query',
+        setup: () => ({
+          handler: async (a: number, b: number) => a + b,
+        }),
+      }))
+
+      await expect(host.invokeLocal('test:invoke-local' as any, 2, 3)).resolves.toBe(5)
+    })
+
+    it('should throw when invoking a missing local function', async () => {
+      const host = new RpcFunctionsHost(mockContext)
+      await expect(host.invokeLocal('test:missing' as any)).rejects.toThrow('RPC function "test:missing" is not registered')
+    })
+  })
 })
