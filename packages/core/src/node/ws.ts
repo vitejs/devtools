@@ -46,17 +46,17 @@ export async function createWsServer(options: CreateWsServerOptions) {
     https,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
-      const authId = url.searchParams.get('vite_devtools_auth_id') ?? undefined
+      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
       if (isClientAuthDisabled) {
         meta.isTrusted = true
       }
-      else if (authId && contextInternal.storage.auth.value().trusted[authId]) {
+      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
         meta.isTrusted = true
-        meta.clientAuthId = authId
+        meta.clientAuthId = authToken
       }
-      else if (authId && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authId)) {
+      else if (authToken && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authToken)) {
         meta.isTrusted = true
-        meta.clientAuthId = authId
+        meta.clientAuthId = authToken
       }
 
       wsClients.add(ws)

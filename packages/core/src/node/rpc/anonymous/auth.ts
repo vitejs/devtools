@@ -32,6 +32,7 @@ export const anonymousAuth = defineRpcFunction({
           throw new Error('Failed to retrieve the current RPC session')
 
         if (session.meta.isTrusted || storage.value().trusted[query.authId]) {
+          console.log('trusted', { isTrusted: session.meta.isTrusted, trusted: storage.value().trusted[query.authId] })
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
           return {
@@ -76,8 +77,8 @@ export const anonymousAuth = defineRpcFunction({
           `Origin       : ${c.yellow(c.bold(query.origin || 'Unknown'))}`,
           `Client Token : ${c.green(c.bold(query.authId))}`,
           '',
-          `Auth URL     : ${c.cyan(c.underline(authUrl))}`,
-          `Temp Token   : ${c.cyan(c.bold(tempId))}`,
+          `Manual Auth URL   : ${c.cyan(c.underline(authUrl))}`,
+          `Manual Auth Token : ${c.cyan(c.bold(tempId))}`,
           '',
           'This will allow the browser to interact with the server, make file changes and run commands.',
           c.red(c.bold('You should only trust your local development browsers.')),

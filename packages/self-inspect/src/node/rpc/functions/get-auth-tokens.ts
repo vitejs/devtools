@@ -10,7 +10,7 @@ export const getAuthTokens = defineRpcFunction({
     return {
       handler: async () => {
         const trusted = storage.value().trusted
-        return Object.values(trusted)
+        return Object.values(trusted).filter(x => !!x)
       },
     }
   },

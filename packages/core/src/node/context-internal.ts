@@ -11,7 +11,7 @@ export interface InternalAnonymousAuthStorage {
     ua: string
     origin: string
     timestamp: number
-  }>
+  } | undefined>
 }
 
 export interface DevToolsInternalContext {

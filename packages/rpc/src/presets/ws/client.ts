@@ -16,7 +16,7 @@ function NOOP() {}
 export const createWsRpcPreset: RpcClientPreset<(options: WebSocketRpcClientOptions) => ChannelOptions> = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
   let url = options.url
   if (options.authId) {
-    url = `${url}?vite_devtools_auth_id=${encodeURIComponent(options.authId)}`
+    url = `${url}?vite_devtools_auth_token=${encodeURIComponent(options.authId)}`
   }
   const ws = new WebSocket(url)
   const {

@@ -14,7 +14,7 @@ export async function revokeAuthToken(
 ): Promise<void> {
   // Remove from persistent storage
   storage.mutate((state) => {
-    delete state.trusted[token]
+    state.trusted[token] = undefined
   })
 
   const rpcHost = context.rpc as unknown as RpcFunctionsHost
