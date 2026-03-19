@@ -18,8 +18,9 @@ export default defineConfig({
   deps: {
     onlyBundle: [
       'human-id',
-      'ohash',
+      'immer',
       'ua-parser-modern',
     ],
   },
+  hash: false,
 })
