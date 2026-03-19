@@ -3,12 +3,12 @@ import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
-import { humanId } from 'human-id'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
 } from '../constants'
 import { createEventEmitter } from '../utils/events'
+import { humanId } from '../utils/human-id'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
