@@ -40,9 +40,18 @@ export const anonymousAuth = defineRpcFunction({
           }
         }
 
-        // Auto-approve if authToken matches a configured auth token or the temp auth ID
+        // Auto-approve if authToken matches a configured auth token (session-only, not persisted)
         const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
-        if (tokens.includes(query.authToken) || query.authToken === getTempAuthToken()) {
+        if (tokens.includes(query.authToken)) {
+          session.meta.clientAuthToken = query.authToken
+          session.meta.isTrusted = true
+          return {
+            isTrusted: true,
+          }
+        }
+
+        // Auto-approve if authToken matches the server-generated temp auth token
+        if (query.authToken === getTempAuthToken()) {
           storage.mutate((state) => {
             state.trusted[query.authToken] = {
               authToken: query.authToken,
