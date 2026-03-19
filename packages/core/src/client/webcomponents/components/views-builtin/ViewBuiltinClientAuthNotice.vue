@@ -23,7 +23,7 @@ function submitToken() {
     <div class="max-w-150 flex flex-col items-center justify-center gap-2">
       <VitePlus class="w-20 h-20" />
       <h1 class="text-2xl font-bold text-violet mb2">
-        Vite DevTools is Unauthorized
+        Vite DevTools needs Authorization
       </h1>
       <p class="op75">
         Vite DevTools offers advanced features that can access your server, view your filesystem, and execute commands.

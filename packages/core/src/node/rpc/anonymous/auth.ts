@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
+import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
-import { abortPendingAuth, refreshTempAuthId, setPendingAuth } from '../../auth-state'
+import { abortPendingAuth, getTempAuthId, refreshTempAuthId, setPendingAuth } from '../../auth-state'
 import { MARK_INFO } from '../../constants'
 import { getInternalContext } from '../../context-internal'
 
@@ -38,9 +39,9 @@ export const anonymousAuth = defineRpcFunction({
           }
         }
 
-        // Auto-approve if authId matches a configured auth token
+        // Auto-approve if authId matches a configured auth token or the temp auth ID
         const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
-        if (tokens.includes(query.authId)) {
+        if (tokens.includes(query.authId) || query.authId === getTempAuthId()) {
           storage.mutate((state) => {
             state.trusted[query.authId] = {
               authId: query.authId,
@@ -51,6 +52,7 @@ export const anonymousAuth = defineRpcFunction({
           })
           session.meta.clientAuthId = query.authId
           session.meta.isTrusted = true
+          refreshTempAuthId()
           return {
             isTrusted: true,
           }
@@ -60,7 +62,7 @@ export const anonymousAuth = defineRpcFunction({
         abortPendingAuth()
 
         // Generate a fresh temp ID for the auth URL
-        const tempId = refreshTempAuthId()
+        const tempId = getTempAuthId()
 
         // Derive the server URL for the auth link
         const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
@@ -70,11 +72,12 @@ export const anonymousAuth = defineRpcFunction({
         const message = [
           `A browser is requesting permissions to connect to the Vite DevTools.`,
           '',
-          `User Agent: ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
-          `Origin    : ${c.cyan(c.bold(query.origin || 'Unknown'))}`,
-          `Identifier: ${c.green(c.bold(query.authId))}`,
+          `User Agent   : ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
+          `Origin       : ${c.yellow(c.bold(query.origin || 'Unknown'))}`,
+          `Client Token : ${c.green(c.bold(query.authId))}`,
           '',
-          `Auth URL  : ${c.cyan(c.underline(authUrl))}`,
+          `Auth URL     : ${c.cyan(c.underline(authUrl))}`,
+          `Temp Token   : ${c.cyan(c.bold(tempId))}`,
           '',
           'This will allow the browser to interact with the server, make file changes and run commands.',
           c.red(c.bold('You should only trust your local development browsers.')),
@@ -84,6 +87,13 @@ export const anonymousAuth = defineRpcFunction({
           c.reset(message.join('\n')),
           c.bold(c.yellow(' Vite DevTools Permission Request ')),
         )
+
+        // if non-TTY, skip the prompt
+        if (!process.stdout.isTTY) {
+          return {
+            isTrusted: false,
+          }
+        }
 
         // Set up abort controller for timeout and external cancellation
         const abortController = new AbortController()
