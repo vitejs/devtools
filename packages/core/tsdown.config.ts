@@ -37,6 +37,7 @@ export default defineConfig({
       'csstype',
       'dompurify',
       'get-port-please',
+      'human-id',
       'sisteransi',
       'vue',
       'zod',
@@ -47,6 +48,7 @@ export default defineConfig({
   tsconfig: '../../tsconfig.base.json',
   entry: {
     'index': 'src/index.ts',
+    'internal': 'src/internal.ts',
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
     'cli-commands': 'src/node/cli-commands.ts',

@@ -23,6 +23,7 @@
     "./client": "./dist/client.js",
     "./constants": "./dist/constants.js",
     "./utils/events": "./dist/utils/events.js",
+    "./utils/human-id": "./dist/utils/human-id.js",
     "./utils/nanoid": "./dist/utils/nanoid.js",
     "./utils/shared-state": "./dist/utils/shared-state.js",
     "./package.json": "./package.json"
@@ -43,15 +44,18 @@
   "dependencies": {
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
-    "immer": "catalog:deps"
+    "ohash": "catalog:deps"
   },
   "devDependencies": {
+    "human-id": "catalog:inlined",
+    "immer": "catalog:inlined",
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
   },
   "inlinedDependencies": {
-    "ohash": "2.0.11",
-    "ua-parser-modern": "0.1.1"
+    "ua-parser-modern": "0.1.1",
+    "human-id": "4.1.3",
+    "immer": "11.1.4"
   }
 }

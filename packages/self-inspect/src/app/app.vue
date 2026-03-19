@@ -16,6 +16,7 @@ const navItems = [
   { title: 'Docks', to: '/docks', icon: 'i-ph-layout-duotone' },
   { title: 'Client Scripts', to: '/scripts', icon: 'i-ph-code-duotone' },
   { title: 'Plugins', to: '/plugins', icon: 'i-ph-puzzle-piece-duotone' },
+  { title: 'Auth Tokens', to: '/auth', icon: 'i-ph-key-duotone' },
 ]
 
 const { refresh, loading } = useRefresh()

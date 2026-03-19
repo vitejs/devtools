@@ -11,7 +11,7 @@ import { defineRpcServerPreset } from '..'
 export interface DevToolsNodeRpcSessionMeta {
   id: number
   ws?: WebSocket
-  clientAuthId?: string
+  clientAuthToken?: string
   isTrusted?: boolean
   subscribedStates: Set<string>
 }

@@ -46,18 +46,23 @@ export async function createWsServer(options: CreateWsServerOptions) {
     https,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
-      const authId = url.searchParams.get('vite_devtools_auth_id') ?? undefined
+      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
       if (isClientAuthDisabled) {
         meta.isTrusted = true
       }
-      else if (authId && contextInternal.storage.auth.value().trusted[authId]) {
+      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
         meta.isTrusted = true
-        meta.clientAuthId = authId
+        meta.clientAuthToken = authToken
+      }
+      else if (authToken && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authToken)) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
       }
 
       wsClients.add(ws)
       const color = meta.isTrusted ? c.green : c.yellow
-      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthId}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+      const trustedKeys = Object.keys(contextInternal.storage.auth.value().trusted)
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'}) authToken=${authToken} trustedKeys=${JSON.stringify(trustedKeys)} isClientAuthDisabled=${isClientAuthDisabled}`)
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)
