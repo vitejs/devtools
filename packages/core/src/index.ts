@@ -1,3 +1,5 @@
 export { createDevToolsContext } from './node/context'
+export { getInternalContext } from './node/context-internal'
+export type { DevToolsInternalContext, InternalAnonymousAuthStorage } from './node/context-internal'
 export { DevTools } from './node/plugins'
 export { createDevToolsMiddleware } from './node/server'
