@@ -16,6 +16,7 @@ export const alias = {
   '@vitejs/devtools-kit/constants': r('kit/src/constants.ts'),
   '@vitejs/devtools-kit/utils/events': r('kit/src/utils/events.ts'),
   '@vitejs/devtools-kit/utils/nanoid': r('kit/src/utils/nanoid.ts'),
+  '@vitejs/devtools-kit/utils/human-id': r('kit/src/utils/human-id.ts'),
   '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
   '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
