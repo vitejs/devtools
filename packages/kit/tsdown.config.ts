@@ -22,5 +22,4 @@ export default defineConfig({
       'ua-parser-modern',
     ],
   },
-  hash: false,
 })
