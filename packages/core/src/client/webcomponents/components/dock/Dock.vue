@@ -70,8 +70,15 @@ function onPointerDown(e: PointerEvent) {
 const isRpcTrusted = ref(context.rpc.isTrusted)
 context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
   isRpcTrusted.value = isTrusted
-  if (isTrusted && context.docks.selected?.id === BUILTIN_ENTRY_CLIENT_AUTH_NOTICE.id)
+  if (isTrusted && context.docks.selected?.id === BUILTIN_ENTRY_CLIENT_AUTH_NOTICE.id) {
     context.docks.switchEntry(null)
+  }
+  else if (!isTrusted) {
+    // On revocation: close current tab and force float mode
+    context.docks.switchEntry(null)
+    context.panel.store.open = false
+    context.panel.store.mode = 'float'
+  }
 })
 
 const groupedEntries = computed(() => context.docks.groupedEntries)

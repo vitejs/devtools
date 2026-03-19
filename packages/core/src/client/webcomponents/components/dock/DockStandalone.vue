@@ -20,6 +20,9 @@ const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
 const isRpcTrusted = ref(context.rpc.isTrusted)
 context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
   isRpcTrusted.value = isTrusted
+  if (!isTrusted) {
+    context.docks.switchEntry(null)
+  }
 })
 
 watch(
