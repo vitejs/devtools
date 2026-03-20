@@ -23,6 +23,7 @@ export const predefinedColorMap = {
   vite: 250,
   vite1: 240,
   vite2: 120,
+  rolldown: 18,
   virtual: 160,
   nuxt: 140,
 } as Record<string, number>
