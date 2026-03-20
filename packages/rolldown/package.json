@@ -62,7 +62,6 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
-    "@types/diff": "catalog:types",
     "@types/split2": "catalog:types",
     "@types/splitpanes": "catalog:types",
     "@types/stream-json": "catalog:types",
