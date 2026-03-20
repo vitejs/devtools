@@ -22,8 +22,7 @@ const emit = defineEmits<{
 <template>
   <template v-for="[category, entries], idx of groups" :key="category">
     <slot v-if="idx > 0" name="separator" :category="category" :index="idx" :is-vertical="isVertical">
-      <div v-if="isVertical" class="border-base m1 w-20px h-px border-b-1.5" />
-      <div v-else class="border-base m1 h-20px w-px border-r-1.5" />
+      <div class="border-base m1 h-20px w-px border-r-1.5" />
     </slot>
     <DockEntries
       :context="context"
