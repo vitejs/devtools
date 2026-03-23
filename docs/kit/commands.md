@@ -181,6 +181,19 @@ Supported operators: `==`, `!=`, `&&`, `||`, `!` (negation), bare truthy checks.
 
 Users can customize shortcuts in the DevTools Settings page under **Keyboard Shortcuts**. Overrides are stored in shared state and persist across sessions. Setting an empty array disables a shortcut.
 
+### Shortcut Editor
+
+The Settings page includes an inline shortcut editor with:
+
+- **Key capture** — click the input and press any key combination
+- **Modifier toggles** — toggle Cmd/Ctrl, Alt, Shift individually
+- **Conflict detection** — warns when a shortcut conflicts with:
+  - Common browser shortcuts (e.g. `Cmd+T` → "Open new tab", `Cmd+W` → "Close tab")
+  - Other registered commands
+  - Weak shortcuts (single key without modifiers)
+
+The list of known browser shortcuts (`KNOWN_BROWSER_SHORTCUTS`) is exported from `@vitejs/devtools-kit` and maps each key combination to a human-readable description.
+
 ## Command Palette
 
 The built-in command palette is toggled with `Mod+K` (or `Ctrl+K` on Windows/Linux). It provides:

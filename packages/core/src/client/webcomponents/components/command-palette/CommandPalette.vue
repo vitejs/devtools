@@ -3,8 +3,7 @@ import type { DevToolsClientCommand, DevToolsCommandEntry } from '@vitejs/devtoo
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import { formatKeybinding } from '../../state/commands'
-import DockIcon from '../dock/DockIcon.vue'
+import CommandPaletteItem from './CommandPaletteItem.vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -238,9 +237,8 @@ function onGlobalKeyDown(e: KeyboardEvent) {
   }
 }
 
-function getDisplayKeybindings(id: string): string[][] {
-  const bindings = commandsCtx.value.getKeybindings(id)
-  return bindings.map(b => formatKeybinding(b.key))
+function getKeybindings(id: string) {
+  return commandsCtx.value.getKeybindings(id)
 }
 </script>
 
@@ -287,60 +285,18 @@ function getDisplayKeybindings(id: string): string[][] {
 
         <!-- Items -->
         <div class="flex-1 of-y-auto p-1.5">
-          <button
+          <CommandPaletteItem
             v-for="(item, idx) of filtered"
-            :id="`cmd-${item.entry.id}`"
             :key="item.entry.id"
-            class="w-full text-left"
-            @click="enterItem(item)"
-            @mouseover="selectedIndex = idx"
-          >
-            <div
-              class="flex items-center gap-2 justify-between rounded-md px-2.5 py-1.5 text-sm transition-colors"
-              :class="selectedIndex === idx ? 'bg-primary/10 text-primary' : 'op80 hover:op100'"
-            >
-              <div class="flex items-center gap-2 flex-1 of-hidden min-w-0">
-                <DockIcon
-                  v-if="item.entry.icon"
-                  :icon="item.entry.icon"
-                  class="w-4 h-4 flex-none op70"
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <span class="truncate">
-                      <span v-if="item.parentTitle && !breadcrumb.length" class="op50">{{ item.parentTitle }} &rsaquo; </span>
-                      {{ item.entry.title }}
-                    </span>
-                    <span
-                      v-if="item.entry.source === 'server'"
-                      class="text-[10px] px-1 py-0 rounded bg-blue/10 text-blue shrink-0 leading-4"
-                    >server</span>
-                  </div>
-                  <div v-if="selectedIndex === idx && item.entry.description" class="truncate text-xs op40 mt-0.5">
-                    {{ item.entry.description }}
-                  </div>
-                </div>
-              </div>
-              <div class="flex items-center gap-1.5 flex-none">
-                <!-- Keybinding badges -->
-                <template v-for="(keys, ki) in getDisplayKeybindings(item.entry.id)" :key="ki">
-                  <span class="flex items-center gap-0.5">
-                    <kbd
-                      v-for="(key, j) in keys"
-                      :key="j"
-                      class="px-1.5 py-0.5 text-[10px] rounded bg-base border border-base op60 font-mono"
-                    >
-                      {{ key }}
-                    </kbd>
-                  </span>
-                </template>
-                <!-- Loading indicator -->
-                <span v-if="loadingId === item.entry.id" class="i-ph-spinner-gap-duotone w-3.5 h-3.5 animate-spin op50" />
-                <!-- Drill-down indicator -->
-                <span v-else-if="item.entry.children?.length" class="i-ph-caret-right w-3 h-3 op40" />
-              </div>
-            </div>
-          </button>
+            :entry="item.entry"
+            :parent-title="item.parentTitle"
+            :show-parent-title="!breadcrumb.length"
+            :selected="selectedIndex === idx"
+            :loading="loadingId === item.entry.id"
+            :keybindings="getKeybindings(item.entry.id)"
+            @select="selectedIndex = idx"
+            @activate="enterItem(item)"
+          />
 
           <div v-if="!filtered.length" class="py-8 flex flex-col items-center justify-center gap-2 op50 text-sm">
             <div class="i-ph-magnifying-glass-duotone w-6 h-6" />
