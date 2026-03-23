@@ -121,7 +121,7 @@ const plugin: Plugin = {
 
 ### Dump Feature for Build Mode
 
-When using `vite devtools build` to create a static DevTools build, the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
+When creating a static DevTools build (via `vite devtools build` CLI or the [`build.withApp`](/guide/#building-with-the-app) plugin option), the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
 
 #### How It Works
 
