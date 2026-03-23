@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@unocss/nuxt": "catalog:build",
+    "@visual-json/vue": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
     "structured-clone-es": "catalog:deps",
