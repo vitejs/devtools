@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.1.5",
   "private": true,
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@11.0.0-beta.2",
   "scripts": {
     "build": "turbo run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -16,7 +16,8 @@
     "play:debug": "pnpm -C packages/core run play:debug",
     "play:standalone": "pnpm -C packages/core run dev:standalone",
     "example:plugin-file-explorer": "pnpm -C examples/plugin-file-explorer run play:dev",
-    "prepare": "npx simple-git-hooks && pnpm -C packages/rolldown run dev:prepare && turbo run build",
+    "prepare": "npx simple-git-hooks && pnpm -C packages/rolldown run dev:prepare",
+    "postinstall": "pnpm run build",
     "lint": "eslint --cache",
     "test": "vitest",
     "release": "bumpp -r",
@@ -77,21 +78,6 @@
     "vue": "catalog:frontend",
     "vue-tsc": "catalog:devtools",
     "yaml": "catalog:testing"
-  },
-  "resolutions": {
-    "@jridgewell/sourcemap-codec": "catalog:resolutions",
-    "@nuxt/devtools": "catalog:devtools",
-    "@nuxt/kit": "catalog:build",
-    "@nuxt/vite-builder": "catalog:build",
-    "@rolldown/debug": "catalog:deps",
-    "chokidar": "catalog:devtools",
-    "esbuild": "catalog:build",
-    "langium": "catalog:resolutions",
-    "nitropack": "catalog:build",
-    "nuxt": "catalog:build",
-    "rolldown": "catalog:build",
-    "semver": "catalog:resolutions",
-    "vite": "catalog:build"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx nano-staged"

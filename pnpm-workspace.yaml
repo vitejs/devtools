@@ -1,3 +1,10 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  simple-git-hooks: true
+  unrs-resolver: true
+  vue-demi: true
+
 ignoreWorkspaceRootCheck: true
 shamefullyHoist: true
 shellEmulator: true
@@ -5,12 +12,24 @@ strictPeerDependencies: false
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - langium
-
 packages:
   - packages/*
   - examples/*
   - docs
-
+overrides:
+  '@jridgewell/sourcemap-codec': 'catalog:resolutions'
+  '@nuxt/devtools': 'catalog:devtools'
+  '@nuxt/kit': 'catalog:build'
+  '@nuxt/vite-builder': 'catalog:build'
+  '@rolldown/debug': 'catalog:deps'
+  chokidar: 'catalog:devtools'
+  esbuild: 'catalog:build'
+  langium: 'catalog:resolutions'
+  nitropack: 'catalog:build'
+  nuxt: 'catalog:build'
+  rolldown: 'catalog:build'
+  semver: 'catalog:resolutions'
+  vite: 'catalog:build'
 catalogs:
   build:
     '@antfu/ni': ^29.0.0
@@ -21,7 +40,7 @@ catalogs:
     '@vueuse/nuxt': ^14.2.1
     esbuild: ^0.27.4
     magic-string: ^0.30.21
-    nitropack: ^2.13.1
+    nitropack: ^2.13.2
     nuxt: ^4.4.2
     rolldown: ^1.0.0-rc.10
     tsdown: ^0.21.4
@@ -39,8 +58,8 @@ catalogs:
     diff: ^8.0.3
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
-    h3: ^1.15.9
-    launch-editor: ^2.13.1
+    h3: ^1.15.10
+    launch-editor: ^2.13.2
     mlly: ^1.8.2
     mrmime: ^2.0.1
     obug: ^2.1.1
@@ -59,7 +78,7 @@ catalogs:
     unstorage: ^1.17.4
     valibot: ^1.3.1
     webext-bridge: ^6.0.1
-    ws: ^8.19.0
+    ws: ^8.20.0
   devtools:
     '@antfu/eslint-config': ^7.7.3
     '@nuxt/devtools': ^3.2.4
@@ -70,7 +89,7 @@ catalogs:
     axe-core: ^4.11.1
     bumpp: ^11.0.1
     chokidar: ^5.0.0
-    eslint: ^10.0.3
+    eslint: ^10.1.0
     nano-staged: ^0.9.0
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
@@ -146,7 +165,7 @@ catalogs:
   testing:
     vitest: ^4.1.0
     vitest-package-exports: ^1.2.0
-    yaml: ^2.8.2
+    yaml: ^2.8.3
   types:
     '@types/chrome': ^0.1.38
     '@types/connect': ^3.4.38
