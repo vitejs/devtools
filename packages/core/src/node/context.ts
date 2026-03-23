@@ -60,7 +60,7 @@ export async function createDevToolsContext(
   // json-render factory
   let jrCounter = 0
   context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
-    const stateKey = `__jr:${jrCounter++}`
+    const stateKey = `devtoolskit:internal:json-render:${jrCounter++}`
     const statePromise = rpcHost.sharedState.get(stateKey as any, {
       initialValue: initialSpec as any,
     })
