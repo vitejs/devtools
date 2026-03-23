@@ -125,7 +125,6 @@ function moveOrder(category: string, id: string, delta: number) {
     throw new Error(`Invalid new index ${newIndex} for category ${category}`)
 
   array.splice(newIndex, 0, array.splice(index, 1)[0]!)
-  items[1] = array
 
   settingsStore.mutate((state) => {
     array.forEach((item, index) => {
