@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.1.5",
   "private": true,
-  "packageManager": "pnpm@11.0.0-beta.2",
+  "packageManager": "pnpm@10.32.1",
   "scripts": {
     "build": "turbo run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -75,7 +75,7 @@
     "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
     "vitest-package-exports": "catalog:testing",
-    "vue": "catalog:frontend",
+    "vue": "catalog:deps",
     "vue-tsc": "catalog:devtools",
     "yaml": "catalog:testing"
   },

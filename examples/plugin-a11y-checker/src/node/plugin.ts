@@ -1,7 +1,7 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { normalizePath } from 'vite'
+import { normalize } from 'pathe'
 
 function resolveClientScript(): string | undefined {
   const paths = [
@@ -29,7 +29,7 @@ export function A11yCheckerPlugin(): PluginWithDevTools {
           icon: 'ph:wheelchair-duotone',
           category: 'web',
           action: {
-            importFrom: `/@fs/${normalizePath(clientScript)}`,
+            importFrom: `/@fs/${normalize(clientScript)}`,
           },
         })
 

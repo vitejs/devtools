@@ -2,7 +2,6 @@ import type { DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from '@vitejs/
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
-import { searchForWorkspaceRoot } from 'vite'
 import { ContextUtils } from './context-utils'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -32,6 +31,7 @@ export async function createDevToolsContext(
 ): Promise<DevToolsNodeContext> {
   const cwd = viteConfig.root
 
+  const { searchForWorkspaceRoot } = await import('vite')
   const context: DevToolsNodeContext = {
     cwd,
     workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,

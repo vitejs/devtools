@@ -16,6 +16,7 @@ export default defineConfig({
   ],
   deps: {
     neverBundle: [
+      'vite',
       '@vitejs/devtools/client/webcomponents',
       /^node:/,
     ],
