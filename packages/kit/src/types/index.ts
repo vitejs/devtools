@@ -1,3 +1,4 @@
+export * from './commands'
 export * from './docks'
 export * from './events'
 export * from './logs'

@@ -37,6 +37,7 @@ export default defineConfig({
       'ansis',
       'csstype',
       'dompurify',
+      'fuse.js',
       'get-port-please',
       'human-id',
       'sisteransi',

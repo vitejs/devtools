@@ -1,5 +1,6 @@
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DockClientScriptContext } from '../client'
+import type { DevToolsCommandsHost } from './commands'
 import type { ClientScriptEntry, DevToolsDockHost, JsonRenderer, JsonRenderSpec } from './docks'
 import type { DevToolsLogsHost } from './logs'
 import type { RpcFunctionsHost } from './rpc'
@@ -66,6 +67,10 @@ export interface DevToolsNodeContext {
    * Logs host, for emitting and managing structured log entries
    */
   logs: DevToolsLogsHost
+  /**
+   * Commands host, for registering and executing commands
+   */
+  commands: DevToolsCommandsHost
   /**
    * Create a JsonRenderer handle for building json-render powered UIs.
    * Pass the returned handle as `ui` when registering a `json-render` dock entry.

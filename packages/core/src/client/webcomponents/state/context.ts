@@ -5,6 +5,7 @@ import type { DevToolsDocksUserSettings } from './dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
+import { createCommandsContext } from './commands'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientLogsClient } from './logs-client'
@@ -111,6 +112,94 @@ export async function createDocksContext(
     return docksGroupByCategories(dockEntries.value, settings.value)
   })
 
+  // Initialize commands context
+  const commandsContext = await createCommandsContext(clientType, rpc)
+
+  // Register built-in client commands
+  commandsContext.register([
+    {
+      id: 'devtools:toggle-palette',
+      source: 'client',
+      title: 'Toggle Command Palette',
+      icon: 'ph:magnifying-glass-duotone',
+      showInPalette: false,
+      keybindings: [{ key: 'Mod+K' }],
+      action: () => {
+        commandsContext.paletteOpen = !commandsContext.paletteOpen
+      },
+    },
+    {
+      id: 'devtools:close-panel',
+      source: 'client',
+      title: 'Close Panel',
+      icon: 'ph:x-circle-duotone',
+      keybindings: [{ key: 'Escape', when: 'dockOpen && !paletteOpen' }],
+      action: () => {
+        panelStore.value.open = false
+        selectedId.value = null
+      },
+    },
+    {
+      id: 'devtools:open-settings',
+      source: 'client',
+      title: 'Open Settings',
+      icon: 'ph:gear-duotone',
+      action: () => {
+        switchEntry('~settings')
+      },
+    },
+    {
+      id: 'devtools:dock-mode',
+      source: 'client',
+      title: 'Dock Mode',
+      icon: 'ph:layout-duotone',
+      showInPalette: clientType === 'embedded',
+      children: [
+        {
+          id: 'devtools:dock-mode:float',
+          source: 'client',
+          title: 'Float Mode',
+          icon: 'ph:cards-three-duotone',
+          action: () => {
+            panelStore.value.mode = 'float'
+          },
+        },
+        {
+          id: 'devtools:dock-mode:edge',
+          source: 'client',
+          title: 'Edge Mode',
+          icon: 'ph:square-half-bottom-duotone',
+          action: () => {
+            panelStore.value.mode = 'edge'
+          },
+        },
+      ],
+    },
+  ])
+
+  // Dynamic dock navigation commands — registered after entries are available
+  watchEffect(() => {
+    for (const entry of dockEntries.value) {
+      if (entry.type === '~builtin')
+        continue
+      const cmdId = `devtools:navigate:${entry.id}`
+      // Only register if not already registered
+      if (!commandsContext.commands.some((c: { id: string }) => c.id === cmdId)) {
+        const isAction = entry.type === 'action'
+        commandsContext.register({
+          id: cmdId,
+          source: 'client',
+          title: `${isAction ? 'Execute' : 'Open'} ${entry.title}`,
+          icon: entry.icon,
+          category: 'navigation',
+          action: () => {
+            switchEntry(entry.id)
+          },
+        })
+      }
+    }
+  })
+
   docksContext = reactive({
     panel: {
       store: panelStore,
@@ -129,6 +218,7 @@ export async function createDocksContext(
       switchEntry,
       toggleEntry,
     },
+    commands: commandsContext,
     rpc,
     clientType,
   })

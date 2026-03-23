@@ -1,4 +1,5 @@
 .:
+  defineCommand: function
   defineJsonRenderSpec: function
   defineRpcFunction: function
 ./client:
