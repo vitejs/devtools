@@ -2,7 +2,6 @@
 
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
-import { createServer } from 'node:http'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_DIRNAME,
@@ -12,17 +11,9 @@ import {
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
-import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } from 'h3'
-import open from 'open'
 import { dirname, join, relative, resolve } from 'pathe'
-import sirv from 'sirv'
 import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
-import { renderDockImportsMap } from './plugins/server'
-import { createDevToolsMiddleware } from './server'
-import { startStandaloneDevTools } from './standalone'
-import { collectStaticRpcDump } from './static-dump'
 import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
@@ -35,21 +26,28 @@ export interface StartOptions {
 
 export async function start(options: StartOptions) {
   const { host } = options
+  const { getPort } = await import('get-port-please')
   const port = await getPort({
     host,
     port: options.port == null ? undefined : +options.port,
     portRange: [9999, 15000],
   })
 
+  const { startStandaloneDevTools } = await import('./standalone')
+  const { createDevToolsMiddleware } = await import('./server')
+
   const devtools = await startStandaloneDevTools({
     cwd: options.root,
   })
-
   const { h3 } = await createDevToolsMiddleware({
     cwd: devtools.config.root,
     hostWebSocket: host,
     context: devtools.context,
   })
+
+  const { createServer } = await import('node:http')
+  const { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } = await import('h3')
+  const { default: sirv } = await import('sirv')
 
   const app = createApp()
 
@@ -71,6 +69,7 @@ export async function start(options: StartOptions) {
   server.listen(port, host, async () => {
     const url = normalizeHttpServerUrl(host, port)
     console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(url), '\n')
+    const { default: open } = await import('open')
     if (options.open)
       await open(url)
   })
@@ -86,6 +85,7 @@ export interface BuildOptions {
 export async function build(options: BuildOptions) {
   console.log(c.cyan`${MARK_NODE} Building static Vite DevTools...`)
 
+  const { startStandaloneDevTools } = await import('./standalone')
   const devtools = await startStandaloneDevTools({
     cwd: options.root,
     config: options.config,
@@ -106,11 +106,14 @@ export async function build(options: BuildOptions) {
     await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })
   }
 
+  const { renderDockImportsMap } = await import('./plugins/server')
+
   await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(devtools.context.docks.values()), 'utf-8')
 
   console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
+  const { collectStaticRpcDump } = await import('./static-dump')
   const dump = await collectStaticRpcDump(
     devtools.context.rpc.definitions.values(),
     devtools.context,
