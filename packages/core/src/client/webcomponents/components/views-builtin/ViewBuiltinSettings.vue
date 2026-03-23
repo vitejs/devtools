@@ -6,6 +6,7 @@ import { computed } from 'vue'
 import { docksGroupByCategories } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
+import HashBadge from '../display/HashBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
 const props = defineProps<{
@@ -308,11 +309,18 @@ function resetSettings() {
                       :class="settings.docksHidden.includes(dock.id) ? 'saturate-0' : ''"
                     />
                     <span
-                      class="flex-1 truncate"
+                      class="truncate"
                       :class="settings.docksHidden.includes(dock.id) ? 'line-through op60' : ''"
                     >
                       {{ dock.title }}
                     </span>
+                    <HashBadge
+                      v-if="dock.type === 'action'"
+                      label="Action"
+                      class="flex-none text-xs"
+                    />
+
+                    <div class="flex flex-auto" />
 
                     <!-- Order controls -->
                     <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

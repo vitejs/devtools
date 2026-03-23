@@ -31,6 +31,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
       v-if="!dock.isHidden"
       :context="context"
       :dock
+      :is-action="dock.type === 'action'"
       :is-selected="selected?.id === dock.id"
       :is-dimmed="selected ? (selected.id !== dock.id) : false"
       :is-vertical="isVertical"
