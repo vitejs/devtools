@@ -43,7 +43,10 @@ function setDockMode(mode: string) {
 }
 
 const categories = computed(() => {
-  return docksGroupByCategories(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
+  const grouped = docksGroupByCategories(props.context.docks.entries, settingsStore.value(), { includeHidden: true })
+  return grouped
+    .map(([category, entries]) => [category, entries.filter(e => e.id !== '~settings')] as const)
+    .filter(([_, entries]) => entries.length > 0)
 })
 
 function getCategoryLabel(category: string): string {
