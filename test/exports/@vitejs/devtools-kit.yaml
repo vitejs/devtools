@@ -2,6 +2,8 @@
   defineCommand: function
   defineJsonRenderSpec: function
   defineRpcFunction: function
+  evaluateWhen: function
+  getContextValue: function
 ./client:
   CLIENT_CONTEXT_KEY: string
   getDevToolsClientContext: function

@@ -146,24 +146,87 @@ describe('evaluateWhen', () => {
     })
   })
 
-  describe('with custom context variables', () => {
-    const customCtx: WhenContext = {
+  describe('namespaced keys (dot separator)', () => {
+    const nsCtx: WhenContext = {
+      'clientType': 'embedded',
+      'dockOpen': true,
+      'paletteOpen': false,
+      'dockSelectedId': '',
+      'vite.mode': 'development',
+    }
+
+    it('resolves flat namespaced key via exact match', () => {
+      expect(evaluateWhen('vite.mode == development', nsCtx)).toBe(true)
+      expect(evaluateWhen('vite.mode == production', nsCtx)).toBe(false)
+    })
+
+    it('bare truthy on flat namespaced key', () => {
+      expect(evaluateWhen('vite.mode', nsCtx)).toBe(true)
+      expect(evaluateWhen('vite.unknown', nsCtx)).toBe(false)
+    })
+
+    it('negation on flat namespaced key', () => {
+      expect(evaluateWhen('!vite.mode', nsCtx)).toBe(false)
+      expect(evaluateWhen('!vite.unknown', nsCtx)).toBe(true)
+    })
+  })
+
+  describe('namespaced keys (colon separator)', () => {
+    const nsCtx: WhenContext = {
+      'clientType': 'embedded',
+      'dockOpen': true,
+      'paletteOpen': false,
+      'dockSelectedId': '',
+      'vite:buildMode': 'lib',
+    }
+
+    it('resolves colon-namespaced key via exact match', () => {
+      expect(evaluateWhen('vite:buildMode == lib', nsCtx)).toBe(true)
+      expect(evaluateWhen('vite:buildMode == app', nsCtx)).toBe(false)
+    })
+
+    it('bare truthy on colon-namespaced key', () => {
+      expect(evaluateWhen('vite:buildMode', nsCtx)).toBe(true)
+    })
+  })
+
+  describe('namespaced keys (nested objects)', () => {
+    const nestedCtx: WhenContext = {
       clientType: 'embedded',
       dockOpen: true,
       paletteOpen: false,
       dockSelectedId: '',
-      myPluginActive: true,
-      myPluginMode: 'debug',
+      vite: { mode: 'development', ssr: true },
     }
 
-    it('evaluates custom boolean', () => {
-      expect(evaluateWhen('myPluginActive', customCtx)).toBe(true)
-      expect(evaluateWhen('!myPluginActive', customCtx)).toBe(false)
+    it('resolves nested object via dot path', () => {
+      expect(evaluateWhen('vite.mode == development', nestedCtx)).toBe(true)
+      expect(evaluateWhen('vite.ssr', nestedCtx)).toBe(true)
+      expect(evaluateWhen('!vite.ssr', nestedCtx)).toBe(false)
     })
 
-    it('evaluates custom string equality', () => {
-      expect(evaluateWhen('myPluginMode == debug', customCtx)).toBe(true)
-      expect(evaluateWhen('myPluginMode == release', customCtx)).toBe(false)
+    it('returns undefined for missing nested path', () => {
+      expect(evaluateWhen('vite.missing', nestedCtx)).toBe(false)
+      expect(evaluateWhen('!vite.missing', nestedCtx)).toBe(true)
+    })
+  })
+
+  describe('namespaced keys in compound expressions', () => {
+    const nsCtx: WhenContext = {
+      'clientType': 'embedded',
+      'dockOpen': true,
+      'paletteOpen': false,
+      'dockSelectedId': '',
+      'vite.mode': 'development',
+    }
+
+    it('aND with namespaced key', () => {
+      expect(evaluateWhen('dockOpen && vite.mode == development', nsCtx)).toBe(true)
+      expect(evaluateWhen('paletteOpen && vite.mode == development', nsCtx)).toBe(false)
+    })
+
+    it('oR with namespaced key', () => {
+      expect(evaluateWhen('paletteOpen || vite.mode == development', nsCtx)).toBe(true)
     })
   })
 })
@@ -183,5 +246,57 @@ describe('getContextValue', () => {
 
   it('returns undefined for an unknown key', () => {
     expect(getContextValue('nonExistent', ctx)).toBeUndefined()
+  })
+
+  describe('namespaced keys', () => {
+    it('exact match takes priority over nested path', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        'vite.mode': 'flat-value',
+        'vite': { mode: 'nested-value' },
+      }
+      expect(getContextValue('vite.mode', nsCtx)).toBe('flat-value')
+    })
+
+    it('falls back to nested path when no exact match', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        vite: { mode: 'nested-value' },
+      }
+      expect(getContextValue('vite.mode', nsCtx)).toBe('nested-value')
+    })
+
+    it('resolves colon-separated keys via exact match', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        'vite:mode': 'colon-value',
+      }
+      expect(getContextValue('vite:mode', nsCtx)).toBe('colon-value')
+    })
+
+    it('resolves colon-separated keys via nested path', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        vite: { mode: 'nested-value' },
+      }
+      expect(getContextValue('vite:mode', nsCtx)).toBe('nested-value')
+    })
+
+    it('returns undefined for missing nested path', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        vite: { mode: 'value' },
+      }
+      expect(getContextValue('vite.missing', nsCtx)).toBeUndefined()
+    })
+
+    it('handles deeply nested paths', () => {
+      const nsCtx: WhenContext = {
+        ...ctx,
+        plugin: { config: { debug: true } },
+      }
+      expect(getContextValue('plugin.config.debug', nsCtx)).toBe(true)
+      expect(getContextValue('plugin.config.missing', nsCtx)).toBeUndefined()
+    })
   })
 })

@@ -7,7 +7,8 @@
  * - `paletteOpen` — whether the command palette is open
  * - `dockSelectedId` — ID of the selected dock entry (empty string if none)
  *
- * Plugins can add custom variables via the index signature.
+ * Plugins can add namespaced variables using dot or colon separators:
+ * - `vite.mode`, `vite:mode` — stored as `{ 'vite.mode': 'development' }` or nested `{ vite: { mode: 'development' } }`
  */
 export interface WhenContext {
   clientType: 'embedded' | 'standalone'
@@ -29,6 +30,7 @@ export interface WhenContext {
  * - Inequality: `clientType != standalone`
  * - AND: `dockOpen && !paletteOpen`
  * - OR: `paletteOpen || dockOpen`
+ * - Namespaced keys: `vite.mode == development`, `vite:buildMode`
  *
  * Precedence: `||` (lowest) → `&&` → unary `!`
  */
@@ -75,8 +77,31 @@ export function evaluateWhen(expression: string, ctx: WhenContext): boolean {
 }
 
 /**
- * Get a context value by key.
+ * Get a context value by key. Supports namespaced keys with `.` or `:` separators.
+ *
+ * Lookup order:
+ * 1. Exact match — `ctx['vite.mode']` or `ctx['vite:mode']`
+ * 2. Nested path — for `vite.mode`: `ctx.vite?.mode`; for `vite:mode`: `ctx.vite?.mode`
  */
 export function getContextValue(key: string, ctx: WhenContext): unknown {
-  return (ctx as unknown as Record<string, unknown>)[key]
+  const record = ctx as unknown as Record<string, unknown>
+
+  // 1. Exact match
+  if (key in record)
+    return record[key]
+
+  // 2. Nested path via `.` or `:`
+  const separator = key.includes('.') ? '.' : key.includes(':') ? ':' : null
+  if (separator) {
+    const segments = key.split(separator)
+    let current: unknown = record
+    for (const segment of segments) {
+      if (current == null || typeof current !== 'object')
+        return undefined
+      current = (current as Record<string, unknown>)[segment]
+    }
+    return current
+  }
+
+  return undefined
 }
