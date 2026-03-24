@@ -1,5 +1,5 @@
 import type { RpcFunctionsCollector } from '@vitejs/devtools-rpc'
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsCommandShortcutOverrides, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
@@ -135,9 +135,9 @@ export interface CommandsContext {
    */
   getKeybindings: (id: string) => DevToolsCommandKeybinding[]
   /**
-   * Shortcut overrides (persisted via shared state)
+   * User settings store (persisted, includes command shortcuts)
    */
-  shortcutOverrides: SharedState<DevToolsCommandShortcutOverrides>
+  settings: SharedState<DevToolsDocksUserSettings>
   /**
    * Whether the command palette is open
    */

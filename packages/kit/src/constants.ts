@@ -28,4 +28,5 @@ export const DEFAULT_STATE_USER_SETTINGS: () => DevToolsDocksUserSettings = () =
   docksCustomOrder: {},
   showIframeAddressBar: false,
   closeOnOutsideClick: false,
+  commandShortcuts: {},
 })

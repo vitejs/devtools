@@ -69,7 +69,8 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
           sharedState.set(key, state)
           rpc.call('devtoolskit:internal:rpc:server-state:get', key)
             .then((serverState) => {
-              state.mutate(() => serverState)
+              if (serverState !== undefined)
+                state.mutate(() => serverState)
             })
             .catch((error) => {
               console.error('Error getting server state', error)

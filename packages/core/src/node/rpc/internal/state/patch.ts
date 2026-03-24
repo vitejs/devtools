@@ -8,6 +8,8 @@ export const sharedStatePatch = defineRpcFunction({
   setup: (context: DevToolsNodeContext) => {
     return {
       handler: async (key: string, patches: SharedStatePatch[], syncId: string) => {
+        if (!context.rpc.sharedState.keys().includes(key))
+          return
         const state = await context.rpc.sharedState.get(key as keyof DevToolsRpcSharedStates)
         state.patch(patches, syncId)
       },

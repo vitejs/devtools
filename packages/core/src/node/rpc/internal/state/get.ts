@@ -13,6 +13,8 @@ export const sharedStateGet = defineRpcFunction({
   setup: (context: DevToolsNodeContext) => {
     return {
       handler: async (key: string): Promise<any> => {
+        if (!context.rpc.sharedState.keys().includes(key))
+          return undefined
         const state = await context.rpc.sharedState.get(key as keyof DevToolsRpcSharedStates)
         return state.value()
       },
