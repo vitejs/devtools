@@ -32,7 +32,7 @@ overrides:
   vite: 'catalog:build'
 catalogs:
   build:
-    '@antfu/ni': ^29.0.0
+    '@antfu/ni': ^30.0.0
     '@nuxt/kit': ^4.4.2
     '@nuxt/vite-builder': ^4.4.2
     '@unocss/nuxt': ^66.6.7
@@ -42,20 +42,20 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.13.2
     nuxt: ^4.4.2
-    rolldown: ^1.0.0-rc.10
+    rolldown: ^1.0.0-rc.11
     tsdown: ^0.21.4
     tsx: ^4.21.0
     turbo: ^2.8.20
     unocss: ^66.6.7
     unplugin-vue: ^7.1.1
-    vite: ^8.0.1
+    vite: ^8.0.2
   deps:
     '@pnpm/read-project-manifest': ^1001.2.5
-    '@rolldown/debug': ^1.0.0-rc.10
+    '@rolldown/debug': ^1.0.0-rc.11
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
-    diff: ^8.0.3
+    diff: ^8.0.4
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
     h3: ^1.15.10
@@ -84,7 +84,7 @@ catalogs:
     '@antfu/eslint-config': ^7.7.3
     '@nuxt/devtools': ^3.2.4
     '@nuxt/eslint': ^1.15.2
-    '@typescript-eslint/utils': ^8.57.1
+    '@typescript-eslint/utils': ^8.57.2
     '@unocss/eslint-config': ^66.6.7
     '@unocss/preset-web-fonts': ^66.6.7
     axe-core: ^4.11.1
@@ -137,7 +137,7 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.19
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.49
+    '@iconify-json/codicon': ^1.2.50
     '@iconify-json/fluent': ^1.2.41
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.10
@@ -145,10 +145,10 @@ catalogs:
     '@iconify-json/octicon': ^1.2.22
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.74
+    '@iconify-json/simple-icons': ^1.2.75
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
-    '@iconify-json/tabler': ^1.2.31
+    '@iconify-json/tabler': ^1.2.32
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.1.0
@@ -163,7 +163,7 @@ catalogs:
     langium: ^4.2.1
     semver: ^7.7.4
   testing:
-    vitest: ^4.1.0
+    vitest: ^4.1.1
     vitest-package-exports: ^1.2.0
     yaml: ^2.8.3
   types:
