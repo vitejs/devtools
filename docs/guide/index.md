@@ -98,6 +98,33 @@ pnpm dev
 
 Then open your app in the browser and open the DevTools panel.
 
+#### Building with the App
+
+You can also generate a static DevTools build alongside your app's build output by enabling the `build.withApp` option:
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools({
+      build: {
+        withApp: true, // generate DevTools output during `vite build`
+        // outDir: 'custom-dir', // optional, defaults to Vite's build.outDir
+      },
+    }),
+  ],
+  build: {
+    rolldownOptions: {
+      devtools: {},
+    },
+  }
+})
+```
+
+When `build.withApp` is enabled, running `pnpm build` will automatically generate the static DevTools output into the build output directory. This captures real build data from the same build context, so DevTools can display accurate build analysis without a separate build step.
+
 ## What's Next?
 
 Now that you have Vite DevTools set up, you can:
