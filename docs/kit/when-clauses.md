@@ -4,13 +4,13 @@ outline: deep
 
 # When Clauses
 
-When clauses are conditional expressions that control visibility and activation of commands, keybindings, and dock entries. They use a simple expression language evaluated against a reactive context object.
+When clauses are conditional expressions that control visibility and activation of commands and dock entries. They use a simple expression language evaluated against a reactive context object.
 
 ## Usage
 
 ### On Commands
 
-Controls whether the command appears in the palette and whether it can be executed:
+Controls whether the command appears in the palette and whether it can be triggered via shortcuts:
 
 ```ts
 ctx.commands.register(defineCommand({
@@ -20,23 +20,6 @@ ctx.commands.register(defineCommand({
   handler: async () => { /* ... */ },
 }))
 ```
-
-### On Keybindings
-
-Controls whether a keyboard shortcut activates in the current context:
-
-```ts
-ctx.commands.register(defineCommand({
-  id: 'my-plugin:toggle',
-  title: 'Toggle Overlay',
-  keybindings: [
-    { key: 'Mod+Shift+O', when: 'dockOpen && !paletteOpen' },
-  ],
-  handler: () => { /* ... */ },
-}))
-```
-
-When both a command and its keybinding have `when` expressions, **both** must evaluate to `true` for the shortcut to fire.
 
 ### On Dock Entries
 
@@ -155,7 +138,7 @@ The when-clause evaluator is exported from `@vitejs/devtools-kit`:
 
 ```ts
 import type { WhenContext } from '@vitejs/devtools-kit'
-import { evaluateWhen, getContextValue } from '@vitejs/devtools-kit'
+import { evaluateWhen, getContextValue } from '@vitejs/devtools-kit/utils/when'
 
 const ctx: WhenContext = {
   'clientType': 'embedded',

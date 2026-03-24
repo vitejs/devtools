@@ -160,24 +160,18 @@ Use `Mod` as a platform-aware modifier — it maps to `Cmd` on macOS and `Ctrl` 
 
 ### Conditional `when` Clauses
 
-Both commands and keybindings support a `when` expression for conditional activation:
+Commands support a `when` expression for conditional visibility and activation:
 
 ```ts
-// On a command — controls palette visibility and executability
 ctx.commands.register(defineCommand({
   id: 'my-plugin:embedded-only',
   title: 'Embedded-Only Action',
   when: 'clientType == embedded',
   handler: async () => { /* ... */ },
 }))
-
-// On a keybinding — controls shortcut activation
-keybindings: [
-  { key: 'Mod+Shift+D', when: 'dockOpen && !paletteOpen' },
-]
 ```
 
-When both are present, both must evaluate to `true` for the shortcut to fire. Supports `==`, `!=`, `&&`, `||`, `!`, bare truthy, literal `true`/`false`, and namespaced keys like `vite.mode`.
+When set, the command is only shown in the palette and only triggerable via shortcuts when the expression evaluates to `true`. Supports `==`, `!=`, `&&`, `||`, `!`, bare truthy, literal `true`/`false`, and namespaced keys like `vite.mode`.
 
 See [When Clauses](/kit/when-clauses) for the full syntax reference, context variables, and namespaced key support.
 
