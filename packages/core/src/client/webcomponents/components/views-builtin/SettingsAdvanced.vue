@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
@@ -16,19 +15,14 @@ function resetAllSettings() {
     props.settingsStore.mutate(() => {
       return DEFAULT_STATE_USER_SETTINGS()
     })
-    props.context.commands.shortcutOverrides.mutate((state: Record<string, DevToolsCommandKeybinding[]>) => {
-      for (const key of Object.keys(state))
-        delete state[key]
-    })
   }
 }
 
 function resetShortcuts() {
   // eslint-disable-next-line no-alert
   if (confirm('Reset all keyboard shortcuts to defaults?')) {
-    props.context.commands.shortcutOverrides.mutate((state: Record<string, DevToolsCommandKeybinding[]>) => {
-      for (const key of Object.keys(state))
-        delete state[key]
+    props.settingsStore.mutate((state) => {
+      state.commandShortcuts = {}
     })
   }
 }

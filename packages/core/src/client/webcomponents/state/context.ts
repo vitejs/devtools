@@ -124,7 +124,7 @@ export async function createDocksContext(
   })
 
   // Initialize commands context with reactive when-context
-  const commandsContextResult = await createCommandsContext(clientType, rpc, getWhenContext)
+  const commandsContextResult = await createCommandsContext(clientType, rpc, settingsStore, getWhenContext)
   commandsContext = commandsContextResult
 
   // Register built-in client commands

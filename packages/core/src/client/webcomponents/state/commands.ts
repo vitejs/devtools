@@ -1,5 +1,6 @@
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsServerCommandEntry, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDocksUserSettings, DevToolsServerCommandEntry, WhenContext } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { ShallowRef } from 'vue'
 import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
 import { computed, markRaw, reactive, ref } from 'vue'
@@ -13,6 +14,7 @@ const commandsContextByRpc = new WeakMap<DevToolsRpcClient, CommandsContext>()
 export async function createCommandsContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
+  settingsState: SharedState<DevToolsDocksUserSettings>,
   whenContextProvider?: () => WhenContext,
 ): Promise<CommandsContext> {
   if (commandsContextByRpc.has(rpc)) {
@@ -26,9 +28,9 @@ export async function createCommandsContext(
   // Client commands (local registry)
   const clientCommands = reactive(new Map<string, DevToolsClientCommand>())
 
-  // Shortcut overrides
-  const shortcutOverridesState = await rpc.sharedState.get('devtoolskit:internal:command-shortcuts', { initialValue: {} })
-  const shortcutOverrides = sharedStateToRef(shortcutOverridesState)
+  // Shortcut overrides from user settings
+  const settings = sharedStateToRef(settingsState)
+  const shortcutOverrides = computed(() => settings.value.commandShortcuts ?? {})
 
   const paletteOpen = ref(false)
 
@@ -135,7 +137,7 @@ export async function createCommandsContext(
     register,
     execute,
     getKeybindings,
-    shortcutOverrides: markRaw(shortcutOverridesState),
+    settings: markRaw(settingsState),
     paletteOpen,
   })
 

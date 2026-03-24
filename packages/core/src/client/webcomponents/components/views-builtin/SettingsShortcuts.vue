@@ -12,7 +12,8 @@ const props = defineProps<{
 }>()
 
 const commandsCtx = props.context.commands
-const shortcutOverrides = sharedStateToRef(commandsCtx.shortcutOverrides)
+const settings = sharedStateToRef(commandsCtx.settings)
+const shortcutOverrides = computed(() => settings.value.commandShortcuts ?? {})
 const shortcutSearch = ref('')
 
 interface ShortcutRow {
@@ -58,14 +59,14 @@ function isOverridden(id: string): boolean {
 }
 
 function clearShortcut(commandId: string) {
-  commandsCtx.shortcutOverrides.mutate((state: Record<string, DevToolsCommandKeybinding[]>) => {
-    state[commandId] = []
+  commandsCtx.settings.mutate((state) => {
+    state.commandShortcuts[commandId] = []
   })
 }
 
 function resetShortcut(commandId: string) {
-  commandsCtx.shortcutOverrides.mutate((state: Record<string, DevToolsCommandKeybinding[]>) => {
-    delete state[commandId]
+  commandsCtx.settings.mutate((state) => {
+    delete state.commandShortcuts[commandId]
   })
 }
 
@@ -186,8 +187,8 @@ function onEditorKeyDown(e: KeyboardEvent) {
 function saveEditor() {
   if (!editorCommandId.value || !editorCanSave.value)
     return
-  commandsCtx.shortcutOverrides.mutate((state: Record<string, DevToolsCommandKeybinding[]>) => {
-    state[editorCommandId.value!] = [{ key: editorComposedKey.value }]
+  commandsCtx.settings.mutate((state) => {
+    state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
   })
   closeEditor()
 }
