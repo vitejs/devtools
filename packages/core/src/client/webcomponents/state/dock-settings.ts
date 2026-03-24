@@ -1,6 +1,6 @@
 import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, WhenContext } from '@vitejs/devtools-kit'
 import type { Immutable } from '@vitejs/devtools-kit/utils/shared-state'
-import { evaluateWhen } from '@vitejs/devtools-kit'
+import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
 export type { DevToolsDocksUserSettings }
