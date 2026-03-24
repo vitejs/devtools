@@ -25,6 +25,7 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.logs` | Emit structured log entries and toast notifications |
 | `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
 | `ctx.createJsonRenderer` | Create server-side JSON render specs for zero-client-code UIs |
+| `ctx.commands` | Register executable commands with keyboard shortcuts and palette visibility |
 | `ctx.viteConfig` | Resolved Vite configuration |
 | `ctx.viteServer` | Dev server instance (dev mode only) |
 | `ctx.mode` | `'dev'` or `'build'` |
@@ -107,12 +108,13 @@ export default function myAnalyzer(): Plugin {
 
 ## Namespacing Convention
 
-**CRITICAL**: Always prefix RPC functions, shared state keys, and dock IDs with your plugin name:
+**CRITICAL**: Always prefix RPC functions, shared state keys, dock IDs, and command IDs with your plugin name:
 
 ```ts
 // Good - namespaced
 'my-plugin:get-modules'
 'my-plugin:state'
+'my-plugin:clear-cache'  // command ID
 
 // Bad - may conflict
 'get-modules'
@@ -253,6 +255,27 @@ await session.restart()
 ```
 
 A common pattern is combining with launcher docks — see [Terminals Patterns](./references/terminals-patterns.md).
+
+## Commands & Command Palette
+
+Register executable commands discoverable via `Mod+K` palette:
+
+```ts
+import { defineCommand } from '@vitejs/devtools-kit'
+
+ctx.commands.register(defineCommand({
+  id: 'my-plugin:clear-cache',
+  title: 'Clear Build Cache',
+  icon: 'ph:trash-duotone',
+  keybindings: [{ key: 'Mod+Shift+C' }],
+  when: 'clientType == embedded',
+  handler: async () => { /* ... */ },
+}))
+```
+
+Commands support sub-commands (two-level hierarchy), conditional visibility via `when` clauses, and user-customizable keyboard shortcuts.
+
+See [Commands Patterns](./references/commands-patterns.md) and [When Clauses](./references/when-clauses.md) for full details.
 
 ## Logs & Notifications
 
@@ -498,6 +521,8 @@ export default defineConfig({
 6. **Use Iconify icons** - Prefer `ph:*` (Phosphor) icons: `icon: 'ph:chart-bar-duotone'`
 7. **Deduplicate logs** - Use explicit `id` for logs representing ongoing operations
 8. **Use Self-Inspect** - Add `@vitejs/devtools-self-inspect` during development to debug your plugin
+9. **Namespace command IDs** - Use `my-plugin:action` pattern for command IDs, same as RPC and state
+10. **Use `when` clauses** - Conditionally show commands/docks with `when` expressions instead of programmatic show/hide
 
 ## Example Plugins
 
@@ -516,3 +541,5 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
 - [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
 - [Logs Patterns](./references/logs-patterns.md) - Log entries, toast notifications, and handle patterns
+- [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
+- [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
