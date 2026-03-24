@@ -17,6 +17,7 @@ const logNotify = ref(false)
 const logStatus = ref<'idle' | 'loading'>('idle')
 const logId = ref('')
 const logDescription = ref('')
+const logStacktrace = ref('')
 
 // Update form
 const updateId = ref('')
@@ -54,6 +55,7 @@ async function addLog() {
     status: logStatus.value === 'loading' ? 'loading' : undefined,
     id: logId.value || undefined,
     description: logDescription.value || undefined,
+    stacktrace: logStacktrace.value || undefined,
   })
 }
 
@@ -224,6 +226,10 @@ function incrementCounter() {
         <label flex="~ col gap-1" col-span-2>
           <span op50 text-xs>Description</span>
           <textarea v-model="logDescription" rows="2" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y />
+        </label>
+        <label flex="~ col gap-1" col-span-2>
+          <span op50 text-xs>Stacktrace</span>
+          <textarea v-model="logStacktrace" rows="3" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono />
         </label>
       </div>
       <div flex items-center gap-3 mt2>
