@@ -2,6 +2,7 @@
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { ref } from 'vue'
+import SettingsAdvanced from './SettingsAdvanced.vue'
 import SettingsAppearance from './SettingsAppearance.vue'
 import SettingsDocks from './SettingsDocks.vue'
 import SettingsShortcuts from './SettingsShortcuts.vue'
@@ -15,6 +16,7 @@ const tabs = [
   { id: 'appearance', label: 'Appearance', icon: 'i-ph-paint-brush-duotone' },
   { id: 'shortcuts', label: 'Shortcuts', icon: 'i-ph-keyboard-duotone' },
   { id: 'docks', label: 'Docks', icon: 'i-ph-layout-duotone' },
+  { id: 'advanced', label: 'Advanced', icon: 'i-ph-wrench-duotone' },
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -59,6 +61,11 @@ const settingsStore = props.context.docks.settings
         />
         <SettingsDocks
           v-if="activeTab === 'docks'"
+          :context="context"
+          :settings-store="settingsStore"
+        />
+        <SettingsAdvanced
+          v-if="activeTab === 'advanced'"
           :context="context"
           :settings-store="settingsStore"
         />

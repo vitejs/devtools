@@ -2,7 +2,6 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
-import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
@@ -36,15 +35,6 @@ function setDockMode(mode: string) {
   }
   else {
     panelStore.mode = mode as 'float' | 'edge'
-  }
-}
-
-function resetSettings() {
-  // eslint-disable-next-line no-alert
-  if (confirm('Reset all dock settings to defaults?')) {
-    props.settingsStore.mutate(() => {
-      return DEFAULT_STATE_USER_SETTINGS()
-    })
   }
 }
 </script>
@@ -108,16 +98,5 @@ function resetSettings() {
         <span class="text-xs op50">Close the DevTools panel when clicking outside of it (embedded mode only)</span>
       </div>
     </label>
-  </div>
-
-  <!-- Reset -->
-  <div class="border-t border-base mt-8 pt-6">
-    <button
-      class="px-4 py-2 rounded bg-red/10 text-red hover:bg-red/20 transition-colors flex items-center gap-2 text-sm"
-      @click="resetSettings"
-    >
-      <div class="i-ph-arrow-counter-clockwise" />
-      Reset All Settings
-    </button>
   </div>
 </template>
