@@ -1,4 +1,5 @@
-import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsClientCommand } from '@vitejs/devtools-kit'
+import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
@@ -112,8 +113,15 @@ export async function createDocksContext(
     return docksGroupByCategories(dockEntries.value, settings.value)
   })
 
-  // Initialize commands context
-  const commandsContext = await createCommandsContext(clientType, rpc)
+  // Initialize commands context with reactive when-context
+  let commandsContext: CommandsContext
+  const commandsContextResult = await createCommandsContext(clientType, rpc, () => ({
+    clientType,
+    dockOpen: panelStore.value.open,
+    paletteOpen: commandsContext?.paletteOpen ?? false,
+    dockSelectedId: selectedId.value ?? '',
+  }))
+  commandsContext = commandsContextResult
 
   // Register built-in client commands
   commandsContext.register([
@@ -133,6 +141,7 @@ export async function createDocksContext(
       source: 'client',
       title: 'Close Panel',
       icon: 'ph:x-circle-duotone',
+      when: 'dockOpen',
       keybindings: [],
       action: () => {
         panelStore.value.open = false
@@ -153,7 +162,7 @@ export async function createDocksContext(
       source: 'client',
       title: 'Dock Mode',
       icon: 'ph:layout-duotone',
-      showInPalette: clientType === 'embedded',
+      when: clientType === 'embedded' ? 'clientType == embedded' : undefined,
       children: [
         {
           id: 'devtools:dock-mode:float',
@@ -177,26 +186,34 @@ export async function createDocksContext(
     },
   ])
 
-  // Dynamic dock navigation commands — registered after entries are available
+  // Dynamic dock navigation commands — grouped under "Docks" parent
+  let cleanupDocksCommand: (() => void) | undefined
   watchEffect(() => {
-    for (const entry of dockEntries.value) {
-      if (entry.type === '~builtin')
-        continue
-      const cmdId = `devtools:navigate:${entry.id}`
-      // Only register if not already registered
-      if (!commandsContext.commands.some((c: { id: string }) => c.id === cmdId)) {
+    cleanupDocksCommand?.()
+
+    const dockChildren: DevToolsClientCommand[] = dockEntries.value
+      .filter(entry => entry.type !== '~builtin')
+      .map((entry) => {
         const isAction = entry.type === 'action'
-        commandsContext.register({
-          id: cmdId,
-          source: 'client',
+        return {
+          id: `devtools:docks:${entry.id}`,
+          source: 'client' as const,
           title: `${isAction ? 'Execute' : 'Open'} ${entry.title}`,
-          icon: entry.icon,
-          category: 'navigation',
+          icon: typeof entry.icon === 'string' ? entry.icon : undefined,
           action: () => {
             switchEntry(entry.id)
           },
-        })
-      }
+        }
+      })
+
+    if (dockChildren.length > 0) {
+      cleanupDocksCommand = commandsContext.register({
+        id: 'devtools:docks',
+        source: 'client',
+        title: 'Docks',
+        icon: 'ph:layout-duotone',
+        children: dockChildren,
+      })
     }
   })
 

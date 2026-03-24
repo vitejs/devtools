@@ -36,6 +36,16 @@ export interface DevToolsCommandBase {
    */
   showInPalette?: boolean
   /**
+   * Optional context expression for conditional visibility.
+   * When set, the command is only shown in the palette and only executable
+   * when the expression evaluates to true.
+   *
+   * Uses the same syntax as keybinding `when` clauses.
+   * @example 'clientType == embedded'
+   * @example 'dockOpen && !paletteOpen'
+   */
+  when?: string
+  /**
    * Default keyboard shortcut(s) for this command
    */
   keybindings?: DevToolsCommandKeybinding[]

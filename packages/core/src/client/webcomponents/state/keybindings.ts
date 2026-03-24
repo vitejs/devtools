@@ -4,6 +4,9 @@ export interface WhenContext {
   clientType: 'embedded' | 'standalone'
   dockOpen: boolean
   paletteOpen: boolean
+  dockSelectedId: string
+  /** Allow custom context variables from plugins */
+  [key: string]: unknown
 }
 
 export function evaluateWhen(expression: string, ctx: WhenContext): boolean {

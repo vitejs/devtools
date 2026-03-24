@@ -1,4 +1,4 @@
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsCommandShortcutOverrides, DevToolsServerCommandEntry } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsServerCommandEntry } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type { ShallowRef } from 'vue'
 import type { WhenContext } from './keybindings'
@@ -13,6 +13,7 @@ const commandsContextByRpc = new WeakMap<DevToolsRpcClient, CommandsContext>()
 export async function createCommandsContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
+  whenContextProvider?: () => WhenContext,
 ): Promise<CommandsContext> {
   if (commandsContextByRpc.has(rpc)) {
     return commandsContextByRpc.get(rpc)!
@@ -31,15 +32,33 @@ export async function createCommandsContext(
 
   const paletteOpen = ref(false)
 
+  const getWhenContext = (): WhenContext => {
+    if (whenContextProvider)
+      return whenContextProvider()
+    return {
+      clientType,
+      dockOpen: false,
+      paletteOpen: paletteOpen.value,
+      dockSelectedId: '',
+    }
+  }
+
   // Merged commands
   const commands = computed<DevToolsCommandEntry[]>(() => [
     ...serverCommands.value,
     ...Array.from(clientCommands.values()),
   ])
 
-  const paletteCommands = computed<DevToolsCommandEntry[]>(() =>
-    commands.value.filter(cmd => cmd.showInPalette !== false),
-  )
+  const paletteCommands = computed<DevToolsCommandEntry[]>(() => {
+    const ctx = getWhenContext()
+    return commands.value.filter((cmd) => {
+      if (cmd.showInPalette === false)
+        return false
+      if (cmd.when && !evaluateWhen(cmd.when, ctx))
+        return false
+      return true
+    })
+  })
 
   function register(cmd: DevToolsClientCommand | DevToolsClientCommand[]): () => void {
     const cmds = Array.isArray(cmd) ? cmd : [cmd]
@@ -76,6 +95,14 @@ export async function createCommandsContext(
       throw new Error(`Command "${id}" not found`)
     }
 
+    // Check command-level when clause
+    if (cmd.when) {
+      const ctx = getWhenContext()
+      if (!evaluateWhen(cmd.when, ctx)) {
+        throw new Error(`Command "${id}" is not available in the current context`)
+      }
+    }
+
     if (cmd.source === 'server') {
       return rpc.call('devtoolskit:internal:commands:execute', id, ...args)
     }
@@ -99,7 +126,7 @@ export async function createCommandsContext(
 
   // Keyboard shortcut listener
   if (typeof window !== 'undefined') {
-    setupShortcutListener(clientType, commands, shortcutOverrides, getKeybindings, execute, paletteOpen)
+    setupShortcutListener(getWhenContext, commands, getKeybindings, execute)
   }
 
   const commandsContext: CommandsContext = reactive({
@@ -119,30 +146,29 @@ export async function createCommandsContext(
 // --- Shortcut system ---
 
 function setupShortcutListener(
-  clientType: 'embedded' | 'standalone',
+  getWhenContext: () => WhenContext,
   commands: { value: DevToolsCommandEntry[] },
-  shortcutOverrides: ShallowRef<DevToolsCommandShortcutOverrides>,
   getKeybindings: (id: string) => DevToolsCommandKeybinding[],
   execute: (id: string, ...args: any[]) => Promise<unknown>,
-  paletteOpen: { value: boolean },
 ) {
   const handler = (e: KeyboardEvent) => {
     const pressed = normalizeKeyEvent(e)
     if (!pressed || pressed === 'Mod' || pressed === 'Shift' || pressed === 'Alt')
       return
 
-    const whenCtx: WhenContext = {
-      clientType,
-      dockOpen: false, // Will be connected when integrated with DocksContext
-      paletteOpen: paletteOpen.value,
-    }
-
+    const whenCtx = getWhenContext()
     const allBindings = collectAllKeybindings(commands, getKeybindings)
 
     for (const { id, keybinding } of allBindings) {
       if (keybinding.key !== pressed)
         continue
+      // Check keybinding-level when clause
       if (keybinding.when && !evaluateWhen(keybinding.when, whenCtx))
+        continue
+      // Check command-level when clause
+      const cmd = commands.value.find(c => c.id === id)
+        ?? commands.value.flatMap(c => c.children ?? []).find(c => c.id === id)
+      if (cmd?.when && !evaluateWhen(cmd.when, whenCtx))
         continue
 
       e.preventDefault()

@@ -70,6 +70,7 @@ const plugin: Plugin = {
 | `icon` | `string` | Iconify icon string (e.g. `ph:trash-duotone`) |
 | `category` | `string` | Category for grouping |
 | `showInPalette` | `boolean` | Whether to show in command palette (default: `true`) |
+| `when` | `string` | Conditional visibility expression (see [When Clauses](#when-clauses)) |
 | `keybindings` | `DevToolsCommandKeybinding[]` | Default keyboard shortcuts |
 | `handler` | `Function` | Server-side handler. Optional if the command is a group for children. |
 | `children` | `DevToolsServerCommandInput[]` | Static sub-commands (two levels max) |
@@ -157,25 +158,54 @@ Use `Mod` as a platform-aware modifier — it maps to `Cmd` on macOS and `Ctrl` 
 | `Mod+Shift+P` | `Cmd+Shift+P` | `Ctrl+Shift+P` |
 | `Alt+N` | `Option+N` | `Alt+N` |
 
-### Conditional Shortcuts
+### When Clauses {#when-clauses}
 
-Use the `when` field for shortcuts that only activate in certain contexts:
+Both commands and keybindings support a `when` expression for conditional activation.
+
+**On a command** — controls whether the command appears in the palette and whether it can be executed:
+
+```ts
+ctx.commands.register(defineCommand({
+  id: 'my-plugin:embedded-only',
+  title: 'Embedded-Only Action',
+  when: 'clientType == embedded',
+  handler: async () => { /* ... */ },
+}))
+```
+
+**On a keybinding** — controls whether the shortcut activates in the current context:
 
 ```ts
 keybindings: [
-  { key: 'Mod+Shift+D', when: 'clientType == embedded' },
+  { key: 'Mod+Shift+D', when: 'dockOpen && !paletteOpen' },
 ]
 ```
 
-Supported context variables:
+When both a command and its keybinding have `when` expressions, both must evaluate to `true` for the shortcut to fire.
+
+#### Context Variables
 
 | Variable | Type | Description |
 |----------|------|-------------|
 | `clientType` | `'embedded' \| 'standalone'` | Current client mode |
 | `dockOpen` | `boolean` | Whether the dock panel is open |
 | `paletteOpen` | `boolean` | Whether the command palette is open |
+| `dockSelectedId` | `string` | ID of the currently selected dock entry (empty string if none) |
 
-Supported operators: `==`, `!=`, `&&`, `||`, `!` (negation), bare truthy checks.
+Custom context variables can be added by plugins and referenced in `when` expressions the same way.
+
+#### Operators
+
+| Operator | Example | Description |
+|----------|---------|-------------|
+| bare truthy | `dockOpen` | True if the value is truthy |
+| `!` | `!paletteOpen` | Negation |
+| `==` | `clientType == embedded` | Equality (string comparison) |
+| `!=` | `clientType != standalone` | Inequality |
+| `&&` | `dockOpen && !paletteOpen` | Logical AND |
+| `\|\|` | `paletteOpen \|\| dockOpen` | Logical OR |
+
+Operator precedence: `||` splits first (lowest), then `&&` (each OR-branch is a chain of AND-parts). Use explicit grouping with separate commands if you need complex logic.
 
 ### User Overrides
 
