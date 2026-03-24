@@ -3,6 +3,7 @@ import type { DevToolsClientCommand, DevToolsCommandEntry } from '@vitejs/devtoo
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import Fuse from 'fuse.js'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import ViteDevToolsLogo from '../icons/ViteDevTools.vue'
 import CommandPaletteItem from './CommandPaletteItem.vue'
 
 const props = defineProps<{
@@ -250,80 +251,85 @@ function getKeybindings(id: string) {
   >
     <!-- Backdrop -->
     <div
-      class="absolute inset-0 bg-black/30 transition-opacity duration-150"
-      :class="visible ? 'opacity-100' : 'opacity-0'"
+      class="absolute inset-0 bg-white/50 dark:bg-black/30 transition-opacity duration-150 "
+      :class="visible ? 'opacity-100 backdrop-blur-1' : 'opacity-0 backdrop-blur-0'"
       @click="close"
     />
     <!-- Dialog -->
-    <div class="absolute inset-0 flex items-start justify-center pt-[15vh] pointer-events-none">
+    <div class="absolute inset-0 flex items-start justify-center relative pt-[20vh] pointer-events-none">
       <div
-        class="w-full max-w-lg bg-base border border-base rounded-lg shadow-xl pointer-events-auto of-hidden flex flex-col max-h-[60vh] transition-all duration-150"
+        class="flex flex-col transition-all duration-150"
         :class="visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-98 -translate-y-2'"
       >
-        <!-- Header -->
-        <header class="border-b border-base flex items-center px-3">
-          <!-- Breadcrumb -->
-          <template v-if="breadcrumb.length > 0">
-            <button
-              v-for="(crumb, i) in breadcrumb"
-              :key="i"
-              class="text-xs op60 hover:op80 mr-1 flex items-center gap-0.5"
-              @click="breadcrumb.splice(i); search = ''; selectedIndex = 0"
+        <ViteDevToolsLogo class="absolute top--32px left-5px w-60 pointer-events-none" />
+        <div
+          class="w-full w-lg bg-base border border-base rounded-lg shadow-xl pointer-events-auto of-hidden flex flex-col max-h-[60vh]"
+        >
+          <!-- Header -->
+          <header class="border-b border-base flex items-center px-3">
+            <!-- Breadcrumb -->
+            <template v-if="breadcrumb.length > 0">
+              <button
+                v-for="(crumb, i) in breadcrumb"
+                :key="i"
+                class="text-xs op60 hover:op80 mr-1 flex items-center gap-0.5"
+                @click="breadcrumb.splice(i); search = ''; selectedIndex = 0"
+              >
+                {{ crumb.title }}
+                <span class="op40">&rsaquo;</span>
+              </button>
+            </template>
+            <input
+              ref="searchInput"
+              v-model="search"
+              class="flex-1 bg-transparent py-3 outline-none text-sm text-base"
+              placeholder="Type a command..."
+              @keydown="onKeyDown"
             >
-              {{ crumb.title }}
-              <span class="op40">&rsaquo;</span>
-            </button>
-          </template>
-          <input
-            ref="searchInput"
-            v-model="search"
-            class="flex-1 bg-transparent py-3 outline-none text-sm text-base"
-            placeholder="Type a command..."
-            @keydown="onKeyDown"
-          >
-        </header>
+          </header>
 
-        <!-- Items -->
-        <div class="flex-1 of-y-auto p-1.5">
-          <CommandPaletteItem
-            v-for="(item, idx) of filtered"
-            :key="item.entry.id"
-            :entry="item.entry"
-            :parent-title="item.parentTitle"
-            :show-parent-title="!breadcrumb.length"
-            :selected="selectedIndex === idx"
-            :loading="loadingId === item.entry.id"
-            :keybindings="getKeybindings(item.entry.id)"
-            @select="selectedIndex = idx"
-            @activate="enterItem(item)"
-          />
+          <!-- Items -->
+          <div class="flex-1 of-y-auto p-1.5">
+            <CommandPaletteItem
+              v-for="(item, idx) of filtered"
+              :key="item.entry.id"
+              :entry="item.entry"
+              :parent-title="item.parentTitle"
+              :show-parent-title="!breadcrumb.length"
+              :selected="selectedIndex === idx"
+              :loading="loadingId === item.entry.id"
+              :keybindings="getKeybindings(item.entry.id)"
+              @select="selectedIndex = idx"
+              @activate="enterItem(item)"
+            />
 
-          <div v-if="!filtered.length" class="py-8 flex flex-col items-center justify-center gap-2 op50 text-sm">
-            <div class="i-ph-magnifying-glass-duotone w-6 h-6" />
-            <div v-if="search">
-              No results for "<strong class="text-primary op100">{{ search }}</strong>"
-            </div>
-            <div v-else>
-              No commands available
+            <div v-if="!filtered.length" class="py-8 flex flex-col items-center justify-center gap-2 op50 text-sm">
+              <div class="i-ph-magnifying-glass-duotone w-6 h-6" />
+              <div v-if="search">
+                No results for "<strong class="text-primary op100">{{ search }}</strong>"
+              </div>
+              <div v-else>
+                No commands available
+              </div>
             </div>
           </div>
+
+          <!-- Footer -->
+          <footer class="border-t border-base flex items-center justify-between gap-4 px-3 py-1.5 text-[10px] op50">
+            <div class="flex items-center gap-1.5">
+              <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">&darr;&uarr;</kbd>
+              <span>navigate</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">esc</kbd>
+              <span>{{ breadcrumb.length > 0 || dynamicItems ? 'back' : 'close' }}</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">&crarr;</kbd>
+              <span>select</span>
+            </div>
+          </footer>
         </div>
-
-        <!-- Footer -->
-        <footer class="border-t border-base flex items-center justify-between gap-4 px-3 py-1.5 text-[10px] op50">
-          <div class="flex items-center gap-1.5">
-            <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">&darr;&uarr;</kbd>
-            <span>navigate</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">Esc</kbd>
-            <span>{{ breadcrumb.length > 0 || dynamicItems ? 'back' : 'close' }}</span>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <kbd class="px-1 py-0.5 rounded border border-base bg-base font-mono">&crarr;</kbd>
-            <span>select</span>
-          </div>
-        </footer>
       </div>
     </div>
   </div>
