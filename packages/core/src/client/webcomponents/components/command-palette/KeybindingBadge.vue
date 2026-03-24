@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { formatKeybinding } from '../../state/keybindings'
 
 const props = defineProps<{
   keyString: string
 }>()
 
-const keys = formatKeybinding(props.keyString)
+const keys = computed(() => formatKeybinding(props.keyString))
 </script>
 
 <template>
