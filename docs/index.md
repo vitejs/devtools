@@ -4,7 +4,7 @@ theme: dark
 
 hero:
   name: Vite DevTools
-  text: A devtools framework for Vite ecosystem.
+  text: DevTools Framework for the Vite Ecosystem.
   tagline: An extensible foundation for building and composing developer tools across the Vite ecosystem
   actions:
     - theme: brand

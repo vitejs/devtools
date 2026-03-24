@@ -40,7 +40,12 @@ export default extendConfig(withMermaid(defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
-      { text: 'DevTools for Rolldown', link: '/rolldown/' },
+      {
+        text: 'Builtin DevTools',
+        items: [
+          { text: 'DevTools for Rolldown', link: '/rolldown/' },
+        ],
+      },
       {
         text: 'DevTools Kit',
         items: DevToolsKitNav,
@@ -109,6 +114,12 @@ export default extendConfig(withMermaid(defineConfig({
         {
           title: 'DevTools Kit',
           items: DevToolsKitNav,
+        },
+        {
+          title: 'Builtin DevTools',
+          items: [
+            { text: 'DevTools for Rolldown', link: '/rolldown/' },
+          ],
         },
       ],
       social: SocialLinks,
