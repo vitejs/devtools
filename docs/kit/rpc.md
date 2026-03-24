@@ -427,8 +427,8 @@ Initialize the state in your plugin's `devtools.setup`, then access it from any 
 ::: code-group
 
 ```ts [plugin.ts]
-import { setPluginContext } from './rpc/context'
 import { rpcFunctions } from './rpc'
+import { setPluginContext } from './rpc/context'
 
 const plugin: Plugin = {
   devtools: {
