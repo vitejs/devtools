@@ -1,4 +1,4 @@
-import type { DevToolsClientCommand } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, WhenContext } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref } from 'vue'
@@ -109,18 +109,22 @@ export async function createDocksContext(
   // Get settings store and create computed grouped entries
   const settingsStore = markRaw(await getSettingsStore())
   const settings = sharedStateToRef(settingsStore)
-  const groupedEntries = computed(() => {
-    return docksGroupByCategories(dockEntries.value, settings.value)
-  })
 
-  // Initialize commands context with reactive when-context
+  // Shared when-context provider — used by both commands and docks
   let commandsContext: CommandsContext
-  const commandsContextResult = await createCommandsContext(clientType, rpc, () => ({
+  const getWhenContext = (): WhenContext => ({
     clientType,
     dockOpen: panelStore.value.open,
     paletteOpen: commandsContext?.paletteOpen ?? false,
     dockSelectedId: selectedId.value ?? '',
-  }))
+  })
+
+  const groupedEntries = computed(() => {
+    return docksGroupByCategories(dockEntries.value, settings.value, { whenContext: getWhenContext() })
+  })
+
+  // Initialize commands context with reactive when-context
+  const commandsContextResult = await createCommandsContext(clientType, rpc, getWhenContext)
   commandsContext = commandsContextResult
 
   // Register built-in client commands
@@ -194,11 +198,10 @@ export async function createDocksContext(
     const dockChildren: DevToolsClientCommand[] = dockEntries.value
       .filter(entry => entry.type !== '~builtin')
       .map((entry) => {
-        const isAction = entry.type === 'action'
         return {
           id: `devtools:docks:${entry.id}`,
           source: 'client' as const,
-          title: `${isAction ? 'Execute' : 'Open'} ${entry.title}`,
+          title: entry.title,
           icon: typeof entry.icon === 'string' ? entry.icon : undefined,
           action: () => {
             switchEntry(entry.id)

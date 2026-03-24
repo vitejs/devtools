@@ -1,5 +1,6 @@
-import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, WhenContext } from '@vitejs/devtools-kit'
 import type { Immutable } from '@vitejs/devtools-kit/utils/shared-state'
+import { evaluateWhen } from '@vitejs/devtools-kit'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
 export type { DevToolsDocksUserSettings }
@@ -17,15 +18,17 @@ export interface SplitGroupsResult {
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false } = options ?? {}
+  const { includeHidden = false, whenContext } = options ?? {}
 
   const map = new Map<string, DevToolsDockEntry[]>()
   for (const entry of entries) {
-    // Skip if hidden by entry property
-    if (entry.isHidden && !includeHidden)
+    // Skip if hidden by `when` clause
+    if (entry.when && whenContext && !evaluateWhen(entry.when, whenContext) && !includeHidden)
+      continue
+    if (entry.when && !whenContext && entry.when === 'false' && !includeHidden)
       continue
     if (!includeHidden && docksHidden.includes(entry.id))
       continue

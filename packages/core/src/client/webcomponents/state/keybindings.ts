@@ -1,50 +1,8 @@
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 
-export interface WhenContext {
-  clientType: 'embedded' | 'standalone'
-  dockOpen: boolean
-  paletteOpen: boolean
-  dockSelectedId: string
-  /** Allow custom context variables from plugins */
-  [key: string]: unknown
-}
-
-export function evaluateWhen(expression: string, ctx: WhenContext): boolean {
-  // Simple expression evaluator: supports ==, !=, &&, ||, !, bare truthy
-  const parts = expression.split('||').map(s => s.trim())
-  return parts.some((orPart) => {
-    const andParts = orPart.split('&&').map(s => s.trim())
-    return andParts.every((part) => {
-      const trimmed = part.trim()
-
-      // Negation
-      if (trimmed.startsWith('!')) {
-        const key = trimmed.slice(1).trim()
-        return !getContextValue(key, ctx)
-      }
-
-      // Equality/inequality
-      const eqIdx = trimmed.indexOf('==')
-      const neqIdx = trimmed.indexOf('!=')
-      if (eqIdx !== -1 || neqIdx !== -1) {
-        const isNeq = neqIdx !== -1 && (eqIdx === -1 || neqIdx < eqIdx)
-        const opIdx = isNeq ? neqIdx : eqIdx
-        const opLen = isNeq ? 2 : 2
-        const key = trimmed.slice(0, opIdx).trim()
-        const value = trimmed.slice(opIdx + opLen).trim()
-        const actual = String(getContextValue(key, ctx))
-        return isNeq ? actual !== value : actual === value
-      }
-
-      // Bare truthy
-      return !!getContextValue(trimmed, ctx)
-    })
-  })
-}
-
-export function getContextValue(key: string, ctx: WhenContext): unknown {
-  return (ctx as unknown as Record<string, unknown>)[key]
-}
+// Re-export when utilities from kit
+export type { WhenContext } from '@vitejs/devtools-kit'
+export { evaluateWhen, getContextValue } from '@vitejs/devtools-kit'
 
 export const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 

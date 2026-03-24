@@ -13,7 +13,7 @@ interface DockEntryBase {
   icon: string // URL, data URI, or Iconify name
   category?: string // Grouping category
   defaultOrder?: number // Sort order (higher = earlier)
-  isHidden?: boolean // Hide from dock
+  when?: string // Conditional visibility expression (same syntax as command when clauses)
   badge?: string // Badge text on dock icon (e.g., count)
 }
 ```

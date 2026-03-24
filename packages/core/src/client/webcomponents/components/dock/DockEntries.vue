@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, WhenContext } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { toRefs } from 'vue'
+import { evaluateWhen } from '@vitejs/devtools-kit'
+import { computed, toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
 const props = defineProps<{
@@ -17,6 +18,19 @@ const emit = defineEmits<{
 
 const { selected, isVertical, entries } = toRefs(props)
 
+const whenContext = computed<WhenContext>(() => ({
+  clientType: props.context.clientType,
+  dockOpen: props.context.panel.store.open,
+  paletteOpen: props.context.commands.paletteOpen,
+  dockSelectedId: props.context.docks.selectedId ?? '',
+}))
+
+function isDockVisible(dock: DevToolsDockEntry): boolean {
+  if (!dock.when)
+    return true
+  return evaluateWhen(dock.when, whenContext.value)
+}
+
 function toggleDockEntry(dock: DevToolsDockEntry) {
   if (selected.value?.id === dock.id)
     emit('select', undefined!)
@@ -28,7 +42,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
 <template>
   <template v-for="dock of entries" :key="dock.id">
     <DockEntry
-      v-if="!dock.isHidden"
+      v-if="isDockVisible(dock)"
       :context="context"
       :dock
       :is-selected="selected?.id === dock.id"
