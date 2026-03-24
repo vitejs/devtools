@@ -14,8 +14,8 @@ const props = defineProps<{
 
 const tabs = [
   { id: 'appearance', label: 'Appearance', icon: 'i-ph-paint-brush-duotone' },
-  { id: 'shortcuts', label: 'Shortcuts', icon: 'i-ph-keyboard-duotone' },
   { id: 'docks', label: 'Docks', icon: 'i-ph-layout-duotone' },
+  { id: 'shortcuts', label: 'Shortcuts', icon: 'i-ph-keyboard-duotone' },
   { id: 'advanced', label: 'Advanced', icon: 'i-ph-wrench-duotone' },
 ] as const
 
