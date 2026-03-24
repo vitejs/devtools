@@ -30,6 +30,7 @@ export default defineConfig({
       '@vue/runtime-core',
       '@vue/runtime-dom',
       '@vue/shared',
+      '@vueuse/components',
       '@vueuse/core',
       '@vueuse/shared',
       '@xterm/addon-fit',

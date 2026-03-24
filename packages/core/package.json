@@ -95,6 +95,7 @@
     "@clack/prompts": "1.1.0",
     "@json-render/core": "0.13.0",
     "@json-render/vue": "0.13.0",
+    "@vueuse/components": "14.2.1",
     "@vueuse/core": "14.2.1",
     "@vueuse/shared": "14.2.1",
     "@xterm/addon-fit": "0.11.0",
