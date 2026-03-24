@@ -7,15 +7,15 @@ export const openInFinder = defineRpcFunction({
   setup: (context) => {
     return {
       handler: async (path: string) => {
-        const resolved = resolve(context.cwd, path)
-        const rel = relative(context.cwd, resolved)
+        const resolved = resolve(context.workspaceRoot, path)
+        const rel = relative(context.workspaceRoot, resolved)
 
-        // Ensure the path stays within project root
+        // Ensure the path stays within workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          throw new Error('Path is outside the project root')
+          throw new Error('Path is outside the workspace root')
         }
 
-        await import('launch-editor').then(r => r.default(resolved))
+        await import('open').then(r => r.default(resolved))
       },
     }
   },

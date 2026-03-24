@@ -10,41 +10,44 @@ vi.mock('launch-editor', () => ({
 
 describe('openInEditor – path traversal protection', () => {
   const cwd = resolve('/project/root')
-  const mockContext = { cwd } as DevToolsNodeContext
+  const workspaceRoot = resolve('/project')
+  const mockContext = { cwd, workspaceRoot } as DevToolsNodeContext
 
-  function getHandler() {
-    const { handler } = openInEditor?.setup(mockContext)
-    return handler
+  async function getHandler() {
+    const setup = openInEditor.setup!
+    const { handler } = await setup(mockContext)
+    expect(handler).toBeTypeOf('function')
+    return handler as (path: string) => Promise<void>
   }
 
   it('allows opening a file inside the project root', async () => {
-    const handler = getHandler()
+    const handler = await getHandler()
     await expect(handler('src/main.ts')).resolves.not.toThrow()
   })
 
   it('allows opening a nested file inside the project root', async () => {
-    const handler = getHandler()
+    const handler = await getHandler()
     await expect(handler('src/utils/helper.ts')).resolves.not.toThrow()
   })
 
   it('rejects path traversal with ../', async () => {
-    const handler = getHandler()
+    const handler = await getHandler()
     await expect(handler('../../etc/passwd')).rejects.toThrow(
-      'Path is outside the project root',
+      'Path is outside the workspace root',
     )
   })
 
   it('rejects absolute path outside project root', async () => {
-    const handler = getHandler()
+    const handler = await getHandler()
     await expect(handler('/etc/passwd')).rejects.toThrow(
-      'Path is outside the project root',
+      'Path is outside the workspace root',
     )
   })
 
   it('rejects traversal disguised within a subpath', async () => {
-    const handler = getHandler()
+    const handler = await getHandler()
     await expect(handler('src/../../secret/file.txt')).rejects.toThrow(
-      'Path is outside the project root',
+      'Path is outside the workspace root',
     )
   })
 })
