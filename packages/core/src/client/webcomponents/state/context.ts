@@ -239,6 +239,11 @@ export async function createDocksContext(
       toggleEntry,
     },
     commands: commandsContext,
+    when: {
+      get context() {
+        return getWhenContext()
+      },
+    },
     rpc,
     clientType,
   })

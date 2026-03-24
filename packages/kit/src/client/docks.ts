@@ -1,5 +1,5 @@
 import type { RpcFunctionsCollector } from '@vitejs/devtools-rpc'
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsCommandShortcutOverrides, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsCommandShortcutOverrides, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
@@ -43,6 +43,18 @@ export interface DocksContext extends DevToolsClientContext {
    * The commands context for command palette and shortcuts
    */
   readonly commands: CommandsContext
+  /**
+   * The when-clause context for conditional visibility
+   */
+  readonly when: WhenClauseContext
+}
+
+export interface WhenClauseContext {
+  /**
+   * Get the current when-clause context snapshot.
+   * Returns a reactive object with built-in variables and any custom plugin variables.
+   */
+  readonly context: WhenContext
 }
 
 export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsClientContext>
