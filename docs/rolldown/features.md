@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# Features
+# DevTools for Rolldown
 
-Discover all the features Vite Devtools offers.
+DevTools for Rolldown provides comprehensive build analysis for Vite projects using Rolldown. Explore modules, chunks, assets, plugins, and more.
 
 ## Overview
 

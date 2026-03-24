@@ -4,8 +4,8 @@ theme: dark
 
 hero:
   name: Vite DevTools
-  text: DevTools for Vite.
-  tagline: Visualize and analyze your Vite build process with powerful developer tools
+  text: DevTools Framework for the Vite Ecosystem.
+  tagline: An extensible foundation for building and composing developer tools across the Vite ecosystem
   actions:
     - theme: brand
       text: Get Started
@@ -19,11 +19,11 @@ hero:
 
 features:
   - icon: 🔍
-    title: Build Analysis
-    details: Deep insights into your Vite-Rolldown build process. Visualize module graphs, dependencies, and build metadata to understand what's happening under the hood.
+    title: DevTools for Rolldown
+    details: Built-in integration for Rolldown build analysis. Visualize module graphs, dependencies, chunks, assets, and build metadata.
   - icon: 🧩
     title: Extensible Architecture
-    details: Build custom DevTools integrations with the DevTools Kit. Extend any Vite plugin with a simple devtools hook to add your own visualizations and tools.
+    details: Build custom DevTools integrations with the DevTools Kit. Any Vite plugin can extend the devtools with a simple hook to add visualizations, inspectors, and tools.
   - icon: 🚀
     title: Unified Dock System
     details: A familiar dock interface (like macOS Dock) where all DevTools integrations appear together. Switch between tools seamlessly in a consistent UI.

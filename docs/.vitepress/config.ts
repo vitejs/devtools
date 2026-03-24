@@ -32,7 +32,7 @@ const SocialLinks = [
 // https://vitepress.dev/reference/site-config
 export default extendConfig(withMermaid(defineConfig({
   title: 'Vite DevTools',
-  description: 'Visualize and analyze your Vite build process with powerful developer tools. Extensible architecture for building custom DevTools integrations.',
+  description: 'An extensible devtools framework for the Vite ecosystem. Build, compose, and integrate developer tools with a unified foundation.',
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
   ],
@@ -42,6 +42,12 @@ export default extendConfig(withMermaid(defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Guide', link: '/guide/' },
+      {
+        text: 'Builtin DevTools',
+        items: [
+          { text: 'DevTools for Rolldown', link: '/rolldown/' },
+        ],
+      },
       {
         text: 'DevTools Kit',
         items: DevToolsKitNav,
@@ -60,7 +66,13 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/' },
-          { text: 'Features', link: '/guide/features/' },
+        ],
+      },
+      {
+        text: 'DevTools for Rolldown',
+        items: [
+          { text: 'Introduction', link: '/rolldown/' },
+          { text: 'Features', link: '/rolldown/features' },
         ],
       },
       {
@@ -98,7 +110,7 @@ export default extendConfig(withMermaid(defineConfig({
           title: 'Vite DevTools',
           items: [
             { text: 'Guide', link: '/guide/' },
-            { text: 'Features', link: '/guide/features' },
+            { text: 'DevTools for Rolldown', link: '/rolldown/' },
             { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
             { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
           ],
@@ -106,6 +118,12 @@ export default extendConfig(withMermaid(defineConfig({
         {
           title: 'DevTools Kit',
           items: DevToolsKitNav,
+        },
+        {
+          title: 'Builtin DevTools',
+          items: [
+            { text: 'DevTools for Rolldown', link: '/rolldown/' },
+          ],
         },
       ],
       social: SocialLinks,
