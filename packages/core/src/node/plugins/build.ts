@@ -35,7 +35,7 @@ export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
         : resolve(resolvedConfig.root, resolvedConfig.build.outDir)
 
       const { buildStaticDevTools } = await import('../build-static')
-      await buildStaticDevTools({ context, outDir })
+      await buildStaticDevTools({ context, outDir, withApp: true })
     },
   }
 }
