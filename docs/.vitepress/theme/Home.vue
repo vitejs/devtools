@@ -11,7 +11,7 @@ import Spacer from '@components/shared/Spacer.vue'
 
   <HeadingSection
     heading="Inspect, Analyze, Extend"
-    subheading="Vite DevTools not only provides built-in features, but also a extensible architecture for custom integrations."
+    subheading="Vite DevTools provides an extensible framework with built-in integrations like DevTools for Rolldown, plus an open architecture for custom tools."
   />
 
   <FeatureGrid />
@@ -19,8 +19,8 @@ import Spacer from '@components/shared/Spacer.vue'
   <Spacer />
 
   <Footer
-    heading="Understand your Vite App Better"
-    subheading="Visually inspect modules, plugins, chunks, assets, packages..." button-text="Get Started"
+    heading="Understand Your Vite Ecosystem Better"
+    subheading="Inspect builds, analyze performance, extend with custom integrations..." button-text="Get Started"
     button-link="/guide/"
   />
 </template>

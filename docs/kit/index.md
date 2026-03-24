@@ -100,7 +100,7 @@ If you're building a Vite plugin and want to add DevTools capabilities, or if yo
 4. **[Shared State](./shared-state)** - Share data between server and client with automatic synchronization
 
 > [!TIP] Help Us Improve
-> If you are building something on top of Vite DevTools, we invite you to label your repository with `vite-devtools` on GitHub to help us track usage and improve the project. Thank you!
+> If you are building something on top of Vite DevTools Kit, we invite you to label your repository with `vite-devtools` on GitHub to help us track usage and improve the project. Thank you!
 
 ## Real-World Examples
 
