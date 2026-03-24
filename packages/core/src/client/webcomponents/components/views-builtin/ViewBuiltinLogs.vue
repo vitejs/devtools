@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { UseClipboard } from '@vueuse/components'
-import { useTimeAgo } from '@vueuse/core'
+import { useClipboard, useTimeAgo } from '@vueuse/core'
 import { computed, onMounted, ref } from 'vue'
 import { markLogsAsRead, useLogs } from '../../state/logs'
 import FilterToggles from '../display/FilterToggles.vue'
@@ -163,6 +162,7 @@ const selectedEntry = computed(() => {
 })
 
 const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
+const { copy: copyStacktrace, copied: stacktraceCopied } = useClipboard()
 
 async function openFile(entry: DevToolsLogEntry) {
   if (!entry.filePosition)
@@ -413,18 +413,16 @@ onMounted(() => {
           </div>
           <div class="group relative">
             <pre class="text-xs bg-gray/5 rounded p-2 of-x-auto whitespace-pre-wrap font-mono">{{ selectedEntry.stacktrace }}</pre>
-            <UseClipboard #="{ copy, copied }" :source="selectedEntry.stacktrace">
-              <button
-                class="group/bt absolute top-1.5 right-1.5 op0 group-hover:op100 p-1 rounded bg-base border border-base transition"
-                title="Copy"
-                @click="copy()"
-              >
-                <div
-                  :class="copied ? 'i-ph:check' : 'i-ph:copy'"
-                  class="op50 group-hover/bt:op100 size-3.5 "
-                />
-              </button>
-            </UseClipboard>
+            <button
+              class="group/bt absolute top-1.5 right-1.5 op0 group-hover:op100 p-1 rounded bg-base border border-base transition"
+              title="Copy"
+              @click="copyStacktrace(selectedEntry.stacktrace)"
+            >
+              <div
+                :class="stacktraceCopied ? 'i-ph:check' : 'i-ph:copy'"
+                class="op50 group-hover/bt:op100 size-3.5"
+              />
+            </button>
           </div>
         </div>
 
