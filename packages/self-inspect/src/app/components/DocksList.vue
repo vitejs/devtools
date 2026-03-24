@@ -60,10 +60,10 @@ function hasClientScript(dock: DevToolsDockEntry): boolean {
           <tr
             v-for="dock in categoryDocks" :key="dock.id"
             border="b base" hover:bg-active
-            :class="dock.isHidden ? 'op40' : ''"
+            :class="dock.when === 'false' ? 'op40' : ''"
           >
             <td px2 py1.5 font-mono text-xs flex="~ items-center gap-1">
-              <span v-if="dock.isHidden" i-ph-eye-slash text-xs op60 />
+              <span v-if="dock.when" i-ph-eye-slash text-xs op60 :title="`when: ${dock.when}`" />
               {{ dock.id }}
             </td>
             <td px2 py1.5>

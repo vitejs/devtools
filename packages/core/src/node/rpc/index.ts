@@ -1,6 +1,8 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsCommandShortcutOverrides, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
+import { commandsExecute } from './internal/commands-execute'
+import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
 import { logsAdd } from './internal/logs-add'
 import { logsClear } from './internal/logs-clear'
@@ -29,6 +31,8 @@ export const builtinAnonymousRpcDeclarations = [
 
 // @keep-sorted
 export const builtinInternalRpcDeclarations = [
+  commandsExecute,
+  commandsList,
   docksOnLaunch,
   logsAdd,
   logsClear,
@@ -76,6 +80,8 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
+    'devtoolskit:internal:command-shortcuts': DevToolsCommandShortcutOverrides
+    'devtoolskit:internal:commands': DevToolsServerCommandEntry[]
     'devtoolskit:internal:docks': DevToolsDockEntry[]
     'devtoolskit:internal:user-settings': DevToolsDocksUserSettings
   }

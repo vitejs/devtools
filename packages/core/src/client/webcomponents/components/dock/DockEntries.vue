@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
 import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
@@ -17,6 +18,12 @@ const emit = defineEmits<{
 
 const { selected, isVertical, entries } = toRefs(props)
 
+function isDockVisible(dock: DevToolsDockEntry): boolean {
+  if (!dock.when)
+    return true
+  return evaluateWhen(dock.when, props.context.when.context)
+}
+
 function toggleDockEntry(dock: DevToolsDockEntry) {
   if (selected.value?.id === dock.id)
     emit('select', undefined!)
@@ -28,7 +35,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
 <template>
   <template v-for="dock of entries" :key="dock.id">
     <DockEntry
-      v-if="!dock.isHidden"
+      v-if="isDockVisible(dock)"
       :context="context"
       :dock
       :is-action="dock.type === 'action'"

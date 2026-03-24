@@ -17,6 +17,16 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
     enablePatches: false,
   })
 
+  const commandsState = createSharedState({
+    initialValue: [] as any[],
+    enablePatches: false,
+  })
+
+  const shortcutsState = createSharedState({
+    initialValue: {} as Record<string, any>,
+    enablePatches: false,
+  })
+
   return {
     sharedState: {
       get: async (key: string) => {
@@ -24,6 +34,10 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
           return docksState as any
         if (key === 'devtoolskit:internal:user-settings')
           return settingsState as any
+        if (key === 'devtoolskit:internal:commands')
+          return commandsState as any
+        if (key === 'devtoolskit:internal:command-shortcuts')
+          return shortcutsState as any
         throw new Error(`Unexpected shared state key: ${key}`)
       },
     },

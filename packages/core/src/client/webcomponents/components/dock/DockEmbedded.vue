@@ -4,6 +4,7 @@ import { useEventListener } from '@vueuse/core'
 import { onUnmounted, ref } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { closeDockPopup, useIsDockPopupOpen } from '../../state/popup'
+import CommandPalette from '../command-palette/CommandPalette.vue'
 import ToastOverlay from '../display/ToastOverlay.vue'
 import FloatingElements from '../floating/FloatingElements.vue'
 import Dock from './Dock.vue'
@@ -67,5 +68,6 @@ onUnmounted(() => {
     </template>
     <FloatingElements />
   </template>
+  <CommandPalette :context />
   <ToastOverlay :context />
 </template>
