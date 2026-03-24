@@ -33,6 +33,8 @@ function getCategoryLabel(category: string): string {
 }
 
 function toggleDock(id: string, visible?: boolean) {
+  if (id === '~settings')
+    return
   const hidden = settings.value.docksHidden
   const isHidden = hidden.includes(id)
   const shouldShow = visible ?? isHidden
@@ -50,6 +52,8 @@ function toggleDock(id: string, visible?: boolean) {
 }
 
 function toggleCategory(category: string, visible?: boolean) {
+  if (category === '~builtin')
+    return
   const hidden = settings.value.docksCategoriesHidden
   const isHidden = hidden.includes(category)
   const shouldShow = visible ?? isHidden
@@ -140,7 +144,10 @@ function resetCustomOrderForCategory(category: string) {
         >
           <button
             class="w-5 h-5 flex items-center justify-center rounded transition-colors"
-            :class="settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime'"
+            :class="[
+              category === '~builtin' ? 'bg-gray/20 cursor-not-allowed op50' : settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime',
+            ]"
+            :disabled="category === '~builtin'"
             @click="toggleCategory(category)"
           >
             <div
@@ -172,13 +179,14 @@ function resetCustomOrderForCategory(category: string) {
             <!-- Visibility toggle -->
             <button
               class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
-              :class="settings.docksHidden.includes(dock.id) ? 'op50' : ''"
-              :title="settings.docksHidden.includes(dock.id) ? 'Show' : 'Hide'"
+              :class="dock.id === '~settings' ? 'cursor-not-allowed op50' : settings.docksHidden.includes(dock.id) ? 'op50' : ''"
+              :disabled="dock.id === '~settings'"
+              :title="dock.id === '~settings' ? 'Always visible' : settings.docksHidden.includes(dock.id) ? 'Show' : 'Hide'"
               @click="toggleDock(dock.id)"
             >
               <div
                 class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                :class="settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                :class="dock.id === '~settings' ? 'bg-gray/30' : settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
               >
                 <div
                   v-if="!settings.docksHidden.includes(dock.id)"
