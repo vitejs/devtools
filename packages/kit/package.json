@@ -26,6 +26,7 @@
     "./utils/human-id": "./dist/utils/human-id.js",
     "./utils/nanoid": "./dist/utils/nanoid.js",
     "./utils/shared-state": "./dist/utils/shared-state.js",
+    "./utils/when": "./dist/utils/when.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.mts",

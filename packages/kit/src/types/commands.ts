@@ -9,12 +9,6 @@ export interface DevToolsCommandKeybinding {
    * Examples: "Mod+K", "Mod+Shift+P", "Alt+N"
    */
   key: string
-  /**
-   * Optional context expression for conditional activation.
-   * Examples: "clientType == embedded", "dockOpen", "!dockOpen"
-   * Supports: ==, !=, &&, ||, bare truthy, ! negation
-   */
-  when?: string
 }
 
 // --- Command Entry ---

@@ -1,10 +1,10 @@
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsServerCommandEntry } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsServerCommandEntry, WhenContext } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type { ShallowRef } from 'vue'
-import type { WhenContext } from './keybindings'
+import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
 import { computed, markRaw, reactive, ref } from 'vue'
 import { sharedStateToRef } from './docks'
-import { collectAllKeybindings, evaluateWhen, normalizeKeyEvent } from './keybindings'
+import { collectAllKeybindings, normalizeKeyEvent } from './keybindings'
 
 export { formatKeybinding, isMac, normalizeKeyEvent } from './keybindings'
 
@@ -162,12 +162,10 @@ function setupShortcutListener(
     for (const { id, keybinding } of allBindings) {
       if (keybinding.key !== pressed)
         continue
-      // Check keybinding-level when clause
-      if (keybinding.when && !evaluateWhen(keybinding.when, whenCtx))
-        continue
       // Check command-level when clause
-      const cmd = commands.value.find(c => c.id === id)
-        ?? commands.value.flatMap(c => c.children ?? []).find(c => c.id === id)
+      const cmd: DevToolsCommandEntry | undefined
+        = commands.value.find(c => c.id === id)
+          ?? commands.value.flatMap(c => c.children as DevToolsCommandEntry[] ?? []).find(c => c.id === id)
       if (cmd?.when && !evaluateWhen(cmd.when, whenCtx))
         continue
 
