@@ -35,7 +35,7 @@ const flattenedItems = computed<FlatItem[]>(() => {
   const result: FlatItem[] = []
   for (const cmd of commandsCtx.value.paletteCommands) {
     result.push({ entry: cmd, searchTitle: cmd.title })
-    if (cmd.children) {
+    if (cmd.children && cmd.showInPalette !== 'without-children') {
       for (const child of cmd.children) {
         if (child.showInPalette === false)
           continue

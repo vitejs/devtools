@@ -33,8 +33,12 @@ export interface DevToolsCommandBase {
   category?: string
   /**
    * Whether to show in command palette. Default: true
+   *
+   * - `true` — show the command and flatten its children into search results
+   * - `false` — hide the command entirely from the palette
+   * - `'without-children'` — show the command but don't flatten children into top-level search (children are still accessible via drill-down)
    */
-  showInPalette?: boolean
+  showInPalette?: boolean | 'without-children'
   /**
    * Optional context expression for conditional visibility.
    * When set, the command is only shown in the palette and only executable

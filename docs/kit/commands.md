@@ -69,7 +69,7 @@ const plugin: Plugin = {
 | `description` | `string` | Optional description text |
 | `icon` | `string` | Iconify icon string (e.g. `ph:trash-duotone`) |
 | `category` | `string` | Category for grouping |
-| `showInPalette` | `boolean` | Whether to show in command palette (default: `true`) |
+| `showInPalette` | `boolean \| 'without-children'` | Whether to show in command palette (default: `true`). `'without-children'` shows the command but doesn't flatten children into search — they're only accessible via drill-down. |
 | `when` | `string` | Conditional visibility expression (see [When Clauses](/kit/when-clauses)) |
 | `keybindings` | `DevToolsCommandKeybinding[]` | Default keyboard shortcuts |
 | `handler` | `Function` | Server-side handler. Optional if the command is a group for children. |
