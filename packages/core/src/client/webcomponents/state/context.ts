@@ -204,7 +204,7 @@ export async function createDocksContext(
           title: entry.title,
           icon: typeof entry.icon === 'string' ? entry.icon : undefined,
           action: () => {
-            switchEntry(entry.id)
+            toggleEntry(entry.id)
           },
         }
       })
