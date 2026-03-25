@@ -54,7 +54,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
         meta.isTrusted = true
         meta.clientAuthToken = authToken
       }
-      else if (authToken && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authToken)) {
+      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
         meta.isTrusted = true
         meta.clientAuthToken = authToken
       }

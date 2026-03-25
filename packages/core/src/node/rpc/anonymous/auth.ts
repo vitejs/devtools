@@ -40,7 +40,7 @@ export const anonymousAuth = defineRpcFunction({
         }
 
         // Auto-approve if authToken matches a configured auth token (session-only, not persisted)
-        const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
+        const tokens = context.viteConfig.devtools?.config?.clientAuthTokens ?? []
         if (tokens.includes(query.authToken)) {
           session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true
