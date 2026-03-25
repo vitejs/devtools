@@ -60,13 +60,16 @@ function isOverridden(id: string): boolean {
 
 function clearShortcut(commandId: string) {
   commandsCtx.settings.mutate((state) => {
+    if (!state.commandShortcuts)
+      state.commandShortcuts = {}
     state.commandShortcuts[commandId] = []
   })
 }
 
 function resetShortcut(commandId: string) {
   commandsCtx.settings.mutate((state) => {
-    delete state.commandShortcuts[commandId]
+    if (state.commandShortcuts)
+      delete state.commandShortcuts[commandId]
   })
 }
 
@@ -188,6 +191,8 @@ function saveEditor() {
   if (!editorCommandId.value || !editorCanSave.value)
     return
   commandsCtx.settings.mutate((state) => {
+    if (!state.commandShortcuts)
+      state.commandShortcuts = {}
     state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
   })
   closeEditor()
