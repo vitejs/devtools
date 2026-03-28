@@ -10,10 +10,20 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## Setup
 
+Requires `pnpm@10.x`.
+
 ```bash
 pnpm install
 pnpm build  # Required: generates Rolldown meta under ./packages/rolldown/node_modules/.rolldown
-pnpm dev    # Start dev server
+
+# Start Rolldown devtools UI
+pnpm dev:rolldown
+# Start Vite devtools UI
+pnpm dev:vite
+# Core playground (host app with DevTools overlay)
+pnpm play
+# Standalone client dev
+pnpm play:standalone
 ```
 
 **Note**: After pulling latest commits, remove `./packages/rolldown/node_modules/.rolldown` and rebuild to get the latest data format.
@@ -42,8 +52,8 @@ Main entry point and core functionality.
 
 Utility library for integration authors.
 
-- TypeScript types and interfaces
-- Utilities for custom docks, views, panels
+- TypeScript types and interfaces for docks, views, panels
+- `defineRpcFunction` and shared state utilities
 - Event system utilities
 - RPC client helpers
 
@@ -66,9 +76,21 @@ Built-in UI panel for Rolldown integration.
 
 ---
 
+### `packages/vite` - `@vitejs/devtools-vite`
+
+UI for Vite DevTools (WIP).
+
+---
+
+### `packages/ui` - `@vitejs/devtools-ui`
+
+Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`).
+
+---
+
 ### `packages/rpc` - `@vitejs/devtools-rpc`
 
-RPC layer for component communication.
+Typed RPC wrapper over `birpc` with WebSocket presets.
 
 - RPC client/server implementations
 - WebSocket presets
@@ -76,6 +98,12 @@ RPC layer for component communication.
 - Type-safe RPC methods
 
 **Key files**: `src/index.ts`, `src/client.ts`, `src/server.ts`, `src/presets/ws/`
+
+---
+
+### `packages/self-inspect` - `@vitejs/devtools-self-inspect`
+
+Meta-introspection — DevTools for the DevTools itself.
 
 ---
 
@@ -87,14 +115,16 @@ Browser extension (planned for future dev mode). **Not accepting contributions c
 
 ## Scripts
 
-- `pnpm build` - Build all packages
-- `pnpm watch` - Watch mode
-- `pnpm dev` - Dev server
-- `pnpm lint` - ESLint
+- `pnpm build` - Build all packages (via turbo)
+- `pnpm watch` - Watch mode for all packages
+- `pnpm play` - Core playground (host app with DevTools overlay)
+- `pnpm play:standalone` - Standalone client dev
+- `pnpm dev:rolldown` - Rolldown UI dev server
+- `pnpm dev:vite` - Vite UI dev server
+- `pnpm docs` - VitePress docs dev server
+- `pnpm lint` - ESLint (pass `--fix` to auto-fix)
 - `pnpm test` - Vitest
-- `pnpm typecheck` - Type check
-
-Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/rolldown run dev`
+- `pnpm typecheck` - vue-tsc type check
 
 ## Workflow
 
@@ -107,5 +137,5 @@ Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/rolldown ru
 
 - **core**: CLI in `cli-commands.ts`, server in `server.ts`, components in `client/webcomponents/`
 - **kit**: Keep APIs stable, add types for public APIs, consider backward compatibility
-- **vite**: Nuxt 3 app, Vue 3 Composition API, test with `pnpm dev` after build
+- **vite**: Nuxt 4 app, Vue 3 Composition API, test with `pnpm dev` after build
 - **rpc**: Keep methods type-safe, document new methods, test client/server
