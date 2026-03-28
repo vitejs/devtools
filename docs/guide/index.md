@@ -110,6 +110,18 @@ pnpm dev
 
 Then open your app in the browser and open the DevTools panel.
 
+#### Projects without an HTML entry
+
+The embedded DevTools client is usually injected through Vite's `transformIndexHtml` hook. If your app does not start from an HTML entry, keep the `DevTools()` plugin enabled and import the client injector manually in your client entry instead:
+
+```ts twoslash
+import '@vitejs/devtools/client/inject'
+```
+
+This loads the same DevTools client that would normally be added to `index.html`. Put it in a browser entry such as `main.ts` or `entry.client.ts`, not in server-only files or shared SSR entry files.
+
+If your project does have an HTML entry, avoid importing `@vitejs/devtools/client/inject` in addition to the HTML injection, as that would inject the client twice and create duplicate dock elements.
+
 #### Building with the App
 
 You can also generate a static DevTools build alongside your app's build output by enabling the `build.withApp` option:
