@@ -1,21 +1,20 @@
 {
   "action": {
+    "default_title": "Vite DevTools",
     "default_icon": {
-      "16": "icons/16-gray.png",
-      "48": "icons/48-gray.png",
-      "128": "icons/128-gray.png"
-    },
-    "default_popup": "popups/not-found.html",
-    "default_title": "Vite DevTools"
+      "16": "icons/16-inactive.png",
+      "48": "icons/48-inactive.png",
+      "128": "icons/128-inactive.png"
+    }
   },
   "background": {
-    "service_worker": "dist/background.js",
+    "service_worker": "dist/background.mjs",
     "type": "module"
   },
   "content_scripts": [
     {
       "js": [
-        "dist/proxy.js"
+        "app/scripts/entry.js"
       ],
       "matches": [
         "<all_urls>"
@@ -26,7 +25,7 @@
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "description": "DevTools browser extension for Vite",
-  "devtools_page": "pages/devtools-background.html",
+  "devtools_page": "app/pages/background.html",
   "host_permissions": [
     "<all_urls>"
   ],
@@ -50,7 +49,8 @@
       ],
       "resources": [
         "dist/*",
-        "pages/*"
+        "app/scripts/entry.js",
+        "app/pages/*"
       ]
     }
   ]

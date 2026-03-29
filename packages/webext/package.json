@@ -20,7 +20,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:extension": "tsx scripts/build-app.ts && tsdown",
+    "build:extension": "tsdown",
     "watch": "tsdown --watch",
     "prepack": "pnpm build:extension"
   },
