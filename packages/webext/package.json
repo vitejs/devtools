@@ -20,14 +20,15 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:extension": "tsdown",
+    "build": "tsdown",
     "watch": "tsdown --watch",
-    "prepack": "pnpm build:extension"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "webext-bridge": "catalog:deps"
   },
   "devDependencies": {
+    "@types/chrome": "catalog:types",
     "tsdown": "catalog:build",
     "tsx": "catalog:build"
   }
