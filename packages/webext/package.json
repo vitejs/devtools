@@ -20,16 +20,24 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsdown",
-    "watch": "tsdown --watch",
+    "build": "pnpm run build:scripts && pnpm run build:client",
+    "build:scripts": "tsdown",
+    "build:client": "vite build",
+    "watch": "tsdown --watch && vite build --watch",
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*",
     "webext-bridge": "catalog:deps"
   },
   "devDependencies": {
     "@types/chrome": "catalog:types",
+    "@vitejs/plugin-vue": "catalog:build",
     "tsdown": "catalog:build",
-    "tsx": "catalog:build"
+    "tsx": "catalog:build",
+    "unocss": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:deps"
   }
 }

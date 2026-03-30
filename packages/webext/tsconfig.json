@@ -1,10 +1,17 @@
 {
   "compilerOptions": {
     "composite": true,
+    "target": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
     "module": "esnext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
+    "types": ["chrome"],
     "noEmit": true,
     "skipLibCheck": true
-  }
+  },
+  "include": [
+    "./**/*.ts",
+    "./app/**/*.vue"
+  ]
 }

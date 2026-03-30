@@ -8,24 +8,13 @@
     }
   },
   "background": {
-    "service_worker": "dist/background.mjs",
-    "type": "module"
+    "service_worker": "dist/background.js"
   },
-  "content_scripts": [
-    {
-      "js": [
-        "app/scripts/entry.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "description": "DevTools browser extension for Vite",
-  "devtools_page": "app/pages/background.html",
+  "devtools_page": "app/background/background.html",
   "host_permissions": [
     "<all_urls>"
   ],
@@ -49,8 +38,7 @@
       ],
       "resources": [
         "dist/*",
-        "app/scripts/entry.js",
-        "app/pages/*"
+        "app/background/*"
       ]
     }
   ]

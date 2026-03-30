@@ -2,7 +2,7 @@ function setupDevToolsPanel() {
   chrome.devtools.panels.create(
     'Vite',
     'icons/128.png',
-    'app/pages/panel.html',
+    'dist/app/panel/devtools-panel.html',
     (panel) => {
       panel.onShown.addListener(() => {
       })

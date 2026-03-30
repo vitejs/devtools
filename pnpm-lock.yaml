@@ -1100,6 +1100,12 @@ importers:
 
   packages/webext:
     dependencies:
+      '@vitejs/devtools':
+        specifier: workspace:*
+        version: link:../core
+      '@vitejs/devtools-kit':
+        specifier: workspace:*
+        version: link:../kit
       webext-bridge:
         specifier: catalog:deps
         version: 6.0.1
@@ -1107,12 +1113,24 @@ importers:
       '@types/chrome':
         specifier: catalog:types
         version: 0.1.38
+      '@vitejs/plugin-vue':
+        specifier: catalog:build
+        version: 6.0.5(vite@8.0.2(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))(vue@3.5.30(typescript@5.9.3))
       tsdown:
         specifier: catalog:build
-        version: 0.21.4(@vitejs/devtools@0.1.11)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))
+        version: 0.21.4(@vitejs/devtools@packages+core)(publint@0.3.18)(synckit@0.11.12)(typescript@5.9.3)(vue-tsc@3.2.6(typescript@5.9.3))
       tsx:
         specifier: catalog:build
         version: 4.21.0
+      unocss:
+        specifier: catalog:build
+        version: 66.6.7(@unocss/webpack@66.6.7(webpack@5.104.1(esbuild@0.27.4)))(vite@8.0.2(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3))
+      vite:
+        specifier: ^8.0.2
+        version: 8.0.2(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.27.4)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
+      vue:
+        specifier: catalog:deps
+        version: 3.5.30(typescript@5.9.3)
 
 packages:
 
