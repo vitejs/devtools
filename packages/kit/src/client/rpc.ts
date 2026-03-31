@@ -1,7 +1,7 @@
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
-import type { DevToolsClientContext, DevToolsClientRpcHost, RpcClientEvents } from './docks'
+import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
@@ -188,11 +188,11 @@ export async function getDevToolsRpcClient(
     }
   }
 
-  const context: DevToolsClientContext = {
+  const context: DevToolsRpcContext = {
     rpc: undefined!,
   }
   const authToken = getConnectionAuthTokenFromWindows(options.authToken)
-  const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsClientContext>(context)
+  const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsRpcContext>(context)
 
   async function fetchJsonFromBases(path: string): Promise<any> {
     const candidates = [
