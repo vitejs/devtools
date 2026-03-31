@@ -24,7 +24,10 @@ export default defineConfig({
           : viteDevServer.config.server.host || 'localhost'
         const { middleware } = await createDevToolsMiddleware({
           cwd: viteDevServer.config.root,
-          hostWebSocket: host,
+          websocket: {
+            host,
+            https: false,
+          },
           context,
         })
         viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH, middleware)
