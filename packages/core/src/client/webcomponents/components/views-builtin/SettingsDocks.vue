@@ -2,7 +2,8 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
-import { computed } from 'vue'
+import { useDraggable } from '@vueuse/core'
+import { computed, ref, useTemplateRef } from 'vue'
 import { docksGroupByCategories } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import HashBadge from '../display/HashBadge.vue'
@@ -18,6 +19,102 @@ const settings = sharedStateToRef(props.settingsStore)
 const categories = computed(() => {
   return docksGroupByCategories(props.context.docks.entries, props.settingsStore.value(), { includeHidden: true })
 })
+
+const sortContainerEl = useTemplateRef<HTMLElement>('sortContainer')
+const entryEls = new Map<string, { el: HTMLElement, category: string }>()
+const draggingId = ref<string | null>(null)
+const draggingCategory = ref<string | null>(null)
+const dragOverId = ref<string | null>(null)
+const hasMoved = ref(false)
+let startY = 0
+const DRAG_THRESHOLD = 4
+
+function findEntryFromEvent(event: PointerEvent): { dockId: string | null, category: string | null } {
+  let el = event.target as HTMLElement | null
+  while (el && el !== sortContainerEl.value) {
+    if (el.dataset.dockId)
+      return { dockId: el.dataset.dockId, category: el.dataset.category ?? null }
+    el = el.parentElement
+  }
+  return { dockId: null, category: null }
+}
+
+function isInteractiveElement(el: HTMLElement | null): boolean {
+  while (el && el !== sortContainerEl.value) {
+    if (el.tagName === 'BUTTON' || el.tagName === 'A' || el.tagName === 'INPUT')
+      return true
+    el = el.parentElement
+  }
+  return false
+}
+
+useDraggable(sortContainerEl, {
+  onStart(_, event) {
+    if (event.button !== 0)
+      return false
+    if (isInteractiveElement(event.target as HTMLElement))
+      return false
+    const { dockId, category } = findEntryFromEvent(event)
+    if (!dockId || !category)
+      return false
+    draggingId.value = dockId
+    draggingCategory.value = category
+    hasMoved.value = false
+    startY = event.clientY
+  },
+  onMove(_, event) {
+    if (!draggingId.value)
+      return
+    if (!hasMoved.value) {
+      if (Math.abs(event.clientY - startY) < DRAG_THRESHOLD)
+        return
+      hasMoved.value = true
+    }
+    let target: string | null = null
+    for (const [id, { el, category }] of entryEls) {
+      if (id === draggingId.value)
+        continue
+      if (category !== draggingCategory.value)
+        continue
+      const rect = el.getBoundingClientRect()
+      if (event.clientY >= rect.top && event.clientY <= rect.bottom) {
+        target = id
+        break
+      }
+    }
+    dragOverId.value = target
+  },
+  onEnd() {
+    if (draggingId.value && hasMoved.value && dragOverId.value && draggingCategory.value) {
+      const categoryEntries = categories.value.find(([cat]) => cat === draggingCategory.value)
+      if (categoryEntries) {
+        const items = [...categoryEntries[1]]
+        const fromIndex = items.findIndex(item => item.id === draggingId.value)
+        const toIndex = items.findIndex(item => item.id === dragOverId.value)
+        if (fromIndex !== -1 && toIndex !== -1) {
+          items.splice(toIndex, 0, items.splice(fromIndex, 1)[0]!)
+          categoryEntries[1] = items
+          props.settingsStore.mutate((state) => {
+            items.forEach((item, index) => {
+              state.docksCustomOrder[item.id] = index
+            })
+          })
+        }
+      }
+    }
+    draggingId.value = null
+    draggingCategory.value = null
+    dragOverId.value = null
+    hasMoved.value = false
+  },
+})
+
+function setEntryRef(el: any, dockId: string, category: string) {
+  if (el)
+    entryEls.set(dockId, { el: el as HTMLElement, category })
+  else
+    entryEls.delete(dockId)
+}
 
 function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
@@ -132,7 +229,7 @@ function resetCustomOrderForCategory(category: string) {
     Manage visibility and order of dock entries. Hidden entries will not appear in the dock bar.
   </p>
 
-  <div class="flex flex-col gap-4">
+  <div ref="sortContainer" class="flex flex-col gap-4">
     <template v-for="[category, entries] of categories" :key="category">
       <div
         class="border border-base rounded-lg overflow-hidden transition-opacity"
@@ -173,9 +270,23 @@ function resetCustomOrderForCategory(category: string) {
           <div
             v-for="(dock, index) of entries"
             :key="dock.id"
-            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray/5 transition-colors group border-b border-base border-t-0"
-            :class="settings.docksHidden.includes(dock.id) ? 'op40' : ''"
+            :ref="(el: any) => setEntryRef(el, dock.id, category)"
+            :data-dock-id="dock.id"
+            :data-category="category"
+            class="flex items-center gap-3 px-2 py-2.5 hover:bg-gray/5 transition-all group border-b border-base border-t-0"
+            :class="[
+              settings.docksHidden.includes(dock.id) ? 'op40' : '',
+              hasMoved && draggingId === dock.id ? 'op30 bg-gray/10' : '',
+              dragOverId === dock.id ? 'ring-1.5 ring-purple/50 rounded' : '',
+              hasMoved ? 'select-none' : '',
+            ]"
           >
+            <!-- drag icon -->
+            <div
+              class="i-ph-dots-six-vertical w-4 h-4 shrink-0 op25 group-hover:op50 transition-opacity cursor-grab"
+              :style="hasMoved && draggingId === dock.id ? 'cursor: grabbing' : ''"
+            />
+
             <!-- Visibility toggle -->
             <button
               class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
