@@ -16,14 +16,14 @@ export interface DockPanelStorage {
 
 export type DockClientType = 'embedded' | 'standalone'
 
-export interface DevToolsClientContext {
+export interface DevToolsRpcContext {
   /**
    * The RPC client to interact with the server
    */
   readonly rpc: DevToolsRpcClient
 }
 
-export interface DocksContext extends DevToolsClientContext {
+export interface DocksContext extends DevToolsRpcContext {
   /**
    * Type of the client environment
    *
@@ -57,7 +57,9 @@ export interface WhenClauseContext {
   readonly context: WhenContext
 }
 
-export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsClientContext>
+export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsRpcContext>
+
+export type DevToolsClientContext = DocksContext
 
 export interface DocksPanelContext {
   store: DockPanelStorage
