@@ -49,7 +49,9 @@ export function DevToolsServer(): Plugin {
 
       const { middleware } = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
-        hostWebSocket: host,
+        websocket: {
+          host,
+        },
         context,
       })
       viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
