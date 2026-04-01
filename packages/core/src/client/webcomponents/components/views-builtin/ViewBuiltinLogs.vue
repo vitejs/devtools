@@ -2,7 +2,7 @@
 import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useClipboard, useTimeAgo } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { markLogsAsRead, useLogs } from '../../state/logs'
 import FilterToggles from '../display/FilterToggles.vue'
 import HashBadge from '../display/HashBadge.vue'
@@ -159,6 +159,13 @@ const selectedEntry = computed(() => {
   if (!selectedId.value)
     return null
   return logsState.entries.find(e => e.id === selectedId.value) ?? null
+})
+
+watch(selectedEntry, async (entry) => {
+  if (!entry?.autoDelete)
+    return
+
+  await props.context.rpc.call('devtoolskit:internal:logs:update', entry.id, { autoDelete: 0 })
 })
 
 const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
