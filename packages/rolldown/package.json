@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rolldown",
   "type": "module",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "DevTools for Rolldown",
   "author": "VoidZero Inc.",
   "license": "MIT",
