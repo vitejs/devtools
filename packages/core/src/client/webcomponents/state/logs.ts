@@ -7,6 +7,7 @@ import { addToast } from './toasts'
 export interface LogsState {
   entries: DevToolsLogEntry[]
   unreadCount: number
+  pendingSelectId: string | null
 }
 
 let _logsState: Reactive<LogsState> | undefined
@@ -18,6 +19,7 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
   const state: Reactive<LogsState> = _logsState = reactive({
     entries: [],
     unreadCount: 0,
+    pendingSelectId: null,
   })
 
   const entryMap = new Map<string, DevToolsLogEntry>()
@@ -75,4 +77,9 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
 export function markLogsAsRead(): void {
   if (_logsState)
     _logsState.unreadCount = 0
+}
+
+export function selectLog(id: string): void {
+  if (_logsState)
+    _logsState.pendingSelectId = id
 }
