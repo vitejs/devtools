@@ -382,8 +382,8 @@ onMounted(() => {
 
         <!-- Category + Labels -->
         <div v-if="selectedEntry.category || (selectedEntry.labels && selectedEntry.labels.length)" class="flex flex-wrap gap-1 mb-3">
-          <HashBadge v-if="selectedEntry.category" :label="selectedEntry.category" />
-          <HashBadge v-for="label of selectedEntry.labels" :key="label" :label="label" />
+          <HashBadge v-if="selectedEntry.category" :label="selectedEntry.category" class="cursor-pointer" @click="toggleCategory(selectedEntry.category)" />
+          <HashBadge v-for="label of selectedEntry.labels" :key="label" :label="label" class="cursor-pointer" @click="toggleLabelFilter(label)" />
         </div>
 
         <!-- File position -->
