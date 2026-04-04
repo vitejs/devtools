@@ -50,7 +50,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
     debugBroadcast(JSON.stringify(options.method))
 
-    await Promise.all(
+    await Promise.allSettled(
       this._rpcGroup.clients.map((client) => {
         if (options.filter?.(client) === false)
           return undefined
