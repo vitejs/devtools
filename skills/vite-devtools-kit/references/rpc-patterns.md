@@ -85,6 +85,57 @@ defineRpcFunction({
 })
 ```
 
+## Sharing State Across RPC Functions
+
+When multiple RPC functions need shared plugin state (manager instances, options, cached data), use a `WeakMap<DevToolsNodeContext, T>` with get/set helpers instead of mutating the context object:
+
+```ts
+// src/node/rpc/context.ts
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+
+interface MyPluginContext {
+  dataDir: string
+  manager: DataManager
+}
+
+const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+
+export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+  const value = pluginContext.get(ctx)
+  if (!value)
+    throw new Error('Plugin context not initialized')
+  return value
+}
+
+export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+  pluginContext.set(ctx, value)
+}
+```
+
+Initialize in plugin setup, access in RPC functions:
+
+```ts
+// Plugin setup
+devtools: {
+  setup(ctx) {
+    setPluginContext(ctx, { dataDir: resolve(ctx.cwd, 'data'), manager: new DataManager() })
+    rpcFunctions.forEach(fn => ctx.rpc.register(fn))
+  },
+}
+
+// RPC function
+const getData = defineRpcFunction({
+  name: 'my-plugin:get-data',
+  type: 'query',
+  setup: (ctx) => {
+    const { manager } = getPluginContext(ctx)
+    return {
+      handler: async () => manager.getData(),
+    }
+  },
+})
+```
+
 ## Broadcasting Patterns
 
 ### Basic Broadcast

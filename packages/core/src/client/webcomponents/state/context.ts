@@ -1,10 +1,12 @@
-import type { DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsClientCommand, WhenContext } from '@vitejs/devtools-kit'
+import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
+import { createCommandsContext } from './commands'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientLogsClient } from './logs-client'
@@ -107,8 +109,115 @@ export async function createDocksContext(
   // Get settings store and create computed grouped entries
   const settingsStore = markRaw(await getSettingsStore())
   const settings = sharedStateToRef(settingsStore)
+
+  // Shared when-context provider — used by both commands and docks
+  let commandsContext: CommandsContext
+  const getWhenContext = (): WhenContext => ({
+    clientType,
+    dockOpen: panelStore.value.open,
+    paletteOpen: commandsContext?.paletteOpen ?? false,
+    dockSelectedId: selectedId.value ?? '',
+  })
+
   const groupedEntries = computed(() => {
-    return docksGroupByCategories(dockEntries.value, settings.value)
+    return docksGroupByCategories(dockEntries.value, settings.value, { whenContext: getWhenContext() })
+  })
+
+  // Initialize commands context with reactive when-context
+  const commandsContextResult = await createCommandsContext(clientType, rpc, settingsStore, getWhenContext)
+  commandsContext = commandsContextResult
+
+  // Register built-in client commands
+  commandsContext.register([
+    {
+      id: 'devtools:toggle-palette',
+      source: 'client',
+      title: 'Toggle Command Palette',
+      icon: 'ph:magnifying-glass-duotone',
+      showInPalette: false,
+      keybindings: [{ key: 'Mod+K' }],
+      action: () => {
+        commandsContext.paletteOpen = !commandsContext.paletteOpen
+      },
+    },
+    {
+      id: 'devtools:close-panel',
+      source: 'client',
+      title: 'Close Panel',
+      icon: 'ph:x-circle-duotone',
+      when: 'dockOpen',
+      keybindings: [],
+      action: () => {
+        panelStore.value.open = false
+        selectedId.value = null
+      },
+    },
+    {
+      id: 'devtools:open-settings',
+      source: 'client',
+      title: 'Open Settings',
+      icon: 'ph:gear-duotone',
+      action: () => {
+        switchEntry('~settings')
+      },
+    },
+    {
+      id: 'devtools:dock-mode',
+      source: 'client',
+      title: 'Dock Mode',
+      icon: 'ph:layout-duotone',
+      when: clientType === 'embedded' ? 'clientType == embedded' : undefined,
+      children: [
+        {
+          id: 'devtools:dock-mode:float',
+          source: 'client',
+          title: 'Float Mode',
+          icon: 'ph:cards-three-duotone',
+          action: () => {
+            panelStore.value.mode = 'float'
+          },
+        },
+        {
+          id: 'devtools:dock-mode:edge',
+          source: 'client',
+          title: 'Edge Mode',
+          icon: 'ph:square-half-bottom-duotone',
+          action: () => {
+            panelStore.value.mode = 'edge'
+          },
+        },
+      ],
+    },
+  ])
+
+  // Dynamic dock navigation commands — grouped under "Docks" parent
+  let cleanupDocksCommand: (() => void) | undefined
+  watchEffect(() => {
+    cleanupDocksCommand?.()
+
+    const dockChildren: DevToolsClientCommand[] = dockEntries.value
+      .filter(entry => entry.type !== '~builtin')
+      .map((entry) => {
+        return {
+          id: `devtools:docks:${entry.id}`,
+          source: 'client' as const,
+          title: entry.title,
+          icon: typeof entry.icon === 'string' ? entry.icon : undefined,
+          action: () => {
+            toggleEntry(entry.id)
+          },
+        }
+      })
+
+    if (dockChildren.length > 0) {
+      cleanupDocksCommand = commandsContext.register({
+        id: 'devtools:docks',
+        source: 'client',
+        title: 'Docks',
+        icon: 'ph:layout-duotone',
+        children: dockChildren,
+      })
+    }
   })
 
   docksContext = reactive({
@@ -128,6 +237,12 @@ export async function createDocksContext(
       getStateById: (id: string) => dockEntryStateMap.get(id),
       switchEntry,
       toggleEntry,
+    },
+    commands: commandsContext,
+    when: {
+      get context() {
+        return getWhenContext()
+      },
     },
     rpc,
     clientType,

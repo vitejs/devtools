@@ -34,10 +34,16 @@ export interface DevToolsDockEntryBase {
    */
   category?: DevToolsDockEntryCategory
   /**
-   * Whether the entry should be hidden from the user.
-   * @default false
+   * Conditional visibility expression.
+   * When set, the dock entry is only visible when the expression evaluates to true.
+   * Uses the same syntax as command `when` clauses.
+   *
+   * Set to `'false'` to unconditionally hide the entry.
+   *
+   * @example 'clientType == embedded'
+   * @see {@link import('../utils/when').evaluateWhen}
    */
-  isHidden?: boolean
+  when?: string
   /**
    * Badge text to display on the dock icon (e.g., unread count)
    */

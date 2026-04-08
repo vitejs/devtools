@@ -1,3 +1,5 @@
+import type { DevToolsCommandShortcutOverrides } from './commands'
+
 export interface DevToolsDocksUserSettings {
   docksHidden: string[]
   docksCategoriesHidden: string[]
@@ -5,4 +7,5 @@ export interface DevToolsDocksUserSettings {
   docksCustomOrder: Record<string, number>
   showIframeAddressBar: boolean
   closeOnOutsideClick: boolean
+  commandShortcuts: DevToolsCommandShortcutOverrides
 }

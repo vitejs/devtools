@@ -16,6 +16,7 @@ export default defineConfig({
   ],
   deps: {
     neverBundle: [
+      'vite',
       '@vitejs/devtools/client/webcomponents',
       /^node:/,
     ],
@@ -36,6 +37,10 @@ export default defineConfig({
       'ansis',
       'csstype',
       'dompurify',
+      'fast-string-truncated-width',
+      'fast-string-width',
+      'fast-wrap-ansi',
+      'fuse.js',
       'get-port-please',
       'human-id',
       'sisteransi',

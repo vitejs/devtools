@@ -121,7 +121,7 @@ const plugin: Plugin = {
 
 ### Dump Feature for Build Mode
 
-When using `vite devtools build` to create a static DevTools build, the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
+When creating a static DevTools build (via `vite devtools build` CLI or the [`build.withApp`](/guide/#building-with-the-app) plugin option), the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
 
 #### How It Works
 
@@ -392,6 +392,74 @@ export default function setup(ctx: DockClientScriptContext) {
   })
 }
 ```
+
+### Sharing State Across RPC Functions
+
+When multiple RPC functions need access to the same plugin-specific state (a manager instance, plugin options, cached data, etc.), use a `WeakMap` keyed by `DevToolsNodeContext` to store and retrieve that state. This avoids mutating the base context object and keeps your plugin state scoped and garbage-collectable.
+
+Create a helper file with get/set functions:
+
+```ts
+// src/node/rpc/context.ts
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+
+interface MyPluginContext {
+  dataDir: string
+  manager: DataManager
+}
+
+const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+
+export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+  const value = pluginContext.get(ctx)
+  if (!value)
+    throw new Error('Plugin context not initialized')
+  return value
+}
+
+export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+  pluginContext.set(ctx, value)
+}
+```
+
+Initialize the state in your plugin's `devtools.setup`, then access it from any RPC function's `setup`:
+
+::: code-group
+
+```ts [plugin.ts]
+import { rpcFunctions } from './rpc'
+import { setPluginContext } from './rpc/context'
+
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+      setPluginContext(ctx, {
+        dataDir: resolve(ctx.cwd, 'data'),
+        manager: new DataManager(),
+      })
+      rpcFunctions.forEach(fn => ctx.rpc.register(fn))
+    },
+  },
+}
+```
+
+```ts [functions/get-data.ts]
+import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { getPluginContext } from '../context'
+
+export const getData = defineRpcFunction({
+  name: 'my-plugin:get-data',
+  type: 'query',
+  setup: (ctx) => {
+    const { manager } = getPluginContext(ctx)
+    return {
+      handler: async () => manager.getData(),
+    }
+  },
+})
+```
+
+:::
 
 ### Global Client Context
 

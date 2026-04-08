@@ -146,7 +146,7 @@ const metadata = computed(() => [
             <div>
               {{ row.label }}
             </div>
-            <div font-mono>
+            <div font-mono truncate>
               {{ row.value }}
             </div>
           </div>

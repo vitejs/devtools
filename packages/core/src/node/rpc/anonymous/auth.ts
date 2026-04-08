@@ -32,7 +32,6 @@ export const anonymousAuth = defineRpcFunction({
           throw new Error('Failed to retrieve the current RPC session')
 
         if (session.meta.isTrusted || storage.value().trusted[query.authToken]) {
-          console.log('trusted', { isTrusted: session.meta.isTrusted, trusted: storage.value().trusted[query.authToken] })
           session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true
           return {
@@ -41,7 +40,7 @@ export const anonymousAuth = defineRpcFunction({
         }
 
         // Auto-approve if authToken matches a configured auth token (session-only, not persisted)
-        const tokens = (context.viteConfig.devtools?.config as any)?.clientAuthTokens as string[] ?? []
+        const tokens = context.viteConfig.devtools?.config?.clientAuthTokens ?? []
         if (tokens.includes(query.authToken)) {
           session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true

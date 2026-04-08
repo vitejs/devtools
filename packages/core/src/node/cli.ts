@@ -1,6 +1,5 @@
 import process from 'node:process'
 import cac from 'cac'
-import { build, start } from './cli-commands'
 
 const cli = cac('vite-devtools')
 
@@ -16,7 +15,10 @@ cli
   .option('--base <baseURL>', 'Base URL for deployment', { default: '/' })
   .option('--outDir <dir>', 'Output directory', { default: '.vite-devtools' })
   // Action
-  .action(build)
+  .action(async (options) => {
+    const { build } = await import('./cli-commands')
+    return await build(options)
+  })
 
 cli
   .command('', 'Start devtools')
@@ -27,7 +29,10 @@ cli
   .option('--port <port>', 'Port', { default: process.env.PORT || 9999 })
   .option('--open', 'Open browser', { default: true })
   // Action
-  .action(start)
+  .action(async (options) => {
+    const { start } = await import('./cli-commands')
+    return await start(options)
+  })
 
 cli.help()
 cli.parse()

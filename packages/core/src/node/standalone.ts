@@ -1,7 +1,6 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import process from 'node:process'
-import { resolveConfig } from 'vite'
 import { createDevToolsContext } from './context'
 import { DevTools } from './plugins'
 
@@ -23,6 +22,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     mode = 'production',
   } = options
 
+  const { resolveConfig } = await import('vite')
   const resolved = await resolveConfig(
     {
       configFile: options.config,

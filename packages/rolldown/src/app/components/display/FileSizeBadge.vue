@@ -20,7 +20,7 @@ const props = withDefaults(
   },
 )
 
-const KB = 1024
+const KB = 1000
 const MB = KB ** 2
 
 const colorScale = [

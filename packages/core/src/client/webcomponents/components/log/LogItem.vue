@@ -26,19 +26,21 @@ const timeAgo = useTimeAgo(() => props.entry.timestamp)
       :class="[levels[entry.level]?.icon, levels[entry.level]?.color]"
     />
 
-    <div class="flex-1 min-w-0">
-      <div class="truncate text-sm font-medium" :class="[entry.status === 'loading' ? 'op60' : '']">
-        {{ entry.message }}
+    <div class="flex-1 min-w-0 space-y-0.5">
+      <div class="flex items-center gap-2">
+        <div class="flex-1 min-w-0 truncate text-sm font-medium" :class="[entry.status === 'loading' ? 'op60' : '']">
+          {{ entry.message }}
+        </div>
+        <span v-if="!compact" class="text-xs op40 flex-none" :title="new Date(entry.timestamp).toLocaleString()">{{ timeAgo }}</span>
+        <slot name="actions" />
       </div>
-      <div v-if="entry.description" class="text-xs op80 mt-0.5 whitespace-pre-wrap">
+      <div v-if="entry.description" class="text-xs op80 whitespace-pre-wrap">
         {{ entry.description }}
       </div>
-      <div v-if="!compact" class="flex items-center gap-2 mt-0.5">
+      <div v-if="!compact" class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
         <HashBadge v-if="entry.category" :label="entry.category" />
         <HashBadge v-for="label of entry.labels" :key="label" :label="label" />
       </div>
     </div>
-    <span v-if="!compact" class="text-xs op40 flex-none" :title="new Date(entry.timestamp).toLocaleString()">{{ timeAgo }}</span>
-    <slot name="actions" />
   </div>
 </template>

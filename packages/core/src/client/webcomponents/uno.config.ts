@@ -17,6 +17,7 @@ export default defineConfig({
       'z-floating-dock': 'z-50',
       'z-floating-anchor': 'z-[2147483644]',
       'z-floating-tooltip': 'z-[2147483645]',
+      'z-command-palette': 'z-[2147483646]',
     },
   ],
   transformers: [

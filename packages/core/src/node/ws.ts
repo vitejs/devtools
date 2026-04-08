@@ -16,8 +16,11 @@ const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
 export interface CreateWsServerOptions {
   cwd: string
-  portWebSocket?: number
-  hostWebSocket: string
+  websocket: {
+    port?: number
+    host: string
+    https?: DevToolsNodeContext['viteConfig']['server']['https'] | false
+  }
   base?: string
   context: DevToolsNodeContext
 }
@@ -26,9 +29,9 @@ const ANONYMOUS_SCOPE = 'vite:anonymous:'
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
-  const host = options.hostWebSocket ?? 'localhost'
-  const https = options.context.viteConfig.server.https
-  const port = options.portWebSocket ?? await getPort({ port: 7812, host, random: true })!
+  const host = options.websocket.host
+  const https = options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https)
+  const port = options.websocket.port ?? await getPort({ port: 7812, host, random: true })!
 
   const wsClients = new Set<WebSocket>()
 
@@ -54,15 +57,14 @@ export async function createWsServer(options: CreateWsServerOptions) {
         meta.isTrusted = true
         meta.clientAuthToken = authToken
       }
-      else if (authToken && ((context.viteConfig.devtools?.config as any)?.clientAuthTokens ?? []).includes(authToken)) {
+      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
         meta.isTrusted = true
         meta.clientAuthToken = authToken
       }
 
       wsClients.add(ws)
       const color = meta.isTrusted ? c.green : c.yellow
-      const trustedKeys = Object.keys(contextInternal.storage.auth.value().trusted)
-      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'}) authToken=${authToken} trustedKeys=${JSON.stringify(trustedKeys)} isClientAuthDisabled=${isClientAuthDisabled}`)
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)

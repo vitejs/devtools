@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { useTimeAgo } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { useClipboard, useTimeAgo } from '@vueuse/core'
+import { computed, onMounted, ref, watch } from 'vue'
 import { markLogsAsRead, useLogs } from '../../state/logs'
 import FilterToggles from '../display/FilterToggles.vue'
 import HashBadge from '../display/HashBadge.vue'
@@ -161,7 +161,15 @@ const selectedEntry = computed(() => {
   return logsState.entries.find(e => e.id === selectedId.value) ?? null
 })
 
+watch(selectedEntry, async (entry) => {
+  if (!entry?.autoDelete)
+    return
+
+  await props.context.rpc.call('devtoolskit:internal:logs:update', entry.id, { autoDelete: 0 })
+})
+
 const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
+const { copy: copyStacktrace, copied: stacktraceCopied } = useClipboard()
 
 async function openFile(entry: DevToolsLogEntry) {
   if (!entry.filePosition)
@@ -374,8 +382,8 @@ onMounted(() => {
 
         <!-- Category + Labels -->
         <div v-if="selectedEntry.category || (selectedEntry.labels && selectedEntry.labels.length)" class="flex flex-wrap gap-1 mb-3">
-          <HashBadge v-if="selectedEntry.category" :label="selectedEntry.category" />
-          <HashBadge v-for="label of selectedEntry.labels" :key="label" :label="label" />
+          <HashBadge v-if="selectedEntry.category" :label="selectedEntry.category" class="cursor-pointer" @click="toggleCategory(selectedEntry.category)" />
+          <HashBadge v-for="label of selectedEntry.labels" :key="label" :label="label" class="cursor-pointer" @click="toggleLabelFilter(label)" />
         </div>
 
         <!-- File position -->
@@ -410,7 +418,19 @@ onMounted(() => {
           <div class="op50 text-xs mb-1">
             Stack Trace
           </div>
-          <pre class="text-xs bg-gray/5 rounded p-2 of-x-auto whitespace-pre-wrap font-mono">{{ selectedEntry.stacktrace }}</pre>
+          <div class="group relative">
+            <pre class="text-xs bg-gray/5 rounded p-2 of-x-auto whitespace-pre-wrap font-mono">{{ selectedEntry.stacktrace }}</pre>
+            <button
+              class="group/bt absolute top-1.5 right-1.5 op0 group-hover:op100 p-1 rounded bg-base border border-base transition"
+              title="Copy"
+              @click="copyStacktrace(selectedEntry.stacktrace)"
+            >
+              <div
+                :class="stacktraceCopied ? 'i-ph:check' : 'i-ph:copy'"
+                class="op50 group-hover/bt:op100 size-3.5"
+              />
+            </button>
+          </div>
         </div>
 
         <!-- Timers -->

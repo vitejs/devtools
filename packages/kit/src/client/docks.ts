@@ -1,5 +1,5 @@
 import type { RpcFunctionsCollector } from '@vitejs/devtools-rpc'
-import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from '../types'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
 
@@ -16,14 +16,14 @@ export interface DockPanelStorage {
 
 export type DockClientType = 'embedded' | 'standalone'
 
-export interface DevToolsClientContext {
+export interface DevToolsRpcContext {
   /**
    * The RPC client to interact with the server
    */
   readonly rpc: DevToolsRpcClient
 }
 
-export interface DocksContext extends DevToolsClientContext {
+export interface DocksContext extends DevToolsRpcContext {
   /**
    * Type of the client environment
    *
@@ -39,9 +39,27 @@ export interface DocksContext extends DevToolsClientContext {
    * The docks entries context
    */
   readonly docks: DocksEntriesContext
+  /**
+   * The commands context for command palette and shortcuts
+   */
+  readonly commands: CommandsContext
+  /**
+   * The when-clause context for conditional visibility
+   */
+  readonly when: WhenClauseContext
 }
 
-export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsClientContext>
+export interface WhenClauseContext {
+  /**
+   * Get the current when-clause context snapshot.
+   * Returns a reactive object with built-in variables and any custom plugin variables.
+   */
+  readonly context: WhenContext
+}
+
+export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsRpcContext>
+
+export type DevToolsClientContext = DocksContext
 
 export interface DocksPanelContext {
   store: DockPanelStorage
@@ -95,4 +113,35 @@ export interface DockEntryStateEvents {
 
 export interface RpcClientEvents {
   'rpc:is-trusted:updated': (isTrusted: boolean) => void
+}
+
+export interface CommandsContext {
+  /**
+   * All commands (server + client)
+   */
+  readonly commands: DevToolsCommandEntry[]
+  /**
+   * Palette-visible commands only (filtered by `showInPalette !== false`)
+   */
+  readonly paletteCommands: DevToolsCommandEntry[]
+  /**
+   * Register client-side command(s). Returns cleanup function.
+   */
+  register: (cmd: DevToolsClientCommand | DevToolsClientCommand[]) => () => void
+  /**
+   * Execute a command by ID. Delegates to RPC for server commands.
+   */
+  execute: (id: string, ...args: any[]) => Promise<unknown>
+  /**
+   * Get effective keybindings for a command (defaults merged with overrides)
+   */
+  getKeybindings: (id: string) => DevToolsCommandKeybinding[]
+  /**
+   * User settings store (persisted, includes command shortcuts)
+   */
+  settings: SharedState<DevToolsDocksUserSettings>
+  /**
+   * Whether the command palette is open
+   */
+  paletteOpen: boolean
 }
