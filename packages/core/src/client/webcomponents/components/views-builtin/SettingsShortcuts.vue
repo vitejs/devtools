@@ -58,6 +58,18 @@ function isOverridden(id: string): boolean {
   return shortcutOverrides.value[id] !== undefined
 }
 
+function getDefaultKey(id: string): string | undefined {
+  for (const cmd of commandsCtx.commands) {
+    if (cmd.id === id)
+      return cmd.keybindings?.[0]?.key
+    if (cmd.children) {
+      const child = cmd.children.find(c => c.id === id)
+      if (child)
+        return child.keybindings?.[0]?.key
+    }
+  }
+}
+
 function clearShortcut(commandId: string) {
   commandsCtx.settings.mutate((state) => {
     state.commandShortcuts[commandId] = []
@@ -187,9 +199,19 @@ function onEditorKeyDown(e: KeyboardEvent) {
 function saveEditor() {
   if (!editorCommandId.value || !editorCanSave.value)
     return
-  commandsCtx.settings.mutate((state) => {
-    state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
-  })
+  const defaultKey = getDefaultKey(editorCommandId.value)
+  if (editorComposedKey.value === defaultKey) {
+    if (isOverridden(editorCommandId.value)) {
+      commandsCtx.settings.mutate((state) => {
+        delete state.commandShortcuts[editorCommandId.value!]
+      })
+    }
+  }
+  else {
+    commandsCtx.settings.mutate((state) => {
+      state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
+    })
+  }
   closeEditor()
 }
 
