@@ -45,6 +45,7 @@
     }
   },
   "dependencies": {
+    "@antfu/experimental-logs-sdk": "catalog:deps",
     "birpc": "catalog:deps",
     "ohash": "catalog:deps",
     "p-limit": "catalog:deps",

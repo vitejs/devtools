@@ -55,6 +55,7 @@
     "vite": "*"
   },
   "dependencies": {
+    "@antfu/experimental-logs-sdk": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rolldown": "workspace:*",
     "@vitejs/devtools-rpc": "workspace:*",

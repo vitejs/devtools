@@ -1,0 +1,23 @@
+import { consoleReporter, createLogger, defineDiagnostics } from '@antfu/experimental-logs-sdk'
+import { ansiFormatter } from '@antfu/experimental-logs-sdk/formatters/ansi'
+import c from 'ansis'
+
+export const diagnostics = defineDiagnostics({
+  docsBase: 'https://devtools.vite.dev/errors',
+  codes: {
+    RDDT0001: {
+      message: 'Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.',
+      level: 'warn',
+    },
+    RDDT0002: {
+      message: (p: { line: number, error: string, preview: string }) => `JSON parse stream skip bad line ${p.line}: ${p.error}\n${p.preview}`,
+      level: 'warn',
+    },
+  },
+})
+
+export const logger = createLogger({
+  diagnostics: [diagnostics],
+  formatter: ansiFormatter(c),
+  reporter: consoleReporter,
+})
