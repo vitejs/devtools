@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { useClipboard, useTimeAgo } from '@vueuse/core'
-import { computed, onMounted, ref, watch } from 'vue'
+import { useClipboard, useTimeAgo, whenever } from '@vueuse/core'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { markLogsAsRead, useLogs } from '../../state/logs'
 import FilterToggles from '../display/FilterToggles.vue'
 import HashBadge from '../display/HashBadge.vue'
@@ -168,6 +168,20 @@ watch(selectedEntry, async (entry) => {
   await props.context.rpc.call('devtoolskit:internal:logs:update', entry.id, { autoDelete: 0 })
 })
 
+const logListEl = useTemplateRef('logListEl')
+
+whenever(() => logsState.pendingSelectId, async (id) => {
+  if (!id)
+    return
+
+  logsState.pendingSelectId = null
+  selectedId.value = id
+
+  await nextTick()
+  logListEl.value?.querySelector<HTMLElement>('[data-selected]')
+    ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+}, { immediate: true })
+
 const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
 const { copy: copyStacktrace, copied: stacktraceCopied } = useClipboard()
 
@@ -306,13 +320,14 @@ onMounted(() => {
     <!-- Content -->
     <div class="h-full of-hidden" :class="selectedEntry ? 'grid grid-cols-[1fr_1fr]' : ''">
       <!-- Log list -->
-      <div class="h-full of-y-auto">
+      <div ref="logListEl" class="h-full of-y-auto">
         <div v-if="filteredEntries.length === 0" class="flex items-center justify-center h-full op50 text-sm">
           No logs
         </div>
         <div
           v-for="entry of filteredEntries"
           :key="entry.id"
+          :data-selected="selectedId === entry.id || undefined"
           class="w-full text-left border-b border-base hover:bg-active transition border-l-2 text-sm group cursor-pointer"
           :class="[
             selectedId === entry.id ? 'bg-active' : '',
