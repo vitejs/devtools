@@ -93,7 +93,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           // Block unauthorized access to non-anonymous methods
           if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
             return () => {
-              logger.DTK0013({ name, clientId: rpc.$meta.id }).throw()
+              throw logger.DTK0013({ name, clientId: rpc.$meta.id }).throw()
             }
           }
 

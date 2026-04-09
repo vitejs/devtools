@@ -167,7 +167,7 @@ export async function createDevToolsContext(
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {
-      logger.DTK0014({ name: plugin.name }, { cause: error }).throw()
+      throw logger.DTK0014({ name: plugin.name }, { cause: error }).throw()
     }
   }
 

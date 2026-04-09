@@ -14,10 +14,10 @@ export const docksOnLaunch = defineRpcFunction({
 
         const entry = context.docks.values().find(entry => entry.id === entryId)
         if (!entry) {
-          logger.DTK0030({ id: entryId }).throw()
+          throw logger.DTK0030({ id: entryId }).throw()
         }
         if (entry.type !== 'launcher') {
-          logger.DTK0031({ id: entryId }).throw()
+          throw logger.DTK0031({ id: entryId }).throw()
         }
         try {
           context.docks.update({

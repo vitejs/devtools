@@ -12,7 +12,7 @@ export function validateDefinitions(definitions: readonly RpcFunctionDefinitionA
     const type = definition.type || 'query'
 
     if ((type === 'action' || type === 'event') && definition.dump) {
-      logger.DTK0007({ name: definition.name, type }).throw()
+      throw logger.DTK0007({ name: definition.name, type }).throw()
     }
   }
 }

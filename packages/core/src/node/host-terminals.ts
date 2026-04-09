@@ -20,7 +20,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
     if (this.sessions.has(session.id)) {
-      logger.DTK0018({ id: session.id }).throw()
+      throw logger.DTK0018({ id: session.id }).throw()
     }
     this.sessions.set(session.id, session)
     this.bindStream(session)
@@ -30,7 +30,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   update(patch: PartialWithoutId<DevToolsTerminalSession>): void {
     if (!this.sessions.has(patch.id)) {
-      logger.DTK0019({ id: patch.id }).throw()
+      throw logger.DTK0019({ id: patch.id }).throw()
     }
     const session = this.sessions.get(patch.id)!
     Object.assign(session, patch)
@@ -85,7 +85,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
-      logger.DTK0018({ id: terminal.id }).throw()
+      throw logger.DTK0018({ id: terminal.id }).throw()
     }
     const { exec } = await import('tinyexec')
 

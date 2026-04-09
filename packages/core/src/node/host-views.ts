@@ -16,14 +16,14 @@ export class DevToolsViewHost implements DevToolsViewHostType {
 
   hostStatic(baseUrl: string, distDir: string) {
     if (!existsSync(distDir)) {
-      logger.DTK0022({ distDir }).throw()
+      throw logger.DTK0022({ distDir }).throw()
     }
 
     this.buildStaticDirs.push({ baseUrl, distDir })
 
     if (this.context.viteConfig.command === 'serve') {
       if (!this.context.viteServer)
-        logger.DTK0023().throw()
+        throw logger.DTK0023().throw()
       this.context.viteServer.middlewares.use(
         baseUrl,
         sirv(distDir, {

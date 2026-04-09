@@ -73,7 +73,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     update: (patch: Partial<T>) => void
   } {
     if (this.views.has(view.id) && !force) {
-      logger.DTK0015({ id: view.id }).throw()
+      throw logger.DTK0015({ id: view.id }).throw()
     }
     this.views.set(view.id, view)
     this.events.emit('dock:entry:updated', view)
@@ -81,7 +81,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return {
       update: (patch) => {
         if (patch.id && patch.id !== view.id) {
-          logger.DTK0016().throw()
+          throw logger.DTK0016().throw()
         }
         this.update(Object.assign(this.views.get(view.id)!, patch))
       },
@@ -90,7 +90,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
   update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
-      logger.DTK0017({ id: view.id }).throw()
+      throw logger.DTK0017({ id: view.id }).throw()
     }
     this.views.set(view.id, view)
     this.events.emit('dock:entry:updated', view)

@@ -41,7 +41,7 @@ export class RpcFunctionsCollectorBase<
 
   register(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (this.definitions.has(fn.name) && !force) {
-      logger.DTK0001({ name: fn.name }).throw()
+      throw logger.DTK0001({ name: fn.name }).throw()
     }
     this.definitions.set(fn.name, fn)
     this._onChanged.forEach(cb => cb(fn.name))
@@ -49,7 +49,7 @@ export class RpcFunctionsCollectorBase<
 
   update(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (!this.definitions.has(fn.name) && !force) {
-      logger.DTK0002({ name: fn.name }).throw()
+      throw logger.DTK0002({ name: fn.name }).throw()
     }
     this.definitions.set(fn.name, fn)
     this._onChanged.forEach(cb => cb(fn.name))
@@ -72,7 +72,7 @@ export class RpcFunctionsCollectorBase<
   getSchema<T extends keyof LocalFunctions>(name: T): { args: RpcArgsSchema | undefined, returns: RpcReturnSchema | undefined } {
     const definition = this.definitions.get(name as string)
     if (!definition)
-      logger.DTK0003({ name: String(name) }).throw()
+      throw logger.DTK0003({ name: String(name) }).throw()
     return {
       args: definition.args,
       returns: definition.returns,

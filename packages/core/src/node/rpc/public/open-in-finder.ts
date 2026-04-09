@@ -13,7 +13,7 @@ export const openInFinder = defineRpcFunction({
 
         // Ensure the path stays within workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          logger.DTK0029().throw()
+          throw logger.DTK0029().throw()
         }
 
         await import('open').then(r => r.default(resolved))

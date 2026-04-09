@@ -13,7 +13,7 @@ export const openInEditor = defineRpcFunction({
 
         // Prevent escaping the workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          logger.DTK0028().throw()
+          throw logger.DTK0028().throw()
         }
 
         await import('launch-editor').then(r => r.default(resolved))
