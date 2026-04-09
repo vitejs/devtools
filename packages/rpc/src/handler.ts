@@ -1,4 +1,5 @@
 import type { RpcFunctionDefinition, RpcFunctionSetupResult, RpcFunctionType } from './types'
+import { logger } from './diagnostics'
 
 export async function getRpcResolvedSetupResult<
   NAME extends string,
@@ -41,7 +42,7 @@ export async function getRpcHandler<
   }
   const result = await getRpcResolvedSetupResult(definition, context)
   if (!result.handler) {
-    throw new Error(`[devtools-rpc] Either handler or setup function must be provided for RPC function "${definition.name}"`)
+    throw logger.DTK0004({ name: definition.name }).throw()
   }
   return result.handler
 }

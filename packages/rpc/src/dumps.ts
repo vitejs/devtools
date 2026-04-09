@@ -9,6 +9,7 @@ import type {
 } from './types'
 import { hash } from 'ohash'
 import pLimit from 'p-limit'
+import { logger } from './diagnostics'
 import { validateDefinitions } from './validation'
 
 function getDumpRecordKey(functionName: string, args: any[]): string {
@@ -73,7 +74,7 @@ export async function dumpFunctions<
 
     const handler = setupResult.handler || definition.handler
     if (!handler) {
-      throw new Error(`[devtools-rpc] Either handler or setup function must be provided for RPC function "${definition.name}"`)
+      throw logger.DTK0004({ name: definition.name }).throw()
     }
 
     let dump = setupResult.dump ?? definition.dump
@@ -199,7 +200,7 @@ export function createClientFromDump<T extends Record<string, any>>(
   const client = new Proxy({} as T, {
     get(_, functionName: string) {
       if (!(functionName in store.definitions)) {
-        throw new Error(`[devtools-rpc] Function "${functionName}" not found in dump store`)
+        throw logger.DTK0005({ name: functionName }).throw()
       }
 
       return async (...args: any[]) => {
@@ -238,9 +239,7 @@ export function createClientFromDump<T extends Record<string, any>>(
             return fallbackRecord.output
         }
 
-        throw new Error(
-          `[devtools-rpc] No dump match for "${functionName}" with args: ${JSON.stringify(args)}`,
-        )
+        throw logger.DTK0006({ name: functionName, args: JSON.stringify(args) }).throw()
       }
     },
     has(_, functionName: string) {

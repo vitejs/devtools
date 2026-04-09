@@ -3,6 +3,7 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
 import { ContextUtils } from './context-utils'
+import { logger } from './diagnostics'
 import { DevToolsCommandsHost } from './host-commands'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
@@ -166,8 +167,7 @@ export async function createDevToolsContext(
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {
-      console.error(`[Vite DevTools] Error setting up plugin ${plugin.name}:`, error)
-      throw error
+      throw logger.DTK0014({ name: plugin.name }, { cause: error }).throw()
     }
   }
 

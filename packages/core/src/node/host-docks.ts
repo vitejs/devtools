@@ -3,6 +3,7 @@ import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
 import { join } from 'pathe'
+import { logger } from './diagnostics'
 import { createStorage } from './storage'
 
 export class DevToolsDockHost implements DevToolsDockHostType {
@@ -72,7 +73,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     update: (patch: Partial<T>) => void
   } {
     if (this.views.has(view.id) && !force) {
-      throw new Error(`Dock with id "${view.id}" is already registered`)
+      throw logger.DTK0015({ id: view.id }).throw()
     }
     this.views.set(view.id, view)
     this.events.emit('dock:entry:updated', view)
@@ -80,7 +81,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return {
       update: (patch) => {
         if (patch.id && patch.id !== view.id) {
-          throw new Error(`Cannot change the id of a dock. Use register() to add new docks.`)
+          throw logger.DTK0016().throw()
         }
         this.update(Object.assign(this.views.get(view.id)!, patch))
       },
@@ -89,7 +90,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
   update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
-      throw new Error(`Dock with id "${view.id}" is not registered. Use register() to add new docks.`)
+      throw logger.DTK0017({ id: view.id }).throw()
     }
     this.views.set(view.id, view)
     this.events.emit('dock:entry:updated', view)

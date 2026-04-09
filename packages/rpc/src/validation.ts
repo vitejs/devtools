@@ -1,4 +1,5 @@
 import type { RpcFunctionDefinitionAny } from './types'
+import { logger } from './diagnostics'
 
 /**
  * Validates RPC function definitions.
@@ -11,9 +12,7 @@ export function validateDefinitions(definitions: readonly RpcFunctionDefinitionA
     const type = definition.type || 'query'
 
     if ((type === 'action' || type === 'event') && definition.dump) {
-      throw new Error(
-        `[devtools-rpc] Function "${definition.name}" with type "${type}" cannot have dump configuration. Only "static" and "query" types support dumps.`,
-      )
+      throw logger.DTK0007({ name: definition.name, type }).throw()
     }
   }
 }

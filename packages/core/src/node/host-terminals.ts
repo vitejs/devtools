@@ -2,6 +2,7 @@ import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSe
 import type { Result as TinyExecResult } from 'tinyexec'
 import process from 'node:process'
 import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import { logger } from './diagnostics'
 
 export class DevToolsTerminalHost implements DevToolsTerminalHostType {
   public readonly sessions: DevToolsTerminalHostType['sessions'] = new Map()
@@ -19,7 +20,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
     if (this.sessions.has(session.id)) {
-      throw new Error(`Terminal session with id "${session.id}" already registered`)
+      throw logger.DTK0018({ id: session.id }).throw()
     }
     this.sessions.set(session.id, session)
     this.bindStream(session)
@@ -29,7 +30,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   update(patch: PartialWithoutId<DevToolsTerminalSession>): void {
     if (!this.sessions.has(patch.id)) {
-      throw new Error(`Terminal session with id "${patch.id}" not registered`)
+      throw logger.DTK0019({ id: patch.id }).throw()
     }
     const session = this.sessions.get(patch.id)!
     Object.assign(session, patch)
@@ -84,7 +85,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
-      throw new Error(`Terminal session with id "${terminal.id}" already registered`)
+      throw logger.DTK0018({ id: terminal.id }).throw()
     }
     const { exec } = await import('tinyexec')
 

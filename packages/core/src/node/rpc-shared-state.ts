@@ -2,6 +2,7 @@ import type { RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } f
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { createDebug } from 'obug'
+import { logger } from './diagnostics'
 
 const debug = createDebug('vite:devtools:rpc:state:changed')
 
@@ -47,7 +48,7 @@ export function createRpcSharedStateServerHost(
         return sharedState.get(key)!
       }
       if (options?.initialValue === undefined && options?.sharedState === undefined) {
-        throw new Error(`Shared state of "${key}" is not found, please provide an initial value for the first time`)
+        throw logger.DTK0027({ key }).throw()
       }
       debug('new-state', key)
       const state = options.sharedState ?? createSharedState<T>({

@@ -1,4 +1,5 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { logger } from '../../diagnostics'
 
 export const docksOnLaunch = defineRpcFunction({
   name: 'devtoolskit:internal:docks:on-launch',
@@ -13,10 +14,10 @@ export const docksOnLaunch = defineRpcFunction({
 
         const entry = context.docks.values().find(entry => entry.id === entryId)
         if (!entry) {
-          throw new Error(`Dock entry with id "${entryId}" not found`)
+          throw logger.DTK0030({ id: entryId }).throw()
         }
         if (entry.type !== 'launcher') {
-          throw new Error(`Dock entry with id "${entryId}" is not a launcher`)
+          throw logger.DTK0031({ id: entryId }).throw()
         }
         try {
           context.docks.update({
@@ -42,7 +43,7 @@ export const docksOnLaunch = defineRpcFunction({
           return result
         }
         catch (error) {
-          console.error(`[VITE DEVTOOLS] Error launching dock entry "${entryId}"`, error)
+          logger.DTK0032({ id: entryId }, { cause: error }).log()
           context.docks.update({
             ...entry,
             launcher: {
