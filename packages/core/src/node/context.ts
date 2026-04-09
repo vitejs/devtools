@@ -32,12 +32,13 @@ export async function createDevToolsContext(
 ): Promise<DevToolsNodeContext> {
   const cwd = viteConfig.root
 
-  const { searchForWorkspaceRoot } = await import('vite')
+  const { searchForWorkspaceRoot, version: viteVersion } = await import('vite')
   const context: DevToolsNodeContext = {
     cwd,
     workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
     viteConfig,
     viteServer,
+    viteVersion,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
     rpc: undefined!,
     docks: undefined!,
