@@ -36,23 +36,15 @@
     "watch": "tsdown --watch",
     "prepack": "pnpm build"
   },
-  "peerDependencies": {
-    "ws": "*"
-  },
-  "peerDependenciesMeta": {
-    "ws": {
-      "optional": true
-    }
-  },
   "dependencies": {
     "birpc": "catalog:deps",
     "ohash": "catalog:deps",
     "p-limit": "catalog:deps",
     "structured-clone-es": "catalog:deps",
-    "valibot": "catalog:deps"
+    "valibot": "catalog:deps",
+    "ws": "catalog:deps"
   },
   "devDependencies": {
-    "tsdown": "catalog:build",
-    "ws": "catalog:deps"
+    "tsdown": "catalog:build"
   }
 }
