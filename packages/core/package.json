@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -91,8 +91,8 @@
     "vue-tsc": "catalog:devtools"
   },
   "inlinedDependencies": {
-    "@clack/core": "1.1.0",
-    "@clack/prompts": "1.1.0",
+    "@clack/core": "1.2.0",
+    "@clack/prompts": "1.2.0",
     "@json-render/core": "0.13.0",
     "@json-render/vue": "0.13.0",
     "@vueuse/core": "14.2.1",
@@ -101,6 +101,9 @@
     "@xterm/xterm": "6.0.0",
     "ansis": "4.2.0",
     "dompurify": "3.3.3",
+    "fast-string-truncated-width": "1.2.1",
+    "fast-string-width": "1.1.0",
+    "fast-wrap-ansi": "0.1.6",
     "fuse.js": "7.1.0",
     "get-port-please": "3.2.0",
     "sisteransi": "1.0.5",

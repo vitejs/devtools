@@ -41,6 +41,23 @@ export class MaybeWeakMap<K, V> implements WeakMap<any, V> {
     return this._map.get(key)
   }
 
+  getOrInsert(key: K, defaultValue: V): V {
+    if (this.has(key))
+      return this.get(key)!
+
+    this.set(key, defaultValue)
+    return defaultValue
+  }
+
+  getOrInsertComputed(key: K, callback: (key: K) => V): V {
+    if (this.has(key))
+      return this.get(key)!
+
+    const value = callback(key)
+    this.set(key, value)
+    return value
+  }
+
   clear(): void {
     this._map.clear()
   }

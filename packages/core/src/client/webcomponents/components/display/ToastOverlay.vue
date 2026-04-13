@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { useLogs } from '../../state/logs'
+import { selectLog, useLogs } from '../../state/logs'
 import { dismissToast, useToasts } from '../../state/toasts'
 import LogItem from '../log/LogItem.vue'
 
@@ -17,6 +17,7 @@ const toasts = useToasts()
 
 function openLogs(toastId: string) {
   dismissToast(toastId)
+  selectLog(toastId)
   props.context?.docks.switchEntry('~logs')
 }
 </script>
