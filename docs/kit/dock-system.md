@@ -8,13 +8,15 @@ Dock entries are the primary way for users to interact with your DevTools integr
 
 ## Entry Types
 
-DevTools Kit supports three types of dock entries:
+DevTools Kit supports five types of dock entries:
 
 | Type | Description | Use Case |
 |------|-------------|----------|
 | `iframe` | Displays your UI in an iframe panel | Full-featured UIs, dashboards, data visualization |
 | `action` | Button that triggers client-side scripts | Inspectors, toggles, one-time actions |
 | `custom-render` | Renders directly in the user's app DOM | When you need direct DOM access or framework integration |
+| `launcher` | Actionable setup card shown in panel | Run one-time setup tasks before showing other tools |
+| `json-render` | Renders UI from a JSON spec — no client code needed | Data panels, config viewers, simple interactive tools |
 
 ## Iframe Panels
 
@@ -70,13 +72,23 @@ interface DockEntry {
   /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
   icon: string
   /** Entry type */
-  type: 'iframe' | 'action' | 'custom-render'
+  type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render'
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
   action?: { importFrom: string, importName: string }
   /** Renderer configuration (for type: 'custom-render') */
   renderer?: { importFrom: string, importName: string }
+  /** Launcher configuration (for type: 'launcher') */
+  launcher?: {
+    title: string
+    onLaunch: () => Promise<void>
+    description?: string
+    buttonStart?: string
+    buttonLoading?: string
+  }
+  /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
+  ui?: JsonRenderer
 }
 ```
 
@@ -99,6 +111,9 @@ icon: 'mdi:view-dashboard' // Material Design Icons
 
 > [!TIP]
 > Browse available icons at [Iconify](https://icon-sets.iconify.design/). The `ph:` (Phosphor) icon set works well for DevTools UIs.
+
+> [!TIP]
+> See the [File Explorer example](/kit/examples#file-explorer) for a iframe dock plugin with RPC and static build support.
 
 ## Action Buttons
 
@@ -128,9 +143,9 @@ Create the action script that runs in the user's browser:
 
 ```ts
 // src/devtools-action.ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setupAction(ctx: DevToolsClientScriptContext) {
+export default function setupAction(ctx: DockClientScriptContext) {
   let isActive = false
   let overlay: HTMLElement | null = null
 
@@ -187,6 +202,9 @@ Export the action script from your package:
 | `entry:activated` | Fired when the user clicks/activates this dock entry |
 | `entry:deactivated` | Fired when another entry is selected or the dock is closed |
 
+> [!TIP]
+> See the [A11y Checker example](/kit/examples#a11y-checker) for a real-world action dock that runs axe-core audits and reports violations as logs.
+
 ## Custom Renderers
 
 Custom renderers let you render directly into the DevTools panel DOM. This gives you full control and is useful when:
@@ -213,9 +231,9 @@ ctx.docks.register({
 
 ```ts
 // src/devtools-renderer.ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setupRenderer(ctx: DevToolsClientScriptContext) {
+export default function setupRenderer(ctx: DockClientScriptContext) {
   ctx.current.events.on('dom:panel:mounted', (panel) => {
     // `panel` is a DOM element you can render into
 
@@ -258,17 +276,82 @@ export default function setupRenderer(ctx: DevToolsClientScriptContext) {
 > [!NOTE]
 > The panel DOM is preserved when users switch between dock entries. Your UI persists, so you only need to set up once in `dom:panel:mounted`.
 
+## Launcher Entries
+
+Launcher entries render a dedicated setup panel and trigger a server-side launch task. They are useful for integrations that need an explicit initialization step (for example starting a terminal task or generating artifacts).
+
+```ts
+ctx.docks.register({
+  id: 'my-launcher',
+  title: 'My Setup',
+  icon: 'ph:rocket-launch-duotone',
+  type: 'launcher',
+  launcher: {
+    title: 'Initialize Integration',
+    description: 'Run initial setup before opening tools',
+    onLaunch: async () => {
+      // perform setup work here
+    },
+  },
+})
+```
+
+> [!NOTE]
+> Built-in logs panel (`~logs`) is currently reserved and hidden while log UI is under development.
+
+## JSON Render Panels
+
+JSON render panels let you describe your UI as a JSON spec on the server side — **no client code needed.** This is the simplest way to add a DevTools panel.
+
+Use `ctx.createJsonRenderer()` to create a renderer handle, then pass it as `ui` when registering a `json-render` dock entry:
+
+```ts
+const ui = ctx.createJsonRenderer({
+  root: 'root',
+  elements: {
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'Hello from JSON!', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Version', value: '1.0.0' },
+          { key: 'Status', value: 'Running' },
+        ],
+      },
+    },
+  },
+})
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
+})
+```
+
+See the [JSON Render](/kit/json-render) page for the full component reference, dynamic updates, actions, state bindings, and examples.
+
 ## Communication with Server
 
 All client scripts (actions and custom renderers) can communicate with the server using [RPC](./rpc):
 
 ```ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
+export default function setup(ctx: DockClientScriptContext) {
   ctx.current.events.on('entry:activated', async () => {
     // Call a server function
-    const data = await ctx.current.rpc.call('my-plugin:get-data')
+    const data = await ctx.rpc.call('my-plugin:get-data')
     console.log('Data from server:', data)
   })
 }

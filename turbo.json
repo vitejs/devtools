@@ -2,7 +2,55 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["pnpm-lock.yaml"],
   "tasks": {
-    "build": {
+    "@vitejs/devtools#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-docs#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-kit#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-rolldown#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-self-inspect#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-rpc#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-ui#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-vite#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-webext#build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"

@@ -4,45 +4,86 @@ outline: deep
 
 # Getting Started
 
-> [!WARNING]
-> Vite DevTools is still in development and not yet ready for production use.
-> And currently Vite DevTools is designed only for Vite-Rolldown's build mode.
-> Dev mode and normal Vite are not supported yet.
-
 ## What is Vite DevTools?
 
-Vite DevTools is a comprehensive set of developer tools for visualizing and analyzing your Vite build process. It provides deep insights into your build pipeline, module dependencies, and build metadata, helping you understand and optimize your Vite applications.
+Vite DevTools is a devtools framework for the Vite ecosystem. Instead of each tool building its own devtools from scratch, Vite DevTools provides shared infrastructure — a unified dock system, type-safe RPC, shared state management, and flexible UI hosting — so that different tools compose together seamlessly, users get a consistent experience, and tool authors can focus on what makes their integration unique.
+
+Any Vite plugin can hook into Vite DevTools with just a few lines of code, instantly gaining access to the full platform: panels, action buttons, server-client communication, and more.
+
+### Built-in Integrations
+
+- **[DevTools for Rolldown](/rolldown/)** — Build analysis, module graphs, chunks, assets, plugins, and performance insights
+- **DevTools for Vite** — Vite-specific developer tools *(in development)*
+
+### Ecosystem
+
+Vite DevTools Kit is already powering a growing ecosystem of integrations:
+
+- **[Nuxt DevTools v4](https://github.com/nuxt/devtools)** — Built on top of Vite DevTools Kit
+- **[Oxc Inspector](https://github.com/yuyinws/oxc-inspector)** — Integrates via DevTools Kit with custom RPC functions
+- **[UnoCSS Inspector](https://github.com/unocss/unocss)** — Dock integration for UnoCSS
+- **[vite-plugin-vue-tracer](https://github.com/antfu/vite-plugin-vue-tracer)** — Action button that triggers a DOM inspector
 
 ### Key Features
 
-- **🔍 Build Analysis**: Visualize module graphs, dependencies, and build metadata
-- **📊 Performance Insights**: Understand build performance and bottlenecks
-- **🧩 Extensible**: Build custom DevTools integrations with the DevTools Kit
+- **🧩 Extensible Framework**: Any Vite plugin can extend the devtools with a simple hook
+- **🔍 [DevTools for Rolldown](/rolldown/)**: Built-in build analysis with module graphs, dependencies, and build metadata
 - **🎨 Unified Interface**: All DevTools integrations appear in a consistent dock interface
-- **⚡ Type-Safe**: Full TypeScript support with type-safe RPC communication
+- **🔌 Type-Safe RPC**: Built-in bidirectional communication between server and client
+- **⚡ Shared State**: Automatic synchronization of data between server and client
 
 ## Installation
 
 If you want to give an early preview, you can try it out by building this project from source, or install the preview build with the following steps:
 
-Install or upgrade your Vite to the beta version 8:
+Install or upgrade your Vite to version 8:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0-beta.7"
+    "vite": "^8.0.0"
   }
 }
 ```
 
-Install the DevTools plugin:
+Install the required DevTools package:
 
 ```bash
 pnpm add -D @vitejs/devtools
 ```
 
-Enable the DevTools plugin in your Vite config and turn on the devtools mode for Rolldown:
+Vite DevTools has two client modes. Configure one mode at a time.
+
+### Standalone mode
+
+The DevTools client runs in a standalone window (no user app).
+
+Configure `vite.config.ts`:
+
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    enabled: true,
+  },
+})
+```
+
+Run:
+
+```bash
+pnpm build
+```
+
+After the build completes, open the DevTools URL shown in the terminal.
+
+### Embedded mode
+
+The DevTools client runs inside an embedded floating panel.
+
+Configure `vite.config.ts`:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -60,42 +101,80 @@ export default defineConfig({
 })
 ```
 
-Run your Vite build, to generate the Rolldown build metadata:
+Run:
 
 ```bash
 pnpm build
-```
-
-Open the DevTools panel in your browser to play with the DevTools:
-
-```bash
 pnpm dev
 ```
+
+Then open your app in the browser and open the DevTools panel.
+
+#### Projects without an HTML entry
+
+The embedded DevTools client is usually injected through Vite's `transformIndexHtml` hook. If your app does not start from an HTML entry, keep the `DevTools()` plugin enabled and import the client injector manually in your client entry instead:
+
+```ts twoslash
+import '@vitejs/devtools/client/inject'
+```
+
+This loads the same DevTools client that would normally be added to `index.html`. Put it in a browser entry such as `main.ts` or `entry.client.ts`, not in server-only files or shared SSR entry files.
+
+If your project does have an HTML entry, avoid importing `@vitejs/devtools/client/inject` in addition to the HTML injection, as that would inject the client twice and create duplicate dock elements.
+
+#### Building with the App
+
+You can also generate a static DevTools build alongside your app's build output by enabling the `build.withApp` option:
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools({
+      build: {
+        withApp: true, // generate DevTools output during `vite build`
+        // outDir: 'custom-dir', // optional, defaults to Vite's build.outDir
+      },
+    }),
+  ],
+  build: {
+    rolldownOptions: {
+      devtools: {},
+    },
+  }
+})
+```
+
+When `build.withApp` is enabled, running `pnpm build` will automatically generate the static DevTools output into the build output directory. This captures real build data from the same build context, so DevTools can display accurate build analysis without a separate build step.
 
 ## What's Next?
 
 Now that you have Vite DevTools set up, you can:
 
-- **Explore the built-in tools**: Check out the various panels and visualizations available in the DevTools interface
-- **Build custom integrations**: Learn how to extend Vite DevTools with your own tools using the [DevTools Kit](/kit/)
+- **Explore the built-in tools**: Check out the [DevTools for Rolldown](/rolldown/) panels and visualizations
+- **Build custom integrations**: Learn how to extend the devtools with your own tools using the [Vite DevTools Kit](/kit/)
 - **Contribute**: Help improve Vite DevTools by checking out our [contributing guide](https://github.com/antfu/contribute)
 
 ## Current Limitations
 
 > [!NOTE]
-> Vite DevTools is currently in active development with the following limitations:
+> Vite DevTools is currently in active development.
 
-- **Build mode only**: Currently works with Vite-Rolldown's build mode
-- **Dev mode**: Not yet supported (planned for future releases)
-- **Standard Vite**: Requires Rolldown Vite for now
+- **[DevTools for Rolldown](/rolldown/)**: Currently supports build mode only, requires Vite 8+
+- **Dev mode**: Dev mode support is planned for future releases
 
 ## Architecture Overview
 
 Vite DevTools consists of several core packages:
 
-- **`@vitejs/devtools`**: The main entry point and CLI
-- **`@vitejs/devtools-kit`**: Utilities and types for building custom integrations
-- **`@vitejs/devtools-rolldown`**: Built-in UI panel for Rolldown
+- **`@vitejs/devtools`**: The core framework, CLI, and runtime hosts
+- **`@vitejs/devtools-kit`**: Vite DevTools Kit — utilities and types for building custom integrations
+- **`@vitejs/devtools-rolldown`**: [DevTools for Rolldown](/rolldown/) — built-in build analysis UI
+- **`@vitejs/devtools-vite`**: DevTools for Vite *(in development)*
 - **`@vitejs/devtools-rpc`**: RPC layer for server-client communication
 
-For more details on extending Vite DevTools, see the [DevTools Kit documentation](/kit/).
+Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) can also integrate via the DevTools Kit plugin API.
+
+For more details on extending the devtools, see the [Vite DevTools Kit documentation](/kit/).

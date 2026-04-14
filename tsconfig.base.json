@@ -39,6 +39,12 @@
       "@vitejs/devtools-kit/utils/nanoid": [
         "./packages/kit/src/utils/nanoid.ts"
       ],
+      "@vitejs/devtools-kit/utils/human-id": [
+        "./packages/kit/src/utils/human-id.ts"
+      ],
+      "@vitejs/devtools-kit/utils/when": [
+        "./packages/kit/src/utils/when.ts"
+      ],
       "@vitejs/devtools-kit/utils/shared-state": [
         "./packages/kit/src/utils/shared-state.ts"
       ],
@@ -47,6 +53,12 @@
       ],
       "@vitejs/devtools-rolldown": [
         "./packages/rolldown/src/index.ts"
+      ],
+      "@vitejs/devtools-self-inspect": [
+        "./packages/self-inspect/src/index.ts"
+      ],
+      "@vitejs/devtools/internal": [
+        "./packages/core/src/internal.ts"
       ],
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"

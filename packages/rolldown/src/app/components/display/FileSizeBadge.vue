@@ -20,7 +20,7 @@ const props = withDefaults(
   },
 )
 
-const KB = 1024
+const KB = 1000
 const MB = KB ** 2
 
 const colorScale = [
@@ -39,7 +39,7 @@ const color = computed(() => {
     if (bytes < limit)
       return color
   }
-  return colorScale[colorScale.length - 1]?.[1]
+  return colorScale.at(-1)?.[1]
 })
 
 const ratio = computed(() => props.total ? (props.bytes || 0) * 100 / props.total : 0)

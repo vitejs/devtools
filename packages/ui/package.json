@@ -1,9 +1,9 @@
 {
   "name": "@vitejs/devtools-ui",
   "type": "module",
-  "version": "0.0.0-alpha.28",
+  "version": "0.1.13",
   "private": true,
-  "description": "DevTools UI for Vite (work in progress)",
+  "description": "DevTools UI for Vite",
   "author": "VoidZero Inc.",
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
@@ -28,6 +28,15 @@
       "types": "./src/unocss/index.ts",
       "import": "./src/unocss/index.ts"
     },
+    "./unocss/theme": {
+      "types": "./src/unocss/theme.ts",
+      "import": "./src/unocss/theme.ts"
+    },
+    "./unocss/shared-shortcuts": {
+      "types": "./src/unocss/shared-shortcuts.ts",
+      "import": "./src/unocss/shared-shortcuts.ts"
+    },
+    "./styles/global.css": "./src/styles/global.css",
     "./components/*": {
       "types": "./src/components/*.vue",
       "import": "./src/components/*.vue"
@@ -45,6 +54,7 @@
   "module": "./src/index.ts",
   "peerDependencies": {
     "@vueuse/core": "*",
+    "nuxt": "*",
     "unocss": "*",
     "vue": "*",
     "vue-virtual-scroller": ">=2.0.0-beta.0"

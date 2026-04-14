@@ -1,1 +1,1 @@
-export const WS_EVENT_NAME = 'vite-devtools'
+export const WS_EVENT_NAME = 'rolldown-devtools'

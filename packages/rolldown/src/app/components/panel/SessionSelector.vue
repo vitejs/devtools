@@ -40,8 +40,10 @@ function select(session: BuildInfo) {
   <div flex="~ col gap-2">
     <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
       <component
-        :is="sessionMode === 'list' ? NuxtLink : 'div'"
+        :is="sessionMode === 'list' ? NuxtLink : 'button'"
         :to="`/session/${session.id}`"
+        v-bind="sessionMode !== 'list' ? { type: 'button' } : {}"
+        :aria-label="`Session ${session.id}`"
         border="~ rounded-md"
         :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
         flex="~ col gap-1"

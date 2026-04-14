@@ -1,5 +1,9 @@
+export type { WhenContext } from '../utils/when'
+
+export * from './commands'
 export * from './docks'
 export * from './events'
+export * from './logs'
 export * from './rpc'
 export * from './rpc-augments'
 export * from './settings'
@@ -7,6 +11,7 @@ export * from './terminals'
 export * from './utils'
 export * from './views'
 export * from './vite-augment'
+
 export * from './vite-plugin'
 
 export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-rpc'

@@ -5,6 +5,13 @@ export const rolldownGetSessionSummary = defineRpcFunction({
   name: 'vite:rolldown:get-session-summary',
   type: 'query',
   cacheable: true,
+  dump: async (context) => {
+    const manager = getLogsManager(context)
+    const sessions = await manager.list()
+    return {
+      inputs: sessions.map(session => [{ session: session.id }] as const),
+    }
+  },
   setup: async (context) => {
     const manager = getLogsManager(context)
     return {

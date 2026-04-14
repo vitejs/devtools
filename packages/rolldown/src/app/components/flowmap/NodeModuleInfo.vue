@@ -36,7 +36,7 @@ function down() {
   isFlowmapSwapping.value = true
 }
 
-const importterModule = computed(() => {
+const importerModule = computed(() => {
   if (props.item.type !== 'resolve')
     return undefined
   const id = props.item.importer
@@ -143,8 +143,8 @@ const importterModule = computed(() => {
           <DisplayModuleId
             :id="item.importer"
             :session="session"
-            :link="importterModule ? true : false"
-            :class="importterModule ? 'hover:bg-active' : ''"
+            :link="importerModule ? true : false"
+            :class="importerModule ? 'hover:bg-active' : ''"
             px2 py1 rounded
           />
         </div>

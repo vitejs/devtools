@@ -1,3 +1,10 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  simple-git-hooks: true
+  unrs-resolver: true
+  vue-demi: true
+
 ignoreWorkspaceRootCheck: true
 shamefullyHoist: true
 shellEmulator: true
@@ -5,42 +12,55 @@ strictPeerDependencies: false
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - langium
-
 packages:
   - packages/*
+  - examples/*
   - docs
-
+overrides:
+  '@jridgewell/sourcemap-codec': 'catalog:resolutions'
+  '@nuxt/devtools': 'catalog:devtools'
+  '@nuxt/kit': 'catalog:build'
+  '@nuxt/vite-builder': 'catalog:build'
+  '@rolldown/debug': 'catalog:deps'
+  chokidar: 'catalog:devtools'
+  esbuild: 'catalog:build'
+  langium: 'catalog:resolutions'
+  nitropack: 'catalog:build'
+  nuxt: 'catalog:build'
+  rolldown: 'catalog:build'
+  semver: 'catalog:resolutions'
+  vite: 'catalog:build'
 catalogs:
   build:
-    '@antfu/ni': ^28.2.0
-    '@nuxt/kit': ^4.3.0
-    '@nuxt/vite-builder': ^4.3.0
-    '@unocss/nuxt': ^66.6.0
-    '@vitejs/plugin-vue': ^6.0.4
-    '@vueuse/nuxt': ^14.2.0
-    esbuild: ^0.27.2
+    '@antfu/ni': ^30.0.0
+    '@nuxt/kit': ^4.4.2
+    '@nuxt/vite-builder': ^4.4.2
+    '@unocss/nuxt': ^66.6.8
+    '@vitejs/plugin-vue': ^6.0.6
+    '@vueuse/nuxt': ^14.2.1
+    esbuild: ^0.28.0
     magic-string: ^0.30.21
-    nitropack: ^2.13.1
-    nuxt: ^4.3.0
-    rolldown: ^1.0.0-rc.3
-    tsdown: ^0.20.2
+    nitropack: ^2.13.3
+    nuxt: ^4.4.2
+    rolldown: ^1.0.0-rc.15
+    tsdown: ^0.21.8
     tsx: ^4.21.0
-    turbo: ^2.8.3
-    unocss: ^66.6.0
+    turbo: ^2.9.6
+    unocss: ^66.6.8
     unplugin-vue: ^7.1.1
-    vite: ^8.0.0-beta.13
+    vite: ^8.0.8
   deps:
-    '@pnpm/read-project-manifest': ^1001.2.4
-    '@rolldown/debug': ^1.0.0-rc.3
+    '@pnpm/read-project-manifest': ^1001.2.6
+    '@rolldown/debug': ^1.0.0-rc.15
     ansis: ^4.2.0
     birpc: ^4.0.0
-    cac: ^6.7.14
-    diff: ^8.0.3
+    cac: ^7.0.0
+    diff: ^9.0.0
+    envinfo: ^7.21.0
     get-port-please: ^3.2.0
-    h3: ^1.15.5
-    immer: ^11.1.3
-    launch-editor: ^2.12.0
-    mlly: ^1.8.0
+    h3: ^1.15.11
+    launch-editor: ^2.13.2
+    mlly: ^1.8.2
     mrmime: ^2.0.1
     obug: ^2.1.1
     ohash: ^2.0.11
@@ -48,100 +68,112 @@ catalogs:
     p-limit: ^7.3.0
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
-    publint: ^0.3.17
+    publint: ^0.3.18
     sirv: ^3.0.2
     split2: ^4.2.0
-    structured-clone-es: ^1.0.0
-    tinyexec: ^1.0.2
-    tinyglobby: ^0.2.15
-    unconfig: ^7.4.2
-    unstorage: ^1.17.4
-    valibot: ^1.2.0
+    structured-clone-es: ^2.0.0
+    tinyexec: ^1.1.1
+    tinyglobby: ^0.2.16
+    unconfig: ^7.5.0
+    unstorage: ^1.17.5
+    valibot: ^1.3.1
+    vue: ^3.5.32
     webext-bridge: ^6.0.1
-    ws: ^8.19.0
+    ws: ^8.20.0
   devtools:
-    '@antfu/eslint-config': ^7.2.0
-    '@nuxt/devtools': ^3.1.1
-    '@nuxt/eslint': ^1.13.0
-    '@typescript-eslint/utils': ^8.54.0
-    '@unocss/eslint-config': ^66.6.0
-    bumpp: ^10.4.1
+    '@antfu/eslint-config': ^8.2.0
+    '@nuxt/devtools': ^3.2.4
+    '@nuxt/eslint': ^1.15.2
+    '@typescript-eslint/utils': ^8.58.2
+    '@unocss/eslint-config': ^66.6.8
+    '@unocss/preset-web-fonts': ^66.6.8
+    axe-core: ^4.11.3
+    bumpp: ^11.0.1
     chokidar: ^5.0.0
-    eslint: ^9.39.2
-    lint-staged: ^16.2.7
-    nuxt-eslint-auto-explicit-import: ^0.1.1
+    eslint: ^10.2.0
+    nano-staged: ^1.0.2
+    serve: ^14.2.6
     simple-git-hooks: ^2.13.1
-    typescript: ^5.9.3
-    vite-plugin-inspect: ^11.3.3
-    vue-tsc: ^3.2.4
+    solid-js: ^1.9.12
+    typescript: ^6.0.2
+    vite-plugin-inspect: ^12.0.0-beta.1
+    vite-plugin-solid: ^2.11.12
+    vue-tsc: ^3.2.6
   docs:
-    '@shikijs/vitepress-twoslash': ^3.22.0
-    '@voidzero-dev/vitepress-theme': ^4.4.2
-    mermaid: ^11.12.2
-    vitepress: ^2.0.0-alpha.16
-    vitepress-plugin-group-icons: ^1.7.1
+    '@shikijs/vitepress-twoslash': ^4.0.2
+    '@voidzero-dev/vitepress-theme': ^4.8.4
+    mermaid: ^11.14.0
+    vitepress: ^2.0.0-alpha.17
+    vitepress-plugin-group-icons: ^1.7.3
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
-    '@floating-ui/dom': ^1.7.5
-    '@vueuse/components': ^14.2.0
-    '@vueuse/core': ^14.2.0
-    '@vueuse/router': ^14.2.0
+    '@floating-ui/dom': ^1.7.6
+    '@json-render/core': 0.13.0
+    '@json-render/vue': 0.13.0
+    '@visual-json/vue': ^0.4.0
+    '@vueuse/components': ^14.2.1
+    '@vueuse/core': ^14.2.1
+    '@vueuse/router': ^14.2.1
     '@xterm/addon-fit': ^0.11.0
     '@xterm/xterm': ^6.0.0
-    codemirror: ^5.65.20
-    codemirror-theme-vars: ^0.1.2
     comlink: ^4.4.2
     d3: ^7.9.0
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
     diff-match-patch-es: ^1.0.1
-    dompurify: ^3.3.1
+    dompurify: ^3.3.3
     floating-vue: ^5.2.2
-    fuse.js: ^7.1.0
+    fuse.js: ^7.3.0
     idb-keyval: ^6.2.2
-    my-ua-parser: ^2.0.4
+    modern-monaco: ^0.4.0
     nanovis: ^1.0.0
+    react: ^19.2.5
+    react-dom: ^19.2.5
     splitpanes: ^4.0.4
     theme-vitesse: ^1.0.0
+    ua-parser-modern: ^0.1.1
     vite-hot-client: ^2.1.0
-    vue: ^3.5.27
-    vue-virtual-scroller: ^2.0.0-beta.8
+    vue-virtual-scroller: ^2.0.1
   icons:
-    '@iconify-json/carbon': ^1.2.18
+    '@iconify-json/carbon': ^1.2.20
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.43
-    '@iconify-json/fluent': ^1.2.38
+    '@iconify-json/codicon': ^1.2.51
+    '@iconify-json/fluent': ^1.2.45
     '@iconify-json/fluent-emoji-flat': ^1.2.5
-    '@iconify-json/logos': ^1.2.10
-    '@iconify-json/octicon': ^1.2.20
+    '@iconify-json/logos': ^1.2.11
+    '@iconify-json/material-icon-theme': ^1.2.58
+    '@iconify-json/octicon': ^1.2.22
     '@iconify-json/ph': ^1.2.2
-    '@iconify-json/ri': ^1.2.9
-    '@iconify-json/simple-icons': ^1.2.69
+    '@iconify-json/ri': ^1.2.10
+    '@iconify-json/simple-icons': ^1.2.78
     '@iconify-json/svg-spinners': ^1.2.4
-    '@iconify-json/tabler': ^1.2.26
+    '@iconify-json/system-uicons': ^1.2.4
+    '@iconify-json/tabler': ^1.2.33
   inlined:
     '@antfu/utils': ^9.3.0
-    '@clack/prompts': ^1.0.0
+    '@clack/prompts': ^1.2.0
+    human-id: ^4.1.3
+    immer: ^11.1.4
     stream-json: ^1.9.1
   playground:
-    unplugin-vue-router: ^0.19.2
-    vite-plugin-vue-tracer: ^1.2.0
-    vue-router: ^5.0.2
+    vite-plugin-vue-tracer: ^1.3.0
+    vue-router: ^5.0.4
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
-    langium: ^4.2.0
-    semver: ^7.7.3
+    langium: ^4.2.2
+    semver: ^7.7.4
   testing:
-    vitest: ^4.0.18
+    vitest: ^4.1.4
     vitest-package-exports: ^1.2.0
-    yaml: ^2.8.2
+    yaml: ^2.8.3
   types:
-    '@types/chrome': ^0.1.36
-    '@types/codemirror': ^5.60.17
+    '@types/chrome': ^0.1.40
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
-    '@types/diff': ^8.0.0
+    '@types/envinfo': ^7.8.4
+    '@types/react': ^19.2.14
+    '@types/react-dom': ^19.2.3
     '@types/split2': ^4.2.3
     '@types/splitpanes': ^2.2.6
     '@types/stream-json': ^1.7.8

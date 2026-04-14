@@ -44,19 +44,16 @@ const getModules = defineRpcFunction({
 })
 ```
 
-### Registering Functions
+### Naming Convention
 
-Register your RPC function in the `devtools.setup`:
+Recommended RPC function naming:
 
-```ts
-const plugin: Plugin = {
-  devtools: {
-    setup(ctx) {
-      ctx.rpc.register(getModules)
-    }
-  }
-}
-```
+1. Scope functions with your package prefix: `<package-name>:...`
+2. Use kebab-case for the function part after `:`
+
+Examples:
+- `my-plugin:get-modules`
+- `my-plugin:read-file`
 
 ### Function Types
 
@@ -108,15 +105,32 @@ setup: (ctx) => {
 > [!IMPORTANT]
 > For build mode compatibility, compute data in the setup function using the context rather than relying on runtime global state. This allows the dump feature to pre-compute results at build time.
 
+### Registering Functions
+
+Register your RPC function in the `devtools.setup`:
+
+```ts
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+      ctx.rpc.register(getModules)
+    }
+  }
+}
+```
+
 ### Dump Feature for Build Mode
 
-When using `vite devtools build` to create a static DevTools build, the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
+When creating a static DevTools build (via `vite devtools build` CLI or the [`build.withApp`](/guide/#building-with-the-app) plugin option), the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
 
 #### How It Works
 
 1. At build time, `dumpFunctions()` executes your RPC handlers with predefined arguments
-2. Results are stored in `.vdt-rpc-dump.json` in the build output
+2. Results are stored in `.rpc-dump/index.json` in the build output
 3. The static client reads from this JSON file instead of making live RPC calls
+
+Dump shard files are written to `.rpc-dump/*.json`. Function names in shard file keys replace `:` with `~` (for example `my-plugin:get-data` -> `my-plugin~get-data`).
+Query record maps are embedded directly in `.rpc-dump/index.json`; no per-function index files are generated.
 
 #### Static Functions (Recommended)
 
@@ -198,6 +212,112 @@ const getLiveMetrics = defineRpcFunction({
 > [!TIP]
 > If your data genuinely needs live server state, use `type: 'query'` without dumps. The function will work in dev mode but gracefully fail in build mode.
 
+### Organization Convention
+
+For plugin-scale RPC modules, we recommend this structure:
+
+General guidelines:
+
+1. Keep function definitions small and focused: one RPC function per file.
+2. Use `src/node/rpc/index.ts` as the single composition point for registration and type augmentation.
+3. Store plugin-specific runtime options in `src/node/rpc/context.ts` (instead of mutating the base DevTools context object).
+4. Use `context.rpc.invokeLocal(...)` for server-side cross-function composition.
+
+Rough file tree:
+
+```text
+src/node/rpc/
+├─ index.ts                # exports rpcFunctions + module augmentation
+├─ context.ts              # WeakMap-backed helpers (set/get shared rpc context)
+└─ functions/
+   ├─ get-info.ts          # metadata-style query/static function
+   ├─ list-files.ts        # list operation, reusable by other functions
+   ├─ read-file.ts         # can invoke `list-files` via invokeLocal
+   └─ write-file.ts        # mutation-oriented function
+```
+
+1. `src/node/rpc/index.ts`
+Keep all RPC declarations in one exported list (for example `rpcFunctions`) and centralize type augmentation (`DevToolsRpcServerFunctions`) in the same file.
+
+```ts
+// src/node/rpc/index.ts
+import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import { getInfo } from './functions/get-info'
+import { listFiles } from './functions/list-files'
+import { readFile } from './functions/read-file'
+import '@vitejs/devtools-kit'
+
+export const rpcFunctions = [
+  getInfo,
+  listFiles,
+  readFile,
+] as const // use `as const` to allow type inference
+
+export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
+
+declare module '@vitejs/devtools-kit' {
+  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+}
+```
+
+2. `src/node/rpc/context.ts`
+Use a shared context helper (for example `WeakMap`-backed `set/get`) to provide plugin-specific options across RPC functions without mutating the base context shape.
+
+```ts
+// src/node/rpc/context.ts
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+
+const rpcContext = new WeakMap<DevToolsNodeContext, { targetDir: string }>()
+
+export function setRpcContext(context: DevToolsNodeContext, options: { targetDir: string }) {
+  rpcContext.set(context, options)
+}
+
+export function getRpcContext(context: DevToolsNodeContext) {
+  const value = rpcContext.get(context)
+  if (!value)
+    throw new Error('Missing RPC context')
+  return value
+}
+```
+
+```ts
+// plugin setup
+const plugin = {
+  devtools: {
+    setup(context) {
+      setRpcContext(context, { targetDir: 'src' })
+      rpcFunctions.forEach(fn => context.rpc.register(fn))
+    },
+  },
+}
+```
+
+3. `src/node/rpc/functions/read-file.ts`
+For cross-function calls on the server, use `context.rpc.invokeLocal('<package-name>:list-files')` rather than network-style calls.
+
+```ts
+// src/node/rpc/functions/read-file.ts
+export const readFile = defineRpcFunction({
+  name: 'my-plugin:read-file',
+  type: 'query',
+  dump: async (context) => {
+    const files = await context.rpc.invokeLocal('my-plugin:list-files')
+    return {
+      inputs: files.map(file => [file.path] as [string]),
+    }
+  },
+  setup: () => ({
+    handler: async (path: string) => {
+      // ...
+    },
+  }),
+})
+```
+
+> [!TIP]
+> See the [File Explorer example](/kit/examples#file-explorer) for a plugin using RPC functions with dump support, organized following the conventions above.
+
 ## Schema Validation (Optional)
 
 The RPC system has built-in support for runtime schema validation using [Valibot](https://valibot.dev). When you provide schemas, TypeScript types are automatically inferred and validation happens at runtime.
@@ -260,17 +380,101 @@ async function loadData() {
 
 ### In Action/Renderer Scripts
 
-Use `ctx.current.rpc` from the script context:
+Use `ctx.rpc` from the script context:
 
 ```ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
+export default function setup(ctx: DockClientScriptContext) {
   ctx.current.events.on('entry:activated', async () => {
-    const data = await ctx.current.rpc.call('my-plugin:get-modules')
+    const data = await ctx.rpc.call('my-plugin:get-modules')
     console.log(data)
   })
 }
+```
+
+### Sharing State Across RPC Functions
+
+When multiple RPC functions need access to the same plugin-specific state (a manager instance, plugin options, cached data, etc.), use a `WeakMap` keyed by `DevToolsNodeContext` to store and retrieve that state. This avoids mutating the base context object and keeps your plugin state scoped and garbage-collectable.
+
+Create a helper file with get/set functions:
+
+```ts
+// src/node/rpc/context.ts
+import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+
+interface MyPluginContext {
+  dataDir: string
+  manager: DataManager
+}
+
+const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+
+export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+  const value = pluginContext.get(ctx)
+  if (!value)
+    throw new Error('Plugin context not initialized')
+  return value
+}
+
+export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+  pluginContext.set(ctx, value)
+}
+```
+
+Initialize the state in your plugin's `devtools.setup`, then access it from any RPC function's `setup`:
+
+::: code-group
+
+```ts [plugin.ts]
+import { rpcFunctions } from './rpc'
+import { setPluginContext } from './rpc/context'
+
+const plugin: Plugin = {
+  devtools: {
+    setup(ctx) {
+      setPluginContext(ctx, {
+        dataDir: resolve(ctx.cwd, 'data'),
+        manager: new DataManager(),
+      })
+      rpcFunctions.forEach(fn => ctx.rpc.register(fn))
+    },
+  },
+}
+```
+
+```ts [functions/get-data.ts]
+import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { getPluginContext } from '../context'
+
+export const getData = defineRpcFunction({
+  name: 'my-plugin:get-data',
+  type: 'query',
+  setup: (ctx) => {
+    const { manager } = getPluginContext(ctx)
+    return {
+      handler: async () => manager.getData(),
+    }
+  },
+})
+```
+
+:::
+
+### Global Client Context
+
+Use `getDevToolsClientContext()` to access the client context (`DevToolsClientContext`) from anywhere on the client side. This is set automatically when DevTools initializes in embedded or standalone mode.
+
+```ts
+import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
+
+const ctx = getDevToolsClientContext()
+if (ctx) {
+  const modules = await ctx.rpc.call('my-plugin:get-modules')
+}
+```
+
+Returns `undefined` if the context has not been initialized yet.
 ```
 
 ## Client-Side Functions
@@ -280,10 +484,10 @@ You can also define functions on the client that the server can call.
 ### Registering Client Functions
 
 ```ts
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
-  ctx.current.rpc.client.register({
+export default function setup(ctx: DockClientScriptContext) {
+  ctx.rpc.client.register({
     name: 'my-plugin:highlight-element',
     type: 'action',
     handler: (selector: string) => {
@@ -308,14 +512,17 @@ const plugin: Plugin = {
   devtools: {
     setup(ctx) {
     // Later, when you want to notify clients...
-      ctx.rpc.broadcast('my-plugin:highlight-element', '#app')
+      ctx.rpc.broadcast({
+        method: 'my-plugin:highlight-element',
+        args: ['#app'],
+      })
     }
   }
 }
 ```
 
 > [!NOTE]
-> `broadcast` calls all connected clients. The returned promise resolves to an array of results (one per client).
+> `broadcast` sends an event-style call to all connected clients and resolves when dispatch completes.
 
 ## Type Safety
 
@@ -328,7 +535,7 @@ For full type safety, extend the DevTools Kit interfaces.
 import '@vitejs/devtools-kit'
 
 declare module '@vitejs/devtools-kit' {
-  interface DevToolsRpcFunctions {
+  interface DevToolsRpcServerFunctions {
     'my-plugin:get-modules': () => Promise<Module[]>
     'my-plugin:get-module': (
       id: string,
@@ -405,7 +612,10 @@ export default function analyticsPlugin(): Plugin {
 
         // Broadcast to clients when metrics change
         ctx.viteServer?.watcher.on('change', (file) => {
-          ctx.rpc.broadcast('analytics:metrics-updated', file)
+          ctx.rpc.broadcast({
+            method: 'analytics:metrics-updated',
+            args: [file],
+          })
         })
       },
     },
@@ -414,11 +624,11 @@ export default function analyticsPlugin(): Plugin {
 ```
 
 ```ts [client.ts]
-import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
-export default function setup(ctx: DevToolsClientScriptContext) {
+export default function setup(ctx: DockClientScriptContext) {
   // Register client function
-  ctx.current.rpc.client.register({
+  ctx.rpc.client.register({
     name: 'analytics:metrics-updated',
     type: 'action',
     handler: (file: string) => {
@@ -428,7 +638,7 @@ export default function setup(ctx: DevToolsClientScriptContext) {
   })
 
   async function refreshUI() {
-    const metrics = await ctx.current.rpc.call('analytics:get-metrics')
+    const metrics = await ctx.rpc.call('analytics:get-metrics')
     console.log('Updated metrics:', metrics)
   }
 }
@@ -438,7 +648,7 @@ export default function setup(ctx: DevToolsClientScriptContext) {
 import '@vitejs/devtools-kit'
 
 declare module '@vitejs/devtools-kit' {
-  interface DevToolsRpcFunctions {
+  interface DevToolsRpcServerFunctions {
     'analytics:get-metrics': () => Promise<Record<string, number>>
   }
 

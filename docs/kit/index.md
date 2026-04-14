@@ -100,13 +100,4 @@ If you're building a Vite plugin and want to add DevTools capabilities, or if yo
 4. **[Shared State](./shared-state)** - Share data between server and client with automatic synchronization
 
 > [!TIP] Help Us Improve
-> If you are building something on top of Vite DevTools, we invite you to label your repository with `vite-devtools` on GitHub to help us track usage and improve the project. Thank you!
-
-## Real-World Examples
-
-The docs might not cover all the details—please help us improve them by submitting PRs. In the meantime, refer to these existing DevTools integrations:
-
-- **[UnoCSS Inspector](https://github.com/unocss/unocss/blob/25c0dd737132dc20b257c276ee2bc3ccc05e2974/packages-integrations/inspector/src/index.ts#L140-L150)** - A simple iframe-based dock entry
-- **[vite-plugin-vue-tracer](https://github.com/antfu/vite-plugin-vue-tracer)** - An action button that triggers a DOM inspector
-  - [Plugin hook](https://github.com/antfu/vite-plugin-vue-tracer/blob/9f86fe723543405eea5d30588fe783796193bfd8/src/plugin.ts#L139-L157)
-  - [Client script](https://github.com/antfu/vite-plugin-vue-tracer/blob/main/src/client/vite-devtools.ts)
+> If you are building something on top of Vite DevTools Kit, we invite you to label your repository with `vite-devtools` on GitHub to help us track usage and improve the project. Thank you!

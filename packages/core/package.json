@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.0.0-alpha.28",
+  "version": "0.1.13",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -25,7 +25,9 @@
     "./cli-commands": "./dist/cli-commands.js",
     "./client/inject": "./dist/client/inject.js",
     "./client/webcomponents": "./dist/client/webcomponents.js",
+    "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",
+    "./internal": "./dist/internal.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -44,6 +46,7 @@
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
+    "play:debug": "pnpm -C playground run dev:debug",
     "play:standalone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
     "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
     "play:build": "pnpm -C playground run build"
@@ -58,7 +61,7 @@
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "h3": "catalog:deps",
-    "immer": "catalog:deps",
+    "immer": "catalog:inlined",
     "launch-editor": "catalog:deps",
     "mlly": "catalog:deps",
     "obug": "catalog:deps",
@@ -67,6 +70,7 @@
     "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
     "tinyexec": "catalog:deps",
+    "vue": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {
@@ -76,13 +80,33 @@
     "@xterm/addon-fit": "catalog:frontend",
     "@xterm/xterm": "catalog:frontend",
     "dompurify": "catalog:frontend",
+    "fuse.js": "catalog:frontend",
+    "human-id": "catalog:inlined",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
     "unplugin-vue": "catalog:build",
-    "unplugin-vue-router": "catalog:playground",
     "vite": "catalog:build",
-    "vue": "catalog:frontend",
+    "vue": "catalog:deps",
     "vue-router": "catalog:playground",
     "vue-tsc": "catalog:devtools"
+  },
+  "inlinedDependencies": {
+    "@clack/core": "1.2.0",
+    "@clack/prompts": "1.2.0",
+    "@json-render/core": "0.13.0",
+    "@json-render/vue": "0.13.0",
+    "@vueuse/core": "14.2.1",
+    "@vueuse/shared": "14.2.1",
+    "@xterm/addon-fit": "0.11.0",
+    "@xterm/xterm": "6.0.0",
+    "ansis": "4.2.0",
+    "dompurify": "3.3.3",
+    "fast-string-truncated-width": "1.2.1",
+    "fast-string-width": "1.1.0",
+    "fast-wrap-ansi": "0.1.6",
+    "fuse.js": "7.3.0",
+    "get-port-please": "3.2.0",
+    "sisteransi": "1.0.5",
+    "zod": "4.3.6"
   }
 }

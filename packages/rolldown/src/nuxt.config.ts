@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 import Inspect from 'vite-plugin-inspect'
 import { alias } from '../../../alias'
@@ -14,7 +15,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@unocss/nuxt',
     '@nuxt/eslint',
-    'nuxt-eslint-auto-explicit-import',
     './modules/rpc',
   ],
 
@@ -62,6 +62,10 @@ export default defineNuxtConfig({
     sourceMap: false,
   },
 
+  unocss: {
+    configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
+  },
+
   app: {
     baseURL: BASE,
     head: {
@@ -103,20 +107,7 @@ export default defineNuxtConfig({
         'd3-hierarchy',
         'd3-shape',
         'fuse.js',
-        'codemirror',
-        'codemirror/addon/dialog/dialog',
-        'codemirror/addon/display/placeholder',
-        'codemirror/addon/search/jump-to-line',
-        'codemirror/addon/search/search',
-        'codemirror/mode/css/css',
-        'codemirror/mode/handlebars/handlebars',
-        'codemirror/mode/htmlmixed/htmlmixed',
-        'codemirror/mode/javascript/javascript',
-        'codemirror/mode/markdown/markdown',
-        'codemirror/mode/pug/pug',
-        'codemirror/mode/sass/sass',
-        'codemirror/mode/vue/vue',
-        'codemirror/mode/xml/xml',
+        'modern-monaco',
         'comlink',
         'floating-vue',
         'splitpanes',
@@ -129,6 +120,7 @@ export default defineNuxtConfig({
       ],
     },
     devtools: {
+      enabled: false,
       clientAuth: false,
     },
     plugins: [

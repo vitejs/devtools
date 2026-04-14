@@ -5,6 +5,10 @@
 ./cli-commands:
   build: function
   start: function
+./config:
+  normalizeDevToolsConfig: function
 ./dirs:
   dirClientStandalone: string
   dirDist: string
+./internal:
+  getInternalContext: function

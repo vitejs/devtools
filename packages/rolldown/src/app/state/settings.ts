@@ -29,7 +29,7 @@ export interface ClientSettings {
 }
 
 export const settings = useLocalStorage<ClientSettings>(
-  'vite-devtools-settings',
+  'rolldown-devtools-settings',
   {
     codeviewerLineWrap: false,
     codeviewerDiffPanelSize: 50,

@@ -38,17 +38,20 @@ export class DevToolsDockHost implements DevToolsDockHostType {
         title: 'Terminals',
         icon: 'ph:terminal-duotone',
         category: '~builtin',
-        get isHidden() {
-          return context.terminals.sessions.size === 0
+        get when() {
+          return context.terminals.sessions.size === 0 ? 'false' : undefined
         },
       },
       {
         type: '~builtin',
         id: '~logs',
-        title: 'Logs',
+        title: 'Logs & Notifications',
         icon: 'ph:notification-duotone',
         category: '~builtin',
-        isHidden: true, // TODO: implement logs
+        get badge() {
+          const size = context.logs.entries.size
+          return size > 0 ? String(size) : undefined
+        },
       },
       {
         type: '~builtin',

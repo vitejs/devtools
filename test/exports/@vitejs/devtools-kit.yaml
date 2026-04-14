@@ -1,13 +1,30 @@
 .:
+  defineCommand: function
+  defineJsonRenderSpec: function
   defineRpcFunction: function
 ./client:
+  CLIENT_CONTEXT_KEY: string
+  getDevToolsClientContext: function
   getDevToolsRpcClient: function
 ./constants:
   DEFAULT_CATEGORIES_ORDER: object
   DEFAULT_STATE_USER_SETTINGS: function
+  DEVTOOLS_CONNECTION_META_FILENAME: string
+  DEVTOOLS_DIRNAME: string
+  DEVTOOLS_DOCK_IMPORTS_FILENAME: string
+  DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID: string
+  DEVTOOLS_MOUNT_PATH: string
+  DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH: string
+  DEVTOOLS_RPC_DUMP_DIRNAME: string
+  DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
 ./utils/events:
   createEventEmitter: function
+./utils/human-id:
+  humanId: function
 ./utils/nanoid:
   nanoid: function
 ./utils/shared-state:
   createSharedState: function
+./utils/when:
+  evaluateWhen: function
+  getContextValue: function

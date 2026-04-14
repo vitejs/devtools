@@ -5,6 +5,17 @@ import { createSharedState } from '../utils/shared-state'
 
 export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcSharedStateHost {
   const sharedState = new Map<string, SharedState<any>>()
+  const initialValues = new Map<string, any>()
+  const isStaticBackend = rpc.connectionMeta.backend === 'static'
+
+  function mergeWithInitialValue(key: string, serverState: any): any {
+    const initial = initialValues.get(key)
+    if (initial && typeof initial === 'object' && !Array.isArray(initial)
+      && typeof serverState === 'object' && !Array.isArray(serverState)) {
+      return { ...initial, ...serverState }
+    }
+    return serverState
+  }
 
   rpc.client.register({
     name: 'devtoolskit:internal:rpc:client-state:updated',
@@ -13,7 +24,7 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
       const state = sharedState.get(key)
       if (!state || state.syncIds.has(syncId))
         return
-      state.mutate(() => fullState, syncId)
+      state.mutate(() => mergeWithInitialValue(key, fullState), syncId)
     },
   })
 
@@ -31,6 +42,8 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
   function registerSharedState<T extends object>(key: string, state: SharedState<T>) {
     const offs: (() => void)[] = []
     offs.push(state.on('updated', (fullState, patches, syncId) => {
+      if (isStaticBackend)
+        return
       if (patches) {
         rpc.callEvent('devtoolskit:internal:rpc:server-state:patch', key, patches, syncId)
       }
@@ -47,7 +60,11 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
   }
 
   return {
+    keys: () => Array.from(sharedState.keys()),
     get: async <T extends object>(key: string, options?: RpcSharedStateGetOptions<T>) => {
+      if (options?.initialValue !== undefined) {
+        initialValues.set(key, options.initialValue)
+      }
       if (sharedState.has(key)) {
         return sharedState.get(key)!
       }
@@ -58,12 +75,15 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
       })
 
       async function initSharedState() {
-        rpc.callEvent('devtoolskit:internal:rpc:server-state:subscribe', key)
+        if (!isStaticBackend) {
+          rpc.callEvent('devtoolskit:internal:rpc:server-state:subscribe', key)
+        }
         if (options?.initialValue !== undefined) {
           sharedState.set(key, state)
           rpc.call('devtoolskit:internal:rpc:server-state:get', key)
             .then((serverState) => {
-              state.mutate(() => serverState)
+              if (serverState !== undefined)
+                state.mutate(() => mergeWithInitialValue(key, serverState))
             })
             .catch((error) => {
               console.error('Error getting server state', error)
@@ -72,8 +92,8 @@ export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcShare
           return state
         }
         else {
-          const initialValue = await rpc.call('devtoolskit:internal:rpc:server-state:get', key) as T
-          state.mutate(() => initialValue)
+          const serverValue = await rpc.call('devtoolskit:internal:rpc:server-state:get', key) as T
+          state.mutate(() => mergeWithInitialValue(key, serverValue))
           sharedState.set(key, state)
           registerSharedState(key, state)
           return state

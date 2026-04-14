@@ -3,8 +3,8 @@ import type { SessionContext } from '~~/shared/types'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
 import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
+import { sideNavItems } from '@vitejs/devtools-ui/composables/nav'
 import { computed } from 'vue'
-import { sideNavItems } from '~~/app/state/nav'
 
 const props = defineProps<{
   session: SessionContext
@@ -85,7 +85,7 @@ const dataTable = computed<DataTableItem[]>(() => {
         <div>
           {{ item.title }}
         </div>
-        <div font-mono>
+        <div font-mono truncate>
           <time v-if="(item.value instanceof Date)" :datetime="item.value.toISOString()">{{ item.value.toLocaleString() }}</time>
           <DisplayBadge v-else-if="item.type === 'badge'" :text="String(item.value)" py1 />
           <DisplayDuration v-else-if="item.type === 'duration'" :duration="+item.value" />
@@ -108,7 +108,7 @@ const dataTable = computed<DataTableItem[]>(() => {
     <div op50 mt-4>
       Views
     </div>
-    <div flex="~ gap-2">
+    <div flex="~ wrap gap-2">
       <template v-for="item of sideNavItems" :key="item.to">
         <NuxtLink v-if="item.category === 'session'" btn-action :to="{ path: item.to }" flex="~ col" min-w-40 p4>
           <div :class="item.icon" text-2xl />
