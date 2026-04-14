@@ -104,7 +104,7 @@
     "fast-string-truncated-width": "1.2.1",
     "fast-string-width": "1.1.0",
     "fast-wrap-ansi": "0.1.6",
-    "fuse.js": "7.1.0",
+    "fuse.js": "7.3.0",
     "get-port-please": "3.2.0",
     "sisteransi": "1.0.5",
     "zod": "4.3.6"
