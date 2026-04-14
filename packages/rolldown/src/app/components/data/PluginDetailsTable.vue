@@ -84,6 +84,7 @@ function toggleDurationSortType() {
 <template>
   <DataVirtualList
     v-if="filtered.length && selectedFields.length"
+    class="plugin-details-table"
     role="table"
     min-w-max h-full min-h-0
     :items="filtered"
@@ -91,7 +92,7 @@ function toggleDurationSortType() {
     :page-mode="false"
   >
     <template #before>
-      <div role="row" class="sticky top-0 z10 border-b border-base bg-base" flex="~ row">
+      <div role="row" class="border-b border-base bg-base" flex="~ row">
         <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
           Hook name
         </div>
@@ -189,3 +190,11 @@ function toggleDurationSortType() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.plugin-details-table:deep(.vue-recycle-scroller__slot) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+</style>
