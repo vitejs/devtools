@@ -4,6 +4,7 @@ import { getLogsManager } from '../utils'
 export const rolldownGetChunkInfo = defineRpcFunction({
   name: 'vite:rolldown:get-chunk-info',
   type: 'query',
+  cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

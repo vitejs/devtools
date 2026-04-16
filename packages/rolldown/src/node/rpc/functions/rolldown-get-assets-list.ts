@@ -4,6 +4,7 @@ import { getLogsManager } from '../utils'
 export const rolldownGetAssetsList = defineRpcFunction({
   name: 'vite:rolldown:get-assets-list',
   type: 'query',
+  cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

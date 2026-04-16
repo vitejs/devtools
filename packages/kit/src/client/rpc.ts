@@ -1,8 +1,9 @@
+import type { RpcCacheOptions } from '@vitejs/devtools-rpc'
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
-import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
+import { RpcCacheManager, RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
@@ -25,6 +26,7 @@ export interface DevToolsRpcClientOptions {
   authToken?: string
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
+  cacheOptions?: boolean | Partial<RpcCacheOptions>
 }
 
 export type DevToolsRpcClientCall = BirpcReturn<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>['$call']
@@ -86,6 +88,10 @@ export interface DevToolsRpcClient {
    * The shared state host
    */
   sharedState: RpcSharedStateHost
+  /**
+   * The RPC cache manager
+   */
+  cacheManager: RpcCacheManager
 }
 
 export interface DevToolsRpcClientMode {
@@ -149,6 +155,7 @@ export async function getDevToolsRpcClient(
   const {
     baseURL = DEVTOOLS_MOUNT_PATH,
     rpcOptions = {},
+    cacheOptions = false,
   } = options
   const events = createEventEmitter<RpcClientEvents>()
   const bases = Array.isArray(baseURL) ? baseURL : [baseURL]
@@ -188,6 +195,7 @@ export async function getDevToolsRpcClient(
     }
   }
 
+  const cacheManager = new RpcCacheManager({ functions: [], ...(typeof options.cacheOptions === 'object' ? options.cacheOptions : {}) })
   const context: DevToolsRpcContext = {
     rpc: undefined!,
   }
@@ -229,7 +237,25 @@ export async function getDevToolsRpcClient(
         connectionMeta,
         events,
         clientRpc,
-        rpcOptions,
+        rpcOptions: {
+          ...rpcOptions,
+          async onRequest(req, next, resolve) {
+            await rpcOptions.onRequest?.call(this, req, next, resolve)
+            if (cacheOptions && cacheManager?.validate(req.m)) {
+              const cached = cacheManager.cached(req.m, req.a)
+              if (cached) {
+                return resolve(cached)
+              }
+              else {
+                const res = await next(req)
+                cacheManager?.apply(req, res)
+              }
+            }
+            else {
+              await next(req)
+            }
+          },
+        },
         wsOptions: options.wsOptions,
       })
 
@@ -252,6 +278,7 @@ export async function getDevToolsRpcClient(
     callOptional: mode.callOptional,
     client: clientRpc,
     sharedState: undefined!,
+    cacheManager,
   }
 
   rpc.sharedState = createRpcSharedStateClientHost(rpc)
