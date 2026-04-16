@@ -37,9 +37,6 @@ catalogs:
       specifier: ^7.1.1
       version: 7.1.1
   deps:
-    '@antfu/experimental-logs-sdk':
-      specifier: ^0.0.3
-      version: 0.0.3
     '@pnpm/read-project-manifest':
       specifier: ^1001.2.6
       version: 1001.2.6
@@ -67,6 +64,9 @@ catalogs:
     launch-editor:
       specifier: ^2.13.2
       version: 2.13.2
+    logs-sdk:
+      specifier: ^0.0.5
+      version: 0.0.5
     mlly:
       specifier: ^1.8.2
       version: 1.8.2
@@ -413,9 +413,6 @@ importers:
       '@antfu/eslint-config':
         specifier: catalog:devtools
         version: 8.0.0(@typescript-eslint/rule-tester@8.56.1(eslint@10.1.0(jiti@2.6.1))(typescript@6.0.2))(@typescript-eslint/typescript-estree@8.58.0(typescript@6.0.2))(@typescript-eslint/utils@8.58.0(eslint@10.1.0(jiti@2.6.1))(typescript@6.0.2))(@unocss/eslint-plugin@66.6.7(eslint@10.1.0(jiti@2.6.1))(typescript@6.0.2))(@vue/compiler-sfc@3.5.31)(eslint@10.1.0(jiti@2.6.1))(typescript@6.0.2)(vitest@4.1.2(@opentelemetry/api@1.9.0)(@types/node@25.0.3)(vite@8.0.3))
-      '@antfu/experimental-logs-sdk':
-        specifier: catalog:deps
-        version: 0.0.3(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       '@antfu/ni':
         specifier: catalog:build
         version: 30.0.0
@@ -521,6 +518,9 @@ importers:
       eslint:
         specifier: catalog:devtools
         version: 10.1.0(jiti@2.6.1)
+      logs-sdk:
+        specifier: catalog:deps
+        version: 0.0.5(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       magic-string:
         specifier: catalog:build
         version: 0.30.21
@@ -695,9 +695,6 @@ importers:
 
   packages/core:
     dependencies:
-      '@antfu/experimental-logs-sdk':
-        specifier: catalog:deps
-        version: 0.0.3(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
@@ -722,6 +719,9 @@ importers:
       launch-editor:
         specifier: catalog:deps
         version: 2.13.2
+      logs-sdk:
+        specifier: catalog:deps
+        version: 0.0.5(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       mlly:
         specifier: catalog:deps
         version: 1.8.2
@@ -820,9 +820,6 @@ importers:
 
   packages/rolldown:
     dependencies:
-      '@antfu/experimental-logs-sdk':
-        specifier: catalog:deps
-        version: 0.0.3(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       '@floating-ui/dom':
         specifier: catalog:frontend
         version: 1.7.6
@@ -859,6 +856,9 @@ importers:
       h3:
         specifier: catalog:deps
         version: 1.15.11
+      logs-sdk:
+        specifier: catalog:deps
+        version: 0.0.5(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       mlly:
         specifier: catalog:deps
         version: 1.8.2
@@ -974,12 +974,12 @@ importers:
 
   packages/rpc:
     dependencies:
-      '@antfu/experimental-logs-sdk':
-        specifier: catalog:deps
-        version: 0.0.3(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       birpc:
         specifier: catalog:deps
         version: 4.0.0
+      logs-sdk:
+        specifier: catalog:deps
+        version: 0.0.5(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)
       ohash:
         specifier: catalog:deps
         version: 2.0.11
@@ -1196,20 +1196,6 @@ packages:
       prettier-plugin-slidev:
         optional: true
       svelte-eslint-parser:
-        optional: true
-
-  '@antfu/experimental-logs-sdk@0.0.3':
-    resolution: {integrity: sha512-qaxCGIEuFAzk3PVy2yAvVsVtpty8mIGjoN5PY9jSeR8FGnHbDS+c3vJTgdriWiwwl8QWpit+pGq8KgMlHc9W6Q==}
-    peerDependencies:
-      magic-string: '>=0.30.0'
-      oxc-parser: '>=0.50.0'
-      unplugin: '>=2.0.0'
-    peerDependenciesMeta:
-      magic-string:
-        optional: true
-      oxc-parser:
-        optional: true
-      unplugin:
         optional: true
 
   '@antfu/install-pkg@1.1.0':
@@ -6071,6 +6057,20 @@ packages:
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
 
+  logs-sdk@0.0.5:
+    resolution: {integrity: sha512-R52wCMawYldP8Av4wwzbfJzCNWTy6hmBcB6RLj8Ki5fZsfRdBHeYO7hUM27ZkH7Vn8ea6i0JP6uP2DEgZRQwRA==}
+    peerDependencies:
+      magic-string: '>=0.30.0'
+      oxc-parser: '>=0.50.0'
+      unplugin: '>=2.0.0'
+    peerDependenciesMeta:
+      magic-string:
+        optional: true
+      oxc-parser:
+        optional: true
+      unplugin:
+        optional: true
+
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
@@ -8342,12 +8342,6 @@ snapshots:
       - supports-color
       - typescript
       - vitest
-
-  '@antfu/experimental-logs-sdk@0.0.3(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0)':
-    optionalDependencies:
-      magic-string: 0.30.21
-      oxc-parser: 0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
-      unplugin: 3.0.0
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
@@ -13906,6 +13900,12 @@ snapshots:
   lodash.uniq@4.5.0: {}
 
   lodash@4.17.21: {}
+
+  logs-sdk@0.0.5(magic-string@0.30.21)(oxc-parser@0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1))(unplugin@3.0.0):
+    optionalDependencies:
+      magic-string: 0.30.21
+      oxc-parser: 0.117.0(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)
+      unplugin: 3.0.0
 
   longest-streak@3.1.0: {}
 

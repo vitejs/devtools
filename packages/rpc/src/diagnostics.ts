@@ -1,4 +1,4 @@
-import { consoleReporter, createLogger, defineDiagnostics, plainFormatter } from '@antfu/experimental-logs-sdk'
+import { consoleReporter, createLogger, defineDiagnostics, plainFormatter } from 'logs-sdk'
 
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',

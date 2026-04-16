@@ -34,7 +34,6 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
-    "@antfu/experimental-logs-sdk": "catalog:deps",
     "@floating-ui/dom": "catalog:frontend",
     "@pnpm/read-project-manifest": "catalog:deps",
     "@rolldown/debug": "catalog:deps",
@@ -47,6 +46,7 @@
     "diff": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
+    "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
     "mrmime": "catalog:deps",
     "ohash": "catalog:deps",

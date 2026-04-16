@@ -1,6 +1,6 @@
-import { consoleReporter, createLogger, defineDiagnostics } from '@antfu/experimental-logs-sdk'
-import { ansiFormatter } from '@antfu/experimental-logs-sdk/formatters/ansi'
 import c from 'ansis'
+import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
+import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',

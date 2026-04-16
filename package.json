@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:devtools",
-    "@antfu/experimental-logs-sdk": "catalog:deps",
     "@antfu/ni": "catalog:build",
     "@antfu/utils": "catalog:inlined",
     "@iconify-json/carbon": "catalog:icons",
@@ -60,6 +59,7 @@
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",
     "eslint": "catalog:devtools",
+    "logs-sdk": "catalog:deps",
     "magic-string": "catalog:build",
     "nano-staged": "catalog:devtools",
     "nuxt": "catalog:build",

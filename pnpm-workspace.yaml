@@ -50,7 +50,6 @@ catalogs:
     unplugin-vue: ^7.1.1
     vite: ^8.0.3
   deps:
-    '@antfu/experimental-logs-sdk': ^0.0.3
     '@pnpm/read-project-manifest': ^1001.2.6
     '@rolldown/debug': ^1.0.0-rc.13
     ansis: ^4.2.0
@@ -61,6 +60,7 @@ catalogs:
     get-port-please: ^3.2.0
     h3: ^1.15.11
     launch-editor: ^2.13.2
+    logs-sdk: ^0.0.5
     mlly: ^1.8.2
     mrmime: ^2.0.1
     obug: ^2.1.1

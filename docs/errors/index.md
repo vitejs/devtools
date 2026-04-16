@@ -11,7 +11,7 @@ Vite DevTools uses structured diagnostics to surface actionable warnings and err
 - Codes follow the pattern **prefix + 4-digit number** (e.g., `DTK0001`, `RDDT0002`).
 - Each prefix maps to a package: `DTK` for `@vitejs/devtools` core/kit, `RDDT` for `@vitejs/devtools-rolldown`.
 - Every error page includes the cause, recommended fix, and a reference to the source file that emits it.
-- The diagnostics system is powered by [`@antfu/experimental-logs-sdk`](https://github.com/antfu/experimental-logs-sdk), which provides structured logging with docs URLs, ANSI-formatted console output, and level-based filtering.
+- The diagnostics system is powered by [`logs-sdk`](https://github.com/vercel-labs/logs-sdk), which provides structured logging with docs URLs, ANSI-formatted console output, and level-based filtering.
 
 ## DevTools Kit (DTK)
 
