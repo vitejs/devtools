@@ -244,7 +244,7 @@ export async function createDocksContext(
         return getWhenContext()
       },
     },
-    rpc,
+    rpc: markRaw(rpc),
     clientType,
   })
 
