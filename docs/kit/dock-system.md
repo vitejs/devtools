@@ -110,8 +110,8 @@ icon: 'mdi:view-dashboard' // Material Design Icons
 
 // Light/dark variants
 icon: {
-  light: 'https://example.com/logo-light.svg',
-  dark: 'https://example.com/logo-dark.svg',
+  light: 'https://example.com/logo-light.svg'
+  dark: 'https://example.com/logo-dark.svg'
 }
 ```
 
