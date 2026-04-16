@@ -90,5 +90,5 @@ export const diagnostics = defineDiagnostics({
 export const logger = createLogger({
   diagnostics: [diagnostics],
   formatter: ansiFormatter(c),
-  reporter: consoleReporter,
+  reporters: consoleReporter,
 })

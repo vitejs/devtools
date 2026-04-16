@@ -60,7 +60,7 @@ catalogs:
     get-port-please: ^3.2.0
     h3: ^1.15.11
     launch-editor: ^2.13.2
-    logs-sdk: ^0.0.5
+    logs-sdk: ^0.0.6
     mlly: ^1.8.2
     mrmime: ^2.0.1
     obug: ^2.1.1
