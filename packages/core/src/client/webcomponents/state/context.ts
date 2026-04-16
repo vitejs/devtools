@@ -145,8 +145,8 @@ export async function createDocksContext(
       source: 'client',
       title: 'Close Panel',
       icon: 'ph:x-circle-duotone',
-      when: 'dockOpen',
-      keybindings: [],
+      when: 'dockOpen && !paletteOpen',
+      keybindings: [{ key: 'Escape' }],
       action: () => {
         panelStore.value.open = false
         selectedId.value = null
