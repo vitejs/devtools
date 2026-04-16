@@ -7,7 +7,9 @@ export function DevToolsInjection(): Plugin {
   return {
     name: 'vite:devtools:injection',
     enforce: 'post',
-    apply: 'serve',
+    apply(_config, env) {
+      return env.command === 'serve' && !env.isSsrBuild
+    },
     transformIndexHtml() {
       const fileUrl = process.env.VITE_DEVTOOLS_LOCAL_DEV
         ? normalize(join(dirDist, '..', 'src/client/inject/index.ts'))
