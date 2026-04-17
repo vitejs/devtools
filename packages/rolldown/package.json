@@ -46,6 +46,7 @@
     "diff": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
+    "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
     "mrmime": "catalog:deps",
     "ohash": "catalog:deps",

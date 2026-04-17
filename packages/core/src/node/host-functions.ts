@@ -3,6 +3,7 @@ import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
 import { createDebug } from 'obug'
+import { logger } from './diagnostics'
 import { createRpcSharedStateServerHost } from './rpc-shared-state'
 
 const debugBroadcast = createDebug('vite:devtools:rpc:broadcast')
@@ -30,7 +31,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
     ...args: Args
   ): Promise<Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>> {
     if (!this.definitions.has(method as string)) {
-      throw new Error(`RPC function "${String(method)}" is not registered`)
+      throw logger.DTK0020({ name: String(method) }).throw()
     }
 
     const handler = await this.getHandler(method)
@@ -65,7 +66,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
   getCurrentRpcSession(): DevToolsNodeRpcSession | undefined {
     if (!this._asyncStorage)
-      throw new Error('RpcFunctionsHost] AsyncLocalStorage is not set, it likely to be an internal bug of Vite DevTools')
+      throw logger.DTK0021().throw()
     return this._asyncStorage.getStore()
   }
 }

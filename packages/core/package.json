@@ -63,6 +63,7 @@
     "h3": "catalog:deps",
     "immer": "catalog:inlined",
     "launch-editor": "catalog:deps",
+    "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
     "obug": "catalog:deps",
     "open": "catalog:deps",

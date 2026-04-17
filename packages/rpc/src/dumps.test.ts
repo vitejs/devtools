@@ -76,7 +76,7 @@ describe('dumps', () => {
     const client = createClientFromDump(store)
 
     await expect(client.greet('Alice')).resolves.toBe('Hello, Alice!')
-    await expect(client.greet('Unknown')).rejects.toThrow('[devtools-rpc] No dump match for "greet"')
+    await expect(client.greet('Unknown')).rejects.toThrow('No dump match for "greet"')
   })
 
   it('should handle errors in dumps', async () => {
@@ -264,7 +264,7 @@ describe('dumps', () => {
     const store = await dumpFunctions([add])
     const client = createClientFromDump(store)
 
-    expect(() => (client as any).subtract(1, 2)).toThrow('[devtools-rpc] Function "subtract" not found in dump store')
+    expect(() => (client as any).subtract(1, 2)).toThrow('Function "subtract" not found in dump store')
   })
 
   it('should skip functions without dumps during collection', async () => {
@@ -582,7 +582,7 @@ describe('dumps', () => {
     })
 
     await expect(dumpFunctions([sendEmail])).rejects.toThrow(
-      '[devtools-rpc] Function "sendEmail" with type "action" cannot have dump configuration',
+      'Function "sendEmail" with type "action" cannot have dump configuration',
     )
   })
 
@@ -597,7 +597,7 @@ describe('dumps', () => {
     })
 
     await expect(dumpFunctions([notifyUser])).rejects.toThrow(
-      '[devtools-rpc] Function "notifyUser" with type "event" cannot have dump configuration',
+      'Function "notifyUser" with type "event" cannot have dump configuration',
     )
   })
 

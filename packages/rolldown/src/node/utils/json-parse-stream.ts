@@ -2,6 +2,7 @@ import { pipeline } from 'node:stream/promises'
 import split2 from 'split2'
 import StreamJSON from 'stream-json'
 import Assembler from 'stream-json/Assembler'
+import { logger } from '../diagnostics'
 
 export class JsonParseStreamError extends Error {
   constructor(
@@ -55,9 +56,7 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
         }
         catch (e) {
           const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line
-          console.warn(
-            `[rolldown-devtools] JSON parse stream skip bad line ${lineNumber}: ${(e as Error).message}\n${preview}`,
-          )
+          logger.RDDT0002({ line: lineNumber, error: (e as Error).message, preview }).log()
         }
       }
     },

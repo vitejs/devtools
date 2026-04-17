@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { dirname } from 'pathe'
 import { debounce } from 'perfect-debounce'
+import { logger } from './diagnostics'
 
 export interface CreateStorageOptions<T extends object> {
   filepath: string
@@ -23,8 +24,7 @@ export function createStorage<T extends object>(options: CreateStorageOptions<T>
       initialValue = mergeInitialValue ? mergeInitialValue(options.initialValue, savedValue) : savedValue
     }
     catch (error) {
-      console.warn(`[Vite DevTools] Failed to parse storage file: ${options.filepath}, falling back to defaults.`)
-      console.warn(error)
+      logger.DTK0009({ filepath: options.filepath }, { cause: error }).log()
       initialValue = options.initialValue
     }
   }

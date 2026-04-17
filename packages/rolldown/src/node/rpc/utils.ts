@@ -2,6 +2,7 @@ import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 import { join } from 'pathe'
+import { logger } from '../diagnostics'
 import { RolldownLogsManager } from '../rolldown/logs-manager'
 
 const weakMap = new WeakMap<DevToolsNodeContext, RolldownLogsManager>()
@@ -15,7 +16,7 @@ export function getLogsManager(context: DevToolsNodeContext): RolldownLogsManage
     ]
     const dir = dirs.find(dir => existsSync(dir))
     if (!dir) {
-      console.warn('[Rolldown DevTools] Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.')
+      logger.RDDT0001().log()
     }
     manager = new RolldownLogsManager(dir ?? dirs[0]!)
   }

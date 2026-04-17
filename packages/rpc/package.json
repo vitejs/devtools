@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "birpc": "catalog:deps",
+    "logs-sdk": "catalog:deps",
     "ohash": "catalog:deps",
     "p-limit": "catalog:deps",
     "structured-clone-es": "catalog:deps",

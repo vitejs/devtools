@@ -1,4 +1,5 @@
 import type { RpcArgsSchema, RpcFunctionDefinition, RpcFunctionsCollector, RpcReturnSchema } from './types'
+import { logger } from './diagnostics'
 import { getRpcHandler } from './handler'
 
 export class RpcFunctionsCollectorBase<
@@ -40,7 +41,7 @@ export class RpcFunctionsCollectorBase<
 
   register(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (this.definitions.has(fn.name) && !force) {
-      throw new Error(`RPC function "${fn.name}" is already registered`)
+      throw logger.DTK0001({ name: fn.name }).throw()
     }
     this.definitions.set(fn.name, fn)
     this._onChanged.forEach(cb => cb(fn.name))
@@ -48,7 +49,7 @@ export class RpcFunctionsCollectorBase<
 
   update(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (!this.definitions.has(fn.name) && !force) {
-      throw new Error(`RPC function "${fn.name}" is not registered. Use register() to add new functions.`)
+      throw logger.DTK0002({ name: fn.name }).throw()
     }
     this.definitions.set(fn.name, fn)
     this._onChanged.forEach(cb => cb(fn.name))
@@ -71,7 +72,7 @@ export class RpcFunctionsCollectorBase<
   getSchema<T extends keyof LocalFunctions>(name: T): { args: RpcArgsSchema | undefined, returns: RpcReturnSchema | undefined } {
     const definition = this.definitions.get(name as string)
     if (!definition)
-      throw new Error(`RPC function "${String(name)}" is not registered`)
+      throw logger.DTK0003({ name: String(name) }).throw()
     return {
       args: definition.args,
       returns: definition.returns,
