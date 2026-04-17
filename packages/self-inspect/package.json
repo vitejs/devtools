@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-self-inspect",
   "type": "module",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "DevTools for inspecting the DevTools itself",
   "author": "VoidZero Inc.",
   "license": "MIT",
