@@ -1,8 +1,9 @@
+import type { PeerDescriptor } from '@vitejs/devtools-rpc/peer'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
 import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
-import { createRpcClient } from '@vitejs/devtools-rpc/client'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { PeerMesh } from '@vitejs/devtools-rpc/peer'
+import { createWsClientAdapter } from '@vitejs/devtools-rpc/peer/adapters/ws-client'
 import { parseUA } from 'ua-parser-modern'
 import { promiseWithResolver } from '../utils/promise'
 
@@ -13,7 +14,11 @@ export interface CreateWsRpcClientModeOptions {
   clientRpc: DevToolsClientRpcHost
   rpcOptions?: DevToolsRpcClientOptions['rpcOptions']
   wsOptions?: DevToolsRpcClientOptions['wsOptions']
+  /** Self-descriptor for this peer. Provided by the bootstrap layer. */
+  self: PeerDescriptor
 }
+
+const DEVTOOLS_SERVER_PEER_ID = 'devtools-server'
 
 function isNumeric(str: string | number | undefined) {
   if (str == null)
@@ -21,9 +26,9 @@ function isNumeric(str: string | number | undefined) {
   return `${+str}` === `${str}`
 }
 
-export function createWsRpcClientMode(
+export async function createWsRpcClientMode(
   options: CreateWsRpcClientModeOptions,
-): DevToolsRpcClientMode {
+): Promise<DevToolsRpcClientMode & { mesh: PeerMesh }> {
   const {
     authToken,
     connectionMeta,
@@ -31,6 +36,7 @@ export function createWsRpcClientMode(
     clientRpc,
     rpcOptions = {},
     wsOptions = {},
+    self,
   } = options
 
   let isTrusted = false
@@ -39,17 +45,15 @@ export function createWsRpcClientMode(
     ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${connectionMeta.websocket}`
     : connectionMeta.websocket as string
 
-  const serverRpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>(
-    clientRpc.functions,
-    {
-      preset: createWsRpcPreset({
-        url,
-        authToken,
-        ...wsOptions,
-      }),
-      rpcOptions,
-    },
-  )
+  const mesh = new PeerMesh({ self })
+
+  const remote: PeerDescriptor = {
+    id: DEVTOOLS_SERVER_PEER_ID,
+    role: 'devtools-server',
+    capabilities: ['rpc-relay', 'directory'],
+    meta: {},
+    links: [{ transport: 'ws', priority: 100 }],
+  }
 
   // Handle server-initiated auth revocation
   clientRpc.register({
@@ -60,6 +64,20 @@ export function createWsRpcClientMode(
       events.emit('rpc:is-trusted:updated', false)
     },
   })
+
+  const adapter = createWsClientAdapter<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({
+    url,
+    authToken,
+    clientFunctions: clientRpc.functions,
+    remote,
+    rpcOptions,
+    onConnected: wsOptions.onConnected,
+    onError: wsOptions.onError,
+    onDisconnected: wsOptions.onDisconnected,
+  })
+
+  await mesh.register(adapter)
+  const serverHandle = mesh.peer(DEVTOOLS_SERVER_PEER_ID)
 
   let currentAuthToken = authToken
 
@@ -76,11 +94,11 @@ export function createWsRpcClientMode(
       info.device.type,
     ].filter(i => i).join(' ')
 
-    const result = await serverRpc.$call('vite:anonymous:auth', {
+    const result = await serverHandle.call('vite:anonymous:auth', {
       authToken: token,
       ua,
       origin: location.origin,
-    })
+    }) as { isTrusted: boolean }
 
     isTrusted = result.isTrusted
     trustedPromise.resolve(isTrusted)
@@ -123,22 +141,14 @@ export function createWsRpcClientMode(
     requestTrustWithToken,
     ensureTrusted,
     call: (...args: any): any => {
-      return serverRpc.$call(
-        // @ts-expect-error casting
-        ...args,
-      )
+      return serverHandle.call(...(args as [any, ...any[]]))
     },
     callEvent: (...args: any): any => {
-      return serverRpc.$callEvent(
-        // @ts-expect-error casting
-        ...args,
-      )
+      return serverHandle.callEvent(...(args as [any, ...any[]]))
     },
     callOptional: (...args: any): any => {
-      return serverRpc.$callOptional(
-        // @ts-expect-error casting
-        ...args,
-      )
+      return serverHandle.callOptional(...(args as [any, ...any[]]))
     },
+    mesh,
   }
 }

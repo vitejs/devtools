@@ -21,6 +21,9 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./client": "./dist/client.mjs",
+    "./peer": "./dist/peer/index.mjs",
+    "./peer/adapters/ws-client": "./dist/peer/adapters/ws-client.mjs",
+    "./peer/adapters/ws-server": "./dist/peer/adapters/ws-server.mjs",
     "./presets": "./dist/presets/index.mjs",
     "./presets/ws/client": "./dist/presets/ws/client.mjs",
     "./presets/ws/server": "./dist/presets/ws/server.mjs",

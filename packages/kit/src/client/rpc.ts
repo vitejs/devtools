@@ -1,21 +1,25 @@
 import type { RpcCacheOptions } from '@vitejs/devtools-rpc'
+import type { PeerDescriptor, PeerRole } from '@vitejs/devtools-rpc/peer'
 import type { WebSocketRpcClientOptions } from '@vitejs/devtools-rpc/presets/ws/client'
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
 import { RpcCacheManager, RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
+import { PeerMesh } from '@vitejs/devtools-rpc/peer'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
 } from '../constants'
 import { createEventEmitter } from '../utils/events'
 import { humanId } from '../utils/human-id'
+import { nanoid } from '../utils/nanoid'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
 const CONNECTION_AUTH_TOKEN_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__'
+const CONNECTION_PEER_ID_KEY = '__VITE_DEVTOOLS_CONNECTION_PEER_ID__'
 
 export interface DevToolsRpcClientOptions {
   connectionMeta?: ConnectionMeta
@@ -24,6 +28,21 @@ export interface DevToolsRpcClientOptions {
    * The auth token to use for the client
    */
   authToken?: string
+  /**
+   * The role this peer plays in the mesh.
+   *
+   * Provided by the bootstrap layer (e.g. `client:embedded`,
+   * `client:standalone`, `iframe:<plugin>`). Defaults to `client:unknown`.
+   */
+  peerRole?: PeerRole
+  /**
+   * Capabilities this peer advertises to the mesh.
+   */
+  peerCapabilities?: readonly string[]
+  /**
+   * Free-form peer meta — included in the peer descriptor.
+   */
+  peerMeta?: Record<string, unknown>
   wsOptions?: Partial<WebSocketRpcClientOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
   cacheOptions?: boolean | Partial<RpcCacheOptions>
@@ -38,6 +57,15 @@ export interface DevToolsRpcClient {
    * The events of the client
    */
   events: EventEmitter<RpcClientEvents>
+
+  /**
+   * The peer mesh this client participates in.
+   *
+   * In WebSocket mode this contains one link (to the devtools-server) and a
+   * directory replica. In static mode it is a degenerate mesh containing
+   * only this peer.
+   */
+  readonly mesh: PeerMesh
 
   /**
    * Whether the client is trusted
@@ -132,6 +160,40 @@ function getConnectionAuthTokenFromWindows(userAuthToken?: string): string {
   return value
 }
 
+/**
+ * Find or generate a stable peer id for this browser context.
+ *
+ * Persisted in localStorage so identity survives reloads; also exposed on
+ * globalThis so iframes can share the parent's id when appropriate.
+ */
+function getPeerIdFromWindows(): string {
+  const getters = [
+    () => localStorage.getItem(CONNECTION_PEER_ID_KEY),
+    () => (window as any)?.[CONNECTION_PEER_ID_KEY],
+    () => (globalThis as any)?.[CONNECTION_PEER_ID_KEY],
+  ]
+
+  let value: string | undefined
+  for (const getter of getters) {
+    try {
+      value = getter()
+      if (value)
+        break
+    }
+    catch {}
+  }
+
+  if (!value)
+    value = `peer-${nanoid(16)}`
+
+  try {
+    localStorage.setItem(CONNECTION_PEER_ID_KEY, value)
+  }
+  catch {}
+  ;(globalThis as any)[CONNECTION_PEER_ID_KEY] = value
+  return value
+}
+
 function findConnectionMetaFromWindows(): ConnectionMeta | undefined {
   const getters = [
     () => (window as any)?.[CONNECTION_META_KEY],
@@ -200,7 +262,19 @@ export async function getDevToolsRpcClient(
     rpc: undefined!,
   }
   const authToken = getConnectionAuthTokenFromWindows(options.authToken)
+  const peerId = getPeerIdFromWindows()
   const clientRpc: DevToolsClientRpcHost = new RpcFunctionsCollectorBase<DevToolsRpcClientFunctions, DevToolsRpcContext>(context)
+
+  const self: PeerDescriptor = {
+    id: peerId,
+    role: options.peerRole ?? 'client:unknown',
+    capabilities: options.peerCapabilities ?? [],
+    meta: {
+      authToken,
+      ...(options.peerMeta ?? {}),
+    },
+    links: connectionMeta.backend === 'static' ? [] : [{ transport: 'ws', priority: 100 }],
+  }
 
   async function fetchJsonFromBases(path: string): Promise<any> {
     const candidates = [
@@ -228,39 +302,48 @@ export async function getDevToolsRpcClient(
     })
   }
 
-  const mode = connectionMeta.backend === 'static'
-    ? await createStaticRpcClientMode({
-        fetchJsonFromBases,
-      })
-    : createWsRpcClientMode({
-        authToken,
-        connectionMeta,
-        events,
-        clientRpc,
-        rpcOptions: {
-          ...rpcOptions,
-          async onRequest(req, next, resolve) {
-            await rpcOptions.onRequest?.call(this, req, next, resolve)
-            if (cacheOptions && cacheManager?.validate(req.m)) {
-              const cached = cacheManager.cached(req.m, req.a)
-              if (cached) {
-                return resolve(cached)
-              }
-              else {
-                const res = await next(req)
-                cacheManager?.apply(req, res)
-              }
+  let mesh: PeerMesh
+  let mode: Awaited<ReturnType<typeof createStaticRpcClientMode>> | Awaited<ReturnType<typeof createWsRpcClientMode>>
+
+  if (connectionMeta.backend === 'static') {
+    mode = await createStaticRpcClientMode({ fetchJsonFromBases })
+    mesh = new PeerMesh({ self })
+  }
+  else {
+    const wsMode = await createWsRpcClientMode({
+      authToken,
+      connectionMeta,
+      events,
+      clientRpc,
+      self,
+      rpcOptions: {
+        ...rpcOptions,
+        async onRequest(req, next, resolve) {
+          await rpcOptions.onRequest?.call(this, req, next, resolve)
+          if (cacheOptions && cacheManager?.validate(req.m)) {
+            const cached = cacheManager.cached(req.m, req.a)
+            if (cached) {
+              return resolve(cached)
             }
             else {
-              await next(req)
+              const res = await next(req)
+              cacheManager?.apply(req, res)
             }
-          },
+          }
+          else {
+            await next(req)
+          }
         },
-        wsOptions: options.wsOptions,
-      })
+      },
+      wsOptions: options.wsOptions,
+    })
+    mode = wsMode
+    mesh = wsMode.mesh
+  }
 
   const rpc: DevToolsRpcClient = {
     events,
+    mesh,
     get isTrusted() {
       return mode.isTrusted
     },
