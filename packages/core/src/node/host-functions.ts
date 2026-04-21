@@ -1,4 +1,5 @@
 import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcBroadcastOptions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost } from '@vitejs/devtools-kit'
+import type { PeerMesh } from '@vitejs/devtools-rpc/peer'
 import type { BirpcGroup } from 'birpc'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
@@ -14,6 +15,10 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
    */
   _rpcGroup: BirpcGroup<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false> = undefined!
   _asyncStorage: AsyncLocalStorage<DevToolsNodeRpcSession> = undefined!
+  /**
+   * @internal
+   */
+  _mesh: PeerMesh = undefined!
 
   constructor(context: DevToolsNodeContext) {
     super(context)

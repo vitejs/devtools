@@ -1,17 +1,34 @@
 .:
   createClientFromDump: function
   createDefineWrapperWithContext: function
+  createLink: function
   defineRpcFunction: function
   dumpFunctions: function
   getDefinitionsWithDumps: function
   getRpcHandler: function
   getRpcResolvedSetupResult: function
+  LinkTable: function
+  matchPeer: function
+  matchRolePattern: function
+  PeerDirectory: function
+  PeerMesh: function
   RpcCacheManager: function
   RpcFunctionsCollectorBase: function
   validateDefinition: function
   validateDefinitions: function
 ./client:
   createRpcClient: function
+./peer:
+  createLink: function
+  LinkTable: function
+  matchPeer: function
+  matchRolePattern: function
+  PeerDirectory: function
+  PeerMesh: function
+./peer/adapters/ws-client:
+  createWsClientAdapter: function
+./peer/adapters/ws-server:
+  createWsServerAdapter: function
 ./presets:
   defineRpcClientPreset: function
   defineRpcServerPreset: function

@@ -18,6 +18,9 @@ sequenceDiagram
   Server->>Client: { id, data: '...' }
 ```
 
+> [!NOTE]
+> The RPC transport sits on top of the [Peer Mesh](./peer-mesh) — a pluggable communication layer that will, in upcoming releases, let any peer (server, parent client, iframe, worker, Nitro runtime…) reach any other. For today's usage the API below is unchanged; the mesh works transparently underneath.
+
 ## Server-Side Functions
 
 ### Defining RPC Functions

@@ -9,6 +9,15 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
+      "@vitejs/devtools-rpc/peer/adapters/ws-server": [
+        "./packages/rpc/src/peer/adapters/ws-server.ts"
+      ],
+      "@vitejs/devtools-rpc/peer/adapters/ws-client": [
+        "./packages/rpc/src/peer/adapters/ws-client.ts"
+      ],
+      "@vitejs/devtools-rpc/peer": [
+        "./packages/rpc/src/peer/index.ts"
+      ],
       "@vitejs/devtools-rpc/presets/ws/server": [
         "./packages/rpc/src/presets/ws/server.ts"
       ],

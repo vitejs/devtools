@@ -10,7 +10,7 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 |---------|-----|-------------|
 | `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, runtime hosts (docks, views, terminals), WS RPC server, standalone/webcomponents client |
 | `packages/kit` | `@vitejs/devtools-kit` | Public types/utilities for integration authors (`defineRpcFunction`, shared state, events, client helpers) |
-| `packages/rpc` | `@vitejs/devtools-rpc` | Typed RPC wrapper over `birpc` with WS presets |
+| `packages/rpc` | `@vitejs/devtools-rpc` | Typed RPC wrapper over `birpc`, WS presets, and the peer-mesh layer (`peer/`, `peer/adapters/*`) |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Serves at `/.devtools-rolldown/` |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Serves at `/.devtools-vite/` |
@@ -36,7 +36,8 @@ flowchart TD
 - **Entry**: `createDevToolsContext` (`packages/core/src/node/context.ts`) builds `DevToolsNodeContext` with hosts for RPC, docks, views, terminals. Invokes `plugin.devtools.setup` hooks.
 - **Node context**: server-side (cwd, vite config, mode, hosts, auth storage at `node_modules/.vite/devtools/auth.json`).
 - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`) — dock entries, panels, RPC client. Two modes: `embedded` (overlay in host app) and `standalone` (independent page).
-- **WS server** (`packages/core/src/node/ws.ts`): RPC via `@vitejs/devtools-rpc/presets/ws`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
+- **WS server** (`packages/core/src/node/ws.ts`): RPC over a peer mesh with `ws-server` adapter from `@vitejs/devtools-rpc/peer/adapters/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
+- **Peer mesh** (`packages/rpc/src/peer/`): pluggable transport abstraction. Every runtime (node server, parent client, standalone, iframe, future Nitro/workers) is a peer with a stable id + role. `PeerMesh` owns a `PeerDirectory` and `LinkTable`. Adapters (currently `ws-server` and `ws-client`) establish links; future phases add `postmessage`, `in-process`, etc. Exposed as `rpc.mesh` on clients and `rpcHost._mesh` on the server. See `docs/kit/peer-mesh.md` for conceptual model and roadmap.
 - **Nuxt UI plugins** (rolldown, vite, self-inspect): each registers RPC functions and hosts static Nuxt SPA at its own base path.
 
 ## Development

@@ -6,6 +6,9 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const r = (path: string) => fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
 
 export const alias = {
+  '@vitejs/devtools-rpc/peer/adapters/ws-server': r('rpc/src/peer/adapters/ws-server.ts'),
+  '@vitejs/devtools-rpc/peer/adapters/ws-client': r('rpc/src/peer/adapters/ws-client.ts'),
+  '@vitejs/devtools-rpc/peer': r('rpc/src/peer/index.ts'),
   '@vitejs/devtools-rpc/presets/ws/server': r('rpc/src/presets/ws/server.ts'),
   '@vitejs/devtools-rpc/presets/ws/client': r('rpc/src/presets/ws/client.ts'),
   '@vitejs/devtools-rpc/presets': r('rpc/src/presets/index.ts'),

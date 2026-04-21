@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { PeerDescriptor } from '@vitejs/devtools-rpc/peer'
 import type { WebSocket } from 'ws'
 import type { RpcFunctionsHost } from './host-functions'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
+import { PeerMesh } from '@vitejs/devtools-rpc/peer'
+import { createWsServerAdapter } from '@vitejs/devtools-rpc/peer/adapters/ws-server'
 import { createRpcServer } from '@vitejs/devtools-rpc/server'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
@@ -27,6 +29,7 @@ export interface CreateWsServerOptions {
 }
 
 const ANONYMOUS_SCOPE = 'vite:anonymous:'
+const DEVTOOLS_SERVER_PEER_ID = 'devtools-server'
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
@@ -44,41 +47,13 @@ export async function createWsServer(options: CreateWsServerOptions) {
     logger.DTK0008().log()
   }
 
-  const preset = createWsRpcPreset({
-    port,
-    host,
-    https,
-    onConnected: (ws, req, meta) => {
-      const url = new URL(req.url ?? '', 'http://localhost')
-      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
-      if (isClientAuthDisabled) {
-        meta.isTrusted = true
-      }
-      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
-        meta.isTrusted = true
-        meta.clientAuthToken = authToken
-      }
-      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
-        meta.isTrusted = true
-        meta.clientAuthToken = authToken
-      }
-
-      wsClients.add(ws)
-      const color = meta.isTrusted ? c.green : c.yellow
-      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
-    },
-    onDisconnected: (ws, meta) => {
-      wsClients.delete(ws)
-      console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
-    },
-  })
-
   const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
 
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
     {
-      preset,
+      // The ws-server adapter manages channels, so the preset is a no-op.
+      preset: () => {},
       rpcOptions: {
         onFunctionError(error, name) {
           logger.DTK0011({ name }, { cause: error }).log()
@@ -116,8 +91,65 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
   )
 
+  const mesh = new PeerMesh({
+    self: {
+      id: DEVTOOLS_SERVER_PEER_ID,
+      role: 'devtools-server',
+      capabilities: ['rpc-relay', 'directory'],
+      meta: { mode: context.mode, port },
+      links: [{ transport: 'ws', priority: 100 }],
+    },
+  })
+
+  const wsAdapter = createWsServerAdapter<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>({
+    port,
+    host,
+    https,
+    rpcGroup,
+    resolvePeer: (req, meta) => {
+      const url = new URL(req.url ?? '', 'http://localhost')
+      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
+      if (isClientAuthDisabled) {
+        meta.isTrusted = true
+      }
+      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
+      }
+      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
+      }
+
+      const descriptor: PeerDescriptor = {
+        id: authToken ? `peer:${authToken}` : `peer:session-${meta.id}`,
+        role: 'client:unknown',
+        capabilities: [],
+        meta: {
+          sessionId: meta.id,
+          authToken: meta.clientAuthToken,
+          isTrusted: !!meta.isTrusted,
+        },
+        links: [{ transport: 'ws', priority: 100 }],
+      }
+      return descriptor
+    },
+    onConnected: (ws, _req, meta) => {
+      wsClients.add(ws)
+      const color = meta.isTrusted ? c.green : c.yellow
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+    },
+    onDisconnected: (ws, meta) => {
+      wsClients.delete(ws)
+      console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
+    },
+  })
+
+  await mesh.register(wsAdapter)
+
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage
+  rpcHost._mesh = mesh
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     return {
@@ -130,6 +162,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     port,
     rpc: rpcGroup,
     rpcHost,
+    mesh,
     getConnectionMeta,
   }
 }

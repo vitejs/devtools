@@ -12,6 +12,7 @@ DevTools RPC for Vite, featuring extensible [birpc](https://github.com/antfu-col
 - **Dump feature** for pre-computing results (static hosting, testing, offline mode)
 - **Basic RPC Client/Server** built on birpc
 - **WebSocket Presets** ready-to-use transport presets
+- **Peer mesh** pluggable multi-transport layer (`peer/*`) with `ws-server` and `ws-client` adapters; more adapters (postMessage, in-process, BroadcastChannel, HTTP) landing incrementally
 
 ## Installation
 
@@ -188,6 +189,7 @@ Set `concurrency` to `true` for parallel execution (default limit: 5) or a numbe
 - **`.`** - Type-safe function definitions and utilities (main export)
   - `RpcFunctionsCollectorBase`, `defineRpcFunction`, `createDefineWrapperWithContext`
   - `dumpFunctions`, `createClientFromDump`, `RpcCacheManager`
+  - Also re-exports the peer mesh types and classes
   - Type definitions and utilities
 
 - **`./client`** - RPC client
@@ -204,6 +206,16 @@ Set `concurrency` to `true` for parallel execution (default limit: 5) or a numbe
 
 - **`./presets/ws/server`** - WebSocket server preset
   - `createWsRpcPreset`
+
+- **`./peer`** - Peer mesh layer
+  - `PeerMesh`, `PeerDirectory`, `LinkTable`, `createLink`, `matchPeer`, `matchRolePattern`
+  - Types: `PeerDescriptor`, `PeerHandle`, `PeerQuery`, `TransportAdapter`, `Envelope`, `AuthContext`
+
+- **`./peer/adapters/ws-client`** - WebSocket transport adapter (browser/node client)
+  - `createWsClientAdapter`
+
+- **`./peer/adapters/ws-server`** - WebSocket transport adapter (node server)
+  - `createWsServerAdapter`
 
 ## Examples
 
