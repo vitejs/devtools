@@ -69,6 +69,7 @@
     "tsdown": "catalog:build",
     "tsx": "catalog:build",
     "turbo": "catalog:build",
+    "twoslash": "catalog:docs",
     "typescript": "catalog:devtools",
     "unstorage": "catalog:deps",
     "vite": "catalog:build",
