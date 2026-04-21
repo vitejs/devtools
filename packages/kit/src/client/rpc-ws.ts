@@ -65,6 +65,21 @@ export async function createWsRpcClientMode(
     },
   })
 
+  // Apply directory deltas pushed by the server so this peer's mesh.directory
+  // stays a replica of the authoritative server-side view.
+  clientRpc.register({
+    name: 'devtoolskit:internal:peer:directory-delta',
+    type: 'event',
+    handler: async (delta) => {
+      if (delta.kind === 'removed') {
+        mesh.directory.remove(delta.peer.id)
+      }
+      else {
+        mesh.directory.upsert(delta.peer)
+      }
+    },
+  })
+
   const adapter = createWsClientAdapter<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>({
     url,
     authToken,
@@ -80,6 +95,25 @@ export async function createWsRpcClientMode(
   const serverHandle = mesh.peer(DEVTOOLS_SERVER_PEER_ID)
 
   let currentAuthToken = authToken
+
+  async function announceToServer() {
+    try {
+      const result = await serverHandle.call('devtoolskit:internal:peer:announce', {
+        role: self.role,
+        capabilities: self.capabilities,
+        meta: self.meta,
+      }) as { id: string, directory: PeerDescriptor[] }
+      // Seed the local directory replica with the server's snapshot so
+      // subsequent `mesh.peer(role)` calls can resolve immediately.
+      for (const peer of result.directory)
+        mesh.directory.upsert(peer)
+    }
+    catch {
+      // Announce is best-effort; if it fails (e.g., older server without
+      // the endpoint), we degrade to just self + server in the local
+      // directory — existing behavior.
+    }
+  }
 
   async function requestTrustWithToken(token: string) {
     currentAuthToken = token
@@ -103,6 +137,10 @@ export async function createWsRpcClientMode(
     isTrusted = result.isTrusted
     trustedPromise.resolve(isTrusted)
     events.emit('rpc:is-trusted:updated', isTrusted)
+
+    if (isTrusted)
+      void announceToServer()
+
     return result.isTrusted
   }
 

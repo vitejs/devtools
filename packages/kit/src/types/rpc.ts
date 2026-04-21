@@ -1,4 +1,5 @@
 import type { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
+import type { PeerMesh } from '@vitejs/devtools-rpc/peer'
 import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-rpc/presets/ws/server'
 import type { BirpcReturn } from 'birpc'
 import type { SharedState } from '../utils/shared-state'
@@ -55,6 +56,17 @@ export type RpcFunctionsHost = RpcFunctionsCollectorBase<DevToolsRpcServerFuncti
    * The shared state host
    */
   sharedState: RpcSharedStateHost
+
+  /**
+   * The peer mesh this server participates in.
+   *
+   * Available after `createWsServer` has bootstrapped. Plugin authors can
+   * use this to target specific peers, observe the directory, or broadcast
+   * across a role pattern. The signature may shift as later phases land.
+   *
+   * @internal
+   */
+  _mesh: PeerMesh
 }
 
 export interface RpcSharedStateGetOptions<T> {

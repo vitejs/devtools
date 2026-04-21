@@ -7,7 +7,7 @@ outline: deep
 The peer mesh is the communication layer that sits underneath DevTools Kit's [RPC](./rpc) system. It provides a uniform, pluggable foundation for any-to-any messaging between the many runtime contexts that make up a DevTools-enabled Vite application — the devtools server (node), parent client (browser), standalone client (browser), iframe panels (browser), workers, web extensions, and — in future — Nitro runtimes.
 
 > [!NOTE]
-> The peer mesh is currently in **Phase 1**: the abstraction is in place and the existing WebSocket transport flows through it, but new multi-peer capabilities (routing, postMessage, in-process, etc.) are rolling out across subsequent phases. See [Roadmap](#roadmap).
+> The peer mesh is currently in **Phase 2**: the abstraction is in place, the existing WebSocket transport flows through it, and **cross-peer calls now work via server relay**. Direct peer-to-peer transports (postMessage, in-process, BroadcastChannel, etc.) are rolling out across subsequent phases. See [Roadmap](#roadmap).
 
 ## Why a mesh?
 
@@ -87,13 +87,15 @@ An adapter implements one kind of transport. Adapters register with the mesh; th
 
 Adapters are published as subpath exports from `@vitejs/devtools-rpc/peer/adapters/*`, so tree-shaking keeps node-only transports out of the browser bundle.
 
-## Current state (Phase 1)
+## Current state (Phase 2)
 
-Phase 1 introduced the abstraction. Everything that worked before still works — `rpc.call()`, `rpc.callEvent()`, `rpcHost.broadcast()`, shared state, auth — unchanged. What's newly observable:
+Phase 1 introduced the abstraction. Phase 2 lights up cross-peer messaging: any peer can call any other peer's functions through the devtools-server acting as a relay. Everything that worked before still works — `rpc.call()`, `rpc.callEvent()`, `rpcHost.broadcast()`, shared state, auth — unchanged. What's new:
 
-- Every `DevToolsRpcClient` now carries a `mesh: PeerMesh` field.
-- Every server-side `RpcFunctionsHost` has an internal `_mesh` the server wires up during `createWsServer`.
-- The mesh directory is populated automatically as WebSocket connections arrive/depart.
+- Every `DevToolsRpcClient` carries a `mesh: PeerMesh` field.
+- Every server-side `RpcFunctionsHost` has an internal `_mesh` that `createWsServer` wires up.
+- The mesh directory is populated automatically: the server is authoritative, clients receive `directory-delta` events and maintain a replica.
+- On trust, each client announces its role/capabilities via `devtoolskit:internal:peer:announce`, and the server broadcasts the change to all other peers.
+- `rpc.mesh.peer('role-or-id').call('fn', args)` works: if a direct link exists it's used, otherwise the call is wrapped in `devtoolskit:internal:mesh:relay` and forwarded via the server.
 
 ### Inspecting the mesh
 
@@ -141,7 +143,7 @@ const plugin: Plugin = {
 
 ### Declaring a peer role
 
-The existing `getDevToolsRpcClient(options)` accepts new peer-shaped fields; bootstrap code (e.g. the embedded inject script, standalone entry, iframe panel) should pass its role so the server-side directory reflects what each peer is:
+The `getDevToolsRpcClient(options)` accepts peer-shaped fields; bootstrap code (e.g. the embedded inject script, standalone entry, iframe panel) should pass its role so the mesh directory reflects what each peer is:
 
 ```ts
 const rpc = await getDevToolsRpcClient({
@@ -151,15 +153,59 @@ const rpc = await getDevToolsRpcClient({
 })
 ```
 
-> [!NOTE]
-> Until the hello/directory-delta protocol lands (Phase 2), the role you pass is kept locally on `rpc.mesh.self.role` but the server sees clients as `client:unknown` until they announce. This will change transparently in a later phase.
+Right after the client is trusted, it calls `devtoolskit:internal:peer:announce` automatically with the declared role/capabilities/meta; the server updates its directory entry and broadcasts a delta to every other peer, which then apply it to their local replica.
+
+### Calling another peer
+
+Once peers have announced, any peer can call another through `rpc.mesh.peer(...)`. The handle transparently picks the best available path:
+
+```ts
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+
+const rpc = await getDevToolsRpcClient({ peerRole: 'client:standalone' })
+
+// Target by role — resolved via the directory replica
+await rpc.mesh.peer('iframe:rolldown').call('rolldown:graph:get', { id: 'root' })
+
+// Target by role pattern — first match wins
+await rpc.mesh.peer('iframe:*').call('theme:changed', { theme: 'dark' })
+
+// Target by capability query
+await rpc.mesh.peer({ capability: 'dom-access' }).call('dom:snapshot', { selector: '#app' })
+
+// Fire-and-forget
+rpc.mesh.peer('iframe:rolldown').callEvent('rolldown:refresh')
+```
+
+In Phase 2 all cross-peer calls are relayed through the devtools-server. That means one server hop each way; direct transports (postMessage, in-process, BroadcastChannel) arrive in later phases and will slot in transparently.
+
+> [!TIP]
+> On the server, you can call any connected peer directly too:
+> ```ts
+> ctx.rpc._mesh.peer('iframe:rolldown').call('rolldown:graph:get', { id: 'root' })
+> ```
+> Server-originated calls never go through relay — the server already has a direct link to every connected peer.
+
+### Internal protocol summary
+
+| Method | Kind | Direction | Purpose |
+|--------|------|-----------|---------|
+| `devtoolskit:internal:peer:announce` | action | client → server | Client declares its role/capabilities; server upserts directory entry |
+| `devtoolskit:internal:peer:directory-delta` | event | server → clients | Broadcast when any peer joins/leaves/updates (sent to all but the subject peer) |
+| `devtoolskit:internal:mesh:relay` | action | any → server | Forward an awaited call to another peer |
+| `devtoolskit:internal:mesh:relay-event` | event | any → server | Forward a fire-and-forget call to another peer |
+
+These are implementation details — consumer code should use `rpc.mesh.peer(...)`.
+
+> [!WARNING]
+> In Phase 2, relayed calls arrive at the target with the server's session identity — the origin peer id is not signed across the hop. HMAC-signed origin identity lands in Phase 5. Plugins that need to know the original caller should check that the target peer is the expected one and/or wait for Phase 5 before gating sensitive operations on peer identity.
 
 ## Roadmap
 
 | Phase | Capability | User-visible impact |
 |-------|-----------|---------------------|
 | 1 ✅ | Mesh / directory / link foundation, WS transport routed through it | No behavior change; `rpc.mesh` available for inspection |
-| 2 | Envelope protocol + routing through devtools-server | `usePeer('role').call(...)` works across peers via server relay |
+| 2 ✅ | Peer announce + directory-delta protocol; `mesh:relay` / `mesh:relay-event` RPC functions; `PeerHandle.call` falls back to relay via the server | `rpc.mesh.peer('role').call(...)` works across peers via one server hop |
 | 3 | `in-process` adapter | `ctx.rpc.invokeLocal()` skips serialization; unlocks Nitro ↔ devtools-server in-process calls |
 | 4 | `postmessage` adapter | Parent ↔ iframe direct, no server hop; unlocks DOM-access use case |
 | 5 | Capability gating + HMAC-signed origin identity | Plugins can restrict who can call which methods; trust preserved across relays |
@@ -168,7 +214,7 @@ const rpc = await getDevToolsRpcClient({
 
 The plan is **additive** for public APIs — existing callers (`rpc.call()`, `ctx.rpc.broadcast()`, etc.) keep working; new capabilities show up through new APIs.
 
-## API reference (Phase 1)
+## API reference (Phase 2)
 
 ### `PeerMesh`
 
@@ -243,16 +289,16 @@ import { createWsServerAdapter } from '@vitejs/devtools-rpc/peer/adapters/ws-ser
 
 ## Relationship to the RPC layer
 
-Calls you make through `rpc.call('my:fn', args)` today still work exactly as before — the mesh just now brokers the underlying connection. Future phases will expose additional, peer-scoped call APIs (the current shape is documented in the [plan](https://github.com/vitejs/devtools/blob/main/docs/kit/peer-mesh.md#roadmap)):
+Calls you make through `rpc.call('my:fn', args)` still work exactly as before — the mesh brokers the underlying connection. `rpc.call(...)` is shorthand for `rpc.mesh.peer('devtools-server').call(...)`; the peer-scoped API opens up cross-peer targeting:
 
 ```ts
-// Today (unchanged)
+// Unchanged — call the server
 await rpc.call('my-plugin:get-data')
 
-// Future (Phase 2+)
+// Phase 2 (current) — call other peers via server relay
 await rpc.mesh.peer('iframe:rolldown').call('rolldown:graph:get', { id })
 await rpc.mesh.peer({ capability: 'dom-access' }).call('dom:snapshot', { selector })
 await rpc.mesh.broadcast({ to: 'iframe:*', method: 'theme:changed', args: [{ theme: 'dark' }] })
 ```
 
-See [RPC](./rpc) for today's server/client function definitions and call patterns.
+See [RPC](./rpc) for server/client function definitions and call patterns.

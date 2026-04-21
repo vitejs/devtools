@@ -1,5 +1,6 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
+import type { PeerDescriptor } from '@vitejs/devtools-rpc/peer'
 import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
@@ -9,6 +10,9 @@ import { logsClear } from './internal/logs-clear'
 import { logsList } from './internal/logs-list'
 import { logsRemove } from './internal/logs-remove'
 import { logsUpdate } from './internal/logs-update'
+import { peerAnnounce } from './internal/mesh/announce'
+import { meshRelay } from './internal/mesh/relay'
+import { meshRelayEvent } from './internal/mesh/relay-event'
 import { rpcServerList } from './internal/rpc-server-list'
 import { sharedStateGet } from './internal/state/get'
 import { sharedStatePatch } from './internal/state/patch'
@@ -39,6 +43,9 @@ export const builtinInternalRpcDeclarations = [
   logsList,
   logsRemove,
   logsUpdate,
+  meshRelay,
+  meshRelayEvent,
+  peerAnnounce,
   rpcServerList,
   sharedStateGet,
   sharedStatePatch,
@@ -71,6 +78,7 @@ declare module '@vitejs/devtools-kit' {
   export interface DevToolsRpcClientFunctions {
     'devtoolskit:internal:auth:revoked': () => Promise<void>
     'devtoolskit:internal:logs:updated': () => Promise<void>
+    'devtoolskit:internal:peer:directory-delta': (delta: { kind: 'added' | 'updated' | 'removed', peer: PeerDescriptor }) => Promise<void>
     'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
     'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 

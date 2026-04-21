@@ -171,6 +171,10 @@ export class PeerMesh {
   }
 }
 
+const SERVER_PEER_ID = 'devtools-server'
+const RELAY_METHOD = 'devtoolskit:internal:mesh:relay'
+const RELAY_EVENT_METHOD = 'devtoolskit:internal:mesh:relay-event'
+
 function createPeerHandle(mesh: PeerMesh, target: PeerId | PeerRole | PeerRolePattern | PeerQuery): PeerHandle {
   const resolveLink = (): Link | undefined => {
     const peers = mesh.directory.resolve(target)
@@ -193,6 +197,15 @@ function createPeerHandle(mesh: PeerMesh, target: PeerId | PeerRole | PeerRolePa
     }
   }
 
+  // Resolve the server link for relay fallback. Returns undefined when this
+  // peer IS the server (self.role === 'devtools-server'), since servers do
+  // not relay through themselves.
+  const resolveServerLink = (): Link | undefined => {
+    if (mesh.self.role === 'devtools-server')
+      return undefined
+    return mesh.links.pick(SERVER_PEER_ID)
+  }
+
   return {
     get descriptor() {
       return resolveDescriptor()
@@ -203,22 +216,53 @@ function createPeerHandle(mesh: PeerMesh, target: PeerId | PeerRole | PeerRolePa
     },
     async call(method, ...args) {
       const link = resolveLink()
-      if (!link)
+      if (link) {
+        return await (link.rpc as any).$call(method, ...args)
+      }
+      const server = resolveServerLink()
+      if (!server) {
         throw new Error(`[PeerMesh] No link available to target ${JSON.stringify(target)}`)
-      return await (link.rpc as any).$call(method, ...args)
+      }
+      return await (server.rpc as any).$call(RELAY_METHOD, {
+        to: target,
+        method,
+        args,
+      })
     },
     callEvent(method, ...args) {
       const link = resolveLink()
-      if (!link) {
+      if (link) {
+        ;(link.rpc as any).$callEvent(method, ...args)
         return
       }
-      ;(link.rpc as any).$callEvent(method, ...args)
+      const server = resolveServerLink()
+      if (!server) {
+        return
+      }
+      ;(server.rpc as any).$callEvent(RELAY_EVENT_METHOD, {
+        to: target,
+        method,
+        args,
+      })
     },
     async callOptional(method, ...args) {
       const link = resolveLink()
-      if (!link)
+      if (link) {
+        return await (link.rpc as any).$callOptional(method, ...args)
+      }
+      const server = resolveServerLink()
+      if (!server)
         return undefined
-      return await (link.rpc as any).$callOptional(method, ...args)
+      try {
+        return await (server.rpc as any).$call(RELAY_METHOD, {
+          to: target,
+          method,
+          args,
+        })
+      }
+      catch {
+        return undefined
+      }
     },
   } as PeerHandle
 }

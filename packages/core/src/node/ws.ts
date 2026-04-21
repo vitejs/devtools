@@ -151,6 +151,24 @@ export async function createWsServer(options: CreateWsServerOptions) {
   rpcHost._asyncStorage = asyncStorage
   rpcHost._mesh = mesh
 
+  // Broadcast directory changes to all connected peers so they can maintain
+  // a local replica of the directory. The peer whose entry changed is
+  // excluded — it already knows its own state.
+  mesh.directory.onChange((kind, peer) => {
+    if (peer.id === mesh.self.id)
+      return
+    void rpcHost.broadcast({
+      method: 'devtoolskit:internal:peer:directory-delta',
+      args: [{ kind, peer }],
+      event: true,
+      optional: true,
+      filter: (client) => {
+        const meta = client.$meta as { peerId?: string } | undefined
+        return meta?.peerId !== peer.id
+      },
+    })
+  })
+
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     return {
       backend: 'websocket',

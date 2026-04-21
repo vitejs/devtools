@@ -14,6 +14,10 @@ export interface DevToolsNodeRpcSessionMeta {
   clientAuthToken?: string
   isTrusted?: boolean
   subscribedStates: Set<string>
+  /** Stable peer id this session has been assigned in the peer mesh. */
+  peerId?: string
+  /** Peer role this session announced via `devtoolskit:internal:peer:announce`. */
+  peerRole?: string
 }
 
 export interface WebSocketRpcServerOptions {

@@ -16,10 +16,7 @@ import { createLink } from '../link'
  * Re-exported from the legacy preset so callers that read these fields
  * (auth-revoke, ws logs, etc.) continue to work.
  */
-export type WsServerSessionMeta = DevToolsNodeRpcSessionMeta & {
-  peerId?: string
-  peerRole?: string
-}
+export type WsServerSessionMeta = DevToolsNodeRpcSessionMeta
 
 export interface WsServerAdapterOptions<
   ClientFunctions extends object,
