@@ -1,8 +1,9 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { homedir } from 'node:os'
+import { humanId } from '@vitejs/devtools-kit/utils/human-id'
 import { join } from 'pathe'
-import { revokeAuthToken } from './auth-revoke'
+import { revokeActiveConnectionsForToken, revokeAuthToken } from './auth-revoke'
 import { createStorage } from './storage'
 
 export interface InternalAnonymousAuthStorage {
@@ -14,6 +15,13 @@ export interface InternalAnonymousAuthStorage {
   } | undefined>
 }
 
+export interface RemoteTokenRecord {
+  dockId: string
+  /** Dock URL origin — matched against WS handshake `Origin` header when `originLock` is on. */
+  origin: string
+  originLock: boolean
+}
+
 export interface DevToolsInternalContext {
   storage: {
     auth: SharedState<InternalAnonymousAuthStorage>
@@ -23,6 +31,29 @@ export interface DevToolsInternalContext {
    * using this token that they are no longer trusted.
    */
   revokeAuthToken: (token: string) => Promise<void>
+
+  /**
+   * Session-only tokens issued to remote-UI iframe docks. Not persisted —
+   * regenerated on every dev-server restart.
+   */
+  remoteTokens: Map<string, RemoteTokenRecord>
+  allocateRemoteToken: (dockId: string, origin: string, originLock: boolean) => string
+  revokeRemoteToken: (token: string) => void
+  revokeRemoteTokensForDock: (dockId: string) => void
+  /**
+   * Returns true if `token` is a valid remote token and, when `originLock` is
+   * on, `requestOrigin` matches the recorded dock origin.
+   */
+  isRemoteTokenTrusted: (token: string, requestOrigin?: string) => boolean
+
+  /**
+   * Populated by `createWsServer` once the WS port is bound. Consumed by the
+   * docks host when enriching remote iframe URLs with a connection descriptor.
+   */
+  wsEndpoint?: {
+    /** Full `ws://` or `wss://` URL with host and port. */
+    url: string
+  }
 }
 
 export const internalContextMap = new WeakMap<DevToolsNodeContext, DevToolsInternalContext>()
@@ -35,11 +66,43 @@ export function getInternalContext(context: DevToolsNodeContext): DevToolsIntern
         trusted: {},
       },
     })
+    const remoteTokens = new Map<string, RemoteTokenRecord>()
+
+    function revokeRemoteToken(token: string): void {
+      if (!remoteTokens.delete(token))
+        return
+      void revokeActiveConnectionsForToken(context, token)
+    }
+
     const internalContext: DevToolsInternalContext = {
       storage: {
         auth: storage,
       },
       revokeAuthToken: (token: string) => revokeAuthToken(context, storage, token),
+      remoteTokens,
+      allocateRemoteToken(dockId, origin, originLock) {
+        const token = humanId({ separator: '-', capitalize: false })
+        remoteTokens.set(token, { dockId, origin, originLock })
+        return token
+      },
+      revokeRemoteToken,
+      revokeRemoteTokensForDock(dockId) {
+        const tokensToRevoke: string[] = []
+        for (const [token, record] of remoteTokens) {
+          if (record.dockId === dockId)
+            tokensToRevoke.push(token)
+        }
+        for (const token of tokensToRevoke)
+          revokeRemoteToken(token)
+      },
+      isRemoteTokenTrusted(token, requestOrigin) {
+        const record = remoteTokens.get(token)
+        if (!record)
+          return false
+        if (!record.originLock)
+          return true
+        return !!requestOrigin && record.origin === requestOrigin
+      },
     }
     internalContextMap.set(context, internalContext)
   }

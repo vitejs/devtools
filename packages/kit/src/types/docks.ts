@@ -76,6 +76,46 @@ export interface DevToolsViewIframe extends DevToolsDockEntryBase {
    * Optional client script to import into the iframe
    */
   clientScript?: ClientScriptEntry
+  /**
+   * Enable remote-UI mode: the core injects a connection descriptor
+   * (WS URL + pre-approved auth token) into the iframe URL so a hosted
+   * page can connect back via `connectRemoteDevTools()` from
+   * `@vitejs/devtools-kit/client` — without needing to ship a dist with
+   * the plugin.
+   *
+   * Requires dev mode (no effect in build mode — no WS server exists).
+   * When enabled, the dock is automatically hidden in build mode unless
+   * the author provides an explicit `when` clause.
+   *
+   * @example
+   *   remote: true
+   *   remote: { transport: 'query', originLock: false }
+   */
+  remote?: boolean | RemoteDockOptions
+}
+
+export interface RemoteDockOptions {
+  /**
+   * How to pass the connection descriptor to the hosted page.
+   *
+   * - `'fragment'` (default): appended as `#vite-devtools-kit-connection=...`.
+   *   Not sent in HTTP requests or Referer headers — safest for auth tokens.
+   * - `'query'`: appended as `?vite-devtools-kit-connection=...`. Use when
+   *   your hosting platform rewrites fragments or your SPA router repurposes
+   *   the fragment for navigation. The token will appear in server access
+   *   logs and outbound Referer headers.
+   *
+   * @default 'fragment'
+   */
+  transport?: 'fragment' | 'query'
+  /**
+   * Reject WS handshakes whose `Origin` header doesn't match the dock URL
+   * origin. Turn off when the same hosted app is served from multiple
+   * origins (e.g. preview deploys).
+   *
+   * @default true
+   */
+  originLock?: boolean
 }
 
 export type DevToolsViewLauncherStatus = 'idle' | 'loading' | 'success' | 'error'
