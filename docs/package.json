@@ -3,13 +3,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "docs": "vitepress dev",
+    "docs": "vitepress dev --port 5174",
     "docs:build": "vitepress build",
-    "docs:serve": "vitepress serve"
+    "docs:serve": "vitepress serve --port 5174"
   },
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "catalog:docs",
     "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*",
     "@voidzero-dev/vitepress-theme": "catalog:docs",
     "mermaid": "catalog:docs",
     "vitepress": "catalog:docs",

@@ -112,6 +112,20 @@ export default defineConfig({
             icon: 'ph:bug-duotone',
           })
 
+          // Dogfood the remote dock feature: point at the docs-site demo page.
+          // The page uses `connectRemoteDevTools()` to talk back to this server.
+          // Default assumes the docs dev server is running on port 5174
+          // (`pnpm -C docs docs`). Override with DEVTOOLS_REMOTE_DEMO_URL.
+          ctx.docks.register({
+            id: 'remote-demo',
+            type: 'iframe',
+            url: process.env.DEVTOOLS_REMOTE_DEMO_URL
+              ?? 'http://localhost:5174/kit/remote-demo',
+            title: 'Remote Demo',
+            icon: 'ph:cloud-duotone',
+            remote: true,
+          })
+
           ctx.docks.register({
             id: 'launcher',
             type: 'launcher',

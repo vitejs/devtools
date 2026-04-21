@@ -6,6 +6,9 @@ outline: deep
 
 Remote client mode lets a dock point at a **hosted website** — e.g. `https://example.com/devtools` — instead of bundling a SPA dist with your plugin. The hosted page opens a WebSocket connection back to the local Vite dev server and talks to your plugin using the same RPC and shared-state APIs as an embedded client.
 
+> [!TIP]
+> A live demo is hosted on this site at [Remote Connection Demo](./remote-demo). Register a dock pointing at that URL and open it to see the flow end-to-end.
+
 Compared to the bundled approach described in [Dock System → Iframe Panels](./dock-system#iframe-panels), remote mode means:
 
 - **No client dist shipped with your plugin.** Your npm package stays small; you ship only node-side code.
