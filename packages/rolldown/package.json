@@ -65,7 +65,6 @@
   "devDependencies": {
     "@types/split2": "catalog:types",
     "@types/splitpanes": "catalog:types",
-    "@types/stream-json": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/components": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
@@ -81,7 +80,6 @@
     "modern-monaco": "catalog:frontend",
     "nanovis": "catalog:frontend",
     "splitpanes": "catalog:frontend",
-    "stream-json": "catalog:inlined",
     "theme-vitesse": "catalog:frontend",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
@@ -121,7 +119,6 @@
     "read-yaml-file": "2.1.0",
     "semver": "7.7.4",
     "signal-exit": "4.1.0",
-    "stream-json": "1.9.1",
     "strip-bom": "4.0.0",
     "strip-comments-strings": "1.2.0",
     "write-file-atomic": "5.0.1",

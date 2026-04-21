@@ -1,7 +1,5 @@
 import { pipeline } from 'node:stream/promises'
 import split2 from 'split2'
-import StreamJSON from 'stream-json'
-import Assembler from 'stream-json/Assembler'
 import { logger } from '../diagnostics'
 
 export class JsonParseStreamError extends Error {
@@ -11,23 +9,6 @@ export class JsonParseStreamError extends Error {
   ) {
     super(message)
   }
-}
-
-export function parseJsonStream<T>(
-  stream: NodeJS.ReadableStream,
-): Promise<T> {
-  const assembler = new Assembler()
-  const parser = StreamJSON.parser()
-
-  return new Promise<T>((resolve) => {
-    parser.on('data', (chunk) => {
-      (assembler as any)[chunk.name]?.(chunk.value)
-    })
-    stream.pipe(parser)
-    parser.on('end', () => {
-      resolve(assembler.current)
-    })
-  })
 }
 
 export async function parseJsonStreamWithConcatArrays<T, K = T>(
