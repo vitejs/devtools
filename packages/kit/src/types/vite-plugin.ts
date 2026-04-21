@@ -92,3 +92,22 @@ export interface ConnectionMeta {
   backend: 'websocket' | 'static'
   websocket?: number | string
 }
+
+/**
+ * Connection descriptor injected into the URL of a remote-UI iframe dock.
+ *
+ * Superset of {@link ConnectionMeta} — a parsed descriptor can be passed
+ * straight to `getDevToolsRpcClient({ connectionMeta })` without translation.
+ */
+export interface RemoteConnectionInfo extends ConnectionMeta {
+  /** Narrowed — remote connections always use the websocket backend. */
+  backend: 'websocket'
+  /** Narrowed — remote connections always carry a full `ws://` or `wss://` URL with host + port. */
+  websocket: string
+  /** Schema version for forward compatibility. */
+  v: 1
+  /** Pre-approved, session-only auth token bound to this dock registration. */
+  authToken: string
+  /** User's dev-server origin (e.g. `http://localhost:5173`) — for display/debug. */
+  origin: string
+}

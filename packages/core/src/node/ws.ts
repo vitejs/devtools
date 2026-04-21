@@ -28,6 +28,15 @@ export interface CreateWsServerOptions {
 
 const ANONYMOUS_SCOPE = 'vite:anonymous:'
 
+function buildWsUrl({ host, port, https }: { host: string, port: number, https: boolean }): string {
+  // 0.0.0.0 / :: / unspecified bindings listen on all interfaces, but a hosted
+  // page can't dial into an unspecified address — substitute localhost so the
+  // descriptor we hand out is dialable.
+  const reachableHost = host === '0.0.0.0' || host === '::' || host === '' ? 'localhost' : host
+  const protocol = https ? 'wss' : 'ws'
+  return `${protocol}://${reachableHost}:${port}`
+}
+
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
   const host = options.websocket.host
@@ -44,6 +53,20 @@ export async function createWsServer(options: CreateWsServerOptions) {
     logger.DTK0008().log()
   }
 
+  contextInternal.wsEndpoint = {
+    url: buildWsUrl({ host, port, https: !!https }),
+  }
+
+  // `docks.register()` runs before the WS port is allocated, so any remote
+  // docks registered during plugin setup were projected without a connection
+  // descriptor. Now that the endpoint is resolved, re-emit their update events
+  // so the shared-state consumers pick up the enriched URLs.
+  for (const view of context.docks.views.values()) {
+    if (view.type === 'iframe' && view.remote) {
+      context.docks.events.emit('dock:entry:updated', view)
+    }
+  }
+
   const preset = createWsRpcPreset({
     port,
     host,
@@ -51,8 +74,13 @@ export async function createWsServer(options: CreateWsServerOptions) {
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
       const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
+      const requestOrigin = req.headers.origin
       if (isClientAuthDisabled) {
         meta.isTrusted = true
+      }
+      else if (authToken && contextInternal.isRemoteTokenTrusted(authToken, requestOrigin)) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
       }
       else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
         meta.isTrusted = true

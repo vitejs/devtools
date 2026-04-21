@@ -121,6 +121,10 @@ icon: {
 > [!TIP]
 > See the [File Explorer example](/kit/examples#file-explorer) for a iframe dock plugin with RPC and static build support.
 
+### Remote-hosted UIs
+
+If you'd rather not bundle a dist with your plugin, an iframe dock can point at a **hosted website** that connects back to the local dev server over WebSocket. See [Remote Client](./remote-client) for the full guide.
+
 ## Action Buttons
 
 Action buttons run client-side scripts when clicked. They're perfect for:

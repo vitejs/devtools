@@ -3,6 +3,7 @@ import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 
@@ -12,6 +13,34 @@ const props = defineProps<{
   persistedDoms: PersistedDomViewsManager
   iframeStyle?: CSSProperties
 }>()
+
+function stripRemoteConnectionParam(url: string): string {
+  // Remove the remote connection descriptor so the auth token isn't exposed
+  // in the address bar (user could accidentally copy it).
+  let result = url
+
+  const hashIdx = result.indexOf('#')
+  if (hashIdx !== -1) {
+    const hash = result.slice(hashIdx + 1)
+    const filtered = hash
+      .split('&')
+      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
+      .join('&')
+    result = filtered ? `${result.slice(0, hashIdx)}#${filtered}` : result.slice(0, hashIdx)
+  }
+
+  const qIdx = result.indexOf('?')
+  if (qIdx !== -1) {
+    const query = result.slice(qIdx + 1)
+    const filtered = query
+      .split('&')
+      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
+      .join('&')
+    result = filtered ? `${result.slice(0, qIdx)}?${filtered}` : result.slice(0, qIdx)
+  }
+
+  return result
+}
 
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
@@ -55,16 +84,17 @@ const isCrossOrigin = computed(() => {
 
 // Display URL - hides host if same as current page
 const displayUrl = computed(() => {
+  const sanitized = stripRemoteConnectionParam(currentUrl.value)
   if (isCrossOrigin.value) {
-    return currentUrl.value
+    return sanitized
   }
   try {
-    const url = new URL(currentUrl.value)
+    const url = new URL(sanitized)
     // Show only pathname + search + hash for same-origin
     return url.pathname + url.search + url.hash
   }
   catch {
-    return currentUrl.value
+    return sanitized
   }
 })
 

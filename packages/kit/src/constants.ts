@@ -11,6 +11,12 @@ export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '.client-imports.js'
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools-client-imports.js'
 export const DEVTOOLS_RPC_DUMP_DIRNAME = '.rpc-dump'
 
+/**
+ * URL fragment / query parameter name carrying the {@link RemoteConnectionInfo}
+ * descriptor injected into remote-UI iframe dock URLs.
+ */
+export const REMOTE_CONNECTION_KEY = 'vite-devtools-kit-connection'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~viteplus': -1000,
   'default': 0,

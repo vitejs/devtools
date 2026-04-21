@@ -4,8 +4,10 @@
   defineRpcFunction: function
 ./client:
   CLIENT_CONTEXT_KEY: string
+  connectRemoteDevTools: function
   getDevToolsClientContext: function
   getDevToolsRpcClient: function
+  parseRemoteConnection: function
 ./constants:
   DEFAULT_CATEGORIES_ORDER: object
   DEFAULT_STATE_USER_SETTINGS: function
@@ -17,6 +19,7 @@
   DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH: string
   DEVTOOLS_RPC_DUMP_DIRNAME: string
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
+  REMOTE_CONNECTION_KEY: string
 ./utils/events:
   createEventEmitter: function
 ./utils/human-id:
