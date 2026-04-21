@@ -5,6 +5,7 @@ import { getPackagesManifest } from './rolldown-get-packages'
 export const rolldownGetPackageDetails = defineRpcFunction({
   name: 'vite:rolldown:get-package-details',
   type: 'query',
+  cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

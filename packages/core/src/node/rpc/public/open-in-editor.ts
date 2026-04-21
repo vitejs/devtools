@@ -1,5 +1,6 @@
 import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { logger } from '../../diagnostics'
 
 export const openInEditor = defineRpcFunction({
   name: 'vite:core:open-in-editor',
@@ -12,7 +13,7 @@ export const openInEditor = defineRpcFunction({
 
         // Prevent escaping the workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          throw new Error('Path is outside the workspace root')
+          throw logger.DTK0028().throw()
         }
 
         await import('launch-editor').then(r => r.default(resolved))

@@ -70,7 +70,7 @@ interface DockEntry {
   /** Display title shown in the dock */
   title: string
   /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
-  icon: string
+  icon: string | { light: string, dark: string }
   /** Entry type */
   type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render'
   /** URL to load in the iframe (for type: 'iframe') */
@@ -107,6 +107,12 @@ icon: 'data:image/svg+xml,...'
 icon: 'ph:chart-bar-duotone' // Phosphor Icons
 icon: 'carbon:analytics' // Carbon Icons
 icon: 'mdi:view-dashboard' // Material Design Icons
+
+// Light/dark variants
+icon: {
+  light: 'https://example.com/logo-light.svg'
+  dark: 'https://example.com/logo-dark.svg'
+}
 ```
 
 > [!TIP]

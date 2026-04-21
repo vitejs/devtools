@@ -84,7 +84,7 @@ useEventListener('pointerdown', () => {
         isSelected ? 'scale-120 text-purple' : '',
         isAction ? 'bg-[#8881] hover:bg-[#8882] rounded-full' : 'rounded-xl',
       ]"
-      class="flex items-center justify-center p1.5 hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative"
+      class="flex items-center justify-center p1.5 hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative outline-none"
     >
       <DockIcon :icon="dock.icon" :title="dock.title" class="w-5 h-5 select-none" />
       <div v-if="badge" class="absolute top-0.5 right-0 bg-gray-6 text-white text-0.6em px-1 rounded-full shadow">

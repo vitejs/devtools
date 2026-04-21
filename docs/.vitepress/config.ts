@@ -91,6 +91,29 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'Examples', link: '/kit/examples' },
         ],
       },
+      {
+        text: 'Error Reference',
+        link: '/errors/',
+        collapsed: true,
+        items: [
+          {
+            text: 'DevTools Kit (DTK)',
+            collapsed: true,
+            items: Array.from({ length: 32 }, (_, i) => {
+              const code = `DTK${String(i + 1).padStart(4, '0')}`
+              return { text: code, link: `/errors/${code}` }
+            }),
+          },
+          {
+            text: 'Rolldown DevTools (RDDT)',
+            collapsed: true,
+            items: [
+              { text: 'RDDT0001', link: '/errors/RDDT0001' },
+              { text: 'RDDT0002', link: '/errors/RDDT0002' },
+            ],
+          },
+        ],
+      },
     ],
 
     search: {

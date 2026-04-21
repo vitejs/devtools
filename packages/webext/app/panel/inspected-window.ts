@@ -9,7 +9,7 @@ interface InspectedWindowMetadata {
 
 function normalizeWsUrl(origin: string, connectionMeta?: ConnectionMeta): string {
   const url = new URL(origin)
-  url.port = String(connectionMeta.websocket)
+  url.port = String(connectionMeta!.websocket)
   return url.origin
 }
 

@@ -6,6 +6,7 @@ import {
 import c from 'ansis'
 import { resolve } from 'pathe'
 import { MARK_NODE } from './constants'
+import { logger } from './diagnostics'
 import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
@@ -33,7 +34,10 @@ export async function start(options: StartOptions) {
   })
   const { h3 } = await createDevToolsMiddleware({
     cwd: devtools.config.root,
-    hostWebSocket: host,
+    websocket: {
+      host,
+      https: false,
+    },
     context: devtools.context,
   })
 
@@ -91,6 +95,5 @@ export async function build(options: BuildOptions) {
     outDir,
   })
 
-  console.warn(c.yellow`${MARK_NODE} Static build is still experimental and not yet complete.`)
-  console.warn(c.yellow`${MARK_NODE} Generated output may be missing features and can change without notice.`)
+  logger.DTK0010().log()
 }

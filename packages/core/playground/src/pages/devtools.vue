@@ -18,6 +18,8 @@ const logStatus = ref<'idle' | 'loading'>('idle')
 const logId = ref('')
 const logDescription = ref('')
 const logStacktrace = ref('')
+const logAutoDismiss = ref<number>()
+const logAutoDelete = ref<number>()
 
 // Update form
 const updateId = ref('')
@@ -56,6 +58,8 @@ async function addLog() {
     id: logId.value || undefined,
     description: logDescription.value || undefined,
     stacktrace: logStacktrace.value || undefined,
+    autoDismiss: logAutoDismiss.value,
+    autoDelete: logAutoDelete.value,
   })
 }
 
@@ -230,6 +234,14 @@ function incrementCounter() {
         <label flex="~ col gap-1" col-span-2>
           <span op50 text-xs>Stacktrace</span>
           <textarea v-model="logStacktrace" rows="3" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono />
+        </label>
+        <label flex="~ col gap-1">
+          <span op50 text-xs>Auto Dismiss</span>
+          <input v-model="logAutoDismiss" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        </label>
+        <label flex="~ col gap-1">
+          <span op50 text-xs>Auto Delete</span>
+          <input v-model="logAutoDelete" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
       </div>
       <div flex items-center gap-3 mt2>

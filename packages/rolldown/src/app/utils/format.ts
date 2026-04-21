@@ -1,11 +1,11 @@
 import type { ModuleDest, ModuleTreeNode } from '../../shared/types'
 
 export function bytesToHumanSize(bytes: number, digits = 2) {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  const sizes = ['Bytes', 'kB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1000))
   if (i === 0)
     return [bytes, 'B']
-  return [(+(bytes / 1024 ** i).toFixed(digits)).toLocaleString(), sizes[i]]
+  return [(+(bytes / 1000 ** i).toFixed(digits)).toLocaleString(), sizes[i]]
 }
 
 export function getContentByteSize(content: string) {

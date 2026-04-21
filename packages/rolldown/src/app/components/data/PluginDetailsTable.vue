@@ -82,108 +82,119 @@ function toggleDurationSortType() {
 </script>
 
 <template>
-  <div role="table" min-w-max>
-    <div role="row" class="sticky top-0 z10 border-b border-base" flex="~ row">
-      <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
-        Hook name
-      </div>
-      <div v-if="selectedFields.includes('module')" role="columnheader" bg-base flex-1 min-w100 ws-nowrap p1 text-left font-600>
-        <button flex="~ row gap1 items-center" w-full>
-          Module
-          <VMenu>
-            <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
-              <i text-xs class="i-ph-funnel-duotone" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op50'" />
-            </span>
-            <template #popper>
-              <div class="p2" flex="~ col gap2">
-                <label
-                  v-for="rule of searchFilterTypes"
-                  :key="rule.name"
-                  border="~ base rounded-md" px2 py1
-                  flex="~ items-center gap-1"
-                  select-none
-                  :title="rule.description"
-                  class="cursor-pointer module-type-filter"
-                >
-                  <input
-                    type="checkbox"
-                    mr1
-                    :checked="filterModuleTypes?.includes(rule.name)"
-                    @change="toggleModuleType(rule)"
+  <DataVirtualList
+    v-if="filtered.length && selectedFields.length"
+    class="plugin-details-table"
+    role="table"
+    min-w-max h-full min-h-0
+    :items="filtered"
+    key-prop="id"
+    :page-mode="false"
+  >
+    <template #before>
+      <div role="row" class="border-b border-base bg-base" flex="~ row">
+        <div v-if="selectedFields.includes('hookName')" role="columnheader" bg-base flex-none w32 ws-nowrap p1 text-center font-600>
+          Hook name
+        </div>
+        <div v-if="selectedFields.includes('module')" role="columnheader" bg-base flex-1 min-w100 ws-nowrap p1 text-left font-600>
+          <button flex="~ row gap1 items-center" w-full>
+            Module
+            <VMenu>
+              <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
+                <i text-xs class="i-ph-funnel-duotone" :class="filterModuleTypes.length !== searchFilterTypes.length ? 'text-primary op100' : 'op50'" />
+              </span>
+              <template #popper>
+                <div class="p2" flex="~ col gap2">
+                  <label
+                    v-for="rule of searchFilterTypes"
+                    :key="rule.name"
+                    border="~ base rounded-md" px2 py1
+                    flex="~ items-center gap-1"
+                    select-none
+                    :title="rule.description"
+                    class="cursor-pointer module-type-filter"
                   >
-                  <div :class="rule.icon" icon-catppuccin />
-                  <div text-sm>{{ rule.description || rule.name }}</div>
-                </label>
-              </div>
-            </template>
-          </VMenu>
-        </button>
+                    <input
+                      type="checkbox"
+                      mr1
+                      :checked="filterModuleTypes?.includes(rule.name)"
+                      @change="toggleModuleType(rule)"
+                    >
+                    <div :class="rule.icon" icon-catppuccin />
+                    <div text-sm>{{ rule.description || rule.name }}</div>
+                  </label>
+                </div>
+              </template>
+            </VMenu>
+          </button>
+        </div>
+        <div v-if="selectedFields.includes('duration')" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap p1 text-center font-600 w-27>
+          <button flex="~ row gap1 items-center justify-center" w-full @click="toggleDurationSortType">
+            Duration
+            <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
+              <i text-xs :class="[durationSortType !== 'asc' ? 'i-ph-arrow-down-duotone' : 'i-ph-arrow-up-duotone', durationSortType ? 'op100 text-primary' : 'op50']" />
+            </span>
+          </button>
+        </div>
+        <div v-if="selectedFields.includes('startTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
+          Start Time
+        </div>
+        <div v-if="selectedFields.includes('endTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
+          End Time
+        </div>
       </div>
-      <div v-if="selectedFields.includes('duration')" role="columnheader" rounded-tr-2 bg-base flex-none ws-nowrap p1 text-center font-600 w-27>
-        <button flex="~ row gap1 items-center justify-center" w-full @click="toggleDurationSortType">
-          Duration
-          <span w-6 h-6 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center">
-            <i text-xs :class="[durationSortType !== 'asc' ? 'i-ph-arrow-down-duotone' : 'i-ph-arrow-up-duotone', durationSortType ? 'op100 text-primary' : 'op50']" />
-          </span>
-        </button>
-      </div>
-      <div v-if="selectedFields.includes('startTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
-        Start Time
-      </div>
-      <div v-if="selectedFields.includes('endTime')" role="columnheader" rounded-tr-2 bg-base flex-none min-w52 ws-nowrap p1 text-center font-600>
-        End Time
-      </div>
-    </div>
+    </template>
 
-    <DataVirtualList
-      v-if="filtered.length && selectedFields.length"
-      role="rowgroup"
-      :items="filtered"
-      key-prop="id"
-    >
-      <template #default="{ item, index }">
-        <div
-          role="row"
-          flex="~ row"
-          class="border-base border-b border-dashed"
-          :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
-        >
-          <div v-if="selectedFields.includes('hookName')" role="cell" flex="~ items-center justify-center" flex-none w32 ws-nowrap op80>
-            <DisplayBadge :text="HOOK_NAME_MAP[item.type]" />
-          </div>
-          <div v-if="selectedFields.includes('module')" role="cell" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
-            <DisplayModuleId
-              :id="item.module"
-              w-full border-none ws-nowrap
-              :session="session"
-              :link="`/session/${session.id}/graph?module=${item.module}`"
-              hover="bg-active"
-              border="~ base rounded" block px2 py1
-            />
-          </div>
-          <div v-if="selectedFields.includes('duration')" role="cell" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
-            <DisplayDuration :duration="item.duration" />
-          </div>
-          <div v-if="selectedFields.includes('startTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-            {{ normalizeTimestamp(item.timestamp_start) }}
-          </div>
-          <div v-if="selectedFields.includes('endTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
-            {{ normalizeTimestamp(item.timestamp_end) }}
-          </div>
+    <template #default="{ item, index }">
+      <div
+        role="row"
+        flex="~ row"
+        class="border-base border-b border-dashed"
+        :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
+      >
+        <div v-if="selectedFields.includes('hookName')" role="cell" flex="~ items-center justify-center" flex-none w32 ws-nowrap op80>
+          <DisplayBadge :text="HOOK_NAME_MAP[item.type]" />
         </div>
-      </template>
-    </DataVirtualList>
-    <div v-else>
-      <div p4>
-        <div w-full h-48 flex="~ items-center justify-center" op50 italic>
-          <p v-if="!selectedFields.length">
-            No columns selected
-          </p>
-          <p v-else>
-            No data
-          </p>
+        <div v-if="selectedFields.includes('module')" role="cell" flex-1 min-w100 text-left text-ellipsis line-clamp-2>
+          <DisplayModuleId
+            :id="item.module"
+            w-full border-none ws-nowrap
+            :session="session"
+            :link="`/session/${session.id}/graph?module=${item.module}`"
+            hover="bg-active"
+            border="~ base rounded" block px2 py1
+          />
         </div>
+        <div v-if="selectedFields.includes('duration')" role="cell" flex="~ items-center justify-center" flex-none text-center text-sm w-27>
+          <DisplayDuration :duration="item.duration" />
+        </div>
+        <div v-if="selectedFields.includes('startTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+          {{ normalizeTimestamp(item.timestamp_start) }}
+        </div>
+        <div v-if="selectedFields.includes('endTime')" role="cell" flex="~ items-center justify-center" flex-none text-center font-mono text-sm min-w52 op80>
+          {{ normalizeTimestamp(item.timestamp_end) }}
+        </div>
+      </div>
+    </template>
+  </DataVirtualList>
+  <div v-else role="table" min-w-max h-full>
+    <div p4>
+      <div w-full h-48 flex="~ items-center justify-center" op50 italic>
+        <p v-if="!selectedFields.length">
+          No columns selected
+        </p>
+        <p v-else>
+          No data
+        </p>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.plugin-details-table:deep(.vue-recycle-scroller__slot) {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+</style>

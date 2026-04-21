@@ -24,6 +24,7 @@ export async function connect() {
         DEVTOOLS_MOUNT_PATH,
         runtimeConfig.app.baseURL,
       ],
+      cacheOptions: true,
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {
         onConnected: () => {
@@ -46,6 +47,13 @@ export async function connect() {
           console.error(`[rolldown-devtools] RPC error on executing "${name}":`)
         },
       },
+    })
+
+    const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+    const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
+
+    rpc.value.cacheManager.updateOptions({
+      functions: [...cacheableFunctions],
     })
 
     connectionState.connected = true

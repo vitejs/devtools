@@ -3,20 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { bytesToHumanSize, getContentByteSize, toTree } from '../format'
 
 describe('bytesToHumanSize', () => {
-  it('should return raw bytes (<1024)', () => {
+  it('should return raw bytes (<1000)', () => {
     expect(bytesToHumanSize(10)).toEqual([10, 'B'])
   })
 
   it('should return kb with proper digits', () => {
-    expect(bytesToHumanSize(1024)).toEqual(['1', 'KB'])
-    expect(bytesToHumanSize(1024 * 1.5)).toEqual(['1.5', 'KB'])
-    expect(bytesToHumanSize(1024 * 1.666, 1)).toEqual(['1.7', 'KB'])
+    expect(bytesToHumanSize(1000)).toEqual(['1', 'kB'])
+    expect(bytesToHumanSize(1000 * 1.5)).toEqual(['1.5', 'kB'])
+    expect(bytesToHumanSize(1000 * 1.666, 1)).toEqual(['1.7', 'kB'])
   })
 
   it('should return mb with proper digits', () => {
-    expect(bytesToHumanSize(1024 * 1024)).toEqual(['1', 'MB'])
-    expect(bytesToHumanSize(1024 * 1024 * 1.5)).toEqual(['1.5', 'MB'])
-    expect(bytesToHumanSize(1024 * 1024 * 1.666, 1)).toEqual(['1.7', 'MB'])
+    expect(bytesToHumanSize(1000 * 1000)).toEqual(['1', 'MB'])
+    expect(bytesToHumanSize(1000 * 1000 * 1.5)).toEqual(['1.5', 'MB'])
+    expect(bytesToHumanSize(1000 * 1000 * 1.666, 1)).toEqual(['1.7', 'MB'])
   })
 
   // larger...

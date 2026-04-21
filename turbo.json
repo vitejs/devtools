@@ -52,6 +52,9 @@
     },
     "@vitejs/devtools-webext#build": {
       "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "dist/**"
       ]

@@ -11,13 +11,17 @@ import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
 import { getInternalContext } from './context-internal'
+import { logger } from './diagnostics'
 
 const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
 export interface CreateWsServerOptions {
   cwd: string
-  portWebSocket?: number
-  hostWebSocket: string
+  websocket: {
+    port?: number
+    host: string
+    https?: DevToolsNodeContext['viteConfig']['server']['https'] | false
+  }
   base?: string
   context: DevToolsNodeContext
 }
@@ -26,9 +30,9 @@ const ANONYMOUS_SCOPE = 'vite:anonymous:'
 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
-  const host = options.hostWebSocket ?? 'localhost'
-  const https = options.context.viteConfig.server.https
-  const port = options.portWebSocket ?? await getPort({ port: 7812, host, random: true })!
+  const host = options.websocket.host
+  const https = options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https)
+  const port = options.websocket.port ?? await getPort({ port: 7812, host, random: true })!
 
   const wsClients = new Set<WebSocket>()
 
@@ -37,7 +41,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
-    console.warn('[Vite DevTools] Client authentication is disabled. Any browser can connect to the devtools and access to your server and filesystem.')
+    logger.DTK0008().log()
   }
 
   const preset = createWsRpcPreset({
@@ -77,12 +81,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
       preset,
       rpcOptions: {
         onFunctionError(error, name) {
-          console.error(c.red`⬢ RPC error on executing "${c.bold(name)}":`)
-          console.error(error)
+          logger.DTK0011({ name }, { cause: error }).log()
         },
         onGeneralError(error) {
-          console.error(c.red`⬢ RPC error on executing rpc`)
-          console.error(error)
+          logger.DTK0012({ cause: error }).log()
         },
         resolver(name, fn) {
           // eslint-disable-next-line ts/no-this-alias
@@ -91,7 +93,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           // Block unauthorized access to non-anonymous methods
           if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
             return () => {
-              throw new Error(`Unauthorized access to method ${JSON.stringify(name)} from client [${rpc.$meta.id}]`)
+              throw logger.DTK0013({ name, clientId: rpc.$meta.id }).throw()
             }
           }
 
