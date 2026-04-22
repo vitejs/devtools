@@ -1,18 +1,24 @@
 import type { DevtoolDefinition } from './types/devtool'
 
-/**
- * Produce a Kit-compatible plugin object (`PluginWithDevTools`) from a
- * takubox `DevtoolDefinition`. Kit exports `toVitePlugin` as a
- * convenience alias.
- */
-export function toKitPlugin(d: DevtoolDefinition): {
+export interface KitPlugin {
   name: string
-  devtools: { setup: DevtoolDefinition['setup'] }
-} {
+  devtools: {
+    setup: DevtoolDefinition['setup']
+    capabilities?: DevtoolDefinition['capabilities']
+  }
+}
+
+/**
+ * Produce a Vite plugin object that Kit's plugin-scan picks up via
+ * `Plugin.devtools`. Kit re-exports this as `toVitePlugin` for parity
+ * with the existing Vite ecosystem vocabulary.
+ */
+export function toKitPlugin(d: DevtoolDefinition): KitPlugin {
   return {
     name: `takubox:${d.id}`,
     devtools: {
       setup: d.setup,
+      capabilities: d.capabilities,
     },
   }
 }
