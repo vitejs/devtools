@@ -99,6 +99,14 @@ export default extendConfig(withMermaid(defineConfig({
         collapsed: true,
         items: [
           {
+            text: 'Takubox (TKB)',
+            collapsed: true,
+            items: Array.from({ length: 13 }, (_, i) => {
+              const code = `TKB${String(i + 1).padStart(4, '0')}`
+              return { text: code, link: `/errors/${code}` }
+            }),
+          },
+          {
             text: 'DevTools Kit (DTK)',
             collapsed: true,
             items: Array.from({ length: 32 }, (_, i) => {

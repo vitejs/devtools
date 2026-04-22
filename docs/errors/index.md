@@ -8,8 +8,8 @@ Vite DevTools uses structured diagnostics to surface actionable warnings and err
 
 ## How error codes work
 
-- Codes follow the pattern **prefix + 4-digit number** (e.g., `DTK0001`, `RDDT0002`).
-- Each prefix maps to a package: `DTK` for `@vitejs/devtools` core/kit, `RDDT` for `@vitejs/devtools-rolldown`.
+- Codes follow the pattern **prefix + 4-digit number** (e.g., `TKB0001`, `DTK0001`, `RDDT0002`).
+- Each prefix maps to a package: `TKB` for `takubox` (framework-neutral foundation), `DTK` for `@vitejs/devtools` (Vite-specific pieces), `RDDT` for `@vitejs/devtools-rolldown`.
 - Every error page includes the cause, recommended fix, and a reference to the source file that emits it.
 - The diagnostics system is powered by [`logs-sdk`](https://github.com/vercel-labs/logs-sdk), which provides structured logging with docs URLs, ANSI-formatted console output, and level-based filtering.
 
@@ -51,6 +51,26 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0030](./DTK0030) | error | Dock Entry Not Found | `@vitejs/devtools` |
 | [DTK0031](./DTK0031) | error | Dock Entry Not a Launcher | `@vitejs/devtools` |
 | [DTK0032](./DTK0032) | error | Dock Launch Error | `@vitejs/devtools` |
+
+## Takubox (TKB)
+
+Emitted by `takubox` — framework-neutral host / shared-state / auth surface.
+
+| Code | Level | Title | Migrated from |
+|------|-------|-------|---------------|
+| [TKB0001](./TKB0001) | error | Dock Already Registered | DTK0015 |
+| [TKB0002](./TKB0002) | error | Cannot Change Dock ID | DTK0016 |
+| [TKB0003](./TKB0003) | error | Dock Not Registered | DTK0017 |
+| [TKB0004](./TKB0004) | error | Terminal Session Already Registered | DTK0018 |
+| [TKB0005](./TKB0005) | error | Terminal Session Not Registered | DTK0019 |
+| [TKB0006](./TKB0006) | error | RPC Function Not Registered | DTK0020 |
+| [TKB0007](./TKB0007) | error | AsyncLocalStorage Not Set | DTK0021 |
+| [TKB0008](./TKB0008) | error | View distDir Not Found | DTK0022 |
+| [TKB0009](./TKB0009) | error | Command Already Registered | DTK0024 |
+| [TKB0010](./TKB0010) | error | Cannot Change Command ID | DTK0025 |
+| [TKB0011](./TKB0011) | error | Command Not Registered | DTK0026 |
+| [TKB0012](./TKB0012) | warn | Storage Parse Failed | DTK0009 |
+| [TKB0013](./TKB0013) | error | Shared State Not Found | DTK0027 |
 
 ## Rolldown DevTools (RDDT)
 
