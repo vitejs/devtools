@@ -1019,9 +1019,21 @@ importers:
 
   packages/takubox:
     dependencies:
+      ansis:
+        specifier: catalog:deps
+        version: 4.2.0
       birpc:
         specifier: catalog:deps
         version: 4.0.0
+      cac:
+        specifier: ^7.0.0
+        version: 7.0.0
+      get-port-please:
+        specifier: catalog:deps
+        version: 3.2.0
+      h3:
+        specifier: catalog:deps
+        version: 1.15.11
       logs-sdk:
         specifier: catalog:deps
         version: 0.0.6
@@ -1031,6 +1043,12 @@ importers:
       p-limit:
         specifier: catalog:deps
         version: 7.3.0
+      pathe:
+        specifier: catalog:deps
+        version: 2.0.3
+      sirv:
+        specifier: catalog:deps
+        version: 3.0.2
       structured-clone-es:
         specifier: catalog:deps
         version: 2.0.0

@@ -1,5 +1,5 @@
-import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { DEVTOOLS_RPC_DUMP_DIRNAME } from '@vitejs/devtools-kit/constants'
+import { defineRpcFunction } from 'takubox'
+import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'takubox/constants'
 import { describe, expect, it } from 'vitest'
 import { collectStaticRpcDump } from '../static-dump'
 

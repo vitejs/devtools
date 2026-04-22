@@ -24,6 +24,7 @@
   toKitPlugin: function
 ./node:
   abortPendingAuth: function
+  collectStaticRpcDump: function
   consumeTempAuthToken: function
   ContextUtils: object
   createH3DevToolsHost: function

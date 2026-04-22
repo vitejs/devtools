@@ -1,7 +1,7 @@
 import type { RpcDumpRecord, RpcFunctionDefinitionAny } from 'takubox/rpc'
 import {
   DEVTOOLS_RPC_DUMP_DIRNAME,
-} from '@vitejs/devtools-kit/constants'
+} from 'takubox/constants'
 import { dumpFunctions, getRpcHandler } from 'takubox/rpc'
 
 export interface StaticRpcDumpManifestStaticEntry {
