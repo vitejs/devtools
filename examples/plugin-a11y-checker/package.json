@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-a11y-checker",
   "type": "module",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
