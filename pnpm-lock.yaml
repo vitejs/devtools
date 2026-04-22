@@ -692,6 +692,12 @@ importers:
         specifier: ^8.0.9
         version: 8.0.9(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
 
+  examples/takubox-counter:
+    dependencies:
+      takubox:
+        specifier: workspace:*
+        version: link:../../packages/takubox
+
   packages/core:
     dependencies:
       '@vitejs/devtools-kit':
