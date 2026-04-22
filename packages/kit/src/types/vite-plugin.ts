@@ -44,6 +44,10 @@ export interface DevToolsNodeContext {
    */
   readonly viteServer?: ViteDevServer
   /**
+   * Vite version for the current runtime
+   */
+  readonly viteVersion: string
+  /**
    * RPC functions host, for registering server-side RPC functions and calling client-side RPC functions
    */
   rpc: RpcFunctionsHost
