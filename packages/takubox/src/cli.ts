@@ -1,17 +1,16 @@
 import type { DevtoolDefinition } from './types/devtool'
-import { createServer } from 'node:http'
 import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
-import { createApp, toNodeListener } from 'h3'
+import { createApp } from 'h3'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
-import { WebSocketServer } from 'ws'
 import { buildStatic } from './build'
 import { DEVTOOLS_MOUNT_PATH } from './constants'
 import { createHostContext } from './node/context'
 import { createH3DevToolsHost } from './node/host-h3'
+import { startHttpAndWs } from './node/server'
 import { buildSpa } from './spa'
 
 export interface CreateCliOptions {
@@ -30,10 +29,10 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
   const cli = cac(command)
 
   cli
-    .command('[outDir]', 'Start a local dev server')
+    .command('[...args]', 'Start a local dev server')
     .option('--port <port>', 'Port to listen on')
     .option('--host <host>', 'Host to bind to', { default: 'localhost' })
-    .action(async (_outDir: unknown, flags: { port?: number, host?: string }) => {
+    .action(async (_args: unknown, flags: { port?: number, host?: string }) => {
       const host = flags.host ?? 'localhost'
       const port = flags.port ?? await getPort({ port: defaultPort, host })
       await runDevServer(d, { host, port })
@@ -93,18 +92,15 @@ async function runDevServer(d: DevtoolDefinition, options: DevServerOptions): Pr
   })
   await d.setup(ctx)
 
-  // Mount the author's SPA at the devtools mount path.
   app.use(DEVTOOLS_MOUNT_PATH, sirv(resolve(distDir), { dev: true, single: true }) as any)
 
-  const server = createServer(toNodeListener(app))
-  const wss = new WebSocketServer({ server })
-  // TODO(takubox): wire `wss` to the RPC server preset once the
-  // composition helper lands in takubox/node/server.ts.
-  wss.on('connection', (socket) => {
-    socket.on('message', () => { /* stub */ })
-  })
-
-  server.listen(options.port, options.host, () => {
-    console.log(c.green`[takubox] "${d.id}" dev server listening at ${origin}${DEVTOOLS_MOUNT_PATH}`)
+  await startHttpAndWs({
+    context: ctx,
+    host: options.host,
+    port: options.port,
+    app,
+    onReady: ({ origin }) => {
+      console.log(c.green`[takubox] "${d.id}" dev server ready at ${origin}${DEVTOOLS_MOUNT_PATH}`)
+    },
   })
 }

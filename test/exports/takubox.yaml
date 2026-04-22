@@ -47,6 +47,7 @@
   revokeAuthToken: function
   RpcFunctionsHost: function
   setPendingAuth: function
+  startHttpAndWs: function
 ./rpc:
   createClientFromDump: function
   createDefineWrapperWithContext: function
