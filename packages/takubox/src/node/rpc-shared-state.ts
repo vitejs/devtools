@@ -48,7 +48,7 @@ export function createRpcSharedStateServerHost(
         return sharedState.get(key)!
       }
       if (options?.initialValue === undefined && options?.sharedState === undefined) {
-        throw logger.DTK0027({ key }).throw()
+        throw logger.TKB0013({ key }).throw()
       }
       debug('new-state', key)
       const state = options.sharedState ?? createSharedState<T>({

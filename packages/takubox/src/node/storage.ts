@@ -24,7 +24,7 @@ export function createStorage<T extends object>(options: CreateStorageOptions<T>
       initialValue = mergeInitialValue ? mergeInitialValue(options.initialValue, savedValue) : savedValue
     }
     catch (error) {
-      logger.DTK0009({ filepath: options.filepath }, { cause: error }).log()
+      logger.TKB0012({ filepath: options.filepath }, { cause: error }).log()
       initialValue = options.initialValue
     }
   }

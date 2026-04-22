@@ -31,7 +31,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
     ...args: Args
   ): Promise<Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>> {
     if (!this.definitions.has(method as string)) {
-      throw logger.DTK0020({ name: String(method) }).throw()
+      throw logger.TKB0006({ name: String(method) }).throw()
     }
 
     const handler = await this.getHandler(method)
@@ -66,7 +66,7 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
   getCurrentRpcSession(): DevToolsNodeRpcSession | undefined {
     if (!this._asyncStorage)
-      throw logger.DTK0021().throw()
+      throw logger.TKB0007().throw()
     return this._asyncStorage.getStore()
   }
 }

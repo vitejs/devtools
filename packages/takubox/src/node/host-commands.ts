@@ -12,7 +12,7 @@ export class DevToolsCommandsHost implements DevToolsCommandsHostType {
 
   register(command: DevToolsServerCommandInput): DevToolsCommandHandle {
     if (this.commands.has(command.id)) {
-      throw logger.DTK0024({ id: command.id }).throw()
+      throw logger.TKB0009({ id: command.id }).throw()
     }
     this.commands.set(command.id, command)
     this.events.emit('command:registered', this.toSerializable(command))
@@ -21,11 +21,11 @@ export class DevToolsCommandsHost implements DevToolsCommandsHostType {
       id: command.id,
       update: (patch: Partial<Omit<DevToolsServerCommandInput, 'id'>>) => {
         if ('id' in patch) {
-          throw logger.DTK0025().throw()
+          throw logger.TKB0010().throw()
         }
         const existing = this.commands.get(command.id)
         if (!existing) {
-          throw logger.DTK0026({ id: command.id }).throw()
+          throw logger.TKB0011({ id: command.id }).throw()
         }
         Object.assign(existing, patch)
         this.events.emit('command:registered', this.toSerializable(existing))
@@ -45,7 +45,7 @@ export class DevToolsCommandsHost implements DevToolsCommandsHostType {
   async execute(id: string, ...args: any[]): Promise<unknown> {
     const found = this.findCommand(id)
     if (!found) {
-      throw logger.DTK0026({ id }).throw()
+      throw logger.TKB0011({ id }).throw()
     }
     if (!found.handler) {
       throw new Error(`Command "${id}" has no handler (group-only command)`)

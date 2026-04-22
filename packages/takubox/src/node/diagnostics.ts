@@ -2,52 +2,55 @@ import c from 'ansis'
 import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
 import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 
-// DTK codes used by framework-neutral pieces (host classes, shared-state,
-// auth). Retains DTK prefix for now so existing error-doc URLs keep
-// resolving; a dedicated `TKB` renumber lands in the diagnostics
-// migration commit.
+// `TKB` codes cover the framework-neutral host / shared-state / auth
+// surface owned by takubox. Vite-specific codes stay under the `DTK`
+// prefix in `@vitejs/devtools`.
+//
+// Numbers intentionally start at 0001 — they do not correspond to the
+// historical DTK numbers. See `docs/errors/TKB*.md` + the
+// `DTK -> TKB` redirect table in the migration guide for the mapping.
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
   codes: {
-    DTK0015: {
+    TKB0001: {
       message: (p: { id: string }) => `Dock with id "${p.id}" is already registered`,
       hint: 'Use the `force` parameter to overwrite an existing registration.',
     },
-    DTK0016: {
+    TKB0002: {
       message: 'Cannot change the id of a dock. Use register() to add new docks.',
     },
-    DTK0017: {
+    TKB0003: {
       message: (p: { id: string }) => `Dock with id "${p.id}" is not registered. Use register() to add new docks.`,
     },
-    DTK0018: {
+    TKB0004: {
       message: (p: { id: string }) => `Terminal session with id "${p.id}" already registered`,
     },
-    DTK0019: {
+    TKB0005: {
       message: (p: { id: string }) => `Terminal session with id "${p.id}" not registered`,
     },
-    DTK0020: {
+    TKB0006: {
       message: (p: { name: string }) => `RPC function "${p.name}" is not registered`,
     },
-    DTK0021: {
+    TKB0007: {
       message: 'AsyncLocalStorage is not set, it likely to be an internal bug of the DevTools foundation',
     },
-    DTK0022: {
+    TKB0008: {
       message: (p: { distDir: string }) => `distDir ${p.distDir} does not exist`,
     },
-    DTK0024: {
+    TKB0009: {
       message: (p: { id: string }) => `Command "${p.id}" is already registered`,
     },
-    DTK0025: {
+    TKB0010: {
       message: 'Cannot change the id of a command. Use register() to add new commands.',
     },
-    DTK0026: {
+    TKB0011: {
       message: (p: { id: string }) => `Command "${p.id}" is not registered`,
     },
-    DTK0009: {
+    TKB0012: {
       message: (p: { filepath: string }) => `Failed to parse storage file: ${p.filepath}, falling back to defaults.`,
       level: 'warn',
     },
-    DTK0027: {
+    TKB0013: {
       message: (p: { key: string }) => `Shared state of "${p.key}" is not found, please provide an initial value for the first time`,
     },
   },
