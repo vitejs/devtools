@@ -81,24 +81,6 @@
       "takubox": [
         "./packages/takubox/src"
       ],
-      "@vitejs/devtools-rpc/presets/ws/server": [
-        "./packages/takubox/src/rpc/presets/ws/server.ts"
-      ],
-      "@vitejs/devtools-rpc/presets/ws/client": [
-        "./packages/takubox/src/rpc/presets/ws/client.ts"
-      ],
-      "@vitejs/devtools-rpc/presets": [
-        "./packages/takubox/src/rpc/presets/index.ts"
-      ],
-      "@vitejs/devtools-rpc/client": [
-        "./packages/takubox/src/rpc/client.ts"
-      ],
-      "@vitejs/devtools-rpc/server": [
-        "./packages/takubox/src/rpc/server.ts"
-      ],
-      "@vitejs/devtools-rpc": [
-        "./packages/takubox/src/rpc"
-      ],
       "@vitejs/devtools-kit/node": [
         "./packages/kit/src/node/index.ts"
       ],

@@ -34,7 +34,6 @@
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "pathe": "catalog:deps",
     "takubox": "workspace:*"

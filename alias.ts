@@ -30,13 +30,6 @@ export const alias = {
   'takubox/embedded': r('takubox/src/embedded.ts'),
   'takubox/client': r('takubox/src/client.ts'),
   'takubox': r('takubox/src'),
-  // Tombstone — still resolves to the same files in case external code imports the old name.
-  '@vitejs/devtools-rpc/presets/ws/server': r('takubox/src/rpc/presets/ws/server.ts'),
-  '@vitejs/devtools-rpc/presets/ws/client': r('takubox/src/rpc/presets/ws/client.ts'),
-  '@vitejs/devtools-rpc/presets': r('takubox/src/rpc/presets/index.ts'),
-  '@vitejs/devtools-rpc/client': r('takubox/src/rpc/client.ts'),
-  '@vitejs/devtools-rpc/server': r('takubox/src/rpc/server.ts'),
-  '@vitejs/devtools-rpc': r('takubox/src/rpc'),
   '@vitejs/devtools-kit/node': r('kit/src/node/index.ts'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
   '@vitejs/devtools-kit/constants': r('kit/src/constants.ts'),

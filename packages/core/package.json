@@ -57,7 +57,6 @@
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rolldown": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "h3": "catalog:deps",

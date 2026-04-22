@@ -44,7 +44,6 @@
     "vite": "*"
   },
   "dependencies": {
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "ohash": "catalog:deps",
     "sirv": "catalog:deps",
