@@ -1,5 +1,5 @@
-import type { DevToolsCommandHandle, DevToolsCommandsHost as DevToolsCommandsHostType, DevToolsNodeContext, DevToolsServerCommandEntry, DevToolsServerCommandInput } from '@vitejs/devtools-kit'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import type { DevToolsCommandHandle, DevToolsCommandsHost as DevToolsCommandsHostType, DevToolsNodeContext, DevToolsServerCommandEntry, DevToolsServerCommandInput } from 'takubox/types'
+import { createEventEmitter } from 'takubox/utils/events'
 import { logger } from './diagnostics'
 
 export class DevToolsCommandsHost implements DevToolsCommandsHostType {

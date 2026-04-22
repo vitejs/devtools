@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext, DevToolsViewHost as DevToolsViewHostType } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, DevToolsViewHost as DevToolsViewHostType } from 'takubox/types'
 import { existsSync } from 'node:fs'
 import { logger } from './diagnostics'
 

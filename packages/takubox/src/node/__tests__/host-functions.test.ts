@@ -1,5 +1,5 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
-import { defineRpcFunction } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext } from 'takubox/types'
+import { defineRpcFunction } from 'takubox'
 import { describe, expect, it } from 'vitest'
 import { RpcFunctionsHost } from '../host-functions'
 

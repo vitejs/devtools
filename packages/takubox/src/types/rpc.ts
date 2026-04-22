@@ -1,9 +1,9 @@
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'takubox/rpc'
 import type { DevToolsNodeRpcSessionMeta } from 'takubox/rpc/presets/ws/server'
-import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from 'takubox/types'
 import type { SharedState } from '../utils/shared-state'
-import type { DevToolsNodeContext } from './vite-plugin'
+import type { DevToolsNodeContext } from './context'
+import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from './rpc-augments'
 
 export type { DevToolsNodeRpcSessionMeta }
 

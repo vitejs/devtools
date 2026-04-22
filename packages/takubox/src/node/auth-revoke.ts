@@ -1,5 +1,5 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { DevToolsNodeContext } from 'takubox/types'
+import type { SharedState } from 'takubox/utils/shared-state'
 import type { InternalAnonymousAuthStorage } from './context-internal'
 import type { RpcFunctionsHost } from './host-functions'
 

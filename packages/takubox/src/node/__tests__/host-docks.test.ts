@@ -1,6 +1,6 @@
-import type { DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewIframe, RemoteConnectionInfo } from '@vitejs/devtools-kit'
+import type { DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewIframe, RemoteConnectionInfo } from 'takubox/types'
 import { Buffer } from 'node:buffer'
-import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
+import { REMOTE_CONNECTION_KEY } from 'takubox/constants'
 import { describe, expect, it } from 'vitest'
 import { getInternalContext, internalContextMap } from '../context-internal'
 import { DevToolsDockHost } from '../host-docks'

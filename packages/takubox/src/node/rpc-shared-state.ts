@@ -1,7 +1,7 @@
-import type { RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } from '@vitejs/devtools-kit'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
-import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } from 'takubox/types'
+import type { SharedState } from 'takubox/utils/shared-state'
 import { createDebug } from 'obug'
+import { createSharedState } from 'takubox/utils/shared-state'
 import { logger } from './diagnostics'
 
 const debug = createDebug('vite:devtools:rpc:state:changed')

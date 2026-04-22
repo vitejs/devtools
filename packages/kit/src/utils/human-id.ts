@@ -1,1 +1,1 @@
-export { humanId } from 'human-id'
+export * from 'takubox/utils/human-id'

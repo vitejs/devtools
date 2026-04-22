@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext, DevToolsTerminalSession } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext, DevToolsTerminalSession } from 'takubox/types'
 import { describe, expect, it, vi } from 'vitest'
 import { DevToolsTerminalHost } from '../host-terminals'
 

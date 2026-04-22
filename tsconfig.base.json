@@ -33,6 +33,30 @@
       "takubox/node": [
         "./packages/takubox/src/node/index.ts"
       ],
+      "takubox/constants": [
+        "./packages/takubox/src/constants.ts"
+      ],
+      "takubox/utils/events": [
+        "./packages/takubox/src/utils/events.ts"
+      ],
+      "takubox/utils/human-id": [
+        "./packages/takubox/src/utils/human-id.ts"
+      ],
+      "takubox/utils/nanoid": [
+        "./packages/takubox/src/utils/nanoid.ts"
+      ],
+      "takubox/utils/promise": [
+        "./packages/takubox/src/utils/promise.ts"
+      ],
+      "takubox/utils/shared-state": [
+        "./packages/takubox/src/utils/shared-state.ts"
+      ],
+      "takubox/utils/state": [
+        "./packages/takubox/src/utils/state.ts"
+      ],
+      "takubox/utils/when": [
+        "./packages/takubox/src/utils/when.ts"
+      ],
       "takubox": [
         "./packages/takubox/src"
       ],

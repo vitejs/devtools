@@ -1,7 +1,7 @@
 import fs from 'node:fs'
-import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import { dirname } from 'pathe'
 import { debounce } from 'perfect-debounce'
+import { createSharedState } from 'takubox/utils/shared-state'
 import { logger } from './diagnostics'
 
 export interface CreateStorageOptions<T extends object> {

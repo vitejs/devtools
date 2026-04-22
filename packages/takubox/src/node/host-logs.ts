@@ -1,6 +1,6 @@
-import type { DevToolsLogEntry, DevToolsLogEntryInput, DevToolsLogHandle, DevToolsLogsHost as DevToolsLogsHostType, DevToolsNodeContext } from '@vitejs/devtools-kit'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
-import { nanoid } from '@vitejs/devtools-kit/utils/nanoid'
+import type { DevToolsLogEntry, DevToolsLogEntryInput, DevToolsLogHandle, DevToolsLogsHost as DevToolsLogsHostType, DevToolsNodeContext } from 'takubox/types'
+import { createEventEmitter } from 'takubox/utils/events'
+import { nanoid } from 'takubox/utils/nanoid'
 
 const MAX_ENTRIES = 1000
 

@@ -1,3 +1,16 @@
-// Node-side entry — full surface (createHostContext, host classes, h3
-// helpers) lands as the respective commits complete the extraction.
+// Node-side public API for consumers that wire up their own runtime.
+export * from './auth-revoke'
+export * from './auth-state'
+export * from './context'
+export * from './context-internal'
+export * from './context-utils'
+export * from './host-commands'
+export * from './host-docks'
+export * from './host-functions'
 export * from './host-h3'
+export * from './host-logs'
+export * from './host-terminals'
+export * from './host-views'
+export * from './rpc-shared-state'
+export * from './storage'
+export * from './utils'

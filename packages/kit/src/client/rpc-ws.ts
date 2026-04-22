@@ -3,8 +3,8 @@ import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
 import { createRpcClient } from 'takubox/rpc/client'
 import { createWsRpcPreset } from 'takubox/rpc/presets/ws/client'
+import { promiseWithResolver } from 'takubox/utils/promise'
 import { parseUA } from 'ua-parser-modern'
-import { promiseWithResolver } from '../utils/promise'
 
 export interface CreateWsRpcClientModeOptions {
   authToken: string

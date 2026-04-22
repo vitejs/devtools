@@ -1,7 +1,7 @@
-import type { DevToolsNodeRpcSession } from '@vitejs/devtools-kit'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { DevToolsNodeRpcSession } from 'takubox/types'
+import type { SharedState } from 'takubox/utils/shared-state'
 import type { InternalAnonymousAuthStorage } from './context-internal'
-import { humanId } from '@vitejs/devtools-kit/utils/human-id'
+import { humanId } from 'takubox/utils/human-id'
 
 export interface PendingAuthRequest {
   clientAuthToken: string

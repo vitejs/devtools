@@ -20,16 +20,20 @@
   DEVTOOLS_RPC_DUMP_DIRNAME: string
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
   REMOTE_CONNECTION_KEY: string
+  t: object
 ./node:
   createViteDevToolsHost: function
 ./utils/events:
   createEventEmitter: function
+  t: object
 ./utils/human-id:
   humanId: function
+  t: object
 ./utils/nanoid:
   nanoid: function
 ./utils/shared-state:
   createSharedState: function
+  t: object
 ./utils/when:
   evaluateWhen: function
   getContextValue: function

@@ -1,7 +1,7 @@
-import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession, DevToolsNodeContext, DevToolsTerminalHost as DevToolsTerminalHostType, DevToolsTerminalSession, DevToolsTerminalSessionBase, PartialWithoutId } from '@vitejs/devtools-kit'
+import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession, DevToolsNodeContext, DevToolsTerminalHost as DevToolsTerminalHostType, DevToolsTerminalSession, DevToolsTerminalSessionBase, PartialWithoutId } from 'takubox/types'
 import type { Result as TinyExecResult } from 'tinyexec'
 import process from 'node:process'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import { createEventEmitter } from 'takubox/utils/events'
 import { logger } from './diagnostics'
 
 export class DevToolsTerminalHost implements DevToolsTerminalHostType {

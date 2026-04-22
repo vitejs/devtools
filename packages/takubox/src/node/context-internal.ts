@@ -1,8 +1,8 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { DevToolsNodeContext } from 'takubox/types'
+import type { SharedState } from 'takubox/utils/shared-state'
 import { homedir } from 'node:os'
-import { humanId } from '@vitejs/devtools-kit/utils/human-id'
 import { join } from 'pathe'
+import { humanId } from 'takubox/utils/human-id'
 import { revokeActiveConnectionsForToken, revokeAuthToken } from './auth-revoke'
 import { createStorage } from './storage'
 

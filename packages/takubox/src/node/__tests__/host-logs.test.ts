@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsNodeContext } from 'takubox/types'
 import { describe, expect, it, vi } from 'vitest'
 import { DevToolsLogsHost } from '../host-logs'
 

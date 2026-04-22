@@ -5,9 +5,9 @@ import {
 } from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
 import { resolve } from 'pathe'
+import { normalizeHttpServerUrl } from 'takubox/node'
 import { MARK_NODE } from './constants'
 import { logger } from './diagnostics'
-import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
   root?: string

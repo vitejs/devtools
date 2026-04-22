@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { RpcFunctionsHost } from 'takubox/node'
 import type { WebSocket } from 'ws'
-import type { RpcFunctionsHost } from './host-functions'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
 import c from 'ansis'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
+import { getInternalContext } from 'takubox/node'
 import { createWsRpcPreset } from 'takubox/rpc/presets/ws/server'
 import { createRpcServer } from 'takubox/rpc/server'
 import { MARK_INFO } from './constants'
-import { getInternalContext } from './context-internal'
 import { logger } from './diagnostics'
 
 const debugInvoked = createDebug('vite:devtools:rpc:invoked')
