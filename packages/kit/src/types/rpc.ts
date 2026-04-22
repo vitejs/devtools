@@ -1,6 +1,6 @@
-import type { RpcFunctionsCollectorBase } from '@vitejs/devtools-rpc'
-import type { DevToolsNodeRpcSessionMeta } from '@vitejs/devtools-rpc/presets/ws/server'
 import type { BirpcReturn } from 'birpc'
+import type { RpcFunctionsCollectorBase } from 'takubox/rpc'
+import type { DevToolsNodeRpcSessionMeta } from 'takubox/rpc/presets/ws/server'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from './rpc-augments'
 import type { DevToolsNodeContext } from './vite-plugin'

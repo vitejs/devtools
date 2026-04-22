@@ -45,7 +45,8 @@
   "dependencies": {
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
-    "ohash": "catalog:deps"
+    "ohash": "catalog:deps",
+    "takubox": "workspace:*"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",

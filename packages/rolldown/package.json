@@ -56,6 +56,7 @@
     "sirv": "catalog:deps",
     "split2": "catalog:deps",
     "structured-clone-es": "catalog:deps",
+    "takubox": "workspace:*",
     "tinyglobby": "catalog:deps",
     "unconfig": "catalog:deps",
     "unstorage": "catalog:deps",

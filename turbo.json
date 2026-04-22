@@ -55,6 +55,12 @@
       "outputs": [
         "dist/**"
       ]
+    },
+    "takubox#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
     }
   }
 }

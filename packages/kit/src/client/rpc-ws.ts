@@ -1,8 +1,8 @@
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
 import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
-import { createRpcClient } from '@vitejs/devtools-rpc/client'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/client'
+import { createRpcClient } from 'takubox/rpc/client'
+import { createWsRpcPreset } from 'takubox/rpc/presets/ws/client'
 import { parseUA } from 'ua-parser-modern'
 import { promiseWithResolver } from '../utils/promise'
 

@@ -1,8 +1,8 @@
-import type { RpcDumpRecord, RpcFunctionDefinitionAny } from '@vitejs/devtools-rpc'
+import type { RpcDumpRecord, RpcFunctionDefinitionAny } from 'takubox/rpc'
 import {
   DEVTOOLS_RPC_DUMP_DIRNAME,
 } from '@vitejs/devtools-kit/constants'
-import { dumpFunctions, getRpcHandler } from '@vitejs/devtools-rpc'
+import { dumpFunctions, getRpcHandler } from 'takubox/rpc'
 
 export interface StaticRpcDumpManifestStaticEntry {
   type: 'static'
@@ -75,7 +75,7 @@ export async function collectStaticRpcDump(
     if (type !== 'query')
       continue
 
-    // Reuse dump execution semantics from @vitejs/devtools-rpc.
+    // Reuse dump execution semantics from takubox/rpc.
     const store = await dumpFunctions([definition], context)
     if (!(definition.name in store.definitions))
       continue

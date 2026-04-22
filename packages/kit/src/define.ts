@@ -1,5 +1,5 @@
 import type { DevToolsNodeContext, DevToolsServerCommandInput, JsonRenderSpec } from './types'
-import { createDefineWrapperWithContext } from '@vitejs/devtools-rpc'
+import { createDefineWrapperWithContext } from 'takubox/rpc'
 
 export const defineRpcFunction = createDefineWrapperWithContext<DevToolsNodeContext>()
 

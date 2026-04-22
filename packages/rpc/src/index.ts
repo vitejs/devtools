@@ -1,7 +1,3 @@
-export * from './cache'
-export * from './collector'
-export * from './define'
-export * from './dumps'
-export * from './handler'
-export * from './types'
-export * from './validation'
+// Tombstone: this package re-exports from `takubox/rpc`.
+// Scheduled for deletion in the commit that removes `@vitejs/devtools-rpc`.
+export * from 'takubox/rpc'

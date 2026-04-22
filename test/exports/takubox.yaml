@@ -1,0 +1,24 @@
+.: {}
+./rpc:
+  createClientFromDump: function
+  createDefineWrapperWithContext: function
+  defineRpcFunction: function
+  dumpFunctions: function
+  getDefinitionsWithDumps: function
+  getRpcHandler: function
+  getRpcResolvedSetupResult: function
+  RpcCacheManager: function
+  RpcFunctionsCollectorBase: function
+  validateDefinition: function
+  validateDefinitions: function
+./rpc/client:
+  createRpcClient: function
+./rpc/presets:
+  defineRpcClientPreset: function
+  defineRpcServerPreset: function
+./rpc/presets/ws/client:
+  createWsRpcPreset: function
+./rpc/presets/ws/server:
+  createWsRpcPreset: function
+./rpc/server:
+  createRpcServer: function

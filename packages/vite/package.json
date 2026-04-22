@@ -46,6 +46,7 @@
     "pathe": "catalog:deps",
     "sirv": "catalog:deps",
     "structured-clone-es": "catalog:deps",
+    "takubox": "workspace:*",
     "ws": "catalog:deps"
   },
   "devDependencies": {

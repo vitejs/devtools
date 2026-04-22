@@ -14,4 +14,4 @@ export * from './vite-augment'
 
 export * from './vite-plugin'
 
-export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-rpc'
+export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'takubox/rpc'

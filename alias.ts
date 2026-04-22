@@ -6,12 +6,20 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const r = (path: string) => fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
 
 export const alias = {
-  '@vitejs/devtools-rpc/presets/ws/server': r('rpc/src/presets/ws/server.ts'),
-  '@vitejs/devtools-rpc/presets/ws/client': r('rpc/src/presets/ws/client.ts'),
-  '@vitejs/devtools-rpc/presets': r('rpc/src/presets/index.ts'),
-  '@vitejs/devtools-rpc/client': r('rpc/src/client.ts'),
-  '@vitejs/devtools-rpc/server': r('rpc/src/server.ts'),
-  '@vitejs/devtools-rpc': r('rpc/src'),
+  'takubox/rpc/presets/ws/server': r('takubox/src/rpc/presets/ws/server.ts'),
+  'takubox/rpc/presets/ws/client': r('takubox/src/rpc/presets/ws/client.ts'),
+  'takubox/rpc/presets': r('takubox/src/rpc/presets/index.ts'),
+  'takubox/rpc/client': r('takubox/src/rpc/client.ts'),
+  'takubox/rpc/server': r('takubox/src/rpc/server.ts'),
+  'takubox/rpc': r('takubox/src/rpc'),
+  'takubox': r('takubox/src'),
+  // Tombstone — still resolves to the same files in case external code imports the old name.
+  '@vitejs/devtools-rpc/presets/ws/server': r('takubox/src/rpc/presets/ws/server.ts'),
+  '@vitejs/devtools-rpc/presets/ws/client': r('takubox/src/rpc/presets/ws/client.ts'),
+  '@vitejs/devtools-rpc/presets': r('takubox/src/rpc/presets/index.ts'),
+  '@vitejs/devtools-rpc/client': r('takubox/src/rpc/client.ts'),
+  '@vitejs/devtools-rpc/server': r('takubox/src/rpc/server.ts'),
+  '@vitejs/devtools-rpc': r('takubox/src/rpc'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
   '@vitejs/devtools-kit/constants': r('kit/src/constants.ts'),
   '@vitejs/devtools-kit/utils/events': r('kit/src/utils/events.ts'),

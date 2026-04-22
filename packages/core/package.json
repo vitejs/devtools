@@ -70,6 +70,7 @@
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
+    "takubox": "workspace:*",
     "tinyexec": "catalog:deps",
     "vue": "catalog:deps",
     "ws": "catalog:deps"

@@ -2,11 +2,11 @@
 import type {
   RpcDefinitionsToFunctions,
   RpcFunctionDefinitionToFunction,
-} from '../src'
-import type { AssertEqual } from '../src/utils'
+} from '.'
+import type { AssertEqual } from './utils'
 import * as v from 'valibot'
 import { describe, it } from 'vitest'
-import { defineRpcFunction } from '../src'
+import { defineRpcFunction } from '.'
 
 describe('rpcFunctionDefinitionToFunction', () => {
   it('should infer types from generic parameters when no schemas', () => {
