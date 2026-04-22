@@ -1,5 +1,6 @@
 import type { DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from '@vitejs/devtools-kit'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { createDebug } from 'obug'
 import { debounce } from 'perfect-debounce'
 import { ContextUtils } from './context-utils'
@@ -40,6 +41,7 @@ export async function createDevToolsContext(
     viteConfig,
     viteServer,
     mode: viteConfig.command === 'serve' ? 'dev' : 'build',
+    host: createViteDevToolsHost({ viteConfig, viteServer }),
     rpc: undefined!,
     docks: undefined!,
     views: undefined!,

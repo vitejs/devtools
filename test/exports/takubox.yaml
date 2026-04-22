@@ -1,4 +1,6 @@
 .: {}
+./node:
+  createH3DevToolsHost: function
 ./rpc:
   createClientFromDump: function
   createDefineWrapperWithContext: function

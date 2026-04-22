@@ -10,6 +10,7 @@ export default defineConfig({
     'utils/when': 'src/utils/when.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
     'client': 'src/client/index.ts',
+    'node/index': 'src/node/index.ts',
   },
   exports: true,
   clean: true,

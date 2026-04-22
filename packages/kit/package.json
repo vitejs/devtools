@@ -22,6 +22,7 @@
     ".": "./dist/index.js",
     "./client": "./dist/client.js",
     "./constants": "./dist/constants.js",
+    "./node": "./dist/node/index.js",
     "./utils/events": "./dist/utils/events.js",
     "./utils/human-id": "./dist/utils/human-id.js",
     "./utils/nanoid": "./dist/utils/nanoid.js",
@@ -46,6 +47,7 @@
     "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
     "ohash": "catalog:deps",
+    "sirv": "catalog:deps",
     "takubox": "workspace:*"
   },
   "devDependencies": {

@@ -138,15 +138,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   }
 
   private resolveDevServerOrigin(): string {
-    const resolved = this.context.viteServer?.resolvedUrls?.local?.[0]
-    if (resolved)
-      return new URL(resolved).origin
-    const https = !!this.context.viteConfig.server.https
-    const host = typeof this.context.viteConfig.server.host === 'string'
-      ? this.context.viteConfig.server.host
-      : 'localhost'
-    const port = this.context.viteConfig.server.port ?? (https ? 443 : 80)
-    return `${https ? 'https' : 'http'}://${host === '0.0.0.0' || host === '::' || !host ? 'localhost' : host}:${port}`
+    return this.context.host.resolveOrigin()
   }
 
   register<T extends DevToolsDockUserEntry>(view: T, force?: boolean): {

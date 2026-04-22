@@ -20,6 +20,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
+    "./node": "./dist/node/index.mjs",
     "./rpc": "./dist/rpc/index.mjs",
     "./rpc/client": "./dist/rpc/client.mjs",
     "./rpc/presets": "./dist/rpc/presets/index.mjs",

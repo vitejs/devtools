@@ -1,4 +1,4 @@
-import type { ClientScriptEntry, DevToolsCommandsHost, DevToolsDockHost, DevToolsLogsHost, DevToolsTerminalHost, DevToolsViewHost, JsonRenderer, JsonRenderSpec } from 'takubox/types'
+import type { ClientScriptEntry, DevToolsCommandsHost, DevToolsDockHost, DevToolsHost, DevToolsLogsHost, DevToolsTerminalHost, DevToolsViewHost, JsonRenderer, JsonRenderSpec } from 'takubox/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DockClientScriptContext } from '../client'
 import type { RpcFunctionsHost } from './rpc'
@@ -39,6 +39,12 @@ export interface DevToolsNodeContext {
    * Vite dev server instance (only available in dev mode)
    */
   readonly viteServer?: ViteDevServer
+  /**
+   * Host runtime abstraction — used by the host classes (views, docks)
+   * to serve static assets and resolve the public origin without caring
+   * whether the runtime is Vite, an h3 CLI server, or a build snapshot.
+   */
+  host: DevToolsHost
   /**
    * RPC functions host, for registering server-side RPC functions and calling client-side RPC functions
    */

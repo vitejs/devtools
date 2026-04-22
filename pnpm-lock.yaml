@@ -803,6 +803,9 @@ importers:
       ohash:
         specifier: catalog:deps
         version: 2.0.11
+      sirv:
+        specifier: catalog:deps
+        version: 3.0.2
       takubox:
         specifier: workspace:*
         version: link:../takubox

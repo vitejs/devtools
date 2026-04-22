@@ -20,6 +20,8 @@
   DEVTOOLS_RPC_DUMP_DIRNAME: string
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
   REMOTE_CONNECTION_KEY: string
+./node:
+  createViteDevToolsHost: function
 ./utils/events:
   createEventEmitter: function
 ./utils/human-id:

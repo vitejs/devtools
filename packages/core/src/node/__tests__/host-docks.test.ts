@@ -12,6 +12,10 @@ function createMockContext(): DevToolsNodeContext {
     },
     viteServer: undefined,
     mode: 'dev',
+    host: {
+      mountStatic: () => {},
+      resolveOrigin: () => 'http://localhost:5173',
+    },
   } as unknown as DevToolsNodeContext
 }
 

@@ -1,6 +1,5 @@
 import type { DevToolsNodeContext, DevToolsViewHost as DevToolsViewHostType } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
-import sirv from 'sirv'
 import { logger } from './diagnostics'
 
 export class DevToolsViewHost implements DevToolsViewHostType {
@@ -20,17 +19,6 @@ export class DevToolsViewHost implements DevToolsViewHostType {
     }
 
     this.buildStaticDirs.push({ baseUrl, distDir })
-
-    if (this.context.viteConfig.command === 'serve') {
-      if (!this.context.viteServer)
-        throw logger.DTK0023().throw()
-      this.context.viteServer.middlewares.use(
-        baseUrl,
-        sirv(distDir, {
-          dev: true,
-          single: true,
-        }),
-      )
-    }
+    this.context.host.mountStatic(baseUrl, distDir)
   }
 }

@@ -30,6 +30,9 @@
       "takubox/types": [
         "./packages/takubox/src/types/index.ts"
       ],
+      "takubox/node": [
+        "./packages/takubox/src/node/index.ts"
+      ],
       "takubox": [
         "./packages/takubox/src"
       ],
@@ -50,6 +53,9 @@
       ],
       "@vitejs/devtools-rpc": [
         "./packages/takubox/src/rpc"
+      ],
+      "@vitejs/devtools-kit/node": [
+        "./packages/kit/src/node/index.ts"
       ],
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"

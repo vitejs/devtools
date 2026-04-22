@@ -10,6 +10,7 @@ export default defineConfig({
     'rpc/presets/ws/client': 'src/rpc/presets/ws/client.ts',
     'rpc/presets/ws/server': 'src/rpc/presets/ws/server.ts',
     'types/index': 'src/types/index.ts',
+    'node/index': 'src/node/index.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   clean: true,
