@@ -1,5 +1,6 @@
 export * from './commands'
 export * from './context'
+export * from './devtool'
 export * from './docks'
 export * from './events'
 export * from './host'

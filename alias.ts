@@ -22,6 +22,13 @@ export const alias = {
   'takubox/utils/shared-state': r('takubox/src/utils/shared-state.ts'),
   'takubox/utils/state': r('takubox/src/utils/state.ts'),
   'takubox/utils/when': r('takubox/src/utils/when.ts'),
+  'takubox/cli': r('takubox/src/cli.ts'),
+  'takubox/build': r('takubox/src/build.ts'),
+  'takubox/spa': r('takubox/src/spa.ts'),
+  'takubox/vite': r('takubox/src/vite.ts'),
+  'takubox/kit': r('takubox/src/kit.ts'),
+  'takubox/embedded': r('takubox/src/embedded.ts'),
+  'takubox/client': r('takubox/src/client.ts'),
   'takubox': r('takubox/src'),
   // Tombstone — still resolves to the same files in case external code imports the old name.
   '@vitejs/devtools-rpc/presets/ws/server': r('takubox/src/rpc/presets/ws/server.ts'),

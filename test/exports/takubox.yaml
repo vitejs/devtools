@@ -2,6 +2,10 @@
   defineCommand: function
   defineJsonRenderSpec: function
   defineRpcFunction: function
+./build:
+  buildStatic: function
+./client:
+  connectDevtool: function
 ./constants:
   DEFAULT_CATEGORIES_ORDER: object
   DEFAULT_STATE_USER_SETTINGS: function
@@ -14,6 +18,10 @@
   DEVTOOLS_RPC_DUMP_DIRNAME: string
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME: string
   REMOTE_CONNECTION_KEY: string
+./embedded:
+  registerInHost: function
+./kit:
+  toKitPlugin: function
 ./node:
   abortPendingAuth: function
   consumeTempAuthToken: function
@@ -61,7 +69,10 @@
   createWsRpcPreset: function
 ./rpc/server:
   createRpcServer: function
-./types: {}
+./spa:
+  buildSpa: function
+./types:
+  defineDevtool: function
 ./utils/events:
   createEventEmitter: function
 ./utils/human-id:
@@ -77,3 +88,5 @@
 ./utils/when:
   evaluateWhen: function
   getContextValue: function
+./vite:
+  takuboxVite: function

@@ -57,6 +57,27 @@
       "takubox/utils/when": [
         "./packages/takubox/src/utils/when.ts"
       ],
+      "takubox/cli": [
+        "./packages/takubox/src/cli.ts"
+      ],
+      "takubox/build": [
+        "./packages/takubox/src/build.ts"
+      ],
+      "takubox/spa": [
+        "./packages/takubox/src/spa.ts"
+      ],
+      "takubox/vite": [
+        "./packages/takubox/src/vite.ts"
+      ],
+      "takubox/kit": [
+        "./packages/takubox/src/kit.ts"
+      ],
+      "takubox/embedded": [
+        "./packages/takubox/src/embedded.ts"
+      ],
+      "takubox/client": [
+        "./packages/takubox/src/client.ts"
+      ],
       "takubox": [
         "./packages/takubox/src"
       ],
