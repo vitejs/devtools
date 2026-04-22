@@ -10,7 +10,6 @@ import c from 'ansis'
 import { createApp, toNodeListener } from 'h3'
 import { createRpcServer } from 'takubox/rpc/server'
 import { WebSocketServer as WSServer } from 'ws'
-import { logger } from './diagnostics'
 
 export interface StartHttpAndWsOptions {
   context: DevToolsNodeContext
@@ -61,7 +60,7 @@ export async function startHttpAndWs(options: StartHttpAndWsOptions): Promise<St
             await handler(data, socket)
           }
           catch (error) {
-            logger.TKB0007({}, { cause: error as Error }).log()
+            console.error('[takubox] ws handler error:', error)
           }
         })
       })
