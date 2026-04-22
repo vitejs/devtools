@@ -12,6 +12,7 @@ export const alias = {
   'takubox/rpc/client': r('takubox/src/rpc/client.ts'),
   'takubox/rpc/server': r('takubox/src/rpc/server.ts'),
   'takubox/rpc': r('takubox/src/rpc'),
+  'takubox/types': r('takubox/src/types/index.ts'),
   'takubox': r('takubox/src'),
   // Tombstone — still resolves to the same files in case external code imports the old name.
   '@vitejs/devtools-rpc/presets/ws/server': r('takubox/src/rpc/presets/ws/server.ts'),

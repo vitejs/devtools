@@ -1,4 +1,4 @@
-import type { EventEmitter, EventsMap, EventUnsubscribe } from '../types/events'
+import type { EventEmitter, EventsMap, EventUnsubscribe } from 'takubox/types'
 
 /**
  * Create event emitter.

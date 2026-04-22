@@ -9,6 +9,7 @@ export default defineConfig({
     'rpc/presets/index': 'src/rpc/presets/index.ts',
     'rpc/presets/ws/client': 'src/rpc/presets/ws/client.ts',
     'rpc/presets/ws/server': 'src/rpc/presets/ws/server.ts',
+    'types/index': 'src/types/index.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   clean: true,

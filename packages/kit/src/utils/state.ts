@@ -1,5 +1,5 @@
 import type { Objectish, Patch } from 'immer'
-import type { EventEmitter } from '../types/events'
+import type { EventEmitter } from 'takubox/types'
 import { applyPatches, produce, produceWithPatches } from 'immer'
 import { createEventEmitter } from './events'
 

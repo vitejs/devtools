@@ -27,6 +27,9 @@
       "takubox/rpc": [
         "./packages/takubox/src/rpc"
       ],
+      "takubox/types": [
+        "./packages/takubox/src/types/index.ts"
+      ],
       "takubox": [
         "./packages/takubox/src"
       ],

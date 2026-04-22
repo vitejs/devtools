@@ -26,6 +26,7 @@
     "./rpc/presets/ws/client": "./dist/rpc/presets/ws/client.mjs",
     "./rpc/presets/ws/server": "./dist/rpc/presets/ws/server.mjs",
     "./rpc/server": "./dist/rpc/server.mjs",
+    "./types": "./dist/types/index.mjs",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",

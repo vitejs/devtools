@@ -22,3 +22,4 @@
   createWsRpcPreset: function
 ./rpc/server:
   createRpcServer: function
+./types: {}

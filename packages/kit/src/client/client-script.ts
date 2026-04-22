@@ -1,4 +1,4 @@
-import type { DevToolsLogsClient } from '../types/logs'
+import type { DevToolsLogsClient } from 'takubox/types'
 import type { DockEntryState, DocksContext } from './docks'
 
 /**

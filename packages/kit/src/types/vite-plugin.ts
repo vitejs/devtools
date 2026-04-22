@@ -1,11 +1,7 @@
+import type { ClientScriptEntry, DevToolsCommandsHost, DevToolsDockHost, DevToolsLogsHost, DevToolsTerminalHost, DevToolsViewHost, JsonRenderer, JsonRenderSpec } from 'takubox/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DockClientScriptContext } from '../client'
-import type { DevToolsCommandsHost } from './commands'
-import type { ClientScriptEntry, DevToolsDockHost, JsonRenderer, JsonRenderSpec } from './docks'
-import type { DevToolsLogsHost } from './logs'
 import type { RpcFunctionsHost } from './rpc'
-import type { DevToolsTerminalHost } from './terminals'
-import type { DevToolsViewHost } from './views'
 
 export interface DevToolsCapabilities {
   rpc?: boolean
