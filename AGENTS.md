@@ -8,9 +8,9 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, runtime hosts (docks, views, terminals), WS RPC server, standalone/webcomponents client |
-| `packages/kit` | `@vitejs/devtools-kit` | Public types/utilities for integration authors (`defineRpcFunction`, shared state, events, client helpers) |
-| `packages/rpc` | `@vitejs/devtools-rpc` | Typed RPC wrapper over `birpc` with WS presets |
+| `packages/takubox` | `takubox` | Framework-neutral foundation — RPC layer (birpc + valibot + WS presets), host classes, createHostContext, six adapters (cli/build/spa/vite/kit/embedded), connectDevtool client |
+| `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, standalone/webcomponents client. Wraps takubox's createHostContext with the Vite plugin scan |
+| `packages/kit` | `@vitejs/devtools-kit` | Vite-specific superset of takubox — adds PluginWithDevTools, ViteDevToolsNodeContext, and re-exports takubox's public types |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Serves at `/.devtools-rolldown/` |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Serves at `/.devtools-vite/` |
@@ -23,11 +23,12 @@ Other top-level directories:
 
 ```mermaid
 flowchart TD
-  core["core"] --> kit & rpc
+  kit --> takubox
+  core --> kit
   core --> rolldown & vite & self-inspect
-  rolldown --> kit & rpc & ui
-  vite --> kit & rpc & ui
-  self-inspect --> kit & rpc
+  rolldown --> kit & ui
+  vite --> kit & ui
+  self-inspect --> kit
   webext --> core
 ```
 
@@ -36,7 +37,7 @@ flowchart TD
 - **Entry**: `createDevToolsContext` (`packages/core/src/node/context.ts`) builds `DevToolsNodeContext` with hosts for RPC, docks, views, terminals. Invokes `plugin.devtools.setup` hooks.
 - **Node context**: server-side (cwd, vite config, mode, hosts, auth storage at `node_modules/.vite/devtools/auth.json`).
 - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`) — dock entries, panels, RPC client. Two modes: `embedded` (overlay in host app) and `standalone` (independent page).
-- **WS server** (`packages/core/src/node/ws.ts`): RPC via `@vitejs/devtools-rpc/presets/ws`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
+- **WS server** (`packages/core/src/node/ws.ts`): RPC via `takubox/rpc/presets/ws`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
 - **Nuxt UI plugins** (rolldown, vite, self-inspect): each registers RPC functions and hosts static Nuxt SPA at its own base path.
 
 ## Development
@@ -70,7 +71,8 @@ All node-side warnings and errors use structured diagnostics via [`logs-sdk`](ht
 
 | Prefix | Package(s) | Diagnostics file |
 |--------|-----------|-----------------|
-| `DTK` | `packages/rpc`, `packages/core` | `packages/rpc/src/diagnostics.ts`, `packages/core/src/node/diagnostics.ts` |
+| `TKB` | `packages/takubox` | `packages/takubox/src/node/diagnostics.ts`, `packages/takubox/src/rpc/diagnostics.ts` |
+| `DTK` | `packages/core` (Vite-specific remainder) | `packages/core/src/node/diagnostics.ts` |
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
 | `VDT` | `packages/vite` (reserved) | — |
 
