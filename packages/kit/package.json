@@ -45,9 +45,9 @@
   },
   "dependencies": {
     "birpc": "catalog:deps",
+    "devframe": "workspace:*",
     "ohash": "catalog:deps",
-    "sirv": "catalog:deps",
-    "takubox": "workspace:*"
+    "sirv": "catalog:deps"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",

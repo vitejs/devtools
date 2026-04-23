@@ -1,4 +1,4 @@
-import type { DevToolsHost } from 'takubox/types'
+import type { DevToolsHost } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import sirv from 'sirv'
 

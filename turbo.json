@@ -50,7 +50,7 @@
         "dist/**"
       ]
     },
-    "takubox#build": {
+    "devframe#build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"

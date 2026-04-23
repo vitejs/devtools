@@ -1,9 +1,9 @@
 import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { RpcFunctionsHost } from 'takubox/node'
+import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createViteDevToolsHost } from '@vitejs/devtools-kit/node'
+import { createHostContext, isObject } from 'devframe/node'
 import { createDebug } from 'obug'
-import { createHostContext, isObject } from 'takubox/node'
 import { logger } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 

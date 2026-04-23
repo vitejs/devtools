@@ -1,9 +1,9 @@
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
 import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
-import { createRpcClient } from 'takubox/rpc/client'
-import { createWsRpcPreset } from 'takubox/rpc/presets/ws/client'
-import { promiseWithResolver } from 'takubox/utils/promise'
+import { createRpcClient } from 'devframe/rpc/client'
+import { createWsRpcPreset } from 'devframe/rpc/presets/ws/client'
+import { promiseWithResolver } from 'devframe/utils/promise'
 import { parseUA } from 'ua-parser-modern'
 
 export interface CreateWsRpcClientModeOptions {

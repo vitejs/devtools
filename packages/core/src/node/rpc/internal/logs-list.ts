@@ -1,5 +1,5 @@
 import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
-import type { DevToolsLogsHost } from 'takubox/node'
+import type { DevToolsLogsHost } from 'devframe/node'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export interface LogsListResult {

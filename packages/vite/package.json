@@ -38,6 +38,7 @@
     "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
     "birpc": "catalog:deps",
+    "devframe": "workspace:*",
     "envinfo": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
@@ -45,7 +46,6 @@
     "pathe": "catalog:deps",
     "sirv": "catalog:deps",
     "structured-clone-es": "catalog:deps",
-    "takubox": "workspace:*",
     "ws": "catalog:deps"
   },
   "devDependencies": {

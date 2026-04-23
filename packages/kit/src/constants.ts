@@ -1,1 +1,1 @@
-export * from 'takubox/constants'
+export * from 'devframe/constants'

@@ -1,5 +1,5 @@
 import type { StartOptions } from './cli-commands'
-import { isObject } from 'takubox/node'
+import { isObject } from 'devframe/node'
 
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean

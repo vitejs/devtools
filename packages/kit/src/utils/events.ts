@@ -1,1 +1,1 @@
-export * from 'takubox/utils/events'
+export * from 'devframe/utils/events'

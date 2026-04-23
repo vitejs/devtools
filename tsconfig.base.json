@@ -9,77 +9,77 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "takubox/rpc/presets/ws/server": [
-        "./packages/takubox/src/rpc/presets/ws/server.ts"
+      "devframe/rpc/presets/ws/server": [
+        "./packages/devframe/src/rpc/presets/ws/server.ts"
       ],
-      "takubox/rpc/presets/ws/client": [
-        "./packages/takubox/src/rpc/presets/ws/client.ts"
+      "devframe/rpc/presets/ws/client": [
+        "./packages/devframe/src/rpc/presets/ws/client.ts"
       ],
-      "takubox/rpc/presets": [
-        "./packages/takubox/src/rpc/presets/index.ts"
+      "devframe/rpc/presets": [
+        "./packages/devframe/src/rpc/presets/index.ts"
       ],
-      "takubox/rpc/client": [
-        "./packages/takubox/src/rpc/client.ts"
+      "devframe/rpc/client": [
+        "./packages/devframe/src/rpc/client.ts"
       ],
-      "takubox/rpc/server": [
-        "./packages/takubox/src/rpc/server.ts"
+      "devframe/rpc/server": [
+        "./packages/devframe/src/rpc/server.ts"
       ],
-      "takubox/rpc": [
-        "./packages/takubox/src/rpc"
+      "devframe/rpc": [
+        "./packages/devframe/src/rpc"
       ],
-      "takubox/types": [
-        "./packages/takubox/src/types/index.ts"
+      "devframe/types": [
+        "./packages/devframe/src/types/index.ts"
       ],
-      "takubox/node": [
-        "./packages/takubox/src/node/index.ts"
+      "devframe/node": [
+        "./packages/devframe/src/node/index.ts"
       ],
-      "takubox/constants": [
-        "./packages/takubox/src/constants.ts"
+      "devframe/constants": [
+        "./packages/devframe/src/constants.ts"
       ],
-      "takubox/utils/events": [
-        "./packages/takubox/src/utils/events.ts"
+      "devframe/utils/events": [
+        "./packages/devframe/src/utils/events.ts"
       ],
-      "takubox/utils/human-id": [
-        "./packages/takubox/src/utils/human-id.ts"
+      "devframe/utils/human-id": [
+        "./packages/devframe/src/utils/human-id.ts"
       ],
-      "takubox/utils/nanoid": [
-        "./packages/takubox/src/utils/nanoid.ts"
+      "devframe/utils/nanoid": [
+        "./packages/devframe/src/utils/nanoid.ts"
       ],
-      "takubox/utils/promise": [
-        "./packages/takubox/src/utils/promise.ts"
+      "devframe/utils/promise": [
+        "./packages/devframe/src/utils/promise.ts"
       ],
-      "takubox/utils/shared-state": [
-        "./packages/takubox/src/utils/shared-state.ts"
+      "devframe/utils/shared-state": [
+        "./packages/devframe/src/utils/shared-state.ts"
       ],
-      "takubox/utils/state": [
-        "./packages/takubox/src/utils/state.ts"
+      "devframe/utils/state": [
+        "./packages/devframe/src/utils/state.ts"
       ],
-      "takubox/utils/when": [
-        "./packages/takubox/src/utils/when.ts"
+      "devframe/utils/when": [
+        "./packages/devframe/src/utils/when.ts"
       ],
-      "takubox/cli": [
-        "./packages/takubox/src/cli.ts"
+      "devframe/cli": [
+        "./packages/devframe/src/cli.ts"
       ],
-      "takubox/build": [
-        "./packages/takubox/src/build.ts"
+      "devframe/build": [
+        "./packages/devframe/src/build.ts"
       ],
-      "takubox/spa": [
-        "./packages/takubox/src/spa.ts"
+      "devframe/spa": [
+        "./packages/devframe/src/spa.ts"
       ],
-      "takubox/vite": [
-        "./packages/takubox/src/vite.ts"
+      "devframe/vite": [
+        "./packages/devframe/src/vite.ts"
       ],
-      "takubox/kit": [
-        "./packages/takubox/src/kit.ts"
+      "devframe/kit": [
+        "./packages/devframe/src/kit.ts"
       ],
-      "takubox/embedded": [
-        "./packages/takubox/src/embedded.ts"
+      "devframe/embedded": [
+        "./packages/devframe/src/embedded.ts"
       ],
-      "takubox/client": [
-        "./packages/takubox/src/client.ts"
+      "devframe/client": [
+        "./packages/devframe/src/client.ts"
       ],
-      "takubox": [
-        "./packages/takubox/src"
+      "devframe": [
+        "./packages/devframe/src"
       ],
       "@vitejs/devtools-kit/node": [
         "./packages/kit/src/node/index.ts"

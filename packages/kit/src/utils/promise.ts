@@ -1,1 +1,1 @@
-export * from 'takubox/utils/promise'
+export * from 'devframe/utils/promise'

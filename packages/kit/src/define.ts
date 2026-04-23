@@ -1,5 +1,5 @@
 import type { DevToolsNodeContext, DevToolsServerCommandInput, JsonRenderSpec } from './types'
-import { createDefineWrapperWithContext } from 'takubox/rpc'
+import { createDefineWrapperWithContext } from 'devframe/rpc'
 
 export const defineRpcFunction = createDefineWrapperWithContext<DevToolsNodeContext>()
 

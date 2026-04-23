@@ -1,4 +1,4 @@
-import type { DevToolsCapabilities, DevToolsNodeContext as DevToolsNodeContextBase } from 'takubox/types'
+import type { DevToolsCapabilities, DevToolsNodeContext as DevToolsNodeContextBase } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 
 export interface DevToolsPluginOptions {
@@ -13,7 +13,7 @@ export interface DevToolsPluginOptions {
  * Vite-extended node context — framework-neutral {@link DevToolsNodeContextBase}
  * plus the Vite-specific slots consumers can rely on when running under
  * `@vitejs/devtools`. Callers that want portability should target the base
- * type from `takubox/types`.
+ * type from `devframe/types`.
  */
 export interface ViteDevToolsNodeContext extends DevToolsNodeContextBase {
   readonly viteConfig: ResolvedConfig

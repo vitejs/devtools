@@ -59,6 +59,7 @@
     "@vitejs/devtools-rolldown": "workspace:*",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
+    "devframe": "workspace:*",
     "h3": "catalog:deps",
     "immer": "catalog:inlined",
     "launch-editor": "catalog:deps",
@@ -69,7 +70,6 @@
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
-    "takubox": "workspace:*",
     "tinyexec": "catalog:deps",
     "vue": "catalog:deps",
     "ws": "catalog:deps"

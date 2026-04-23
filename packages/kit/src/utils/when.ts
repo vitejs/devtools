@@ -1,1 +1,1 @@
-export * from 'takubox/utils/when'
+export * from 'devframe/utils/when'

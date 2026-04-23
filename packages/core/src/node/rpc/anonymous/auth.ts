@@ -3,7 +3,7 @@ import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import c from 'ansis'
-import { abortPendingAuth, getInternalContext, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'takubox/node'
+import { abortPendingAuth, getInternalContext, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node'
 import { MARK_INFO } from '../../constants'
 
 export interface DevToolsAuthInput {

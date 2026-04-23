@@ -1,4 +1,4 @@
-import type { RpcFunctionsCollector } from 'takubox/rpc'
+import type { RpcFunctionsCollector } from 'devframe/rpc'
 import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'

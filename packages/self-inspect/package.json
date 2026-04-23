@@ -35,8 +35,8 @@
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
     "birpc": "catalog:deps",
-    "pathe": "catalog:deps",
-    "takubox": "workspace:*"
+    "devframe": "workspace:*",
+    "pathe": "catalog:deps"
   },
   "devDependencies": {
     "@unocss/nuxt": "catalog:build",

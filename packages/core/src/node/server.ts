@@ -1,8 +1,8 @@
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
+import { consumeTempAuthToken, getInternalContext } from 'devframe/node'
 import { createApp, eventHandler, fromNodeMiddleware, getQuery, toNodeListener } from 'h3'
 import sirv from 'sirv'
-import { consumeTempAuthToken, getInternalContext } from 'takubox/node'
 import { dirClientStandalone } from '../dirs'
 import { createWsServer } from './ws'
 

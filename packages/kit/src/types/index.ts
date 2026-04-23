@@ -2,10 +2,10 @@ export type { WhenContext } from '../utils/when'
 
 export * from './vite-augment'
 export * from './vite-plugin'
-export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'takubox/rpc'
+export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'devframe/rpc'
 
-// NOTE: we re-export takubox's types individually rather than using
-// `export * from 'takubox/types'` because the rolldown-plugin-dts step
+// NOTE: we re-export devframe's types individually rather than using
+// `export * from 'devframe/types'` because the rolldown-plugin-dts step
 // fails with a `MemberExpression` AST error on namespace re-exports
 // from external packages (tsdown 0.21 / rolldown-plugin-dts 0.23).
 // Revisit once upstream supports it.
@@ -76,4 +76,4 @@ export type {
   RpcSharedStateGetOptions,
   RpcSharedStateHost,
   Thenable,
-} from 'takubox/types'
+} from 'devframe/types'

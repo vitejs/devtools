@@ -4,8 +4,8 @@ import {
   DEVTOOLS_MOUNT_PATH,
 } from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
+import { normalizeHttpServerUrl } from 'devframe/node'
 import { resolve } from 'pathe'
-import { normalizeHttpServerUrl } from 'takubox/node'
 import { MARK_NODE } from './constants'
 import { logger } from './diagnostics'
 

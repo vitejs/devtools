@@ -1,1 +1,1 @@
-export * from 'takubox/utils/nanoid'
+export * from 'devframe/utils/nanoid'

@@ -1,1 +1,1 @@
-export * from 'takubox/utils/human-id'
+export * from 'devframe/utils/human-id'

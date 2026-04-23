@@ -1,9 +1,9 @@
 import type { BirpcOptions, BirpcReturn } from 'birpc'
-import type { RpcCacheOptions } from 'takubox/rpc'
-import type { WebSocketRpcClientOptions } from 'takubox/rpc/presets/ws/client'
+import type { RpcCacheOptions } from 'devframe/rpc'
+import type { WebSocketRpcClientOptions } from 'devframe/rpc/presets/ws/client'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
-import { RpcCacheManager, RpcFunctionsCollectorBase } from 'takubox/rpc'
+import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,

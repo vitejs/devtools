@@ -1,1 +1,1 @@
-export * from 'takubox/utils/shared-state'
+export * from 'devframe/utils/shared-state'
