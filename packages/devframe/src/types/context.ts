@@ -1,3 +1,4 @@
+import type { DevToolsAgentHost } from './agent'
 import type { DevToolsCommandsHost } from './commands'
 import type { ClientScriptEntry, DevToolsDockHost, JsonRenderer, JsonRenderSpec } from './docks'
 import type { DevToolsHost } from './host'
@@ -25,6 +26,12 @@ export interface DevToolsNodeContext {
   terminals: DevToolsTerminalHost
   logs: DevToolsLogsHost
   commands: DevToolsCommandsHost
+  /**
+   * Agent host — aggregates the agent-exposed surface of this devtool.
+   *
+   * @experimental
+   */
+  agent: DevToolsAgentHost
   /**
    * Create a JsonRenderer handle for building json-render powered UIs.
    */

@@ -9,9 +9,9 @@ export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpc
 export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer): Promise<DevToolsNodeContext>;
 export declare function createDevToolsMiddleware(_: CreateWsServerOptions): Promise<{
   h3: _$h3.App;
-  rpc: _$birpc.BirpcGroup<_$devframe_types0.DevToolsRpcClientFunctions, _$_vitejs_devtools_kit0.DevToolsRpcServerFunctions, false>;
+  rpc: _$birpc.BirpcGroup<_$devframe.DevToolsRpcClientFunctions, _$devframe.DevToolsRpcServerFunctions, false>;
   middleware: _$h3.NodeListener;
-  getConnectionMeta: () => Promise<_$devframe_types0.ConnectionMeta>;
+  getConnectionMeta: () => Promise<_$devframe.ConnectionMeta>;
 }>;
 export declare function DevTools(_?: DevToolsOptions): Promise<Plugin[]>;
 // #endregion

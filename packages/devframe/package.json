@@ -24,6 +24,7 @@
     "./adapters/cli": "./dist/adapters/cli.mjs",
     "./adapters/embedded": "./dist/adapters/embedded.mjs",
     "./adapters/kit": "./dist/adapters/kit.mjs",
+    "./adapters/mcp": "./dist/adapters/mcp.mjs",
     "./adapters/spa": "./dist/adapters/spa.mjs",
     "./adapters/vite": "./dist/adapters/vite.mjs",
     "./client": "./dist/client/index.mjs",
@@ -53,7 +54,16 @@
     "watch": "tsdown --watch",
     "prepack": "pnpm build"
   },
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
   "dependencies": {
+    "@valibot/to-json-schema": "catalog:deps",
     "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
@@ -69,6 +79,7 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:deps",
     "tsdown": "catalog:build"
   },
   "inlinedDependencies": {

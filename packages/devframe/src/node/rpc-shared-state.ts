@@ -10,6 +10,7 @@ export function createRpcSharedStateServerHost(
   rpc: RpcFunctionsHost,
 ): RpcSharedStateHost {
   const sharedState = new Map<string, SharedState<any>>()
+  const keyAddedListeners = new Set<(key: string) => void>()
 
   function registerSharedState<T extends object>(key: string, state: SharedState<T>) {
     const offs: (() => void)[] = []
@@ -57,10 +58,18 @@ export function createRpcSharedStateServerHost(
       })
       registerSharedState(key, state)
       sharedState.set(key, state)
+      for (const fn of keyAddedListeners)
+        fn(key)
       return state
     },
     keys() {
       return Array.from(sharedState.keys())
+    },
+    onKeyAdded(fn) {
+      keyAddedListeners.add(fn)
+      return () => {
+        keyAddedListeners.delete(fn)
+      }
     },
   }
 

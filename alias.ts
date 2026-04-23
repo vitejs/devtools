@@ -27,6 +27,7 @@ export const alias = {
   'devframe/adapters/vite': r('devframe/src/adapters/vite.ts'),
   'devframe/adapters/kit': r('devframe/src/adapters/kit.ts'),
   'devframe/adapters/embedded': r('devframe/src/adapters/embedded.ts'),
+  'devframe/adapters/mcp': r('devframe/src/adapters/mcp.ts'),
   'devframe/client': r('devframe/src/client/index.ts'),
   'devframe': r('devframe/src'),
   '@vitejs/devtools-kit/node': r('kit/src/node/index.ts'),

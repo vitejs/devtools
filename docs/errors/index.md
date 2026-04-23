@@ -71,6 +71,10 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0011](./DF0011) | error | Command Not Registered | DTK0026 |
 | [DF0012](./DF0012) | warn | Storage Parse Failed | DTK0009 |
 | [DF0013](./DF0013) | error | Shared State Not Found | DTK0027 |
+| [DF0014](./DF0014) | error | Invalid Agent Field | — |
+| [DF0015](./DF0015) | error | Agent Tool Already Registered | — |
+| [DF0016](./DF0016) | error | Agent Resource Already Registered | — |
+| [DF0017](./DF0017) | error | MCP Server Start Failure | — |
 
 ## Rolldown DevTools (RDDT)
 

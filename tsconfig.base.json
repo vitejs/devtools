@@ -72,6 +72,9 @@
       "devframe/adapters/embedded": [
         "./packages/devframe/src/adapters/embedded.ts"
       ],
+      "devframe/adapters/mcp": [
+        "./packages/devframe/src/adapters/mcp.ts"
+      ],
       "devframe/client": [
         "./packages/devframe/src/client/index.ts"
       ],

@@ -52,8 +52,10 @@ catalogs:
     unplugin-vue: ^7.1.1
     vite: ^8.0.9
   deps:
+    '@modelcontextprotocol/sdk': ^1.11.0
     '@pnpm/read-project-manifest': ^1001.2.6
     '@rolldown/debug': ^1.0.0-rc.17
+    '@valibot/to-json-schema': ^1.0.0
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
