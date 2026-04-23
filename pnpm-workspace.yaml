@@ -44,8 +44,8 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.13.3
     nuxt: ^4.4.2
-    rolldown: ^1.0.0-rc.17
-    tsdown: ^0.21.10
+    rolldown: 1.0.0-rc.16
+    tsdown: 0.21.9
     tsx: ^4.21.0
     turbo: ^2.9.6
     unocss: ^66.6.8
@@ -53,7 +53,7 @@ catalogs:
     vite: ^8.0.9
   deps:
     '@pnpm/read-project-manifest': ^1001.2.6
-    '@rolldown/debug': ^1.0.0-rc.17
+    '@rolldown/debug': 1.0.0-rc.16
     ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
