@@ -1,7 +1,7 @@
-import type { RpcSharedStateGetOptions, RpcSharedStateHost } from '../types'
-import type { SharedState, SharedStatePatch } from '../utils/shared-state'
+import type { RpcSharedStateGetOptions, RpcSharedStateHost } from 'devframe/types'
+import type { SharedState, SharedStatePatch } from 'devframe/utils/shared-state'
 import type { DevToolsRpcClient } from './rpc'
-import { createSharedState } from '../utils/shared-state'
+import { createSharedState } from 'devframe/utils/shared-state'
 
 export function createRpcSharedStateClientHost(rpc: DevToolsRpcClient): RpcSharedStateHost {
   const sharedState = new Map<string, SharedState<any>>()

@@ -9,14 +9,14 @@ A devtool built on devframe is a **single `DevtoolDefinition`** plus an author-p
 
 ## When to use devframe
 
-| Author goal                          | Adapter               | Entry           |
-|--------------------------------------|-----------------------|-----------------|
-| Standalone CLI for local use         | `createCli`           | `devframe/cli`   |
-| Snapshot for hand-off                | `buildStatic`         | `devframe/build` |
-| Deployable hosted app                | `buildSpa`            | `devframe/spa`   |
-| Plain Vite plugin (no Kit)           | `devframeVite`         | `devframe/vite`  |
-| Embed into Vite DevTools Kit         | `toKitPlugin`         | `devframe/kit`   |
-| Register into a running context      | `registerInHost`      | `devframe/embedded` |
+| Author goal                          | Adapter               | Entry                       |
+|--------------------------------------|-----------------------|-----------------------------|
+| Standalone CLI for local use         | `createCli`           | `devframe/adapters/cli`      |
+| Snapshot for hand-off                | `buildStatic`         | `devframe/adapters/build`    |
+| Deployable hosted app                | `buildSpa`            | `devframe/adapters/spa`      |
+| Plain Vite plugin (no Kit)           | `devframeVite`        | `devframe/adapters/vite`     |
+| Embed into Vite DevTools Kit         | `toKitPlugin`         | `devframe/adapters/kit`      |
+| Register into a running context      | `registerInHost`      | `devframe/adapters/embedded` |
 
 ## Minimum viable devtool
 

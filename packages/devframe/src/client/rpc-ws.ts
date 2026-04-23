@@ -1,4 +1,4 @@
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from '../types'
+import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from 'devframe/types'
 import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
 import { createRpcClient } from 'devframe/rpc/client'

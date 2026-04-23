@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import process from 'node:process'
-import { createCli } from 'devframe/cli'
+import { createCli } from 'devframe/adapters/cli'
 import devtool from './src/devtool.ts'
 
 async function main() {

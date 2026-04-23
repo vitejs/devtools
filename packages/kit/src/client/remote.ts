@@ -1,7 +1,7 @@
+import type { DevToolsRpcClient, DevToolsRpcClientOptions } from 'devframe/client'
 import type { RemoteConnectionInfo } from '../types'
-import type { DevToolsRpcClient, DevToolsRpcClientOptions } from './rpc'
-import { REMOTE_CONNECTION_KEY } from '../constants'
-import { getDevToolsRpcClient } from './rpc'
+import { getDevToolsRpcClient } from 'devframe/client'
+import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
 
 export type ConnectRemoteDevToolsOptions = Omit<DevToolsRpcClientOptions, 'connectionMeta' | 'authToken'>
 

@@ -3,11 +3,9 @@
  */
 // #region Functions
 export async function connectRemoteDevTools(_) {}
-export function getDevToolsClientContext() {}
-export async function getDevToolsRpcClient(_) {}
 export function parseRemoteConnection(_) {}
 // #endregion
 
-// #region Variables
-export var CLIENT_CONTEXT_KEY /* const */
+// #region Re-exports
+export * from "devframe/client";
 // #endregion

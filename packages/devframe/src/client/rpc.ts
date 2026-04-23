@@ -1,15 +1,15 @@
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { RpcCacheOptions } from 'devframe/rpc'
 import type { WsRpcChannelOptions } from 'devframe/rpc/transports/ws-client'
-import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
+import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from 'devframe/types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
-import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_MOUNT_PATH,
-} from '../constants'
-import { createEventEmitter } from '../utils/events'
-import { humanId } from '../utils/human-id'
+} from 'devframe/constants'
+import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
+import { createEventEmitter } from 'devframe/utils/events'
+import { humanId } from 'devframe/utils/human-id'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createWsRpcClientMode } from './rpc-ws'

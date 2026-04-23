@@ -1,4 +1,4 @@
-import type { DevtoolDefinition } from './types/devtool'
+import type { DevtoolDefinition } from '../types/devtool'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
 

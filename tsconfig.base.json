@@ -54,26 +54,26 @@
       "devframe/utils/when": [
         "./packages/devframe/src/utils/when.ts"
       ],
-      "devframe/cli": [
-        "./packages/devframe/src/cli.ts"
+      "devframe/adapters/cli": [
+        "./packages/devframe/src/adapters/cli.ts"
       ],
-      "devframe/build": [
-        "./packages/devframe/src/build.ts"
+      "devframe/adapters/build": [
+        "./packages/devframe/src/adapters/build.ts"
       ],
-      "devframe/spa": [
-        "./packages/devframe/src/spa.ts"
+      "devframe/adapters/spa": [
+        "./packages/devframe/src/adapters/spa.ts"
       ],
-      "devframe/vite": [
-        "./packages/devframe/src/vite.ts"
+      "devframe/adapters/vite": [
+        "./packages/devframe/src/adapters/vite.ts"
       ],
-      "devframe/kit": [
-        "./packages/devframe/src/kit.ts"
+      "devframe/adapters/kit": [
+        "./packages/devframe/src/adapters/kit.ts"
       ],
-      "devframe/embedded": [
-        "./packages/devframe/src/embedded.ts"
+      "devframe/adapters/embedded": [
+        "./packages/devframe/src/adapters/embedded.ts"
       ],
       "devframe/client": [
-        "./packages/devframe/src/client.ts"
+        "./packages/devframe/src/client/index.ts"
       ],
       "devframe": [
         "./packages/devframe/src"

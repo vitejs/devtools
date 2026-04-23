@@ -1,4 +1,4 @@
-import type { DevtoolDefinition } from './types/devtool'
+import type { DevtoolDefinition } from '../types/devtool'
 
 export interface KitPlugin {
   name: string

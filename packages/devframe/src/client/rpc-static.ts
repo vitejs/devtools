@@ -1,5 +1,5 @@
 import type { DevToolsRpcClientMode } from './rpc'
-import { DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME } from '../constants'
+import { DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME } from 'devframe/constants'
 import { createStaticRpcCaller } from './static-rpc'
 
 export interface CreateStaticRpcClientModeOptions {

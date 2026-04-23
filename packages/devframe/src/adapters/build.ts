@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DevtoolDefinition } from './types/devtool'
+import type { DevtoolDefinition } from '../types/devtool'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import process from 'node:process'
@@ -10,10 +10,10 @@ import {
   DEVTOOLS_DIRNAME,
   DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
-} from './constants'
-import { createHostContext } from './node/context'
-import { createH3DevToolsHost } from './node/host-h3'
-import { collectStaticRpcDump } from './node/static-dump'
+} from '../constants'
+import { createHostContext } from '../node/context'
+import { createH3DevToolsHost } from '../node/host-h3'
+import { collectStaticRpcDump } from '../node/static-dump'
 
 export interface BuildStaticOptions {
   outDir: string
