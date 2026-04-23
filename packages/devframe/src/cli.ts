@@ -54,6 +54,23 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
       await buildSpa(d, { outDir: flags.outDir, base: flags.base })
     })
 
+  cli
+    .command('mcp', 'Start an MCP server exposing agent-facing tools (stdio) [experimental]')
+    .action(async () => {
+      // MCP clients expect JSON-RPC on stdout — route welcome/logging
+      // noise out of the way. Logs-SDK diagnostics land on stderr by
+      // default, so nothing extra needed beyond not printing here.
+      const { createMcpServer } = await import('./mcp')
+      await createMcpServer(d, {
+        transport: 'stdio',
+        onReady: ({ transport }) => {
+          // Intentionally go to stderr: stdout is the MCP transport.
+
+          console.error(c.green`[devframe] "${d.id}" MCP server ready (${transport})`)
+        },
+      })
+    })
+
   cli.help()
   cli.version('0.0.0')
 

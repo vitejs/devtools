@@ -67,6 +67,7 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/' },
+          { text: 'Agent-Native (experimental)', link: '/guide/agent-native' },
         ],
       },
       {
@@ -101,7 +102,7 @@ export default extendConfig(withMermaid(defineConfig({
           {
             text: 'Devframe (DF)',
             collapsed: true,
-            items: Array.from({ length: 13 }, (_, i) => {
+            items: Array.from({ length: 17 }, (_, i) => {
               const code = `DF\*${String(i + 1).padStart(4, '0')}`
               return { text: code, link: `/errors/${code}` }
             }),

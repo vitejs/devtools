@@ -65,4 +65,11 @@ export interface RpcSharedStateGetOptions<T> {
 export interface RpcSharedStateHost {
   get: <T extends keyof DevToolsRpcSharedStates>(key: T, options?: RpcSharedStateGetOptions<DevToolsRpcSharedStates[T]>) => Promise<SharedState<DevToolsRpcSharedStates[T]>>
   keys: () => string[]
+  /**
+   * Subscribe to new shared-state keys becoming available. Fires when
+   * `get(key, ...)` creates a fresh entry (not on subsequent gets).
+   * Useful for protocol adapters (e.g. MCP) that surface shared state
+   * as dynamic resources.
+   */
+  onKeyAdded: (fn: (key: string) => void) => () => void
 }

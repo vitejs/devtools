@@ -1,3 +1,4 @@
+export * from './agent'
 export * from './commands'
 export * from './context'
 export * from './devtool'

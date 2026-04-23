@@ -25,6 +25,7 @@ export default defineConfig({
     'kit': 'src/kit.ts',
     'embedded': 'src/embedded.ts',
     'client': 'src/client.ts',
+    'mcp': 'src/mcp.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   clean: true,

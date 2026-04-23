@@ -2,12 +2,14 @@ import type { RpcFunctionDefinitionAny } from 'devframe/rpc'
 import type { DevToolsHost, DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from 'devframe/types'
 import { debounce } from 'perfect-debounce'
 import { ContextUtils } from './context-utils'
+import { DevToolsAgentHost } from './host-agent'
 import { DevToolsCommandsHost } from './host-commands'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
 import { DevToolsLogsHost } from './host-logs'
 import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
+import { BUILTIN_AGENT_RPC } from './rpc'
 
 export interface CreateHostContextOptions {
   cwd: string
@@ -43,6 +45,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     terminals: undefined!,
     logs: undefined!,
     commands: undefined!,
+    agent: undefined!,
     utils: ContextUtils,
     createJsonRenderer: undefined!,
   } as unknown as DevToolsNodeContext
@@ -59,6 +62,11 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
   context.terminals = terminalsHost
   context.logs = logsHost
   context.commands = commandsHost
+  // Agent host must be constructed after `rpcHost` so it can subscribe
+  // to `onChanged` — it auto-discovers RPC functions flagged with
+  // the `agent` field.
+  const agentHost = new DevToolsAgentHost(context)
+  context.agent = agentHost
 
   let jrCounter = 0
   context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
@@ -80,6 +88,13 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
         })
       },
     }
+  }
+
+  // Auto-register devframe's own agent introspection RPCs. These power
+  // the MCP adapter and any future agent CLI. They are not themselves
+  // agent-exposed (no `agent` field).
+  for (const fn of BUILTIN_AGENT_RPC) {
+    rpcHost.register(fn)
   }
 
   for (const fn of builtinRpcDeclarations) {
