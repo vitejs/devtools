@@ -55,8 +55,5 @@
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
-  },
-  "inlinedDependencies": {
-    "ua-parser-modern": "0.1.1"
   }
 }

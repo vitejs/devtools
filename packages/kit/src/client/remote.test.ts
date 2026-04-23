@@ -1,7 +1,7 @@
 import type { RemoteConnectionInfo } from '../types'
 import { Buffer } from 'node:buffer'
+import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
 import { describe, expect, it } from 'vitest'
-import { REMOTE_CONNECTION_KEY } from '../constants'
 import { parseRemoteConnection } from './remote'
 
 function encode(payload: Partial<RemoteConnectionInfo>): string {

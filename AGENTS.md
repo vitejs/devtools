@@ -8,7 +8,7 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/devframe` | `devframe` | Framework-neutral foundation — RPC layer (birpc + valibot + WS presets), host classes, createHostContext, six adapters (cli/build/spa/vite/kit/embedded), connectDevtool client |
+| `packages/devframe` | `devframe` | Framework-neutral foundation — RPC layer (birpc + valibot + WS presets), host classes, createHostContext, six adapters at `devframe/adapters/*` (cli/build/spa/vite/kit/embedded), connectDevtool client |
 | `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, standalone/webcomponents client. Wraps devframe's createHostContext with the Vite plugin scan |
 | `packages/kit` | `@vitejs/devtools-kit` | Vite-specific superset of devframe — adds PluginWithDevTools, ViteDevToolsNodeContext, and re-exports devframe's public types |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published |
@@ -31,6 +31,10 @@ flowchart TD
   self-inspect --> kit
   webext --> core
 ```
+
+## Dep Boundary
+
+`packages/devframe` is the lowest-level package in this monorepo and is positioned to be extracted into its own repo. It MUST NOT import from `vite` or any `@vitejs/*` package — not as a `dependencies` entry, not as an inlined dep, not as a source import. `packages/kit` and above build on top of devframe, never the reverse.
 
 ## Architecture
 

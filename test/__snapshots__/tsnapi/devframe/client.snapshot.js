@@ -3,4 +3,10 @@
  */
 // #region Functions
 export async function connectDevtool(_) {}
+export function getDevToolsClientContext() {}
+export async function getDevToolsRpcClient(_) {}
+// #endregion
+
+// #region Variables
+export var CLIENT_CONTEXT_KEY /* const */
 // #endregion

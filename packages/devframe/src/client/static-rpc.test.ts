@@ -1,6 +1,6 @@
+import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
 import { hash } from 'ohash'
 import { describe, expect, it } from 'vitest'
-import { DEVTOOLS_RPC_DUMP_DIRNAME } from '../constants'
 import { createStaticRpcCaller } from './static-rpc'
 
 const DEMO_STATIC_VERSION_PATH = `${DEVTOOLS_RPC_DUMP_DIRNAME}/demo~version.static.json`

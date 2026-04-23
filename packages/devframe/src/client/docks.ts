@@ -1,6 +1,7 @@
 import type { RpcFunctionsCollector } from 'devframe/rpc'
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter, WhenContext } from '../types'
-import type { SharedState } from '../utils/shared-state'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from 'devframe/types'
+import type { SharedState } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import type { DevToolsRpcClient } from './rpc'
 
 export interface DockPanelStorage {

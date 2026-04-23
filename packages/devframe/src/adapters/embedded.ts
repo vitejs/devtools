@@ -1,5 +1,5 @@
-import type { DevToolsNodeContext } from './types/context'
-import type { DevtoolDefinition } from './types/devtool'
+import type { DevToolsNodeContext } from '../types/context'
+import type { DevtoolDefinition } from '../types/devtool'
 
 /**
  * Register a devtool into an already-running devframe/Kit context at

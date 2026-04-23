@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DevtoolDefinition } from './types/devtool'
+import type { DevtoolDefinition } from '../types/devtool'
 import fs from 'node:fs/promises'
 import c from 'ansis'
 import { resolve } from 'pathe'

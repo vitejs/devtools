@@ -1,6 +1,6 @@
 # devframe
 
-Framework-neutral foundation for building generic DevTools — RPC layer (birpc + valibot + WS presets), six hosts (RPC / docks / views / terminals / logs / commands / agent), and six adapters (cli / build / spa / vite / kit / embedded). Part of the [Vite DevTools](https://devtools.vite.dev) monorepo.
+Framework-neutral foundation for building generic DevTools — RPC layer (birpc + valibot + WS presets), six hosts (RPC / docks / views / terminals / logs / commands / agent), and adapters under `devframe/adapters/*` (cli / build / spa / vite / kit / embedded / mcp). Part of the [Vite DevTools](https://devtools.vite.dev) monorepo.
 
 ## Install
 
@@ -14,13 +14,13 @@ See the [Vite DevTools documentation](https://devtools.vite.dev) for guides and 
 
 ## Agent-Native (experimental)
 
-> ⚠️ **Experimental.** The agent-native surface — the `agent` field on `defineRpcFunction`, `DevToolsAgentHost`, and the `devframe/mcp` adapter — is experimental and may change without a major version bump until it stabilizes.
+> ⚠️ **Experimental.** The agent-native surface — the `agent` field on `defineRpcFunction`, `DevToolsAgentHost`, and the `devframe/adapters/mcp` adapter — is experimental and may change without a major version bump until it stabilizes.
 
 DevFrame can expose a devtool's RPC functions, tools, and resources to coding agents over [MCP](https://modelcontextprotocol.io). Flag an RPC function with `agent: { description }` to surface it, then spin up an MCP server:
 
 ```ts
 import { defineDevtool, defineRpcFunction } from 'devframe'
-import { createMcpServer } from 'devframe/mcp'
+import { createMcpServer } from 'devframe/adapters/mcp'
 
 const getSummary = defineRpcFunction({
   name: 'my-plugin:get-summary',

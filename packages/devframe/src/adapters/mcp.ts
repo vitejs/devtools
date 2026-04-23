@@ -2,7 +2,7 @@
 // surface of a DevtoolDefinition into an MCP server.
 //
 // Usage:
-//   import { createMcpServer } from 'devframe/mcp'
+//   import { createMcpServer } from 'devframe/adapters/mcp'
 //   await createMcpServer(definition, { transport: 'stdio' })
 //
 // Requires `@modelcontextprotocol/sdk` to be installed as a peer
@@ -16,4 +16,4 @@ export {
   createMcpServer,
   type CreateMcpServerOptions,
   type McpServerHandle,
-} from './node/mcp/build-server'
+} from '../node/mcp/build-server'
