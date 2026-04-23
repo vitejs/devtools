@@ -4,6 +4,10 @@ import { isObject } from './utils'
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean
   /**
+   * Vite environments to enable DevTools for. Defaults to all environments.
+   */
+  environments?: string[]
+  /**
    * Disable client authentication.
    *
    * Beware that if you disable client authentication,
@@ -27,15 +31,6 @@ export interface ResolvedDevToolsConfig {
   enabled: boolean
 }
 
-function normalizeHostname(host: string | boolean | undefined): string {
-  return host === undefined || host === false || host === true
-    ? 'localhost'
-    : host
-}
-
-/**
- * @deprecated Use `resolveDevToolsConfig()` instead.
- */
 export function normalizeDevToolsConfig(
   config: DevToolsConfig | boolean | undefined,
   host: string,
@@ -47,47 +42,6 @@ export function normalizeDevToolsConfig(
       clientAuth: isObject(config) ? (config.clientAuth ?? true) : true,
       clientAuthTokens: isObject(config) ? (config.clientAuthTokens ?? []) : [],
       host: isObject(config) ? (config.host ?? host) : host,
-    },
-  }
-}
-
-export function resolveDevToolsConfig(
-  config: DevToolsConfig | boolean | undefined,
-  host: string | boolean | undefined,
-  resolvedConfig?: ResolvedDevToolsConfig,
-): ResolvedDevToolsConfig {
-  if (config === undefined && resolvedConfig) {
-    return resolvedConfig
-  }
-
-  const normalizedHost = normalizeHostname(host)
-
-  if (!isObject(config)) {
-    return {
-      enabled: config === true,
-      config: {
-        clientAuth: true,
-        clientAuthTokens: [],
-        host: normalizedHost,
-      },
-    }
-  }
-
-  const {
-    enabled,
-    clientAuth = true,
-    clientAuthTokens = [],
-    host: resolvedHost = normalizedHost,
-    ...normalizedConfig
-  } = config
-
-  return {
-    enabled,
-    config: {
-      ...normalizedConfig,
-      clientAuth,
-      clientAuthTokens,
-      host: resolvedHost,
     },
   }
 }

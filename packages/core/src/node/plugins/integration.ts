@@ -1,54 +1,53 @@
-import type { Plugin, ResolvedConfig } from 'vite'
-import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
-import { resolveDevToolsConfig } from '../config'
+import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
+import type { ResolvedDevToolsConfig } from '../config'
+
+type DevToolsEnvironment = ResolvedConfig['environments'][string]
 
 export interface DevToolsIntegrationOptions {
-  devtools?: DevToolsConfig | boolean
-  host?: string | boolean
+  config: ResolvedConfig
 }
 
-export function DevToolsIntegration(options: DevToolsIntegrationOptions = {}): Plugin {
-  let resolvedConfig: ResolvedConfig | undefined
-  let normalizedDevToolsConfig: ResolvedDevToolsConfig | undefined
+function getDevToolsEnvironments(config: ResolvedConfig): DevToolsEnvironment[] {
+  const devToolsConfig = config.devtools as ResolvedDevToolsConfig
+  const environmentNames = devToolsConfig.config.environments ?? Object.keys(config.environments)
+  const environments: DevToolsEnvironment[] = []
 
+  for (const environmentName of environmentNames) {
+    const environment = config.environments[environmentName]
+    if (environment) {
+      environments.push(environment)
+    }
+  }
+
+  return environments
+}
+
+export async function runDevTools(builder: unknown) {
+  const config = (builder as ViteBuilder).config
+  for (const _environment of getDevToolsEnvironments(config)) {
+    try {
+      const { start } = await import('@vitejs/devtools/cli-commands')
+      await start(config.devtools.config)
+    }
+    catch (error: any) {
+      config.logger.error(
+        `Failed to run Vite DevTools: ${error?.message || error?.stack || error}`,
+        { error },
+      )
+    }
+  }
+}
+
+export function DevToolsIntegration(_options: DevToolsIntegrationOptions): Plugin {
   return {
     name: 'vite:devtools:integration',
     apply: 'build',
     configResolved: {
       order: 'post',
       handler(config) {
-        resolvedConfig = config
-        normalizedDevToolsConfig = resolveDevToolsConfig(
-          options.devtools,
-          options.host ?? config.server.host,
-          config.devtools,
-        )
-
-        if (!normalizedDevToolsConfig.enabled) {
-          return
-        }
-        config.build.rolldownOptions ??= {}
-        config.build.rolldownOptions.devtools ??= {}
-      },
-    },
-    buildApp: {
-      order: 'post',
-      async handler(builder) {
-        const config = resolvedConfig ?? builder.config
-
-        if (!normalizedDevToolsConfig?.enabled) {
-          return
-        }
-
-        try {
-          const { start } = await import('@vitejs/devtools/cli-commands')
-          await start(normalizedDevToolsConfig.config)
-        }
-        catch (error: any) {
-          config.logger.error(
-            `Failed to run Vite DevTools: ${error?.message || error?.stack || error}`,
-            { error },
-          )
+        // Enable `rolldownOptions.devtools` if the environment is selected, or for all environments by default.
+        for (const environment of getDevToolsEnvironments(config)) {
+          environment.build.rolldownOptions.devtools ??= {}
         }
       },
     },
