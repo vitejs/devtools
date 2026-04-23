@@ -11,6 +11,13 @@ export declare const defineRpcFunction: <NAME extends string, TYPE extends RpcFu
 // #endregion
 
 // #region Other
+export { AgentHandle }
+export { AgentManifest }
+export { AgentResource }
+export { AgentResourceContent }
+export { AgentResourceInput }
+export { AgentTool }
+export { AgentToolInput }
 export { ClientScriptEntry }
 export { ConnectionMeta }
 export { defineDevtool }
@@ -18,6 +25,8 @@ export { DevtoolBrowserContext }
 export { DevtoolCliOptions }
 export { DevtoolDefinition }
 export { DevtoolRuntime }
+export { DevToolsAgentHost }
+export { DevToolsAgentHostEvents }
 export { DevToolsCapabilities }
 export { DevToolsChildProcessExecuteOptions }
 export { DevToolsChildProcessTerminalSession }
@@ -81,6 +90,7 @@ export { PartialWithoutId }
 export { RemoteConnectionInfo }
 export { RemoteDockOptions }
 export { RpcBroadcastOptions }
+export { RpcFunctionAgentOptions }
 export { RpcFunctionsHost }
 export { RpcSharedStateGetOptions }
 export { RpcSharedStateHost }

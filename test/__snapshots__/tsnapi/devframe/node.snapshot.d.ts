@@ -98,6 +98,29 @@ export type StaticRpcDumpManifestValue = StaticRpcDumpManifestStaticEntry | Stat
 // #endregion
 
 // #region Classes
+export declare class DevToolsAgentHost implements DevToolsAgentHost$1 {
+  readonly context: DevToolsNodeContext;
+  readonly events: EventEmitter<DevToolsAgentHostEvents>;
+  private readonly tools;
+  private readonly resources;
+  private _rpcUnsubscribe;
+  constructor(_: DevToolsNodeContext);
+  registerTool(_: AgentToolInput): AgentHandle;
+  unregisterTool(_: string): boolean;
+  registerResource(_: AgentResourceInput): AgentHandle;
+  unregisterResource(_: string): boolean;
+  list(): AgentManifest;
+  getTool(_: string): AgentTool | undefined;
+  getResource(_: string): AgentResource | undefined;
+  invoke(_: string, _: unknown): Promise<unknown>;
+  read(_: string): Promise<AgentResourceContent>;
+  _dispose(): void;
+  private _validateToolId;
+  private _projectTool;
+  private _collectRpcTools;
+  private _findRpcDefinition;
+  private _coercePositionalArgs;
+}
 export declare class DevToolsCommandsHost implements DevToolsCommandsHost$1 {
   readonly context: DevToolsNodeContext;
   readonly commands: DevToolsCommandsHost$1['commands'];

@@ -24,6 +24,7 @@ export { RpcDumpDefinition }
 export { RpcDumpGetter }
 export { RpcDumpRecord }
 export { RpcDumpStore }
+export { RpcFunctionAgentOptions }
 export { RpcFunctionDefinition }
 export { RpcFunctionDefinitionAny }
 export { RpcFunctionDefinitionAnyWithContext }

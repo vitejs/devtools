@@ -3,7 +3,7 @@
  */
 // #region Interfaces
 export interface DevToolsRpcClient {
-  events: EventEmitter$1<RpcClientEvents>;
+  events: EventEmitter<RpcClientEvents>;
   readonly isTrusted: boolean | null;
   readonly connectionMeta: ConnectionMeta;
   ensureTrusted: (_?: number) => Promise<boolean>;

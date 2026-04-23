@@ -31,4 +31,31 @@ export default defineConfig({
   clean: true,
   dts: true,
   exports: true,
+  // Keep transitive external type graphs out of dts bundling.
+  // `vite`/`esbuild`/`postcss` are pulled in via the kit client's
+  // `declare module 'vite'` augmentation and contain
+  // rolldown-incompatible re-exports that would otherwise fail dts
+  // generation with dozens of MISSING_EXPORT errors.
+  deps: {
+    neverBundle: [
+      'vite',
+      'esbuild',
+      'postcss',
+      'rolldown',
+      /^@rolldown\//,
+      /^@oxc-project\//,
+      'terser',
+      '@jridgewell/trace-mapping',
+    ],
+    onlyBundle: [
+      'acorn',
+      'human-id',
+      'immer',
+      'mlly',
+      'obug',
+      'perfect-debounce',
+      'tinyexec',
+      'ua-parser-modern',
+    ],
+  },
 })
