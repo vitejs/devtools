@@ -1,4 +1,4 @@
-export type { WhenContext } from '../utils/when'
+export type { WhenContext, WhenExpression } from '../utils/when'
 
 export * from './vite-augment'
 export * from './vite-plugin'

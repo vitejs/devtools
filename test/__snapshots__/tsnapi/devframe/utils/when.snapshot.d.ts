@@ -11,7 +11,11 @@ export interface WhenContext {
 }
 // #endregion
 
+// #region Types
+export type WhenExpression = _$whenexpr0.WhenExpression;
+// #endregion
+
 // #region Functions
-export declare function evaluateWhen(_: string, _: WhenContext): boolean;
-export declare function getContextValue(_: string, _: WhenContext): unknown;
+export declare function evaluateWhen<T extends object, const E extends string>(_: E & _$whenexpr0.ValidateExpression<E, T>, _: T, _?: _$whenexpr0.EvaluateOptions): boolean;
+export declare function resolveContextValue<T extends Record<string, unknown>>(_: string, _: T): unknown;
 // #endregion

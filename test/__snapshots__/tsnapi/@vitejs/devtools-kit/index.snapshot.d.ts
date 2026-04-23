@@ -3,10 +3,16 @@
  */
 // #region Types
 export type WhenContext = when_d_exports.WhenContext;
+export type WhenExpression = when_d_exports.WhenExpression;
 // #endregion
 
 // #region Functions
-export declare function defineCommand(_: DevToolsServerCommandInput): DevToolsServerCommandInput;
+export declare function defineCommand<const W extends string = ''>(_: Omit<DevToolsServerCommandInput, 'when'> & {
+  when?: when_d_exports.WhenExpression<when_d_exports.WhenContext, W>;
+}): DevToolsServerCommandInput;
+export declare function defineDockEntry<const T extends DevToolsDockUserEntry, const W extends string = ''>(_: Omit<T, 'when'> & {
+  when?: when_d_exports.WhenExpression<when_d_exports.WhenContext, W>;
+}): T;
 export declare function defineJsonRenderSpec(_: JsonRenderSpec): JsonRenderSpec;
 // #endregion
 
