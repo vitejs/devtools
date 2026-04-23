@@ -2,7 +2,7 @@ import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunct
 import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
 import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
 import { createRpcClient } from 'devframe/rpc/client'
-import { createWsRpcPreset } from 'devframe/rpc/presets/ws/client'
+import { createWsRpcChannel } from 'devframe/rpc/transports/ws-client'
 import { promiseWithResolver } from 'devframe/utils/promise'
 import { parseUA } from 'ua-parser-modern'
 
@@ -42,7 +42,7 @@ export function createWsRpcClientMode(
   const serverRpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>(
     clientRpc.functions,
     {
-      preset: createWsRpcPreset({
+      channel: createWsRpcChannel({
         url,
         authToken,
         ...wsOptions,

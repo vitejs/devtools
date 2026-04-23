@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 import { WebSocket } from 'ws'
 import { createRpcClient } from '../client'
 import { createRpcServer } from '../server'
-import { createWsRpcPreset as createWsRpcClientPreset } from './ws/client'
-import { createWsRpcPreset as createWsRpcServerPreset } from './ws/server'
+import { createWsRpcChannel } from './ws-client'
+import { attachWsRpcTransport } from './ws-server'
 
 vi.stubGlobal('WebSocket', WebSocket)
 
 describe('devtools rpc', () => {
-  it('should work w/ ws preset', async () => {
+  it('should work w/ ws transport', async () => {
     const PORT = 3333
     const WS_URL = `ws://localhost:${PORT}`
 
@@ -30,16 +30,15 @@ describe('devtools rpc', () => {
       },
     }
 
-    const server = createRpcServer<typeof client1Functions | typeof client2Functions, typeof serverFunctions>(serverFunctions, {
-      preset: createWsRpcServerPreset({ port: PORT }),
-    })
+    const server = createRpcServer<typeof client1Functions | typeof client2Functions, typeof serverFunctions>(serverFunctions)
+    attachWsRpcTransport(server, { port: PORT })
 
     const client1 = createRpcClient<typeof serverFunctions, typeof client1Functions>(client1Functions, {
-      preset: createWsRpcClientPreset({ url: WS_URL }),
+      channel: createWsRpcChannel({ url: WS_URL }),
     })
 
     const client2 = createRpcClient<typeof serverFunctions, typeof client2Functions>(client2Functions, {
-      preset: createWsRpcClientPreset({ url: WS_URL }),
+      channel: createWsRpcChannel({ url: WS_URL }),
     })
 
     expect(await client1.$call('hello', 1)).toBe('hello world from client 1')

@@ -1,9 +1,7 @@
 import type { ChannelOptions } from 'birpc'
-import type { RpcClientPreset } from '..'
 import { parse, stringify } from 'structured-clone-es'
-import { defineRpcClientPreset } from '..'
 
-export interface WebSocketRpcClientOptions {
+export interface WsRpcChannelOptions {
   url: string
   onConnected?: (e: Event) => void
   onError?: (e: Error) => void
@@ -13,7 +11,11 @@ export interface WebSocketRpcClientOptions {
 
 function NOOP() {}
 
-export const createWsRpcPreset: RpcClientPreset<(options: WebSocketRpcClientOptions) => ChannelOptions> = defineRpcClientPreset((options: WebSocketRpcClientOptions) => {
+/**
+ * Build a birpc `ChannelOptions` object backed by a browser `WebSocket`.
+ * Pass the result straight to `createRpcClient`'s `channel` option.
+ */
+export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions {
   let url = options.url
   if (options.authToken) {
     url = `${url}?vite_devtools_auth_token=${encodeURIComponent(options.authToken)}`
@@ -59,4 +61,4 @@ export const createWsRpcPreset: RpcClientPreset<(options: WebSocketRpcClientOpti
     serialize: stringify,
     deserialize: parse,
   }
-})
+}

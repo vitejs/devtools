@@ -6,9 +6,8 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const r = (path: string) => fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
 
 export const alias = {
-  'devframe/rpc/presets/ws/server': r('devframe/src/rpc/presets/ws/server.ts'),
-  'devframe/rpc/presets/ws/client': r('devframe/src/rpc/presets/ws/client.ts'),
-  'devframe/rpc/presets': r('devframe/src/rpc/presets/index.ts'),
+  'devframe/rpc/transports/ws-server': r('devframe/src/rpc/transports/ws-server.ts'),
+  'devframe/rpc/transports/ws-client': r('devframe/src/rpc/transports/ws-client.ts'),
   'devframe/rpc/client': r('devframe/src/rpc/client.ts'),
   'devframe/rpc/server': r('devframe/src/rpc/server.ts'),
   'devframe/rpc': r('devframe/src/rpc'),

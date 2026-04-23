@@ -9,14 +9,11 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "devframe/rpc/presets/ws/server": [
-        "./packages/devframe/src/rpc/presets/ws/server.ts"
+      "devframe/rpc/transports/ws-server": [
+        "./packages/devframe/src/rpc/transports/ws-server.ts"
       ],
-      "devframe/rpc/presets/ws/client": [
-        "./packages/devframe/src/rpc/presets/ws/client.ts"
-      ],
-      "devframe/rpc/presets": [
-        "./packages/devframe/src/rpc/presets/index.ts"
+      "devframe/rpc/transports/ws-client": [
+        "./packages/devframe/src/rpc/transports/ws-client.ts"
       ],
       "devframe/rpc/client": [
         "./packages/devframe/src/rpc/client.ts"

@@ -1,6 +1,6 @@
 import type { BirpcReturn } from 'birpc'
 import type { RpcFunctionsCollectorBase } from 'devframe/rpc'
-import type { DevToolsNodeRpcSessionMeta } from 'devframe/rpc/presets/ws/server'
+import type { DevToolsNodeRpcSessionMeta } from 'devframe/rpc/transports/ws-server'
 import type { SharedState } from '../utils/shared-state'
 import type { DevToolsNodeContext } from './context'
 import type { DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, DevToolsRpcSharedStates } from './rpc-augments'

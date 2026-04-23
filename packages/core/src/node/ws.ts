@@ -6,8 +6,8 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
 import c from 'ansis'
 import { getInternalContext } from 'devframe/node'
-import { createWsRpcPreset } from 'devframe/rpc/presets/ws/server'
 import { createRpcServer } from 'devframe/rpc/server'
+import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
@@ -67,46 +67,11 @@ export async function createWsServer(options: CreateWsServerOptions) {
     }
   }
 
-  const preset = createWsRpcPreset({
-    port,
-    host,
-    https,
-    onConnected: (ws, req, meta) => {
-      const url = new URL(req.url ?? '', 'http://localhost')
-      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
-      const requestOrigin = req.headers.origin
-      if (isClientAuthDisabled) {
-        meta.isTrusted = true
-      }
-      else if (authToken && contextInternal.isRemoteTokenTrusted(authToken, requestOrigin)) {
-        meta.isTrusted = true
-        meta.clientAuthToken = authToken
-      }
-      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
-        meta.isTrusted = true
-        meta.clientAuthToken = authToken
-      }
-      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
-        meta.isTrusted = true
-        meta.clientAuthToken = authToken
-      }
-
-      wsClients.add(ws)
-      const color = meta.isTrusted ? c.green : c.yellow
-      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
-    },
-    onDisconnected: (ws, meta) => {
-      wsClients.delete(ws)
-      console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
-    },
-  })
-
   const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
 
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
     {
-      preset,
       rpcOptions: {
         onFunctionError(error, name) {
           logger.DTK0011({ name }, { cause: error }).log()
@@ -143,6 +108,40 @@ export async function createWsServer(options: CreateWsServerOptions) {
       },
     },
   )
+
+  attachWsRpcTransport(rpcGroup, {
+    port,
+    host,
+    https,
+    onConnected: (ws, req, meta) => {
+      const url = new URL(req.url ?? '', 'http://localhost')
+      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
+      const requestOrigin = req.headers.origin
+      if (isClientAuthDisabled) {
+        meta.isTrusted = true
+      }
+      else if (authToken && contextInternal.isRemoteTokenTrusted(authToken, requestOrigin)) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
+      }
+      else if (authToken && contextInternal.storage.auth.value().trusted[authToken]) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
+      }
+      else if (authToken && (context.viteConfig.devtools?.config?.clientAuthTokens ?? []).includes(authToken)) {
+        meta.isTrusted = true
+        meta.clientAuthToken = authToken
+      }
+
+      wsClients.add(ws)
+      const color = meta.isTrusted ? c.green : c.yellow
+      console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
+    },
+    onDisconnected: (ws, meta) => {
+      wsClients.delete(ws)
+      console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
+    },
+  })
 
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage

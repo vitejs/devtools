@@ -1,4 +1,4 @@
-import type { BirpcOptions, BirpcReturn } from 'birpc'
+import type { BirpcOptions, BirpcReturn, ChannelOptions } from 'birpc'
 import { createBirpc } from 'birpc'
 
 export function createRpcClient<
@@ -7,13 +7,13 @@ export function createRpcClient<
 >(
   functions: ClientFunctions,
   options: {
-    preset: BirpcOptions<ServerFunctions, ClientFunctions, false>
+    channel: ChannelOptions
     rpcOptions?: Partial<BirpcOptions<ServerFunctions, ClientFunctions, boolean>>
   },
 ): BirpcReturn<ServerFunctions, ClientFunctions, false> {
-  const { preset, rpcOptions = {} } = options
+  const { channel, rpcOptions = {} } = options
   return createBirpc<ServerFunctions, ClientFunctions, false>(functions, {
-    ...preset,
+    ...channel,
     timeout: -1,
     ...rpcOptions,
     proxify: false,

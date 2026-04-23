@@ -1,6 +1,6 @@
 import type { BirpcOptions, BirpcReturn } from 'birpc'
 import type { RpcCacheOptions } from 'devframe/rpc'
-import type { WebSocketRpcClientOptions } from 'devframe/rpc/presets/ws/client'
+import type { WsRpcChannelOptions } from 'devframe/rpc/transports/ws-client'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from '../types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
 import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
@@ -24,7 +24,7 @@ export interface DevToolsRpcClientOptions {
    * The auth token to use for the client
    */
   authToken?: string
-  wsOptions?: Partial<WebSocketRpcClientOptions>
+  wsOptions?: Partial<WsRpcChannelOptions>
   rpcOptions?: Partial<BirpcOptions<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions, boolean>>
   cacheOptions?: boolean | Partial<RpcCacheOptions>
 }

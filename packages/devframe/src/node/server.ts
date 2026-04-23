@@ -8,6 +8,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { createServer } from 'node:http'
 import c from 'ansis'
 import { createRpcServer } from 'devframe/rpc/server'
+import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { createApp, toNodeListener } from 'h3'
 import { WebSocketServer as WSServer } from 'ws'
 
@@ -52,36 +53,11 @@ export async function startHttpAndWs(options: StartHttpAndWsOptions): Promise<St
 
   const asyncStorage = new AsyncLocalStorage<unknown>()
 
-  const preset = {
-    setup(handler: any) {
-      wss.on('connection', (socket) => {
-        socket.on('message', async (data) => {
-          try {
-            await handler(data, socket)
-          }
-          catch (error) {
-            console.error('[devframe] ws handler error:', error)
-          }
-        })
-      })
-      return {
-        send(_client: unknown, message: any) {
-          for (const client of wss.clients) {
-            if (client.readyState === 1)
-              client.send(message)
-          }
-        },
-        clients: wss.clients,
-      }
-    },
-  }
-
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
-    {
-      preset: preset as any,
-    } as any,
   )
+
+  attachWsRpcTransport(rpcGroup, { wss })
 
   ;(rpcHost as any)._rpcGroup = rpcGroup
   ;(rpcHost as any)._asyncStorage = asyncStorage
