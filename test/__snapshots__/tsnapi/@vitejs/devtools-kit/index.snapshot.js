@@ -3,6 +3,7 @@
  */
 // #region Functions
 export function defineCommand(_) {}
+export function defineDockEntry(_) {}
 export function defineJsonRenderSpec(_) {}
 // #endregion
 

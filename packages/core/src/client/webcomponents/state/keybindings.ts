@@ -2,7 +2,7 @@ import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/de
 
 // Re-export when utilities from kit
 export type { WhenContext } from '@vitejs/devtools-kit'
-export { evaluateWhen, getContextValue } from '@vitejs/devtools-kit/utils/when'
+export { evaluateWhen, resolveContextValue } from '@vitejs/devtools-kit/utils/when'
 
 export const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 

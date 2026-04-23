@@ -76,6 +76,7 @@
     "sirv": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "valibot": "catalog:deps",
+    "whenexpr": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {

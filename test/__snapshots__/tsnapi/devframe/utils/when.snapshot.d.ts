@@ -3,6 +3,7 @@
  */
 // #region Other
 export { evaluateWhen }
-export { getContextValue }
+export { resolveContextValue }
 export { WhenContext }
+export { WhenExpression }
 // #endregion
