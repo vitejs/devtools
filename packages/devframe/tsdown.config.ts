@@ -18,16 +18,44 @@ export default defineConfig({
     'utils/shared-state': 'src/utils/shared-state.ts',
     'utils/state': 'src/utils/state.ts',
     'utils/when': 'src/utils/when.ts',
-    'cli': 'src/cli.ts',
-    'build': 'src/build.ts',
-    'spa': 'src/spa.ts',
-    'vite': 'src/vite.ts',
-    'kit': 'src/kit.ts',
-    'embedded': 'src/embedded.ts',
-    'client': 'src/client.ts',
+    'adapters/cli': 'src/adapters/cli.ts',
+    'adapters/build': 'src/adapters/build.ts',
+    'adapters/spa': 'src/adapters/spa.ts',
+    'adapters/vite': 'src/adapters/vite.ts',
+    'adapters/kit': 'src/adapters/kit.ts',
+    'adapters/embedded': 'src/adapters/embedded.ts',
+    'adapters/mcp': 'src/adapters/mcp.ts',
+    'client/index': 'src/client/index.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   clean: true,
   dts: true,
   exports: true,
+  // Keep transitive external type graphs out of dts bundling.
+  // `vite`/`esbuild`/`postcss` are pulled in via the kit client's
+  // `declare module 'vite'` augmentation and contain
+  // rolldown-incompatible re-exports that would otherwise fail dts
+  // generation with dozens of MISSING_EXPORT errors.
+  deps: {
+    neverBundle: [
+      'vite',
+      'esbuild',
+      'postcss',
+      'rolldown',
+      /^@rolldown\//,
+      /^@oxc-project\//,
+      'terser',
+      '@jridgewell/trace-mapping',
+    ],
+    onlyBundle: [
+      'acorn',
+      'human-id',
+      'immer',
+      'mlly',
+      'obug',
+      'perfect-debounce',
+      'tinyexec',
+      'ua-parser-modern',
+    ],
+  },
 })

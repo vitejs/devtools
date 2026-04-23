@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -55,8 +55,5 @@
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
-  },
-  "inlinedDependencies": {
-    "ua-parser-modern": "0.1.1"
   }
 }

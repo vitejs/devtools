@@ -20,19 +20,21 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
-    "./build": "./dist/build.mjs",
-    "./cli": "./dist/cli.mjs",
-    "./client": "./dist/client.mjs",
+    "./adapters/build": "./dist/adapters/build.mjs",
+    "./adapters/cli": "./dist/adapters/cli.mjs",
+    "./adapters/embedded": "./dist/adapters/embedded.mjs",
+    "./adapters/kit": "./dist/adapters/kit.mjs",
+    "./adapters/mcp": "./dist/adapters/mcp.mjs",
+    "./adapters/spa": "./dist/adapters/spa.mjs",
+    "./adapters/vite": "./dist/adapters/vite.mjs",
+    "./client": "./dist/client/index.mjs",
     "./constants": "./dist/constants.mjs",
-    "./embedded": "./dist/embedded.mjs",
-    "./kit": "./dist/kit.mjs",
     "./node": "./dist/node/index.mjs",
     "./rpc": "./dist/rpc/index.mjs",
     "./rpc/client": "./dist/rpc/client.mjs",
     "./rpc/server": "./dist/rpc/server.mjs",
     "./rpc/transports/ws-client": "./dist/rpc/transports/ws-client.mjs",
     "./rpc/transports/ws-server": "./dist/rpc/transports/ws-server.mjs",
-    "./spa": "./dist/spa.mjs",
     "./types": "./dist/types/index.mjs",
     "./utils/events": "./dist/utils/events.mjs",
     "./utils/human-id": "./dist/utils/human-id.mjs",
@@ -41,7 +43,6 @@
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./utils/state": "./dist/utils/state.mjs",
     "./utils/when": "./dist/utils/when.mjs",
-    "./vite": "./dist/vite.mjs",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -53,7 +54,16 @@
     "watch": "tsdown --watch",
     "prepack": "pnpm build"
   },
+  "peerDependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@modelcontextprotocol/sdk": {
+      "optional": true
+    }
+  },
   "dependencies": {
+    "@valibot/to-json-schema": "catalog:deps",
     "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
@@ -70,24 +80,17 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "catalog:deps",
     "tsdown": "catalog:build"
   },
   "inlinedDependencies": {
-    "@jridgewell/trace-mapping": "0.3.31",
-    "@oxc-project/types": "0.126.0",
-    "@rolldown/pluginutils": "1.0.0-rc.16",
     "acorn": "8.16.0",
-    "esbuild": "0.28.0",
     "human-id": "4.1.3",
     "immer": "11.1.4",
     "mlly": "1.8.2",
     "obug": "2.1.1",
     "perfect-debounce": "2.1.0",
-    "postcss": "8.5.10",
-    "rolldown": "1.0.0-rc.16",
-    "terser": "5.44.1",
     "tinyexec": "1.1.1",
-    "ua-parser-modern": "0.1.1",
-    "vite": "8.0.9"
+    "ua-parser-modern": "0.1.1"
   }
 }

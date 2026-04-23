@@ -53,6 +53,20 @@ export const diagnostics = defineDiagnostics({
     DF0013: {
       message: (p: { key: string }) => `Shared state of "${p.key}" is not found, please provide an initial value for the first time`,
     },
+    DF0014: {
+      message: (p: { name: string }) => `RPC function "${p.name}" has an invalid \`agent\` field — \`description\` must be a non-empty string.`,
+      hint: 'Provide a short description (~1–3 sentences) explaining what the tool does and when agents should invoke it.',
+    },
+    DF0015: {
+      message: (p: { id: string }) => `Agent tool "${p.id}" is already registered.`,
+      hint: 'Tool ids must be unique across RPC functions with an `agent` field and tools registered via `ctx.agent.registerTool()`.',
+    },
+    DF0016: {
+      message: (p: { id: string }) => `Agent resource "${p.id}" is already registered.`,
+    },
+    DF0017: {
+      message: (p: { transport: string, reason: string }) => `Failed to start MCP server (${p.transport}): ${p.reason}`,
+    },
   },
 })
 

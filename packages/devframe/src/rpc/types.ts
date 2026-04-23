@@ -21,6 +21,48 @@ export type EntriesToObject<T extends readonly [string, any][]> = {
 export type RpcFunctionType = 'static' | 'action' | 'event' | 'query'
 
 /**
+ * Agent exposure settings for an RPC function. When this field is set,
+ * the function is surfaced to agents (e.g. via the devframe MCP adapter)
+ * as a callable tool. Functions without an `agent` field are not exposed —
+ * default-deny.
+ *
+ * @experimental The agent-native surface is experimental and may change
+ * without a major version bump until it stabilizes.
+ */
+export interface RpcFunctionAgentOptions {
+  /**
+   * Human-readable description shown to the agent. Required — agents
+   * rely on this to decide when to invoke the tool. Keep it to ~1–3
+   * sentences explaining what the tool does and when to use it.
+   */
+  description: string
+  /**
+   * Optional human-friendly display title. Maps to the MCP tool `title`
+   * annotation. Falls back to the RPC function `name` when omitted.
+   */
+  title?: string
+  /**
+   * Safety classification. Drives MCP annotations (`readOnlyHint`,
+   * `destructiveHint`) downstream.
+   * - `'read'` — no side effects; safe to call freely.
+   * - `'action'` — mutates state but not destructive.
+   * - `'destructive'` — may perform destructive updates.
+   *
+   * When omitted it is inferred from the function `type`:
+   *   - `'static'` / `'query'` → `'read'`
+   *   - `'action'` / `'event'` → `'action'`
+   */
+  safety?: 'read' | 'action' | 'destructive'
+  /** Free-form tags for grouping or filtering. */
+  tags?: readonly string[]
+  /**
+   * Optional example invocations shown to agents. Returned verbatim in
+   * the agent manifest.
+   */
+  examples?: readonly { args: unknown[], description?: string }[]
+}
+
+/**
  * Manages dynamic function registration and provides a type-safe proxy for accessing functions.
  */
 export interface RpcFunctionsCollector<LocalFunctions, SetupContext = undefined> {
@@ -166,6 +208,13 @@ export type RpcFunctionDefinition<
         args?: AS
         /** Valibot schema for validating function return value */
         returns?: RS
+        /**
+         * Expose this function to agents (e.g. via the MCP adapter).
+         * When omitted, the function is not agent-exposed (default-deny).
+         *
+         * @experimental
+         */
+        agent?: RpcFunctionAgentOptions
         /** Setup function called with context to initialize handler and dump */
         setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
         /** Function implementation (required if setup doesn't provide one) */
@@ -186,6 +235,13 @@ export type RpcFunctionDefinition<
         args: AS
         /** Valibot schema for validating function return value */
         returns: RS
+        /**
+         * Expose this function to agents (e.g. via the MCP adapter).
+         * When omitted, the function is not agent-exposed (default-deny).
+         *
+         * @experimental
+         */
+        agent?: RpcFunctionAgentOptions
         /** Setup function called with context to initialize handler and dump */
         setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
         /** Function implementation (required if setup doesn't provide one) */

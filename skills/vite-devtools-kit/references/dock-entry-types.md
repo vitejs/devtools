@@ -53,6 +53,12 @@ interface IframeEntry extends DockEntryBase {
   url: string // URL to load
   frameId?: string // Share iframe between entries
   clientScript?: ClientScriptEntry // Optional client script
+  remote?: boolean | RemoteDockOptions // Enable remote-hosted UI mode
+}
+
+interface RemoteDockOptions {
+  transport?: 'fragment' | 'query' // default: 'fragment'
+  originLock?: boolean // default: true
 }
 
 // Example
@@ -84,6 +90,23 @@ ctx.docks.register({
   url: '/.my-plugin/',
 })
 ```
+
+### Remote-hosted UI
+
+Point a dock at a hosted website (e.g. `https://example.com/devtools`) instead of bundling a SPA. DevTools injects a session-only auth token + WS URL into the iframe `src`; the hosted page calls `connectRemoteDevTools()` to get a fully connected `DevToolsRpcClient`.
+
+```ts
+ctx.docks.register({
+  id: 'my-remote-tool',
+  title: 'My Tool',
+  icon: 'ph:cloud-duotone',
+  type: 'iframe',
+  url: 'https://example.com/devtools',
+  remote: true,
+})
+```
+
+Dev-mode only — the WS server does not exist in build mode, so remote docks are auto-hidden in build mode unless an explicit `when` clause is set. See [Remote Client Patterns](./remote-client-patterns.md) for the full flow.
 
 ## Action Entries
 

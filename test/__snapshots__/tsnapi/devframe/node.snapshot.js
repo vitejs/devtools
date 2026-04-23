@@ -19,6 +19,7 @@ export { createH3DevToolsHost }
 export { createHostContext }
 export { createRpcSharedStateServerHost }
 export { createStorage }
+export { DevToolsAgentHost }
 export { DevToolsCommandsHost }
 export { DevToolsDockHost }
 export { DevToolsLogsHost }

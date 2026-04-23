@@ -143,6 +143,21 @@ ctx.docks.register({
 })
 ```
 
+Iframes can also point at a **remote-hosted URL** that connects back via WebSocket, so you don't have to ship a SPA dist with your plugin:
+
+```ts
+ctx.docks.register({
+  id: 'my-remote-tool',
+  title: 'My Tool',
+  icon: 'ph:cloud-duotone',
+  type: 'iframe',
+  url: 'https://example.com/devtools',
+  remote: true, // or { transport: 'query', originLock: false }
+})
+```
+
+On the hosted page, call `connectRemoteDevTools()` from `@vitejs/devtools-kit/client` to get a fully connected `DevToolsRpcClient`. Dev-mode only — auto-hidden in build mode. See [Remote Client Patterns](./references/remote-client-patterns.md).
+
 ### Action Entry
 
 ```ts
@@ -543,3 +558,4 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [Logs Patterns](./references/logs-patterns.md) - Log entries, toast notifications, and handle patterns
 - [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
 - [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
+- [Remote Client Patterns](./references/remote-client-patterns.md) - Remote-hosted iframe docks, `connectRemoteDevTools`, trust model
