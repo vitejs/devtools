@@ -4,7 +4,7 @@ outline: deep
 
 # Devtool Definition
 
-Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the seven [adapters](./adapters) can consume — the same definition runs under `createCli`, `toKitPlugin`, `buildStatic`, `createMcpServer`, and so on.
+Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the seven [adapters](./adapters) can consume — the same definition runs under `createCli`, `createKitPlugin`, `createBuild`, `createMcpServer`, and so on.
 
 ## Minimal Definition
 
@@ -60,7 +60,7 @@ defineDevtool({
 })
 ```
 
-The CLI dev server sets `mode: 'dev'`; `buildStatic` / `buildSpa` set `mode: 'build'`.
+The CLI dev server sets `mode: 'dev'`; `createBuild` / `createSpa` set `mode: 'build'`.
 
 ## The Setup Context
 
@@ -111,7 +111,7 @@ defineDevtool({
 ```
 
 > [!NOTE]
-> Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers. `buildSpa` prints a warning when this applies.
+> Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers. `createSpa` prints a warning when this applies.
 
 ## CLI & SPA Options
 
@@ -142,9 +142,9 @@ See [Adapters](./adapters) for how each adapter consumes these.
 Because the definition is a plain value, you can wire it into multiple adapters from the same file:
 
 ```ts
-import { buildStatic } from 'devframe/adapters/build'
+import { createBuild } from 'devframe/adapters/build'
 import { createCli } from 'devframe/adapters/cli'
-import { toKitPlugin } from 'devframe/adapters/kit'
+import { createKitPlugin } from 'devframe/adapters/kit'
 
 const devtool = defineDevtool({ id: 'my-devtool', name: 'My Devtool', setup() {} })
 
@@ -152,10 +152,10 @@ const devtool = defineDevtool({ id: 'my-devtool', name: 'My Devtool', setup() {}
 await createCli(devtool).parse()
 
 // 2. Embedded in a Vite project (from `vite.config.ts`):
-export const myPlugin = () => toKitPlugin(devtool)
+export const myPlugin = () => createKitPlugin(devtool)
 
 // 3. Offline snapshot:
-await buildStatic(devtool, { outDir: 'dist-static' })
+await createBuild(devtool, { outDir: 'dist-static' })
 ```
 
 ## What's Next

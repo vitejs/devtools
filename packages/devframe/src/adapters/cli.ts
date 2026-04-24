@@ -10,8 +10,8 @@ import { DEVTOOLS_MOUNT_PATH } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
-import { buildStatic } from './build'
-import { buildSpa } from './spa'
+import { createBuild } from './build'
+import { createSpa } from './spa'
 
 export interface CreateCliOptions {
   /** Default port for `dev` (default: 9999). */
@@ -43,7 +43,7 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-static' })
     .option('--base <base>', 'URL base', { default: '/' })
     .action(async (flags: { outDir: string, base?: string }) => {
-      await buildStatic(d, { outDir: flags.outDir, base: flags.base })
+      await createBuild(d, { outDir: flags.outDir, base: flags.base })
     })
 
   cli
@@ -51,7 +51,7 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-spa' })
     .option('--base <base>', 'URL base', { default: '/' })
     .action(async (flags: { outDir: string, base?: string }) => {
-      await buildSpa(d, { outDir: flags.outDir, base: flags.base })
+      await createSpa(d, { outDir: flags.outDir, base: flags.base })
     })
 
   cli

@@ -111,11 +111,11 @@ DevFrame deploys the same `DevtoolDefinition` through one of seven adapters:
 | Adapter | Entry | Target |
 |---------|-------|--------|
 | `cli` | `createCli(d).parse()` | Standalone CLI with dev / build / spa / mcp subcommands |
-| `vite` | `devframeVite(d)` | Plain Vite plugin — mounts the SPA only (no RPC server) |
-| `build` | `buildStatic(d, opts)` | Static snapshot with baked RPC dumps |
-| `spa` | `buildSpa(d, opts)` | Deployable SPA (extends build with a loader descriptor) |
-| `kit` | `toKitPlugin(d)` | Vite DevTools Kit plugin |
-| `embedded` | `registerInHost(d, ctx)` | Runtime registration into an existing host |
+| `vite` | `createVitePlugin(d, opts?)` | Plain Vite plugin — mounts the SPA only (no RPC server) |
+| `build` | `createBuild(d, opts?)` | Static snapshot with baked RPC dumps |
+| `spa` | `createSpa(d, opts?)` | Deployable SPA (extends build with a loader descriptor) |
+| `kit` | `createKitPlugin(d, opts?)` | Vite DevTools Kit plugin |
+| `embedded` | `createEmbedded(d, { ctx })` | Runtime registration into an existing host |
 | `mcp` | `createMcpServer(d, opts)` | Model Context Protocol server |
 
 See [Adapters](./adapters) for the full reference.

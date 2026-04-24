@@ -20,15 +20,17 @@ Full reference: [docs.devtools.vite.dev/devframe/](https://devtools.vite.dev/dev
 
 ## When to use devframe
 
-| Author goal | Adapter | Entry |
+All adapter factories share the shape `createXxx(devtoolDef, options?)`.
+
+| Author goal | Factory | Entry |
 |-------------|---------|-------|
-| Standalone CLI for local use | `createCli` | `devframe/adapters/cli` |
-| Mount a SPA in an existing Vite dev server | `devframeVite` | `devframe/adapters/vite` |
-| Offline snapshot with baked data | `buildStatic` | `devframe/adapters/build` |
-| Deployable hosted dashboard | `buildSpa` | `devframe/adapters/spa` |
-| Integrate into Vite DevTools | `toKitPlugin` | `devframe/adapters/kit` |
-| Register dynamically at runtime | `registerInHost` | `devframe/adapters/embedded` |
-| Expose to coding agents (MCP) | `createMcpServer` | `devframe/adapters/mcp` *(experimental)* |
+| Standalone CLI for local use | `createCli(def, options?)` | `devframe/adapters/cli` |
+| Mount a SPA in an existing Vite dev server | `createVitePlugin(def, options?)` | `devframe/adapters/vite` |
+| Offline snapshot with baked data | `createBuild(def, options?)` | `devframe/adapters/build` |
+| Deployable hosted dashboard | `createSpa(def, options?)` | `devframe/adapters/spa` |
+| Integrate into Vite DevTools | `createKitPlugin(def, options?)` | `devframe/adapters/kit` |
+| Register dynamically at runtime | `createEmbedded(def, { ctx })` | `devframe/adapters/embedded` |
+| Expose to coding agents (MCP) | `createMcpServer(def, options?)` | `devframe/adapters/mcp` *(experimental)* |
 
 The same `DevtoolDefinition` runs under every adapter — pick based on deployment, not on what the tool does.
 
@@ -287,7 +289,7 @@ Use `rpc.sharedState.get(key)` for observable state, `rpc.client.register(define
 
 ## Build dumps
 
-`buildStatic` / `buildSpa` bake `static` function results automatically. For `query` functions, supply `dump`:
+`createBuild` / `createSpa` bake `static` function results automatically. For `query` functions, supply `dump`:
 
 ```ts
 defineRpcFunction({

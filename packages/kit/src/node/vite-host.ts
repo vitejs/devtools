@@ -13,7 +13,7 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
   return {
     mountStatic(base, distDir) {
       // In build mode there is no dev server to mount middleware on;
-      // static files are baked into the build output by buildStatic.
+      // static files are baked into the build output by createBuild.
       if (viteConfig.command !== 'serve')
         return
       if (!viteServer)

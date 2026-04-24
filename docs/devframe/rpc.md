@@ -168,7 +168,7 @@ Client-side registration (for server→client calls) goes through `rpc.client.re
 
 ## Static Dumps
 
-For `static` functions, DevFrame automatically records the handler's output during `buildStatic` / `buildSpa` and bakes it into the output:
+For `static` functions, DevFrame automatically records the handler's output during `createBuild` / `createSpa` and bakes it into the output:
 
 ```ts
 defineRpcFunction({

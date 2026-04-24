@@ -15,8 +15,9 @@ import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { collectStaticRpcDump } from '../node/static-dump'
 
-export interface BuildStaticOptions {
-  outDir: string
+export interface CreateBuildOptions {
+  /** Output directory. Defaults to `dist-static`. */
+  outDir?: string
   /** Absolute URL base the output is served from (default: `/`). */
   base?: string
   /**
@@ -36,11 +37,11 @@ export interface BuildStaticOptions {
  *     `<outDir>/.devtools/`.
  *   - Copy the author's SPA dist into `<outDir>/`.
  */
-export async function buildStatic(d: DevtoolDefinition, options: BuildStaticOptions): Promise<void> {
-  const outDir = resolve(options.outDir)
+export async function createBuild(d: DevtoolDefinition, options: CreateBuildOptions = {}): Promise<void> {
+  const outDir = resolve(options.outDir ?? 'dist-static')
   const distDir = options.distDir ?? d.cli?.distDir
   if (!distDir)
-    throw new Error(`[devframe] buildStatic: no distDir for "${d.id}". Set \`cli.distDir\` on the definition or pass it as an option.`)
+    throw new Error(`[devframe] createBuild: no distDir for "${d.id}". Set \`cli.distDir\` on the definition or pass it as an option.`)
 
   if (existsSync(outDir))
     await fs.rm(outDir, { recursive: true })

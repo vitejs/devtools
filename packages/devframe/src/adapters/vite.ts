@@ -2,7 +2,7 @@ import type { DevtoolDefinition } from '../types/devtool'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
 
-export interface DevframeVitePluginOptions {
+export interface CreateVitePluginOptions {
   /**
    * Mount base. Defaults to `/__devframe/<devtool-id>/`.
    */
@@ -24,10 +24,10 @@ export interface DevframeVitePlugin {
  * pulling the full Vite DevTools Kit.
  *
  * Note: this does not yet spin up the RPC WS server — for the full
- * RPC path, use `toKitPlugin` alongside `@vitejs/devtools`, or the
+ * RPC path, use `createKitPlugin` alongside `@vitejs/devtools`, or the
  * standalone `createCli`.
  */
-export function devframeVite(d: DevtoolDefinition, options: DevframeVitePluginOptions = {}): DevframeVitePlugin {
+export function createVitePlugin(d: DevtoolDefinition, options: CreateVitePluginOptions = {}): DevframeVitePlugin {
   const base = options.base ?? `/__devframe/${d.id}/`
   const distDir = d.cli?.distDir
   return {
