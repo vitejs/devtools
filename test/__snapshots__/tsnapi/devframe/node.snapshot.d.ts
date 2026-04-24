@@ -71,6 +71,7 @@ export interface StartHttpAndWsOptions {
   host?: string;
   port: number;
   app?: App;
+  auth?: boolean;
   onReady?: (_: {
     origin: string;
     port: number;

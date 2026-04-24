@@ -155,6 +155,7 @@ Now that you have Vite DevTools set up, you can:
 
 - **Explore the built-in tools**: Check out the [DevTools for Rolldown](/rolldown/) panels and visualizations
 - **Build custom integrations**: Learn how to extend the devtools with your own tools using the [Vite DevTools Kit](/kit/)
+- **Build a standalone CLI tool**: For tools that don't need Vite at all (ESLint inspectors, bundler-config viewers, etc.), follow the [Standalone CLI](/devframe/standalone-cli) recipe
 - **Contribute**: Help improve Vite DevTools by checking out our [contributing guide](https://github.com/antfu/contribute)
 
 ## Current Limitations

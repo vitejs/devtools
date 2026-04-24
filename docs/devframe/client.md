@@ -20,6 +20,18 @@ const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
 
 `connectDevtool` auto-detects the backend via `.devtools/.connection.json` and falls back through a sequence of base URLs. No arguments are needed when the client is hosted from the default mount path.
 
+### Runtime basePath discovery
+
+SPAs built for devframe are designed to be **base-agnostic**: the same artifact can be served at `/`, at `/.<id>/`, or at any custom subpath, without rebuilding. `connectDevtool` resolves `.connection.json` relative to the page at runtime by reading `document.baseURI` and the executing script's URL.
+
+The practical consequence for SPA authors:
+
+- Build with relative asset paths — in Vite use `base: './'`, in Nuxt set `vite.base: './'` and `app.baseURL: './'`.
+- Don't bake the mount path into the HTML. The server only needs to serve the files at *some* base; the client figures out which.
+- You don't need an explicit `baseURL` option on `connectDevtool` unless you're connecting across origins or to a non-colocated devtool server.
+
+This lets `createBuild` / `createSpa` copy SPA output verbatim — no build-time HTML rewriting is performed, and the resulting bundle deploys under any URL.
+
 ### Options
 
 ```ts
@@ -34,7 +46,7 @@ await connectDevtool({
 
 | Option | Description |
 |--------|-------------|
-| `baseURL` | Mount path to probe for `.connection.json`. Accepts an array for fallback. Default: `/.devtools/`. |
+| `baseURL` | Mount path to probe for `.connection.json`. Accepts an array for fallback. Default: resolved relative to the executing page / script — see [Runtime basePath discovery](#runtime-basepath-discovery). |
 | `authToken` | Override the auth token. Defaults to a locally-persisted human-readable id. |
 | `cacheOptions` | `true` to enable caching with defaults, or an options object. |
 | `wsOptions` | Forwarded to the WebSocket transport (reconnect, heartbeat, etc.). |

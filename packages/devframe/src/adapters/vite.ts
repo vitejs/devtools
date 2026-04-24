@@ -1,10 +1,12 @@
 import type { DevtoolDefinition } from '../types/devtool'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
+import { resolveBasePath } from './_shared'
 
 export interface CreateVitePluginOptions {
   /**
-   * Mount base. Defaults to `/__devframe/<devtool-id>/`.
+   * Mount base. Defaults to `def.basePath ?? '/.<id>/'` for this hosted
+   * adapter — the devtool shares the origin with the host Vite app.
    */
   base?: string
 }
@@ -19,7 +21,7 @@ export interface DevframeVitePlugin {
 
 /**
  * Plain Vite plugin — mounts a devframe devtool's SPA into a user's
- * Vite dev server at `options.base` (default `/__devframe/<id>/`).
+ * Vite dev server at `options.base` (default: `def.basePath ?? '/.<id>/'`).
  * Use this for tools that want the Vite dev experience without
  * pulling the full Vite DevTools Kit.
  *
@@ -28,7 +30,7 @@ export interface DevframeVitePlugin {
  * standalone `createCli`.
  */
 export function createVitePlugin(d: DevtoolDefinition, options: CreateVitePluginOptions = {}): DevframeVitePlugin {
-  const base = options.base ?? `/__devframe/${d.id}/`
+  const base = options.base ?? resolveBasePath(d, 'hosted')
   const distDir = d.cli?.distDir
   return {
     name: `devframe:${d.id}`,

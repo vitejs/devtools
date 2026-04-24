@@ -67,6 +67,16 @@ pnpm -C docs run docs                 # docs dev server
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 
+### Devframe design principles
+
+These apply to everything inside `packages/devframe` and to how host packages (`kit`, `core`, etc.) layer on top. When in doubt, err on the side of "devframe provides hooks, the app decides UX".
+
+- **Headless by default.** No default startup banners, no opinionated logging to stdout, no default styling. Provide hooks (`onReady`, `cli.configure`, etc.); let the application print its own branding. Structured diagnostics via `logs-sdk` are fine — ad-hoc `console.log`s baked into adapters are not.
+- **File watching is the app's job, not devframe's.** Don't add a generic watcher primitive. Authors wire chokidar / fs.watch / watchman themselves and signal change via `ctx.rpc.sharedState.set(...)` or event-type RPCs. devframe stays out of the filesystem-observation business.
+- **Mount path depends on adapter context.** Given `id: 'foo'`, the default mount path is `/.foo/` for *hosted* adapters (`vite`, `kit`, `embedded`) and `/` for *standalone* adapters (`cli`, `spa`, `build`). Authors override via `DevtoolDefinition.basePath`. Don't hardcode `DEVTOOLS_MOUNT_PATH` in adapter code paths that may run standalone.
+- **SPAs own their basePath at runtime.** Build SPAs with relative asset paths (`vite.base: './'`); discover the effective base in the browser from the executing script's location / `document.baseURI`. `createBuild` / `createSpa` copy SPA output verbatim — no HTML rewriting, no build-time `--base` injection. The client (`connectDevtool`) resolves `.connection.json` relative to the runtime base automatically.
+- **CLI flags compose from both sides.** The `cac` instance backing `createCli` is exposed both to the `DevtoolDefinition` (`cli.configure(cli)`) — for capabilities contributed by the tool itself — and to the `createCli` caller — for flags added at the final assembly stage. Parsed flag values are forwarded to `setup(ctx, { flags })`. Never hardcode domain-specific flags into `createCli`.
+
 ## Structured Diagnostics (Error Codes)
 
 All node-side warnings and errors use structured diagnostics via [`logs-sdk`](https://github.com/vercel-labs/logs-sdk). Never use raw `console.warn`, `console.error`, or `throw new Error` with ad-hoc messages in node-side code — always define a coded diagnostic.

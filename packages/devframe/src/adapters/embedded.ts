@@ -11,6 +11,9 @@ export interface CreateEmbeddedOptions {
  * runtime. Mirrors what the Vite plugin scan does for devtools passed
  * as plugin options, but exposes the same flow to callers that need
  * dynamic, post-startup registration.
+ *
+ * The host owns the mount path; when a hosted mount is needed the
+ * effective default follows the hosted rule of `def.basePath ?? '/.<id>/'`.
  */
 export async function createEmbedded(d: DevtoolDefinition, options: CreateEmbeddedOptions): Promise<void> {
   await d.setup(options.ctx)

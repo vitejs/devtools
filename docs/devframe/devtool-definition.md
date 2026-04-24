@@ -35,10 +35,11 @@ export default defineDevtool({
 | `name` | `string` | **Required.** Display name shown in the dock and agent manifests. |
 | `icon` | `string \| { light, dark }` | Optional Iconify name or URL; supports light/dark pairs. |
 | `version` | `string` | Optional version string surfaced to clients. |
+| `basePath` | `string` | Optional mount path override. Defaults depend on the adapter: `/` for standalone (`cli` / `spa` / `build`), `/.<id>/` for hosted (`vite` / `kit` / `embedded`). |
 | `capabilities` | `{ dev?, build?, spa? }` | Per-runtime feature flags. A `boolean` applies to the runtime as a whole; an object enables individual features. |
-| `setup` | `(ctx) => void \| Promise<void>` | **Required.** Server-side entry point. Runs in every runtime. |
+| `setup` | `(ctx, info?) => void \| Promise<void>` | **Required.** Server-side entry point. Runs in every runtime. The optional second argument carries runtime metadata — most notably the parsed CLI `flags` when running under `createCli`. |
 | `setupBrowser` | `(ctx) => void \| Promise<void>` | Browser-only entry used by the SPA adapter. |
-| `cli` | `DevtoolCliOptions` | Defaults for the CLI adapter (`command`, `port`, `open`, `distDir`). |
+| `cli` | `DevtoolCliOptions` | Defaults for the CLI adapter. See [CLI options](#cli-options) below. |
 | `spa` | `DevtoolSpaOptions` | Defaults for the SPA adapter (`base`, `loader`). |
 
 ### Runtime Flags
@@ -113,25 +114,59 @@ defineDevtool({
 > [!NOTE]
 > Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers. `createSpa` prints a warning when this applies.
 
-## CLI & SPA Options
+## CLI Options
 
-`cli` and `spa` let you set defaults that adapters pick up automatically:
+`cli` lets you configure the CLI adapter's defaults and plug additional flags/commands into the CAC instance:
 
 ```ts
 defineDevtool({
   id: 'my-devtool',
   name: 'My Devtool',
   cli: {
-    command: 'my-devtool', // default: the `id`
-    port: 9876, // default: 9999
-    open: true, // open the browser on start
-    distDir: './client/dist', // author's SPA dist — required for dev / build / spa
+    command: 'my-devtool', // binary name; default: the `id`
+    distDir: './client/dist', // required for dev / build / spa
+    port: 9876, // preferred port; default: 9999
+    portRange: [9876, 10000], // forwarded to get-port-please
+    random: false, // forwarded to get-port-please
+    host: 'localhost', // default host; --host overrides
+    open: true, // auto-open the browser on dev start
+    auth: false, // skip the trust handshake (single-user localhost)
+    configure(cli) { // contribute capability flags/commands
+      cli
+        .option('--my-flag <value>', 'Tool-specific flag')
+    },
   },
+  setup(ctx, { flags }) {
+    // `flags` carries the parsed cac bag — contains built-in flags
+    // (`--port`, `--host`, `--open`, `--no-open`) and anything you added
+    // in `configure`.
+  },
+})
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `command` | `string` | Binary name surfaced in `--help`. Default: the definition's `id`. |
+| `distDir` | `string` | SPA dist directory. **Required** for `dev` / `build` / `spa`. |
+| `port` | `number` | Preferred port for the dev server. |
+| `portRange` | `[number, number]` | Port scan range, passed through to `get-port-please`. |
+| `random` | `boolean` | Prefer a random open port. |
+| `host` | `string` | Default bind host. |
+| `open` | `boolean \| string` | `true` opens the origin, a string opens a specific path, `false` disables. Matches the `--open` / `--no-open` flags. |
+| `auth` | `boolean` | Disable the WS trust flow when the tool is localhost-only and single-user. Default `true`. |
+| `configure` | `(cli: CAC) => void` | Contribute capability flags/commands. Runs before `createCli`'s `configureCli` option so the final tool author always has the last word. |
+
+`setup(ctx, info)` receives `info.flags` populated from both devframe's built-in flags and any you declare via `configure`. Use this to avoid duplicating flag parsing yourself.
+
+## SPA Options
+
+```ts
+defineDevtool({
+  id: 'my-devtool',
   spa: {
     base: '/',
     loader: 'query', // 'query' | 'upload' | 'none'
   },
-  setup() { /* ... */ },
 })
 ```
 

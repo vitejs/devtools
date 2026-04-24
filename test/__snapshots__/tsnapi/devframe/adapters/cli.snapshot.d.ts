@@ -3,10 +3,17 @@
  */
 // #region Interfaces
 export interface CliHandle {
+  cli: CAC;
   parse: (_?: string[]) => Promise<void>;
 }
 export interface CreateCliOptions {
   defaultPort?: number;
+  configureCli?: (_: CAC) => void;
+  onReady?: (_: {
+    origin: string;
+    port: number;
+    app: App;
+  }) => void | Promise<void>;
 }
 // #endregion
 

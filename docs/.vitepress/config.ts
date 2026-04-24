@@ -20,6 +20,7 @@ const DevFrameNav = [
   { text: 'Logs & Notifications', link: '/devframe/logs' },
   { text: 'Terminals', link: '/devframe/terminals' },
   { text: 'Client', link: '/devframe/client' },
+  { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
   { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
 ]
 
@@ -109,6 +110,7 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'Logs', link: '/devframe/logs' },
           { text: 'Terminals', link: '/devframe/terminals' },
           { text: 'Client', link: '/devframe/client' },
+          { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
           { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
         ],
       },

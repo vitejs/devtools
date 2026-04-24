@@ -11,6 +11,16 @@ If you are writing a Vite plugin and want a Vite-specific entry point, see the [
 > [!WARNING] Experimental
 > The DevFrame API is still in development and may change between versions. The agent-native surface (`agent` field on `defineRpcFunction`, `ctx.agent`, and the MCP adapter) is additionally flagged as experimental.
 
+## Design Principles
+
+DevFrame keeps its surface small and pushes UX decisions to the application consuming it:
+
+- **Headless.** No default startup banners, logging, or styling. Hook into `onReady`, `cli.configure`, and friends to print your own output.
+- **App-owned file watching.** Wire your own watcher (chokidar, fs.watch, …) and signal change via `ctx.rpc.sharedState.set(...)` or event-type RPCs. DevFrame does not ship a watcher primitive.
+- **Context-aware mount paths.** Standalone adapters (`cli`, `spa`, `build`) serve at `/` by default; hosted adapters (`vite`, `kit`, `embedded`) serve at `/.<id>/`. Override via `DevtoolDefinition.basePath`.
+- **SPAs own their base at runtime.** Build with relative asset paths (`vite.base: './'`); `connectDevtool` discovers the effective base from the executing script's location. No HTML rewrites at build time.
+- **CLI flags compose.** The `cac` instance is exposed to both the devtool (`cli.configure`) and the caller of `createCli`, so capability flags and app flags merge cleanly.
+
 ## What DevFrame Provides
 
 | Subsystem | What it does |
@@ -98,11 +108,13 @@ await createCli(devtool).parse()
 Run it:
 
 ```sh
-node ./my-devtool.js        # dev server on http://localhost:9999/.devtools/
+node ./my-devtool.js        # dev server on http://localhost:9999/
 node ./my-devtool.js build  # static snapshot in dist-static/
 node ./my-devtool.js spa    # deployable SPA bundle in dist-spa/
 node ./my-devtool.js mcp    # stdio MCP server (experimental)
 ```
+
+The CLI adapter serves the SPA at `/` by default. When the same devtool is embedded inside a host (`vite`, `kit`, `embedded`), the default becomes `/.my-devtool/`. Override either side via `defineDevtool({ basePath })`.
 
 ## Adapters at a Glance
 

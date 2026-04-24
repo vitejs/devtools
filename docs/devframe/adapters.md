@@ -41,12 +41,14 @@ await createCli(devtool).parse()
 Running the resulting binary:
 
 ```sh
-my-devtool                     # dev server at http://localhost:9999/.devtools/
+my-devtool                     # dev server at http://localhost:9999/
 my-devtool --port 8080
 my-devtool build --out-dir dist-static
 my-devtool spa --out-dir dist-spa --base /devtools/
 my-devtool mcp                 # stdio MCP server (experimental)
 ```
+
+> Standalone CLI serves the SPA at `/` by default — no `/.devtools/` prefix. That prefix is reserved for *hosted* adapters where devframe mounts alongside an existing app. See [Mount paths](#mount-paths) below.
 
 ### Options
 
@@ -55,12 +57,87 @@ my-devtool mcp                 # stdio MCP server (experimental)
 | Option | Default | Description |
 |--------|---------|-------------|
 | `defaultPort` | `9999` (or `def.cli?.port`) | Port used by the dev command when `--port` isn't provided. |
+| `configureCli` | — | `(cli: CAC) => void` — final hook to add commands/flags at the assembly stage, after the definition's `cli.configure` runs. |
+| `onReady` | — | `(info: { origin, port, app }) => void \| Promise<void>` — called once the dev server is listening. Use this to print your own startup banner. |
 
-Definition-level `cli` fields (`command`, `port`, `open`, `distDir`) supply defaults — `distDir` is required for `dev` / `build` / `spa`.
+`createCli` returns a `CliHandle`:
+
+```ts
+interface CliHandle {
+  cli: CAC // raw cac instance — mutate before calling parse()
+  parse: (argv?: string[]) => Promise<void>
+}
+```
+
+The `cli` property lets the caller add ad-hoc commands and flags right before `parse()` for cases where a `configureCli` callback is inconvenient.
+
+### Definition-level `cli` fields
+
+```ts
+defineDevtool({
+  id: 'my-devtool',
+  cli: {
+    command: 'my-devtool', // binary name; default: the id
+    distDir: './client/dist', // required for dev/build/spa
+    port: 7777, // preferred port
+    portRange: [7777, 9000], // passed through to get-port-please
+    random: false, // passed through to get-port-please
+    host: '127.0.0.1', // default host; --host overrides
+    open: true, // auto-open the browser on dev start
+    auth: false, // skip the trust handshake (single-user localhost)
+    configure(cli) { // contribute capability flags/commands
+      cli.option('--config <file>', 'Custom config file')
+        .option('--no-files', 'Skip file matching')
+    },
+  },
+  setup(ctx, { flags }) {
+    // `flags` is the parsed cac flag bag — includes both devframe's
+    // built-ins (`--port`, `--host`, `--open`) and anything declared in
+    // `cli.configure` or `configureCli`.
+  },
+})
+```
+
+`distDir` is the only required field; everything else has sensible defaults. The `configure` hook runs *before* the `configureCli` option passed to `createCli`, so the final tool author always has the last word on flags.
+
+### Headless logging
+
+Devframe deliberately does not print a startup banner of its own. Wire `onReady` if you want one:
+
+```ts
+await createCli(devtool, {
+  onReady({ origin }) {
+    console.log(`ESLint Config Inspector ready at ${origin}`)
+  },
+}).parse()
+```
+
+Structured diagnostics (via `logs-sdk`) continue to surface through their normal reporters.
+
+## Mount paths
+
+The basePath where a devtool's SPA is mounted depends on the adapter it's running under:
+
+| Adapter kind | Default basePath | Reason |
+|--------------|------------------|--------|
+| `cli`, `spa`, `build` (standalone) | `/` | The devtool is the only thing on the origin. |
+| `vite`, `kit`, `embedded` (hosted) | `/.<id>/` | The devtool shares the origin with a host app and must namespace itself. |
+
+Override either side explicitly with `DevtoolDefinition.basePath`:
+
+```ts
+defineDevtool({
+  id: 'my-devtool',
+  basePath: '/devtools/', // force this base regardless of adapter
+  setup(ctx) { /* … */ },
+})
+```
+
+SPA authors should **build with relative asset paths** (`vite.base: './'`) rather than baking an absolute base into the output; the client resolves its connection descriptor relative to the page at runtime. See the [Client](./client#runtime-basepath-discovery) page for the discovery rules.
 
 ## Vite
 
-A thin Vite plugin that mounts a devtool's SPA into an existing Vite dev server at `options.base` (default `/__devframe/<id>/`). It **does not** start an RPC WebSocket server — use `kit` or `cli` when you need RPC.
+A thin Vite plugin that mounts a devtool's SPA into an existing Vite dev server as a *hosted* adapter — the mount path defaults to `/.<id>/` to avoid colliding with the app. It **does not** start an RPC WebSocket server — use `kit` or `cli` when you need RPC.
 
 ```ts
 import { createVitePlugin } from 'devframe/adapters/vite'
@@ -74,9 +151,9 @@ export default defineConfig({
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `base` | `/__devframe/<id>/` | Mount path inside the Vite dev server. |
+| `base` | `def.basePath ?? '/.<id>/'` | Mount path inside the Vite dev server. |
 
-Use this adapter when a devtool's UI is purely static (no server calls) and you want to surface it during Vite `serve` without shipping a separate dev server.
+Use this adapter when a devtool's UI is purely static (no server calls) and you want to surface it during Vite `serve` without shipping a separate dev server. Set `DevtoolDefinition.basePath` on the definition if you want a custom path that stays consistent across adapters.
 
 ## Build
 
@@ -104,6 +181,9 @@ await createBuild(devtool, {
 | `distDir` | `def.cli?.distDir` | Override the SPA dist directory. |
 
 The resulting directory can be hosted by any static web server. The client auto-detects `static` mode via `.devtools/.connection.json` and runs in read-only form.
+
+> [!TIP]
+> `createBuild` copies the SPA verbatim. To deploy under a custom URL base, build your SPA with relative asset paths (`vite.base: './'`) — the client discovers the effective base at runtime. No HTML rewriting is performed at build time.
 
 ## SPA
 
@@ -152,7 +232,7 @@ The returned object has the shape `{ name, devtools: { setup, capabilities } }`.
 
 ## Embedded
 
-Register a devtool into an already-running context at runtime. Mirrors the internal plugin-scan that Kit runs at startup, but exposes it for callers that need dynamic, post-startup registration.
+Register a devtool into an already-running context at runtime. Mirrors the internal plugin-scan that Kit runs at startup, but exposes it for callers that need dynamic, post-startup registration. The host decides the mount path; `embedded` is treated as a hosted adapter and inherits the `/.<id>/` default when one is needed.
 
 ```ts
 import { createEmbedded } from 'devframe/adapters/embedded'

@@ -3,12 +3,16 @@ import type { DevtoolDefinition } from '../types/devtool'
 import fs from 'node:fs/promises'
 import c from 'ansis'
 import { resolve } from 'pathe'
+import { resolveBasePath } from './_shared'
 import { createBuild } from './build'
 
 export interface CreateSpaOptions {
   /** Output directory. Defaults to `dist-spa`. */
   outDir?: string
-  /** Absolute URL base the deployed SPA is served from (default: `/`). */
+  /**
+   * Absolute URL base the deployed SPA is served from. Defaults to
+   * `def.basePath ?? '/'` — standalone SPAs own their origin.
+   */
   base?: string
 }
 
@@ -26,12 +30,13 @@ export interface CreateSpaOptions {
  */
 export async function createSpa(d: DevtoolDefinition, options: CreateSpaOptions = {}): Promise<void> {
   const outDir = resolve(options.outDir ?? 'dist-spa')
-  await createBuild(d, { ...options, outDir })
+  const base = options.base ?? resolveBasePath(d, 'standalone')
+  await createBuild(d, { ...options, outDir, base })
 
   const spaLoader = {
     version: 1,
     mode: d.spa?.loader ?? 'none',
-    base: options.base ?? '/',
+    base,
   }
   await fs.writeFile(
     resolve(outDir, '.devtools', 'spa-loader.json'),

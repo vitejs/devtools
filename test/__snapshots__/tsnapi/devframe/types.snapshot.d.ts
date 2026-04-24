@@ -15,6 +15,7 @@ export { defineDevtool }
 export { DevtoolBrowserContext }
 export { DevtoolCliOptions }
 export { DevtoolDefinition }
+export { DevtoolDeploymentKind }
 export { DevtoolRuntime }
 export { DevToolsAgentHost }
 export { DevToolsAgentHostEvents }
@@ -37,6 +38,7 @@ export { DevToolsDockEntryIcon }
 export { DevToolsDockHost }
 export { DevToolsDocksUserSettings }
 export { DevToolsDockUserEntry }
+export { DevtoolSetupInfo }
 export { DevToolsHost }
 export { DevToolsLogElementPosition }
 export { DevToolsLogEntry }
