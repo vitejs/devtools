@@ -4,6 +4,10 @@ import { isObject } from './utils'
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean
   /**
+   * Vite environments to enable DevTools for. Defaults to all environments.
+   */
+  environments?: string[]
+  /**
    * Disable client authentication.
    *
    * Beware that if you disable client authentication,
