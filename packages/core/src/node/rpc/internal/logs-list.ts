@@ -1,5 +1,5 @@
 import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
-import type { DevToolsLogsHost } from '../../../node/host-logs'
+import type { DevToolsLogsHost } from 'devframe/node'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export interface LogsListResult {

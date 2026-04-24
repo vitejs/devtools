@@ -1,0 +1,55 @@
+import { describe, expect, it, vi } from 'vitest'
+import { WebSocket } from 'ws'
+import { createRpcClient } from '../client'
+import { createRpcServer } from '../server'
+import { createWsRpcChannel } from './ws-client'
+import { attachWsRpcTransport } from './ws-server'
+
+vi.stubGlobal('WebSocket', WebSocket)
+
+describe('devtools rpc', () => {
+  it('should work w/ ws transport', async () => {
+    const PORT = 3333
+    // Use 127.0.0.1 on both client and server so they agree on the
+    // address family — `localhost` resolution is ambiguous (IPv4 vs IPv6)
+    // and differs between Windows/macOS/Linux, which causes the client
+    // to hang when the two sides pick opposite families.
+    const HOST = '127.0.0.1'
+    const WS_URL = `ws://${HOST}:${PORT}`
+
+    const serverFunctions = {
+      hello: (no: number) => {
+        return `hello world from client ${no}`
+      },
+    }
+
+    const client1Functions = {
+      hey: (name: string) => {
+        return `hey ${name}, I'm client 1`
+      },
+    }
+
+    const client2Functions = {
+      hey: (name: string) => {
+        return `hey ${name}, I'm client 2`
+      },
+    }
+
+    const server = createRpcServer<typeof client1Functions | typeof client2Functions, typeof serverFunctions>(serverFunctions)
+    attachWsRpcTransport(server, { port: PORT, host: HOST })
+
+    const client1 = createRpcClient<typeof serverFunctions, typeof client1Functions>(client1Functions, {
+      channel: createWsRpcChannel({ url: WS_URL }),
+    })
+
+    const client2 = createRpcClient<typeof serverFunctions, typeof client2Functions>(client2Functions, {
+      channel: createWsRpcChannel({ url: WS_URL }),
+    })
+
+    expect(await client1.$call('hello', 1)).toBe('hello world from client 1')
+
+    expect(await client2.$call('hello', 2)).toBe('hello world from client 2')
+
+    expect(await server.broadcast.$call('hey', 'server')).toEqual(expect.arrayContaining(['hey server, I\'m client 1', 'hey server, I\'m client 2']))
+  })
+})

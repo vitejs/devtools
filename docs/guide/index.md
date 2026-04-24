@@ -155,6 +155,7 @@ Now that you have Vite DevTools set up, you can:
 
 - **Explore the built-in tools**: Check out the [DevTools for Rolldown](/rolldown/) panels and visualizations
 - **Build custom integrations**: Learn how to extend the devtools with your own tools using the [Vite DevTools Kit](/kit/)
+- **Build a standalone CLI tool**: For tools that don't need Vite at all (ESLint inspectors, bundler-config viewers, etc.), follow the [Standalone CLI](/devframe/standalone-cli) recipe
 - **Contribute**: Help improve Vite DevTools by checking out our [contributing guide](https://github.com/antfu/contribute)
 
 ## Current Limitations
@@ -169,12 +170,12 @@ Now that you have Vite DevTools set up, you can:
 
 Vite DevTools consists of several core packages:
 
-- **`@vitejs/devtools`**: The core framework, CLI, and runtime hosts
-- **`@vitejs/devtools-kit`**: Vite DevTools Kit — utilities and types for building custom integrations
+- **`devframe`**: The framework-neutral foundation — RPC layer, runtime hosts, and seven adapters. Usable standalone without Vite. See [DevFrame](/devframe/).
+- **`@vitejs/devtools`**: The Vite plugin, CLI, and client that wraps DevFrame for the Vite ecosystem
+- **`@vitejs/devtools-kit`**: Vite DevTools Kit — a Vite-specific superset of DevFrame for building integrations
 - **`@vitejs/devtools-rolldown`**: [DevTools for Rolldown](/rolldown/) — built-in build analysis UI
 - **`@vitejs/devtools-vite`**: DevTools for Vite *(in development)*
-- **`@vitejs/devtools-rpc`**: RPC layer for server-client communication
 
-Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) can also integrate via the DevTools Kit plugin API.
+Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) can integrate via the DevTools Kit plugin API. Tools that don't need Vite at all (standalone CLIs, MCP servers, static dashboards) can build directly on [DevFrame](/devframe/).
 
-For more details on extending the devtools, see the [Vite DevTools Kit documentation](/kit/).
+For more details on extending the devtools, see the [Vite DevTools Kit documentation](/kit/). For the framework-neutral foundation, see [DevFrame](/devframe/).

@@ -1,1 +1,1 @@
-export { humanId } from 'human-id'
+export * from 'devframe/utils/human-id'

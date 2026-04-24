@@ -1,2 +1,2 @@
-export { getInternalContext } from './node/context-internal'
-export type { DevToolsInternalContext, InternalAnonymousAuthStorage } from './node/context-internal'
+export { getInternalContext } from 'devframe/node'
+export type { DevToolsInternalContext, InternalAnonymousAuthStorage } from 'devframe/node'

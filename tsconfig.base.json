@@ -9,23 +9,89 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-rpc/presets/ws/server": [
-        "./packages/rpc/src/presets/ws/server.ts"
+      "devframe/rpc/transports/ws-server": [
+        "./packages/devframe/src/rpc/transports/ws-server.ts"
       ],
-      "@vitejs/devtools-rpc/presets/ws/client": [
-        "./packages/rpc/src/presets/ws/client.ts"
+      "devframe/rpc/transports/ws-client": [
+        "./packages/devframe/src/rpc/transports/ws-client.ts"
       ],
-      "@vitejs/devtools-rpc/presets": [
-        "./packages/rpc/src/presets/index.ts"
+      "devframe/rpc/client": [
+        "./packages/devframe/src/rpc/client.ts"
       ],
-      "@vitejs/devtools-rpc/client": [
-        "./packages/rpc/src/client.ts"
+      "devframe/rpc/server": [
+        "./packages/devframe/src/rpc/server.ts"
       ],
-      "@vitejs/devtools-rpc/server": [
-        "./packages/rpc/src/server.ts"
+      "devframe/rpc": [
+        "./packages/devframe/src/rpc"
       ],
-      "@vitejs/devtools-rpc": [
-        "./packages/rpc/src"
+      "devframe/types": [
+        "./packages/devframe/src/types/index.ts"
+      ],
+      "devframe/node": [
+        "./packages/devframe/src/node/index.ts"
+      ],
+      "devframe/constants": [
+        "./packages/devframe/src/constants.ts"
+      ],
+      "devframe/utils/events": [
+        "./packages/devframe/src/utils/events.ts"
+      ],
+      "devframe/utils/human-id": [
+        "./packages/devframe/src/utils/human-id.ts"
+      ],
+      "devframe/utils/nanoid": [
+        "./packages/devframe/src/utils/nanoid.ts"
+      ],
+      "devframe/utils/promise": [
+        "./packages/devframe/src/utils/promise.ts"
+      ],
+      "devframe/utils/shared-state": [
+        "./packages/devframe/src/utils/shared-state.ts"
+      ],
+      "devframe/utils/state": [
+        "./packages/devframe/src/utils/state.ts"
+      ],
+      "devframe/utils/when": [
+        "./packages/devframe/src/utils/when.ts"
+      ],
+      "devframe/adapters/cli": [
+        "./packages/devframe/src/adapters/cli.ts"
+      ],
+      "devframe/adapters/build": [
+        "./packages/devframe/src/adapters/build.ts"
+      ],
+      "devframe/adapters/spa": [
+        "./packages/devframe/src/adapters/spa.ts"
+      ],
+      "devframe/adapters/vite": [
+        "./packages/devframe/src/adapters/vite.ts"
+      ],
+      "devframe/adapters/kit": [
+        "./packages/devframe/src/adapters/kit.ts"
+      ],
+      "devframe/adapters/embedded": [
+        "./packages/devframe/src/adapters/embedded.ts"
+      ],
+      "devframe/adapters/mcp": [
+        "./packages/devframe/src/adapters/mcp.ts"
+      ],
+      "devframe/helpers/nuxt/runtime/plugin.client": [
+        "./packages/devframe/src/helpers/nuxt/runtime/plugin.client.ts"
+      ],
+      "devframe/helpers/nuxt": [
+        "./packages/devframe/src/helpers/nuxt/index.ts"
+      ],
+      "devframe/recipes/open-helpers": [
+        "./packages/devframe/src/recipes/open-helpers.ts"
+      ],
+      "devframe/client": [
+        "./packages/devframe/src/client/index.ts"
+      ],
+      "devframe": [
+        "./packages/devframe/src"
+      ],
+      "@vitejs/devtools-kit/node": [
+        "./packages/kit/src/node/index.ts"
       ],
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"

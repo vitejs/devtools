@@ -4,10 +4,10 @@ import {
   DEVTOOLS_MOUNT_PATH,
 } from '@vitejs/devtools-kit/constants'
 import c from 'ansis'
+import { normalizeHttpServerUrl } from 'devframe/node'
 import { resolve } from 'pathe'
 import { MARK_NODE } from './constants'
 import { logger } from './diagnostics'
-import { normalizeHttpServerUrl } from './utils'
 
 export interface StartOptions {
   root?: string

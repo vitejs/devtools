@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.1.15",
   "private": true,
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@10.33.1",
   "scripts": {
     "build": "turbo run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -67,6 +67,7 @@
     "simple-git-hooks": "catalog:devtools",
     "skills-npm": "catalog:devtools",
     "tsdown": "catalog:build",
+    "tsnapi": "catalog:testing",
     "tsx": "catalog:build",
     "turbo": "catalog:build",
     "twoslash": "catalog:docs",
@@ -76,10 +77,8 @@
     "vite-plugin-inspect": "catalog:devtools",
     "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
-    "vitest-package-exports": "catalog:testing",
     "vue": "catalog:deps",
-    "vue-tsc": "catalog:devtools",
-    "yaml": "catalog:testing"
+    "vue-tsc": "catalog:devtools"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx nano-staged"

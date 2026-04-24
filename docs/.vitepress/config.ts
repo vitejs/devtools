@@ -8,6 +8,23 @@ import {
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { version } from '../../package.json'
 
+const DevFrameNav = [
+  { text: 'Introduction', link: '/devframe/' },
+  { text: 'Devtool Definition', link: '/devframe/devtool-definition' },
+  { text: 'Adapters', link: '/devframe/adapters' },
+  { text: 'RPC', link: '/devframe/rpc' },
+  { text: 'Shared State', link: '/devframe/shared-state' },
+  { text: 'Dock System', link: '/devframe/dock-system' },
+  { text: 'Commands', link: '/devframe/commands' },
+  { text: 'When Clauses', link: '/devframe/when-clauses' },
+  { text: 'Logs & Notifications', link: '/devframe/logs' },
+  { text: 'Terminals', link: '/devframe/terminals' },
+  { text: 'Client', link: '/devframe/client' },
+  { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
+  { text: 'Nuxt Helper', link: '/devframe/nuxt' },
+  { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
+]
+
 const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
@@ -50,6 +67,10 @@ export default extendConfig(withMermaid(defineConfig({
         ],
       },
       {
+        text: 'DevFrame',
+        items: DevFrameNav,
+      },
+      {
         text: 'DevTools Kit',
         items: DevToolsKitNav,
       },
@@ -77,6 +98,25 @@ export default extendConfig(withMermaid(defineConfig({
         ],
       },
       {
+        text: 'DevFrame',
+        items: [
+          { text: 'Introduction', link: '/devframe/' },
+          { text: 'Devtool Definition', link: '/devframe/devtool-definition' },
+          { text: 'Adapters', link: '/devframe/adapters' },
+          { text: 'RPC', link: '/devframe/rpc' },
+          { text: 'Shared State', link: '/devframe/shared-state' },
+          { text: 'Dock System', link: '/devframe/dock-system' },
+          { text: 'Commands', link: '/devframe/commands' },
+          { text: 'When Clauses', link: '/devframe/when-clauses' },
+          { text: 'Logs', link: '/devframe/logs' },
+          { text: 'Terminals', link: '/devframe/terminals' },
+          { text: 'Client', link: '/devframe/client' },
+          { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
+          { text: 'Nuxt Helper', link: '/devframe/nuxt' },
+          { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
+        ],
+      },
+      {
         text: 'DevTools Kit',
         items: [
           { text: 'Introduction', link: '/kit/' },
@@ -98,6 +138,14 @@ export default extendConfig(withMermaid(defineConfig({
         link: '/errors/',
         collapsed: true,
         items: [
+          {
+            text: 'Devframe (DF)',
+            collapsed: true,
+            items: Array.from({ length: 17 }, (_, i) => {
+              const code = `DF\*${String(i + 1).padStart(4, '0')}`
+              return { text: code, link: `/errors/${code}` }
+            }),
+          },
           {
             text: 'DevTools Kit (DTK)',
             collapsed: true,
@@ -139,6 +187,10 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
             { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
           ],
+        },
+        {
+          title: 'DevFrame',
+          items: DevFrameNav,
         },
         {
           title: 'DevTools Kit',

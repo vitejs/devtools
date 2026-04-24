@@ -8,9 +8,9 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, runtime hosts (docks, views, terminals), WS RPC server, standalone/webcomponents client |
-| `packages/kit` | `@vitejs/devtools-kit` | Public types/utilities for integration authors (`defineRpcFunction`, shared state, events, client helpers) |
-| `packages/rpc` | `@vitejs/devtools-rpc` | Typed RPC wrapper over `birpc` with WS presets |
+| `packages/devframe` | `devframe` | Framework-neutral foundation — RPC layer (birpc + valibot + WS presets), host classes, createHostContext, six adapters at `devframe/adapters/*` (cli/build/spa/vite/kit/embedded), connectDevtool client |
+| `packages/core` | `@vitejs/devtools` | Vite plugin, CLI, standalone/webcomponents client. Wraps devframe's createHostContext with the Vite plugin scan |
+| `packages/kit` | `@vitejs/devtools-kit` | Vite-specific superset of devframe — adds PluginWithDevTools, ViteDevToolsNodeContext, and re-exports devframe's public types |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Serves at `/.devtools-rolldown/` |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Serves at `/.devtools-vite/` |
@@ -23,20 +23,25 @@ Other top-level directories:
 
 ```mermaid
 flowchart TD
-  core["core"] --> kit & rpc
+  kit --> devframe
+  core --> kit
   core --> rolldown & vite & self-inspect
-  rolldown --> kit & rpc & ui
-  vite --> kit & rpc & ui
-  self-inspect --> kit & rpc
+  rolldown --> kit & ui
+  vite --> kit & ui
+  self-inspect --> kit
   webext --> core
 ```
+
+## Dep Boundary
+
+`packages/devframe` is the lowest-level package in this monorepo and is positioned to be extracted into its own repo. It MUST NOT import from `vite` or any `@vitejs/*` package — not as a `dependencies` entry, not as an inlined dep, not as a source import. `packages/kit` and above build on top of devframe, never the reverse.
 
 ## Architecture
 
 - **Entry**: `createDevToolsContext` (`packages/core/src/node/context.ts`) builds `DevToolsNodeContext` with hosts for RPC, docks, views, terminals. Invokes `plugin.devtools.setup` hooks.
 - **Node context**: server-side (cwd, vite config, mode, hosts, auth storage at `node_modules/.vite/devtools/auth.json`).
 - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`) — dock entries, panels, RPC client. Two modes: `embedded` (overlay in host app) and `standalone` (independent page).
-- **WS server** (`packages/core/src/node/ws.ts`): RPC via `@vitejs/devtools-rpc/presets/ws`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
+- **WS server** (`packages/core/src/node/ws.ts`): RPC via `devframe/rpc/transports/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
 - **Nuxt UI plugins** (rolldown, vite, self-inspect): each registers RPC functions and hosts static Nuxt SPA at its own base path.
 
 ## Development
@@ -62,6 +67,16 @@ pnpm -C docs run docs                 # docs dev server
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 
+### Devframe design principles
+
+These apply to everything inside `packages/devframe` and to how host packages (`kit`, `core`, etc.) layer on top. When in doubt, err on the side of "devframe provides hooks, the app decides UX".
+
+- **Headless by default.** No default startup banners, no opinionated logging to stdout, no default styling. Provide hooks (`onReady`, `cli.configure`, etc.); let the application print its own branding. Structured diagnostics via `logs-sdk` are fine — ad-hoc `console.log`s baked into adapters are not.
+- **File watching is the app's job, not devframe's.** Don't add a generic watcher primitive. Authors wire chokidar / fs.watch / watchman themselves and signal change via `ctx.rpc.sharedState.set(...)` or event-type RPCs. devframe stays out of the filesystem-observation business.
+- **Mount path depends on adapter context.** Given `id: 'foo'`, the default mount path is `/.foo/` for *hosted* adapters (`vite`, `kit`, `embedded`) and `/` for *standalone* adapters (`cli`, `spa`, `build`). Authors override via `DevtoolDefinition.basePath`. Don't hardcode `DEVTOOLS_MOUNT_PATH` in adapter code paths that may run standalone.
+- **SPAs own their basePath at runtime.** Build SPAs with relative asset paths (`vite.base: './'`); discover the effective base in the browser from the executing script's location / `document.baseURI`. `createBuild` / `createSpa` copy SPA output verbatim — no HTML rewriting, no build-time `--base` injection. The client (`connectDevtool`) resolves `.connection.json` relative to the runtime base automatically.
+- **CLI flags compose from both sides.** The `cac` instance backing `createCli` is exposed both to the `DevtoolDefinition` (`cli.configure(cli)`) — for capabilities contributed by the tool itself — and to the `createCli` caller — for flags added at the final assembly stage. Parsed flag values are forwarded to `setup(ctx, { flags })`. Never hardcode domain-specific flags into `createCli`.
+
 ## Structured Diagnostics (Error Codes)
 
 All node-side warnings and errors use structured diagnostics via [`logs-sdk`](https://github.com/vercel-labs/logs-sdk). Never use raw `console.warn`, `console.error`, or `throw new Error` with ad-hoc messages in node-side code — always define a coded diagnostic.
@@ -70,7 +85,8 @@ All node-side warnings and errors use structured diagnostics via [`logs-sdk`](ht
 
 | Prefix | Package(s) | Diagnostics file |
 |--------|-----------|-----------------|
-| `DTK` | `packages/rpc`, `packages/core` | `packages/rpc/src/diagnostics.ts`, `packages/core/src/node/diagnostics.ts` |
+| `DF` | `packages/devframe` | `packages/devframe/src/node/diagnostics.ts`, `packages/devframe/src/rpc/diagnostics.ts` |
+| `DTK` | `packages/core` (Vite-specific remainder) | `packages/core/src/node/diagnostics.ts` |
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
 | `VDT` | `packages/vite` (reserved) | — |
 

@@ -37,8 +37,8 @@
   "dependencies": {
     "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
+    "devframe": "workspace:*",
     "envinfo": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",

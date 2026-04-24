@@ -32,12 +32,6 @@
         "dist/**"
       ]
     },
-    "@vitejs/devtools-rpc#build": {
-      "outputLogs": "new-only",
-      "outputs": [
-        "dist/**"
-      ]
-    },
     "@vitejs/devtools-ui#build": {
       "outputLogs": "new-only",
       "outputs": [
@@ -51,6 +45,12 @@
       ]
     },
     "@vitejs/devtools-webext#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "devframe#build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"

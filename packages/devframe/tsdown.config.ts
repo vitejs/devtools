@@ -1,0 +1,91 @@
+import { defineConfig } from 'tsdown'
+
+export default defineConfig({
+  entry: {
+    'index': 'src/index.ts',
+    'rpc/index': 'src/rpc/index.ts',
+    'rpc/client': 'src/rpc/client.ts',
+    'rpc/server': 'src/rpc/server.ts',
+    'rpc/transports/ws-client': 'src/rpc/transports/ws-client.ts',
+    'rpc/transports/ws-server': 'src/rpc/transports/ws-server.ts',
+    'types/index': 'src/types/index.ts',
+    'node/index': 'src/node/index.ts',
+    'constants': 'src/constants.ts',
+    'utils/events': 'src/utils/events.ts',
+    'utils/human-id': 'src/utils/human-id.ts',
+    'utils/nanoid': 'src/utils/nanoid.ts',
+    'utils/promise': 'src/utils/promise.ts',
+    'utils/shared-state': 'src/utils/shared-state.ts',
+    'utils/state': 'src/utils/state.ts',
+    'utils/when': 'src/utils/when.ts',
+    'adapters/cli': 'src/adapters/cli.ts',
+    'adapters/build': 'src/adapters/build.ts',
+    'adapters/spa': 'src/adapters/spa.ts',
+    'adapters/vite': 'src/adapters/vite.ts',
+    'adapters/kit': 'src/adapters/kit.ts',
+    'adapters/embedded': 'src/adapters/embedded.ts',
+    'adapters/mcp': 'src/adapters/mcp.ts',
+    'client/index': 'src/client/index.ts',
+    'helpers/nuxt/index': 'src/helpers/nuxt/index.ts',
+    'helpers/nuxt/runtime/plugin.client': 'src/helpers/nuxt/runtime/plugin.client.ts',
+    'recipes/open-helpers': 'src/recipes/open-helpers.ts',
+  },
+  tsconfig: '../../tsconfig.base.json',
+  clean: true,
+  dts: true,
+  exports: true,
+  // Keep transitive external type graphs out of dts bundling.
+  // `vite`/`esbuild`/`postcss` are pulled in via the kit client's
+  // `declare module 'vite'` augmentation and contain
+  // rolldown-incompatible re-exports that would otherwise fail dts
+  // generation with dozens of MISSING_EXPORT errors.
+  deps: {
+    neverBundle: [
+      'vite',
+      'esbuild',
+      'postcss',
+      'rolldown',
+      /^@rolldown\//,
+      /^@oxc-project\//,
+      'terser',
+      '@jridgewell/trace-mapping',
+      // The Nuxt adapter pulls in @nuxt/kit, whose type graph reaches
+      // @nuxt/schema → @vitejs/plugin-vue-jsx → @vue/babel-plugin-jsx
+      // → babel-plugin-resolve-type, plus scule. Keep all of this out
+      // of the bundled dts — consumers import from their own
+      // node_modules at install time.
+      '@nuxt/kit',
+      '@nuxt/schema',
+      '@vitejs/plugin-vue-jsx',
+      '@vue/babel-plugin-jsx',
+      '@vue/babel-plugin-resolve-type',
+      'scule',
+    ],
+    onlyBundle: [
+      'acorn',
+      'bundle-name',
+      'default-browser',
+      'default-browser-id',
+      'define-lazy-prop',
+      'get-port-please',
+      'human-id',
+      'immer',
+      'is-docker',
+      'is-in-ssh',
+      'is-inside-container',
+      'is-wsl',
+      'mlly',
+      'obug',
+      'open',
+      'p-limit',
+      'perfect-debounce',
+      'powershell-utils',
+      'run-applescript',
+      'tinyexec',
+      'ua-parser-modern',
+      'whenexpr',
+      'wsl-utils',
+      'yocto-queue',
+    ],
+  },
+})
