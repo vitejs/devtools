@@ -10,7 +10,12 @@ vi.stubGlobal('WebSocket', WebSocket)
 describe('devtools rpc', () => {
   it('should work w/ ws transport', async () => {
     const PORT = 3333
-    const WS_URL = `ws://localhost:${PORT}`
+    // Use 127.0.0.1 on both client and server so they agree on the
+    // address family — `localhost` resolution is ambiguous (IPv4 vs IPv6)
+    // and differs between Windows/macOS/Linux, which causes the client
+    // to hang when the two sides pick opposite families.
+    const HOST = '127.0.0.1'
+    const WS_URL = `ws://${HOST}:${PORT}`
 
     const serverFunctions = {
       hello: (no: number) => {
@@ -31,7 +36,7 @@ describe('devtools rpc', () => {
     }
 
     const server = createRpcServer<typeof client1Functions | typeof client2Functions, typeof serverFunctions>(serverFunctions)
-    attachWsRpcTransport(server, { port: PORT })
+    attachWsRpcTransport(server, { port: PORT, host: HOST })
 
     const client1 = createRpcClient<typeof serverFunctions, typeof client1Functions>(client1Functions, {
       channel: createWsRpcChannel({ url: WS_URL }),
