@@ -10,7 +10,7 @@ pnpm add devframe
 
 ## Docs
 
-See the [Vite DevTools documentation](https://devtools.vite.dev) for guides and API reference.
+See the [DevFrame documentation](https://devtools.vite.dev/devframe/) for the full guide and API reference.
 
 ## Agent-Native (experimental)
 
@@ -55,7 +55,7 @@ devframe mcp
 
 `@modelcontextprotocol/sdk` is a peer dependency — add it to your package when you want to ship MCP support.
 
-See the [Agent-Native guide](https://devtools.vite.dev/guide/agent-native) for the full API, safety model, and Claude Desktop integration example.
+See the [Agent-Native guide](https://devtools.vite.dev/devframe/agent-native) for the full API, safety model, and Claude Desktop integration example.
 
 ## License
 

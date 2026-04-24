@@ -8,6 +8,21 @@ import {
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { version } from '../../package.json'
 
+const DevFrameNav = [
+  { text: 'Introduction', link: '/devframe/' },
+  { text: 'Devtool Definition', link: '/devframe/devtool-definition' },
+  { text: 'Adapters', link: '/devframe/adapters' },
+  { text: 'RPC', link: '/devframe/rpc' },
+  { text: 'Shared State', link: '/devframe/shared-state' },
+  { text: 'Dock System', link: '/devframe/dock-system' },
+  { text: 'Commands', link: '/devframe/commands' },
+  { text: 'When Clauses', link: '/devframe/when-clauses' },
+  { text: 'Logs & Notifications', link: '/devframe/logs' },
+  { text: 'Terminals', link: '/devframe/terminals' },
+  { text: 'Client', link: '/devframe/client' },
+  { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
+]
+
 const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
@@ -50,6 +65,10 @@ export default extendConfig(withMermaid(defineConfig({
         ],
       },
       {
+        text: 'DevFrame',
+        items: DevFrameNav,
+      },
+      {
         text: 'DevTools Kit',
         items: DevToolsKitNav,
       },
@@ -67,7 +86,6 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/' },
-          { text: 'Agent-Native (experimental)', link: '/guide/agent-native' },
         ],
       },
       {
@@ -75,6 +93,23 @@ export default extendConfig(withMermaid(defineConfig({
         items: [
           { text: 'Introduction', link: '/rolldown/' },
           { text: 'Features', link: '/rolldown/features' },
+        ],
+      },
+      {
+        text: 'DevFrame',
+        items: [
+          { text: 'Introduction', link: '/devframe/' },
+          { text: 'Devtool Definition', link: '/devframe/devtool-definition' },
+          { text: 'Adapters', link: '/devframe/adapters' },
+          { text: 'RPC', link: '/devframe/rpc' },
+          { text: 'Shared State', link: '/devframe/shared-state' },
+          { text: 'Dock System', link: '/devframe/dock-system' },
+          { text: 'Commands', link: '/devframe/commands' },
+          { text: 'When Clauses', link: '/devframe/when-clauses' },
+          { text: 'Logs', link: '/devframe/logs' },
+          { text: 'Terminals', link: '/devframe/terminals' },
+          { text: 'Client', link: '/devframe/client' },
+          { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
         ],
       },
       {
@@ -148,6 +183,10 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
             { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
           ],
+        },
+        {
+          title: 'DevFrame',
+          items: DevFrameNav,
         },
         {
           title: 'DevTools Kit',
