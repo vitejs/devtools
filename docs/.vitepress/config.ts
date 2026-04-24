@@ -21,6 +21,7 @@ const DevFrameNav = [
   { text: 'Terminals', link: '/devframe/terminals' },
   { text: 'Client', link: '/devframe/client' },
   { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
+  { text: 'Nuxt Helper', link: '/devframe/nuxt' },
   { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
 ]
 
@@ -111,6 +112,7 @@ export default extendConfig(withMermaid(defineConfig({
           { text: 'Terminals', link: '/devframe/terminals' },
           { text: 'Client', link: '/devframe/client' },
           { text: 'Standalone CLI', link: '/devframe/standalone-cli' },
+          { text: 'Nuxt Helper', link: '/devframe/nuxt' },
           { text: 'Agent-Native (experimental)', link: '/devframe/agent-native' },
         ],
       },

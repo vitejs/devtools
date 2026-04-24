@@ -75,6 +75,15 @@
       "devframe/adapters/mcp": [
         "./packages/devframe/src/adapters/mcp.ts"
       ],
+      "devframe/helpers/nuxt/runtime/plugin.client": [
+        "./packages/devframe/src/helpers/nuxt/runtime/plugin.client.ts"
+      ],
+      "devframe/helpers/nuxt": [
+        "./packages/devframe/src/helpers/nuxt/index.ts"
+      ],
+      "devframe/recipes/open-helpers": [
+        "./packages/devframe/src/recipes/open-helpers.ts"
+      ],
       "devframe/client": [
         "./packages/devframe/src/client/index.ts"
       ],

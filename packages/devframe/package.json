@@ -29,7 +29,10 @@
     "./adapters/vite": "./dist/adapters/vite.mjs",
     "./client": "./dist/client/index.mjs",
     "./constants": "./dist/constants.mjs",
+    "./helpers/nuxt": "./dist/helpers/nuxt/index.mjs",
+    "./helpers/nuxt/runtime/plugin.client": "./dist/helpers/nuxt/runtime/plugin.client.mjs",
     "./node": "./dist/node/index.mjs",
+    "./recipes/open-helpers": "./dist/recipes/open-helpers.mjs",
     "./rpc": "./dist/rpc/index.mjs",
     "./rpc/client": "./dist/rpc/client.mjs",
     "./rpc/server": "./dist/rpc/server.mjs",
@@ -55,10 +58,18 @@
     "prepack": "pnpm build"
   },
   "peerDependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@nuxt/kit": "^3.0.0 || ^4.0.0",
+    "launch-editor": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "@modelcontextprotocol/sdk": {
+      "optional": true
+    },
+    "@nuxt/kit": {
+      "optional": true
+    },
+    "launch-editor": {
       "optional": true
     }
   },
@@ -78,6 +89,8 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "catalog:deps",
+    "@nuxt/kit": "catalog:build",
+    "launch-editor": "catalog:deps",
     "tsdown": "catalog:build",
     "whenexpr": "catalog:deps"
   },

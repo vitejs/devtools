@@ -1,4 +1,5 @@
 import type { CAC } from 'cac'
+import type { CliFlagsSchema } from '../adapters/flags'
 import type { DevToolsNodeContext } from './context'
 
 export type DevtoolRuntime = 'cli' | 'build' | 'spa' | 'vite' | 'kit' | 'embedded'
@@ -47,6 +48,31 @@ export interface DevtoolCliOptions {
    * itself.
    */
   configure?: (cli: CAC) => void
+  /**
+   * Typed CLI flags for the default `dev` command, backed by valibot
+   * schemas. The adapter registers matching `--kebab-key` options on
+   * CAC, validates the parsed values, and forwards the typed bag to
+   * `setup(ctx, { flags })`.
+   *
+   * Use {@link defineCliFlags} to preserve the literal schema-map
+   * shape, and {@link InferCliFlags} to recover the typed output at the
+   * call site:
+   *
+   * ```ts
+   * const appFlags = defineCliFlags({
+   *   depth: v.pipe(v.number(), v.integer()),
+   *   config: v.optional(v.string()),
+   * })
+   *
+   * defineDevtool({
+   *   cli: { flags: appFlags },
+   *   setup(ctx, info) {
+   *     const flags = info.flags as InferCliFlags<typeof appFlags>
+   *   },
+   * })
+   * ```
+   */
+  flags?: CliFlagsSchema
 }
 
 export interface DevtoolSpaOptions {

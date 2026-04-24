@@ -26,6 +26,12 @@ export interface CreateBuildOptions {
    * once on the definition itself.
    */
   distDir?: string
+  /**
+   * Pretty-print RPC dump JSON files. Defaults to `false` so payload
+   * shards (which can be multiple MB for graph-heavy tools) ship
+   * minified. Set `true` when you need to diff / read the dumps by hand.
+   */
+  pretty?: boolean
 }
 
 /**
@@ -68,10 +74,11 @@ export async function createBuild(d: DevtoolDefinition, options: CreateBuildOpti
 
   console.log(c.cyan`[devframe] writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
   const dump = await collectStaticRpcDump(ctx.rpc.definitions.values(), ctx)
+  const indent = options.pretty ? 2 : undefined
   for (const [filepath, data] of Object.entries(dump.files)) {
     const fullpath = resolve(devToolsRoot, filepath)
     await fs.mkdir(dirname(fullpath), { recursive: true })
-    await fs.writeFile(fullpath, JSON.stringify(data, null, 2), 'utf-8')
+    await fs.writeFile(fullpath, JSON.stringify(data, null, indent), 'utf-8')
   }
   await fs.writeFile(
     resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME),

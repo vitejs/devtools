@@ -221,6 +221,15 @@ export type RpcFunctionDefinition<
         handler?: (...args: ARGS) => RETURN
         /** Dump definition (setup dump takes priority) */
         dump?: RpcDump<ARGS, RETURN, CONTEXT>
+        /**
+         * Sugar for "query in dev, single baked snapshot in build": when
+         * `true` and no `dump` is provided, the build adapter runs the
+         * handler once with no arguments and stores the result as both a
+         * no-args record and the fallback so any call variant resolves
+         * to the same snapshot. Only valid on `query` (or untyped)
+         * functions — `static` already has equivalent default behavior.
+         */
+        snapshot?: boolean
         __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
         __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
       }
@@ -248,6 +257,15 @@ export type RpcFunctionDefinition<
         handler?: (...args: InferArgsType<AS>) => InferReturnType<RS>
         /** Dump definition (setup dump takes priority) */
         dump?: RpcDump<InferArgsType<AS>, InferReturnType<RS>, CONTEXT>
+        /**
+         * Sugar for "query in dev, single baked snapshot in build": when
+         * `true` and no `dump` is provided, the build adapter runs the
+         * handler once with no arguments and stores the result as both a
+         * no-args record and the fallback so any call variant resolves
+         * to the same snapshot. Only valid on `query` (or untyped)
+         * functions — `static` already has equivalent default behavior.
+         */
+        snapshot?: boolean
         __resolved?: RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>
         __promise?: Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
       }

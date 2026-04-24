@@ -2,6 +2,7 @@ import type { CAC } from 'cac'
 import type { App } from 'h3'
 import type { DevtoolDefinition, DevtoolSetupInfo } from '../types/devtool'
 import process from 'node:process'
+import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
 import { createApp } from 'h3'
@@ -12,6 +13,7 @@ import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
 import { resolveBasePath } from './_shared'
 import { createBuild } from './build'
+import { flagKeyToOption, isBooleanFlag, parseCliFlags } from './flags'
 import { createSpa } from './spa'
 
 export interface CreateCliOptions {
@@ -46,37 +48,56 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
 
   const cli = cac(command)
 
-  cli
+  const devCommand = cli
     .command('[...args]', 'Start a local dev server')
     .option('--port <port>', 'Port to listen on')
     .option('--host <host>', 'Host to bind to', { default: defaultHost })
     .option('--open', 'Open the browser on start')
     .option('--no-open', 'Do not open the browser')
-    .action(async (_args: unknown, flags: CliFlags) => {
-      const host = flags.host ?? defaultHost
-      const port = flags.port ?? await getPort({
-        port: defaultPort,
-        portRange: d.cli?.portRange,
-        random: d.cli?.random,
-        host,
-      })
-      await runDevServer(d, { host, port, flags }, options)
+
+  // Register typed flags from the definition ahead of `cli.configure`
+  // so authors can still override or augment via the escape hatch.
+  if (d.cli?.flags) {
+    for (const [key, schema] of Object.entries(d.cli.flags)) {
+      const optionName = flagKeyToOption(key)
+      const description = (schema as any).description ?? ''
+      if (isBooleanFlag(schema)) {
+        devCommand.option(`--${optionName}`, description)
+      }
+      else {
+        devCommand.option(`--${optionName} <value>`, description)
+      }
+    }
+  }
+
+  devCommand.action(async (_args: unknown, rawFlags: CliFlags) => {
+    const flags = resolveTypedFlags(d, rawFlags)
+    const host = flags.host as string ?? defaultHost
+    const port = flags.port as number ?? await getPort({
+      port: defaultPort,
+      portRange: d.cli?.portRange,
+      random: d.cli?.random,
+      host,
     })
+    await runDevServer(d, { host, port, flags: flags as CliFlags }, options)
+  })
 
   cli
     .command('build', 'Build a static snapshot')
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-static' })
     .option('--base <base>', 'URL base', { default: '/' })
-    .action(async (flags: { outDir: string, base?: string }) => {
-      await createBuild(d, { outDir: flags.outDir, base: flags.base })
+    .option('--pretty', 'Pretty-print dump JSON (larger on disk)')
+    .action(async (flags: { outDir: string, base?: string, pretty?: boolean }) => {
+      await createBuild(d, { outDir: flags.outDir, base: flags.base, pretty: flags.pretty })
     })
 
   cli
     .command('spa', 'Build a deployable SPA bundle')
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-spa' })
     .option('--base <base>', 'URL base', { default: '/' })
-    .action(async (flags: { outDir: string, base?: string }) => {
-      await createSpa(d, { outDir: flags.outDir, base: flags.base })
+    .option('--pretty', 'Pretty-print dump JSON (larger on disk)')
+    .action(async (flags: { outDir: string, base?: string, pretty?: boolean }) => {
+      await createSpa(d, { outDir: flags.outDir, base: flags.base, pretty: flags.pretty })
     })
 
   cli
@@ -116,6 +137,18 @@ interface CliFlags {
   port?: number
   open?: boolean
   [key: string]: unknown
+}
+
+function resolveTypedFlags(d: DevtoolDefinition, raw: Record<string, unknown>): Record<string, unknown> {
+  if (!d.cli?.flags)
+    return raw
+  const { flags, issues } = parseCliFlags(d.cli.flags, raw)
+  if (issues?.length) {
+    for (const issue of issues)
+      console.error(c.red`[devframe] invalid flag — ${issue}`)
+    process.exit(1)
+  }
+  return flags
 }
 
 interface DevServerOptions {

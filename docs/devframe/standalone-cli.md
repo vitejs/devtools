@@ -85,40 +85,140 @@ my-tool mcp                                 # agent exposure (experimental)
 
 ## Nuxt SPA setup
 
-Configure Nuxt for static, base-agnostic output:
+For the Nuxt side, add the devframe helper module — it sets `app.baseURL: './'` / `vite.base: './'`, injects a client plugin that wires `connectDevtool()` into `useNuxtApp().$rpc`, and exposes the typed RPC client to the whole app:
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   ssr: false,
+  modules: ['devframe/helpers/nuxt'],
   nitro: {
     preset: 'static',
     output: { dir: './dist' }, // matches createCli's distDir of ./dist/public
   },
-  app: {
-    baseURL: './', // relative asset paths
+})
+```
+
+Build with `nuxt build` and point `cli.distDir` at `./dist/public`. The SPA discovers its effective base at runtime — no `--base` rewrite needed. See the [Nuxt helper docs](/devframe/nuxt) for the full reference.
+
+## Connecting from the client
+
+With the Nuxt helper installed, use `$rpc` directly:
+
+```ts [app/composables/payload.ts]
+export async function fetchPayload() {
+  const { $rpc } = useNuxtApp()
+  return $rpc.call('my-tool:get-payload')
+}
+```
+
+For non-Nuxt frontends (Vite + Vue, React, plain HTML, etc.), call `connectDevtool()` yourself:
+
+```ts
+import { connectDevtool } from 'devframe/client'
+
+const rpc = await connectDevtool({ baseURL: './.devtools/' })
+const payload = await rpc.call('my-tool:get-payload')
+```
+
+`connectDevtool` auto-resolves the connection descriptor relative to the current page — it works both in dev (WebSocket backend) and in the built static snapshot (`static` backend reads the baked RPC dump).
+
+## Typed CLI flags
+
+For flags that are specific to your tool, declare them as valibot schemas so they're validated at parse time and typed at the call site:
+
+```ts
+import type { InferCliFlags } from 'devframe'
+import { defineCliFlags, defineDevtool } from 'devframe'
+import * as v from 'valibot'
+
+const appFlags = defineCliFlags({
+  depth: v.pipe(v.number(), v.integer()),
+  config: v.optional(v.string()),
+  verbose: v.optional(v.boolean()),
+})
+
+defineDevtool({
+  id: 'my-tool',
+  name: 'My Tool',
+  cli: {
+    distDir,
+    flags: appFlags,
   },
-  vite: {
-    base: './', // relative asset paths — base-agnostic build
+  setup(ctx, info) {
+    const flags = info.flags as InferCliFlags<typeof appFlags>
+    flags.depth // number
+    flags.config // string | undefined
   },
 })
 ```
 
-Build with `nuxt build` and point `cli.distDir` at `./dist/public`. The SPA discovers its effective base at runtime — no `--base` rewrite needed.
+The adapter derives each flag's CAC option from its schema — booleans become `--verbose` / `--no-verbose`; everything else becomes `--depth <value>`. Keys are camelCase in TypeScript, kebab-case on the command line (`configFile` → `--config-file`). Flags that aren't in your schema (`--host`, `--port`, or anything added via `cli.configure`) still pass through untouched.
 
-## Connecting from the client
+## Open helpers
 
-In a Vue SFC, composable, or any browser code:
+For the two actions every CLI devtool needs — open a file in the editor, reveal a path in the OS file explorer — use the prebuilt recipes instead of re-implementing them:
 
-```ts [app/composables/payload.ts]
-import { connectDevtool } from 'devframe/client'
+```ts
+import { openHelpers } from 'devframe/recipes/open-helpers'
 
-export async function fetchPayload() {
-  const rpc = await connectDevtool()
-  return rpc.call('my-tool:get-payload')
-}
+defineDevtool({
+  id: 'my-tool',
+  name: 'My Tool',
+  setup(ctx) {
+    openHelpers.forEach(fn => ctx.rpc.register(fn))
+  },
+})
 ```
 
-`connectDevtool` auto-resolves the connection descriptor relative to the current page — it works both in dev (WebSocket backend) and in the built static snapshot (`static` backend reads the baked RPC dump).
+This registers `devframe:open-in-editor` (backed by [`launch-editor`](https://www.npmjs.com/package/launch-editor)) and `devframe:open-in-finder` (backed by [`open`](https://www.npmjs.com/package/open)). `launch-editor` is an optional peer dependency — install it in your tool's `package.json`.
+
+## Snapshot queries for static builds
+
+When an RPC function's single job is to return one payload per build (no arguments that vary), set `snapshot: true` so the build adapter runs the handler once and bakes the result into the dump:
+
+```ts
+defineRpcFunction({
+  name: 'my-tool:get-payload',
+  type: 'query',
+  snapshot: true,
+  handler() {
+    return scanPackages(flags.root)
+  },
+})
+```
+
+At build time the handler runs once with no arguments; the result is stored as both the no-args record and the fallback, so `rpc.call('my-tool:get-payload', anything)` from the deployed SPA resolves to the same snapshot. In dev mode the function behaves as a normal `query` over WebSocket — call variants with different args invoke the live handler.
+
+## On-disk caching
+
+DevFrame deliberately doesn't ship a storage primitive — [`unstorage`](https://unstorage.unjs.io/) is the recommended pattern for anything you want to cache between runs. Keep cache paths under `node_modules/.cache/<your-devtool-id>/` so the cache rotates with the project's `pnpm install`:
+
+```ts
+import { resolve } from 'pathe'
+import { createStorage } from 'unstorage'
+import fsDriver from 'unstorage/drivers/fs'
+
+const cache = createStorage({
+  driver: fsDriver({
+    base: resolve(process.cwd(), 'node_modules/.cache/my-tool'),
+  }),
+})
+
+defineDevtool({
+  id: 'my-tool',
+  name: 'My Tool',
+  async setup(ctx) {
+    ctx.rpc.register(defineRpcFunction({
+      name: 'my-tool:get-npm-meta',
+      type: 'query',
+      async handler(spec: string) {
+        return (await cache.getItem(spec))
+          ?? await fetchAndCache(spec, cache)
+      },
+    }))
+  },
+})
+```
 
 ## Live-reload on config changes
 

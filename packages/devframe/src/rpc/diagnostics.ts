@@ -25,6 +25,10 @@ export const diagnostics = defineDiagnostics({
     DTK0007: {
       message: (p: { name: string, type: string }) => `Function "${p.name}" with type "${p.type}" cannot have dump configuration. Only "static" and "query" types support dumps.`,
     },
+    DTK0008: {
+      message: (p: { name: string, type: string }) => `Function "${p.name}" with type "${p.type}" cannot use \`snapshot: true\`. Only "query" functions support this sugar; "static" functions have equivalent default behavior already.`,
+      hint: 'Remove `snapshot: true`, or change the function type to `query`.',
+    },
   },
 })
 

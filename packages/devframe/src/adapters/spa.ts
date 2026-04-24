@@ -14,6 +14,11 @@ export interface CreateSpaOptions {
    * `def.basePath ?? '/'` — standalone SPAs own their origin.
    */
   base?: string
+  /**
+   * Pretty-print RPC dump JSON files. Defaults to `false` for
+   * production-sized payloads; set `true` when debugging.
+   */
+  pretty?: boolean
 }
 
 /**

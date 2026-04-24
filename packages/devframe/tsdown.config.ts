@@ -26,6 +26,9 @@ export default defineConfig({
     'adapters/embedded': 'src/adapters/embedded.ts',
     'adapters/mcp': 'src/adapters/mcp.ts',
     'client/index': 'src/client/index.ts',
+    'helpers/nuxt/index': 'src/helpers/nuxt/index.ts',
+    'helpers/nuxt/runtime/plugin.client': 'src/helpers/nuxt/runtime/plugin.client.ts',
+    'recipes/open-helpers': 'src/recipes/open-helpers.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   clean: true,
@@ -46,6 +49,17 @@ export default defineConfig({
       /^@oxc-project\//,
       'terser',
       '@jridgewell/trace-mapping',
+      // The Nuxt adapter pulls in @nuxt/kit, whose type graph reaches
+      // @nuxt/schema → @vitejs/plugin-vue-jsx → @vue/babel-plugin-jsx
+      // → babel-plugin-resolve-type, plus scule. Keep all of this out
+      // of the bundled dts — consumers import from their own
+      // node_modules at install time.
+      '@nuxt/kit',
+      '@nuxt/schema',
+      '@vitejs/plugin-vue-jsx',
+      '@vue/babel-plugin-jsx',
+      '@vue/babel-plugin-resolve-type',
+      'scule',
     ],
     onlyBundle: [
       'acorn',

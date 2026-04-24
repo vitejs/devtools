@@ -81,6 +81,19 @@ export async function dumpFunctions<
     if (!dump && definition.type === 'static') {
       dump = { inputs: [[]] }
     }
+    if (!dump && definition.snapshot) {
+      // Sugar: run the handler once with no args, store the result as
+      // both the no-args record and the fallback. Any client call then
+      // resolves to the same snapshot — matching NMI's "getPayload()
+      // always returns the baked dump" shape.
+      dump = async (_ctx, h) => {
+        const output = await Promise.resolve(h(...([] as unknown as any[])))
+        return {
+          records: [{ inputs: [] as any, output }],
+          fallback: output,
+        }
+      }
+    }
 
     if (!dump) {
       return undefined

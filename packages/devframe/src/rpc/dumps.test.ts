@@ -571,6 +571,84 @@ describe('dumps', () => {
     })
   })
 
+  describe('snapshot sugar', () => {
+    it('should auto-dump a query function when `snapshot: true`', async () => {
+      const getPayload = defineRpcFunction({
+        name: 'getPayload',
+        type: 'query',
+        snapshot: true,
+        handler: () => ({ packages: ['a', 'b', 'c'] }),
+      })
+
+      const store = await dumpFunctions([getPayload])
+      const client = createClientFromDump(store)
+
+      // No-args call matches the baked record.
+      await expect(client.getPayload()).resolves.toEqual({ packages: ['a', 'b', 'c'] })
+    })
+
+    it('should expose the snapshot via fallback so any call variant resolves', async () => {
+      const getPayload = defineRpcFunction({
+        name: 'getPayload',
+        type: 'query',
+        snapshot: true,
+        handler: (_force?: boolean) => ({ ts: 42 }),
+      })
+
+      const store = await dumpFunctions([getPayload])
+      const client = createClientFromDump(store)
+
+      // NMI calls `getPayload(force)` where force is truthy/falsy — the
+      // fallback ensures both variants land on the same snapshot.
+      await expect(client.getPayload()).resolves.toEqual({ ts: 42 })
+      await expect(client.getPayload(false)).resolves.toEqual({ ts: 42 })
+      await expect(client.getPayload(true)).resolves.toEqual({ ts: 42 })
+    })
+
+    it('should default to query behavior when `snapshot: true` has no explicit type', async () => {
+      const getPayload = defineRpcFunction({
+        name: 'getPayload',
+        snapshot: true,
+        handler: () => 'snapshot-value',
+      })
+
+      const store = await dumpFunctions([getPayload])
+      const client = createClientFromDump(store)
+
+      await expect(client.getPayload()).resolves.toBe('snapshot-value')
+    })
+
+    it('should prioritize an explicit `dump` over `snapshot: true`', async () => {
+      const getPayload = defineRpcFunction({
+        name: 'getPayload',
+        type: 'query',
+        snapshot: true,
+        dump: { inputs: [['explicit']] },
+        handler: (kind: string) => `from-${kind}`,
+      })
+
+      const store = await dumpFunctions([getPayload])
+      const client = createClientFromDump(store)
+
+      // Explicit dump wins; no fallback synthesized.
+      await expect(client.getPayload('explicit')).resolves.toBe('from-explicit')
+      await expect(client.getPayload('other')).rejects.toThrow('No dump match')
+    })
+
+    it('should reject `snapshot: true` on non-query functions', async () => {
+      const bad = defineRpcFunction({
+        name: 'bad',
+        type: 'static',
+        snapshot: true,
+        handler: () => 'nope',
+      } as any)
+
+      await expect(dumpFunctions([bad])).rejects.toThrow(
+        'Function "bad" with type "static" cannot use `snapshot: true`',
+      )
+    })
+  })
+
   it('should throw error if action type function has dump', async () => {
     const sendEmail = defineRpcFunction({
       name: 'sendEmail',

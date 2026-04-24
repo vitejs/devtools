@@ -843,6 +843,12 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: catalog:deps
         version: 1.29.0(zod@4.3.6)
+      '@nuxt/kit':
+        specifier: ^4.4.2
+        version: 4.4.2(magicast@0.5.2)
+      launch-editor:
+        specifier: catalog:deps
+        version: 2.13.2
       tsdown:
         specifier: catalog:build
         version: 0.21.9(@vitejs/devtools@0.1.15)(publint@0.3.18)(synckit@0.11.12)(typescript@6.0.3)(vue-tsc@3.2.7(typescript@6.0.3))

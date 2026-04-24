@@ -6,6 +6,7 @@ export interface CreateBuildOptions {
   outDir?: string;
   base?: string;
   distDir?: string;
+  pretty?: boolean;
 }
 // #endregion
 
