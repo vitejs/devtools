@@ -5,6 +5,7 @@ import type { CSSProperties } from 'vue'
 import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
+import { getWindowOrigin, resolveDockIframeUrl } from '../../utils/iframe-url'
 
 const props = defineProps<{
   context: DocksContext
@@ -24,22 +25,15 @@ const viewFrame = useTemplateRef<HTMLDivElement>('viewFrame')
 const urlInputRef = useTemplateRef<HTMLInputElement>('urlInput')
 
 // Address bar state
-const currentUrl = ref(props.entry.url)
-const editingUrl = ref(props.entry.url)
+const currentPageOrigin = computed(() => getWindowOrigin())
+const resolvedBaseOrigin = computed(() => props.context.runtime.appOrigin || currentPageOrigin.value)
+const resolvedEntryUrl = computed(() => resolveDockIframeUrl(props.entry.url, resolvedBaseOrigin.value))
+const currentUrl = ref(resolvedEntryUrl.value)
+const editingUrl = ref(resolvedEntryUrl.value)
 const isEditing = ref(false)
 
 const iframeElement = computed(() => {
   return props.persistedDoms.getHolder(props.entry.id, 'iframe')?.element
-})
-
-// Get current page's origin for comparison
-const currentPageOrigin = computed(() => {
-  try {
-    return window.location.origin
-  }
-  catch {
-    return ''
-  }
 })
 
 // Check if iframe URL is cross-origin
@@ -86,17 +80,9 @@ function navigateTo(url: string) {
   if (!iframe)
     return
 
-  // Ensure URL has protocol
-  let normalizedUrl = url.trim()
-  if (normalizedUrl && !/^https?:\/\//i.test(normalizedUrl)) {
-    // If it starts with /, treat as same-origin path
-    if (normalizedUrl.startsWith('/')) {
-      normalizedUrl = `${window.location.origin}${normalizedUrl}`
-    }
-    else {
-      normalizedUrl = `http://${normalizedUrl}`
-    }
-  }
+  const normalizedUrl = resolveDockIframeUrl(url, resolvedBaseOrigin.value)
+  if (!normalizedUrl)
+    return
 
   currentUrl.value = normalizedUrl
   editingUrl.value = normalizedUrl
@@ -162,7 +148,7 @@ onMounted(() => {
   holder.element.style.outline = 'none'
 
   if (!holder.element.src)
-    holder.element.src = props.entry.url
+    holder.element.src = resolvedEntryUrl.value
 
   // Listen for iframe load events
   holder.element.addEventListener('load', () => {
@@ -215,6 +201,24 @@ onMounted(() => {
     holder.update()
   })
 })
+
+watch(
+  resolvedEntryUrl,
+  (newUrl, oldUrl) => {
+    if (!newUrl || newUrl === oldUrl)
+      return
+
+    if (currentUrl.value !== oldUrl)
+      return
+
+    currentUrl.value = newUrl
+    editingUrl.value = newUrl
+
+    const iframe = iframeElement.value
+    if (iframe && iframe.src !== newUrl)
+      iframe.src = newUrl
+  },
+)
 
 onUnmounted(() => {
   const holder = props.persistedDoms.getHolder(props.entry.id, 'iframe')

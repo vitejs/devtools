@@ -6,6 +6,7 @@ import type { DevToolsDocksUserSettings } from './dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
+import { getWindowOrigin } from '../utils/iframe-url'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
@@ -244,6 +245,9 @@ export async function createDocksContext(
         return getWhenContext()
       },
     },
+    runtime: reactive({
+      appOrigin: getWindowOrigin(),
+    }),
     rpc: markRaw(rpc),
     clientType,
   })

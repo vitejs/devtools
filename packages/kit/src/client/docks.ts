@@ -23,6 +23,13 @@ export interface DevToolsRpcContext {
   readonly rpc: DevToolsRpcClient
 }
 
+export interface DocksRuntimeContext {
+  /**
+   * Origin of the target app
+   */
+  appOrigin: string
+}
+
 export interface DocksContext extends DevToolsRpcContext {
   /**
    * Type of the client environment
@@ -47,6 +54,10 @@ export interface DocksContext extends DevToolsRpcContext {
    * The when-clause context for conditional visibility
    */
   readonly when: WhenClauseContext
+  /**
+   * Host runtime state
+   */
+  readonly runtime: DocksRuntimeContext
 }
 
 export interface WhenClauseContext {

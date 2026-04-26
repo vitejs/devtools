@@ -21,9 +21,12 @@ const metadataEval = `
   })    
 `
 
-export function getInspectedWindowMetadata(): Promise<InspectedWindowMetadata> {
+export function getInspectedWindowMetadata(): Promise<InspectedWindowMetadata | null> {
   return new Promise((resolve) => {
     chrome.devtools.inspectedWindow.eval<Omit<InspectedWindowMetadata, 'wsUrl'>>(metadataEval, (meta) => {
+      if (!meta?.connectionMeta)
+        return resolve(null)
+
       resolve({
         ...meta,
         wsUrl: normalizeWsUrl(meta.origin, meta.connectionMeta),
