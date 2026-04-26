@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "references": [
+    { "path": "./packages/webext/tsconfig.json" },
     { "path": "./packages/rolldown/src/.nuxt/tsconfig.app.json" },
     { "path": "./packages/rolldown/src/.nuxt/tsconfig.server.json" },
     { "path": "./packages/rolldown/src/.nuxt/tsconfig.shared.json" },

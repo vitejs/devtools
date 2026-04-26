@@ -68,9 +68,7 @@ async function initialize() {
 }
 
 function handleInspectedWindowNavigated() {
-  dockRoot.value?.replaceChildren()
-  context.value = null
-  initialize()
+  location.reload()
 }
 
 onMounted(() => {
