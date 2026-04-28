@@ -55,6 +55,13 @@
       "outputs": [
         "dist/**"
       ]
+    },
+    "devframe-files-inspector-example#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["devframe#build"],
+      "outputs": [
+        "dist/**"
+      ]
     }
   }
 }
