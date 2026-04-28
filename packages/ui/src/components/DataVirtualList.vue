@@ -1,13 +1,15 @@
 <script setup lang="ts" generic="T">
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import 'vue-virtual-scroller/index.css'
 
 withDefaults(defineProps<{
   items: T[]
-  keyProp: keyof T
+  keyProp: keyof T & string
   pageMode?: boolean
+  minItemSize?: number
 }>(), {
   pageMode: true,
+  minItemSize: 30,
 })
 
 defineSlots<{
@@ -23,8 +25,8 @@ defineSlots<{
 <template>
   <DynamicScroller
     :items="items"
-    :min-item-size="30"
-    :key-field="(keyProp as string)"
+    :min-item-size="minItemSize"
+    :key-field="keyProp"
     :page-mode="pageMode"
   >
     <template #before>
@@ -34,7 +36,7 @@ defineSlots<{
       <DynamicScrollerItem
         :item="(item as T)"
         :active="active"
-        :data-index="index"
+        :index="index"
       >
         <slot
           v-bind="{ key: (item as T)[keyProp] }"
