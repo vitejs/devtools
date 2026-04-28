@@ -11,6 +11,7 @@ export const viteMetaInfo = defineRpcFunction({
         return {
           root,
           base,
+          version: context.viteVersion,
           plugins: plugins.map(p => p.name),
         }
       },
