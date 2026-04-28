@@ -3,6 +3,7 @@
 
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
 import { createDocksContext } from '../webcomponents/state/context'
 
@@ -10,7 +11,10 @@ export async function init(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
-  const rpc = await getDevToolsRpcClient()
+  // Inject runs in the user's host page, so `document.baseURI` points at
+  // the user's app — not at the Vite DevTools mount. Pass the mount path
+  // explicitly so the connection meta lookup hits `/.devtools/.connection.json`.
+  const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
 
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',

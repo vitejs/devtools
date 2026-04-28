@@ -9,7 +9,7 @@ import { connectDevtool } from 'devframe/client'
  */
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig()
-  const baseURL = (config.public as any)?.devframe?.baseURL ?? './.devtools/'
+  const baseURL = (config.public as any)?.devframe?.baseURL ?? './'
   const rpc = await connectDevtool({ baseURL })
   return {
     provide: {

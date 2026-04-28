@@ -5,7 +5,6 @@ import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunct
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
-  DEVTOOLS_MOUNT_PATH,
 } from 'devframe/constants'
 import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
 import { createEventEmitter } from 'devframe/utils/events'
@@ -152,15 +151,20 @@ function findConnectionMetaFromWindows(): ConnectionMeta | undefined {
 export async function getDevToolsRpcClient(
   options: DevToolsRpcClientOptions = {},
 ): Promise<DevToolsRpcClient> {
+  // Default to a relative base — the SPA owns its mount path at runtime,
+  // so the connection meta and dump shards live alongside `index.html`.
+  // Embedded surfaces that run inside a host page (e.g. the Vite DevTools
+  // webcomponent inject) must pass an explicit `baseURL` because their
+  // `document.baseURI` points at the host app, not the devtool's mount.
   const {
-    baseURL = DEVTOOLS_MOUNT_PATH,
+    baseURL = './',
     rpcOptions = {},
     cacheOptions = false,
   } = options
   const events = createEventEmitter<RpcClientEvents>()
   const bases = Array.isArray(baseURL) ? baseURL : [baseURL]
   let connectionMeta: ConnectionMeta | undefined = options.connectionMeta || findConnectionMetaFromWindows()
-  let resolvedBaseURL = bases[0] ?? DEVTOOLS_MOUNT_PATH
+  let resolvedBaseURL = bases[0] ?? './'
 
   function normalizeBase(base: string): string {
     return base.endsWith('/') ? base : `${base}/`

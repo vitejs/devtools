@@ -46,13 +46,13 @@ export function usePayload() {
 export default defineNuxtConfig({
   modules: ['devframe/helpers/nuxt'],
   devframe: {
-    baseURL: './.devtools/', // where the devframe snapshot lives, relative to the page
+    baseURL: './', // where the devframe snapshot lives, relative to the page
     skipAppDefaults: false, // opt out of the app.baseURL / vite.base defaults
   },
 })
 ```
 
-- **`baseURL`** defaults to `'./.devtools/'`, which resolves against `document.baseURI` at runtime. That means the same build works at any deployment path — no need to pass `--base` at build time.
+- **`baseURL`** defaults to `'./'`, which resolves against `document.baseURI` at runtime. The connection meta and dump shards sit next to `index.html`, so the same build works at any deployment path — no need to pass `--base` at build time.
 - **`skipAppDefaults: true`** disables the `app.baseURL: './'` / `vite.base: './'` defaults. Use this only if you're deliberately shipping with absolute asset paths and have your own base-URL story.
 
 ## How it works
@@ -68,7 +68,7 @@ At build time the module:
   return { provide: { rpc } }
   ```
 
-At runtime the built SPA fetches `./.devtools/.connection.json` (resolved against `document.baseURI`) and branches on the `backend` field — `websocket` in dev, `static` from a `createBuild` / `createSpa` snapshot.
+At runtime the built SPA fetches `./.connection.json` (resolved against `document.baseURI`) and branches on the `backend` field — `websocket` in dev, `static` from a `createBuild` snapshot.
 
 ## Relationship to `createCli`
 

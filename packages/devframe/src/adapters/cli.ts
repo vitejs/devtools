@@ -5,16 +5,16 @@ import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
 import { getPort } from 'get-port-please'
-import { createApp } from 'h3'
+import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
+import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
 import { resolveBasePath } from './_shared'
 import { createBuild } from './build'
 import { flagKeyToOption, isBooleanFlag, parseCliFlags } from './flags'
-import { createSpa } from './spa'
 
 export interface CreateCliOptions {
   /** Default port for `dev` (default: 9999). */
@@ -73,31 +73,29 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
   devCommand.action(async (_args: unknown, rawFlags: CliFlags) => {
     const flags = resolveTypedFlags(d, rawFlags)
     const host = flags.host as string ?? defaultHost
-    const port = flags.port as number ?? await getPort({
+    // Only include optional fields when set — `get-port-please` spreads
+    // `_userOptions` over its defaults, so `portRange: undefined` wipes
+    // out the internal `[]` and crashes when the function tries to
+    // iterate it.
+    const portOptions: Parameters<typeof getPort>[0] = {
       port: defaultPort,
-      portRange: d.cli?.portRange,
-      random: d.cli?.random,
       host,
-    })
+    }
+    if (d.cli?.portRange)
+      portOptions.portRange = d.cli.portRange
+    if (d.cli?.random)
+      portOptions.random = d.cli.random
+    const port = flags.port as number ?? await getPort(portOptions)
     await runDevServer(d, { host, port, flags: flags as CliFlags }, options)
   })
 
   cli
-    .command('build', 'Build a static snapshot')
+    .command('build', 'Build a self-contained static deploy of the devtool')
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-static' })
     .option('--base <base>', 'URL base', { default: '/' })
     .option('--pretty', 'Pretty-print dump JSON (larger on disk)')
     .action(async (flags: { outDir: string, base?: string, pretty?: boolean }) => {
       await createBuild(d, { outDir: flags.outDir, base: flags.base, pretty: flags.pretty })
-    })
-
-  cli
-    .command('spa', 'Build a deployable SPA bundle')
-    .option('--out-dir <outDir>', 'Output directory', { default: 'dist-spa' })
-    .option('--base <base>', 'URL base', { default: '/' })
-    .option('--pretty', 'Pretty-print dump JSON (larger on disk)')
-    .action(async (flags: { outDir: string, base?: string, pretty?: boolean }) => {
-      await createSpa(d, { outDir: flags.outDir, base: flags.base, pretty: flags.pretty })
     })
 
   cli
@@ -169,7 +167,7 @@ async function runDevServer(d: DevtoolDefinition, serverOptions: DevServerOption
   const host = createH3DevToolsHost({
     origin,
     mount: (base, dir) => {
-      app.use(base, sirv(dir, { dev: true, single: true }) as any)
+      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
     },
   })
 
@@ -181,7 +179,18 @@ async function runDevServer(d: DevtoolDefinition, serverOptions: DevServerOption
   const setupInfo: DevtoolSetupInfo = { flags: serverOptions.flags }
   await d.setup(ctx, setupInfo)
 
-  app.use(basePath, sirv(resolve(distDir), { dev: true, single: true }) as any)
+  // Connection meta — the SPA fetches this to discover the RPC backend.
+  // In dev the WS endpoint shares the HTTP port, so the client only needs
+  // to know it's a websocket backend bound to that same port. The path
+  // sits at the SPA root (next to index.html) so the deployed SPA can
+  // discover it via a relative `./.connection.json` fetch.
+  const connectionMetaPath = `${basePath}${DEVTOOLS_CONNECTION_META_FILENAME}`
+  app.use(connectionMetaPath, eventHandler((event) => {
+    event.node.res.setHeader('Content-Type', 'application/json')
+    return event.node.res.end(JSON.stringify({ backend: 'websocket', websocket: serverOptions.port }))
+  }))
+
+  app.use(basePath, fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })))
 
   await startHttpAndWs({
     context: ctx,

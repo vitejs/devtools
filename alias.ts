@@ -23,7 +23,6 @@ export const alias = {
   'devframe/utils/when': r('devframe/src/utils/when.ts'),
   'devframe/adapters/cli': r('devframe/src/adapters/cli.ts'),
   'devframe/adapters/build': r('devframe/src/adapters/build.ts'),
-  'devframe/adapters/spa': r('devframe/src/adapters/spa.ts'),
   'devframe/adapters/vite': r('devframe/src/adapters/vite.ts'),
   'devframe/adapters/kit': r('devframe/src/adapters/kit.ts'),
   'devframe/adapters/embedded': r('devframe/src/adapters/embedded.ts'),

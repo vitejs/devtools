@@ -60,9 +60,6 @@
       "devframe/adapters/build": [
         "./packages/devframe/src/adapters/build.ts"
       ],
-      "devframe/adapters/spa": [
-        "./packages/devframe/src/adapters/spa.ts"
-      ],
       "devframe/adapters/vite": [
         "./packages/devframe/src/adapters/vite.ts"
       ],

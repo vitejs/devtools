@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsLogLevel } from '@vitejs/devtools-kit'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { onMounted, ref, shallowRef } from 'vue'
 
@@ -30,7 +31,9 @@ const updateStatus = ref<'idle' | 'loading'>('idle')
 const levels: DevToolsLogLevel[] = ['info', 'warn', 'error', 'success', 'debug']
 
 onMounted(async () => {
-  const rpc = await getDevToolsRpcClient()
+  // Playground page lives outside the `/.devtools/` mount, so resolve the
+  // connection meta against the explicit Vite DevTools base.
+  const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
   client.value = rpc
 
   isTrusted.value = rpc.isTrusted

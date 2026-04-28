@@ -2,10 +2,11 @@ import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 
 export interface DevframeNuxtModuleOptions {
   /**
-   * Base URL, relative to the deployed page, at which the devframe
-   * `.devtools/` directory will be served. Defaults to `'./.devtools/'`
-   * so a single build works at any deployment base (the browser
-   * resolves relative fetches against `document.baseURI`).
+   * Base URL, relative to the deployed page, where the devframe
+   * connection meta (`.connection.json`) and dump shards live.
+   * Defaults to `'./'` — the SPA root — so a single build works at any
+   * deployment base (the browser resolves relative fetches against
+   * `document.baseURI`).
    */
   baseURL?: string
   /**
@@ -46,7 +47,7 @@ export default defineNuxtModule<DevframeNuxtModuleOptions>({
     configKey: 'devframe',
   },
   defaults: {
-    baseURL: './.devtools/',
+    baseURL: './',
     skipAppDefaults: false,
   },
   setup(options, nuxt) {

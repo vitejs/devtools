@@ -4,16 +4,16 @@ import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import process from 'node:process'
 import c from 'ansis'
-import { dirname, join, resolve } from 'pathe'
+import { dirname, resolve } from 'pathe'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
-  DEVTOOLS_DIRNAME,
   DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { collectStaticRpcDump } from '../node/static-dump'
+import { resolveBasePath } from './_shared'
 
 export interface CreateBuildOptions {
   /** Output directory. Defaults to `dist-static`. */
@@ -35,13 +35,17 @@ export interface CreateBuildOptions {
 }
 
 /**
- * Produce a static snapshot of a devtool:
+ * Produce a self-contained static deploy of a devtool:
  *
- *   - Build a `runtime: 'build'` context and run `devtool.setup(ctx)`.
- *   - Collect RPC dumps for every `'static'` function.
- *   - Write a connection-meta descriptor + sharded dump files under
- *     `<outDir>/.devtools/`.
+ *   - Build a `mode: 'build'` context and run `devtool.setup(ctx)`.
  *   - Copy the author's SPA dist into `<outDir>/`.
+ *   - Write `<outDir>/.connection.json` (`{ backend: 'static' }`) and the
+ *     sharded RPC dump under `<outDir>/.rpc-dump/` so the deployed SPA
+ *     discovers both via relative paths from `document.baseURI`.
+ *   - When `def.spa` is configured, also write `<outDir>/spa-loader.json`
+ *     describing the SPA's data-loader mode (`'query'` / `'upload'` /
+ *     `'none'`). The output is mount-path agnostic — the same bundle
+ *     works at `/`, `/devtools/`, or any base, no rewriting required.
  */
 export async function createBuild(d: DevtoolDefinition, options: CreateBuildOptions = {}): Promise<void> {
   const outDir = resolve(options.outDir ?? 'dist-static')
@@ -64,27 +68,40 @@ export async function createBuild(d: DevtoolDefinition, options: CreateBuildOpti
   })
   await d.setup(ctx)
 
-  const devToolsRoot = join(outDir, DEVTOOLS_DIRNAME)
-  await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
+  await fs.mkdir(resolve(outDir, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
   await fs.writeFile(
-    resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME),
+    resolve(outDir, DEVTOOLS_CONNECTION_META_FILENAME),
     JSON.stringify({ backend: 'static' }, null, 2),
     'utf-8',
   )
 
-  console.log(c.cyan`[devframe] writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
+  console.log(c.cyan`[devframe] writing RPC dump to ${resolve(outDir, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
   const dump = await collectStaticRpcDump(ctx.rpc.definitions.values(), ctx)
   const indent = options.pretty ? 2 : undefined
   for (const [filepath, data] of Object.entries(dump.files)) {
-    const fullpath = resolve(devToolsRoot, filepath)
+    const fullpath = resolve(outDir, filepath)
     await fs.mkdir(dirname(fullpath), { recursive: true })
     await fs.writeFile(fullpath, JSON.stringify(data, null, indent), 'utf-8')
   }
   await fs.writeFile(
-    resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME),
+    resolve(outDir, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME),
     JSON.stringify(dump.manifest, null, 2),
     'utf-8',
   )
+
+  if (d.spa) {
+    const base = options.base ?? resolveBasePath(d, 'standalone')
+    const spaLoader = {
+      version: 1,
+      mode: d.spa.loader ?? 'none',
+      base,
+    }
+    await fs.writeFile(
+      resolve(outDir, 'spa-loader.json'),
+      JSON.stringify(spaLoader, null, 2),
+      'utf-8',
+    )
+  }
 
   console.log(c.green`[devframe] built "${d.id}" -> ${outDir}`)
 }

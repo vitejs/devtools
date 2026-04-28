@@ -89,6 +89,11 @@ export async function startHttpAndWs(options: StartHttpAndWsOptions): Promise<St
     wss,
     rpcGroup,
     async close() {
+      // `wss.close` only stops accepting new connections — existing ones
+      // would keep the close callback pending until they disconnect on
+      // their own. Force-terminate so callers can deterministically tear
+      // the server down (tests, hot reload, graceful shutdown).
+      for (const ws of wss.clients) ws.terminate()
       await new Promise<void>(r => wss.close(() => r()))
       await new Promise<void>(r => httpServer.close(() => r()))
     },

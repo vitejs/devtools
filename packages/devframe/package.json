@@ -25,7 +25,6 @@
     "./adapters/embedded": "./dist/adapters/embedded.mjs",
     "./adapters/kit": "./dist/adapters/kit.mjs",
     "./adapters/mcp": "./dist/adapters/mcp.mjs",
-    "./adapters/spa": "./dist/adapters/spa.mjs",
     "./adapters/vite": "./dist/adapters/vite.mjs",
     "./client": "./dist/client/index.mjs",
     "./constants": "./dist/constants.mjs",

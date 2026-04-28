@@ -20,7 +20,6 @@ export default defineConfig({
     'utils/when': 'src/utils/when.ts',
     'adapters/cli': 'src/adapters/cli.ts',
     'adapters/build': 'src/adapters/build.ts',
-    'adapters/spa': 'src/adapters/spa.ts',
     'adapters/vite': 'src/adapters/vite.ts',
     'adapters/kit': 'src/adapters/kit.ts',
     'adapters/embedded': 'src/adapters/embedded.ts',

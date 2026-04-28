@@ -14,8 +14,7 @@ All adapter factories share the same shape: `createXxx(devtoolDef, options?)`.
 |---------|-------|---------|----------|
 | [`cli`](#cli) | `devframe/adapters/cli` | `createCli(def, options?)` | Standalone tools run via `node ./my-tool.js` |
 | [`vite`](#vite) | `devframe/adapters/vite` | `createVitePlugin(def, options?)` | Mount a tool's UI inside an existing Vite dev server |
-| [`build`](#build) | `devframe/adapters/build` | `createBuild(def, options?)` | Offline reports, CI artifacts, baked-in data |
-| [`spa`](#spa) | `devframe/adapters/spa` | `createSpa(def, options?)` | Deployable dashboards that load data via URL / upload |
+| [`build`](#build) | `devframe/adapters/build` | `createBuild(def, options?)` | Offline reports, CI artifacts, deployable SPA snapshots |
 | [`kit`](#kit) | `devframe/adapters/kit` | `createKitPlugin(def, options?)` | Integrating into Vite DevTools Kit |
 | [`embedded`](#embedded) | `devframe/adapters/embedded` | `createEmbedded(def, { ctx })` | Runtime registration into an already-running host |
 | [`mcp`](#mcp) | `devframe/adapters/mcp` | `createMcpServer(def, options?)` | Exposing a devtool to coding agents |
@@ -44,7 +43,7 @@ Running the resulting binary:
 my-devtool                     # dev server at http://localhost:9999/
 my-devtool --port 8080
 my-devtool build --out-dir dist-static
-my-devtool spa --out-dir dist-spa --base /devtools/
+my-devtool build --out-dir dist-static --base /devtools/
 my-devtool mcp                 # stdio MCP server (experimental)
 ```
 
@@ -157,12 +156,13 @@ Use this adapter when a devtool's UI is purely static (no server calls) and you 
 
 ## Build
 
-Produces a static snapshot of a devtool:
+Produces a self-contained static deploy of a devtool:
 
-1. Runs `setup(ctx)` with `mode: 'build'`.
-2. Collects RPC dumps for every `'static'` function.
-3. Writes `.connection.json` (backend: `static`) and sharded dump files under `<outDir>/.devtools/`.
-4. Copies the author's SPA dist (`cli.distDir` or `options.distDir`) into `<outDir>`.
+1. Copies the author's SPA dist (`cli.distDir` or `options.distDir`) into `<outDir>`.
+2. Runs `setup(ctx)` with `mode: 'build'`.
+3. Collects RPC dumps for every `'static'` function and any `'query'` function with `dump.inputs` / `snapshot: true`.
+4. Writes `<outDir>/.connection.json` (`{ backend: 'static' }`) and sharded dump files under `<outDir>/.rpc-dump/` — both at the SPA root so the deployed client discovers them via relative paths from `document.baseURI`.
+5. When `def.spa` is set, also writes `<outDir>/spa-loader.json` describing how the SPA hydrates its data.
 
 ```ts
 import { createBuild } from 'devframe/adapters/build'
@@ -180,35 +180,19 @@ await createBuild(devtool, {
 | `base` | `/` | Absolute URL base the output is served from. |
 | `distDir` | `def.cli?.distDir` | Override the SPA dist directory. |
 
-The resulting directory can be hosted by any static web server. The client auto-detects `static` mode via `.devtools/.connection.json` and runs in read-only form.
+The resulting directory can be hosted by any static web server (`serve`, nginx, GitHub Pages, …). The client auto-detects `static` mode via `./.connection.json` resolved against `document.baseURI` and runs in read-only form.
 
 > [!TIP]
 > `createBuild` copies the SPA verbatim. To deploy under a custom URL base, build your SPA with relative asset paths (`vite.base: './'`) — the client discovers the effective base at runtime. No HTML rewriting is performed at build time.
 
-## SPA
-
-Layers on top of `createBuild` to produce a deployable SPA bundle. Adds a `spa-loader.json` descriptor so the deployed client knows how to source its data.
-
-```ts
-import { createSpa } from 'devframe/adapters/spa'
-import devtool from './devtool'
-
-await createSpa(devtool, { outDir: 'dist-spa', base: '/' })
-```
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `outDir` | `dist-spa` | Output directory. |
-| `base` | `/` | URL base. |
-
-The `spa.loader` on the definition controls the loader descriptor:
+When `def.spa` is set on the definition, `createBuild` also writes `spa-loader.json` next to `index.html` describing how the deployed SPA sources its data:
 
 - `'none'` — use the baked RPC dump only (read-only static view).
 - `'query'` — hydrate from URL search params.
 - `'upload'` — accept a drag-and-drop file.
 
 > [!NOTE]
-> `setupBrowser` bundling is not yet automated. Deployed SPAs that rely on it must ship their own client entry. `createSpa` warns at build time when this applies.
+> `setupBrowser` bundling is not yet automated. Deployed SPAs that rely on it must ship their own client entry that registers the handlers.
 
 ## Kit
 

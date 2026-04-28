@@ -30,13 +30,13 @@ The practical consequence for SPA authors:
 - Don't bake the mount path into the HTML. The server only needs to serve the files at *some* base; the client figures out which.
 - You don't need an explicit `baseURL` option on `connectDevtool` unless you're connecting across origins or to a non-colocated devtool server.
 
-This lets `createBuild` / `createSpa` copy SPA output verbatim — no build-time HTML rewriting is performed, and the resulting bundle deploys under any URL.
+This lets `createBuild` copy SPA output verbatim — no build-time HTML rewriting is performed, and the resulting bundle deploys under any URL.
 
 ### Options
 
 ```ts
 await connectDevtool({
-  baseURL: '/.devtools/', // string or string[] fallback list
+  baseURL: './', // string or string[] fallback list — see notes below
   authToken: 'user-provided-token',
   cacheOptions: true, // enable response caching
   wsOptions: { /* … */ },
@@ -46,7 +46,7 @@ await connectDevtool({
 
 | Option | Description |
 |--------|-------------|
-| `baseURL` | Mount path to probe for `.connection.json`. Accepts an array for fallback. Default: resolved relative to the executing page / script — see [Runtime basePath discovery](#runtime-basepath-discovery). |
+| `baseURL` | Mount path to probe for `.connection.json`. Accepts an array for fallback. Default: `'./'` — resolved relative to `document.baseURI` so the SPA finds its meta wherever it was deployed. Pass an explicit absolute path (e.g. `'/.devtools/'`) when calling from outside the SPA — for instance, an embedded webcomponent injected into a host app. |
 | `authToken` | Override the auth token. Defaults to a locally-persisted human-readable id. |
 | `cacheOptions` | `true` to enable caching with defaults, or an options object. |
 | `wsOptions` | Forwarded to the WebSocket transport (reconnect, heartbeat, etc.). |

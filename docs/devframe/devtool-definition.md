@@ -61,7 +61,7 @@ defineDevtool({
 })
 ```
 
-The CLI dev server sets `mode: 'dev'`; `createBuild` / `createSpa` set `mode: 'build'`.
+The CLI dev server sets `mode: 'dev'`; `createBuild` sets `mode: 'build'`.
 
 ## The Setup Context
 
@@ -112,7 +112,7 @@ defineDevtool({
 ```
 
 > [!NOTE]
-> Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers. `createSpa` prints a warning when this applies.
+> Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers.
 
 ## CLI Options
 

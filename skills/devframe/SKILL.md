@@ -26,8 +26,7 @@ All adapter factories share the shape `createXxx(devtoolDef, options?)`.
 |-------------|---------|-------|
 | Standalone CLI for local use | `createCli(def, options?)` | `devframe/adapters/cli` |
 | Mount a SPA in an existing Vite dev server | `createVitePlugin(def, options?)` | `devframe/adapters/vite` |
-| Offline snapshot with baked data | `createBuild(def, options?)` | `devframe/adapters/build` |
-| Deployable hosted dashboard | `createSpa(def, options?)` | `devframe/adapters/spa` |
+| Self-contained static deploy with baked data | `createBuild(def, options?)` | `devframe/adapters/build` |
 | Integrate into Vite DevTools | `createKitPlugin(def, options?)` | `devframe/adapters/kit` |
 | Register dynamically at runtime | `createEmbedded(def, { ctx })` | `devframe/adapters/embedded` |
 | Expose to coding agents (MCP) | `createMcpServer(def, options?)` | `devframe/adapters/mcp` *(experimental)* |
@@ -289,7 +288,7 @@ Use `rpc.sharedState.get(key)` for observable state, `rpc.client.register(define
 
 ## Build dumps
 
-`createBuild` / `createSpa` bake `static` function results automatically. For `query` functions, supply `dump`:
+`createBuild` bakes `static` function results automatically. For `query` functions, supply `dump` (or `snapshot: true` for the no-args sugar):
 
 ```ts
 defineRpcFunction({

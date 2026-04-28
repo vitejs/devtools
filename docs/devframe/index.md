@@ -109,8 +109,7 @@ Run it:
 
 ```sh
 node ./my-devtool.js        # dev server on http://localhost:9999/
-node ./my-devtool.js build  # static snapshot in dist-static/
-node ./my-devtool.js spa    # deployable SPA bundle in dist-spa/
+node ./my-devtool.js build  # self-contained static deploy in dist-static/
 node ./my-devtool.js mcp    # stdio MCP server (experimental)
 ```
 
@@ -118,14 +117,13 @@ The CLI adapter serves the SPA at `/` by default. When the same devtool is embed
 
 ## Adapters at a Glance
 
-DevFrame deploys the same `DevtoolDefinition` through one of seven adapters:
+DevFrame deploys the same `DevtoolDefinition` through one of six adapters:
 
 | Adapter | Entry | Target |
 |---------|-------|--------|
-| `cli` | `createCli(d).parse()` | Standalone CLI with dev / build / spa / mcp subcommands |
+| `cli` | `createCli(d).parse()` | Standalone CLI with dev / build / mcp subcommands |
 | `vite` | `createVitePlugin(d, opts?)` | Plain Vite plugin — mounts the SPA only (no RPC server) |
-| `build` | `createBuild(d, opts?)` | Static snapshot with baked RPC dumps |
-| `spa` | `createSpa(d, opts?)` | Deployable SPA (extends build with a loader descriptor) |
+| `build` | `createBuild(d, opts?)` | Self-contained static deploy with baked RPC dumps |
 | `kit` | `createKitPlugin(d, opts?)` | Vite DevTools Kit plugin |
 | `embedded` | `createEmbedded(d, { ctx })` | Runtime registration into an existing host |
 | `mcp` | `createMcpServer(d, opts)` | Model Context Protocol server |
