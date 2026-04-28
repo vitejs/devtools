@@ -23,7 +23,7 @@ export const levels: Record<DevToolsLogLevel, LevelStyle> = {
   debug: { icon: 'i-ph:bug-duotone', color: 'text-gray', bg: 'bg-gray', label: 'Debug' },
 }
 
-export const formEntries: Record<DevToolsLogEntryFrom, FromStyle> = {
+export const fromEntries: Record<DevToolsLogEntryFrom, FromStyle> = {
   server: { icon: 'i-ph:hexagon-duotone', color: 'text-green-800 dark:text-green-200', label: 'Server' },
   browser: { icon: 'i-ph:globe-simple-duotone', color: 'text-amber-800 dark:text-amber-200', label: 'Browser' },
 }
