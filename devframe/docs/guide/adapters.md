@@ -208,7 +208,7 @@ export default function myVitePlugin(): Plugin {
 }
 ```
 
-The returned object has the shape `{ name, devtools: { setup, capabilities } }`. Use this adapter when your devtool should live inside the Vite DevTools dock alongside other integrations. For a Vite-specific plugin guide, see the [DevTools Kit → DevTools Plugin](/kit/devtools-plugin) page.
+The returned object has the shape `{ name, devtools: { setup, capabilities } }`. Use this adapter when your devtool should live inside the Vite DevTools dock alongside other integrations. For a Vite-specific plugin guide, see the [DevTools Kit → DevTools Plugin](https://devtools.vite.dev/kit/devtools-plugin) page.
 
 | Option | Default | Description |
 |--------|---------|-------------|

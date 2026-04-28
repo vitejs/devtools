@@ -10,7 +10,7 @@ import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 // historical DTK numbers. See `docs/errors/DF\**.md` + the
 // `DTK -> DF` redirect table in the migration guide for the mapping.
 export const diagnostics = defineDiagnostics({
-  docsBase: 'https://devtools.vite.dev/errors',
+  docsBase: 'https://devtools.vite.dev/devframe/errors',
   codes: {
     DF0001: {
       message: (p: { id: string }) => `Dock with id "${p.id}" is already registered`,

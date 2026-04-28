@@ -7,7 +7,7 @@
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
   "repository": {
-    "directory": "packages/devframe",
+    "directory": "devframe/packages/devframe",
     "type": "git",
     "url": "git+https://github.com/vitejs/devtools.git"
   },

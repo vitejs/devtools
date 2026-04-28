@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import preact from '@preact/preset-vite'
 import { defineConfig } from 'vite'
-import { alias } from '../../../../alias'
+import { alias } from '../../../../../alias'
 
 export default defineConfig({
   base: './',

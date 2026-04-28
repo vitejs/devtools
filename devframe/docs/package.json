@@ -1,0 +1,16 @@
+{
+  "name": "devframe-docs",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "docs": "vitepress dev --port 5175",
+    "docs:build": "vitepress build",
+    "docs:serve": "vitepress serve --port 5175"
+  },
+  "devDependencies": {
+    "devframe": "workspace:*",
+    "mermaid": "catalog:docs",
+    "vitepress": "catalog:docs",
+    "vitepress-plugin-mermaid": "catalog:docs"
+  }
+}

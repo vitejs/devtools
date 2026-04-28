@@ -7,7 +7,7 @@ outline: deep
 > [!WARNING] Experimental
 > The API is still in development and may change in any version. If you are building on top of it, please mind the version of packages you are using and warn your users about the experimental status.
 
-DevTools Kit is the **Vite-specific superset** of [DevFrame](/devframe/) — the framework-neutral foundation. Everything in DevFrame (RPC, hosts, docks, shared state, agents) is available through Kit, plus Vite-specific glue: the `devtools` hook on Vite plugins, Vite dev-server integration, and the Vite DevTools client. If you're building a tool that doesn't need Vite at all, start from [DevFrame](/devframe/) directly.
+DevTools Kit is the **Vite-specific superset** of [DevFrame](https://devtools.vite.dev/devframe/guide/) — the framework-neutral foundation. Everything in DevFrame (RPC, hosts, docks, shared state, agents) is available through Kit, plus Vite-specific glue: the `devtools` hook on Vite plugins, Vite dev-server integration, and the Vite DevTools client. If you're building a tool that doesn't need Vite at all, start from [DevFrame](https://devtools.vite.dev/devframe/guide/) directly.
 
 The vision of DevTools Kit is to provide a unified foundation for building custom developer tools that integrate seamlessly with Vite and frameworks built on top of it.
 

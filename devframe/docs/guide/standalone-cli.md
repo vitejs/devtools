@@ -98,7 +98,7 @@ export default defineNuxtConfig({
 })
 ```
 
-Build with `nuxt build` and point `cli.distDir` at `./dist/public`. The SPA discovers its effective base at runtime — no `--base` rewrite needed. See the [Nuxt helper docs](/devframe/nuxt) for the full reference.
+Build with `nuxt build` and point `cli.distDir` at `./dist/public`. The SPA discovers its effective base at runtime — no `--base` rewrite needed. See the [Nuxt helper docs](/guide/nuxt) for the full reference.
 
 ## Connecting from the client
 
@@ -265,7 +265,7 @@ state.on('updated', () => fetchPayload().then(setData))
 
 ## See also
 
-- [Devtool Definition](/devframe/devtool-definition) — field reference
-- [Adapters → CLI](/devframe/adapters#cli) — full CLI adapter reference including `configureCli` and mount-path rules
-- [Client](/devframe/client) — `connectDevtool`, shared state, caching
-- [Agent-Native](/devframe/agent-native) — exposing your tool to Claude Desktop, Cursor, etc.
+- [Devtool Definition](/guide/devtool-definition) — field reference
+- [Adapters → CLI](/guide/adapters#cli) — full CLI adapter reference including `configureCli` and mount-path rules
+- [Client](/guide/client) — `connectDevtool`, shared state, caching
+- [Agent-Native](/guide/agent-native) — exposing your tool to Claude Desktop, Cursor, etc.

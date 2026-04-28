@@ -29,7 +29,7 @@ export default defineConfig({
     'helpers/nuxt/runtime/plugin.client': 'src/helpers/nuxt/runtime/plugin.client.ts',
     'recipes/open-helpers': 'src/recipes/open-helpers.ts',
   },
-  tsconfig: '../../tsconfig.base.json',
+  tsconfig: '../../../tsconfig.base.json',
   clean: true,
   dts: true,
   exports: true,

@@ -16,6 +16,9 @@ packages:
   - packages/*
   - examples/*
   - docs
+  - devframe/packages/*
+  - devframe/examples/*
+  - devframe/docs
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'

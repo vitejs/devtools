@@ -155,7 +155,7 @@ Now that you have Vite DevTools set up, you can:
 
 - **Explore the built-in tools**: Check out the [DevTools for Rolldown](/rolldown/) panels and visualizations
 - **Build custom integrations**: Learn how to extend the devtools with your own tools using the [Vite DevTools Kit](/kit/)
-- **Build a standalone CLI tool**: For tools that don't need Vite at all (ESLint inspectors, bundler-config viewers, etc.), follow the [Standalone CLI](/devframe/standalone-cli) recipe
+- **Build a standalone CLI tool**: For tools that don't need Vite at all (ESLint inspectors, bundler-config viewers, etc.), follow the [Standalone CLI](https://devtools.vite.dev/devframe/guide/standalone-cli) recipe
 - **Contribute**: Help improve Vite DevTools by checking out our [contributing guide](https://github.com/antfu/contribute)
 
 ## Current Limitations
@@ -170,12 +170,12 @@ Now that you have Vite DevTools set up, you can:
 
 Vite DevTools consists of several core packages:
 
-- **`devframe`**: The framework-neutral foundation — RPC layer, runtime hosts, and seven adapters. Usable standalone without Vite. See [DevFrame](/devframe/).
+- **`devframe`**: The framework-neutral foundation — RPC layer, runtime hosts, and seven adapters. Usable standalone without Vite. See [DevFrame](https://devtools.vite.dev/devframe/guide/).
 - **`@vitejs/devtools`**: The Vite plugin, CLI, and client that wraps DevFrame for the Vite ecosystem
 - **`@vitejs/devtools-kit`**: Vite DevTools Kit — a Vite-specific superset of DevFrame for building integrations
 - **`@vitejs/devtools-rolldown`**: [DevTools for Rolldown](/rolldown/) — built-in build analysis UI
 - **`@vitejs/devtools-vite`**: DevTools for Vite *(in development)*
 
-Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) can integrate via the DevTools Kit plugin API. Tools that don't need Vite at all (standalone CLIs, MCP servers, static dashboards) can build directly on [DevFrame](/devframe/).
+Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) can integrate via the DevTools Kit plugin API. Tools that don't need Vite at all (standalone CLIs, MCP servers, static dashboards) can build directly on [DevFrame](https://devtools.vite.dev/devframe/guide/).
 
-For more details on extending the devtools, see the [Vite DevTools Kit documentation](/kit/). For the framework-neutral foundation, see [DevFrame](/devframe/).
+For more details on extending the devtools, see the [Vite DevTools Kit documentation](/kit/). For the framework-neutral foundation, see [DevFrame](https://devtools.vite.dev/devframe/guide/).

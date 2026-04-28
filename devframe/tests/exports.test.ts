@@ -10,7 +10,5 @@ describePackagesApiSnapshots({
     )
     if (!pkg.name || pkg.private)
       return false
-    if (pkg.name === 'devframe')
-      return false
   },
 })

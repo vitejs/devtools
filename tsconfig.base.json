@@ -10,82 +10,82 @@
     "moduleResolution": "Bundler",
     "paths": {
       "devframe/rpc/transports/ws-server": [
-        "./packages/devframe/src/rpc/transports/ws-server.ts"
+        "./devframe/packages/devframe/src/rpc/transports/ws-server.ts"
       ],
       "devframe/rpc/transports/ws-client": [
-        "./packages/devframe/src/rpc/transports/ws-client.ts"
+        "./devframe/packages/devframe/src/rpc/transports/ws-client.ts"
       ],
       "devframe/rpc/client": [
-        "./packages/devframe/src/rpc/client.ts"
+        "./devframe/packages/devframe/src/rpc/client.ts"
       ],
       "devframe/rpc/server": [
-        "./packages/devframe/src/rpc/server.ts"
+        "./devframe/packages/devframe/src/rpc/server.ts"
       ],
       "devframe/rpc": [
-        "./packages/devframe/src/rpc"
+        "./devframe/packages/devframe/src/rpc"
       ],
       "devframe/types": [
-        "./packages/devframe/src/types/index.ts"
+        "./devframe/packages/devframe/src/types/index.ts"
       ],
       "devframe/node": [
-        "./packages/devframe/src/node/index.ts"
+        "./devframe/packages/devframe/src/node/index.ts"
       ],
       "devframe/constants": [
-        "./packages/devframe/src/constants.ts"
+        "./devframe/packages/devframe/src/constants.ts"
       ],
       "devframe/utils/events": [
-        "./packages/devframe/src/utils/events.ts"
+        "./devframe/packages/devframe/src/utils/events.ts"
       ],
       "devframe/utils/human-id": [
-        "./packages/devframe/src/utils/human-id.ts"
+        "./devframe/packages/devframe/src/utils/human-id.ts"
       ],
       "devframe/utils/nanoid": [
-        "./packages/devframe/src/utils/nanoid.ts"
+        "./devframe/packages/devframe/src/utils/nanoid.ts"
       ],
       "devframe/utils/promise": [
-        "./packages/devframe/src/utils/promise.ts"
+        "./devframe/packages/devframe/src/utils/promise.ts"
       ],
       "devframe/utils/shared-state": [
-        "./packages/devframe/src/utils/shared-state.ts"
+        "./devframe/packages/devframe/src/utils/shared-state.ts"
       ],
       "devframe/utils/state": [
-        "./packages/devframe/src/utils/state.ts"
+        "./devframe/packages/devframe/src/utils/state.ts"
       ],
       "devframe/utils/when": [
-        "./packages/devframe/src/utils/when.ts"
+        "./devframe/packages/devframe/src/utils/when.ts"
       ],
       "devframe/adapters/cli": [
-        "./packages/devframe/src/adapters/cli.ts"
+        "./devframe/packages/devframe/src/adapters/cli.ts"
       ],
       "devframe/adapters/build": [
-        "./packages/devframe/src/adapters/build.ts"
+        "./devframe/packages/devframe/src/adapters/build.ts"
       ],
       "devframe/adapters/vite": [
-        "./packages/devframe/src/adapters/vite.ts"
+        "./devframe/packages/devframe/src/adapters/vite.ts"
       ],
       "devframe/adapters/kit": [
-        "./packages/devframe/src/adapters/kit.ts"
+        "./devframe/packages/devframe/src/adapters/kit.ts"
       ],
       "devframe/adapters/embedded": [
-        "./packages/devframe/src/adapters/embedded.ts"
+        "./devframe/packages/devframe/src/adapters/embedded.ts"
       ],
       "devframe/adapters/mcp": [
-        "./packages/devframe/src/adapters/mcp.ts"
+        "./devframe/packages/devframe/src/adapters/mcp.ts"
       ],
       "devframe/helpers/nuxt/runtime/plugin.client": [
-        "./packages/devframe/src/helpers/nuxt/runtime/plugin.client.ts"
+        "./devframe/packages/devframe/src/helpers/nuxt/runtime/plugin.client.ts"
       ],
       "devframe/helpers/nuxt": [
-        "./packages/devframe/src/helpers/nuxt/index.ts"
+        "./devframe/packages/devframe/src/helpers/nuxt/index.ts"
       ],
       "devframe/recipes/open-helpers": [
-        "./packages/devframe/src/recipes/open-helpers.ts"
+        "./devframe/packages/devframe/src/recipes/open-helpers.ts"
       ],
       "devframe/client": [
-        "./packages/devframe/src/client/index.ts"
+        "./devframe/packages/devframe/src/client/index.ts"
       ],
       "devframe": [
-        "./packages/devframe/src"
+        "./devframe/packages/devframe/src"
       ],
       "@vitejs/devtools-kit/node": [
         "./packages/kit/src/node/index.ts"

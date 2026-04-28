@@ -6,7 +6,7 @@ outline: deep
 
 **DevFrame** is the framework-neutral foundation that powers Vite DevTools. It provides the RPC layer, host abstractions, and seven runtime adapters needed to build a devtool — and it does so without depending on Vite or any framework.
 
-If you are writing a Vite plugin and want a Vite-specific entry point, see the [DevTools Kit](/kit/) — Kit is a Vite-specific superset of DevFrame. If you want to build a standalone inspector, bundle a static snapshot of your data, drive a devtool from a CLI, or expose your tool to coding agents over MCP, start here.
+If you are writing a Vite plugin and want a Vite-specific entry point, see the [DevTools Kit](https://devtools.vite.dev/kit/) — Kit is a Vite-specific superset of DevFrame. If you want to build a standalone inspector, bundle a static snapshot of your data, drive a devtool from a CLI, or expose your tool to coding agents over MCP, start here.
 
 > [!WARNING] Experimental
 > The DevFrame API is still in development and may change between versions. The agent-native surface (`agent` field on `defineRpcFunction`, `ctx.agent`, and the MCP adapter) is additionally flagged as experimental.
