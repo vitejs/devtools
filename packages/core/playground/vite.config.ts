@@ -75,7 +75,7 @@ export default defineConfig({
           ctx.docks.register({
             type: 'custom-render',
             renderer: ctx.utils.createSimpleClientScript((ctx) => {
-              ctx.current.events.on('dom:panel:mounted', (panel) => {
+              ctx.current.events.on('dom:panel:mounted', (panel: any) => {
                 const el = document.createElement('div')
                 el.style.padding = '16px'
                 el.textContent = 'Hello from custom render dock!'

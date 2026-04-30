@@ -1,5 +1,5 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import { createEventEmitter } from 'devframe/utils/events'
 import { shallowRef } from 'vue'
 import { setDocksOverflowPanel } from './floating-tooltip'
 

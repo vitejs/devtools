@@ -7,7 +7,7 @@ import { markLogsAsRead, useLogs } from '../../state/logs'
 import FilterToggles from '../display/FilterToggles.vue'
 import HashBadge from '../display/HashBadge.vue'
 import LogItem from '../log/LogItem.vue'
-import { formEntries, getHashColorFromString, levels } from '../log/LogItemConstants'
+import { fromEntries, getHashColorFromString, levels } from '../log/LogItemConstants'
 
 const props = defineProps<{
   context: DocksContext
@@ -22,7 +22,7 @@ type SortMode = 'newest' | 'oldest' | 'level'
 const logsState = useLogs(props.context)
 
 const allLevels: DevToolsLogLevel[] = Object.keys(levels) as DevToolsLogLevel[]
-const allFroms: DevToolsLogEntryFrom[] = Object.keys(formEntries) as DevToolsLogEntryFrom[]
+const allSources: DevToolsLogEntryFrom[] = Object.keys(fromEntries) as DevToolsLogEntryFrom[]
 
 const sortLabels: Record<SortMode, string> = {
   newest: 'Newest first',
@@ -287,9 +287,9 @@ onMounted(() => {
 
         <FilterToggles
           label="From"
-          :items="allFroms"
+          :items="allSources"
           :active="(activeFromFilters as Set<DevToolsLogEntryFrom>)"
-          :styles="formEntries"
+          :styles="fromEntries"
           @toggle="(toggleFrom as (item: string) => void)"
         />
 
@@ -373,9 +373,9 @@ onMounted(() => {
             <div :class="levels[selectedEntry.level].icon" class="w-3.5 h-3.5" />
             <span class="capitalize">{{ selectedEntry.level }}</span>
           </span>
-          <span v-if="formEntries[selectedEntry.from as DevToolsLogEntryFrom]" class="flex items-center gap-1" :class="formEntries[selectedEntry.from as DevToolsLogEntryFrom].color">
-            <div :class="formEntries[selectedEntry.from as DevToolsLogEntryFrom].icon" class="w-3.5 h-3.5" />
-            {{ formEntries[selectedEntry.from as DevToolsLogEntryFrom].label }}
+          <span v-if="fromEntries[selectedEntry.from as DevToolsLogEntryFrom]" class="flex items-center gap-1" :class="fromEntries[selectedEntry.from as DevToolsLogEntryFrom].color">
+            <div :class="fromEntries[selectedEntry.from as DevToolsLogEntryFrom].icon" class="w-3.5 h-3.5" />
+            {{ fromEntries[selectedEntry.from as DevToolsLogEntryFrom].label }}
           </span>
           <span v-if="selectedEntry.status === 'loading'" class="flex items-center gap-1 text-amber">
             <div class="w-3 h-3 border-1.5 border-current border-t-transparent rounded-full animate-spin" />

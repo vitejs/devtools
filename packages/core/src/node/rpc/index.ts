@@ -1,5 +1,5 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedStatePatch } from 'devframe/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'

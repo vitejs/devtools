@@ -1,7 +1,7 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
-import { createSharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import { createSharedState } from 'devframe/utils/shared-state'
 import { describe, expect, it } from 'vitest'
 import { createDocksContext } from '../context'
 import { useDocksEntries } from '../docks'

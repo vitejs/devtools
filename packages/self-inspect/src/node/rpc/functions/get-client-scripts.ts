@@ -4,6 +4,10 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const getClientScripts = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-client-scripts',
   type: 'query',
+  agent: {
+    description: 'List client-side scripts attached to UI docks (actions, custom renderers, and iframe clientScripts). Read-only — returns the stringified scripts, not their execution state.',
+    title: 'List client scripts',
+  },
   setup: (context) => {
     return {
       handler: async () => {

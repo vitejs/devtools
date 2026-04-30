@@ -1,5 +1,5 @@
 import type { DevToolsNodeContext, DevToolsRpcSharedStates } from '@vitejs/devtools-kit'
-import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedStatePatch } from 'devframe/utils/shared-state'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const sharedStatePatch = defineRpcFunction({
