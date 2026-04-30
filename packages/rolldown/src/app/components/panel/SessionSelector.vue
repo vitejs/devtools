@@ -46,6 +46,7 @@ function select(session: BuildInfo) {
         :aria-label="`Session ${session.id}`"
         border="~ rounded-md"
         :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
+        appearance-none bg-transparent color-base text-left
         flex="~ col gap-1"
         px4 py3 w-full
         @click="select(session)"
