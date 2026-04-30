@@ -10,6 +10,7 @@ export class RolldownEventsReader {
   lastTimestamp: number = 0
   manager = new RolldownEventsManager()
   meta: SessionMeta | undefined
+  private pendingRead: Promise<void> | undefined
 
   private constructor(
     readonly filepath: string,
@@ -26,6 +27,17 @@ export class RolldownEventsReader {
   }
 
   async read() {
+    if (this.pendingRead) {
+      return this.pendingRead
+    }
+
+    this.pendingRead = this.readChanges().finally(() => {
+      this.pendingRead = undefined
+    })
+    return this.pendingRead
+  }
+
+  private async readChanges() {
     const { mtime, size } = await fs.promises.stat(this.filepath)
     if (mtime.getTime() <= this.lastTimestamp) {
       return
