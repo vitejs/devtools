@@ -1,22 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-
-const GuideSidebar = [
-  { text: 'Introduction', link: '/guide/' },
-  { text: 'Devtool Definition', link: '/guide/devtool-definition' },
-  { text: 'Adapters', link: '/guide/adapters' },
-  { text: 'RPC', link: '/guide/rpc' },
-  { text: 'Shared State', link: '/guide/shared-state' },
-  { text: 'Dock System', link: '/guide/dock-system' },
-  { text: 'Commands', link: '/guide/commands' },
-  { text: 'When Clauses', link: '/guide/when-clauses' },
-  { text: 'Logs & Notifications', link: '/guide/logs' },
-  { text: 'Terminals', link: '/guide/terminals' },
-  { text: 'Client', link: '/guide/client' },
-  { text: 'Standalone CLI', link: '/guide/standalone-cli' },
-  { text: 'Nuxt Helper', link: '/guide/nuxt' },
-  { text: 'Agent-Native (experimental)', link: '/guide/agent-native' },
-]
+import devframeSidebar from './sidebar'
 
 export default withMermaid(defineConfig({
   title: 'DevFrame',
@@ -26,21 +10,7 @@ export default withMermaid(defineConfig({
       { text: 'Guide', link: '/guide/' },
       { text: 'Errors', link: '/errors/' },
     ],
-    sidebar: [
-      {
-        text: 'Guide',
-        items: GuideSidebar,
-      },
-      {
-        text: 'Error Reference',
-        link: '/errors/',
-        collapsed: true,
-        items: Array.from({ length: 17 }, (_, i) => {
-          const code = `DF${String(i + 1).padStart(4, '0')}`
-          return { text: code, link: `/errors/${code}` }
-        }),
-      },
-    ],
+    sidebar: devframeSidebar(),
     search: {
       provider: 'local',
     },
