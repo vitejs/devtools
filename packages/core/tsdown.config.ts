@@ -53,6 +53,7 @@ export default defineConfig({
   tsconfig: '../../tsconfig.base.json',
   entry: {
     'index': 'src/index.ts',
+    'integration': 'src/integration.ts',
     'internal': 'src/internal.ts',
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
