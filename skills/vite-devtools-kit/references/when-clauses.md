@@ -161,7 +161,7 @@ function defineMyCommand<const W extends string>(cmd: {
 
 ```ts
 import type { WhenContext } from '@vitejs/devtools-kit'
-import { evaluateWhen, resolveContextValue } from '@vitejs/devtools-kit/utils/when'
+import { evaluateWhen, resolveContextValue } from 'devframe/utils/when'
 
 const ctx: WhenContext = {
   'clientType': 'embedded',

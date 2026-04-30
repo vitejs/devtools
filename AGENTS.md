@@ -62,7 +62,7 @@ pnpm -C docs run docs                 # docs dev server
 
 - Use workspace aliases from `alias.ts`.
 - RPC functions must use `defineRpcFunction` from kit; always namespace IDs (`my-plugin:fn-name`).
-- Shared state via `@vitejs/devtools-kit/utils/shared-state`; keep values serializable.
+- Shared state via `devframe/utils/shared-state`; keep values serializable.
 - Nuxt UI base paths: `/.devtools-rolldown/`, `/.devtools-vite/`, `/.devtools-self-inspect/`.
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.

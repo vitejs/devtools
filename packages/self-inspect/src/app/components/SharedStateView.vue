@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { JsonEditor } from '@visual-json/vue'
-import { nanoid } from '@vitejs/devtools-kit/utils/nanoid'
+import { nanoid } from 'devframe/utils/nanoid'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { useRpc } from '../composables/rpc'
 

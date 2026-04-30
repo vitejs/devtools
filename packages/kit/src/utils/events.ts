@@ -1,1 +1,2 @@
-export * from 'devframe/utils/events'
+/** @deprecated Import from `devframe/utils/events` instead. */
+export { createEventEmitter } from 'devframe/utils/events'

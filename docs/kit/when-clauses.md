@@ -203,11 +203,11 @@ defineMyCommand({
 
 ## API Reference
 
-The when-clause evaluator is re-exported from `@vitejs/devtools-kit`:
+The when-clause evaluator is provided by `devframe`:
 
 ```ts
 import type { WhenContext } from '@vitejs/devtools-kit'
-import { evaluateWhen, resolveContextValue } from '@vitejs/devtools-kit/utils/when'
+import { evaluateWhen, resolveContextValue } from 'devframe/utils/when'
 
 const ctx: WhenContext = {
   'clientType': 'embedded',
