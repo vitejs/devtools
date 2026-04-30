@@ -4,6 +4,7 @@
 // #region Interfaces
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean;
+  environments?: string[];
   clientAuth?: boolean;
   clientAuthTokens?: string[];
 }
