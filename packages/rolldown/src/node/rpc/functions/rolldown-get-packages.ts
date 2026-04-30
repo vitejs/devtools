@@ -2,7 +2,7 @@ import type { PackageInfo } from '../../../shared/types'
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { getPackageDirPath, isNodeModulePath } from '../../../shared/utils/filepath'
+import { getPackageDirPath, getPnpmPackageInfoFromPath, isNodeModulePath } from '../../../shared/utils/filepath'
 import { getLogsManager } from '../utils'
 
 export async function getPackagesManifest(reader: RolldownEventsReader) {
@@ -44,6 +44,7 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
   await Promise.all(packages.map(async (p) => {
     let packageKey = ''
     let manifest = null
+    const fallbackPackage = getPnpmPackageInfoFromPath(p.path) ?? getPnpmPackageInfoFromPath(p.dir)
 
     try {
       manifest = await readProjectManifestOnly(p.dir)
@@ -51,7 +52,9 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
     }
     catch (err: any) {
       if (err?.code === 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
-        packageKey = `${p.dir}`
+        packageKey = fallbackPackage
+          ? `${fallbackPackage.name}@${fallbackPackage.version}`
+          : `${p.dir}`
       }
       else {
         throw err
@@ -72,8 +75,8 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
     }
     else {
       packagesManifest.set(packageKey, {
-        name: manifest?.name || p.dir,
-        version: manifest?.version || '(unknown)',
+        name: manifest?.name || fallbackPackage?.name || p.dir,
+        version: manifest?.version || fallbackPackage?.version || '(unknown)',
         dir: p.dir,
         files: [{
           path: p.path,
@@ -87,6 +90,53 @@ export async function getPackagesManifest(reader: RolldownEventsReader) {
   return packagesManifest
 }
 
+export async function getNormalizedPackages(reader: RolldownEventsReader) {
+  const modulesMap = reader.manager.modules
+  const duplicatePackagesMap = new Map<string, number>()
+  const packagesManifest = await getPackagesManifest(reader)
+
+  const normalizedPackages = await Promise.all(
+    Array.from<PackageInfo>(packagesManifest.values())
+      .map((p) => {
+        duplicatePackagesMap.set(p.name, (duplicatePackagesMap.get(p.name) ?? 0) + 1)
+        return {
+          ...p,
+          type: p.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
+        }
+      })
+      .map(async (p) => {
+        const duplicated = duplicatePackagesMap.get(p.name)! > 1
+        let files = p.files
+        if (duplicated) {
+          files = await Promise.all(files.map(async (f) => {
+            const importers = await Promise.all(f.importers.map(async (i) => {
+              let manifest = null
+              try {
+                if (isNodeModulePath(i.path)) {
+                  manifest = await readProjectManifestOnly(getPackageDirPath(i.path))
+                }
+              }
+              catch (err: any) {
+                if (err?.code !== 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
+                  throw err
+                }
+              }
+              const fallbackPackage = getPnpmPackageInfoFromPath(i.path)
+              return { ...i, version: manifest?.version ?? fallbackPackage?.version ?? '' }
+            }))
+            return { ...f, importers }
+          }))
+        }
+        return {
+          ...p,
+          duplicated,
+          files,
+        }
+      }),
+  )
+  return normalizedPackages.filter(i => !!i.transformedCodeSize)
+}
+
 export const rolldownGetPackages = defineRpcFunction({
   name: 'vite:rolldown:get-packages',
   type: 'query',
@@ -96,49 +146,7 @@ export const rolldownGetPackages = defineRpcFunction({
     return {
       handler: async ({ session }: { session: string }) => {
         const reader = await manager.loadSession(session)
-        const modulesMap = reader.manager.modules
-        const duplicatePackagesMap = new Map<string, number>()
-        const packagesManifest = await getPackagesManifest(reader)
-
-        const normalizedPackages = await Promise.all(
-          Array.from<PackageInfo>(packagesManifest.values())
-            .map((p) => {
-              duplicatePackagesMap.set(p.name, (duplicatePackagesMap.get(p.name) ?? 0) + 1)
-              return {
-                ...p,
-                type: p.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
-              }
-            })
-            .map(async (p) => {
-              const duplicated = duplicatePackagesMap.get(p.name)! > 1
-              let files = p.files
-              if (duplicated) {
-                files = await Promise.all(files.map(async (f) => {
-                  const importers = await Promise.all(f.importers.map(async (i) => {
-                    let manifest = null
-                    try {
-                      if (isNodeModulePath(i.path)) {
-                        manifest = await readProjectManifestOnly(getPackageDirPath(i.path))
-                      }
-                    }
-                    catch (err: any) {
-                      if (err?.code !== 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
-                        throw err
-                      }
-                    }
-                    return { ...i, version: manifest?.version ?? '' }
-                  }))
-                  return { ...f, importers }
-                }))
-              }
-              return {
-                ...p,
-                duplicated,
-                files,
-              }
-            }),
-        )
-        return normalizedPackages.filter(i => !!i.transformedCodeSize)
+        return await getNormalizedPackages(reader)
       },
     }
   },

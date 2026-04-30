@@ -45,6 +45,7 @@ const items = computed<SideNavItem[]>(() => {
           p2 hover:bg-active op-fade hover:op100
           flex="~ items-center justify-center"
           exact-active-class="text-primary op100!"
+          :class="item.active ? 'bg-active text-primary op100!' : undefined"
           @click="item.action?.()"
         >
           <div :class="item.icon" text-lg />

@@ -64,6 +64,121 @@ export interface SessionCompareContext {
   initial_js: number
 }
 
+export type SessionCompareChangeStatus = 'added' | 'removed' | 'changed' | 'unchanged'
+
+export interface SessionCompareMetricValue {
+  previous: number
+  current: number
+  delta: number
+  deltaRatio: number | null
+}
+
+export interface SessionCompareChangeSummary {
+  added: number
+  removed: number
+  changed: number
+  unchanged: number
+  total: number
+}
+
+export interface SessionCompareAssetDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  name: string
+  previousFilename?: string
+  currentFilename?: string
+  type: string
+  scope: 'initial' | 'async' | 'static'
+  chunkName?: string
+}
+
+export interface SessionCompareChunkDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  name: string
+  reason?: RolldownChunkInfo['reason']
+  previousChunkId?: number
+  currentChunkId?: number
+  previousModules: number
+  currentModules: number
+  previousImports: number
+  currentImports: number
+  previousInitial: boolean
+  currentInitial: boolean
+}
+
+export interface SessionComparePackageDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  name: string
+  version: string
+  previousVersion?: string
+  currentVersion?: string
+  previousType?: PackageInfo['type']
+  currentType?: PackageInfo['type']
+  previousDuplicated: boolean
+  currentDuplicated: boolean
+  previousFiles: number
+  currentFiles: number
+  previousImporters: number
+  currentImporters: number
+}
+
+export interface SessionComparePluginDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  name: string
+  previousPluginId?: number
+  currentPluginId?: number
+  previousCalls: number
+  currentCalls: number
+  previousResolveDuration: number
+  currentResolveDuration: number
+  previousLoadDuration: number
+  currentLoadDuration: number
+  previousTransformDuration: number
+  currentTransformDuration: number
+}
+
+export interface SessionCompareModuleDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  id: string
+  fileType: string
+  kind: 'source' | 'dependency' | 'external'
+  previousChunks: string[]
+  currentChunks: string[]
+  previousImports: number
+  currentImports: number
+  previousImporters: number
+  currentImporters: number
+}
+
+export interface SessionCompareDetails {
+  sessionStats: {
+    previous: {
+      packages: number
+      duplicatedPackages: number
+    }
+    current: {
+      packages: number
+      duplicatedPackages: number
+    }
+  }
+  summary: {
+    assets: SessionCompareChangeSummary
+    chunks: SessionCompareChangeSummary
+    packages: SessionCompareChangeSummary
+    plugins: SessionCompareChangeSummary
+    modules: SessionCompareChangeSummary
+  }
+  assets: SessionCompareAssetDiff[]
+  chunks: SessionCompareChunkDiff[]
+  packages: SessionComparePackageDiff[]
+  plugins: SessionComparePluginDiff[]
+  modules: SessionCompareModuleDiff[]
+}
+
 export interface ModuleInfo {
   id: string
   loads: RolldownModuleLoadInfo[]

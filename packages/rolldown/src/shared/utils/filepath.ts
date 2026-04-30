@@ -17,13 +17,60 @@ export function getModuleNameFromPath(path: string) {
   return match.split('/')[0]
 }
 
+export function getPnpmPackageInfoFromPath(path: string) {
+  const normalizedPath = path
+    .replace(/%2F/g, '/')
+    .replace(/\\/g, '/')
+
+  const packageSegment = normalizedPath.match(/\/node_modules\/\.pnpm\/([^/]+)/)?.[1]
+  if (!packageSegment)
+    return undefined
+
+  const versionIndex = packageSegment.startsWith('@')
+    ? packageSegment.indexOf('@', 1)
+    : packageSegment.indexOf('@')
+  if (versionIndex <= 0)
+    return undefined
+
+  const name = packageSegment
+    .slice(0, versionIndex)
+    .replace(/\+/g, '/')
+  const version = packageSegment
+    .slice(versionIndex + 1)
+    .split('_')[0]
+
+  if (!name || !version)
+    return undefined
+
+  return {
+    name,
+    version,
+  }
+}
+
 export function getPackageDirPath(path: string) {
   const normalizedPath = path
     .replace(/%2F/g, '/')
     .replace(/\\/g, '/')
 
-  const nodeModulesPrefix = normalizedPath.match(/^(.+\/node_modules\/)/)?.[1]
-  const packageName = getModuleNameFromPath(path)
+  if (isPackageName(normalizedPath))
+    return normalizedPath
 
-  return nodeModulesPrefix! + packageName
+  const pnpmNestedNodeModules = normalizedPath.match(/^(.+\/node_modules\/\.pnpm\/[^/]+\/node_modules\/)/)?.[1]
+  if (pnpmNestedNodeModules) {
+    const packageName = getModuleNameFromPath(normalizedPath)
+    if (packageName)
+      return `${pnpmNestedNodeModules}${packageName}`
+  }
+
+  const pnpmPackagePath = normalizedPath.match(/^(.+\/node_modules\/\.pnpm\/[^/]+)(?:\/|$)/)?.[1]
+  if (pnpmPackagePath)
+    return pnpmPackagePath
+
+  const nodeModulesPrefix = normalizedPath.match(/^(.+\/node_modules\/)/)?.[1]
+  const packageName = getModuleNameFromPath(normalizedPath)
+  if (!nodeModulesPrefix || !packageName)
+    return normalizedPath
+
+  return nodeModulesPrefix + packageName
 }
