@@ -1,8 +1,8 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient, DockEntryState, DockEntryStateEvents, DockPanelStorage } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedState } from 'devframe/utils/shared-state'
 import type { Ref, ShallowRef } from 'vue'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import { createEventEmitter } from 'devframe/utils/events'
 import { markRaw, reactive, shallowRef, watch } from 'vue'
 
 export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {

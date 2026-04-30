@@ -34,8 +34,8 @@
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
+    "devframe": "workspace:*",
     "pathe": "catalog:deps"
   },
   "devDependencies": {

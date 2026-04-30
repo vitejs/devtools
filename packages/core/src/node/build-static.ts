@@ -45,7 +45,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(context.docks.values()), 'utf-8')
 
   console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
-  const { collectStaticRpcDump } = await import('./static-dump')
+  const { collectStaticRpcDump } = await import('devframe/node')
   const dump = await collectStaticRpcDump(
     context.rpc.definitions.values(),
     context,

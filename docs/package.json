@@ -12,6 +12,7 @@
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
     "@voidzero-dev/vitepress-theme": "catalog:docs",
+    "devframe": "workspace:*",
     "mermaid": "catalog:docs",
     "vitepress": "catalog:docs",
     "vitepress-plugin-group-icons": "catalog:docs",

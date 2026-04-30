@@ -1,5 +1,5 @@
 import type { StartOptions } from './cli-commands'
-import { isObject } from './utils'
+import { isObject } from 'devframe/node'
 
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean

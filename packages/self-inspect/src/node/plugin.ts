@@ -8,7 +8,7 @@ export function DevToolsSelfInspect(): PluginWithDevTools {
     devtools: {
       setup(ctx) {
         for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn)
+          ctx.rpc.register(fn as any)
         }
 
         ctx.views.hostStatic(

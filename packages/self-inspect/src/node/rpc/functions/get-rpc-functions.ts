@@ -3,6 +3,10 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const getRpcFunctions = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-rpc-functions',
   type: 'query',
+  agent: {
+    description: 'List every RPC function registered on the devtools server, with metadata (name, type, whether it has args/returns schemas, dump, setup, handler). Useful for discovering what functionality the running devtools expose. Read-only.',
+    title: 'List RPC functions',
+  },
   setup: (context) => {
     return {
       handler: async () => {

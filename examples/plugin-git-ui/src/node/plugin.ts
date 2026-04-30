@@ -135,7 +135,7 @@ export function GitUIPlugin(): PluginWithDevTools {
         if (interactive) {
           const rpcFunctions = createRpcFunctions(gitRoot, () => ui, interactive)
           for (const fn of rpcFunctions) {
-            ctx.rpc.register(fn)
+            ctx.rpc.register(fn as any)
           }
         }
       },

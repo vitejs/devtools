@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
+import { evaluateWhen } from 'devframe/utils/when'
 import { toRefs } from 'vue'
 import DockEntry from './DockEntry.vue'
 
