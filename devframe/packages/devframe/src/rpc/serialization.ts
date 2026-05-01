@@ -1,12 +1,12 @@
 import type { ChannelOptions } from 'birpc'
 import {
-  deserialize as scDeserialize,
-  parse as scParse,
-  stringify as scStringify,
+  deserialize as structuredCloneDeserialize,
+  parse as structuredCloneParse,
+  stringify as structuredCloneStringify,
 } from 'structured-clone-es'
 import { logger } from './diagnostics'
 
-export { scDeserialize, scParse, scStringify }
+export { structuredCloneDeserialize, structuredCloneParse, structuredCloneStringify }
 
 /**
  * Wire format used by the WS RPC transport.
@@ -82,11 +82,11 @@ export function makePerCallChannelOptions(
       const useJson = isJsonMethod(defs, method)
       if (useJson)
         return strictJsonStringify(msg, method ?? '')
-      return `${STRUCTURED_CLONE_PREFIX}${scStringify(msg)}`
+      return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
     },
     deserialize(raw: string): BirpcMessage {
       const msg: BirpcMessage = raw.startsWith(STRUCTURED_CLONE_PREFIX)
-        ? (scParse(raw.slice(STRUCTURED_CLONE_PREFIX.length)) as BirpcMessage)
+        ? (structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length)) as BirpcMessage)
         : (JSON.parse(raw) as BirpcMessage)
       if (msg.t === 'q' && msg.i && msg.m)
         pendingRequestMethods.set(msg.i, msg.m)

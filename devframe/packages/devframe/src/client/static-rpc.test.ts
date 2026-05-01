@@ -1,5 +1,5 @@
 import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
-import { scStringify } from 'devframe/rpc'
+import { structuredCloneStringify } from 'devframe/rpc'
 import { hash } from 'ohash'
 import { describe, expect, it } from 'vitest'
 import { createStaticRpcCaller } from './static-rpc'
@@ -125,7 +125,7 @@ describe('createStaticRpcCaller', () => {
         // What a server would have written: SC-stringified, then read
         // back via fetch.json() (i.e. JSON.parse of the SC text).
         const payload = { output: new Map([['a', 1], ['b', 2]]) }
-        return JSON.parse(scStringify(payload))
+        return JSON.parse(structuredCloneStringify(payload))
       },
     )
 
@@ -147,7 +147,7 @@ describe('createStaticRpcCaller', () => {
       },
       async () => {
         const payload = { inputs: ['k'], output: new Set(['x', 'y']) }
-        return JSON.parse(scStringify(payload))
+        return JSON.parse(structuredCloneStringify(payload))
       },
     )
 

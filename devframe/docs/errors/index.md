@@ -37,3 +37,11 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0017](./DF0017) | error | MCP Server Start Failure | — |
 | [DF0018](./DF0018) | error | Agent Requires JSON-Serializable RPC | — |
 | [DF0019](./DF0019) | error | Non-JSON Value in JSON-Serializable RPC | — |
+| [DF0020](./DF0020) | error | RPC Function Already Registered | DTK0001 |
+| [DF0021](./DF0021) | error | RPC Function Not Registered (Update) | DTK0002 |
+| [DF0022](./DF0022) | error | RPC Function Not Registered (Get) | DTK0003 |
+| [DF0023](./DF0023) | error | Missing RPC Handler | DTK0004 |
+| [DF0024](./DF0024) | error | Function Not in Dump Store | DTK0005 |
+| [DF0025](./DF0025) | error | No Dump Match | DTK0006 |
+| [DF0026](./DF0026) | error | Invalid Dump Configuration | DTK0007 |
+| [DF0027](./DF0027) | error | Snapshot Type Mismatch | DTK0008 |

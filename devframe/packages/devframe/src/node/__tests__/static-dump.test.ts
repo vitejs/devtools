@@ -1,6 +1,6 @@
 import { defineRpcFunction } from 'devframe'
 import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
-import { scDeserialize, scStringify, strictJsonStringify } from 'devframe/rpc'
+import { strictJsonStringify, structuredCloneDeserialize, structuredCloneStringify } from 'devframe/rpc'
 import { describe, expect, it } from 'vitest'
 import { collectStaticRpcDump } from '../static-dump'
 
@@ -127,7 +127,7 @@ describe('collectStaticRpcDump', () => {
     it('survives a full write→read round-trip (Map preserved end-to-end)', async () => {
       // Mirrors what `createBuild` does: collect, sc-stringify the file
       // payload, write JSON text to disk. The static client later reads
-      // the JSON and revives via `scDeserialize`.
+      // the JSON and revives via `structuredCloneDeserialize`.
       const getMap = defineRpcFunction({
         name: 'test:roundtrip-map',
         type: 'static',
@@ -139,9 +139,9 @@ describe('collectStaticRpcDump', () => {
       const file = result.files[path]!
 
       // Server side: write to disk as sc-encoded text.
-      const wireText = scStringify(file.data)
-      // Client side: fetch().json() (i.e. JSON.parse) + scDeserialize revive.
-      const revived = scDeserialize(JSON.parse(wireText)) as { output: Map<string, number> }
+      const wireText = structuredCloneStringify(file.data)
+      // Client side: fetch().json() (i.e. JSON.parse) + structuredCloneDeserialize revive.
+      const revived = structuredCloneDeserialize(JSON.parse(wireText)) as { output: Map<string, number> }
       expect(revived.output).toBeInstanceOf(Map)
       expect(revived.output.get('k')).toBe(42)
     })
@@ -164,7 +164,7 @@ describe('collectStaticRpcDump', () => {
       expect(fallback.serialization).toBe('structured-clone')
 
       // Round-trip the fallback shard.
-      const revived = scDeserialize(JSON.parse(scStringify(fallback.data))) as { output: Map<string, number> }
+      const revived = structuredCloneDeserialize(JSON.parse(structuredCloneStringify(fallback.data))) as { output: Map<string, number> }
       expect(revived.output).toBeInstanceOf(Map)
       expect(revived.output.get('_')).toBe(0)
 
@@ -174,7 +174,7 @@ describe('collectStaticRpcDump', () => {
       )[0]!
       const record = result.files[recordPath]!
       expect(record.serialization).toBe('structured-clone')
-      const revivedRecord = scDeserialize(JSON.parse(scStringify(record.data))) as { output: Map<string, number> }
+      const revivedRecord = structuredCloneDeserialize(JSON.parse(structuredCloneStringify(record.data))) as { output: Map<string, number> }
       expect(revivedRecord.output.get('hello')).toBe(5)
     })
 

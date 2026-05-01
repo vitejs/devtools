@@ -12,11 +12,11 @@ export function validateDefinitions(definitions: readonly RpcFunctionDefinitionA
     const type = definition.type || 'query'
 
     if ((type === 'action' || type === 'event') && definition.dump) {
-      throw logger.DTK0007({ name: definition.name, type }).throw()
+      throw logger.DF0026({ name: definition.name, type }).throw()
     }
 
     if (definition.snapshot && type !== 'query') {
-      throw logger.DTK0008({ name: definition.name, type }).throw()
+      throw logger.DF0027({ name: definition.name, type }).throw()
     }
   }
 }

@@ -13,7 +13,7 @@ import {
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { collectStaticRpcDump } from '../node/static-dump'
-import { scStringify, strictJsonStringify } from '../rpc/serialization'
+import { strictJsonStringify, structuredCloneStringify } from '../rpc/serialization'
 import { resolveBasePath } from './_shared'
 
 export interface CreateBuildOptions {
@@ -89,7 +89,7 @@ export async function createBuild(d: DevtoolDefinition, options: CreateBuildOpti
     const fullpath = resolve(outDir, filepath)
     await fs.mkdir(dirname(fullpath), { recursive: true })
     const text = file.serialization === 'structured-clone'
-      ? scStringify(file.data)
+      ? structuredCloneStringify(file.data)
       : strictJsonStringify(file.data, file.fnName)
     await fs.writeFile(
       fullpath,

@@ -1,5 +1,5 @@
 import { hash } from 'ohash'
-import { scDeserialize } from '../rpc/serialization'
+import { structuredCloneDeserialize } from '../rpc/serialization'
 
 export type StaticRpcSerialization = 'json' | 'structured-clone'
 
@@ -73,7 +73,7 @@ export function createStaticRpcCaller(
 
   function reviveIfStructuredClone(value: unknown, serialization: StaticRpcSerialization | undefined): any {
     if (serialization === 'structured-clone')
-      return scDeserialize(value as any)
+      return structuredCloneDeserialize(value as any)
     return value
   }
 

@@ -12,11 +12,11 @@ export { getRpcResolvedSetupResult }
 export { makePerCallChannelOptions }
 export { RpcCacheManager }
 export { RpcFunctionsCollectorBase }
-export { scDeserialize }
-export { scParse }
-export { scStringify }
 export { strictJsonStringify }
 export { STRUCTURED_CLONE_PREFIX }
+export { structuredCloneDeserialize }
+export { structuredCloneParse }
+export { structuredCloneStringify }
 export { validateDefinition }
 export { validateDefinitions }
 // #endregion

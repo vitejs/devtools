@@ -25,7 +25,7 @@ export default function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[]
       text: 'Error Reference',
       link: `${prefix}/errors/`,
       collapsed: true,
-      items: Array.from({ length: 19 }, (_, i) => {
+      items: Array.from({ length: 27 }, (_, i) => {
         const code = `DF${String(i + 1).padStart(4, '0')}`
         return { text: code, link: `${prefix}/errors/${code}` }
       }),
