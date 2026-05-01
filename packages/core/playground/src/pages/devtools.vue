@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DevToolsLogLevel } from '@vitejs/devtools-kit'
+import type { DevToolsMessageLevel } from '@vitejs/devtools-kit'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
@@ -9,26 +9,26 @@ const client = shallowRef<Awaited<ReturnType<typeof getDevToolsRpcClient>> | nul
 const isTrusted = ref<boolean | null>(null)
 const counterState = shallowRef<any>(undefined)
 
-// Log form
-const logMessage = ref('Test log message')
-const logLevel = ref<DevToolsLogLevel>('info')
-const logCategory = ref('debug')
-const logLabels = ref('')
-const logNotify = ref(false)
-const logStatus = ref<'idle' | 'loading'>('idle')
-const logId = ref('')
-const logDescription = ref('')
-const logStacktrace = ref('')
-const logAutoDismiss = ref<number>()
-const logAutoDelete = ref<number>()
+// Message form
+const messageMessage = ref('Test message')
+const messageLevel = ref<DevToolsMessageLevel>('info')
+const messageCategory = ref('debug')
+const messageLabels = ref('')
+const messageNotify = ref(false)
+const messageStatus = ref<'idle' | 'loading'>('idle')
+const messageId = ref('')
+const messageDescription = ref('')
+const messageStacktrace = ref('')
+const messageAutoDismiss = ref<number>()
+const messageAutoDelete = ref<number>()
 
 // Update form
 const updateId = ref('')
 const updateMessage = ref('')
-const updateLevel = ref<DevToolsLogLevel>('info')
+const updateLevel = ref<DevToolsMessageLevel>('info')
 const updateStatus = ref<'idle' | 'loading'>('idle')
 
-const levels: DevToolsLogLevel[] = ['info', 'warn', 'error', 'success', 'debug']
+const levels: DevToolsMessageLevel[] = ['info', 'warn', 'error', 'success', 'debug']
 
 onMounted(async () => {
   // Playground page lives outside the `/.devtools/` mount, so resolve the
@@ -48,45 +48,45 @@ onMounted(async () => {
   })
 })
 
-async function addLog() {
+async function addMessage() {
   if (!client.value)
     return
-  await client.value.call('devtoolskit:internal:logs:add', {
-    message: logMessage.value,
-    level: logLevel.value,
-    category: logCategory.value || undefined,
-    labels: logLabels.value ? logLabels.value.split(',').map(l => l.trim()) : undefined,
-    notify: logNotify.value,
-    status: logStatus.value === 'loading' ? 'loading' : undefined,
-    id: logId.value || undefined,
-    description: logDescription.value || undefined,
-    stacktrace: logStacktrace.value || undefined,
-    autoDismiss: logAutoDismiss.value,
-    autoDelete: logAutoDelete.value,
+  await client.value.call('devtoolskit:internal:messages:add', {
+    message: messageMessage.value,
+    level: messageLevel.value,
+    category: messageCategory.value || undefined,
+    labels: messageLabels.value ? messageLabels.value.split(',').map(l => l.trim()) : undefined,
+    notify: messageNotify.value,
+    status: messageStatus.value === 'loading' ? 'loading' : undefined,
+    id: messageId.value || undefined,
+    description: messageDescription.value || undefined,
+    stacktrace: messageStacktrace.value || undefined,
+    autoDismiss: messageAutoDismiss.value,
+    autoDelete: messageAutoDelete.value,
   })
 }
 
-async function updateLog() {
+async function updateMessageEntry() {
   if (!client.value || !updateId.value)
     return
-  await client.value.call('devtoolskit:internal:logs:update', updateId.value, {
+  await client.value.call('devtoolskit:internal:messages:update', updateId.value, {
     message: updateMessage.value || undefined,
     level: updateLevel.value,
     status: updateStatus.value === 'loading' ? 'loading' : undefined,
   })
 }
 
-async function clearLogs() {
+async function clearMessages() {
   if (!client.value)
     return
-  await client.value.call('devtoolskit:internal:logs:clear')
+  await client.value.call('devtoolskit:internal:messages:clear')
 }
 
 async function addLoadingThenResolve() {
   if (!client.value)
     return
   const id = `loading-test-${Date.now()}`
-  await client.value.call('devtoolskit:internal:logs:add', {
+  await client.value.call('devtoolskit:internal:messages:add', {
     id,
     message: 'Processing something...',
     level: 'info',
@@ -95,7 +95,7 @@ async function addLoadingThenResolve() {
     category: 'test',
   })
   setTimeout(async () => {
-    await client.value!.call('devtoolskit:internal:logs:update', id, {
+    await client.value!.call('devtoolskit:internal:messages:update', id, {
       message: 'Processing complete!',
       level: 'success',
       status: 'idle',
@@ -105,12 +105,12 @@ async function addLoadingThenResolve() {
   }, 2000)
 }
 
-async function addBatchLogs() {
+async function addBatchMessages() {
   if (!client.value)
     return
   for (const level of levels) {
-    await client.value.call('devtoolskit:internal:logs:add', {
-      message: `Sample ${level} log`,
+    await client.value.call('devtoolskit:internal:messages:add', {
+      message: `Sample ${level} message`,
       level,
       category: 'batch',
       labels: ['sample'],
@@ -118,10 +118,10 @@ async function addBatchLogs() {
   }
 }
 
-async function addNotification(msg: string, level: DevToolsLogLevel) {
+async function addNotification(msg: string, level: DevToolsMessageLevel) {
   if (!client.value)
     return
-  await client.value.call('devtoolskit:internal:logs:add', {
+  await client.value.call('devtoolskit:internal:messages:add', {
     message: msg,
     level,
     notify: true,
@@ -178,30 +178,30 @@ function incrementCounter() {
           <div i-ph-spinner-gap-duotone />
           Loading -> Resolve
         </button>
-        <button btn-action-sm @click="addBatchLogs()">
+        <button btn-action-sm @click="addBatchMessages()">
           <div i-ph-list-plus-duotone />
           Add All Levels
         </button>
-        <button btn-action-sm text-red @click="clearLogs()">
+        <button btn-action-sm text-red @click="clearMessages()">
           <div i-ph-trash-duotone />
           Clear All
         </button>
       </div>
     </section>
 
-    <!-- Add Log -->
+    <!-- Add Message -->
     <section mb6 border="~ base" rounded-lg p3>
       <h2 text-sm font-semibold mb2>
-        Add Log
+        Add Message
       </h2>
       <div grid="~ cols-2 gap-2" text-sm>
         <label flex="~ col gap-1">
           <span op50 text-xs>Message</span>
-          <input v-model="logMessage" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageMessage" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Level</span>
-          <select v-model="logLevel" border="~ base" rounded px2 py1 text-sm bg-transparent>
+          <select v-model="messageLevel" border="~ base" rounded px2 py1 text-sm bg-transparent>
             <option v-for="l of levels" :key="l" :value="l">
               {{ l }}
             </option>
@@ -209,19 +209,19 @@ function incrementCounter() {
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Category</span>
-          <input v-model="logCategory" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageCategory" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Labels (comma-separated)</span>
-          <input v-model="logLabels" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageLabels" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>ID (for dedup)</span>
-          <input v-model="logId" placeholder="auto" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageId" placeholder="auto" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Status</span>
-          <select v-model="logStatus" border="~ base" rounded px2 py1 text-sm bg-transparent>
+          <select v-model="messageStatus" border="~ base" rounded px2 py1 text-sm bg-transparent>
             <option value="idle">
               idle
             </option>
@@ -232,37 +232,37 @@ function incrementCounter() {
         </label>
         <label flex="~ col gap-1" col-span-2>
           <span op50 text-xs>Description</span>
-          <textarea v-model="logDescription" rows="2" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y />
+          <textarea v-model="messageDescription" rows="2" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y />
         </label>
         <label flex="~ col gap-1" col-span-2>
           <span op50 text-xs>Stacktrace</span>
-          <textarea v-model="logStacktrace" rows="3" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono />
+          <textarea v-model="messageStacktrace" rows="3" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono />
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Auto Dismiss</span>
-          <input v-model="logAutoDismiss" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageAutoDismiss" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
         <label flex="~ col gap-1">
           <span op50 text-xs>Auto Delete</span>
-          <input v-model="logAutoDelete" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+          <input v-model="messageAutoDelete" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
       </div>
       <div flex items-center gap-3 mt2>
         <label flex items-center gap-1 text-xs>
-          <input v-model="logNotify" type="checkbox">
+          <input v-model="messageNotify" type="checkbox">
           Notify (toast)
         </label>
-        <button btn-action-sm ml-auto @click="addLog">
+        <button btn-action-sm ml-auto @click="addMessage">
           <div i-ph-paper-plane-tilt-duotone />
-          Add Log
+          Add Message
         </button>
       </div>
     </section>
 
-    <!-- Update Log -->
+    <!-- Update Message -->
     <section mb6 border="~ base" rounded-lg p3>
       <h2 text-sm font-semibold mb2>
-        Update Log by ID
+        Update Message by ID
       </h2>
       <div grid="~ cols-2 gap-2" text-sm>
         <label flex="~ col gap-1">
@@ -294,7 +294,7 @@ function incrementCounter() {
         </label>
       </div>
       <div flex justify-end mt2>
-        <button btn-action-sm @click="updateLog">
+        <button btn-action-sm @click="updateMessageEntry">
           <div i-ph-pencil-simple-duotone />
           Update
         </button>

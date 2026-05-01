@@ -78,7 +78,8 @@ interface DevToolsNodeContext {
   docks: DevToolsDockHost // dock entries
   views: DevToolsViewHost // static file hosting
   terminals: DevToolsTerminalHost
-  logs: DevToolsLogsHost
+  messages: DevToolsMessagesHost
+  diagnostics: DevToolsDiagnosticsHost
   commands: DevToolsCommandsHost
   agent: DevToolsAgentHost // experimental
 
@@ -92,7 +93,8 @@ Each host has a dedicated page:
 - [Shared State](./shared-state) — `ctx.rpc.sharedState`
 - [Dock System](./dock-system) — `ctx.docks`, `ctx.views`
 - [Commands](./commands) — `ctx.commands`
-- [Logs](./logs) — `ctx.logs`
+- [Messages](./messages) — `ctx.messages`
+- [Diagnostics](./diagnostics) — `ctx.diagnostics`
 - [Terminals](./terminals) — `ctx.terminals`
 - [Agent-Native](./agent-native) — `ctx.agent`
 

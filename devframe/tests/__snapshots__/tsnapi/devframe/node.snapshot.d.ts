@@ -134,6 +134,17 @@ export declare class DevToolsCommandsHost implements DevToolsCommandsHost$1 {
   private findCommand;
   private toSerializable;
 }
+export declare class DevToolsDiagnosticsHost implements DevToolsDiagnosticsHost$1 {
+  readonly context: DevToolsNodeContext;
+  private _definitions;
+  private _logger;
+  readonly defineDiagnostics: typeof defineDiagnostics;
+  readonly createLogger: typeof createLogger;
+  constructor(_: DevToolsNodeContext, _?: unknown[]);
+  get logger(): DevToolsDiagnosticsLogger;
+  register(_: unknown): void;
+  private _rebuild;
+}
 export declare class DevToolsDockHost implements DevToolsDockHost$1 {
   readonly context: DevToolsNodeContext;
   readonly views: DevToolsDockHost$1['views'];
@@ -155,10 +166,10 @@ export declare class DevToolsDockHost implements DevToolsDockHost$1 {
   update(_: DevToolsDockUserEntry): void;
   private prepareRemoteRegistration;
 }
-export declare class DevToolsLogsHost implements DevToolsLogsHost$1 {
+export declare class DevToolsMessagesHost implements DevToolsMessagesHost$1 {
   readonly context: DevToolsNodeContext;
-  readonly entries: DevToolsLogsHost$1['entries'];
-  readonly events: DevToolsLogsHost$1['events'];
+  readonly entries: DevToolsMessagesHost$1['entries'];
+  readonly events: DevToolsMessagesHost$1['events'];
   readonly lastModified: Map<string, number>;
   readonly removals: Array<{
     id: string;
@@ -168,8 +179,8 @@ export declare class DevToolsLogsHost implements DevToolsLogsHost$1 {
   private _clock;
   private _tick;
   constructor(_: DevToolsNodeContext);
-  add(_: DevToolsLogEntryInput): Promise<DevToolsLogHandle>;
-  update(_: string, _: Partial<DevToolsLogEntryInput>): Promise<DevToolsLogEntry | undefined>;
+  add(_: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle>;
+  update(_: string, _: Partial<DevToolsMessageEntryInput>): Promise<DevToolsMessageEntry | undefined>;
   remove(_: string): Promise<void>;
   clear(): Promise<void>;
   private _createHandle;

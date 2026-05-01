@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntry } from '@vitejs/devtools-kit'
 import { useTimeAgo } from '@vueuse/core'
 import HashBadge from '../display/HashBadge.vue'
-import { levels } from './LogItemConstants'
+import { levels } from './MessageItemConstants'
 
 const props = defineProps<{
-  entry: DevToolsLogEntry
+  entry: DevToolsMessageEntry
   compact?: boolean
 }>()
 

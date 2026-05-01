@@ -21,8 +21,9 @@ export { createRpcSharedStateServerHost }
 export { createStorage }
 export { DevToolsAgentHost }
 export { DevToolsCommandsHost }
+export { DevToolsDiagnosticsHost }
 export { DevToolsDockHost }
-export { DevToolsLogsHost }
+export { DevToolsMessagesHost }
 export { DevToolsTerminalHost }
 export { DevToolsViewHost }
 export { getInternalContext }

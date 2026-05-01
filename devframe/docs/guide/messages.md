@@ -2,11 +2,13 @@
 outline: deep
 ---
 
-# Logs & Notifications
+# Messages & Notifications
 
-`ctx.logs` is a structured log store with live updates, toasts, and positional hints that link a log entry back to a DOM element or source file. Use it to surface a11y findings, lint errors, runtime failures, or short-lived notifications like "URL copied".
+`ctx.messages` is a structured message store with live updates, toasts, and positional hints that link a message entry back to a DOM element or source file. Use it to surface a11y findings, lint errors, runtime failures, or short-lived notifications like "URL copied".
 
 The same API works from the server and the browser: each call is a Promise, but most callers fire-and-forget.
+
+> **Note:** Previously named `ctx.logs`. The old field still works as a deprecated alias for one release cycle — see [DF0018](/errors/DF0018) for migration details.
 
 ## Entry Fields
 
@@ -31,7 +33,7 @@ The same API works from the server and the browser: each call is a Promise, but 
 ## Fire-and-Forget
 
 ```ts
-ctx.logs.add({
+ctx.messages.add({
   message: 'Plugin initialized',
   level: 'info',
 })
@@ -42,7 +44,7 @@ ctx.logs.add({
 `await` the call to get a handle for live updates:
 
 ```ts
-const handle = await ctx.logs.add({
+const handle = await ctx.messages.add({
   id: 'my-devtool:build',
   message: 'Building…',
   level: 'info',
@@ -63,10 +65,10 @@ Re-adding with the same `id` updates the existing entry — use this to replace 
 
 ## Toasts
 
-Set `notify: true` to also render the log as a toast:
+Set `notify: true` to also render the message as a toast:
 
 ```ts
-ctx.logs.add({
+ctx.messages.add({
   message: 'URL copied to clipboard',
   level: 'success',
   notify: true,
@@ -74,16 +76,16 @@ ctx.logs.add({
 })
 ```
 
-`autoDismiss` controls how long the toast stays on screen; the log entry persists in the panel until explicitly removed or `autoDelete` fires.
+`autoDismiss` controls how long the toast stays on screen; the message entry persists in the panel until explicitly removed or `autoDelete` fires.
 
 ## Positional Hints
 
 ### File Position
 
-Linking a log to a source file makes it clickable — clicking opens the file in the user's editor:
+Linking a message to a source file makes it clickable — clicking opens the file in the user's editor:
 
 ```ts
-ctx.logs.add({
+ctx.messages.add({
   message: 'Unused import',
   level: 'warn',
   category: 'lint',
@@ -93,11 +95,11 @@ ctx.logs.add({
 
 ### Element Position
 
-DOM anchors are rendered as a highlight overlay when the user hovers the log entry:
+DOM anchors are rendered as a highlight overlay when the user hovers the message entry:
 
 ```ts
 // Typically from a browser-side audit:
-ctx.logs.add({
+ctx.messages.add({
   message: 'Button missing accessible name',
   level: 'warn',
   category: 'a11y',
@@ -115,7 +117,7 @@ ctx.logs.add({
 
 ```ts
 async function rebuild(ctx) {
-  const handle = await ctx.logs.add({
+  const handle = await ctx.messages.add({
     id: 'my-devtool:rebuild',
     message: 'Rebuilding…',
     level: 'info',
@@ -141,7 +143,7 @@ async function rebuild(ctx) {
 ### Category filter
 
 ```ts
-ctx.logs.events.on('log:added', (entry) => {
+ctx.messages.events.on('message:added', (entry) => {
   if (entry.category === 'a11y') {
     console.log('a11y finding:', entry.message)
   }
@@ -151,26 +153,26 @@ ctx.logs.events.on('log:added', (entry) => {
 ## Removing Entries
 
 ```ts
-await ctx.logs.remove('my-devtool:build')
-await ctx.logs.clear() // all entries
+await ctx.messages.remove('my-devtool:build')
+await ctx.messages.clear() // all entries
 ```
 
 ## Events
 
-The host emits events for anyone who wants to observe the log stream:
+The host emits events for anyone who wants to observe the message stream:
 
 ```ts
-ctx.logs.events.on('log:added', (entry) => { /* … */ })
-ctx.logs.events.on('log:updated', (entry) => { /* … */ })
-ctx.logs.events.on('log:removed', (id) => { /* … */ })
-ctx.logs.events.on('log:cleared', () => { /* … */ })
+ctx.messages.events.on('message:added', (entry) => { /* … */ })
+ctx.messages.events.on('message:updated', (entry) => { /* … */ })
+ctx.messages.events.on('message:removed', (id) => { /* … */ })
+ctx.messages.events.on('message:cleared', () => { /* … */ })
 ```
 
-Use this to bridge logs into external tools — e.g. mirror them into a structured log file or forward certain categories to your own reporter.
+Use this to bridge messages into external tools — e.g. mirror them into a structured log file or forward certain categories to your own reporter.
 
 ## Server vs Browser
 
-Both sides share the same API. Browser-side calls go through the RPC client (`rpc.logs` or — more idiomatically — the exported `DevToolsLogsClient` interface). Entries carry a `from` field so the UI can distinguish server-originated logs from browser-originated ones.
+Both sides share the same API. Browser-side calls go through the RPC client (— more idiomatically — the exported `DevToolsMessagesClient` interface). Entries carry a `from` field so the UI can distinguish server-originated messages from browser-originated ones.
 
 > [!NOTE]
-> The separate, Node-side [structured diagnostics system](https://github.com/vercel-labs/logs-sdk) used for DevFrame's own warnings / errors (`DF`-prefixed codes) is distinct from `ctx.logs`. Diagnostics are author-defined coded errors with documentation URLs; `ctx.logs` is free-form plugin output shown in the Logs panel.
+> The separate, Node-side structured diagnostics system used for DevFrame's own warnings / errors (`DF`-prefixed codes) is distinct from `ctx.messages`. See the [Diagnostics guide](./diagnostics) for `ctx.diagnostics`, the host-level wrapper around [`logs-sdk`](https://github.com/vercel-labs/logs-sdk).

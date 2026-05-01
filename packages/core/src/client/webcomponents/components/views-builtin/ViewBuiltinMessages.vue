@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { DevToolsLogEntry, DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntry, DevToolsMessageEntryFrom, DevToolsMessageLevel } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useClipboard, useTimeAgo, whenever } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { markLogsAsRead, useLogs } from '../../state/logs'
+import { markMessagesAsRead, useMessages } from '../../state/messages'
 import FilterToggles from '../display/FilterToggles.vue'
 import HashBadge from '../display/HashBadge.vue'
-import LogItem from '../log/LogItem.vue'
-import { fromEntries, getHashColorFromString, levels } from '../log/LogItemConstants'
+import MessageItem from '../message/MessageItem.vue'
+import { fromEntries, getHashColorFromString, levels } from '../message/MessageItemConstants'
 
 const props = defineProps<{
   context: DocksContext
@@ -19,10 +19,10 @@ function formatAbsoluteTime(ts: number): string {
 
 type SortMode = 'newest' | 'oldest' | 'level'
 
-const logsState = useLogs(props.context)
+const messagesState = useMessages(props.context)
 
-const allLevels: DevToolsLogLevel[] = Object.keys(levels) as DevToolsLogLevel[]
-const allSources: DevToolsLogEntryFrom[] = Object.keys(fromEntries) as DevToolsLogEntryFrom[]
+const allLevels: DevToolsMessageLevel[] = Object.keys(levels) as DevToolsMessageLevel[]
+const allSources: DevToolsMessageEntryFrom[] = Object.keys(fromEntries) as DevToolsMessageEntryFrom[]
 
 const sortLabels: Record<SortMode, string> = {
   newest: 'Newest first',
@@ -37,9 +37,9 @@ const sortIcons: Record<SortMode, string> = {
 
 const search = ref('')
 const selectedId = ref<string | null>(null)
-const activeFilters = ref<Set<DevToolsLogLevel>>(new Set())
+const activeFilters = ref<Set<DevToolsMessageLevel>>(new Set())
 const activeLabelFilters = ref<Set<string>>(new Set())
-const activeFromFilters = ref<Set<DevToolsLogEntryFrom>>(new Set())
+const activeFromFilters = ref<Set<DevToolsMessageEntryFrom>>(new Set())
 const activeCategories = ref<Set<string>>(new Set())
 const sortBy = ref<SortMode>('newest')
 
@@ -50,7 +50,7 @@ function cycleSortMode() {
   sortBy.value = sortModes[(idx + 1) % sortModes.length] as SortMode
 }
 
-const levelPriority: Record<DevToolsLogLevel, number> = {
+const levelPriority: Record<DevToolsMessageLevel, number> = {
   error: 0,
   warn: 1,
   info: 2,
@@ -60,10 +60,10 @@ const levelPriority: Record<DevToolsLogLevel, number> = {
 
 function toggleFilter(level: string) {
   const filters = activeFilters.value
-  if (filters.has(level as DevToolsLogLevel))
-    filters.delete(level as DevToolsLogLevel)
+  if (filters.has(level as DevToolsMessageLevel))
+    filters.delete(level as DevToolsMessageLevel)
   else
-    filters.add(level as DevToolsLogLevel)
+    filters.add(level as DevToolsMessageLevel)
 }
 
 function toggleLabelFilter(label: string) {
@@ -74,7 +74,7 @@ function toggleLabelFilter(label: string) {
     filters.add(label)
 }
 
-function toggleFrom(from: DevToolsLogEntryFrom) {
+function toggleFrom(from: DevToolsMessageEntryFrom) {
   const s = activeFromFilters.value
   if (s.has(from))
     s.delete(from)
@@ -108,7 +108,7 @@ function resetFilters() {
 
 const allLabels = computed(() => {
   const labels = new Set<string>()
-  for (const entry of logsState.entries) {
+  for (const entry of messagesState.entries) {
     if (entry.labels) {
       for (const label of entry.labels)
         labels.add(label)
@@ -119,7 +119,7 @@ const allLabels = computed(() => {
 
 const allCategories = computed(() => {
   const cats = new Set<string>()
-  for (const entry of logsState.entries) {
+  for (const entry of messagesState.entries) {
     if (entry.category)
       cats.add(entry.category)
   }
@@ -127,13 +127,13 @@ const allCategories = computed(() => {
 })
 
 const filteredEntries = computed(() => {
-  let entries = logsState.entries
+  let entries = messagesState.entries
   if (activeFilters.value.size > 0)
     entries = entries.filter(e => activeFilters.value.has(e.level))
   if (activeLabelFilters.value.size > 0)
     entries = entries.filter(e => e.labels?.some(l => activeLabelFilters.value.has(l)))
   if (activeFromFilters.value.size > 0)
-    entries = entries.filter(e => activeFromFilters.value.has(e.from as DevToolsLogEntryFrom))
+    entries = entries.filter(e => activeFromFilters.value.has(e.from as DevToolsMessageEntryFrom))
   if (activeCategories.value.size > 0)
     entries = entries.filter(e => e.category && activeCategories.value.has(e.category))
   if (search.value) {
@@ -158,34 +158,34 @@ const filteredEntries = computed(() => {
 const selectedEntry = computed(() => {
   if (!selectedId.value)
     return null
-  return logsState.entries.find(e => e.id === selectedId.value) ?? null
+  return messagesState.entries.find(e => e.id === selectedId.value) ?? null
 })
 
 watch(selectedEntry, async (entry) => {
   if (!entry?.autoDelete)
     return
 
-  await props.context.rpc.call('devtoolskit:internal:logs:update', entry.id, { autoDelete: 0 })
+  await props.context.rpc.call('devtoolskit:internal:messages:update', entry.id, { autoDelete: 0 })
 })
 
-const logListEl = useTemplateRef('logListEl')
+const messageListEl = useTemplateRef('messageListEl')
 
-whenever(() => logsState.pendingSelectId, async (id) => {
+whenever(() => messagesState.pendingSelectId, async (id) => {
   if (!id)
     return
 
-  logsState.pendingSelectId = null
+  messagesState.pendingSelectId = null
   selectedId.value = id
 
   await nextTick()
-  logListEl.value?.querySelector<HTMLElement>('[data-selected]')
+  messageListEl.value?.querySelector<HTMLElement>('[data-selected]')
     ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
 }, { immediate: true })
 
 const selectedTimeAgo = useTimeAgo(computed(() => selectedEntry.value?.timestamp ?? Date.now()))
 const { copy: copyStacktrace, copied: stacktraceCopied } = useClipboard()
 
-async function openFile(entry: DevToolsLogEntry) {
+async function openFile(entry: DevToolsMessageEntry) {
   if (!entry.filePosition)
     return
   const { file, line, column } = entry.filePosition
@@ -198,12 +198,12 @@ async function openFile(entry: DevToolsLogEntry) {
 }
 
 async function clearAll() {
-  await props.context.rpc.call('devtoolskit:internal:logs:clear')
+  await props.context.rpc.call('devtoolskit:internal:messages:clear')
   selectedId.value = null
 }
 
 async function removeEntry(id: string) {
-  await props.context.rpc.call('devtoolskit:internal:logs:remove', id)
+  await props.context.rpc.call('devtoolskit:internal:messages:remove', id)
   if (selectedId.value === id)
     selectedId.value = null
 }
@@ -211,12 +211,12 @@ async function removeEntry(id: string) {
 async function dismissFiltered() {
   const ids = filteredEntries.value.map(e => e.id)
   for (const id of ids)
-    await props.context.rpc.call('devtoolskit:internal:logs:remove', id)
+    await props.context.rpc.call('devtoolskit:internal:messages:remove', id)
   selectedId.value = null
 }
 
 onMounted(() => {
-  markLogsAsRead()
+  markMessagesAsRead()
 })
 </script>
 
@@ -229,7 +229,7 @@ onMounted(() => {
         <input
           v-model="search"
           type="text"
-          placeholder="Search logs..."
+          placeholder="Search messages..."
           class="bg-transparent border border-base rounded px-2 py-0.5 text-xs w-48 outline-none focus:border-purple"
         >
         <button
@@ -240,8 +240,8 @@ onMounted(() => {
           <div :class="sortIcons[sortBy]" class="w-4 h-4" />
         </button>
         <div class="flex-1" />
-        <span v-if="filteredEntries.length !== logsState.entries.length" class="text-xs op40">
-          {{ filteredEntries.length }}/{{ logsState.entries.length }}
+        <span v-if="filteredEntries.length !== messagesState.entries.length" class="text-xs op40">
+          {{ filteredEntries.length }}/{{ messagesState.entries.length }}
         </span>
         <button
           v-if="hasActiveFilter"
@@ -263,9 +263,9 @@ onMounted(() => {
           Dismiss filtered
         </button>
         <button
-          v-if="!hasActiveFilter && logsState.entries.length > 0"
+          v-if="!hasActiveFilter && messagesState.entries.length > 0"
           class="text-xs op50 hover:op100 px-1.5 py-0.5 hover:bg-active rounded transition flex items-center gap-0.5"
-          title="Dismiss all logs"
+          title="Dismiss all messages"
           @click="clearAll"
         >
           <div class="i-ph:trash-duotone w-3.5 h-3.5" />
@@ -288,7 +288,7 @@ onMounted(() => {
         <FilterToggles
           label="From"
           :items="allSources"
-          :active="(activeFromFilters as Set<DevToolsLogEntryFrom>)"
+          :active="(activeFromFilters as Set<DevToolsMessageEntryFrom>)"
           :styles="fromEntries"
           @toggle="(toggleFrom as (item: string) => void)"
         />
@@ -319,10 +319,10 @@ onMounted(() => {
 
     <!-- Content -->
     <div class="h-full of-hidden" :class="selectedEntry ? 'grid grid-cols-[1fr_1fr]' : ''">
-      <!-- Log list -->
-      <div ref="logListEl" class="h-full of-y-auto">
+      <!-- Message list -->
+      <div ref="messageListEl" class="h-full of-y-auto">
         <div v-if="filteredEntries.length === 0" class="flex items-center justify-center h-full op50 text-sm">
-          No logs
+          No messages
         </div>
         <div
           v-for="entry of filteredEntries"
@@ -334,7 +334,7 @@ onMounted(() => {
           ]"
           @click="selectedId = selectedId === entry.id ? null : entry.id"
         >
-          <LogItem :entry class="px-3 py-2.5">
+          <MessageItem :entry class="px-3 py-2.5">
             <template #actions>
               <button
                 class="op0 group-hover:op50 hover:op100! p-0.5 rounded hover:bg-active flex-none"
@@ -344,7 +344,7 @@ onMounted(() => {
                 <div class="i-ph-trash-duotone w-3 h-3" />
               </button>
             </template>
-          </LogItem>
+          </MessageItem>
         </div>
       </div>
 
@@ -373,9 +373,9 @@ onMounted(() => {
             <div :class="levels[selectedEntry.level].icon" class="w-3.5 h-3.5" />
             <span class="capitalize">{{ selectedEntry.level }}</span>
           </span>
-          <span v-if="fromEntries[selectedEntry.from as DevToolsLogEntryFrom]" class="flex items-center gap-1" :class="fromEntries[selectedEntry.from as DevToolsLogEntryFrom].color">
-            <div :class="fromEntries[selectedEntry.from as DevToolsLogEntryFrom].icon" class="w-3.5 h-3.5" />
-            {{ fromEntries[selectedEntry.from as DevToolsLogEntryFrom].label }}
+          <span v-if="fromEntries[selectedEntry.from as DevToolsMessageEntryFrom]" class="flex items-center gap-1" :class="fromEntries[selectedEntry.from as DevToolsMessageEntryFrom].color">
+            <div :class="fromEntries[selectedEntry.from as DevToolsMessageEntryFrom].icon" class="w-3.5 h-3.5" />
+            {{ fromEntries[selectedEntry.from as DevToolsMessageEntryFrom].label }}
           </span>
           <span v-if="selectedEntry.status === 'loading'" class="flex items-center gap-1 text-amber">
             <div class="w-3 h-3 border-1.5 border-current border-t-transparent rounded-full animate-spin" />

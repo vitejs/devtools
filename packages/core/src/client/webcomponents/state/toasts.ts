@@ -1,10 +1,10 @@
-import type { DevToolsLogEntry } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntry } from '@vitejs/devtools-kit'
 import type { Reactive } from 'vue'
 import { reactive } from 'vue'
 
 export interface ToastItem {
   id: string
-  entry: DevToolsLogEntry
+  entry: DevToolsMessageEntry
 }
 
 const toasts: Reactive<ToastItem[]> = reactive([])
@@ -14,7 +14,7 @@ export function useToasts(): Reactive<ToastItem[]> {
   return toasts
 }
 
-export function addToast(entry: DevToolsLogEntry): void {
+export function addToast(entry: DevToolsMessageEntry): void {
   // Dedup: update existing toast with same id
   const existing = toasts.find(t => t.id === entry.id)
   if (existing) {
