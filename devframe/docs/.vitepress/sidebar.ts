@@ -13,7 +13,8 @@ export default function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[]
         { text: 'Dock System', link: `${prefix}/guide/dock-system` },
         { text: 'Commands', link: `${prefix}/guide/commands` },
         { text: 'When Clauses', link: `${prefix}/guide/when-clauses` },
-        { text: 'Logs & Notifications', link: `${prefix}/guide/logs` },
+        { text: 'Messages & Notifications', link: `${prefix}/guide/messages` },
+        { text: 'Structured Diagnostics', link: `${prefix}/guide/diagnostics` },
         { text: 'Terminals', link: `${prefix}/guide/terminals` },
         { text: 'Client', link: `${prefix}/guide/client` },
         { text: 'Standalone CLI', link: `${prefix}/guide/standalone-cli` },
@@ -25,7 +26,7 @@ export default function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[]
       text: 'Error Reference',
       link: `${prefix}/errors/`,
       collapsed: true,
-      items: Array.from({ length: 17 }, (_, i) => {
+      items: Array.from({ length: 18 }, (_, i) => {
         const code = `DF${String(i + 1).padStart(4, '0')}`
         return { text: code, link: `${prefix}/errors/${code}` }
       }),

@@ -4,7 +4,7 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { createHostContext, isObject } from 'devframe/node'
 import { createDebug } from 'obug'
-import { logger } from './diagnostics'
+import { diagnostics, logger } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
@@ -37,6 +37,10 @@ export async function createDevToolsContext(
     host: createViteDevToolsHost({ viteConfig, viteServer }),
     builtinRpcDeclarations,
   })
+
+  // Fold the core (Vite) diagnostics into the shared host logger so plugin
+  // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
+  context.diagnostics.register(diagnostics)
 
   // Attach the Vite-specific fields on top of the framework-neutral context.
   ;(context as any).viteConfig = viteConfig

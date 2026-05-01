@@ -35,3 +35,4 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0015](./DF0015) | error | Agent Tool Already Registered | — |
 | [DF0016](./DF0016) | error | Agent Resource Already Registered | — |
 | [DF0017](./DF0017) | error | MCP Server Start Failure | — |
+| [DF0018](./DF0018) | warn | `ctx.logs` Deprecated | — |

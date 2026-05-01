@@ -1,12 +1,12 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
-export const logsClear = defineRpcFunction({
-  name: 'devtoolskit:internal:logs:clear',
+export const messagesClear = defineRpcFunction({
+  name: 'devtoolskit:internal:messages:clear',
   type: 'action',
   setup: (context) => {
     return {
       async handler(): Promise<void> {
-        await context.logs.clear()
+        await context.messages.clear()
       },
     }
   },

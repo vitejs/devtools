@@ -1,12 +1,15 @@
 import type { RpcFunctionDefinitionAny } from 'devframe/rpc'
 import type { DevToolsHost, DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from 'devframe/types'
 import { debounce } from 'perfect-debounce'
+import { diagnostics as rpcDiagnostics } from '../rpc/diagnostics'
 import { ContextUtils } from './context-utils'
+import { diagnostics as devframeDiagnostics, logger } from './diagnostics'
 import { DevToolsAgentHost } from './host-agent'
 import { DevToolsCommandsHost } from './host-commands'
+import { DevToolsDiagnosticsHost } from './host-diagnostics'
 import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
-import { DevToolsLogsHost } from './host-logs'
+import { DevToolsMessagesHost } from './host-messages'
 import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { BUILTIN_AGENT_RPC } from './rpc'
@@ -43,7 +46,8 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     docks: undefined!,
     views: undefined!,
     terminals: undefined!,
-    logs: undefined!,
+    messages: undefined!,
+    diagnostics: undefined!,
     commands: undefined!,
     agent: undefined!,
     utils: ContextUtils,
@@ -54,14 +58,30 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
   const docksHost = new DevToolsDockHost(context)
   const viewsHost = new DevToolsViewHost(context)
   const terminalsHost = new DevToolsTerminalHost(context)
-  const logsHost = new DevToolsLogsHost(context)
+  const messagesHost = new DevToolsMessagesHost(context)
+  const diagnosticsHost = new DevToolsDiagnosticsHost(context, [devframeDiagnostics, rpcDiagnostics])
   const commandsHost = new DevToolsCommandsHost(context)
   context.rpc = rpcHost
   context.docks = docksHost
   context.views = viewsHost
   context.terminals = terminalsHost
-  context.logs = logsHost
+  context.messages = messagesHost
+  context.diagnostics = diagnosticsHost
   context.commands = commandsHost
+
+  // Deprecated `ctx.logs` getter — emits DF0018 once per process when accessed.
+  let _warnedLogs = false
+  Object.defineProperty(context, 'logs', {
+    get() {
+      if (!_warnedLogs) {
+        _warnedLogs = true
+        logger.DF0018().log()
+      }
+      return messagesHost
+    },
+    enumerable: false,
+    configurable: true,
+  })
   // Agent host must be constructed after `rpcHost` so it can subscribe
   // to `onChanged` — it auto-discovers RPC functions flagged with
   // the `agent` field.
@@ -124,18 +144,18 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     })
   })
 
-  const debouncedLogsUpdate = debounce(() => {
+  const debouncedMessagesUpdate = debounce(() => {
     rpcHost.broadcast({
-      method: 'devtoolskit:internal:logs:updated',
+      method: 'devtoolskit:internal:messages:updated',
       args: [],
     })
     docksSharedState.mutate(() => context.docks.values())
   }, mode === 'build' ? 0 : 10)
 
-  logsHost.events.on('log:added', () => debouncedLogsUpdate())
-  logsHost.events.on('log:updated', () => debouncedLogsUpdate())
-  logsHost.events.on('log:removed', () => debouncedLogsUpdate())
-  logsHost.events.on('log:cleared', () => debouncedLogsUpdate())
+  messagesHost.events.on('message:added', () => debouncedMessagesUpdate())
+  messagesHost.events.on('message:updated', () => debouncedMessagesUpdate())
+  messagesHost.events.on('message:removed', () => debouncedMessagesUpdate())
+  messagesHost.events.on('message:cleared', () => debouncedMessagesUpdate())
 
   const commandsSharedState = await rpcHost.sharedState.get('devtoolskit:internal:commands', { initialValue: [] })
   const debouncedCommandsSync = debounce(() => {

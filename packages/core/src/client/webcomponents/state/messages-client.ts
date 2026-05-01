@@ -1,7 +1,7 @@
-import type { DevToolsLogEntryInput, DevToolsLogHandle, DevToolsLogsClient } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntryInput, DevToolsMessageHandle, DevToolsMessagesClient } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 
-export function createClientLogsClient(rpc: DevToolsRpcClient): DevToolsLogsClient {
+export function createClientMessagesClient(rpc: DevToolsRpcClient): DevToolsMessagesClient {
   const buffer: (() => Promise<void>)[] = []
   let flushing: Promise<void> | undefined
 
@@ -42,29 +42,29 @@ export function createClientLogsClient(rpc: DevToolsRpcClient): DevToolsLogsClie
   })
 
   return {
-    add(input: DevToolsLogEntryInput): Promise<DevToolsLogHandle> {
+    add(input: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle> {
       return enqueue(async () => {
-        let entry = await rpc.call('devtoolskit:internal:logs:add', input)
+        let entry = await rpc.call('devtoolskit:internal:messages:add', input)
         return {
           get entry() { return entry },
           get id() { return entry.id },
-          async update(patch: Partial<DevToolsLogEntryInput>) {
-            const updated = await rpc.call('devtoolskit:internal:logs:update', entry.id, patch)
+          async update(patch: Partial<DevToolsMessageEntryInput>) {
+            const updated = await rpc.call('devtoolskit:internal:messages:update', entry.id, patch)
             if (updated)
               entry = updated
             return updated ?? undefined
           },
           async dismiss() {
-            await rpc.call('devtoolskit:internal:logs:remove', entry.id)
+            await rpc.call('devtoolskit:internal:messages:remove', entry.id)
           },
         }
       })
     },
     remove(id: string): Promise<void> {
-      return enqueue(() => rpc.call('devtoolskit:internal:logs:remove', id))
+      return enqueue(() => rpc.call('devtoolskit:internal:messages:remove', id))
     },
     clear(): Promise<void> {
-      return enqueue(() => rpc.call('devtoolskit:internal:logs:clear'))
+      return enqueue(() => rpc.call('devtoolskit:internal:messages:clear'))
     },
   }
 }

@@ -1,33 +1,33 @@
-import type { DevToolsLogEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { Reactive } from 'vue'
 import { reactive } from 'vue'
 import { addToast } from './toasts'
 
-export interface LogsState {
-  entries: DevToolsLogEntry[]
+export interface MessagesState {
+  entries: DevToolsMessageEntry[]
   unreadCount: number
   pendingSelectId: string | null
 }
 
-let _logsState: Reactive<LogsState> | undefined
+let _messagesState: Reactive<MessagesState> | undefined
 
-export function useLogs(context: DocksContext): Reactive<LogsState> {
-  if (_logsState)
-    return _logsState
+export function useMessages(context: DocksContext): Reactive<MessagesState> {
+  if (_messagesState)
+    return _messagesState
 
-  const state: Reactive<LogsState> = _logsState = reactive({
+  const state: Reactive<MessagesState> = _messagesState = reactive({
     entries: [],
     unreadCount: 0,
     pendingSelectId: null,
   })
 
-  const entryMap = new Map<string, DevToolsLogEntry>()
+  const entryMap = new Map<string, DevToolsMessageEntry>()
   let isInitialFetch = true
   let lastVersion: number | undefined
 
-  async function updateLogs() {
-    const result = await context.rpc.call('devtoolskit:internal:logs:list', lastVersion)
+  async function updateMessages() {
+    const result = await context.rpc.call('devtoolskit:internal:messages:list', lastVersion)
     let newCount = 0
 
     // Apply removals
@@ -62,24 +62,24 @@ export function useLogs(context: DocksContext): Reactive<LogsState> {
   }
 
   context.rpc.client.register({
-    name: 'devtoolskit:internal:logs:updated' satisfies keyof DevToolsRpcClientFunctions,
+    name: 'devtoolskit:internal:messages:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => {
       if (context.rpc.isTrusted)
-        updateLogs()
+        updateMessages()
     },
   })
 
-  context.rpc.ensureTrusted().then(() => updateLogs())
+  context.rpc.ensureTrusted().then(() => updateMessages())
   return state
 }
 
-export function markLogsAsRead(): void {
-  if (_logsState)
-    _logsState.unreadCount = 0
+export function markMessagesAsRead(): void {
+  if (_messagesState)
+    _messagesState.unreadCount = 0
 }
 
-export function selectLog(id: string): void {
-  if (_logsState)
-    _logsState.pendingSelectId = id
+export function selectMessage(id: string): void {
+  if (_messagesState)
+    _messagesState.pendingSelectId = id
 }

@@ -1,4 +1,4 @@
-import type { DevToolsLogEntryFrom, DevToolsLogLevel } from '@vitejs/devtools-kit'
+import type { DevToolsMessageEntryFrom, DevToolsMessageLevel } from '@vitejs/devtools-kit'
 
 // @unocss-include
 
@@ -15,7 +15,7 @@ export interface FromStyle {
   label: string
 }
 
-export const levels: Record<DevToolsLogLevel, LevelStyle> = {
+export const levels: Record<DevToolsMessageLevel, LevelStyle> = {
   info: { icon: 'i-ph:info-duotone', color: 'text-blue', bg: 'bg-blue', label: 'Info' },
   warn: { icon: 'i-ph:warning-duotone', color: 'text-amber', bg: 'bg-amber', label: 'Warning' },
   error: { icon: 'i-ph:x-circle-duotone', color: 'text-red', bg: 'bg-red', label: 'Error' },
@@ -23,7 +23,7 @@ export const levels: Record<DevToolsLogLevel, LevelStyle> = {
   debug: { icon: 'i-ph:bug-duotone', color: 'text-gray', bg: 'bg-gray', label: 'Debug' },
 }
 
-export const fromEntries: Record<DevToolsLogEntryFrom, FromStyle> = {
+export const fromEntries: Record<DevToolsMessageEntryFrom, FromStyle> = {
   server: { icon: 'i-ph:hexagon-duotone', color: 'text-green-800 dark:text-green-200', label: 'Server' },
   browser: { icon: 'i-ph:globe-simple-duotone', color: 'text-amber-800 dark:text-amber-200', label: 'Browser' },
 }

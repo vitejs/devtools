@@ -307,7 +307,7 @@ ctx.docks.register({
 ```
 
 > [!NOTE]
-> Built-in logs panel (`~logs`) is currently reserved and hidden while log UI is under development.
+> Built-in messages panel (`~messages`) is currently reserved and hidden while the messages UI is under development.
 
 ## JSON Render Panels
 

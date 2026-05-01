@@ -4,11 +4,11 @@ import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
-import { logsAdd } from './internal/logs-add'
-import { logsClear } from './internal/logs-clear'
-import { logsList } from './internal/logs-list'
-import { logsRemove } from './internal/logs-remove'
-import { logsUpdate } from './internal/logs-update'
+import { messagesAdd } from './internal/messages-add'
+import { messagesClear } from './internal/messages-clear'
+import { messagesList } from './internal/messages-list'
+import { messagesRemove } from './internal/messages-remove'
+import { messagesUpdate } from './internal/messages-update'
 import { rpcServerList } from './internal/rpc-server-list'
 import { sharedStateGet } from './internal/state/get'
 import { sharedStatePatch } from './internal/state/patch'
@@ -34,11 +34,11 @@ export const builtinInternalRpcDeclarations = [
   commandsExecute,
   commandsList,
   docksOnLaunch,
-  logsAdd,
-  logsClear,
-  logsList,
-  logsRemove,
-  logsUpdate,
+  messagesAdd,
+  messagesClear,
+  messagesList,
+  messagesRemove,
+  messagesUpdate,
   rpcServerList,
   sharedStateGet,
   sharedStatePatch,
@@ -70,7 +70,7 @@ declare module '@vitejs/devtools-kit' {
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {
     'devtoolskit:internal:auth:revoked': () => Promise<void>
-    'devtoolskit:internal:logs:updated': () => Promise<void>
+    'devtoolskit:internal:messages:updated': () => Promise<void>
     'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
     'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 

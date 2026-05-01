@@ -1,6 +1,10 @@
-# Logs & Notifications
+# Messages & Notifications
 
-The Logs system allows plugins to emit structured log entries from both the server (Node.js) and client (browser) contexts. Logs are displayed in the built-in **Logs** panel in the DevTools dock, and can optionally appear as toast notifications.
+The Messages system allows plugins to emit structured message entries from both the server (Node.js) and client (browser) contexts. Messages are displayed in the built-in **Messages** panel in the DevTools dock, and can optionally appear as toast notifications.
+
+> **Note:** This subsystem was previously named `logs`. The `ctx.logs` field is still available as a deprecated alias for one release cycle — see [DF0018](https://devtools.vite.dev/devframe/errors/DF0018) for migration details.
+
+> For *coded* errors and warnings with stable codes and docs URLs, see [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
 
 ## Use Cases
 
@@ -9,7 +13,7 @@ The Logs system allows plugins to emit structured log entries from both the serv
 - **Linting & testing** — Run ESLint or test runners alongside the dev server and surface results with file positions
 - **Notifications** — Short-lived messages like "URL copied" that auto-dismiss
 
-## Log Entry Fields
+## Message Entry Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -23,21 +27,21 @@ The Logs system allows plugins to emit structured log entries from both the serv
 | `category` | `string` | No | Grouping category (e.g., `'a11y'`, `'lint'`) |
 | `labels` | `string[]` | No | Tags for filtering |
 | `autoDismiss` | `number` | No | Time in ms to auto-dismiss the toast (default: 5000) |
-| `autoDelete` | `number` | No | Time in ms to auto-delete the log entry |
+| `autoDelete` | `number` | No | Time in ms to auto-delete the message entry |
 | `status` | `'loading' \| 'idle'` | No | Status indicator (shows spinner when `'loading'`) |
 | `id` | `string` | No | Explicit id for deduplication — re-adding with the same id updates the existing entry |
 
-The `from` field is automatically set to `'server'` or `'browser'` depending on where the log was emitted.
+The `from` field is automatically set to `'server'` or `'browser'` depending on where the message was emitted.
 
 ## Usage
 
-Both server-side and client-side share the same `context.logs` API. All methods return Promises, but you don't need to `await` them for fire-and-forget usage.
+Both server-side and client-side share the same `context.messages` API. All methods return Promises, but you don't need to `await` them for fire-and-forget usage.
 
 ### Fire-and-Forget
 
 ```ts
-// No await needed — just emit the log
-context.logs.add({
+// No await needed — just emit the message
+context.messages.add({
   message: 'Plugin initialized',
   level: 'info',
 })
@@ -45,11 +49,11 @@ context.logs.add({
 
 ### With Handle
 
-`await` the `add()` call to get a `DevToolsLogHandle` for subsequent updates:
+`await` the `add()` call to get a `DevToolsMessageHandle` for subsequent updates:
 
 ```ts
 // Await to get a handle for later updates
-const handle = await context.logs.add({
+const handle = await context.messages.add({
   id: 'my-build',
   message: 'Building...',
   level: 'info',
@@ -76,7 +80,7 @@ export function myPlugin() {
     devtools: {
       setup(context) {
         // Fire-and-forget
-        context.logs.add({
+        context.messages.add({
           message: 'Plugin initialized',
           level: 'info',
         })
@@ -93,7 +97,7 @@ import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
 export default async function (context: DockClientScriptContext) {
   // Await to get the handle
-  const log = await context.logs.add({
+  const message = await context.messages.add({
     message: 'Running audit...',
     level: 'info',
     status: 'loading',
@@ -103,7 +107,7 @@ export default async function (context: DockClientScriptContext) {
   // ... do work ...
 
   // Update via handle — can also be fire-and-forget
-  log.update({
+  message.update({
     message: 'Audit complete — 3 issues found',
     level: 'warn',
     status: 'idle',
@@ -111,37 +115,37 @@ export default async function (context: DockClientScriptContext) {
 }
 ```
 
-## Log Handle
+## Message Handle
 
-`context.logs.add()` returns a `Promise<DevToolsLogHandle>` with:
+`context.messages.add()` returns a `Promise<DevToolsMessageHandle>` with:
 
 | Property/Method | Description |
 |-----------------|-------------|
-| `handle.id` | The log entry id |
-| `handle.entry` | The current `DevToolsLogEntry` data |
-| `handle.update(patch)` | Partially update the log entry (returns `Promise`) |
-| `handle.dismiss()` | Remove the log entry (returns `Promise`) |
+| `handle.id` | The message entry id |
+| `handle.entry` | The current `DevToolsMessageEntry` data |
+| `handle.update(patch)` | Partially update the message entry (returns `Promise`) |
+| `handle.dismiss()` | Remove the message entry (returns `Promise`) |
 
 Both `handle.update()` and `handle.dismiss()` return Promises but can be used without `await` for fire-and-forget.
 
 ## Deduplication
 
-When you call `add()` with an explicit `id` that already exists, the existing entry is **updated** instead of duplicated. This is useful for logs that represent ongoing operations:
+When you call `add()` with an explicit `id` that already exists, the existing entry is **updated** instead of duplicated. This is useful for messages that represent ongoing operations:
 
 ```ts
 // First call creates the entry
-context.logs.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
+context.messages.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
 
 // Second call with same id updates it
-context.logs.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
+context.messages.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
 ```
 
 ## Toast Notifications
 
-Set `notify: true` to show the log entry as a toast notification overlay. Toasts appear regardless of whether the Logs panel is open.
+Set `notify: true` to show the message entry as a toast notification overlay. Toasts appear regardless of whether the Messages panel is open.
 
 ```ts
-context.logs.add({
+context.messages.add({
   message: 'URL copied to clipboard',
   level: 'success',
   notify: true,
@@ -151,21 +155,21 @@ context.logs.add({
 
 The default auto-dismiss time for toasts is 5 seconds.
 
-## Managing Logs
+## Managing Messages
 
 ```ts
-// Remove a specific log by id
-context.logs.remove(entryId)
+// Remove a specific message by id
+context.messages.remove(entryId)
 
-// Clear all logs
-context.logs.clear()
+// Clear all messages
+context.messages.clear()
 ```
 
-Logs have a maximum capacity of 1000 entries. When the limit is reached, the oldest entries are automatically removed.
+Messages have a maximum capacity of 1000 entries. When the limit is reached, the oldest entries are automatically removed.
 
 > [!TIP]
-> See the [A11y Checker example](/kit/examples#a11y-checker) for a plugin that uses logs to report accessibility violations with severity levels, element positions, and WCAG labels.
+> See the [A11y Checker example](/kit/examples#a11y-checker) for a plugin that uses messages to report accessibility violations with severity levels, element positions, and WCAG labels.
 
 ## Dock Badge
 
-The Logs dock icon automatically shows a badge with the total log count. The icon is hidden when there are no logs.
+The Messages dock icon automatically shows a badge with the total message count. The icon is hidden when there are no messages.

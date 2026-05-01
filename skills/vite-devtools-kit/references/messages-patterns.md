@@ -1,15 +1,17 @@
-# Logs & Notification Patterns
+# Messages & Notification Patterns
 
-Structured log entries and toast notifications from both server and client contexts.
+Structured message entries and toast notifications from both server and client contexts.
 
-## Log Entry Types
+> **Note:** Previously named "logs". The `ctx.logs` field is still available as a deprecated alias for one release cycle — DF0018 warns on first access.
+
+## Message Entry Types
 
 ```ts
-type DevToolsLogLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
+type DevToolsMessageLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
 
-interface DevToolsLogEntryInput {
+interface DevToolsMessageEntryInput {
   message: string // Required: short title
-  level: DevToolsLogLevel // Required: severity
+  level: DevToolsMessageLevel // Required: severity
   description?: string // Detailed explanation
   stacktrace?: string // Stack trace string
   filePosition?: { file: string, line?: number, column?: number }
@@ -36,7 +38,7 @@ export function myPlugin() {
     name: 'my-plugin',
     devtools: {
       setup(ctx) {
-        ctx.logs.add({
+        ctx.messages.add({
           message: 'Plugin initialized',
           level: 'info',
         })
@@ -54,7 +56,7 @@ export function myPlugin() {
     name: 'my-plugin',
     devtools: {
       async setup(ctx) {
-        const log = await ctx.logs.add({
+        const handle = await ctx.messages.add({
           id: 'my-plugin:build',
           message: 'Analyzing...',
           level: 'info',
@@ -62,7 +64,7 @@ export function myPlugin() {
         })
 
         // Later, after work completes
-        await log.update({
+        await handle.update({
           message: 'Analysis complete — 42 modules',
           level: 'success',
           status: 'idle',
@@ -76,7 +78,7 @@ export function myPlugin() {
 ### File Position (Clickable Links)
 
 ```ts
-ctx.logs.add({
+ctx.messages.add({
   message: 'Unused import detected',
   level: 'warn',
   category: 'lint',
@@ -91,7 +93,7 @@ ctx.logs.add({
 ### Element Position (DOM Highlighting)
 
 ```ts
-ctx.logs.add({
+ctx.messages.add({
   message: 'Missing alt attribute on image',
   level: 'warn',
   category: 'a11y',
@@ -105,13 +107,13 @@ ctx.logs.add({
 
 ## Client-Side Patterns
 
-### Client Script with Logs
+### Client Script with Messages
 
 ```ts
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 
 export default async function (ctx: DockClientScriptContext) {
-  const log = await ctx.logs.add({
+  const handle = await ctx.messages.add({
     message: 'Running audit...',
     level: 'info',
     status: 'loading',
@@ -120,7 +122,7 @@ export default async function (ctx: DockClientScriptContext) {
 
   // ... perform work ...
 
-  log.update({
+  handle.update({
     message: 'Audit complete — 3 issues found',
     level: 'warn',
     status: 'idle',
@@ -132,7 +134,7 @@ export default async function (ctx: DockClientScriptContext) {
 
 ```ts
 // Short-lived notification
-ctx.logs.add({
+ctx.messages.add({
   message: 'URL copied to clipboard',
   level: 'success',
   notify: true,
@@ -140,7 +142,7 @@ ctx.logs.add({
 })
 ```
 
-Toasts appear as overlay notifications regardless of whether the Logs panel is open. Default auto-dismiss is 5 seconds.
+Toasts appear as overlay notifications regardless of whether the Messages panel is open. Default auto-dismiss is 5 seconds.
 
 ## Deduplication
 
@@ -148,41 +150,41 @@ Re-adding with the same `id` updates the existing entry:
 
 ```ts
 // Creates entry
-ctx.logs.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
+ctx.messages.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
 
 // Updates same entry (no duplicate)
-ctx.logs.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
+ctx.messages.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
 ```
 
-## Log Handle API
+## Message Handle API
 
-`ctx.logs.add()` returns `Promise<DevToolsLogHandle>`:
+`ctx.messages.add()` returns `Promise<DevToolsMessageHandle>`:
 
 | Property/Method | Description |
 |-----------------|-------------|
-| `handle.id` | The log entry id |
-| `handle.entry` | The current `DevToolsLogEntry` data |
+| `handle.id` | The message entry id |
+| `handle.entry` | The current `DevToolsMessageEntry` data |
 | `handle.update(patch)` | Partially update the entry (returns `Promise`) |
 | `handle.dismiss()` | Remove the entry (returns `Promise`) |
 
 Both `update()` and `dismiss()` can be used without `await` for fire-and-forget.
 
-## Managing Logs
+## Managing Messages
 
 ```ts
-// Remove specific log
-ctx.logs.remove(entryId)
+// Remove specific message
+ctx.messages.remove(entryId)
 
-// Clear all logs
-ctx.logs.clear()
+// Clear all messages
+ctx.messages.clear()
 ```
 
 Max capacity is 1000 entries; oldest entries are auto-removed when full.
 
 ## Dock Badge
 
-The built-in Logs dock icon automatically shows a badge with the total log count and is hidden when empty.
+The built-in Messages dock icon automatically shows a badge with the total message count and is hidden when empty.
 
 ## Real-World Example
 
-See [`examples/plugin-a11y-checker`](https://github.com/vitejs/devtools/tree/main/examples/plugin-a11y-checker) for a complete plugin that uses logs to report accessibility violations with severity levels, element positions, WCAG labels, and log handle updates.
+See [`examples/plugin-a11y-checker`](https://github.com/vitejs/devtools/tree/main/examples/plugin-a11y-checker) for a complete plugin that uses messages to report accessibility violations with severity levels, element positions, WCAG labels, and message handle updates.

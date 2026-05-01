@@ -1,16 +1,16 @@
 import type { DevToolsNodeContext } from 'devframe/types'
 import { describe, expect, it, vi } from 'vitest'
-import { DevToolsLogsHost } from '../host-logs'
+import { DevToolsMessagesHost } from '../host-messages'
 
-describe('devToolsLogsHost', () => {
+describe('devToolsMessagesHost', () => {
   const mockContext = {} as DevToolsNodeContext
 
   function createHost() {
-    return new DevToolsLogsHost(mockContext)
+    return new DevToolsMessagesHost(mockContext)
   }
 
   describe('add()', () => {
-    it('should add a log entry with auto-generated id and timestamp', async () => {
+    it('should add a message entry with auto-generated id and timestamp', async () => {
       const host = createHost()
       const handle = await host.add({ message: 'test', level: 'info' })
 
@@ -30,10 +30,10 @@ describe('devToolsLogsHost', () => {
       expect(handle.entry.timestamp).toBe(12345)
     })
 
-    it('should emit log:added event', async () => {
+    it('should emit message:added event', async () => {
       const host = createHost()
       const handler = vi.fn()
-      host.events.on('log:added', handler)
+      host.events.on('message:added', handler)
 
       const handle = await host.add({ message: 'test', level: 'info' })
 
@@ -89,11 +89,11 @@ describe('devToolsLogsHost', () => {
       expect(await host.update('nope', { message: 'x' })).toBeUndefined()
     })
 
-    it('should emit log:updated event', async () => {
+    it('should emit message:updated event', async () => {
       const host = createHost()
       await host.add({ id: 'u2', message: 'a', level: 'info' })
       const handler = vi.fn()
-      host.events.on('log:updated', handler)
+      host.events.on('message:updated', handler)
 
       await host.update('u2', { message: 'b' })
 
@@ -122,11 +122,11 @@ describe('devToolsLogsHost', () => {
       expect(host.entries.size).toBe(0)
     })
 
-    it('should emit log:removed event', async () => {
+    it('should emit message:removed event', async () => {
       const host = createHost()
       await host.add({ id: 'r2', message: 'test', level: 'info' })
       const handler = vi.fn()
-      host.events.on('log:removed', handler)
+      host.events.on('message:removed', handler)
 
       await host.remove('r2')
 
@@ -144,11 +144,11 @@ describe('devToolsLogsHost', () => {
       expect(host.entries.size).toBe(0)
     })
 
-    it('should emit log:cleared event', async () => {
+    it('should emit message:cleared event', async () => {
       const host = createHost()
       await host.add({ message: 'a', level: 'info' })
       const handler = vi.fn()
-      host.events.on('log:cleared', handler)
+      host.events.on('message:cleared', handler)
 
       await host.clear()
 
