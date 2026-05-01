@@ -12,6 +12,7 @@ export { EntriesToObject }
 export { getDefinitionsWithDumps }
 export { getRpcHandler }
 export { getRpcResolvedSetupResult }
+export { makePerCallChannelOptions }
 export { RpcArgsSchema }
 export { RpcCacheManager }
 export { RpcCacheOptions }
@@ -35,6 +36,11 @@ export { RpcFunctionsCollectorBase }
 export { RpcFunctionSetupResult }
 export { RpcFunctionType }
 export { RpcReturnSchema }
+export { scDeserialize }
+export { scParse }
+export { scStringify }
+export { strictJsonStringify }
+export { STRUCTURED_CLONE_PREFIX }
 export { Thenable }
 export { validateDefinition }
 export { validateDefinitions }

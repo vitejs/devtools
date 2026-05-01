@@ -21,12 +21,14 @@ export default defineDevtool({
     ctx.rpc.register(defineRpcFunction({
       name: 'devframe-files-inspector:get-cwd',
       type: 'static',
+      jsonSerializable: true,
       handler: () => ({ cwd: ctx.cwd }),
     }))
 
     ctx.rpc.register(defineRpcFunction({
       name: 'devframe-files-inspector:list-files',
       type: 'query',
+      jsonSerializable: true,
       handler: async () => {
         const files = await glob(['*'], { cwd: ctx.cwd, onlyFiles: true, dot: false })
         return files.map(f => f.replace(/\\/g, '/')).sort()

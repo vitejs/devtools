@@ -8,6 +8,7 @@ export declare const openHelpers: readonly [{
   cacheable?: boolean;
   args: readonly [v.StringSchema<undefined>];
   returns: v.VoidSchema<undefined>;
+  jsonSerializable?: boolean;
   agent?: RpcFunctionAgentOptions;
   setup?: ((context: undefined) => Thenable<RpcFunctionSetupResult<[string], void>>) | undefined;
   handler?: ((args_0: string) => void) | undefined;
@@ -21,6 +22,7 @@ export declare const openHelpers: readonly [{
   cacheable?: boolean;
   args: readonly [v.StringSchema<undefined>];
   returns: v.VoidSchema<undefined>;
+  jsonSerializable?: boolean;
   agent?: RpcFunctionAgentOptions;
   setup?: ((context: undefined) => Thenable<RpcFunctionSetupResult<[string], void>>) | undefined;
   handler?: ((args_0: string) => void) | undefined;
@@ -35,6 +37,7 @@ export declare const openInEditor: {
   cacheable?: boolean;
   args: readonly [v.StringSchema<undefined>];
   returns: v.VoidSchema<undefined>;
+  jsonSerializable?: boolean;
   agent?: RpcFunctionAgentOptions;
   setup?: ((context: undefined) => Thenable<RpcFunctionSetupResult<[string], void>>) | undefined;
   handler?: ((args_0: string) => void) | undefined;
@@ -49,6 +52,7 @@ export declare const openInFinder: {
   cacheable?: boolean;
   args: readonly [v.StringSchema<undefined>];
   returns: v.VoidSchema<undefined>;
+  jsonSerializable?: boolean;
   agent?: RpcFunctionAgentOptions;
   setup?: ((context: undefined) => Thenable<RpcFunctionSetupResult<[string], void>>) | undefined;
   handler?: ((args_0: string) => void) | undefined;

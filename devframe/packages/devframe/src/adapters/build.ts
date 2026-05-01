@@ -13,6 +13,7 @@ import {
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { collectStaticRpcDump } from '../node/static-dump'
+import { scStringify, strictJsonStringify } from '../rpc/serialization'
 import { resolveBasePath } from './_shared'
 
 export interface CreateBuildOptions {
@@ -69,19 +70,35 @@ export async function createBuild(d: DevtoolDefinition, options: CreateBuildOpti
   await d.setup(ctx)
 
   await fs.mkdir(resolve(outDir, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
+
+  const jsonSerializableMethods: string[] = []
+  for (const def of ctx.rpc.definitions.values()) {
+    if (def.jsonSerializable === true)
+      jsonSerializableMethods.push(def.name)
+  }
   await fs.writeFile(
     resolve(outDir, DEVTOOLS_CONNECTION_META_FILENAME),
-    JSON.stringify({ backend: 'static' }, null, 2),
+    JSON.stringify({ backend: 'static', jsonSerializableMethods }, null, 2),
     'utf-8',
   )
 
   console.log(c.cyan`[devframe] writing RPC dump to ${resolve(outDir, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
   const dump = await collectStaticRpcDump(ctx.rpc.definitions.values(), ctx)
   const indent = options.pretty ? 2 : undefined
-  for (const [filepath, data] of Object.entries(dump.files)) {
+  for (const [filepath, file] of Object.entries(dump.files)) {
     const fullpath = resolve(outDir, filepath)
     await fs.mkdir(dirname(fullpath), { recursive: true })
-    await fs.writeFile(fullpath, JSON.stringify(data, null, indent), 'utf-8')
+    const text = file.serialization === 'structured-clone'
+      ? scStringify(file.data)
+      : strictJsonStringify(file.data, file.fnName)
+    await fs.writeFile(
+      fullpath,
+      // structured-clone-es output is single-line; only JSON honors `indent`.
+      file.serialization === 'json' && indent != null
+        ? JSON.stringify(JSON.parse(text), null, indent)
+        : text,
+      'utf-8',
+    )
   }
   await fs.writeFile(
     resolve(outDir, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME),

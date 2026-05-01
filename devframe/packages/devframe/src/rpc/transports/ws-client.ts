@@ -1,5 +1,6 @@
 import type { ChannelOptions } from 'birpc'
-import { parse, stringify } from 'structured-clone-es'
+import type { RpcFunctionDefinitionAny } from '../types'
+import { makePerCallChannelOptions } from '../serialization'
 
 export interface WsRpcChannelOptions {
   url: string
@@ -7,9 +8,19 @@ export interface WsRpcChannelOptions {
   onError?: (e: Error) => void
   onDisconnected?: (e: CloseEvent) => void
   authToken?: string
+  /**
+   * RPC function definitions (or just the `jsonSerializable` flag per
+   * method) used to dispatch the per-call wire serializer. Pass an
+   * empty / partial map on clients that don't have the full registry —
+   * encoding falls back to structured-clone (the safer superset) and
+   * decoding still routes correctly via the wire prefix.
+   */
+  definitions?: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>>
 }
 
 function NOOP() {}
+
+const EMPTY_DEFS: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>> = new Map()
 
 /**
  * Build a birpc `ChannelOptions` object backed by a browser `WebSocket`.
@@ -25,6 +36,7 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
     onConnected = NOOP,
     onError = NOOP,
     onDisconnected = NOOP,
+    definitions = EMPTY_DEFS,
   } = options
 
   ws.addEventListener('open', (e) => {
@@ -40,6 +52,7 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
     onDisconnected(e)
   })
 
+  const perCall = makePerCallChannelOptions(definitions)
   return {
     on: (handler: (data: string) => void) => {
       ws.addEventListener('message', (e) => {
@@ -58,7 +71,7 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
         ws.addEventListener('open', handler)
       }
     },
-    serialize: stringify,
-    deserialize: parse,
+    serialize: perCall.serialize,
+    deserialize: perCall.deserialize,
   }
 }

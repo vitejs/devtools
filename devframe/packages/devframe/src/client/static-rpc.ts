@@ -1,14 +1,21 @@
 import { hash } from 'ohash'
+import { scDeserialize } from '../rpc/serialization'
+
+export type StaticRpcSerialization = 'json' | 'structured-clone'
 
 export interface StaticRpcManifestStaticEntry {
   type: 'static'
   path: string
+  /** Encoder used when this entry's file was written. Default: `'json'`. */
+  serialization?: StaticRpcSerialization
 }
 
 export interface StaticRpcManifestQueryEntry {
   type: 'query'
   records: Record<string, string>
   fallback?: string
+  /** Encoder used when each record/fallback file was written. Default: `'json'`. */
+  serialization?: StaticRpcSerialization
 }
 
 export type StaticRpcManifestEntry
@@ -64,9 +71,18 @@ export function createStaticRpcCaller(
   const staticCache = new Map<string, Promise<any>>()
   const queryRecordCache = new Map<string, Promise<StaticRpcRecord>>()
 
+  function reviveIfStructuredClone(value: unknown, serialization: StaticRpcSerialization | undefined): any {
+    if (serialization === 'structured-clone')
+      return scDeserialize(value as any)
+    return value
+  }
+
   async function loadStatic(entry: StaticRpcManifestStaticEntry): Promise<any> {
     if (!staticCache.has(entry.path)) {
-      staticCache.set(entry.path, fetchJson(entry.path))
+      staticCache.set(
+        entry.path,
+        fetchJson(entry.path).then(raw => reviveIfStructuredClone(raw, entry.serialization)),
+      )
     }
     const data = await staticCache.get(entry.path)!
     if (isRecord(data)) {
@@ -75,9 +91,15 @@ export function createStaticRpcCaller(
     return data
   }
 
-  async function loadQueryRecord(path: string): Promise<StaticRpcRecord> {
+  async function loadQueryRecord(
+    path: string,
+    serialization: StaticRpcSerialization | undefined,
+  ): Promise<StaticRpcRecord> {
     if (!queryRecordCache.has(path)) {
-      queryRecordCache.set(path, fetchJson(path))
+      queryRecordCache.set(
+        path,
+        fetchJson(path).then(raw => reviveIfStructuredClone(raw, serialization)),
+      )
     }
     return await queryRecordCache.get(path)!
   }
@@ -102,12 +124,12 @@ export function createStaticRpcCaller(
       const recordPath = entry.records[argsHash]
 
       if (recordPath) {
-        const record = await loadQueryRecord(recordPath)
+        const record = await loadQueryRecord(recordPath, entry.serialization)
         return resolveRecordOutput(record)
       }
 
       if (entry.fallback) {
-        const fallback = await loadQueryRecord(entry.fallback)
+        const fallback = await loadQueryRecord(entry.fallback, entry.serialization)
         return resolveRecordOutput(fallback)
       }
 

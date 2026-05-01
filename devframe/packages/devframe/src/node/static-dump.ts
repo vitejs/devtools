@@ -4,15 +4,21 @@ import {
 } from 'devframe/constants'
 import { dumpFunctions, getRpcHandler } from 'devframe/rpc'
 
+export type StaticRpcDumpSerialization = 'json' | 'structured-clone'
+
 export interface StaticRpcDumpManifestStaticEntry {
   type: 'static'
   path: string
+  /** Encoder used when this entry's file was written. Default: `'json'`. */
+  serialization?: StaticRpcDumpSerialization
 }
 
 export interface StaticRpcDumpManifestQueryEntry {
   type: 'query'
   records: Record<string, string>
   fallback?: string
+  /** Encoder used when each record/fallback file was written. Default: `'json'`. */
+  serialization?: StaticRpcDumpSerialization
 }
 
 export type StaticRpcDumpManifestValue
@@ -22,9 +28,18 @@ export type StaticRpcDumpManifestValue
 
 export type StaticRpcDumpManifest = Record<string, StaticRpcDumpManifestValue>
 
+export interface StaticRpcDumpFile {
+  /** Whether this file was written via `JSON.stringify` or `structured-clone-es.stringify`. */
+  serialization: StaticRpcDumpSerialization
+  /** Function name the file belongs to — used to scope `DF0019` errors during write. */
+  fnName: string
+  /** Payload to encode. */
+  data: unknown
+}
+
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest
-  files: Record<string, any>
+  files: Record<string, StaticRpcDumpFile>
 }
 
 function makeDumpKey(name: string): string {
@@ -54,20 +69,25 @@ export async function collectStaticRpcDump(
   context: any,
 ): Promise<StaticRpcDumpCollection> {
   const manifest: StaticRpcDumpManifest = {}
-  const files: Record<string, any> = {}
+  const files: Record<string, StaticRpcDumpFile> = {}
 
   for (const definition of definitions) {
     const type = definition.type ?? 'query'
+    const serialization: StaticRpcDumpSerialization
+      = definition.jsonSerializable === true ? 'json' : 'structured-clone'
 
     if (type === 'static') {
       const handler = await getRpcHandler(definition, context)
       const path = makeStaticPath(definition.name)
       files[path] = {
-        output: await Promise.resolve(handler()),
+        serialization,
+        fnName: definition.name,
+        data: { output: await Promise.resolve(handler()) },
       }
       manifest[definition.name] = {
         type: 'static',
         path,
+        serialization,
       }
       continue
     }
@@ -83,6 +103,7 @@ export async function collectStaticRpcDump(
     const queryEntry: StaticRpcDumpManifestQueryEntry = {
       type: 'query',
       records: {},
+      serialization,
     }
 
     const prefix = `${definition.name}---`
@@ -96,12 +117,12 @@ export async function collectStaticRpcDump(
 
       if (key === 'fallback') {
         const path = makeQueryFallbackPath(definition.name)
-        files[path] = record
+        files[path] = { serialization, fnName: definition.name, data: record }
         queryEntry.fallback = path
       }
       else {
         const path = makeQueryRecordPath(definition.name, key)
-        files[path] = record
+        files[path] = { serialization, fnName: definition.name, data: record }
         queryEntry.records[key] = path
       }
     }

@@ -51,6 +51,15 @@ export interface DevToolsNodeUtils {
 export interface ConnectionMeta {
   backend: 'websocket' | 'static'
   websocket?: number | string
+  /**
+   * Names of RPC functions that have declared `jsonSerializable: true`.
+   * Used by the WS / static client to dispatch the per-call wire
+   * serializer (strict JSON for these methods, structured-clone for
+   * the rest). Populated by the server / build adapter; absent on
+   * legacy clients, in which case all outgoing messages fall back to
+   * structured-clone.
+   */
+  jsonSerializableMethods?: string[]
 }
 
 export interface RemoteConnectionInfo extends ConnectionMeta {

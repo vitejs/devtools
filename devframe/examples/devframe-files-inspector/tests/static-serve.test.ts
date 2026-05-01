@@ -93,7 +93,7 @@ describe('static serve (deployed SPA contract)', () => {
       const res = await fetch(`${server.origin}${mountBase}.connection.json`)
       expect(res.status).toBe(200)
       const meta = await res.json() as { backend: string }
-      expect(meta).toEqual({ backend: 'static' })
+      expect(meta).toMatchObject({ backend: 'static' })
     })
 
     it('serves the RPC dump manifest and reachable shard records', async () => {

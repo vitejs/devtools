@@ -4,6 +4,25 @@ import { describe, expect, it } from 'vitest'
 import { collectStaticRpcDump } from '../static-dump'
 
 describe('collectStaticRpcDump', () => {
+  it('tags entries as JSON when jsonSerializable: true is declared', async () => {
+    const getVersion = defineRpcFunction({
+      name: 'test:json-version',
+      type: 'static',
+      jsonSerializable: true,
+      handler: () => '1.0.0',
+    })
+
+    const result = await collectStaticRpcDump([getVersion], {})
+    const expectedPath = `${DEVTOOLS_RPC_DUMP_DIRNAME}/test~json-version.static.json`
+
+    expect(result.manifest['test:json-version']).toEqual({
+      type: 'static',
+      path: expectedPath,
+      serialization: 'json',
+    })
+    expect(result.files[expectedPath]?.serialization).toBe('json')
+  })
+
   it('collects static rpc output into sharded file entries', async () => {
     const getVersion = defineRpcFunction({
       name: 'test:get-version',
@@ -17,9 +36,13 @@ describe('collectStaticRpcDump', () => {
     expect(result.manifest['test:get-version']).toEqual({
       type: 'static',
       path: expectedPath,
+      // Default `jsonSerializable: false` → structured-clone-encoded shard.
+      serialization: 'structured-clone',
     })
     expect(result.files[expectedPath]).toEqual({
-      output: '1.0.0',
+      serialization: 'structured-clone',
+      fnName: 'test:get-version',
+      data: { output: '1.0.0' },
     })
   })
 
@@ -49,6 +72,7 @@ describe('collectStaticRpcDump', () => {
       type: 'query',
       records: expect.any(Object),
       fallback: `${basePath}.fallback.json`,
+      serialization: 'structured-clone',
     })
     expect(Object.keys(manifest.records)).toHaveLength(2)
 

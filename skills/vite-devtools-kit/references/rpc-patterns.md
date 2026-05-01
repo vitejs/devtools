@@ -10,6 +10,30 @@ Advanced patterns for server-client communication in DevTools integrations.
 | `action` | Never cached | Mutations, side effects |
 | `static` | Cached indefinitely | Constants, configuration |
 
+## JSON-Serializable Declaration
+
+Declare the wire/dump shape contract with `jsonSerializable`:
+
+| Value | Encoder | Round-trips |
+|-------|---------|-------------|
+| `false` (default) | `structured-clone-es` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
+| `true` (opt-in) | strict `JSON.stringify` | JSON-only |
+
+```ts
+defineRpcFunction({
+  name: 'my-plugin:list-modules',
+  type: 'query',
+  jsonSerializable: true,
+  setup: () => ({
+    handler: async (): Promise<Module[]> => Array.from(moduleMap.values()),
+  }),
+})
+```
+
+**`jsonSerializable: true` throws `DF0019` synchronously** when the handler returns a value JSON cannot round-trip (e.g. a `Map`). The error fires in dev right at the call site, not silently at build time. Use it whenever your data is genuinely JSON-shaped — it unlocks plain-JSON wire format and is the default expectation for MCP-exposed tools.
+
+**`agent` requires `jsonSerializable: true`.** Registration throws `DF0018` if you set `agent: { description: ... }` without also declaring the function JSON-safe.
+
 ## Type-Safe RPC Setup
 
 ### Step 1: Define Types
