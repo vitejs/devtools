@@ -29,6 +29,9 @@ export { DevToolsCommandKeybinding }
 export { DevToolsCommandShortcutOverrides }
 export { DevToolsCommandsHost }
 export { DevToolsCommandsHostEvents }
+export { DevToolsDiagnosticsDefinition }
+export { DevToolsDiagnosticsHost }
+export { DevToolsDiagnosticsLogger }
 export { DevToolsDockEntriesGrouped }
 export { DevToolsDockEntry }
 export { DevToolsDockEntryBase }
@@ -47,6 +50,15 @@ export { DevToolsLogHandle }
 export { DevToolsLogLevel }
 export { DevToolsLogsClient }
 export { DevToolsLogsHost }
+export { DevToolsMessageElementPosition }
+export { DevToolsMessageEntry }
+export { DevToolsMessageEntryFrom }
+export { DevToolsMessageEntryInput }
+export { DevToolsMessageFilePosition }
+export { DevToolsMessageHandle }
+export { DevToolsMessageLevel }
+export { DevToolsMessagesClient }
+export { DevToolsMessagesHost }
 export { DevToolsNodeContext }
 export { DevToolsNodeRpcSession }
 export { DevToolsNodeUtils }

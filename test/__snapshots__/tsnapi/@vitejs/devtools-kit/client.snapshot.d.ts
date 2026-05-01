@@ -4,7 +4,8 @@
 // #region Interfaces
 export interface DockClientScriptContext extends DocksContext {
   current: DockEntryState;
-  logs: DevToolsLogsClient;
+  messages: DevToolsMessagesClient;
+  readonly logs: DevToolsMessagesClient;
 }
 // #endregion
 
