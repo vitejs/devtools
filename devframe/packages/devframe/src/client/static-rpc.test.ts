@@ -1,4 +1,5 @@
 import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
+import { structuredCloneStringify } from 'devframe/rpc'
 import { hash } from 'ohash'
 import { describe, expect, it } from 'vitest'
 import { createStaticRpcCaller } from './static-rpc'
@@ -109,5 +110,64 @@ describe('createStaticRpcCaller', () => {
     )
 
     await expect(caller.call('demo:legacy', [])).resolves.toEqual({ ok: true })
+  })
+
+  it('revives structured-clone-tagged static entries (preserves Map)', async () => {
+    const caller = createStaticRpcCaller(
+      {
+        'demo:graph': {
+          type: 'static',
+          path: `${DEVTOOLS_RPC_DUMP_DIRNAME}/demo~graph.static.json`,
+          serialization: 'structured-clone',
+        },
+      },
+      async () => {
+        // What a server would have written: SC-stringified, then read
+        // back via fetch.json() (i.e. JSON.parse of the SC text).
+        const payload = { output: new Map([['a', 1], ['b', 2]]) }
+        return JSON.parse(structuredCloneStringify(payload))
+      },
+    )
+
+    const result = await caller.call('demo:graph', []) as Map<string, number>
+    expect(result).toBeInstanceOf(Map)
+    expect(result.get('a')).toBe(1)
+    expect(result.get('b')).toBe(2)
+  })
+
+  it('revives structured-clone-tagged query records (preserves Set)', async () => {
+    const recordPath = `${DEMO_QUERY_BASE_PATH}.record.${hash(['k'])}.json`
+    const caller = createStaticRpcCaller(
+      {
+        'demo:query-set': {
+          type: 'query',
+          serialization: 'structured-clone',
+          records: { [hash(['k'])]: recordPath },
+        },
+      },
+      async () => {
+        const payload = { inputs: ['k'], output: new Set(['x', 'y']) }
+        return JSON.parse(structuredCloneStringify(payload))
+      },
+    )
+
+    const result = await caller.call('demo:query-set', ['k']) as Set<string>
+    expect(result).toBeInstanceOf(Set)
+    expect(result.has('x')).toBe(true)
+  })
+
+  it('treats untagged manifest entries as JSON (back-compat)', async () => {
+    const caller = createStaticRpcCaller(
+      {
+        'demo:legacy-static': {
+          type: 'static',
+          path: `${DEVTOOLS_RPC_DUMP_DIRNAME}/demo~legacy.static.json`,
+          // no `serialization` field — must default to JSON parsing
+        },
+      },
+      async () => ({ output: { items: [1, 2, 3] } }),
+    )
+
+    await expect(caller.call('demo:legacy-static', [])).resolves.toEqual({ items: [1, 2, 3] })
   })
 })

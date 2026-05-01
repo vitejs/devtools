@@ -148,6 +148,20 @@ export interface RpcFunctionDefinitionBase {
   name: string
   /** Function type (static, action, event, or query) */
   type?: RpcFunctionType
+  /**
+   * Declares whether this function's args/return are JSON-serializable
+   * — i.e. no `Map`, `Set`, `Date`, `BigInt`, class instances, circular
+   * references, `undefined` leaves, `Symbol`, or `Function` values.
+   *
+   * - `true` — args and return are encoded with strict `JSON.stringify`
+   *   on the wire and on disk. Misshapen values throw `DF0019` at the
+   *   sender, surfacing the bug *during the offending call* rather than
+   *   silently coercing to `{}` later. Required for `agent` exposure.
+   * - `false` (default) — payloads use `structured-clone-es`, which
+   *   round-trips Maps/Sets/cycles. Functions in this mode cannot be
+   *   exposed via the `agent` field — registration throws `DF0018`.
+   */
+  jsonSerializable?: boolean
 }
 
 /**
@@ -209,6 +223,16 @@ export type RpcFunctionDefinition<
         /** Valibot schema for validating function return value */
         returns?: RS
         /**
+         * Declares whether this function's args/return are JSON-serializable
+         * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
+         *
+         * - `true` — wire and dump use strict `JSON.stringify`; misshapen
+         *   values throw `DF0019` at the call site. Required for `agent`.
+         * - `false` (default) — `structured-clone-es` round-trips fancy
+         *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
+         */
+        jsonSerializable?: boolean
+        /**
          * Expose this function to agents (e.g. via the MCP adapter).
          * When omitted, the function is not agent-exposed (default-deny).
          *
@@ -244,6 +268,16 @@ export type RpcFunctionDefinition<
         args: AS
         /** Valibot schema for validating function return value */
         returns: RS
+        /**
+         * Declares whether this function's args/return are JSON-serializable
+         * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
+         *
+         * - `true` — wire and dump use strict `JSON.stringify`; misshapen
+         *   values throw `DF0019` at the call site. Required for `agent`.
+         * - `false` (default) — `structured-clone-es` round-trips fancy
+         *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
+         */
+        jsonSerializable?: boolean
         /**
          * Expose this function to agents (e.g. via the MCP adapter).
          * When omitted, the function is not agent-exposed (default-deny).

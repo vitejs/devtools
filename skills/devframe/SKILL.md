@@ -98,6 +98,7 @@ import * as v from 'valibot'
 const getModules = defineRpcFunction({
   name: 'my-inspector:get-modules',
   type: 'query',
+  jsonSerializable: true,
   args: [v.object({ limit: v.number() })],
   returns: v.array(v.object({ id: v.string(), size: v.number() })),
   setup: ctx => ({
@@ -114,6 +115,19 @@ const getModules = defineRpcFunction({
 | `'event'`  | Fire-and-forget; no response | Never | Never |
 
 Add valibot schemas when the RPC is user-facing, when you want static dumps, or when you expose it to agents. Prefer a **single object arg** (`args: [v.object({ ... })]`) over positional args — property names self-document and agents rely on them.
+
+### `jsonSerializable` (wire + dump format)
+
+`jsonSerializable` declares the on-wire / on-disk shape contract:
+
+| Value | Encoder | Wire prefix | Round-trips |
+|-------|---------|-------------|-------------|
+| `false` (default) | `structured-clone-es` | `s:` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
+| `true` (opt-in) | strict `JSON.stringify` | _(unprefixed)_ | JSON-only |
+
+Set `jsonSerializable: true` when your handler returns plain JSON shapes — the strict serializer **throws `DF0020`** synchronously on the offending call when it sees a value JSON cannot round-trip (Map/Set/Date/BigInt/class instance/`undefined`-in-array). Errors surface in dev next to the call that introduced them, not silently at build time.
+
+`agent: {...}` requires `jsonSerializable: true` (registration throws `DF0019` otherwise). MCP tools speak JSON — opting into the agent surface is also opting into JSON-only data.
 
 `ctx.rpc.broadcast({ method, args, optional?, event?, filter? })` pushes to every connected client. `ctx.rpc.invokeLocal(name, ...args)` calls a server function without going through transport (useful for cross-function composition).
 
@@ -223,12 +237,13 @@ Built-in context: `clientType` (`'embedded' | 'standalone'`), `dockOpen`, `palet
 
 ## Agent-native surface (experimental)
 
-Opt an RPC function into the agent surface with an `agent` field — default-deny otherwise:
+Opt an RPC function into the agent surface with an `agent` field — default-deny otherwise. Agent-exposed functions **must declare `jsonSerializable: true`** (registration throws `DF0019` otherwise):
 
 ```ts
 defineRpcFunction({
   name: 'my-inspector:get-stats',
   type: 'query',
+  jsonSerializable: true,
   args: [v.object({ limit: v.number() })],
   returns: v.object({ count: v.number() }),
   agent: {

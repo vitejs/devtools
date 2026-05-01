@@ -74,7 +74,7 @@ export async function dumpFunctions<
 
     const handler = setupResult.handler || definition.handler
     if (!handler) {
-      throw logger.DTK0004({ name: definition.name }).throw()
+      throw logger.DF0024({ name: definition.name }).throw()
     }
 
     let dump = setupResult.dump ?? definition.dump
@@ -213,7 +213,7 @@ export function createClientFromDump<T extends Record<string, any>>(
   const client = new Proxy({} as T, {
     get(_, functionName: string) {
       if (!(functionName in store.definitions)) {
-        throw logger.DTK0005({ name: functionName }).throw()
+        throw logger.DF0025({ name: functionName }).throw()
       }
 
       return async (...args: any[]) => {
@@ -252,7 +252,7 @@ export function createClientFromDump<T extends Record<string, any>>(
             return fallbackRecord.output
         }
 
-        throw logger.DTK0006({ name: functionName, args: JSON.stringify(args) }).throw()
+        throw logger.DF0026({ name: functionName, args: JSON.stringify(args) }).throw()
       }
     },
     has(_, functionName: string) {

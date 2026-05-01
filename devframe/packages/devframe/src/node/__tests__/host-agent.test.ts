@@ -82,6 +82,7 @@ describe('devToolsAgentHost', () => {
       ctx.rpc.register(rpcDef({
         name: 'shared-id',
         type: 'query',
+        jsonSerializable: true,
         agent: { description: 'An RPC' },
         setup: () => ({ handler: async () => 'rpc' }),
       }))
@@ -116,6 +117,7 @@ describe('devToolsAgentHost', () => {
       ctx.rpc.register(rpcDef({
         name: 'exposed-rpc',
         type: 'query',
+        jsonSerializable: true,
         agent: {
           description: 'An exposed RPC.',
           title: 'Exposed',
@@ -151,18 +153,21 @@ describe('devToolsAgentHost', () => {
       ctx.rpc.register(rpcDef({
         name: 'q',
         type: 'query',
+        jsonSerializable: true,
         agent: { description: 'q' },
         setup: () => ({ handler: async () => {} }),
       }))
       ctx.rpc.register(rpcDef({
         name: 'a',
         type: 'action',
+        jsonSerializable: true,
         agent: { description: 'a' },
         setup: () => ({ handler: async () => {} }),
       }))
       ctx.rpc.register(rpcDef({
         name: 's',
         type: 'static',
+        jsonSerializable: true,
         agent: { description: 's' },
         setup: () => ({ handler: async () => {} }),
       }))
@@ -182,6 +187,7 @@ describe('devToolsAgentHost', () => {
       ctx.rpc.register(rpcDef({
         name: 'x',
         type: 'query',
+        jsonSerializable: true,
         agent: { description: 'x' },
         setup: () => ({ handler: async () => {} }),
       }))
@@ -210,6 +216,7 @@ describe('devToolsAgentHost', () => {
       ctx.rpc.register(rpcDef({
         name: 'my-rpc',
         type: 'query',
+        jsonSerializable: true,
         agent: { description: 'rpc' },
         setup: () => ({
           handler: async (a: number, b: number) => a + b,

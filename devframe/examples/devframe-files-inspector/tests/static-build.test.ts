@@ -62,7 +62,7 @@ describe('static build (CLI build surface)', () => {
         'utf-8',
       ),
     ) as { backend: string }
-    expect(meta).toEqual({ backend: 'static' })
+    expect(meta).toMatchObject({ backend: 'static' })
     // Guard the design: nothing should land under a `.devtools/` subdir.
     expect(existsSync(path.join(outBuild, '.devtools'))).toBe(false)
   })

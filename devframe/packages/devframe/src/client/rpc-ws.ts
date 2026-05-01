@@ -39,12 +39,21 @@ export function createWsRpcClientMode(
     ? `${location.protocol.replace('http', 'ws')}//${location.hostname}:${connectionMeta.websocket}`
     : connectionMeta.websocket as string
 
+  // Build a minimal `defs` map from the connection meta so the per-call
+  // wire serializer dispatches outgoing requests with the correct
+  // encoding (JSON for `jsonSerializable: true` methods; structured-
+  // clone for the rest).
+  const definitions = new Map<string, { jsonSerializable: true }>()
+  for (const name of connectionMeta.jsonSerializableMethods ?? [])
+    definitions.set(name, { jsonSerializable: true })
+
   const serverRpc = createRpcClient<DevToolsRpcServerFunctions, DevToolsRpcClientFunctions>(
     clientRpc.functions,
     {
       channel: createWsRpcChannel({
         url,
         authToken,
+        definitions,
         ...wsOptions,
       }),
       rpcOptions,

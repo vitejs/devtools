@@ -80,22 +80,30 @@ export interface StartHttpAndWsOptions {
 }
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest;
-  files: Record<string, any>;
+  files: Record<string, StaticRpcDumpFile>;
+}
+export interface StaticRpcDumpFile {
+  serialization: StaticRpcDumpSerialization;
+  fnName: string;
+  data: unknown;
 }
 export interface StaticRpcDumpManifestQueryEntry {
   type: 'query';
   records: Record<string, string>;
   fallback?: string;
+  serialization?: StaticRpcDumpSerialization;
 }
 export interface StaticRpcDumpManifestStaticEntry {
   type: 'static';
   path: string;
+  serialization?: StaticRpcDumpSerialization;
 }
 // #endregion
 
 // #region Types
 export type StaticRpcDumpManifest = Record<string, StaticRpcDumpManifestValue>;
 export type StaticRpcDumpManifestValue = StaticRpcDumpManifestStaticEntry | StaticRpcDumpManifestQueryEntry | any;
+export type StaticRpcDumpSerialization = 'json' | 'structured-clone';
 // #endregion
 
 // #region Classes

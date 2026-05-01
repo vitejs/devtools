@@ -113,6 +113,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     port,
     host,
     https,
+    definitions: rpcHost.definitions,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
       const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
@@ -147,9 +148,15 @@ export async function createWsServer(options: CreateWsServerOptions) {
   rpcHost._asyncStorage = asyncStorage
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
+    const jsonSerializableMethods: string[] = []
+    for (const def of rpcHost.definitions.values()) {
+      if (def.jsonSerializable === true)
+        jsonSerializableMethods.push(def.name)
+    }
     return {
       backend: 'websocket',
       websocket: port,
+      jsonSerializableMethods,
     }
   }
 

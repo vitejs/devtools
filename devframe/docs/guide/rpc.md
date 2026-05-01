@@ -200,14 +200,45 @@ defineRpcFunction({
 
 At runtime, static clients resolve `rpc.call('my-devtool:get-session', 'session-a')` from the baked dump; misses fall back to `dump.fallback` (or throw if not provided).
 
+## JSON-Serializable Declaration
+
+DevFrame's WS transport ships payloads using one of two encoders, picked **per RPC function**:
+
+| `jsonSerializable` | Encoder | Wire prefix | Round-trips |
+|---|---|---|---|
+| `false` (default) | `structured-clone-es` | `s:` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
+| `true` (opt-in) | strict `JSON.stringify` | _(unprefixed)_ | JSON-only |
+
+The wire is plain JSON when all participating functions are JSON-flagged — debuggable in DevTools, friendlier to MCP, and a good default for tools that already speak JSON.
+
+### Discovering shape errors during dev
+
+Setting `jsonSerializable: true` is a contract: if your handler ever returns a value JSON cannot round-trip losslessly (a `Map`, a `Date`, a class instance, …), the strict serializer **throws `DF0020` synchronously** on the offending call. The error fires in dev, not at build time, so you see it next to the call site that introduced the bad value:
+
+```ts
+defineRpcFunction({
+  name: 'my-devtool:graph',
+  jsonSerializable: true,
+  // ⚠ throws DF0020 because Map cannot round-trip through JSON
+  handler: () => ({ nodes: new Map([['a', 1]]) }),
+})
+```
+
+If you do need fancy types, leave the flag unset (or `false`) — `structured-clone-es` will preserve them on the wire and in build dumps. The flag is opt-in, so existing code keeps working untouched.
+
+### MCP requires JSON
+
+MCP tools expose their schemas as JSON Schema, and agent harnesses assume JSON-shaped data. So **`agent: {...}` requires `jsonSerializable: true`** — otherwise registration throws `DF0019`. See the next section for how to attach the `agent` field once your function is JSON-safe.
+
 ## Agent Exposure
 
-Add an `agent` field to surface the function to coding agents over MCP. Functions without an `agent` field are not exposed (default-deny).
+Add an `agent` field to surface the function to coding agents over MCP. Functions without an `agent` field are not exposed (default-deny). Agent-exposed functions must also declare `jsonSerializable: true` (see above).
 
 ```ts
 defineRpcFunction({
   name: 'my-devtool:get-modules',
   type: 'query',
+  jsonSerializable: true,
   args: [v.object({ limit: v.number() })],
   returns: v.array(v.object({ id: v.string(), size: v.number() })),
   agent: {

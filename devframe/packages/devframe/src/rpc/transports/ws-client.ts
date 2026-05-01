@@ -1,5 +1,11 @@
 import type { ChannelOptions } from 'birpc'
-import { parse, stringify } from 'structured-clone-es'
+import type { RpcFunctionDefinitionAny } from '../types'
+import {
+  strictJsonStringify,
+  STRUCTURED_CLONE_PREFIX,
+  structuredCloneParse,
+  structuredCloneStringify,
+} from '../serialization'
 
 export interface WsRpcChannelOptions {
   url: string
@@ -7,9 +13,19 @@ export interface WsRpcChannelOptions {
   onError?: (e: Error) => void
   onDisconnected?: (e: CloseEvent) => void
   authToken?: string
+  /**
+   * RPC function definitions (or just the `jsonSerializable` flag per
+   * method) used to dispatch the per-call wire serializer. Pass an
+   * empty / partial map on clients that don't have the full registry —
+   * encoding falls back to structured-clone (the safer superset) and
+   * decoding still routes correctly via the wire prefix.
+   */
+  definitions?: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>>
 }
 
 function NOOP() {}
+
+const EMPTY_DEFS: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>> = new Map()
 
 /**
  * Build a birpc `ChannelOptions` object backed by a browser `WebSocket`.
@@ -25,6 +41,7 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
     onConnected = NOOP,
     onError = NOOP,
     onDisconnected = NOOP,
+    definitions = EMPTY_DEFS,
   } = options
 
   ws.addEventListener('open', (e) => {
@@ -40,6 +57,10 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
     onDisconnected(e)
   })
 
+  // Per-channel state: maps an incoming request id to its method name
+  // so the matching outgoing response can independently look the
+  // method up in `definitions` and pick the right encoder.
+  const pendingRequestMethods = new Map<string, string>()
   return {
     on: (handler: (data: string) => void) => {
       ws.addEventListener('message', (e) => {
@@ -58,7 +79,27 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
         ws.addEventListener('open', handler)
       }
     },
-    serialize: stringify,
-    deserialize: parse,
+    serialize: (msg: any): string => {
+      let method: string | undefined
+      if (msg.t === 'q') {
+        method = msg.m
+      }
+      else {
+        method = pendingRequestMethods.get(msg.i)
+        pendingRequestMethods.delete(msg.i)
+      }
+      const useJson = !!method && definitions.get(method)?.jsonSerializable === true
+      if (useJson)
+        return strictJsonStringify(msg, method ?? '')
+      return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
+    },
+    deserialize: (raw: string): any => {
+      const msg: any = raw.startsWith(STRUCTURED_CLONE_PREFIX)
+        ? structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length))
+        : JSON.parse(raw)
+      if (msg.t === 'q' && msg.i && msg.m)
+        pendingRequestMethods.set(msg.i, msg.m)
+      return msg
+    },
   }
 }

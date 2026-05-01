@@ -2,9 +2,15 @@ import type { BirpcGroup, ChannelOptions } from 'birpc'
 import type { IncomingMessage } from 'node:http'
 import type { ServerOptions as HttpsServerOptions } from 'node:https'
 import type { WebSocket } from 'ws'
+import type { RpcFunctionDefinitionAny } from '../types'
 import { createServer as createHttpsServer } from 'node:https'
-import { parse, stringify } from 'structured-clone-es'
 import { WebSocketServer } from 'ws'
+import {
+  strictJsonStringify,
+  STRUCTURED_CLONE_PREFIX,
+  structuredCloneParse,
+  structuredCloneStringify,
+} from '../serialization'
 
 export interface DevToolsNodeRpcSessionMeta {
   id: number
@@ -23,13 +29,26 @@ export interface WsRpcTransportOptions {
   host?: string
   /** When set, a new https.Server is created and the WebSocketServer is attached to it. */
   https?: HttpsServerOptions
+  /**
+   * RPC function definitions, used by the per-call wire serializer to
+   * dispatch between strict-JSON and structured-clone encoding based
+   * on each function's `jsonSerializable` flag.
+   *
+   * When omitted, all messages fall back to structured-clone — safe but
+   * loses dev-time validation for `jsonSerializable: true` declarations.
+   */
+  definitions?: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>>
   onConnected?: (ws: WebSocket, req: IncomingMessage, meta: DevToolsNodeRpcSessionMeta) => void
   onDisconnected?: (ws: WebSocket, meta: DevToolsNodeRpcSessionMeta) => void
+  /** Override the default per-call serializer. Most callers should leave this unset. */
   serialize?: ChannelOptions['serialize']
+  /** Override the default per-call deserializer. Most callers should leave this unset. */
   deserialize?: ChannelOptions['deserialize']
 }
 
 let sessionId = 0
+
+const EMPTY_DEFS: ReadonlyMap<string, Pick<RpcFunctionDefinitionAny, 'jsonSerializable'>> = new Map()
 
 function NOOP() {}
 
@@ -52,8 +71,9 @@ export function attachWsRpcTransport<
     https,
     onConnected = NOOP,
     onDisconnected = NOOP,
-    serialize = stringify,
-    deserialize = parse,
+    definitions = EMPTY_DEFS,
+    serialize: serializeOverride,
+    deserialize: deserializeOverride,
   } = options
 
   let wss: WebSocketServer
@@ -76,6 +96,11 @@ export function attachWsRpcTransport<
       subscribedStates: new Set(),
     }
 
+    // Per-connection state: maps an incoming request id to its method
+    // name so the matching outgoing response can look the method back
+    // up in `definitions` and pick the right encoder. One map per WS
+    // session — request-id spaces don't collide across sessions.
+    const pendingRequestMethods = new Map<string, string>()
     const channel: ChannelOptions = {
       post: (data) => {
         ws.send(data)
@@ -85,8 +110,28 @@ export function attachWsRpcTransport<
           fn(data.toString())
         })
       },
-      serialize,
-      deserialize,
+      serialize: serializeOverride ?? ((msg: any): string => {
+        let method: string | undefined
+        if (msg.t === 'q') {
+          method = msg.m
+        }
+        else {
+          method = pendingRequestMethods.get(msg.i)
+          pendingRequestMethods.delete(msg.i)
+        }
+        const useJson = !!method && definitions.get(method)?.jsonSerializable === true
+        if (useJson)
+          return strictJsonStringify(msg, method ?? '')
+        return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
+      }),
+      deserialize: deserializeOverride ?? ((raw: string): any => {
+        const msg: any = raw.startsWith(STRUCTURED_CLONE_PREFIX)
+          ? structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length))
+          : JSON.parse(raw)
+        if (msg.t === 'q' && msg.i && msg.m)
+          pendingRequestMethods.set(msg.i, msg.m)
+        return msg
+      }),
       meta,
     }
 

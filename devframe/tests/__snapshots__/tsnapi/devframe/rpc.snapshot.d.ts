@@ -35,6 +35,12 @@ export { RpcFunctionsCollectorBase }
 export { RpcFunctionSetupResult }
 export { RpcFunctionType }
 export { RpcReturnSchema }
+export { strictJsonStringify }
+export { STRUCTURED_CLONE_PREFIX }
+export { structuredCloneDeserialize }
+export { structuredCloneParse }
+export { structuredCloneSerialize }
+export { structuredCloneStringify }
 export { Thenable }
 export { validateDefinition }
 export { validateDefinitions }
