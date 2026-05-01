@@ -29,7 +29,7 @@ export const STRUCTURED_CLONE_PREFIX = 's:'
 /**
  * `JSON.stringify` with a single-pass strict replacer.
  *
- * Throws `DF0019` synchronously when the value contains a type JSON
+ * Throws `DF0020` synchronously when the value contains a type JSON
  * cannot round-trip losslessly: `Map`, `Set`, `Date`, `BigInt`, class
  * instances, or `undefined` inside an array (silently becomes `null`).
  *
@@ -91,7 +91,7 @@ export function strictJsonStringify(value: unknown, fnName: string = ''): string
 
 function nonJsonAt(fnName: string, type: string, parent: unknown, key: string): Error {
   const path = formatPath(parent, key)
-  return logger.DF0019({ name: fnName || '<anonymous>', type, path }).throw()
+  return logger.DF0020({ name: fnName || '<anonymous>', type, path }).throw()
 }
 
 function formatPath(parent: unknown, key: string): string {

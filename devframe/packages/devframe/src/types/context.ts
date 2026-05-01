@@ -1,8 +1,9 @@
 import type { DevToolsAgentHost } from './agent'
 import type { DevToolsCommandsHost } from './commands'
+import type { DevToolsDiagnosticsHost } from './diagnostics'
 import type { ClientScriptEntry, DevToolsDockHost, JsonRenderer, JsonRenderSpec } from './docks'
 import type { DevToolsHost } from './host'
-import type { DevToolsLogsHost } from './logs'
+import type { DevToolsMessagesHost } from './messages'
 import type { DevToolsTerminalHost } from './terminals'
 import type { DevToolsViewHost } from './views'
 
@@ -24,7 +25,21 @@ export interface DevToolsNodeContext {
   views: DevToolsViewHost
   utils: DevToolsNodeUtils
   terminals: DevToolsTerminalHost
-  logs: DevToolsLogsHost
+  /**
+   * User-facing message subsystem — toast notifications and the
+   * "Messages & Notifications" dock panel. Plugins call
+   * `ctx.messages.add({ ... })` to surface activity to users.
+   */
+  messages: DevToolsMessagesHost
+  /**
+   * @deprecated Use `ctx.messages` instead. Will be removed in a future release.
+   */
+  readonly logs: DevToolsMessagesHost
+  /**
+   * Structured diagnostics host — wraps `logs-sdk` and lets integrations
+   * register their own coded errors/warnings into the shared logger.
+   */
+  diagnostics: DevToolsDiagnosticsHost
   commands: DevToolsCommandsHost
   /**
    * Agent host — aggregates the agent-exposed surface of this devtool.

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { RpcFunctionsCollectorBase } from './collector'
 
-describe('agent gating (DF0018)', () => {
+describe('agent gating (DF0019)', () => {
   it('rejects registration when agent is set without jsonSerializable: true', () => {
     const collector = new RpcFunctionsCollectorBase({})
     expect(() => collector.register({

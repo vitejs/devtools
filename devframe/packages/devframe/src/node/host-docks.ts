@@ -92,12 +92,12 @@ export class DevToolsDockHost implements DevToolsDockHostType {
       },
       {
         type: '~builtin',
-        id: '~logs',
-        title: 'Logs & Notifications',
+        id: '~messages',
+        title: 'Messages & Notifications',
         icon: 'ph:notification-duotone',
         category: '~builtin',
         get badge() {
-          const size = context.logs.entries.size
+          const size = context.messages.entries.size
           return size > 0 ? String(size) : undefined
         },
       },

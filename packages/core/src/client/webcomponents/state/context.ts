@@ -9,7 +9,7 @@ import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
-import { createClientLogsClient } from './logs-client'
+import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
@@ -76,10 +76,12 @@ export async function createDocksContext(
       || (entry.type === 'iframe' && entry.clientScript)
     ) {
       const current = dockEntryStateMap.get(id)!
+      const messagesClient = createClientMessagesClient(rpc)
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
-        logs: createClientLogsClient(rpc),
+        messages: messagesClient,
+        logs: messagesClient,
       })
       await executeSetupScript(entry, scriptContext)
     }

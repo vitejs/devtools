@@ -22,7 +22,8 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.views` | Host static files for UI |
 | `ctx.rpc` | Register RPC functions, broadcast to clients |
 | `ctx.rpc.sharedState` | Synchronized server-client state |
-| `ctx.logs` | Emit structured log entries and toast notifications |
+| `ctx.messages` | Emit structured message entries and toast notifications |
+| `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
 | `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
 | `ctx.createJsonRenderer` | Create server-side JSON render specs for zero-client-code UIs |
 | `ctx.commands` | Register executable commands with keyboard shortcuts and palette visibility |
@@ -300,7 +301,7 @@ Plugins can emit structured log entries from both server and client contexts. Lo
 
 ```ts
 // No await needed
-context.logs.add({
+context.messages.add({
   message: 'Plugin initialized',
   level: 'info',
 })
@@ -309,7 +310,7 @@ context.logs.add({
 ### With Handle
 
 ```ts
-const handle = await context.logs.add({
+const handle = await context.messages.add({
   id: 'my-build',
   message: 'Building...',
   level: 'info',
@@ -351,8 +352,8 @@ The `from` field is automatically set to `'server'` or `'browser'`.
 Re-adding with the same `id` updates the existing entry instead of creating a duplicate:
 
 ```ts
-context.logs.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
-context.logs.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
+context.messages.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
+context.messages.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
 ```
 
 ## RPC Functions
@@ -555,7 +556,8 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [Project Structure](./references/project-structure.md) - Recommended file organization
 - [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
 - [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
-- [Logs Patterns](./references/logs-patterns.md) - Log entries, toast notifications, and handle patterns
+- [Messages Patterns](./references/messages-patterns.md) - Message entries, toast notifications, and handle patterns
+- [Diagnostics Patterns](./references/diagnostics-patterns.md) - Coded errors / warnings via `ctx.diagnostics` (logs-sdk integration)
 - [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
 - [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
 - [Remote Client Patterns](./references/remote-client-patterns.md) - Remote-hosted iframe docks, `connectRemoteDevTools`, trust model

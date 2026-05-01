@@ -1,5 +1,5 @@
 import type { DockEntryState, DocksContext } from 'devframe/client'
-import type { DevToolsLogsClient } from 'devframe/types'
+import type { DevToolsMessagesClient } from 'devframe/types'
 
 /**
  * Context for client scripts running in dock entries
@@ -10,7 +10,11 @@ export interface DockClientScriptContext extends DocksContext {
    */
   current: DockEntryState
   /**
-   * Logs client scoped to this dock entry's source
+   * Messages client scoped to this dock entry's source
    */
-  logs: DevToolsLogsClient
+  messages: DevToolsMessagesClient
+  /**
+   * @deprecated Use `messages` instead. Will be removed in a future release.
+   */
+  readonly logs: DevToolsMessagesClient
 }

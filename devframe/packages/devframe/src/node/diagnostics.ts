@@ -67,6 +67,11 @@ export const diagnostics = defineDiagnostics({
     DF0017: {
       message: (p: { transport: string, reason: string }) => `Failed to start MCP server (${p.transport}): ${p.reason}`,
     },
+    DF0018: {
+      message: '`ctx.logs` is deprecated and will be removed in a future release. Use `ctx.messages` instead.',
+      hint: 'Replace any access to `ctx.logs` (or `context.logs`) with `ctx.messages`. The runtime behavior is identical.',
+      level: 'warn',
+    },
   },
 })
 

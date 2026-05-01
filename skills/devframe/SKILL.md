@@ -82,7 +82,8 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 | `ctx.docks` | Dock entries (iframe / action / custom-render / launcher / json-render) |
 | `ctx.views` | Serve static files via `hostStatic(base, distDir)` |
 | `ctx.commands` | Command palette entries with keybindings + `when` gating |
-| `ctx.logs` | Structured log entries, toasts, file / element positions |
+| `ctx.messages` | Structured message entries, toasts, file / element positions |
+| `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
 | `ctx.terminals` | Spawn and stream child processes |
 | `ctx.agent` | Expose tools + resources to coding agents (experimental) |
 | `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin` |
@@ -124,9 +125,9 @@ Add valibot schemas when the RPC is user-facing, when you want static dumps, or 
 | `false` (default) | `structured-clone-es` | `s:` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
 | `true` (opt-in) | strict `JSON.stringify` | _(unprefixed)_ | JSON-only |
 
-Set `jsonSerializable: true` when your handler returns plain JSON shapes — the strict serializer **throws `DF0019`** synchronously on the offending call when it sees a value JSON cannot round-trip (Map/Set/Date/BigInt/class instance/`undefined`-in-array). Errors surface in dev next to the call that introduced them, not silently at build time.
+Set `jsonSerializable: true` when your handler returns plain JSON shapes — the strict serializer **throws `DF0020`** synchronously on the offending call when it sees a value JSON cannot round-trip (Map/Set/Date/BigInt/class instance/`undefined`-in-array). Errors surface in dev next to the call that introduced them, not silently at build time.
 
-`agent: {...}` requires `jsonSerializable: true` (registration throws `DF0018` otherwise). MCP tools speak JSON — opting into the agent surface is also opting into JSON-only data.
+`agent: {...}` requires `jsonSerializable: true` (registration throws `DF0019` otherwise). MCP tools speak JSON — opting into the agent surface is also opting into JSON-only data.
 
 `ctx.rpc.broadcast({ method, args, optional?, event?, filter? })` pushes to every connected client. `ctx.rpc.invokeLocal(name, ...args)` calls a server function without going through transport (useful for cross-function composition).
 
@@ -194,10 +195,10 @@ ctx.commands.register(defineCommand({
 
 ```ts
 // Fire-and-forget
-ctx.logs.add({ message: 'Scan complete', level: 'success', notify: true })
+ctx.messages.add({ message: 'Scan complete', level: 'success', notify: true })
 
 // With handle for in-place updates
-const handle = await ctx.logs.add({
+const handle = await ctx.messages.add({
   id: 'my-inspector:build',
   message: 'Building…',
   level: 'info',
@@ -236,7 +237,7 @@ Built-in context: `clientType` (`'embedded' | 'standalone'`), `dockOpen`, `palet
 
 ## Agent-native surface (experimental)
 
-Opt an RPC function into the agent surface with an `agent` field — default-deny otherwise. Agent-exposed functions **must declare `jsonSerializable: true`** (registration throws `DF0018` otherwise):
+Opt an RPC function into the agent surface with an `agent` field — default-deny otherwise. Agent-exposed functions **must declare `jsonSerializable: true`** (registration throws `DF0019` otherwise):
 
 ```ts
 defineRpcFunction({
@@ -349,7 +350,8 @@ All of the above has a dedicated page at [docs.devtools.vite.dev/devframe](https
 - [Dock System](https://devtools.vite.dev/devframe/dock-system) — every entry type + remote docks
 - [Commands](https://devtools.vite.dev/devframe/commands) — palette, keybindings, sub-commands
 - [When Clauses](https://devtools.vite.dev/devframe/when-clauses) — syntax, context, type-safe wrappers
-- [Logs & Notifications](https://devtools.vite.dev/devframe/logs) — entry fields, positional hints
+- [Messages & Notifications](https://devtools.vite.dev/devframe/messages) — entry fields, positional hints
+- [Structured Diagnostics](https://devtools.vite.dev/devframe/diagnostics) — coded errors via `ctx.diagnostics`, register custom codes
 - [Terminals](https://devtools.vite.dev/devframe/terminals) — child processes, external sessions
 - [Client](https://devtools.vite.dev/devframe/client) — auth handshake, modes, discovery
 - [Agent-Native](https://devtools.vite.dev/devframe/agent-native) — agent field, tools/resources, MCP + Claude Desktop

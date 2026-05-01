@@ -41,7 +41,7 @@ export class RpcFunctionsCollectorBase<
 
   register(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (this.definitions.has(fn.name) && !force) {
-      throw logger.DF0020({ name: fn.name }).throw()
+      throw logger.DF0021({ name: fn.name }).throw()
     }
     assertAgentJsonSerializable(fn)
     this.definitions.set(fn.name, fn)
@@ -50,7 +50,7 @@ export class RpcFunctionsCollectorBase<
 
   update(fn: RpcFunctionDefinition<string, any, any, any, any, any, SetupContext>, force = false): void {
     if (!this.definitions.has(fn.name) && !force) {
-      throw logger.DF0021({ name: fn.name }).throw()
+      throw logger.DF0022({ name: fn.name }).throw()
     }
     assertAgentJsonSerializable(fn)
     this.definitions.set(fn.name, fn)
@@ -74,7 +74,7 @@ export class RpcFunctionsCollectorBase<
   getSchema<T extends keyof LocalFunctions>(name: T): { args: RpcArgsSchema | undefined, returns: RpcReturnSchema | undefined } {
     const definition = this.definitions.get(name as string)
     if (!definition)
-      throw logger.DF0022({ name: String(name) }).throw()
+      throw logger.DF0023({ name: String(name) }).throw()
     return {
       args: definition.args,
       returns: definition.returns,
@@ -98,5 +98,5 @@ function assertAgentJsonSerializable(
   fn: RpcFunctionDefinition<string, any, any, any, any, any, any>,
 ): void {
   if (fn.agent && fn.jsonSerializable !== true)
-    throw logger.DF0018({ name: fn.name }).throw()
+    throw logger.DF0019({ name: fn.name }).throw()
 }

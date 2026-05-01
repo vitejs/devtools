@@ -42,7 +42,7 @@ export async function getRpcHandler<
   }
   const result = await getRpcResolvedSetupResult(definition, context)
   if (!result.handler) {
-    throw logger.DF0023({ name: definition.name }).throw()
+    throw logger.DF0024({ name: definition.name }).throw()
   }
   return result.handler
 }

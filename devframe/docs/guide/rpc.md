@@ -213,13 +213,13 @@ The wire is plain JSON when all participating functions are JSON-flagged — deb
 
 ### Discovering shape errors during dev
 
-Setting `jsonSerializable: true` is a contract: if your handler ever returns a value JSON cannot round-trip losslessly (a `Map`, a `Date`, a class instance, …), the strict serializer **throws `DF0019` synchronously** on the offending call. The error fires in dev, not at build time, so you see it next to the call site that introduced the bad value:
+Setting `jsonSerializable: true` is a contract: if your handler ever returns a value JSON cannot round-trip losslessly (a `Map`, a `Date`, a class instance, …), the strict serializer **throws `DF0020` synchronously** on the offending call. The error fires in dev, not at build time, so you see it next to the call site that introduced the bad value:
 
 ```ts
 defineRpcFunction({
   name: 'my-devtool:graph',
   jsonSerializable: true,
-  // ⚠ throws DF0019 because Map cannot round-trip through JSON
+  // ⚠ throws DF0020 because Map cannot round-trip through JSON
   handler: () => ({ nodes: new Map([['a', 1]]) }),
 })
 ```
@@ -228,7 +228,7 @@ If you do need fancy types, leave the flag unset (or `false`) — `structured-cl
 
 ### MCP requires JSON
 
-MCP tools expose their schemas as JSON Schema, and agent harnesses assume JSON-shaped data. So **`agent: {...}` requires `jsonSerializable: true`** — otherwise registration throws `DF0018`. See the next section for how to attach the `agent` field once your function is JSON-safe.
+MCP tools expose their schemas as JSON Schema, and agent harnesses assume JSON-shaped data. So **`agent: {...}` requires `jsonSerializable: true`** — otherwise registration throws `DF0019`. See the next section for how to attach the `agent` field once your function is JSON-safe.
 
 ## Agent Exposure
 

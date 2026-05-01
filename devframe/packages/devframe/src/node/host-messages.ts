@@ -1,12 +1,12 @@
-import type { DevToolsLogEntry, DevToolsLogEntryInput, DevToolsLogHandle, DevToolsLogsHost as DevToolsLogsHostType, DevToolsNodeContext } from 'devframe/types'
+import type { DevToolsMessageEntry, DevToolsMessageEntryInput, DevToolsMessageHandle, DevToolsMessagesHost as DevToolsMessagesHostType, DevToolsNodeContext } from 'devframe/types'
 import { createEventEmitter } from 'devframe/utils/events'
 import { nanoid } from 'devframe/utils/nanoid'
 
 const MAX_ENTRIES = 1000
 
-export class DevToolsLogsHost implements DevToolsLogsHostType {
-  public readonly entries: DevToolsLogsHostType['entries'] = new Map()
-  public readonly events: DevToolsLogsHostType['events'] = createEventEmitter()
+export class DevToolsMessagesHost implements DevToolsMessagesHostType {
+  public readonly entries: DevToolsMessagesHostType['entries'] = new Map()
+  public readonly events: DevToolsMessagesHostType['events'] = createEventEmitter()
 
   /** Tracks when each entry was last added or updated (monotonic) */
   readonly lastModified = new Map<string, number>()
@@ -24,14 +24,14 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     public readonly context: DevToolsNodeContext,
   ) {}
 
-  async add(input: DevToolsLogEntryInput): Promise<DevToolsLogHandle> {
+  async add(input: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle> {
     // Dedupe: if an entry with the same explicit id exists, update it instead
     if (input.id && this.entries.has(input.id)) {
       await this.update(input.id, input)
       return this._createHandle(input.id)
     }
 
-    const entry: DevToolsLogEntry = {
+    const entry: DevToolsMessageEntry = {
       ...input,
       id: input.id ?? nanoid(),
       timestamp: input.timestamp ?? Date.now(),
@@ -46,7 +46,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
 
     this.entries.set(entry.id, entry)
     this.lastModified.set(entry.id, this._tick())
-    this.events.emit('log:added', entry)
+    this.events.emit('message:added', entry)
 
     if (entry.autoDelete) {
       this._autoDeleteTimers.set(entry.id, setTimeout(() => {
@@ -57,12 +57,12 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     return this._createHandle(entry.id)
   }
 
-  async update(id: string, patch: Partial<DevToolsLogEntryInput>): Promise<DevToolsLogEntry | undefined> {
+  async update(id: string, patch: Partial<DevToolsMessageEntryInput>): Promise<DevToolsMessageEntry | undefined> {
     const existing = this.entries.get(id)
     if (!existing)
       return undefined
 
-    const updated: DevToolsLogEntry = {
+    const updated: DevToolsMessageEntry = {
       ...existing,
       ...patch,
       id: existing.id,
@@ -72,7 +72,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
 
     this.entries.set(id, updated)
     this.lastModified.set(id, this._tick())
-    this.events.emit('log:updated', updated)
+    this.events.emit('message:updated', updated)
 
     // Reset autoDelete timer if changed
     if (patch.autoDelete !== undefined) {
@@ -100,7 +100,7 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
     this.entries.delete(id)
     this.lastModified.delete(id)
     this.removals.push({ id, time: this._tick() })
-    this.events.emit('log:removed', id)
+    this.events.emit('message:removed', id)
   }
 
   async clear(): Promise<void> {
@@ -112,10 +112,10 @@ export class DevToolsLogsHost implements DevToolsLogsHostType {
       this.removals.push({ id, time: tick })
     this.entries.clear()
     this.lastModified.clear()
-    this.events.emit('log:cleared')
+    this.events.emit('message:cleared')
   }
 
-  private _createHandle(id: string): DevToolsLogHandle {
+  private _createHandle(id: string): DevToolsMessageHandle {
     // eslint-disable-next-line ts/no-this-alias
     const host = this
     return {
