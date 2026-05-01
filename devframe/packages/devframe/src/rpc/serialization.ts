@@ -1,4 +1,3 @@
-import type { ChannelOptions } from 'birpc'
 import {
   deserialize as structuredCloneDeserialize,
   parse as structuredCloneParse,
@@ -26,74 +25,6 @@ export { structuredCloneDeserialize, structuredCloneParse, structuredCloneString
  * coupled by a mirror rule.
  */
 export const STRUCTURED_CLONE_PREFIX = 's:'
-
-interface BirpcRequest {
-  t: 'q'
-  i?: string
-  m: string
-  a: unknown[]
-  o?: boolean
-}
-
-interface BirpcResponse {
-  t: 's'
-  i: string
-  r?: unknown
-  e?: unknown
-}
-
-type BirpcMessage = BirpcRequest | BirpcResponse
-
-function isJsonMethod(
-  defs: ReadonlyMap<string, { jsonSerializable?: boolean }>,
-  name: string | undefined,
-): boolean {
-  return !!name && defs.get(name)?.jsonSerializable === true
-}
-
-/**
- * Build a per-call `serialize`/`deserialize` pair for birpc channels.
- *
- * The returned options switch encoder per-message based on the
- * `jsonSerializable` flag of the dispatched function. Outgoing requests
- * read the method from `msg.m`; outgoing responses look the method back
- * up from a per-channel `pendingRequestMethods` map populated whenever
- * a request is observed in `deserialize`.
- *
- * Pass an empty/partial `defs` map on peers that don't have the full
- * registry — encoding falls back to structured-clone (the safer
- * superset), and decoding still routes correctly via the wire prefix.
- */
-export function makePerCallChannelOptions(
-  defs: ReadonlyMap<string, { jsonSerializable?: boolean }>,
-): Pick<ChannelOptions, 'serialize' | 'deserialize'> {
-  const pendingRequestMethods = new Map<string, string>()
-
-  return {
-    serialize(msg: BirpcMessage): string {
-      let method: string | undefined
-      if (msg.t === 'q') {
-        method = msg.m
-      }
-      else {
-        method = pendingRequestMethods.get(msg.i)
-        pendingRequestMethods.delete(msg.i)
-      }
-      const useJson = isJsonMethod(defs, method)
-      if (useJson)
-        return strictJsonStringify(msg, method ?? '')
-      return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
-    },
-    deserialize(raw: string): BirpcMessage {
-      const msg: BirpcMessage = raw.startsWith(STRUCTURED_CLONE_PREFIX)
-        ? (structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length)) as BirpcMessage)
-        : (JSON.parse(raw) as BirpcMessage)
-      if (msg.t === 'q' && msg.i && msg.m)
-        pendingRequestMethods.set(msg.i, msg.m)
-      return msg
-    },
-  }
-}
 
 /**
  * `JSON.stringify` with a single-pass strict replacer.

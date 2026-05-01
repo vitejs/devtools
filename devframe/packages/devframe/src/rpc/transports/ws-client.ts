@@ -1,6 +1,11 @@
 import type { ChannelOptions } from 'birpc'
 import type { RpcFunctionDefinitionAny } from '../types'
-import { makePerCallChannelOptions } from '../serialization'
+import {
+  strictJsonStringify,
+  STRUCTURED_CLONE_PREFIX,
+  structuredCloneParse,
+  structuredCloneStringify,
+} from '../serialization'
 
 export interface WsRpcChannelOptions {
   url: string
@@ -52,7 +57,10 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
     onDisconnected(e)
   })
 
-  const perCall = makePerCallChannelOptions(definitions)
+  // Per-channel state: maps an incoming request id to its method name
+  // so the matching outgoing response can independently look the
+  // method up in `definitions` and pick the right encoder.
+  const pendingRequestMethods = new Map<string, string>()
   return {
     on: (handler: (data: string) => void) => {
       ws.addEventListener('message', (e) => {
@@ -71,7 +79,27 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
         ws.addEventListener('open', handler)
       }
     },
-    serialize: perCall.serialize,
-    deserialize: perCall.deserialize,
+    serialize: (msg: any): string => {
+      let method: string | undefined
+      if (msg.t === 'q') {
+        method = msg.m
+      }
+      else {
+        method = pendingRequestMethods.get(msg.i)
+        pendingRequestMethods.delete(msg.i)
+      }
+      const useJson = !!method && definitions.get(method)?.jsonSerializable === true
+      if (useJson)
+        return strictJsonStringify(msg, method ?? '')
+      return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
+    },
+    deserialize: (raw: string): any => {
+      const msg: any = raw.startsWith(STRUCTURED_CLONE_PREFIX)
+        ? structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length))
+        : JSON.parse(raw)
+      if (msg.t === 'q' && msg.i && msg.m)
+        pendingRequestMethods.set(msg.i, msg.m)
+      return msg
+    },
   }
 }

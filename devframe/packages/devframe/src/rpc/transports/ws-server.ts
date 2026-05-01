@@ -5,7 +5,12 @@ import type { WebSocket } from 'ws'
 import type { RpcFunctionDefinitionAny } from '../types'
 import { createServer as createHttpsServer } from 'node:https'
 import { WebSocketServer } from 'ws'
-import { makePerCallChannelOptions } from '../serialization'
+import {
+  strictJsonStringify,
+  STRUCTURED_CLONE_PREFIX,
+  structuredCloneParse,
+  structuredCloneStringify,
+} from '../serialization'
 
 export interface DevToolsNodeRpcSessionMeta {
   id: number
@@ -91,10 +96,11 @@ export function attachWsRpcTransport<
       subscribedStates: new Set(),
     }
 
-    // Per-connection serializer state (the pending request-id map that
-    // mirrors method metadata from request to response). Each WS gets
-    // its own so request-id spaces don't collide across sessions.
-    const perCall = makePerCallChannelOptions(definitions)
+    // Per-connection state: maps an incoming request id to its method
+    // name so the matching outgoing response can look the method back
+    // up in `definitions` and pick the right encoder. One map per WS
+    // session — request-id spaces don't collide across sessions.
+    const pendingRequestMethods = new Map<string, string>()
     const channel: ChannelOptions = {
       post: (data) => {
         ws.send(data)
@@ -104,8 +110,28 @@ export function attachWsRpcTransport<
           fn(data.toString())
         })
       },
-      serialize: serializeOverride ?? perCall.serialize,
-      deserialize: deserializeOverride ?? perCall.deserialize,
+      serialize: serializeOverride ?? ((msg: any): string => {
+        let method: string | undefined
+        if (msg.t === 'q') {
+          method = msg.m
+        }
+        else {
+          method = pendingRequestMethods.get(msg.i)
+          pendingRequestMethods.delete(msg.i)
+        }
+        const useJson = !!method && definitions.get(method)?.jsonSerializable === true
+        if (useJson)
+          return strictJsonStringify(msg, method ?? '')
+        return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`
+      }),
+      deserialize: deserializeOverride ?? ((raw: string): any => {
+        const msg: any = raw.startsWith(STRUCTURED_CLONE_PREFIX)
+          ? structuredCloneParse(raw.slice(STRUCTURED_CLONE_PREFIX.length))
+          : JSON.parse(raw)
+        if (msg.t === 'q' && msg.i && msg.m)
+          pendingRequestMethods.set(msg.i, msg.m)
+        return msg
+      }),
       meta,
     }
 

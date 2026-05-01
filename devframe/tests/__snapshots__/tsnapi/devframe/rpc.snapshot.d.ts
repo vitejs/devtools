@@ -12,7 +12,6 @@ export { EntriesToObject }
 export { getDefinitionsWithDumps }
 export { getRpcHandler }
 export { getRpcResolvedSetupResult }
-export { makePerCallChannelOptions }
 export { RpcArgsSchema }
 export { RpcCacheManager }
 export { RpcCacheOptions }

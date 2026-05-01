@@ -9,7 +9,6 @@ export { dumpFunctions }
 export { getDefinitionsWithDumps }
 export { getRpcHandler }
 export { getRpcResolvedSetupResult }
-export { makePerCallChannelOptions }
 export { RpcCacheManager }
 export { RpcFunctionsCollectorBase }
 export { strictJsonStringify }
