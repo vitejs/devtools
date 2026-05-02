@@ -20,3 +20,10 @@ export interface CreateCliOptions {
 // #region Functions
 export declare function createCli(_: DevtoolDefinition, _?: CreateCliOptions): CliHandle;
 // #endregion
+
+// #region Other
+export { CliFlagsSchema }
+export { defineCliFlags }
+export { InferCliFlags }
+export { parseCliFlags }
+// #endregion

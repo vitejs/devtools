@@ -127,8 +127,9 @@ const payload = await rpc.call('my-tool:get-payload')
 For flags that are specific to your tool, declare them as valibot schemas so they're validated at parse time and typed at the call site:
 
 ```ts
-import type { InferCliFlags } from 'devframe'
-import { defineCliFlags, defineDevtool } from 'devframe'
+import type { InferCliFlags } from 'devframe/adapters/cli'
+import { defineDevtool } from 'devframe'
+import { defineCliFlags } from 'devframe/adapters/cli'
 import * as v from 'valibot'
 
 const appFlags = defineCliFlags({
@@ -255,6 +256,59 @@ const state = await rpc.sharedState.get('my-tool:version')
 state.on('updated', () => fetchPayload().then(setData))
 ```
 
+## Use your own CLI framework
+
+`createCli` is a convenience wrapper around three lower-level factories — reach for them directly when you already own a CLI framework (commander, yargs, oclif, hand-rolled cac) or want a different command structure:
+
+| Building block | Entry |
+|----------------|-------|
+| `createDevServer(def, opts?)` | `devframe/adapters/dev` |
+| `createBuild(def, opts?)`     | `devframe/adapters/build` |
+| `createMcpServer(def, opts?)` | `devframe/adapters/mcp` |
+
+Each one runs against the same `DevtoolDefinition` you'd pass to `createCli`. A commander example:
+
+```ts [src/cli.ts]
+import process from 'node:process'
+import { Command } from 'commander'
+import { defineDevtool } from 'devframe'
+import { createBuild } from 'devframe/adapters/build'
+import { createDevServer } from 'devframe/adapters/dev'
+
+const devtool = defineDevtool({
+  id: 'my-tool',
+  name: 'My Tool',
+  cli: { distDir: './dist/public', port: 7777 },
+  setup(ctx, { flags }) { /* ... */ },
+})
+
+const program = new Command('my-tool')
+
+program
+  .command('dev', { isDefault: true })
+  .option('-p, --port <port>', 'Port', '7777')
+  .option('--config <file>', 'Config file path')
+  .action(async (opts) => {
+    const handle = await createDevServer(devtool, {
+      port: Number(opts.port),
+      flags: { config: opts.config },
+      onReady: ({ origin }) => console.log(`Ready at ${origin}`),
+    })
+    process.on('SIGINT', () => handle.close().then(() => process.exit(0)))
+  })
+
+program
+  .command('build')
+  .option('--out-dir <dir>', 'Output directory', 'dist-static')
+  .action(opts => createBuild(devtool, { outDir: opts.outDir }))
+
+await program.parseAsync()
+```
+
+`createDevServer` returns the underlying `StartedServer` handle (`origin`, `port`, `app`, `wss`, `rpcGroup`, `close()`) so the surrounding program can drive graceful shutdown — SIGINT, hot reload, integration tests.
+
+For typed flag schemas, `parseCliFlags(schema, rawBag)` (from `devframe/adapters/cli`) validates a commander/yargs flag bag against a `CliFlagsSchema` (the same `defineCliFlags(...)` value you'd put on `cli.flags`). Typed-schema validation isn't tied to cac.
+
 ## Why this shape
 
 - **One command, one binary.** `createCli` is a complete CLI — dev, build, spa, mcp all from a single `defineDevtool` value.
@@ -267,5 +321,6 @@ state.on('updated', () => fetchPayload().then(setData))
 
 - [Devtool Definition](./devtool-definition) — field reference
 - [Adapters → CLI](./adapters#cli) — full CLI adapter reference including `configureCli` and mount-path rules
+- [Adapters → Dev](./adapters#dev) — `createDevServer` reference for bring-your-own-CLI integration
 - [Client](./client) — `connectDevtool`, shared state, caching
 - [Agent-Native](./agent-native) — exposing your tool to Claude Desktop, Cursor, etc.

@@ -19,9 +19,7 @@ export { AgentResourceInput }
 export { AgentTool }
 export { AgentToolInput }
 export { ClientScriptEntry }
-export { CliFlagsSchema }
 export { ConnectionMeta }
-export { defineCliFlags }
 export { defineDevtool }
 export { DevtoolBrowserContext }
 export { DevtoolCliOptions }
@@ -99,7 +97,6 @@ export { EntriesToObject }
 export { EventEmitter }
 export { EventsMap }
 export { EventUnsubscribe }
-export { InferCliFlags }
 export { JsonRenderElement }
 export { JsonRenderer }
 export { JsonRenderSpec }

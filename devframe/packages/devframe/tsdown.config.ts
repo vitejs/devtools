@@ -19,6 +19,7 @@ export default defineConfig({
     'utils/state': 'src/utils/state.ts',
     'utils/when': 'src/utils/when.ts',
     'adapters/cli': 'src/adapters/cli.ts',
+    'adapters/dev': 'src/adapters/dev.ts',
     'adapters/build': 'src/adapters/build.ts',
     'adapters/vite': 'src/adapters/vite.ts',
     'adapters/kit': 'src/adapters/kit.ts',

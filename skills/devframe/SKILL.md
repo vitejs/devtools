@@ -25,6 +25,7 @@ All adapter factories share the shape `createXxx(devtoolDef, options?)`.
 | Author goal | Factory | Entry |
 |-------------|---------|-------|
 | Standalone CLI for local use | `createCli(def, options?)` | `devframe/adapters/cli` |
+| Run the dev server programmatically (any CLI framework) | `createDevServer(def, options?)` | `devframe/adapters/dev` |
 | Mount a SPA in an existing Vite dev server | `createVitePlugin(def, options?)` | `devframe/adapters/vite` |
 | Self-contained static deploy with baked data | `createBuild(def, options?)` | `devframe/adapters/build` |
 | Integrate into Vite DevTools | `createKitPlugin(def, options?)` | `devframe/adapters/kit` |
@@ -332,6 +333,8 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 | `build` | Static snapshot → `./dist-static/` (configurable via `--out-dir`) |
 | `spa` | Deployable SPA → `./dist-spa/` |
 | `mcp` | stdio MCP server (experimental) |
+
+**Bring your own CLI framework?** `createCli` is just a cac wrapper around three peer factories — `createDevServer` (`devframe/adapters/dev`), `createBuild` (`devframe/adapters/build`), and `createMcpServer` (`devframe/adapters/mcp`). Use them directly with commander/yargs/oclif when `createCli`'s baked-in command structure doesn't fit. `createDevServer` returns a `StartedServer` handle (`origin`, `port`, `app`, `wss`, `close()`) so you can wire SIGINT / hot-reload teardown into the surrounding program. `parseCliFlags(schema, raw)` and `defineCliFlags(...)` (both from `devframe/adapters/cli`) validate an arbitrary flag bag against a `CliFlagsSchema` — typed flags aren't tied to cac.
 
 ## Testing
 
