@@ -13,6 +13,7 @@ All adapter factories share the same shape: `createXxx(devtoolDef, options?)`.
 | Adapter | Entry | Factory | Best for |
 |---------|-------|---------|----------|
 | [`cli`](#cli) | `devframe/adapters/cli` | `createCli(def, options?)` | Standalone tools run via `node ./my-tool.js` |
+| [`dev`](#dev) | `devframe/adapters/dev` | `createDevServer(def, options?)` | Run the dev server programmatically — drive it from any CLI framework |
 | [`vite`](#vite) | `devframe/adapters/vite` | `createVitePlugin(def, options?)` | Mount a tool's UI inside an existing Vite dev server |
 | [`build`](#build) | `devframe/adapters/build` | `createBuild(def, options?)` | Offline reports, CI artifacts, deployable SPA snapshots |
 | [`kit`](#kit) | `devframe/adapters/kit` | `createKitPlugin(def, options?)` | Integrating into Vite DevTools Kit |
@@ -112,6 +113,65 @@ await createCli(devtool, {
 ```
 
 Structured diagnostics (via `logs-sdk`) continue to surface through their normal reporters.
+
+### Use your own CLI framework
+
+When `createCli`'s baked-in `dev` / `build` / `mcp` triplet doesn't fit — e.g. integrating devframe into an existing commander/yargs program, or exposing a different command structure — drop down to the peer factories. Same `DevtoolDefinition`, different shell:
+
+| Building block | Entry | Purpose |
+|----------------|-------|---------|
+| [`createDevServer(def, opts?)`](#dev) | `devframe/adapters/dev` | h3 + WebSocket RPC + SPA mount |
+| [`createBuild(def, opts?)`](#build) | `devframe/adapters/build` | Static deploy |
+| [`createMcpServer(def, opts?)`](#mcp) | `devframe/adapters/mcp` | stdio MCP server |
+| `parseCliFlags(schema, raw)` | `devframe/adapters/cli` | Validate a flag bag against a `CliFlagsSchema` |
+
+See the [Standalone CLI guide](./standalone-cli#use-your-own-cli-framework) for a worked commander example.
+
+## Dev
+
+The `dev` adapter is the building block `createCli` uses internally — h3 + WebSocket RPC + the author's SPA mounted at the resolved base path. Reach for it directly when you want to mount the dev server inside an existing CLI program (commander, yargs, hand-rolled CAC) or attach custom middleware to the underlying h3 app.
+
+```ts
+import { createDevServer } from 'devframe/adapters/dev'
+import devtool from './devtool'
+
+const handle = await createDevServer(devtool, {
+  port: 7777,
+  onReady: ({ origin }) => console.log(`Ready at ${origin}`),
+})
+
+// graceful shutdown — SIGINT, hot reload, test teardown
+process.on('SIGINT', () => handle.close().then(() => process.exit(0)))
+```
+
+`createDevServer` returns the underlying `StartedServer` (origin, port, h3 app, WS server, RPC group, `close()`), so callers integrate cleanly into their own process lifecycle.
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `host` | `def.cli?.host ?? 'localhost'` | Bind host. |
+| `port` | resolved via `resolveDevServerPort` | Port to listen on. |
+| `flags` | `{}` | Parsed flag bag forwarded to `setup(ctx, { flags })`. |
+| `distDir` | `def.cli?.distDir` | Required — throws when neither is set. |
+| `basePath` | `resolveBasePath(def, 'standalone')` | Mount path override. |
+| `app` | fresh h3 app | Pre-configured h3 app to mount onto (custom middleware, auth, extra static assets). |
+| `openBrowser` | resolves from `flags.open` / `def.cli?.open` | Explicit on/off override. `false` disables; a string opens that relative path. |
+| `onReady` | — | Callback when the WS server is bound. |
+
+### Port resolution
+
+`resolveDevServerPort(def, opts?)` is exposed separately so authors can resolve a port up-front (to print it, log it, etc.) before starting the server:
+
+```ts
+import { resolveDevServerPort } from 'devframe/adapters/dev'
+
+const port = await resolveDevServerPort(devtool, { host: '127.0.0.1' })
+// honors def.cli?.port / portRange / random
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `host` | `def.cli?.host ?? 'localhost'` | Bind host (passed to `get-port-please` for in-use detection). |
+| `defaultPort` | `def.cli?.port ?? 9999` | Override the preferred port. |
 
 ## Mount paths
 

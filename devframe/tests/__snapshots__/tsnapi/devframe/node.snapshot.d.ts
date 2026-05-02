@@ -58,26 +58,6 @@ export interface RemoteTokenRecord {
   origin: string;
   originLock: boolean;
 }
-export interface StartedServer {
-  origin: string;
-  port: number;
-  app: App;
-  wss: WebSocketServer;
-  rpcGroup: BirpcGroup<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>;
-  close: () => Promise<void>;
-}
-export interface StartHttpAndWsOptions {
-  context: DevToolsNodeContext;
-  host?: string;
-  port: number;
-  app?: App;
-  auth?: boolean;
-  onReady?: (_: {
-    origin: string;
-    port: number;
-    app: App;
-  }) => void | Promise<void>;
-}
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest;
   files: Record<string, StaticRpcDumpFile>;
@@ -242,7 +222,6 @@ export declare function refreshTempAuthToken(): string;
 export declare function revokeActiveConnectionsForToken(_: DevToolsNodeContext, _: string): Promise<void>;
 export declare function revokeAuthToken(_: DevToolsNodeContext, _: SharedState<InternalAnonymousAuthStorage>, _: string): Promise<void>;
 export declare function setPendingAuth(_: PendingAuthRequest | null): void;
-export declare function startHttpAndWs(_: StartHttpAndWsOptions): Promise<StartedServer>;
 // #endregion
 
 // #region Variables
@@ -250,4 +229,10 @@ export declare const ContextUtils: {
   createSimpleClientScript(fn: string | ((ctx: any) => void)): ClientScriptEntry;
 };
 export declare const internalContextMap: WeakMap<DevToolsNodeContext, DevToolsInternalContext>;
+// #endregion
+
+// #region Other
+export { StartedServer }
+export { startHttpAndWs }
+export { StartHttpAndWsOptions }
 // #endregion

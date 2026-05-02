@@ -57,6 +57,9 @@
       "devframe/adapters/cli": [
         "./devframe/packages/devframe/src/adapters/cli.ts"
       ],
+      "devframe/adapters/dev": [
+        "./devframe/packages/devframe/src/adapters/dev.ts"
+      ],
       "devframe/adapters/build": [
         "./devframe/packages/devframe/src/adapters/build.ts"
       ],

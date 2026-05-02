@@ -23,6 +23,7 @@ export const alias = {
   'devframe/utils/state': df('devframe/src/utils/state.ts'),
   'devframe/utils/when': df('devframe/src/utils/when.ts'),
   'devframe/adapters/cli': df('devframe/src/adapters/cli.ts'),
+  'devframe/adapters/dev': df('devframe/src/adapters/dev.ts'),
   'devframe/adapters/build': df('devframe/src/adapters/build.ts'),
   'devframe/adapters/vite': df('devframe/src/adapters/vite.ts'),
   'devframe/adapters/kit': df('devframe/src/adapters/kit.ts'),

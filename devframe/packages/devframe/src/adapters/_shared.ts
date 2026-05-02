@@ -14,7 +14,7 @@ export function resolveBasePath(def: DevtoolDefinition, kind: DevtoolDeploymentK
   return kind === 'standalone' ? '/' : `/.${def.id}/`
 }
 
-function normalizeBasePath(base: string): string {
+export function normalizeBasePath(base: string): string {
   let out = base.startsWith('/') ? base : `/${base}`
   if (!out.endsWith('/'))
     out = `${out}/`

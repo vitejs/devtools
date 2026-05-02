@@ -1,20 +1,15 @@
 import type { CAC } from 'cac'
 import type { App } from 'h3'
-import type { DevtoolDefinition, DevtoolSetupInfo } from '../types/devtool'
+import type { DevtoolDefinition } from '../types/devtool'
 import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
-import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
-import { resolve } from 'pathe'
-import sirv from 'sirv'
-import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
-import { createHostContext } from '../node/context'
-import { createH3DevToolsHost } from '../node/host-h3'
-import { startHttpAndWs } from '../node/server'
-import { resolveBasePath } from './_shared'
 import { createBuild } from './build'
+import { createDevServer, resolveDevServerPort } from './dev'
 import { flagKeyToOption, isBooleanFlag, parseCliFlags } from './flags'
+
+export { defineCliFlags, parseCliFlags } from './flags'
+export type { CliFlagsSchema, InferCliFlags } from './flags'
 
 export interface CreateCliOptions {
   /** Default port for `dev` (default: 9999). */
@@ -71,22 +66,15 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
   }
 
   devCommand.action(async (_args: unknown, rawFlags: CliFlags) => {
-    const flags = resolveTypedFlags(d, rawFlags)
-    const host = flags.host as string ?? defaultHost
-    // Only include optional fields when set — `get-port-please` spreads
-    // `_userOptions` over its defaults, so `portRange: undefined` wipes
-    // out the internal `[]` and crashes when the function tries to
-    // iterate it.
-    const portOptions: Parameters<typeof getPort>[0] = {
-      port: defaultPort,
+    const flags = resolveTypedFlags(d, rawFlags) as CliFlags
+    const host = (flags.host as string | undefined) ?? defaultHost
+    const port = (flags.port as number | undefined) ?? await resolveDevServerPort(d, { host, defaultPort })
+    await createDevServer(d, {
       host,
-    }
-    if (d.cli?.portRange)
-      portOptions.portRange = d.cli.portRange
-    if (d.cli?.random)
-      portOptions.random = d.cli.random
-    const port = flags.port as number ?? await getPort(portOptions)
-    await runDevServer(d, { host, port, flags: flags as CliFlags }, options)
+      port,
+      flags,
+      onReady: options.onReady,
+    })
   })
 
   cli
@@ -147,89 +135,4 @@ function resolveTypedFlags(d: DevtoolDefinition, raw: Record<string, unknown>): 
     process.exit(1)
   }
   return flags
-}
-
-interface DevServerOptions {
-  host: string
-  port: number
-  flags: CliFlags
-}
-
-async function runDevServer(d: DevtoolDefinition, serverOptions: DevServerOptions, cliOptions: CreateCliOptions): Promise<void> {
-  const distDir = d.cli?.distDir
-  if (!distDir)
-    throw new Error(`[devframe] dev: no cli.distDir for "${d.id}". Set \`cli.distDir\` on the definition.`)
-
-  const app = createApp()
-  const origin = `http://${serverOptions.host}:${serverOptions.port}`
-  const basePath = resolveBasePath(d, 'standalone')
-
-  const host = createH3DevToolsHost({
-    origin,
-    mount: (base, dir) => {
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
-    },
-  })
-
-  const ctx = await createHostContext({
-    cwd: process.cwd(),
-    mode: 'dev',
-    host,
-  })
-  const setupInfo: DevtoolSetupInfo = { flags: serverOptions.flags }
-  await d.setup(ctx, setupInfo)
-
-  // Connection meta — the SPA fetches this to discover the RPC backend.
-  // In dev the WS endpoint shares the HTTP port, so the client only needs
-  // to know it's a websocket backend bound to that same port. The path
-  // sits at the SPA root (next to index.html) so the deployed SPA can
-  // discover it via a relative `./.connection.json` fetch.
-  const connectionMetaPath = `${basePath}${DEVTOOLS_CONNECTION_META_FILENAME}`
-  app.use(connectionMetaPath, eventHandler((event) => {
-    event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify({ backend: 'websocket', websocket: serverOptions.port }))
-  }))
-
-  app.use(basePath, fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })))
-
-  await startHttpAndWs({
-    context: ctx,
-    host: serverOptions.host,
-    port: serverOptions.port,
-    app,
-    auth: d.cli?.auth,
-    onReady: async (info) => {
-      await cliOptions.onReady?.(info)
-      await maybeOpenBrowser(d, serverOptions.flags, `${info.origin}${basePath}`)
-    },
-  })
-}
-
-async function maybeOpenBrowser(d: DevtoolDefinition, flags: CliFlags, origin: string): Promise<void> {
-  const cliOpen = d.cli?.open
-  // `--no-open` sets flags.open to `false`; `--open` to `true`; unset is undefined.
-  const shouldOpen = flags.open ?? (cliOpen !== undefined && cliOpen !== false)
-  if (!shouldOpen)
-    return
-  const target = typeof flags.open === 'string'
-    ? resolveOpenTarget(origin, flags.open)
-    : typeof cliOpen === 'string'
-      ? resolveOpenTarget(origin, cliOpen)
-      : origin
-  try {
-    const { default: open } = await import('open')
-    await open(target)
-  }
-  catch {
-    // `open` is optional; failing to launch a browser shouldn't break
-    // the dev server. The user can navigate manually.
-  }
-}
-
-function resolveOpenTarget(origin: string, target: string): string {
-  if (/^https?:/.test(target))
-    return target
-  if (target.startsWith('/'))
-    return origin.replace(/\/$/, '') + target
-  return origin.replace(/\/$/, '') + (target ? `/${target}` : '')
 }
