@@ -3,5 +3,5 @@
  */
 // #region Functions
 export function DevToolsIntegration(_) {}
-export async function runDevTools(_) {}
+export function runDevTools(_) {}
 // #endregion

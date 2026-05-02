@@ -3,11 +3,13 @@
  */
 // #region Interfaces
 export interface DevToolsIntegrationOptions {
-  config: ResolvedConfig;
+  config: unknown;
 }
 // #endregion
 
 // #region Functions
-export declare function DevToolsIntegration(_: DevToolsIntegrationOptions): Plugin;
+export declare function DevToolsIntegration(_: DevToolsIntegrationOptions): {
+  name: string;
+};
 export declare function runDevTools(_: unknown): Promise<void>;
 // #endregion
