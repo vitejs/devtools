@@ -5,6 +5,7 @@ import { logger } from '../../diagnostics'
 export const openInFinder = defineRpcFunction({
   name: 'vite:core:open-in-finder',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       handler: async (path: string) => {

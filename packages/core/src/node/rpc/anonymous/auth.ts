@@ -21,6 +21,7 @@ const AUTH_TIMEOUT_MS = 60_000
 export const anonymousAuth = defineRpcFunction({
   name: 'vite:anonymous:auth',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     const internal = getInternalContext(context)
     const storage = internal.storage.auth

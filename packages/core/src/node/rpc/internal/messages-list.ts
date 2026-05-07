@@ -12,6 +12,7 @@ export interface MessagesListResult {
 export const messagesList = defineRpcFunction({
   name: 'devtoolskit:internal:messages:list',
   type: 'static',
+  jsonSerializable: true,
   setup: (context) => {
     const host = context.messages as unknown as DevToolsMessagesHost
     return {

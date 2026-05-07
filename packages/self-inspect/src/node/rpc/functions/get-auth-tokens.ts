@@ -4,6 +4,7 @@ import { getInternalContext } from '@vitejs/devtools/internal'
 export const getAuthTokens = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-auth-tokens',
   type: 'query',
+  jsonSerializable: true,
   setup: (context) => {
     const internal = getInternalContext(context)
     const storage = internal.storage.auth

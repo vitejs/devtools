@@ -6,6 +6,7 @@ export const rolldownListSessions = defineRpcFunction({
   name: 'vite:rolldown:list-sessions',
   cacheable: true,
   type: 'static',
+  jsonSerializable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {
