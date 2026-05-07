@@ -4,6 +4,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const getDevtoolsPlugins = defineRpcFunction({
   name: 'devtoolskit:self-inspect:get-devtools-plugins',
   type: 'query',
+  jsonSerializable: true,
   agent: {
     description: 'List every Vite plugin involved in the current project, flagging which ones export a `devtools` hook (and whether that hook sets up any devtools surface). Read-only.',
     title: 'List devtools plugins',
