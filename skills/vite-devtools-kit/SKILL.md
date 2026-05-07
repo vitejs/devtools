@@ -555,6 +555,36 @@ fileReadable.pipeTo(upload.writable, { signal: upload.signal })
 
 For chat-style UIs, combine: keep the **conversation log** in shared state and stream **active responses** through the channel. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat). Full reference: [Streaming Patterns](./references/streaming-patterns.md).
 
+### Async Generator RPC
+
+For the common case of "ship the yields of an `async function*` to the client", set `type: 'generator'` instead of building a channel + action by hand. The framework auto-allocates the sink and `rpc.call(...)` resolves to a `StreamReader<Y>`:
+
+```ts
+import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { getCurrentRpcStream } from 'devframe/node'
+
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:tokenize',
+  type: 'generator',
+  args: [v.object({ prompt: v.string() })],
+  yields: v.string(),
+  handler: async function* ({ prompt }) {
+    const { signal } = getCurrentRpcStream()!
+    for (const token of fakeLLM(prompt)) {
+      if (signal.aborted) return
+      yield token
+    }
+  },
+}))
+
+// Client — note `await rpc.call(...)` returns a reader, not a value
+const reader = await rpc.call('my-plugin:tokenize', { prompt })
+for await (const token of reader) appendToken(token)
+reader.cancel()
+```
+
+`getCurrentRpcStream()` is `AsyncLocalStorage`-backed — returns `{ signal, streamId, session } | undefined` from inside the handler body. Generators reject `agent`, `cacheable`, `dump`, `snapshot`, and `jsonSerializable: true` ([DF0033](https://devtools.vite.dev/devframe/errors/DF0033)–[DF0036](https://devtools.vite.dev/devframe/errors/DF0036)). They share one hidden channel; each call gets its own stream id. Reach for the channel API directly when you need fan-out, multiple subscribers per stream, or client→server uploads.
+
 ## Client Scripts
 
 For action buttons and custom renderers:

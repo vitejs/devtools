@@ -1,4 +1,5 @@
 import type { GenericSchema } from 'valibot'
+import type { StreamReader } from '../utils/streaming-channel'
 import type { InferArgsType, InferReturnType } from './utils'
 
 export type { BirpcFn, BirpcReturn } from 'birpc'
@@ -15,10 +16,13 @@ export type EntriesToObject<T extends readonly [string, any][]> = {
  * - action: A function that performs an action (no data returned)
  * - event: A function that emits an event (no data returned), and does not wait for a response
  * - query: A function that queries a resource
+ * - generator: An async-generator function that streams yielded values to the caller
+ *   over the existing streaming-channel transport. Client-side `rpc.call(...)`
+ *   resolves to a `StreamReader<Y>`; cancellation flows through the reader.
  *
  * By default, the function is a query function.
  */
-export type RpcFunctionType = 'static' | 'action' | 'event' | 'query'
+export type RpcFunctionType = 'static' | 'action' | 'event' | 'query' | 'generator'
 
 /**
  * Agent exposure settings for an RPC function. When this field is set,
@@ -199,6 +203,90 @@ export interface RpcDumpCollectionOptions {
 }
 
 /**
+ * Generator-specific RPC function definition. Reuses the `RS` schema slot
+ * as the *yields* schema (the type of each emitted value). The handler
+ * returns an `AsyncGenerator<Y>`; the framework drains it into a stream
+ * sink on the hidden `'devframe:rpc:generators'` channel.
+ *
+ * Generators are non-cacheable, cannot have a dump, snapshot, or agent
+ * exposure, and never run through the JSON-strict serializer (chunks use
+ * structured-clone via the existing streaming protocol).
+ */
+export interface RpcGeneratorFunctionDefinition<
+  NAME extends string,
+  ARGS extends any[],
+  AS extends RpcArgsSchema | undefined,
+  RS extends RpcReturnSchema | undefined,
+  CONTEXT,
+> {
+  /** Function name (unique identifier) */
+  name: NAME
+  /** Generator type. */
+  type: 'generator'
+  /** Valibot schema array for validating function arguments */
+  args?: AS
+  /**
+   * Valibot schema for the *type of each yielded value* (analogous to
+   * `returns` for `query`). Optional but recommended — drives client-side
+   * type inference of `StreamReader<Y>`.
+   */
+  yields?: RS
+  /**
+   * Per-stream replay-buffer size. Defaults to 256; floored to 1.
+   * Required ≥1 because the client subscribe lands a few ms after the
+   * server's first yield, so early chunks must replay.
+   */
+  replayWindow?: number
+  /**
+   * Milliseconds a closed stream is retained on the server after its
+   * last subscriber leaves. Defaults to 30_000.
+   */
+  closedStreamRetention?: number
+  /**
+   * Generators do not run through the strict-JSON encoder — yields
+   * always travel via `structured-clone` over the streaming-channel
+   * transport. Setting this throws DF0036 at registration.
+   */
+  jsonSerializable?: undefined
+  /**
+   * Generators are not cacheable — caching a streaming response would
+   * replay a stale `streamId` pointing to a closed stream. Throws
+   * DF0036 at registration.
+   */
+  cacheable?: undefined
+  /**
+   * Generators do not have an `agent` exposure (streaming-MCP is
+   * deferred). Throws DF0033 at registration.
+   */
+  agent?: undefined
+  /** Generators do not return a single value — use `yields` instead. */
+  returns?: undefined
+  /** Generators do not support dumps. Throws DF0027 at registration. */
+  dump?: undefined
+  /** Generators do not support snapshot. Throws DF0028 at registration. */
+  snapshot?: undefined
+  /** Setup function called with context to initialize handler */
+  setup?: (
+    context: CONTEXT,
+  ) => Thenable<RpcFunctionSetupResult<
+    AS extends RpcArgsSchema ? InferArgsType<AS> : ARGS,
+    AsyncGenerator<RS extends RpcReturnSchema ? InferReturnType<RS> : unknown>
+  >>
+  /** Async generator handler. Must be `async function*`. */
+  handler?: (
+    ...args: AS extends RpcArgsSchema ? InferArgsType<AS> : ARGS
+  ) => AsyncGenerator<RS extends RpcReturnSchema ? InferReturnType<RS> : unknown>
+  __resolved?: RpcFunctionSetupResult<
+    AS extends RpcArgsSchema ? InferArgsType<AS> : ARGS,
+    AsyncGenerator<RS extends RpcReturnSchema ? InferReturnType<RS> : unknown>
+  >
+  __promise?: Thenable<RpcFunctionSetupResult<
+    AS extends RpcArgsSchema ? InferArgsType<AS> : ARGS,
+    AsyncGenerator<RS extends RpcReturnSchema ? InferReturnType<RS> : unknown>
+  >>
+}
+
+/**
  * RPC function definition with optional dump support.
  */
 export type RpcFunctionDefinition<
@@ -210,110 +298,128 @@ export type RpcFunctionDefinition<
   RS extends RpcReturnSchema | undefined = undefined,
   CONTEXT = undefined,
 >
-  = [AS, RS] extends [undefined, undefined]
-    ? {
-        /** Function name (unique identifier) */
-        name: NAME
-        /** Function type (static, action, event, or query) */
-        type?: TYPE
-        /** Whether the function results should be cached */
-        cacheable?: boolean
-        /** Valibot schema array for validating function arguments */
-        args?: AS
-        /** Valibot schema for validating function return value */
-        returns?: RS
-        /**
-         * Declares whether this function's args/return are JSON-serializable
-         * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
-         *
-         * - `true` — wire and dump use strict `JSON.stringify`; misshapen
-         *   values throw `DF0019` at the call site. Required for `agent`.
-         * - `false` (default) — `structured-clone-es` round-trips fancy
-         *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
-         */
-        jsonSerializable?: boolean
-        /**
-         * Expose this function to agents (e.g. via the MCP adapter).
-         * When omitted, the function is not agent-exposed (default-deny).
-         *
-         * @experimental
-         */
-        agent?: RpcFunctionAgentOptions
-        /** Setup function called with context to initialize handler and dump */
-        setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
-        /** Function implementation (required if setup doesn't provide one) */
-        handler?: (...args: ARGS) => RETURN
-        /** Dump definition (setup dump takes priority) */
-        dump?: RpcDump<ARGS, RETURN, CONTEXT>
-        /**
-         * Sugar for "query in dev, single baked snapshot in build": when
-         * `true` and no `dump` is provided, the build adapter runs the
-         * handler once with no arguments and stores the result as both a
-         * no-args record and the fallback so any call variant resolves
-         * to the same snapshot. Only valid on `query` (or untyped)
-         * functions — `static` already has equivalent default behavior.
-         */
-        snapshot?: boolean
-        __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
-        __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
-      }
-    : {
-        /** Function name (unique identifier) */
-        name: NAME
-        /** Function type (static, action, event, or query) */
-        type?: TYPE
-        /** Whether the function results should be cached */
-        cacheable?: boolean
-        /** Valibot schema array for validating function arguments */
-        args: AS
-        /** Valibot schema for validating function return value */
-        returns: RS
-        /**
-         * Declares whether this function's args/return are JSON-serializable
-         * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
-         *
-         * - `true` — wire and dump use strict `JSON.stringify`; misshapen
-         *   values throw `DF0019` at the call site. Required for `agent`.
-         * - `false` (default) — `structured-clone-es` round-trips fancy
-         *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
-         */
-        jsonSerializable?: boolean
-        /**
-         * Expose this function to agents (e.g. via the MCP adapter).
-         * When omitted, the function is not agent-exposed (default-deny).
-         *
-         * @experimental
-         */
-        agent?: RpcFunctionAgentOptions
-        /** Setup function called with context to initialize handler and dump */
-        setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
-        /** Function implementation (required if setup doesn't provide one) */
-        handler?: (...args: InferArgsType<AS>) => InferReturnType<RS>
-        /** Dump definition (setup dump takes priority) */
-        dump?: RpcDump<InferArgsType<AS>, InferReturnType<RS>, CONTEXT>
-        /**
-         * Sugar for "query in dev, single baked snapshot in build": when
-         * `true` and no `dump` is provided, the build adapter runs the
-         * handler once with no arguments and stores the result as both a
-         * no-args record and the fallback so any call variant resolves
-         * to the same snapshot. Only valid on `query` (or untyped)
-         * functions — `static` already has equivalent default behavior.
-         */
-        snapshot?: boolean
-        __resolved?: RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>
-        __promise?: Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
-      }
+  = TYPE extends 'generator'
+    ? RpcGeneratorFunctionDefinition<NAME, ARGS, AS, RS, CONTEXT>
+    : [AS, RS] extends [undefined, undefined]
+        ? {
+            /** Function name (unique identifier) */
+            name: NAME
+            /** Function type (static, action, event, or query) */
+            type?: TYPE
+            /** Whether the function results should be cached */
+            cacheable?: boolean
+            /** Valibot schema array for validating function arguments */
+            args?: AS
+            /** Valibot schema for validating function return value */
+            returns?: RS
+            /**
+             * Declares whether this function's args/return are JSON-serializable
+             * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
+             *
+             * - `true` — wire and dump use strict `JSON.stringify`; misshapen
+             *   values throw `DF0019` at the call site. Required for `agent`.
+             * - `false` (default) — `structured-clone-es` round-trips fancy
+             *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
+             */
+            jsonSerializable?: boolean
+            /**
+             * Expose this function to agents (e.g. via the MCP adapter).
+             * When omitted, the function is not agent-exposed (default-deny).
+             *
+             * @experimental
+             */
+            agent?: RpcFunctionAgentOptions
+            /** Setup function called with context to initialize handler and dump */
+            setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
+            /** Function implementation (required if setup doesn't provide one) */
+            handler?: (...args: ARGS) => RETURN
+            /** Dump definition (setup dump takes priority) */
+            dump?: RpcDump<ARGS, RETURN, CONTEXT>
+            /**
+             * Sugar for "query in dev, single baked snapshot in build": when
+             * `true` and no `dump` is provided, the build adapter runs the
+             * handler once with no arguments and stores the result as both a
+             * no-args record and the fallback so any call variant resolves
+             * to the same snapshot. Only valid on `query` (or untyped)
+             * functions — `static` already has equivalent default behavior.
+             */
+            snapshot?: boolean
+            __resolved?: RpcFunctionSetupResult<ARGS, RETURN>
+            __promise?: Thenable<RpcFunctionSetupResult<ARGS, RETURN>>
+          }
+        : {
+            /** Function name (unique identifier) */
+            name: NAME
+            /** Function type (static, action, event, or query) */
+            type?: TYPE
+            /** Whether the function results should be cached */
+            cacheable?: boolean
+            /** Valibot schema array for validating function arguments */
+            args: AS
+            /** Valibot schema for validating function return value */
+            returns: RS
+            /**
+             * Declares whether this function's args/return are JSON-serializable
+             * (no Map/Set/Date/BigInt/cycles/class instances/undefined/Symbol/Function).
+             *
+             * - `true` — wire and dump use strict `JSON.stringify`; misshapen
+             *   values throw `DF0019` at the call site. Required for `agent`.
+             * - `false` (default) — `structured-clone-es` round-trips fancy
+             *   types. Cannot be `agent`-exposed (registration throws `DF0018`).
+             */
+            jsonSerializable?: boolean
+            /**
+             * Expose this function to agents (e.g. via the MCP adapter).
+             * When omitted, the function is not agent-exposed (default-deny).
+             *
+             * @experimental
+             */
+            agent?: RpcFunctionAgentOptions
+            /** Setup function called with context to initialize handler and dump */
+            setup?: (context: CONTEXT) => Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
+            /** Function implementation (required if setup doesn't provide one) */
+            handler?: (...args: InferArgsType<AS>) => InferReturnType<RS>
+            /** Dump definition (setup dump takes priority) */
+            dump?: RpcDump<InferArgsType<AS>, InferReturnType<RS>, CONTEXT>
+            /**
+             * Sugar for "query in dev, single baked snapshot in build": when
+             * `true` and no `dump` is provided, the build adapter runs the
+             * handler once with no arguments and stores the result as both a
+             * no-args record and the fallback so any call variant resolves
+             * to the same snapshot. Only valid on `query` (or untyped)
+             * functions — `static` already has equivalent default behavior.
+             */
+            snapshot?: boolean
+            __resolved?: RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>
+            __promise?: Thenable<RpcFunctionSetupResult<InferArgsType<AS>, InferReturnType<RS>>>
+          }
 
 export type RpcFunctionDefinitionToFunction<T extends RpcFunctionDefinitionAny>
-  = T extends { args: infer AS, returns: infer RS }
+  = T extends { type: 'generator', args: infer AS, yields: infer YS }
     ? AS extends RpcArgsSchema
-      ? RS extends RpcReturnSchema
-        ? (...args: InferArgsType<AS>) => InferReturnType<RS>
+      ? YS extends RpcReturnSchema
+        ? (...args: InferArgsType<AS>) => Promise<StreamReader<InferReturnType<YS>>>
         : never
       : never
-    : T extends RpcFunctionDefinition<string, any, infer ARGS, infer RETURN, any, any, any>
-      ? (...args: ARGS) => RETURN
-      : never
+    : T extends { type: 'generator', yields: infer YS }
+      ? YS extends RpcReturnSchema
+        ? () => Promise<StreamReader<InferReturnType<YS>>>
+        : never
+      : T extends { type: 'generator', args: infer AS }
+        ? AS extends RpcArgsSchema
+          ? (...args: InferArgsType<AS>) => Promise<StreamReader<unknown>>
+          : never
+        : T extends { type: 'generator' }
+          ? (...args: any[]) => Promise<StreamReader<unknown>>
+          : T extends { args: infer AS, returns: infer RS }
+            ? AS extends RpcArgsSchema
+              ? RS extends RpcReturnSchema
+                ? (...args: InferArgsType<AS>) => InferReturnType<RS>
+                : never
+              : never
+            : T extends RpcFunctionDefinition<string, any, infer ARGS, infer RETURN, any, any, any>
+              ? (...args: ARGS) => RETURN
+              : never
 
 export type RpcFunctionDefinitionAny = RpcFunctionDefinition<string, any, any, any, any, any, any>
 export type RpcFunctionDefinitionAnyWithContext<CONTEXT = undefined> = RpcFunctionDefinition<string, any, any, any, any, any, CONTEXT>

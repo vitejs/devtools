@@ -240,6 +240,39 @@ Readable.fromWeb(reader.readable).pipe(targetNodeWritable)
 
 For chat-style UIs that combine both: keep the **conversation log** in shared state (survives reconnects), and use a streaming channel for **active responses**. The action that starts a response appends a placeholder to shared state; on producer close, commit the joined content back to shared state. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
 
+### Async generator RPC (recommended for token feeds)
+
+For the common "stream the yields of an async function* to the caller" shape, set `type: 'generator'` instead of building a channel + action by hand. The framework auto-allocates a sink, drains your yields, and the client receives a `StreamReader<Y>` directly from `rpc.call(...)`:
+
+```ts
+import { defineRpcFunction } from 'devframe'
+import { getCurrentRpcStream } from 'devframe/node'
+
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-inspector:tokenize',
+  type: 'generator',
+  args: [v.object({ prompt: v.string() })],
+  yields: v.string(),
+  replayWindow: 256, // default; floored to 1
+  handler: async function* ({ prompt }) {
+    const { signal } = getCurrentRpcStream()!
+    for (const token of fakeTokens(prompt)) {
+      if (signal.aborted) return
+      yield token
+    }
+  },
+}))
+
+// Client
+const reader = await rpc.call('my-inspector:tokenize', { prompt: 'Hi' })
+for await (const token of reader) appendToken(token)
+reader.cancel() // cooperative cancel; signal flips on the server
+```
+
+`getCurrentRpcStream()` is `AsyncLocalStorage`-backed (mirrors `getCurrentRpcSession()`) — returns `{ signal, streamId, session } | undefined`. For local server-side iteration without transport overhead, use `invokeLocalGenerator(rpc, name, ...args)` from `devframe/node`.
+
+Generators reject `agent`, `cacheable`, `dump`, `snapshot`, and `jsonSerializable: true` at registration ([DF0033](../docs/errors/DF0033)–[DF0036](../docs/errors/DF0036)). They share one hidden channel (`devframe:rpc:generators`); each call gets its own `streamId`. Drop down to `ctx.rpc.streaming.create()` directly when you need fan-out, multiple subscribers per stream, or client-to-server uploads.
+
 ## Dock entries
 
 Five entry types: `iframe` (full panel), `action` (client script on click), `custom-render` (mount into panel DOM), `launcher` (setup card + server callback), `json-render` (UI from a JSON spec, zero client code).

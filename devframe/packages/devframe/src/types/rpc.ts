@@ -124,8 +124,13 @@ export interface RpcStreamingChannel<T = unknown> {
    * (`write` / `close` / `error`) surface and a `WritableStream<T>` for
    * `pipeTo` consumption. The sink's `signal` aborts when every subscriber
    * disconnects or cancels.
+   *
+   * `replayWindow` overrides the channel-level default for this stream
+   * only (useful for `type: 'generator'` RPC functions that want a per-call
+   * buffer size). Floored to the channel's value if the channel was
+   * created without replay.
    */
-  start: (opts?: { id?: string }) => StreamSink<T>
+  start: (opts?: { id?: string, replayWindow?: number }) => StreamSink<T>
   /**
    * Convenience: start a stream and pipe a `ReadableStream<T>` into it.
    * The pipe uses `sink.signal` so cancellation propagates upstream.
@@ -159,6 +164,28 @@ export interface RpcStreamingChannel<T = unknown> {
    * the uploading client, which aborts its sink.
    */
   openInbound: (opts?: { id?: string }) => StreamReader<T>
+}
+
+/**
+ * Stream context exposed inside a `type: 'generator'` RPC handler via
+ * `getCurrentRpcStream()` (AsyncLocalStorage-backed). Mirrors the existing
+ * `getCurrentRpcSession()` pattern.
+ */
+export interface RpcGeneratorStreamContext {
+  /**
+   * Aborts when the consumer cancels the reader or the last subscriber
+   * disconnects. Generator handlers should poll this and return cleanly
+   * when it flips.
+   */
+  signal: AbortSignal
+  /** Stream id allocated for this call. Same as `StreamReader.id` on the client. */
+  streamId: string
+  /**
+   * Originating RPC session — captured at envelope time. Useful for
+   * per-session bookkeeping. May be `undefined` for `invokeLocal`-style
+   * calls that bypass the transport.
+   */
+  session: DevToolsNodeRpcSession | undefined
 }
 
 /**

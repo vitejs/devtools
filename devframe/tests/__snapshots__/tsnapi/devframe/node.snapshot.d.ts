@@ -58,6 +58,10 @@ export interface RemoteTokenRecord {
   origin: string;
   originLock: boolean;
 }
+export interface RpcGeneratorEnvelope {
+  __generator: true;
+  streamId: string;
+}
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest;
   files: Record<string, StaticRpcDumpFile>;
@@ -211,6 +215,7 @@ export declare class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevTools
 
 // #region Functions
 export declare function abortPendingAuth(): void;
+export declare function attachRpcGenerators(_: RpcFunctionsHost, _: RpcStreamingHost): void;
 export declare function collectStaticRpcDump(_: Iterable<RpcFunctionDefinitionAny>, _: any): Promise<StaticRpcDumpCollection>;
 export declare function consumeTempAuthToken(_: string, _: SharedState<InternalAnonymousAuthStorage>): string | null;
 export declare function createH3DevToolsHost(_: CreateH3DevToolsHostOptions): DevToolsHost;
@@ -218,9 +223,11 @@ export declare function createHostContext(_: CreateHostContextOptions): Promise<
 export declare function createRpcSharedStateServerHost(_: RpcFunctionsHost$1): RpcSharedStateHost;
 export declare function createRpcStreamingServerHost(_: RpcFunctionsHost$1): RpcStreamingHost;
 export declare function createStorage<T extends object>(_: CreateStorageOptions<T>): SharedState<T>;
+export declare function getCurrentRpcStream(): RpcGeneratorStreamContext | undefined;
 export declare function getInternalContext(_: DevToolsNodeContext): DevToolsInternalContext;
 export declare function getPendingAuth(): PendingAuthRequest | null;
 export declare function getTempAuthToken(): string;
+export declare function invokeLocalGenerator<Y = unknown>(_: RpcFunctionsHost, _: string, ..._: any[]): Promise<AsyncIterable<Y>>;
 export declare function isObject(_: unknown): value is Record<string, any>;
 export declare function normalizeHttpServerUrl(_: string, _: number | string): string;
 export declare function refreshTempAuthToken(): string;

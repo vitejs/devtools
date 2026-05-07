@@ -50,3 +50,7 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0030](./DF0030) | error | Unknown Stream ID | — |
 | [DF0031](./DF0031) | error | Write to Closed Stream | — |
 | [DF0032](./DF0032) | error | Streaming Channel Already Registered | — |
+| [DF0033](./DF0033) | error | Generator with Agent Exposure | — |
+| [DF0034](./DF0034) | error | Generator Handler Not Async-Iterable | — |
+| [DF0035](./DF0035) | error | Generator Missing Yields Schema | — |
+| [DF0036](./DF0036) | error | Generator Has Inapplicable Option | — |

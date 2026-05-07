@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { defineRpcFunction } from 'devframe'
+import { getCurrentRpcStream } from 'devframe/node'
 import { defineDevtool } from 'devframe/types'
 import { nanoid } from 'devframe/utils/nanoid'
 import * as v from 'valibot'
@@ -210,6 +211,34 @@ export default defineDevtool({
         history.mutate((draft) => {
           draft.messages.length = 0
         })
+      },
+    }))
+
+    // ─── Generator RPC demo ──────────────────────────────────────────────
+    // The action above (`:send`) wires shared-state plumbing and streaming
+    // by hand. The generator below shows the lower-friction alternative
+    // for token feeds that don't need history side-effects: declare a
+    // handler as `async function*` and the framework auto-allocates a
+    // sink, drains yields onto it, and gives callers back a
+    // `StreamReader<string>`. `getCurrentRpcStream()` exposes the abort
+    // signal for cooperative cancellation.
+    ctx.rpc.register(defineRpcFunction({
+      name: 'devframe-streaming-chat:tokenize',
+      type: 'generator',
+      args: [v.object({
+        prompt: v.string(),
+        intervalMs: v.optional(v.number(), 35),
+      })],
+      yields: v.string(),
+      replayWindow: 1024,
+      async* handler({ prompt, intervalMs = 35 }) {
+        const ctx = getCurrentRpcStream()
+        for (const token of fakeTokens(prompt)) {
+          if (ctx?.signal.aborted)
+            return
+          yield token
+          await new Promise(r => setTimeout(r, intervalMs))
+        }
       },
     }))
 

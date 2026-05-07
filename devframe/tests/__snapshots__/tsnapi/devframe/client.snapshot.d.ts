@@ -121,6 +121,7 @@ export type DockClientType = 'embedded' | 'standalone';
 // #endregion
 
 // #region Functions
+export declare function attachRpcGeneratorsClient(_: DevToolsRpcClient): void;
 export declare function connectDevtool(_?: DevToolsRpcClientOptions): Promise<DevToolsRpcClient>;
 export declare function createRpcStreamingClientHost(_: DevToolsRpcClient): RpcStreamingClientHost;
 export declare function getDevToolsClientContext(): DevToolsClientContext | undefined;

@@ -22,6 +22,15 @@ interface ServerStreamRecord<T = any> {
   sink: StreamSink<T>
   subscribers: Set<DevToolsNodeRpcSessionMeta>
   unbinders: (() => void)[]
+  /**
+   * End payload captured when the sink closes — preserved so late
+   * subscribers (during the retention window) see the same `:end` frame
+   * the live subscribers got. `undefined` means clean close; any other
+   * value is the error payload.
+   */
+  endPayload?: StreamErrorPayload | undefined
+  /** Whether `endPayload` was set. Distinguishes "not closed yet" from "closed cleanly". */
+  endCaptured?: boolean
   /** Timer scheduled when stream closes with no subscribers; cleared on resubscribe. */
   retentionTimer?: ReturnType<typeof setTimeout>
 }
@@ -129,7 +138,9 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       if (record.sink.closed) {
         rpc.broadcast({
           method: 'devframe:streaming:end',
-          args: [channelName, id, undefined],
+          // Replay the captured end payload (error or undefined) so late
+          // subscribers see the same terminal frame live subscribers got.
+          args: [channelName, id, record.endPayload],
           event: true,
           optional: true,
           filter: client => client.$meta === session.meta,
@@ -234,10 +245,10 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
     }
     channels.set(name, state)
 
-    function start(startOpts: { id?: string } = {}): StreamSink<T> {
+    function start(startOpts: { id?: string, replayWindow?: number } = {}): StreamSink<T> {
       const sink = createStreamSink<T>({
         id: startOpts.id,
-        replayWindow: state.options.replayWindow,
+        replayWindow: startOpts.replayWindow ?? state.options.replayWindow,
       })
 
       const record: ServerStreamRecord<T> = {
@@ -260,6 +271,11 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       )
       record.unbinders.push(
         sink.events.on('end', (error) => {
+          // Capture the end payload so late subscribers (within the
+          // closedStreamRetention window) see the same terminal frame
+          // live subscribers got — including errors.
+          record.endPayload = error
+          record.endCaptured = true
           rpc.broadcast({
             method: 'devframe:streaming:end',
             args: [name, sink.id, error],

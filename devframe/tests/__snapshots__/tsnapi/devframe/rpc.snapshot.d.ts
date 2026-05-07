@@ -34,6 +34,7 @@ export { RpcFunctionsCollector }
 export { RpcFunctionsCollectorBase }
 export { RpcFunctionSetupResult }
 export { RpcFunctionType }
+export { RpcGeneratorFunctionDefinition }
 export { RpcReturnSchema }
 export { strictJsonStringify }
 export { STRUCTURED_CLONE_PREFIX }

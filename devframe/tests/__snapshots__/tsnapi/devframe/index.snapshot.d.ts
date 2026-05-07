@@ -105,6 +105,7 @@ export { RemoteDockOptions }
 export { RpcBroadcastOptions }
 export { RpcFunctionAgentOptions }
 export { RpcFunctionsHost }
+export { RpcGeneratorStreamContext }
 export { RpcSharedStateGetOptions }
 export { RpcSharedStateHost }
 export { RpcStreamingChannel }

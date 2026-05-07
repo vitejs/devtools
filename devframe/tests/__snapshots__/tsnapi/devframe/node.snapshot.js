@@ -13,6 +13,7 @@ export function setPendingAuth(_) {}
 // #endregion
 
 // #region Other
+export { attachRpcGenerators }
 export { collectStaticRpcDump }
 export { ContextUtils }
 export { createH3DevToolsHost }
@@ -27,8 +28,10 @@ export { DevToolsDockHost }
 export { DevToolsMessagesHost }
 export { DevToolsTerminalHost }
 export { DevToolsViewHost }
+export { getCurrentRpcStream }
 export { getInternalContext }
 export { internalContextMap }
+export { invokeLocalGenerator }
 export { revokeActiveConnectionsForToken }
 export { revokeAuthToken }
 export { RpcFunctionsHost }

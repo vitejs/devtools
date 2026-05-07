@@ -4,6 +4,7 @@ import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from 'devframe/rpc'
 import { createDebug } from 'obug'
 import { logger } from './diagnostics'
+import { attachRpcGenerators } from './rpc-generators'
 import { createRpcSharedStateServerHost } from './rpc-shared-state'
 import { createRpcStreamingServerHost } from './rpc-streaming'
 
@@ -21,6 +22,10 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
 
     this.sharedState = createRpcSharedStateServerHost(this)
     this.streaming = createRpcStreamingServerHost(this)
+    // Wires `type: 'generator'` interception. Must come after `streaming`
+    // is initialized — the generator wrapper allocates a sink on a hidden
+    // channel created lazily by the streaming host.
+    attachRpcGenerators(this, this.streaming)
   }
 
   sharedState: RpcSharedStateHost

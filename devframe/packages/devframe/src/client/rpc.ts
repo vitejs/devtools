@@ -10,6 +10,7 @@ import {
 import { RpcCacheManager, RpcFunctionsCollectorBase } from 'devframe/rpc'
 import { createEventEmitter } from 'devframe/utils/events'
 import { humanId } from 'devframe/utils/human-id'
+import { attachRpcGeneratorsClient } from './rpc-generators'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createRpcStreamingClientHost } from './rpc-streaming'
@@ -296,6 +297,10 @@ export async function getDevToolsRpcClient(
 
   rpc.sharedState = createRpcSharedStateClientHost(rpc)
   rpc.streaming = createRpcStreamingClientHost(rpc)
+  // Hook `rpc.call` so generator-typed RPCs return a `StreamReader<Y>`
+  // (auto-subscribed) instead of the raw `__generator` envelope.
+  // Must come after `streaming` is initialized.
+  attachRpcGeneratorsClient(rpc)
 
   // @ts-expect-error assign to readonly property
   context.rpc = rpc

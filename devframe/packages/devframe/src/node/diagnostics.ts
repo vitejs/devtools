@@ -93,6 +93,26 @@ export const diagnostics = defineDiagnostics({
         `Streaming channel "${p.channel}" is already registered.`,
       hint: 'Each channel name must be unique within a context. Pick a different name or reuse the existing channel handle.',
     },
+    DF0033: {
+      message: (p: { name: string }) =>
+        `Generator RPC function "${p.name}" has \`agent\` set, which is not supported in the current release.`,
+      hint: 'Remove `agent` from the generator definition. Streaming-MCP exposure is planned as a follow-up.',
+    },
+    DF0034: {
+      message: (p: { name: string }) =>
+        `Generator RPC function "${p.name}" handler did not return an \`AsyncIterable\`.`,
+      hint: 'The handler must be declared as `async function*`. Check that no `setup()` overload returns a non-iterable.',
+    },
+    DF0035: {
+      message: (p: { name: string }) =>
+        `Generator RPC function "${p.name}" declares \`args\` but no \`yields\` schema — yielded value type cannot be inferred.`,
+      hint: 'Add a `yields` schema (e.g. `yields: v.string()`) for end-to-end type inference of `StreamReader<Y>`. Drop both schemas to fall back to `unknown` yields.',
+    },
+    DF0036: {
+      message: (p: { name: string, option: string }) =>
+        `Generator RPC function "${p.name}" sets \`${p.option}\`, which has no effect on generator-typed functions.`,
+      hint: 'Generators are streaming primitives — `cacheable`, `dump`, and `jsonSerializable: true` do not apply. Remove the option, or change the function type.',
+    },
   },
 })
 

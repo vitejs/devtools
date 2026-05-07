@@ -6,6 +6,8 @@ outline: deep
 
 Devframe's streaming-channel API provides server→client push for chunk-style data — chat deltas, log lines, build progress, anything you'd otherwise express as a sequence of fire-and-forget events. It builds on the same WebSocket transport as the rest of the RPC layer, but adds the conventions every chunked feed needs: stream IDs, cooperative cancellation, replay on reconnect, and first-class **Web Streams** interop.
 
+For the common case of "I have an `async function*` and I want to ship its yields to the client", reach for [Async Generator RPC](#async-generator-rpc) below — it auto-allocates the sink, wires cancellation, and the client receives a ready-to-iterate `StreamReader<Y>` from `rpc.call(...)`. Drop down to the lower-level channel API in this guide when you need fan-out, late-replay across multiple subscribers, or client-to-server uploads.
+
 ## Overview
 
 ```mermaid
@@ -233,8 +235,95 @@ If you need authoritative state rather than every intermediate value, prefer [sh
 | Replay on reconnect | Fire-and-forget signaling | Diff-based sync between clients |
 | Client-to-server uploads (files, mic frames) | | |
 
+## Async Generator RPC
+
+The streaming-channel API is the foundation; the most common shape — "stream the yields of an `async function*` to the caller" — has a higher-level wrapper that hides the channel altogether.
+
+### Defining a generator
+
+Set `type: 'generator'` on `defineRpcFunction` and write the handler as `async function*`:
+
+```ts
+import { defineRpcFunction } from 'devframe'
+import { getCurrentRpcStream } from 'devframe/node'
+import * as v from 'valibot'
+
+defineRpcFunction({
+  name: 'my-devtool:chat',
+  type: 'generator',
+  args: [v.object({ prompt: v.string() })],
+  yields: v.string(),
+  async* handler({ prompt }) {
+    const { signal } = getCurrentRpcStream()!
+    for (const token of fakeTokens(prompt)) {
+      if (signal.aborted)
+        return
+      yield token
+    }
+  },
+})
+```
+
+`getCurrentRpcStream()` is `AsyncLocalStorage`-backed (mirrors `getCurrentRpcSession()`); inside the generator body it returns `{ signal, streamId, session }`. Outside, it returns `undefined`. Poll `signal.aborted` and exit cooperatively when the consumer cancels.
+
+### Calling from the client
+
+```ts
+import { connectDevtool } from 'devframe/client'
+
+const rpc = await connectDevtool()
+const reader = await rpc.call('my-devtool:chat', { prompt: 'Hi' })
+
+for await (const token of reader)
+  appendToken(token)
+
+// or pipe out as a Web Stream:
+await reader.readable.pipeTo(downloadWritable)
+
+reader.cancel() // sends cancel upstream; server's `signal` flips
+```
+
+`rpc.call` resolves to `Promise<StreamReader<Y>>` for generator-typed functions. The reader is the same shape as `rpc.streaming.subscribe()` — it's both `AsyncIterable<Y>` and exposes `.readable: ReadableStream<Y>`. Pick one surface per reader (they share an internal queue).
+
+### Per-function options
+
+| Field | Default | Effect |
+|-------|---------|--------|
+| `yields` | — | Valibot schema for each yielded value. Optional; required if `args` is set ([`DF0035`](../errors/DF0035)). Drives client-side type inference of `StreamReader<Y>`. |
+| `replayWindow` | `256` | Per-stream ring-buffer size. Floored to `1` — the client subscribe lands a few ms after the wrapper allocates the sink, so early yields must be replayable. |
+| `closedStreamRetention` | `30_000` | Milliseconds the stream is held open for late subscribers after the producer closes. Mirrors the channel-level option. |
+
+### Local invocation
+
+Server-side callers can iterate a generator without paying for the streaming round-trip:
+
+```ts
+import { invokeLocalGenerator } from 'devframe/node'
+
+for await (const token of await invokeLocalGenerator<string>(rpc, 'my-devtool:chat', { prompt: 'Hi' })) {
+  // process tokens directly — no transport, no sink allocation
+}
+```
+
+`invokeLocalGenerator` returns the bare `AsyncIterable<Y>` from the user's handler. `getCurrentRpcStream()` returns `undefined` in this path (no stream, no signal).
+
+### What you can't put on a generator
+
+- `agent: { ... }` — streaming-MCP exposure is deferred. ([`DF0033`](../errors/DF0033))
+- `cacheable: true` — caching a streaming response would replay a stale `streamId`. ([`DF0036`](../errors/DF0036))
+- `jsonSerializable: true` — chunks always travel via `structured-clone` regardless. ([`DF0036`](../errors/DF0036))
+- `dump`, `snapshot` — streaming results don't have a "snapshot" semantics. ([`DF0027`](../errors/DF0027), [`DF0028`](../errors/DF0028))
+
+### When to reach for the lower-level channel API
+
+Generator RPC covers the 90% case. Drop down to `ctx.rpc.streaming.create(...)` directly when you need:
+
+- **Fan-out** — multiple subscribers seeing the same stream from a single producer. Generator RPC allocates a fresh stream per call.
+- **Long-running side-channel streams** — terminal output, file watches, anything that lives beyond a single RPC call.
+- **Client-to-server uploads** — `channel.openInbound()` with a paired action handler to allocate the id (see [Client-to-Server Uploads](#client-to-server-uploads)).
+
 ## Reference
 
-- API surface: `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` in `devframe/types`.
-- Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
-- Errors: [`DF0029`](../errors/DF0029) (overflow), [`DF0030`](../errors/DF0030) (unknown stream id), [`DF0031`](../errors/DF0031) (write to closed stream), [`DF0032`](../errors/DF0032) (channel name collision).
+- API surface: `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` in `devframe/types`. Generator RPC: `getCurrentRpcStream`, `invokeLocalGenerator` in `devframe/node`.
+- Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat) — `:send` uses the channel API directly, `:tokenize` uses generator RPC.
+- Errors: [`DF0029`](../errors/DF0029) (overflow), [`DF0030`](../errors/DF0030) (unknown stream id), [`DF0031`](../errors/DF0031) (write to closed stream), [`DF0032`](../errors/DF0032) (channel name collision), [`DF0033`](../errors/DF0033) (generator + agent), [`DF0034`](../errors/DF0034) (handler not async-iterable), [`DF0035`](../errors/DF0035) (generator missing yields), [`DF0036`](../errors/DF0036) (inapplicable generator option).
