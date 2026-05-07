@@ -1,7 +1,7 @@
 {
   "name": "devframe",
   "type": "module",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Framework for building generic DevTools",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",

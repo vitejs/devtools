@@ -1,7 +1,7 @@
 {
   "name": "devframe-streaming-chat-example",
   "type": "module",
-  "version": "0.1.18",
+  "version": "0.1.20",
   "private": true,
   "description": "End-to-end devframe demo — streams synthetic chat tokens from server to client via `ctx.rpc.streaming`. Mirrors the AI-deltas use case from issue #306.",
   "main": "src/devtool.ts",
