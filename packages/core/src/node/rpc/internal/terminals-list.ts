@@ -4,6 +4,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const terminalsList = defineRpcFunction({
   name: 'devtoolskit:internal:terminals:list',
   type: 'static',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       async handler() {

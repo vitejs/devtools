@@ -5,6 +5,7 @@ import { getLogsManager } from '../utils'
 export const rolldownGetModuleInfo = defineRpcFunction({
   name: 'vite:rolldown:get-module-info',
   type: 'query',
+  jsonSerializable: true,
   cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)

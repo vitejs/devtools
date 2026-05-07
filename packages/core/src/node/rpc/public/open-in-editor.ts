@@ -5,6 +5,7 @@ import { logger } from '../../diagnostics'
 export const openInEditor = defineRpcFunction({
   name: 'vite:core:open-in-editor',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       handler: async (path: string) => {

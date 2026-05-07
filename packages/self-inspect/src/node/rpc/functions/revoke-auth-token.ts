@@ -4,6 +4,7 @@ import { getInternalContext } from '@vitejs/devtools/internal'
 export const revokeAuthTokenRpc = defineRpcFunction({
   name: 'devtoolskit:self-inspect:revoke-auth-token',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     const internal = getInternalContext(context)
     return {

@@ -4,6 +4,7 @@ import { getLogsManager } from '../utils'
 export const rolldownGetRawEvents = defineRpcFunction({
   name: 'vite:rolldown:get-raw-events',
   type: 'query',
+  jsonSerializable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

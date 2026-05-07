@@ -4,6 +4,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const messagesAdd = defineRpcFunction({
   name: 'devtoolskit:internal:messages:add',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       async handler(input: DevToolsMessageEntryInput): Promise<DevToolsMessageEntry> {

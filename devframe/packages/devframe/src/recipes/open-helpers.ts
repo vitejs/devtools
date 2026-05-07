@@ -25,6 +25,7 @@ import { defineRpcFunction } from '../rpc/define'
 export const openInEditor = defineRpcFunction({
   name: 'devframe:open-in-editor',
   type: 'action',
+  jsonSerializable: true,
   args: [v.string()],
   returns: v.void(),
   async handler(filename: string) {
@@ -49,6 +50,7 @@ export const openInEditor = defineRpcFunction({
 export const openInFinder = defineRpcFunction({
   name: 'devframe:open-in-finder',
   type: 'action',
+  jsonSerializable: true,
   args: [v.string()],
   returns: v.void(),
   async handler(path: string) {
