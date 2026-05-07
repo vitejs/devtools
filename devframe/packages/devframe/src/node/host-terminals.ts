@@ -1,8 +1,16 @@
-import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession, DevToolsNodeContext, DevToolsTerminalHost as DevToolsTerminalHostType, DevToolsTerminalSession, DevToolsTerminalSessionBase, PartialWithoutId } from 'devframe/types'
+import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession, DevToolsNodeContext, DevToolsTerminalHost as DevToolsTerminalHostType, DevToolsTerminalSession, DevToolsTerminalSessionBase, PartialWithoutId, RpcStreamingChannel } from 'devframe/types'
 import type { Result as TinyExecResult } from 'tinyexec'
 import process from 'node:process'
 import { createEventEmitter } from 'devframe/utils/events'
 import { logger } from './diagnostics'
+
+/**
+ * Channel name used for terminal stream output. Built into devframe so the
+ * standalone client (`packages/core/src/client/webcomponents/state/terminals.ts`)
+ * can subscribe by a stable, well-known name.
+ */
+const TERMINAL_STREAM_CHANNEL = 'devtoolskit:internal:terminals' as const
+const TERMINAL_REPLAY_WINDOW = 1000
 
 export class DevToolsTerminalHost implements DevToolsTerminalHostType {
   public readonly sessions: DevToolsTerminalHostType['sessions'] = new Map()
@@ -13,9 +21,28 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     stream: ReadableStream
   }>()
 
+  private _channel?: RpcStreamingChannel<string>
+
   constructor(
     public readonly context: DevToolsNodeContext,
   ) {
+  }
+
+  /**
+   * Lazily acquire the streaming channel — `context.rpc` isn't assigned
+   * until after every host is constructed, so we can't grab it in the
+   * constructor.
+   */
+  private getStreamingChannel(): RpcStreamingChannel<string> | undefined {
+    if (this._channel)
+      return this._channel
+    if (!this.context.rpc?.streaming)
+      return undefined
+    this._channel = this.context.rpc.streaming.create<string>(
+      TERMINAL_STREAM_CHANNEL,
+      { replayWindow: TERMINAL_REPLAY_WINDOW },
+    )
+    return this._channel
   }
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
@@ -60,21 +87,35 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
       return
 
     session.buffer ||= []
-    const events = this.events
+    const sessionBuffer = session.buffer
+
+    const channel = this.getStreamingChannel()
+    // The streaming channel reuses `session.id` as the stream id so clients
+    // can subscribe immediately after seeing the session in
+    // `devtoolskit:internal:terminals:list`.
+    const sink = channel?.start({ id: session.id })
+
     const writer = new WritableStream<string>({
       write(chunk) {
-        session.buffer!.push(chunk)
-        events.emit('terminal:session:stream-chunk', {
-          id: session.id,
-          chunks: [chunk],
-          ts: Date.now(),
-        })
+        // Mirror to the legacy session.buffer used by `terminals:read` —
+        // unbounded history kept for the snapshot endpoint.
+        sessionBuffer.push(chunk)
+        sink?.write(chunk)
+      },
+      close() {
+        sink?.close()
+      },
+      abort(reason) {
+        sink?.error(reason)
       },
     })
-    session.stream.pipeTo(writer)
+    session.stream.pipeTo(writer).catch(() => {
+      // pipeTo rejection surfaces via writer.abort -> sink.error already.
+    })
     this._boundStreams.set(session.id, {
       dispose: () => {
-        writer.close()
+        if (sink && !sink.closed)
+          sink.close()
       },
       stream: session.stream,
     })

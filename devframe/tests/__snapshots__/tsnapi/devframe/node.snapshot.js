@@ -18,6 +18,7 @@ export { ContextUtils }
 export { createH3DevToolsHost }
 export { createHostContext }
 export { createRpcSharedStateServerHost }
+export { createRpcStreamingServerHost }
 export { createStorage }
 export { DevToolsAgentHost }
 export { DevToolsCommandsHost }

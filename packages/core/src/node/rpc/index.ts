@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from 'devframe/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
@@ -74,7 +74,6 @@ declare module '@vitejs/devtools-kit' {
     'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
     'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
-    'devtoolskit:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
     'devtoolskit:internal:terminals:updated': () => Promise<void>
   }
 

@@ -137,13 +137,6 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     docksSharedState.mutate(() => context.docks.values())
   }, mode === 'build' ? 0 : 10))
 
-  terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
-    rpcHost.broadcast({
-      method: 'devtoolskit:internal:terminals:stream-chunk',
-      args: [data],
-    })
-  })
-
   const debouncedMessagesUpdate = debounce(() => {
     rpcHost.broadcast({
       method: 'devtoolskit:internal:messages:updated',

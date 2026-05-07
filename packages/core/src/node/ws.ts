@@ -140,6 +140,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)
+      rpcHost._emitSessionDisconnected(meta)
       console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
     },
   })

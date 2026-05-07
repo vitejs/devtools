@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <base href="./" />
+    <title>Streaming Chat</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 1.5rem; max-width: 720px; }
+      header h1 { margin: 0 0 .25rem 0; }
+      form { display: flex; gap: .5rem; margin-top: 1rem; }
+      input { flex: 1; padding: .5rem; font: inherit; }
+      button { padding: .5rem 1rem; font: inherit; cursor: pointer; }
+      button[disabled] { opacity: .5; cursor: not-allowed; }
+      .output {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #fafafa;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        min-height: 4rem;
+        white-space: pre-wrap;
+        font-family: ui-monospace, monospace;
+      }
+      .output.streaming::after { content: '▍'; opacity: .5; animation: blink 1s step-end infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+      .demo-prompts { margin-top: .75rem; display: flex; gap: .5rem; flex-wrap: wrap; }
+      .demo-prompts button { padding: .25rem .75rem; font-size: .9em; }
+      .status { margin-top: .5rem; color: #666; font-size: .85em; }
+      .status .err { color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

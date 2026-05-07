@@ -2,17 +2,10 @@ import type { ChildProcess } from 'node:child_process'
 import type { DevToolsDockEntryIcon } from './docks'
 import type { EventEmitter } from './events'
 
-export interface DevToolsTerminalSessionStreamChunkEvent {
-  id: string
-  chunks: string[]
-  ts: number
-}
-
 export interface DevToolsTerminalHost {
   readonly sessions: Map<string, DevToolsTerminalSession>
   readonly events: EventEmitter<{
     'terminal:session:updated': (session: DevToolsTerminalSession) => void
-    'terminal:session:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => void
   }>
 
   register: (session: DevToolsTerminalSession) => DevToolsTerminalSession

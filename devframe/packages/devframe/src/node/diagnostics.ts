@@ -72,6 +72,27 @@ export const diagnostics = defineDiagnostics({
       hint: 'Replace any access to `ctx.logs` (or `context.logs`) with `ctx.messages`. The runtime behavior is identical.',
       level: 'warn',
     },
+    DF0029: {
+      message: (p: { channel: string, id: string, dropped: number }) =>
+        `Stream "${p.channel}#${p.id}" dropped ${p.dropped} chunk(s) after exceeding the client high-water mark.`,
+      hint: 'The consumer is too slow for the producer. Raise `highWaterMark` on the subscription, slow the producer, or batch chunks.',
+      level: 'warn',
+    },
+    DF0030: {
+      message: (p: { channel: string, id: string }) =>
+        `Stream "${p.channel}#${p.id}" is unknown — no producer has called \`channel.start({ id: "${p.id}" })\`.`,
+      hint: 'Ensure the server-side producer is running before clients subscribe, or check for typos in the stream id.',
+    },
+    DF0031: {
+      message: (p: { channel: string, id: string }) =>
+        `Cannot write to closed stream "${p.channel}#${p.id}".`,
+      hint: 'Track the producer lifecycle — guard writes with the `stream.signal.aborted` flag.',
+    },
+    DF0032: {
+      message: (p: { channel: string }) =>
+        `Streaming channel "${p.channel}" is already registered.`,
+      hint: 'Each channel name must be unique within a context. Pick a different name or reuse the existing channel handle.',
+    },
   },
 })
 

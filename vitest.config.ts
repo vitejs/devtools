@@ -6,6 +6,7 @@ export default defineConfig({
       'packages/*',
       'devframe/packages/*',
       'devframe/examples/devframe-files-inspector',
+      'devframe/examples/devframe-streaming-chat',
       'devframe/tests',
       'test',
     ],

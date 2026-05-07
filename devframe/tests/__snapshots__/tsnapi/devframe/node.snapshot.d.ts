@@ -178,7 +178,9 @@ export declare class DevToolsTerminalHost implements DevToolsTerminalHost$1 {
   readonly sessions: DevToolsTerminalHost$1['sessions'];
   readonly events: DevToolsTerminalHost$1['events'];
   private _boundStreams;
+  private _channel?;
   constructor(_: DevToolsNodeContext);
+  private getStreamingChannel;
   register(_: DevToolsTerminalSession): DevToolsTerminalSession;
   update(_: PartialWithoutId<DevToolsTerminalSession>): void;
   remove(_: DevToolsTerminalSession): void;
@@ -199,6 +201,8 @@ export declare class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevTools
   _asyncStorage: AsyncLocalStorage<DevToolsNodeRpcSession>;
   constructor(_: DevToolsNodeContext);
   sharedState: RpcSharedStateHost;
+  streaming: RpcStreamingHost;
+  _emitSessionDisconnected(_: DevToolsNodeRpcSessionMeta): void;
   invokeLocal<T extends keyof DevToolsRpcServerFunctions, Args extends Parameters<DevToolsRpcServerFunctions[T]>>(_: T, ..._: Args): Promise<Awaited<ReturnType<DevToolsRpcServerFunctions[T]>>>;
   broadcast<T extends keyof DevToolsRpcClientFunctions, Args extends Parameters<DevToolsRpcClientFunctions[T]>>(_: RpcBroadcastOptions<T, Args>): Promise<void>;
   getCurrentRpcSession(): DevToolsNodeRpcSession | undefined;
@@ -212,6 +216,7 @@ export declare function consumeTempAuthToken(_: string, _: SharedState<InternalA
 export declare function createH3DevToolsHost(_: CreateH3DevToolsHostOptions): DevToolsHost;
 export declare function createHostContext(_: CreateHostContextOptions): Promise<DevToolsNodeContext>;
 export declare function createRpcSharedStateServerHost(_: RpcFunctionsHost$1): RpcSharedStateHost;
+export declare function createRpcStreamingServerHost(_: RpcFunctionsHost$1): RpcStreamingHost;
 export declare function createStorage<T extends object>(_: CreateStorageOptions<T>): SharedState<T>;
 export declare function getInternalContext(_: DevToolsNodeContext): DevToolsInternalContext;
 export declare function getPendingAuth(): PendingAuthRequest | null;

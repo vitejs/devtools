@@ -1,5 +1,5 @@
 import type { BirpcGroup } from 'birpc'
-import type { DevToolsNodeContext, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from 'devframe/types'
+import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from 'devframe/types'
 import type { App } from 'h3'
 import type { WebSocketServer } from 'ws'
 import type { RpcFunctionsHost } from './host-functions'
@@ -61,13 +61,42 @@ export async function startHttpAndWs(options: StartHttpAndWsOptions): Promise<St
   const wss = new WSServer({ server: httpServer })
   const rpcHost = context.rpc as unknown as RpcFunctionsHost
 
-  const asyncStorage = new AsyncLocalStorage<unknown>()
+  const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
 
   const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
     rpcHost.functions,
+    {
+      rpcOptions: {
+        // Wrap each RPC handler in an AsyncLocalStorage context so
+        // `ctx.rpc.getCurrentRpcSession()` works inside handlers (used
+        // by streaming subscribe/unsubscribe/cancel and shared-state
+        // sync). Mirrors `packages/core/src/node/ws.ts`'s resolver,
+        // minus the auth gate (devframe defers auth to its host
+        // adapters; the standalone CLI server is unauthenticated).
+        resolver(name, fn) {
+          // eslint-disable-next-line ts/no-this-alias
+          const rpc = this
+          if (!fn)
+            return undefined
+          return async function (this: any, ...args) {
+            return await asyncStorage.run({
+              rpc,
+              meta: rpc.$meta,
+            }, async () => {
+              return (await fn).apply(this, args)
+            })
+          }
+        },
+      },
+    },
   )
 
-  attachWsRpcTransport(rpcGroup, { wss })
+  attachWsRpcTransport(rpcGroup, {
+    wss,
+    onDisconnected: (_ws, meta) => {
+      rpcHost._emitSessionDisconnected(meta)
+    },
+  })
 
   ;(rpcHost as any)._rpcGroup = rpcGroup
   ;(rpcHost as any)._asyncStorage = asyncStorage

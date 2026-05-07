@@ -1,8 +1,10 @@
-import type { DevToolsRpcClientFunctions, DevToolsTerminalSessionBase, DevToolsTerminalSessionStreamChunkEvent } from '@vitejs/devtools-kit'
+import type { DevToolsRpcClientFunctions, DevToolsTerminalSessionBase } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { Terminal } from '@xterm/xterm'
 import type { Reactive } from 'vue'
 import { reactive } from 'vue'
+
+const TERMINAL_STREAM_CHANNEL = 'devtoolskit:internal:terminals'
 
 export interface TerminalState {
   info: DevToolsTerminalSessionBase
@@ -16,6 +18,29 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
     return _terminalsMap
   }
   const map: Reactive<Map<string, TerminalState>> = _terminalsMap = reactive(new Map())
+  const subscribed = new Set<string>()
+
+  function subscribeToStream(id: string): void {
+    if (subscribed.has(id))
+      return
+    subscribed.add(id)
+    const reader = context.rpc.streaming.subscribe<string>(TERMINAL_STREAM_CHANNEL, id)
+    ;(async () => {
+      try {
+        for await (const chunk of reader) {
+          const terminal = map.get(id)
+          if (!terminal)
+            continue
+          terminal.buffer?.push(chunk)
+          terminal.terminal?.writeln(chunk)
+        }
+      }
+      catch (err) {
+        console.warn(`[VITE DEVTOOLS] Terminal stream "${id}" ended with error:`, err)
+      }
+    })()
+  }
+
   async function updateTerminals() {
     const terminals = await context.rpc.call('devtoolskit:internal:terminals:list')
 
@@ -29,6 +54,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
         buffer: null,
         terminal: null,
       })
+      subscribeToStream(terminal.id)
     }
 
     // eslint-disable-next-line no-console
@@ -38,20 +64,6 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
     name: 'devtoolskit:internal:terminals:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => updateTerminals(),
-  })
-  context.rpc.client.register({
-    name: 'devtoolskit:internal:terminals:stream-chunk' satisfies keyof DevToolsRpcClientFunctions,
-    type: 'action',
-    handler: (data: DevToolsTerminalSessionStreamChunkEvent) => {
-      const terminal = map.get(data.id)
-      if (!terminal) {
-        console.warn(`[VITE DEVTOOLS] Terminal with id "${data.id}" not found`)
-        return
-      }
-      terminal.buffer?.push(...data.chunks)
-      for (const chunk of data.chunks)
-        terminal.terminal?.writeln(chunk)
-    },
   })
   updateTerminals()
 

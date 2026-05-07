@@ -51,6 +51,9 @@
       "devframe/utils/state": [
         "./devframe/packages/devframe/src/utils/state.ts"
       ],
+      "devframe/utils/streaming-channel": [
+        "./devframe/packages/devframe/src/utils/streaming-channel.ts"
+      ],
       "devframe/utils/when": [
         "./devframe/packages/devframe/src/utils/when.ts"
       ],

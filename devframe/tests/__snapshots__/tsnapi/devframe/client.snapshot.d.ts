@@ -23,6 +23,7 @@ export interface DevToolsRpcClient {
   callOptional: DevToolsRpcClientCallOptional;
   client: DevToolsClientRpcHost;
   sharedState: RpcSharedStateHost;
+  streaming: RpcStreamingClientHost;
   cacheManager: RpcCacheManager;
 }
 export interface DevToolsRpcClientMode {
@@ -98,6 +99,13 @@ export interface DocksPanelContext {
 export interface RpcClientEvents {
   'rpc:is-trusted:updated': (_: boolean) => void;
 }
+export interface RpcStreamingClientHost {
+  subscribe: <T = unknown>(_: string, _: string, _?: StreamingSubscribeOptions) => StreamReader<T>;
+  upload: <T = unknown>(_: string, _: string) => StreamSink<T>;
+}
+export interface StreamingSubscribeOptions {
+  highWaterMark?: number;
+}
 export interface WhenClauseContext {
   readonly context: WhenContext;
 }
@@ -114,6 +122,7 @@ export type DockClientType = 'embedded' | 'standalone';
 
 // #region Functions
 export declare function connectDevtool(_?: DevToolsRpcClientOptions): Promise<DevToolsRpcClient>;
+export declare function createRpcStreamingClientHost(_: DevToolsRpcClient): RpcStreamingClientHost;
 export declare function getDevToolsClientContext(): DevToolsClientContext | undefined;
 export declare function getDevToolsRpcClient(_?: DevToolsRpcClientOptions): Promise<DevToolsRpcClient>;
 // #endregion
