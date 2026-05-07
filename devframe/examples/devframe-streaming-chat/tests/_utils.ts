@@ -1,4 +1,4 @@
-import type { StartedServer } from 'devframe/node'
+import type { DevToolsNodeContext, StartedServer } from 'devframe/node'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -27,7 +27,10 @@ export const CLIENT_DIST = resolve(HERE, '../dist/client')
  * Bound to 127.0.0.1 to avoid the IPv4/IPv6 race documented in
  * `packages/devframe/src/rpc/transports/ws.test.ts`.
  */
-export async function startStreamingChatServer(): Promise<StartedServer & { basePath: string }> {
+export async function startStreamingChatServer(): Promise<StartedServer & {
+  basePath: string
+  ctx: DevToolsNodeContext
+}> {
   // Build the client only if a test exercises the served HTML — RPC-only
   // tests don't need the dist (we don't call assertClientBuilt unless the
   // test fetches index.html).
@@ -72,5 +75,5 @@ export async function startStreamingChatServer(): Promise<StartedServer & { base
     auth: false,
   })
 
-  return Object.assign(server, { basePath })
+  return Object.assign(server, { basePath, ctx })
 }
