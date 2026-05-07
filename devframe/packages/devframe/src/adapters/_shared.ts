@@ -11,7 +11,7 @@ import type { DevtoolDefinition, DevtoolDeploymentKind } from '../types/devtool'
 export function resolveBasePath(def: DevtoolDefinition, kind: DevtoolDeploymentKind): string {
   if (def.basePath)
     return normalizeBasePath(def.basePath)
-  return kind === 'standalone' ? '/' : `/.${def.id}/`
+  return kind === 'standalone' ? '/' : `/__${def.id}/`
 }
 
 export function normalizeBasePath(base: string): string {

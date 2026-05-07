@@ -85,19 +85,19 @@ describe('static serve (deployed SPA contract)', () => {
     })
 
     it('serves the connection meta next to index.html as { backend: "static" }', async () => {
-      // This is the path the SPA fetches via relative `./.connection.json`
+      // This is the path the SPA fetches via relative `./__connection.json`
       // resolved against `document.baseURI`. The 404 the user originally
       // reported with `serve dist-static` was caused by the old layout
-      // putting this file under `/.devtools/.connection.json`, which a
-      // SPA at any non-`/.devtools/` mount could not discover.
-      const res = await fetch(`${server.origin}${mountBase}.connection.json`)
+      // putting this file under `/__devtools/__connection.json`, which a
+      // SPA at any non-`/__devtools/` mount could not discover.
+      const res = await fetch(`${server.origin}${mountBase}__connection.json`)
       expect(res.status).toBe(200)
       const meta = await res.json() as { backend: string }
       expect(meta).toMatchObject({ backend: 'static' })
     })
 
     it('serves the RPC dump manifest and reachable shard records', async () => {
-      const manifestRes = await fetch(`${server.origin}${mountBase}.rpc-dump/index.json`)
+      const manifestRes = await fetch(`${server.origin}${mountBase}__rpc-dump/index.json`)
       expect(manifestRes.status).toBe(200)
       const manifest = await manifestRes.json() as Record<string, any>
 
@@ -120,11 +120,11 @@ describe('static serve (deployed SPA contract)', () => {
       expect(record.output).toEqual(['README.md', 'package.json', 'sample.txt'])
     })
 
-    it('does not expose a stray `.devtools/` directory at the SPA root', async () => {
+    it('does not expose a stray `__devtools/` directory at the SPA root', async () => {
       // Regression guard: the build output is intentionally flat —
-      // re-introducing a `.devtools/` subdir would break standalone
-      // deployment under file servers that block dotfile directories.
-      const res = await fetch(`${server.origin}${mountBase}.devtools/.connection.json`)
+      // re-introducing a `__devtools/` subdir would create a nested
+      // path the relative-base discovery in the SPA cannot reach.
+      const res = await fetch(`${server.origin}${mountBase}__devtools/__connection.json`)
       expect(res.status).toBe(404)
     })
   })
