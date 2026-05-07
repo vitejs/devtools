@@ -62,7 +62,7 @@
     "cac": "catalog:deps",
     "devframe": "workspace:*",
     "h3": "catalog:deps",
-    "immer": "catalog:inlined",
+    "immer": "catalog:deps",
     "launch-editor": "catalog:deps",
     "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
