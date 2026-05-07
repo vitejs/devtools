@@ -110,7 +110,7 @@ export interface DevtoolDefinition {
   version?: string
   /**
    * Mount path override. Defaults depend on the adapter:
-   * `/` for standalone (`cli` / `spa` / `build`), `/.<id>/` for hosted
+   * `/` for standalone (`cli` / `spa` / `build`), `/__<id>/` for hosted
    * (`vite` / `kit` / `embedded`).
    */
   basePath?: string

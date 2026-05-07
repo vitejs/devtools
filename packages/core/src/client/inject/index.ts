@@ -13,7 +13,7 @@ export async function init(): Promise<void> {
 
   // Inject runs in the user's host page, so `document.baseURI` points at
   // the user's app — not at the Vite DevTools mount. Pass the mount path
-  // explicitly so the connection meta lookup hits `/.devtools/.connection.json`.
+  // explicitly so the connection meta lookup hits `/__devtools/__connection.json`.
   const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
 
   const state = useLocalStorage<DockPanelStorage>(
