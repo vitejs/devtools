@@ -9,5 +9,5 @@ Until devframe publishes an installable skill, link this directory from
 your Claude Code skills path. Example for the CLI:
 
 ```sh
-ln -s "$PWD/skills/devframe" "$HOME/.claude/skills/devframe"
+ln -s "$PWD/devframe/skills/devframe" "$HOME/.claude/skills/devframe"
 ```

@@ -15,9 +15,24 @@ export interface DevToolsCapabilities {
 export interface DevToolsNodeContext {
   readonly workspaceRoot: string
   readonly cwd: string
+  /**
+   * Lifecycle distinction surfaced to plugin authors:
+   *
+   *   - `'dev'`   — long-running, interactive session. Connections come and
+   *                 go; broadcasts and shared-state mutations are debounced
+   *                 to keep the UI responsive.
+   *   - `'build'` — one-shot batch run. The context is set up, the devtool
+   *                 collects what it needs, and a snapshot is written. No
+   *                 live UI, no WS server.
+   *
+   * Names are inherited from Vite's serve/build dichotomy but the meaning
+   * is general: the same distinction applies to any tool that runs in
+   * either an interactive or a static-output mode.
+   */
   readonly mode: 'dev' | 'build'
   /**
-   * Host runtime abstraction — exposes `mountStatic` / `resolveOrigin`.
+   * Host runtime abstraction — exposes `mountStatic` / `resolveOrigin` /
+   * `getStorageDir`.
    */
   host: DevToolsHost
   rpc: import('./rpc').RpcFunctionsHost

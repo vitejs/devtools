@@ -65,7 +65,7 @@ export async function createBuild(d: DevtoolDefinition, options: CreateBuildOpti
   const ctx = await createHostContext({
     cwd: process.cwd(),
     mode: 'build',
-    host: createH3DevToolsHost({ origin: 'http://localhost' }),
+    host: createH3DevToolsHost({ origin: 'http://localhost', appName: d.id }),
   })
   await d.setup(ctx)
 

@@ -1,6 +1,5 @@
 import type { DevToolsNodeContext } from 'devframe/types'
 import type { SharedState } from 'devframe/utils/shared-state'
-import { homedir } from 'node:os'
 import { humanId } from 'devframe/utils/human-id'
 import { join } from 'pathe'
 import { revokeActiveConnectionsForToken, revokeAuthToken } from './auth-revoke'
@@ -61,7 +60,7 @@ export const internalContextMap = new WeakMap<DevToolsNodeContext, DevToolsInter
 export function getInternalContext(context: DevToolsNodeContext): DevToolsInternalContext {
   if (!internalContextMap.has(context)) {
     const storage = createStorage<InternalAnonymousAuthStorage>({
-      filepath: join(homedir(), '.vite/devtools/auth.json'),
+      filepath: join(context.host.getStorageDir('global'), 'auth.json'),
       initialValue: {
         trusted: {},
       },

@@ -3,8 +3,8 @@ import type { DevToolsRpcClient } from 'devframe/client'
 declare module '#app' {
   interface NuxtApp {
     /**
-     * Devframe RPC client, provided by the `devframe/helpers/nuxt`
-     * module's client plugin.
+     * Devframe RPC client, provided by the `@devframes/nuxt` module's
+     * client plugin.
      */
     $rpc: DevToolsRpcClient
   }

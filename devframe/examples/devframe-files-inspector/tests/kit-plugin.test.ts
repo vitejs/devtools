@@ -14,6 +14,7 @@ describe('kit-plugin (Vite DevTools dock surface)', () => {
     const mount = vi.fn()
     const host = createH3DevToolsHost({
       origin: 'http://test.localhost',
+      appName: devtool.id,
       mount,
     })
     const ctx = await createHostContext({ cwd: process.cwd(), mode: 'dev', host })

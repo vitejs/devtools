@@ -6,6 +6,8 @@ export interface CreateH3DevToolsHostOptions {
   app?: unknown;
   origin: string;
   mount?: (_: string, _: string) => void | Promise<void>;
+  appName: string;
+  workspaceRoot?: string;
 }
 export interface CreateHostContextOptions {
   cwd: string;

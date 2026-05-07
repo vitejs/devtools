@@ -4,7 +4,7 @@ outline: deep
 
 # Nuxt Helper
 
-The `devframe/helpers/nuxt` module wires a Nuxt-built SPA up as a devframe client. It's an integration helper, not a deployment adapter — it runs inside the Nuxt app that consumes your devtool, not as part of the CLI that serves it.
+The `@devframes/nuxt` module wires a Nuxt-built SPA up as a devframe client. It's an integration helper, not a deployment adapter — it runs inside the Nuxt app that consumes your devtool, not as part of the CLI that serves it.
 
 It handles the three things every Nuxt-powered standalone devtool needs to get right:
 
@@ -16,7 +16,7 @@ It handles the three things every Nuxt-powered standalone devtool needs to get r
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
-  modules: ['devframe/helpers/nuxt'],
+  modules: ['@devframes/nuxt'],
 })
 ```
 
@@ -44,7 +44,7 @@ export function usePayload() {
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
-  modules: ['devframe/helpers/nuxt'],
+  modules: ['@devframes/nuxt'],
   devframe: {
     baseURL: './', // where the devframe snapshot lives, relative to the page
     skipAppDefaults: false, // opt out of the app.baseURL / vite.base defaults
@@ -79,14 +79,14 @@ my-tool/
 ├── bin.mjs               # createCli(devtool).parse()
 ├── src/
 │   ├── cli.ts            # defineDevtool + setup(ctx) { ctx.rpc.register(...) }
-│   └── app/              # Nuxt SPA — uses `devframe/helpers/nuxt`
+│   └── app/              # Nuxt SPA — uses `@devframes/nuxt`
 └── dist/
     ├── cli.mjs           # bundled Node entry
     └── public/           # Nuxt build output, pointed at by cli.distDir
 ```
 
 - `createCli` (from `devframe/adapters/cli`) runs the Node side — HTTP + WS + static build + MCP.
-- `devframe/helpers/nuxt` handles the client side — RPC connection + base-URL plumbing.
+- `@devframes/nuxt` handles the client side — RPC connection + base-URL plumbing.
 
 They're decoupled: swap Nuxt for any other SPA framework as long as it calls `connectDevtool()` in the browser.
 

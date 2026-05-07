@@ -67,7 +67,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   async init() {
     this.userSettings = await this.context.rpc.sharedState.get('devframe:user-settings', {
       sharedState: createStorage({
-        filepath: join(this.context.workspaceRoot, 'node_modules/.vite/devtools/settings.json'),
+        filepath: join(this.context.host.getStorageDir('workspace'), 'settings.json'),
         initialValue: DEFAULT_STATE_USER_SETTINGS(),
       }),
     })
@@ -193,9 +193,5 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     }
     const token = internal.allocateRemoteToken(view.id, dockOrigin, options.originLock)
     this.remoteDocks.set(view.id, { token, options })
-
-    // Default `when` to hide the dock in build mode (no WS server exists).
-    if (view.when === undefined)
-      view.when = 'mode != build'
   }
 }

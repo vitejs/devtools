@@ -16,7 +16,7 @@ description: >
 
 A devtool built on devframe is a **single `DevtoolDefinition`** plus an author-provided SPA. Use one of seven adapters to ship it. `devframe` must not depend on Vite or any `@vitejs/*` package — it's the lowest-level layer in the monorepo, and the Kit / core packages build on top.
 
-Full reference: [docs.devtools.vite.dev/devframe/](https://devtools.vite.dev/devframe/).
+Full reference: [devfra.me/](https://devfra.me/).
 
 ## When to use devframe
 
@@ -68,14 +68,14 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 **Always prefix** RPC names, dock IDs, command IDs, shared-state keys, and agent tool IDs with the devtool `id`:
 
 ```ts
-'my-inspector:get-modules'  // ✓
-'my-inspector:state'        // ✓
-'get-modules'               // ✗ — may collide with other devtools sharing the host
+'my-inspector:get-modules' // ✓
+'my-inspector:state' // ✓
+'get-modules' // ✗ — may collide with other devtools sharing the host
 ```
 
 ## DevToolsNodeContext at a glance
 
-`setup(ctx)` receives the full server-side surface. Each host corresponds to a [docs](https://devtools.vite.dev/devframe/) page:
+`setup(ctx)` receives the full server-side surface. Each host corresponds to a [docs](https://devfra.me/) page:
 
 | Host | Purpose |
 |------|---------|
@@ -87,7 +87,7 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 | `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
 | `ctx.terminals` | Spawn and stream child processes |
 | `ctx.agent` | Expose tools + resources to coding agents (experimental) |
-| `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin` |
+| `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin`, `getStorageDir` |
 | `ctx.mode` | `'dev'` or `'build'` — gate setup work per runtime |
 
 ## RPC contracts
@@ -164,7 +164,7 @@ const channel = ctx.rpc.streaming.create<string>('my-inspector:tokens', {
 
 ```ts
 // Server — typically inside an action handler that returns the stream id
-const stream = channel.start({ id?: string })
+const stream = channel.start({ id: 'optional-stream-id' })
 stream.write(token) // imperative
 stream.error(err) // terminal failure
 stream.close() // terminal success
@@ -435,18 +435,18 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 ## Further reading
 
-All of the above has a dedicated page at [docs.devtools.vite.dev/devframe](https://devtools.vite.dev/devframe/):
+All of the above has a dedicated page at [devfra.me](https://devfra.me/):
 
-- [Devtool Definition](https://devtools.vite.dev/devframe/devtool-definition) — fields, runtime flags, multi-adapter wiring
-- [Adapters](https://devtools.vite.dev/devframe/adapters) — full reference for all seven adapters
-- [RPC](https://devtools.vite.dev/devframe/rpc) — types, schema, broadcasts, dumps
-- [Shared State](https://devtools.vite.dev/devframe/shared-state) — patches, events, client-side mutation
-- [Streaming](https://devtools.vite.dev/devframe/streaming) — chunked feeds, uploads, replay, Web/Node Streams interop
-- [Dock System](https://devtools.vite.dev/devframe/dock-system) — every entry type + remote docks
-- [Commands](https://devtools.vite.dev/devframe/commands) — palette, keybindings, sub-commands
-- [When Clauses](https://devtools.vite.dev/devframe/when-clauses) — syntax, context, type-safe wrappers
-- [Messages & Notifications](https://devtools.vite.dev/devframe/messages) — entry fields, positional hints
-- [Structured Diagnostics](https://devtools.vite.dev/devframe/diagnostics) — coded errors via `ctx.diagnostics`, register custom codes
-- [Terminals](https://devtools.vite.dev/devframe/terminals) — child processes, external sessions
-- [Client](https://devtools.vite.dev/devframe/client) — auth handshake, modes, discovery
-- [Agent-Native](https://devtools.vite.dev/devframe/agent-native) — agent field, tools/resources, MCP + Claude Desktop
+- [Devtool Definition](https://devfra.me/devtool-definition) — fields, runtime flags, multi-adapter wiring
+- [Adapters](https://devfra.me/adapters) — full reference for all seven adapters
+- [RPC](https://devfra.me/rpc) — types, schema, broadcasts, dumps
+- [Shared State](https://devfra.me/shared-state) — patches, events, client-side mutation
+- [Streaming](https://devfra.me/streaming) — chunked feeds, uploads, replay, Web/Node Streams interop
+- [Dock System](https://devfra.me/dock-system) — every entry type + remote docks
+- [Commands](https://devfra.me/commands) — palette, keybindings, sub-commands
+- [When Clauses](https://devfra.me/when-clauses) — syntax, context, type-safe wrappers
+- [Messages & Notifications](https://devfra.me/messages) — entry fields, positional hints
+- [Structured Diagnostics](https://devfra.me/diagnostics) — coded errors via `ctx.diagnostics`, register custom codes
+- [Terminals](https://devfra.me/terminals) — child processes, external sessions
+- [Client](https://devfra.me/client) — auth handshake, modes, discovery
+- [Agent-Native](https://devfra.me/agent-native) — agent field, tools/resources, MCP + Claude Desktop

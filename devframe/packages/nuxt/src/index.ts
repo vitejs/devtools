@@ -28,7 +28,7 @@ export interface DevframeNuxtModuleOptions {
  *
  * ```ts [nuxt.config.ts]
  * export default defineNuxtConfig({
- *   modules: ['devframe/helpers/nuxt'],
+ *   modules: ['@devframes/nuxt'],
  * })
  * ```
  *
