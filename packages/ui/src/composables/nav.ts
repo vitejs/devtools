@@ -4,7 +4,6 @@ import { computed, onScopeDispose, reactive, toRef, watch } from 'vue'
 export interface SideNavItem {
   icon: string
   title: string
-  active?: boolean
   category?: string
   to?: string
   action?: () => void

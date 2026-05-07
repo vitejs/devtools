@@ -20,7 +20,7 @@ defineProps<{
 
 <template>
   <CompareTabView
-    tab="overview"
+    tab="packages"
     :tabs="tabs"
     :sessions="sessions"
     :details="details"

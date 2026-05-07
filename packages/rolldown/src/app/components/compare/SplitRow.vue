@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { SessionCompareChangeStatus } from '~~/shared/types'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { computed } from 'vue'
 
@@ -11,7 +10,6 @@ interface SplitDiffStat {
 }
 
 const props = withDefaults(defineProps<{
-  status: SessionCompareChangeStatus
   previousTitle?: string
   currentTitle?: string
   previousTitleMeta?: string
@@ -71,18 +69,11 @@ const ratioClass = computed(() => {
               {{ previousSubtitle }}
             </div>
           </div>
-          <div flex="~ items-center gap-2 wrap">
-            <DisplayBadge v-for="badge of previousBadges" :key="badge" :text="badge" />
-            <span v-if="previousStats.length" flex="~ items-baseline gap-1" text-xs op55>
-              <span>(</span>
-              <template v-for="(stat, index) of previousStats" :key="stat.label">
-                <span v-if="index" op70>|</span>
-                <span font-mono font-600 :class="stat.tone === 'increase' ? 'text-green-500' : stat.tone === 'decrease' ? 'text-red-500' : 'op85'">{{ stat.value }}</span>
-                <span>{{ stat.label }}</span>
-              </template>
-              <span>)</span>
-            </span>
-            <span flex-1 />
+          <div flex="~ items-end gap-3 justify-between">
+            <div min-w-0 flex="~ items-center gap-2 wrap">
+              <DisplayBadge v-for="badge of previousBadges" :key="badge" :text="badge" />
+              <CompareStatsStrip :stats="previousStats" />
+            </div>
             <span text-lg font-600>
               <CompareDeltaValue :value="previous" :format="format" />
             </span>
@@ -108,18 +99,11 @@ const ratioClass = computed(() => {
               {{ currentSubtitle }}
             </div>
           </div>
-          <div flex="~ items-center gap-2 wrap">
-            <DisplayBadge v-for="badge of currentBadges" :key="badge" :text="badge" />
-            <span v-if="currentStats.length" flex="~ items-baseline gap-1" text-xs op55>
-              <span>(</span>
-              <template v-for="(stat, index) of currentStats" :key="stat.label">
-                <span v-if="index" op70>|</span>
-                <span font-mono font-600 :class="stat.tone === 'increase' ? 'text-green-500' : stat.tone === 'decrease' ? 'text-red-500' : 'op85'">{{ stat.value }}</span>
-                <span>{{ stat.label }}</span>
-              </template>
-              <span>)</span>
-            </span>
-            <span flex-1 />
+          <div flex="~ items-end gap-3 justify-between">
+            <div min-w-0 flex="~ items-center gap-2 wrap">
+              <DisplayBadge v-for="badge of currentBadges" :key="badge" :text="badge" />
+              <CompareStatsStrip :stats="currentStats" />
+            </div>
             <span text-lg font-600>
               <CompareDeltaValue :value="current" :format="format" />
             </span>

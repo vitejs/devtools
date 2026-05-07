@@ -3,6 +3,7 @@ export interface CompareSessionSummaryItem {
   label: string
   value: string
   icon: string
+  tone?: 'increase' | 'decrease'
 }
 
 defineProps<{
@@ -37,7 +38,10 @@ defineProps<{
           <div text-xs op50>
             {{ summary.label }}
           </div>
-          <div font-mono font-600>
+          <div
+            font-mono font-600
+            :class="summary.tone === 'increase' ? 'text-red-500' : summary.tone === 'decrease' ? 'text-green-500' : undefined"
+          >
             {{ summary.value }}
           </div>
         </div>

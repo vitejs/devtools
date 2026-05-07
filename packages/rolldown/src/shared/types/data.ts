@@ -73,14 +73,6 @@ export interface SessionCompareMetricValue {
   deltaRatio: number | null
 }
 
-export interface SessionCompareChangeSummary {
-  added: number
-  removed: number
-  changed: number
-  unchanged: number
-  total: number
-}
-
 export interface SessionCompareAssetDiff extends SessionCompareMetricValue {
   key: string
   status: SessionCompareChangeStatus
@@ -140,20 +132,6 @@ export interface SessionComparePluginDiff extends SessionCompareMetricValue {
   currentTransformDuration: number
 }
 
-export interface SessionCompareModuleDiff extends SessionCompareMetricValue {
-  key: string
-  status: SessionCompareChangeStatus
-  id: string
-  fileType: string
-  kind: 'source' | 'dependency' | 'external'
-  previousChunks: string[]
-  currentChunks: string[]
-  previousImports: number
-  currentImports: number
-  previousImporters: number
-  currentImporters: number
-}
-
 export interface SessionCompareDetails {
   sessionStats: {
     previous: {
@@ -165,18 +143,10 @@ export interface SessionCompareDetails {
       duplicatedPackages: number
     }
   }
-  summary: {
-    assets: SessionCompareChangeSummary
-    chunks: SessionCompareChangeSummary
-    packages: SessionCompareChangeSummary
-    plugins: SessionCompareChangeSummary
-    modules: SessionCompareChangeSummary
-  }
   assets: SessionCompareAssetDiff[]
   chunks: SessionCompareChunkDiff[]
   packages: SessionComparePackageDiff[]
   plugins: SessionComparePluginDiff[]
-  modules: SessionCompareModuleDiff[]
 }
 
 export interface ModuleInfo {
