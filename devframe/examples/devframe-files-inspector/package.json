@@ -1,7 +1,7 @@
 {
   "name": "devframe-files-inspector-example",
   "type": "module",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "private": true,
   "description": "End-to-end devframe demo — lists files in cwd via RPC, exercises CLI dev/build/spa and Vite DevTools dock integration.",
   "main": "src/devtool.ts",
