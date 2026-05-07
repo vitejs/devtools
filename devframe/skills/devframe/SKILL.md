@@ -55,7 +55,7 @@ export default defineDevtool({
       title: 'My Inspector',
       icon: 'ph:magnifying-glass-duotone',
       type: 'iframe',
-      url: '/.devtools/',
+      url: '/__devtools/',
     })
   },
 })
@@ -251,10 +251,10 @@ ctx.docks.register({
   title: 'My Inspector',
   icon: 'ph:magnifying-glass-duotone',
   type: 'iframe',
-  url: '/.my-inspector/',
+  url: '/__my-inspector/',
 })
 
-ctx.views.hostStatic('/.my-inspector/', clientDist)
+ctx.views.hostStatic('/__my-inspector/', clientDist)
 ```
 
 All entries accept `when` for conditional visibility and `badge` for short indicator text. See `/devframe/dock-system` for the full type reference.
@@ -387,7 +387,7 @@ const rpc = await connectDevtool()
 const data = await rpc.call('my-inspector:get-stats', { limit: 10 })
 ```
 
-`connectDevtool` auto-detects the backend via `/.devtools/.connection.json`:
+`connectDevtool` auto-detects the backend via `/__devtools/__connection.json`:
 
 - **websocket** (dev mode) — full read/write, requires auth handshake. Listen for token updates on the `vite-devtools-auth` BroadcastChannel.
 - **static** (build / spa output) — read-only, resolves calls from the baked RPC dump.
@@ -420,7 +420,7 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 | Subcommand | Action |
 |------------|--------|
-| *(default)* | Dev server on port 9999 (or `--port`) — WebSocket RPC, `cli.distDir` served at `/.devtools/` |
+| *(default)* | Dev server on port 9999 (or `--port`) — WebSocket RPC, `cli.distDir` served at `/__devtools/` |
 | `build` | Static snapshot → `./dist-static/` (configurable via `--out-dir`) |
 | `spa` | Deployable SPA → `./dist-spa/` |
 | `mcp` | stdio MCP server (experimental) |
@@ -431,7 +431,7 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 - Unit-test host classes with fake contexts.
 - Run `templates/counter-devtool.ts` under each adapter for integration coverage.
-- Snapshot the build-static RPC dump (`<outDir>/.devtools/.rpc-dump/index.json`) to catch accidental drift in `static` function outputs.
+- Snapshot the build-static RPC dump (`<outDir>/__devtools/__rpc-dump/index.json`) to catch accidental drift in `static` function outputs.
 
 ## Further reading
 

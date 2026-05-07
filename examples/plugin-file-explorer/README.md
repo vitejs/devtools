@@ -55,13 +55,13 @@ pnpm play:preview
 
 Static artifacts are generated under:
 
-- `playground/.vite-devtools/.devtools/.connection.json`
-- `playground/.vite-devtools/.devtools/.rpc-dump/index.json`
-- `playground/.vite-devtools/.devtools/.rpc-dump/*.json`
+- `playground/.vite-devtools/__devtools/__connection.json`
+- `playground/.vite-devtools/__devtools/__rpc-dump/index.json`
+- `playground/.vite-devtools/__devtools/__rpc-dump/*.json`
 
 ## Notes
 
-- Default UI base: `/.plugin-file-explorer/`
+- Default UI base: `/__plugin-file-explorer/`
 - Default target directory: `src`
 - You can override via options or env:
   - `KIT_PLUGIN_FILE_EXPLORER_UI_BASE`

@@ -45,7 +45,7 @@ import { fileURLToPath } from 'node:url'
 const clientDist = fileURLToPath(new URL('../dist/client', import.meta.url))
 
 // Host the static files
-ctx.views.hostStatic('/.my-plugin/', clientDist)
+ctx.views.hostStatic('/__my-plugin/', clientDist)
 
 // Register the dock entry
 ctx.docks.register({
@@ -53,7 +53,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:puzzle-piece-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 

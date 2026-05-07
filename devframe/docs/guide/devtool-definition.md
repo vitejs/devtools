@@ -21,7 +21,7 @@ export default defineDevtool({
       title: 'My Devtool',
       icon: 'ph:gauge-duotone',
       type: 'iframe',
-      url: '/.devtools/',
+      url: '/__devtools/',
     })
   },
 })
@@ -35,7 +35,7 @@ export default defineDevtool({
 | `name` | `string` | **Required.** Display name shown in the dock and agent manifests. |
 | `icon` | `string \| { light, dark }` | Optional Iconify name or URL; supports light/dark pairs. |
 | `version` | `string` | Optional version string surfaced to clients. |
-| `basePath` | `string` | Optional mount path override. Defaults depend on the adapter: `/` for standalone (`cli` / `spa` / `build`), `/.<id>/` for hosted (`vite` / `kit` / `embedded`). |
+| `basePath` | `string` | Optional mount path override. Defaults depend on the adapter: `/` for standalone (`cli` / `spa` / `build`), `/__<id>/` for hosted (`vite` / `kit` / `embedded`). |
 | `capabilities` | `{ dev?, build?, spa? }` | Per-runtime feature flags. A `boolean` applies to the runtime as a whole; an object enables individual features. |
 | `setup` | `(ctx, info?) => void \| Promise<void>` | **Required.** Server-side entry point. Runs in every runtime. The optional second argument carries runtime metadata — most notably the parsed CLI `flags` when running under `createCli`. |
 | `setupBrowser` | `(ctx) => void \| Promise<void>` | Browser-only entry used by the SPA adapter. |

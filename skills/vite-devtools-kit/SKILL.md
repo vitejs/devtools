@@ -81,7 +81,7 @@ export default function myAnalyzer(): Plugin {
         const clientPath = fileURLToPath(
           new URL('../dist/client', import.meta.url)
         )
-        ctx.views.hostStatic('/.my-analyzer/', clientPath)
+        ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
         // 2. Register dock entry
         ctx.docks.register({
@@ -89,7 +89,7 @@ export default function myAnalyzer(): Plugin {
           title: 'Analyzer',
           icon: 'ph:chart-bar-duotone',
           type: 'iframe',
-          url: '/.my-analyzer/',
+          url: '/__my-analyzer/',
         })
 
         // 3. Register RPC function
@@ -141,7 +141,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -589,7 +589,7 @@ Export from package.json:
 
 ## Debugging with Self-Inspect
 
-Use `@vitejs/devtools-self-inspect` to debug your DevTools plugin. It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI at `/.devtools-self-inspect/`.
+Use `@vitejs/devtools-self-inspect` to debug your DevTools plugin. It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI at `/__devtools-self-inspect/`.
 
 ```ts
 import DevTools from '@vitejs/devtools'
