@@ -71,7 +71,6 @@ export { DevToolsServerCommandInput }
 export { DevToolsTerminalHost }
 export { DevToolsTerminalSession }
 export { DevToolsTerminalSessionBase }
-export { DevToolsTerminalSessionStreamChunkEvent }
 export { DevToolsTerminalStatus }
 export { DevToolsViewAction }
 export { DevToolsViewBuiltin }
@@ -98,6 +97,9 @@ export { RpcDefinitionsToFunctions }
 export { RpcFunctionsHost }
 export { RpcSharedStateGetOptions }
 export { RpcSharedStateHost }
+export { RpcStreamingChannel }
+export { RpcStreamingChannelOptions }
+export { RpcStreamingHost }
 export { Thenable }
 export { ViteDevToolsNodeContext }
 export { WhenContext }

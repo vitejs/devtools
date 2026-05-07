@@ -62,6 +62,13 @@
       "outputs": [
         "dist/**"
       ]
+    },
+    "devframe-streaming-chat-example#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["devframe#build"],
+      "outputs": [
+        "dist/**"
+      ]
     }
   }
 }

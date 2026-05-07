@@ -18,6 +18,18 @@ export interface DevToolsNodeRpcSessionMeta {
   clientAuthToken?: string
   isTrusted?: boolean
   subscribedStates: Set<string>
+  /**
+   * Streams this session has subscribed to via
+   * `rpc.streaming.subscribe(channel, id)`. Tracked here for O(1) cleanup
+   * on disconnect; the wire format is `${channel}\x1F${id}`.
+   */
+  subscribedStreams?: Set<string>
+  /**
+   * Inbound streams this session is currently uploading to (via
+   * `rpc.streaming.upload(channel, id)`). Tracked for cleanup on
+   * disconnect; same wire format as `subscribedStreams`.
+   */
+  uploadingStreams?: Set<string>
 }
 
 export interface WsRpcTransportOptions {

@@ -1,10 +1,11 @@
 import type { BirpcGroup } from 'birpc'
-import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcBroadcastOptions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost } from 'devframe/types'
+import type { DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsNodeRpcSessionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, RpcBroadcastOptions, RpcFunctionsHost as RpcFunctionsHostType, RpcSharedStateHost, RpcStreamingHost } from 'devframe/types'
 import type { AsyncLocalStorage } from 'node:async_hooks'
 import { RpcFunctionsCollectorBase } from 'devframe/rpc'
 import { createDebug } from 'obug'
 import { logger } from './diagnostics'
 import { createRpcSharedStateServerHost } from './rpc-shared-state'
+import { createRpcStreamingServerHost } from './rpc-streaming'
 
 const debugBroadcast = createDebug('vite:devtools:rpc:broadcast')
 
@@ -19,9 +20,22 @@ export class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevToolsRpcServe
     super(context)
 
     this.sharedState = createRpcSharedStateServerHost(this)
+    this.streaming = createRpcStreamingServerHost(this)
   }
 
   sharedState: RpcSharedStateHost
+  streaming: RpcStreamingHost
+
+  /**
+   * Adapters call this from their WS `onDisconnected` hook so downstream
+   * hosts (streaming, …) can free per-session state. Public-ish because
+   * tests / custom adapters may want to mirror it.
+   *
+   * @internal
+   */
+  _emitSessionDisconnected(meta: DevToolsNodeRpcSessionMeta): void {
+    this.streaming._onSessionDisconnected(meta)
+  }
 
   async invokeLocal<
     T extends keyof DevToolsRpcServerFunctions,

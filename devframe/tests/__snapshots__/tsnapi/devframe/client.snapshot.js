@@ -4,6 +4,7 @@
 // #region Other
 export { CLIENT_CONTEXT_KEY }
 export { getDevToolsRpcClient as connectDevtool }
+export { createRpcStreamingClientHost }
 export { getDevToolsClientContext }
 export { getDevToolsRpcClient }
 // #endregion

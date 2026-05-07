@@ -17,6 +17,7 @@ export default defineConfig({
     'utils/promise': 'src/utils/promise.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
     'utils/state': 'src/utils/state.ts',
+    'utils/streaming-channel': 'src/utils/streaming-channel.ts',
     'utils/when': 'src/utils/when.ts',
     'adapters/cli': 'src/adapters/cli.ts',
     'adapters/dev': 'src/adapters/dev.ts',

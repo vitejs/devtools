@@ -63,7 +63,6 @@ export type {
   DevToolsTerminalHost,
   DevToolsTerminalSession,
   DevToolsTerminalSessionBase,
-  DevToolsTerminalSessionStreamChunkEvent,
   DevToolsTerminalStatus,
   DevToolsViewAction,
   DevToolsViewBuiltin,
@@ -87,5 +86,8 @@ export type {
   RpcFunctionsHost,
   RpcSharedStateGetOptions,
   RpcSharedStateHost,
+  RpcStreamingChannel,
+  RpcStreamingChannelOptions,
+  RpcStreamingHost,
   Thenable,
 } from 'devframe/types'

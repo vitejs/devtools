@@ -3,6 +3,7 @@ import type { RpcCacheOptions } from 'devframe/rpc'
 import type { WsRpcChannelOptions } from 'devframe/rpc/transports/ws-client'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from 'devframe/types'
 import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
+import type { RpcStreamingClientHost } from './rpc-streaming'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
 } from 'devframe/constants'
@@ -11,6 +12,7 @@ import { createEventEmitter } from 'devframe/utils/events'
 import { humanId } from 'devframe/utils/human-id'
 import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
+import { createRpcStreamingClientHost } from './rpc-streaming'
 import { createWsRpcClientMode } from './rpc-ws'
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
@@ -87,6 +89,12 @@ export interface DevToolsRpcClient {
    * The shared state host
    */
   sharedState: RpcSharedStateHost
+  /**
+   * The streaming channel host. Subscribe to a server-side stream by
+   * channel + id; the returned reader is both `AsyncIterable<T>` and
+   * exposes `.readable: ReadableStream<T>` for `pipeTo` consumption.
+   */
+  streaming: RpcStreamingClientHost
   /**
    * The RPC cache manager
    */
@@ -282,10 +290,12 @@ export async function getDevToolsRpcClient(
     callOptional: mode.callOptional,
     client: clientRpc,
     sharedState: undefined!,
+    streaming: undefined!,
     cacheManager,
   }
 
   rpc.sharedState = createRpcSharedStateClientHost(rpc)
+  rpc.streaming = createRpcStreamingClientHost(rpc)
 
   // @ts-expect-error assign to readonly property
   context.rpc = rpc

@@ -144,6 +144,20 @@ defineDevtool({
 | `event` | `boolean` | Fire-and-forget (don't wait for responses). |
 | `filter` | `(client) => boolean` | Skip specific clients. |
 
+## Streaming
+
+For chunk-style server→client feeds (chat deltas, log lines, build progress), reach for [streaming channels](./streaming) instead of hand-rolling `action + delta/end events`. The streaming API gives you stream IDs, cancellation, replay, and Web Streams interop for free:
+
+```ts
+const channel = ctx.rpc.streaming.create<string>('my-devtool:chat', {
+  replayWindow: 256,
+})
+const stream = channel.start()
+sourceReadable.pipeTo(stream.writable)
+```
+
+See the [Streaming guide](./streaming) for the full API.
+
 ## Local Invocation
 
 `ctx.rpc.invokeLocal` calls a registered server function directly without going through a transport — useful for cross-function composition on the server side:

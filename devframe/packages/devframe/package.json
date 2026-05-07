@@ -45,6 +45,7 @@
     "./utils/promise": "./dist/utils/promise.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./utils/state": "./dist/utils/state.mjs",
+    "./utils/streaming-channel": "./dist/utils/streaming-channel.mjs",
     "./utils/when": "./dist/utils/when.mjs",
     "./package.json": "./package.json"
   },

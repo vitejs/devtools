@@ -10,6 +10,7 @@ export default function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[]
         { text: 'Adapters', link: `${prefix}/guide/adapters` },
         { text: 'RPC', link: `${prefix}/guide/rpc` },
         { text: 'Shared State', link: `${prefix}/guide/shared-state` },
+        { text: 'Streaming', link: `${prefix}/guide/streaming` },
         { text: 'Dock System', link: `${prefix}/guide/dock-system` },
         { text: 'Commands', link: `${prefix}/guide/commands` },
         { text: 'When Clauses', link: `${prefix}/guide/when-clauses` },
@@ -26,7 +27,7 @@ export default function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[]
       text: 'Error Reference',
       link: `${prefix}/errors/`,
       collapsed: true,
-      items: Array.from({ length: 28 }, (_, i) => {
+      items: Array.from({ length: 32 }, (_, i) => {
         const code = `DF${String(i + 1).padStart(4, '0')}`
         return { text: code, link: `${prefix}/errors/${code}` }
       }),

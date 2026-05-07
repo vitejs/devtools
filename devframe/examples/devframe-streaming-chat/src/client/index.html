@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <base href="./" />
+    <title>Streaming Chat</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fafafa;
+        --fg: #222;
+        --panel: #fff;
+        --border: #e0e0e0;
+        --user: #0b66ff;
+        --user-fg: #fff;
+        --assistant: #f1f1f3;
+        --assistant-fg: #1a1a1a;
+        --muted: #777;
+        --danger: #b00020;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131316;
+          --fg: #e8e8ea;
+          --panel: #1d1d22;
+          --border: #2c2c33;
+          --user: #2563eb;
+          --user-fg: #fff;
+          --assistant: #2a2a31;
+          --assistant-fg: #e8e8ea;
+          --muted: #888;
+          --danger: #ff6b81;
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        margin: 0;
+        display: flex;
+      }
+      #app { flex: 1; display: flex; min-height: 100%; }
+      main {
+        flex: 1;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      header h1 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+      header small { color: var(--muted); }
+      .toolbar { display: flex; gap: .5rem; }
+      .toolbar button {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--fg);
+        font: inherit;
+        padding: .25rem .6rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .toolbar button:hover { background: var(--border); }
+      .toolbar button[disabled] { opacity: .4; cursor: not-allowed; }
+      .messages {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        padding: .5rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .empty {
+        margin: auto;
+        text-align: center;
+        color: var(--muted);
+        font-size: .9rem;
+        padding: 2rem 1rem;
+        line-height: 1.6;
+      }
+      .empty kbd {
+        font: inherit;
+        background: var(--border);
+        padding: 1px 4px;
+        border-radius: 3px;
+      }
+      .msg {
+        max-width: 85%;
+        padding: .5rem .75rem;
+        border-radius: 10px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .msg-user {
+        align-self: flex-end;
+        background: var(--user);
+        color: var(--user-fg);
+        border-bottom-right-radius: 2px;
+      }
+      .msg-assistant {
+        align-self: flex-start;
+        background: var(--assistant);
+        color: var(--assistant-fg);
+        border-bottom-left-radius: 2px;
+        font-family: ui-monospace, monospace;
+        font-size: .92rem;
+      }
+      .msg-meta {
+        font-size: .7rem;
+        color: var(--muted);
+        margin-top: .15rem;
+      }
+      .msg.streaming::after {
+        content: '▍';
+        opacity: .55;
+        animation: blink 1s step-end infinite;
+      }
+      .msg.cancelled .msg-meta { color: var(--danger); }
+      @keyframes blink { 50% { opacity: 0; } }
+      form {
+        display: flex;
+        gap: .5rem;
+      }
+      input[type="text"] {
+        flex: 1;
+        background: var(--panel);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: .55rem .75rem;
+        font: inherit;
+      }
+      input[type="text"]:focus { outline: 2px solid var(--user); outline-offset: -1px; }
+      .send, .cancel {
+        font: inherit;
+        padding: .55rem 1rem;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+      }
+      .send { background: var(--user); color: var(--user-fg); }
+      .send[disabled] { opacity: .5; cursor: not-allowed; }
+      .cancel { background: var(--danger); color: #fff; }
+      .demo-prompts { display: flex; gap: .4rem; flex-wrap: wrap; }
+      .demo-prompts button {
+        font-size: .85rem;
+        padding: .25rem .6rem;
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      .demo-prompts button:hover { background: var(--border); }
+      .status { font-size: .75rem; color: var(--muted); }
+      .status .err { color: var(--danger); }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

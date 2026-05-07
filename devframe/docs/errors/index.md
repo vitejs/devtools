@@ -46,3 +46,7 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0026](./DF0026) | error | No Dump Match | DTK0006 |
 | [DF0027](./DF0027) | error | Invalid Dump Configuration | DTK0007 |
 | [DF0028](./DF0028) | error | Snapshot Type Mismatch | DTK0008 |
+| [DF0029](./DF0029) | warn | Stream Buffer Overflow | — |
+| [DF0030](./DF0030) | error | Unknown Stream ID | — |
+| [DF0031](./DF0031) | error | Write to Closed Stream | — |
+| [DF0032](./DF0032) | error | Streaming Channel Already Registered | — |

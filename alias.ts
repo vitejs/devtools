@@ -21,6 +21,7 @@ export const alias = {
   'devframe/utils/promise': df('devframe/src/utils/promise.ts'),
   'devframe/utils/shared-state': df('devframe/src/utils/shared-state.ts'),
   'devframe/utils/state': df('devframe/src/utils/state.ts'),
+  'devframe/utils/streaming-channel': df('devframe/src/utils/streaming-channel.ts'),
   'devframe/utils/when': df('devframe/src/utils/when.ts'),
   'devframe/adapters/cli': df('devframe/src/adapters/cli.ts'),
   'devframe/adapters/dev': df('devframe/src/adapters/dev.ts'),

@@ -102,13 +102,19 @@ ctx.docks.register({
 ctx.terminals.events.on('terminal:session:updated', (session) => {
   console.log(session.id, session.status)
 })
-
-ctx.terminals.events.on('terminal:session:stream-chunk', ({ id, chunks, ts }) => {
-  // chunks: string[] delivered together, timestamped ms
-})
 ```
 
-Stream chunks arrive in batches (the host coalesces rapid output), so each event may contain multiple lines.
+Output chunks aren't delivered as host events anymore — terminals now use the [streaming](./streaming) channel `devtoolskit:internal:terminals` keyed by session id. From the browser:
+
+```ts
+const reader = rpc.streaming.subscribe<string>(
+  'devtoolskit:internal:terminals',
+  sessionId,
+)
+for await (const chunk of reader) writeToTerminal(chunk)
+```
+
+A server-side bridge inside `DevToolsTerminalHost` pipes each session's `ReadableStream<string>` straight into the channel — you don't need to wire anything yourself unless you want a custom client-side renderer.
 
 ## Inspection
 

@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { SharedStatePatch } from 'devframe/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
@@ -10,10 +10,6 @@ import { messagesList } from './internal/messages-list'
 import { messagesRemove } from './internal/messages-remove'
 import { messagesUpdate } from './internal/messages-update'
 import { rpcServerList } from './internal/rpc-server-list'
-import { sharedStateGet } from './internal/state/get'
-import { sharedStatePatch } from './internal/state/patch'
-import { sharedStateSet } from './internal/state/set'
-import { sharedStateSubscribe } from './internal/state/subscribe'
 import { terminalsList } from './internal/terminals-list'
 import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
@@ -40,10 +36,6 @@ export const builtinInternalRpcDeclarations = [
   messagesRemove,
   messagesUpdate,
   rpcServerList,
-  sharedStateGet,
-  sharedStatePatch,
-  sharedStateSet,
-  sharedStateSubscribe,
   terminalsList,
   terminalsRead,
 ] as const
@@ -74,7 +66,6 @@ declare module '@vitejs/devtools-kit' {
     'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
     'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
-    'devtoolskit:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
     'devtoolskit:internal:terminals:updated': () => Promise<void>
   }
 
