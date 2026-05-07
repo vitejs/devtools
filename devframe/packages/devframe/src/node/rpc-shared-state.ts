@@ -1,10 +1,11 @@
-import type { RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } from 'devframe/types'
-import type { SharedState } from 'devframe/utils/shared-state'
+import type { DevToolsRpcSharedStates, RpcFunctionsHost, RpcSharedStateGetOptions, RpcSharedStateHost } from 'devframe/types'
+import type { SharedState, SharedStatePatch } from 'devframe/utils/shared-state'
 import { createSharedState } from 'devframe/utils/shared-state'
 import { createDebug } from 'obug'
 import { logger } from './diagnostics'
 
 const debug = createDebug('vite:devtools:rpc:state:changed')
+const debugSubscribe = createDebug('vite:devtools:rpc:state:subscribe')
 
 export function createRpcSharedStateServerHost(
   rpc: RpcFunctionsHost,
@@ -72,6 +73,61 @@ export function createRpcSharedStateServerHost(
       }
     },
   }
+
+  // Wire methods that the client-side `client/rpc-shared-state.ts`
+  // calls to subscribe / get / push patches / push full snapshots.
+  // Registering them here keeps shared-state self-contained: any
+  // server built on `RpcFunctionsHost` (devframe standalone or kit /
+  // core) gets the full sync protocol out of the box.
+  rpc.register({
+    name: 'devtoolskit:internal:rpc:server-state:subscribe',
+    type: 'event',
+    handler(key: string) {
+      const session = rpc.getCurrentRpcSession()
+      if (!session)
+        return
+      debugSubscribe('subscribe', { key, session: session.meta.id })
+      session.meta.subscribedStates.add(key)
+    },
+  })
+
+  rpc.register({
+    name: 'devtoolskit:internal:rpc:server-state:get',
+    type: 'query',
+    handler: async (key: string) => {
+      if (!sharedState.has(key))
+        return undefined
+      const state = await host.get(key as keyof DevToolsRpcSharedStates)
+      return state.value()
+    },
+    // Pre-compute snapshots for the build-mode static dump so the SPA
+    // can read them without a live server.
+    dump: () => ({
+      inputs: host.keys().map(key => [key] as [string]),
+    }),
+  })
+
+  rpc.register({
+    name: 'devtoolskit:internal:rpc:server-state:set',
+    type: 'query',
+    handler: async (key: string, value: any, syncId: string) => {
+      const state = await host.get(key as keyof DevToolsRpcSharedStates, {
+        initialValue: value,
+      })
+      state.mutate(() => value, syncId)
+    },
+  })
+
+  rpc.register({
+    name: 'devtoolskit:internal:rpc:server-state:patch',
+    type: 'query',
+    handler: async (key: string, patches: SharedStatePatch[], syncId: string) => {
+      if (!sharedState.has(key))
+        return
+      const state = await host.get(key as keyof DevToolsRpcSharedStates)
+      state.patch(patches, syncId)
+    },
+  })
 
   return host
 }

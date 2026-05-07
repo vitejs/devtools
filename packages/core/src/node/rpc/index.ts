@@ -10,10 +10,6 @@ import { messagesList } from './internal/messages-list'
 import { messagesRemove } from './internal/messages-remove'
 import { messagesUpdate } from './internal/messages-update'
 import { rpcServerList } from './internal/rpc-server-list'
-import { sharedStateGet } from './internal/state/get'
-import { sharedStatePatch } from './internal/state/patch'
-import { sharedStateSet } from './internal/state/set'
-import { sharedStateSubscribe } from './internal/state/subscribe'
 import { terminalsList } from './internal/terminals-list'
 import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
@@ -40,10 +36,6 @@ export const builtinInternalRpcDeclarations = [
   messagesRemove,
   messagesUpdate,
   rpcServerList,
-  sharedStateGet,
-  sharedStatePatch,
-  sharedStateSet,
-  sharedStateSubscribe,
   terminalsList,
   terminalsRead,
 ] as const
