@@ -62,7 +62,7 @@ export function createWsRpcClientMode(
 
   // Handle server-initiated auth revocation
   clientRpc.register({
-    name: 'devtoolskit:internal:auth:revoked',
+    name: 'devframe:auth:revoked',
     type: 'event',
     handler: () => {
       isTrusted = false

@@ -4,7 +4,7 @@ import type { Terminal } from '@xterm/xterm'
 import type { Reactive } from 'vue'
 import { reactive } from 'vue'
 
-const TERMINAL_STREAM_CHANNEL = 'devtoolskit:internal:terminals'
+const TERMINAL_STREAM_CHANNEL = 'devframe:terminals'
 
 export interface TerminalState {
   info: DevToolsTerminalSessionBase
@@ -61,7 +61,7 @@ export function useTerminals(context: DocksContext): Reactive<Map<string, Termin
     console.log('[VITE DEVTOOLS] Terminals Updated', [...map.values()])
   }
   context.rpc.client.register({
-    name: 'devtoolskit:internal:terminals:updated' satisfies keyof DevToolsRpcClientFunctions,
+    name: 'devframe:terminals:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => updateTerminals(),
   })

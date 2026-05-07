@@ -194,7 +194,7 @@ The session token is:
 
 - **Pre-approved** — no interactive "trust this browser?" prompt fires. The user already agreed to the integration when they installed your plugin.
 - **Session-scoped** — stored in memory only, regenerated on every dev-server restart.
-- **Re-register-scoped** — calling `ctx.docks.register(..., true)` again for the same id revokes the previous token before allocating a new one. Any live WS clients using the old token receive `devtoolskit:internal:auth:revoked` and become untrusted.
+- **Re-register-scoped** — calling `ctx.docks.register(..., true)` again for the same id revokes the previous token before allocating a new one. Any live WS clients using the old token receive `devframe:auth:revoked` and become untrusted.
 - **Origin-locked by default** — only connections whose `Origin` header matches the dock URL's origin are accepted.
 
 Because the token rides in the URL (fragment or query), it should be treated as a session secret: don't log URLs to external services on the hosted page, and prefer `transport: 'fragment'` unless you have a specific reason not to.

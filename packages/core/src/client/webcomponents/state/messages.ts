@@ -62,7 +62,7 @@ export function useMessages(context: DocksContext): Reactive<MessagesState> {
   }
 
   context.rpc.client.register({
-    name: 'devtoolskit:internal:messages:updated' satisfies keyof DevToolsRpcClientFunctions,
+    name: 'devframe:messages:updated' satisfies keyof DevToolsRpcClientFunctions,
     type: 'action',
     handler: () => {
       if (context.rpc.isTrusted)

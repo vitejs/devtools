@@ -22,7 +22,7 @@ export async function createCommandsContext(
   }
 
   // Server commands from shared state
-  const serverCommandsState = await rpc.sharedState.get('devtoolskit:internal:commands', { initialValue: [] })
+  const serverCommandsState = await rpc.sharedState.get('devframe:commands', { initialValue: [] })
   const serverCommands: ShallowRef<DevToolsServerCommandEntry[]> = sharedStateToRef(serverCommandsState)
 
   // Client commands (local registry)

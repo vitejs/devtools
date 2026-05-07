@@ -101,7 +101,7 @@ export async function createDocksContext(
   const getSettingsStore = async () => {
     if (!_settingsStorePromise) {
       _settingsStorePromise = rpc.sharedState.get(
-        'devtoolskit:internal:user-settings',
+        'devframe:user-settings',
         { initialValue: DEFAULT_STATE_USER_SETTINGS() },
       )
     }
