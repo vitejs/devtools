@@ -15,6 +15,7 @@ function createMockContext(): DevToolsNodeContext {
     host: {
       mountStatic: () => {},
       resolveOrigin: () => 'http://localhost:5173',
+      getStorageDir: () => '/tmp/devframe-test-storage',
     },
   } as unknown as DevToolsNodeContext
 }
@@ -30,7 +31,13 @@ function decodeDescriptor(url: string): RemoteConnectionInfo {
 }
 
 describe('devToolsDockHost', () => {
-  const mockContext = {} as DevToolsNodeContext
+  const mockContext = {
+    host: {
+      mountStatic: () => {},
+      resolveOrigin: () => 'http://localhost:5173',
+      getStorageDir: () => '/tmp/devframe-test-storage',
+    },
+  } as unknown as DevToolsNodeContext
 
   describe('builtin entries', () => {
     it('does not include popup in builtin docks', () => {
@@ -281,7 +288,7 @@ describe('devToolsDockHost', () => {
       internalContextMap.delete(ctx)
     })
 
-    it('defaults `when` to hide the dock in build mode', () => {
+    it('does not inject a default `when` clause for remote docks', () => {
       const ctx = createMockContext()
       const host = new DevToolsDockHost(ctx)
       getInternalContext(ctx).wsEndpoint = { url: 'ws://localhost:7812' }
@@ -295,7 +302,7 @@ describe('devToolsDockHost', () => {
         remote: true,
       })
 
-      expect(host.views.get('remote-dock')?.when).toBe('mode != build')
+      expect(host.views.get('remote-dock')?.when).toBeUndefined()
       internalContextMap.delete(ctx)
     })
 

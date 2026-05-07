@@ -10,7 +10,7 @@ describePackagesApiSnapshots({
     )
     if (!pkg.name || pkg.private)
       return false
-    if (pkg.name === 'devframe')
+    if (pkg.name === 'devframe' || pkg.name.startsWith('@devframes/'))
       return false
   },
 })

@@ -90,7 +90,7 @@ For the Nuxt side, add the devframe helper module — it sets `app.baseURL: './'
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
   ssr: false,
-  modules: ['devframe/helpers/nuxt'],
+  modules: ['@devframes/nuxt'],
   nitro: {
     preset: 'static',
     output: { dir: './dist' }, // matches createCli's distDir of ./dist/public

@@ -73,7 +73,7 @@ interface DevToolsNodeContext {
   readonly workspaceRoot: string
   readonly mode: 'dev' | 'build'
 
-  host: DevToolsHost // runtime abstraction (mountStatic / resolveOrigin)
+  host: DevToolsHost // runtime abstraction (mountStatic / resolveOrigin / getStorageDir)
   rpc: RpcFunctionsHost // register + broadcast + sharedState
   docks: DevToolsDockHost // dock entries
   views: DevToolsViewHost // static file hosting

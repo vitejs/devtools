@@ -152,7 +152,7 @@ docs/errors/
   MYP0002.md
 ```
 
-Each page covers the message, cause, example, and fix — see any [DF code page](https://devtools.vite.dev/devframe/errors/) for the canonical template. Set `docsBase` on `defineDiagnostics({...})` so the URL is auto-attached to every emitted diagnostic.
+Each page covers the message, cause, example, and fix — see any [DF code page](https://devfra.me/errors/) for the canonical template. Set `docsBase` on `defineDiagnostics({...})` so the URL is auto-attached to every emitted diagnostic.
 
 ## When to Use What
 

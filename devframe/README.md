@@ -9,7 +9,7 @@ This directory is staged for extraction into a standalone repository. Until then
 | Path | Description |
 |------|-------------|
 | [`packages/devframe`](./packages/devframe) | The published [`devframe`](https://www.npmjs.com/package/devframe) npm package. |
-| [`docs`](./docs) | VitePress documentation site, deployed at https://devtools.vite.dev/devframe/. |
+| [`docs`](./docs) | VitePress documentation site, deployed at https://devfra.me/. |
 | [`examples`](./examples) | End-to-end demos: [`devframe-counter`](./examples/devframe-counter) (smallest cross-adapter demo) and [`devframe-files-inspector`](./examples/devframe-files-inspector) (CLI dev/build/spa + Vite DevTools dock). |
 | [`tests`](./tests) | Public-API snapshot tests via [`tsnapi`](https://github.com/posva/tsnapi). |
 
@@ -21,7 +21,7 @@ pnpm add devframe
 
 ## Documentation
 
-See [https://devtools.vite.dev/devframe/](https://devtools.vite.dev/devframe/) for the full guide and API reference.
+See [https://devfra.me/](https://devfra.me/) for the full guide and API reference.
 
 ## Adapters
 

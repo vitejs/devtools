@@ -201,13 +201,13 @@ Because the token rides in the URL (fragment or query), it should be treated as 
 
 ## Build mode
 
-The WebSocket server exists only in dev mode (`vite`), not in build mode (`vite build`). When `remote` is set, DevTools automatically hides the dock in build mode by defaulting its [`when` clause](./when-clauses) to `'mode != build'`. You can still set your own `when` if you need different behavior:
+The WebSocket server exists only in dev mode (`vite`), not in build mode (`vite build`). Remote-iframe docks are skipped automatically in static-dump output, so you don't need to gate them with a [`when` clause](./when-clauses) — but you can add one if you want different visibility rules in embedded vs. standalone clients:
 
 ```ts
 ctx.docks.register({
   // ...
   remote: true,
-  when: 'clientType == embedded', // overrides the default
+  when: 'clientType == embedded',
 })
 ```
 

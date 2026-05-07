@@ -114,7 +114,7 @@ export interface RpcStreamingChannelOptions {
  * channel owns a wire namespace; calling `start()` produces individual
  * streams keyed by id.
  *
- * @see {@link https://devtools.vite.dev/devframe/guide/streaming Streaming guide}
+ * @see {@link https://devfra.me/guide/streaming Streaming guide}
  */
 export interface RpcStreamingChannel<T = unknown> {
   /** Channel name as registered with `ctx.rpc.streaming.create()`. */

@@ -6,7 +6,7 @@ import { consoleReporter, createLogger, defineDiagnostics, plainFormatter } from
 // been migrated to `DF` here so all devframe-package codes share one
 // numbering space and one docsBase.
 export const diagnostics = defineDiagnostics({
-  docsBase: 'https://devtools.vite.dev/devframe/errors',
+  docsBase: 'https://devfra.me/errors',
   codes: {
     DF0019: {
       message: (p: { name: string }) =>

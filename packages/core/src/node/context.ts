@@ -29,12 +29,13 @@ export async function createDevToolsContext(
 
   const { searchForWorkspaceRoot } = await import('vite')
   const mode = viteConfig.command === 'serve' ? 'dev' : 'build'
+  const workspaceRoot = searchForWorkspaceRoot(cwd) ?? cwd
 
   const context = await createHostContext({
     cwd,
-    workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
+    workspaceRoot,
     mode,
-    host: createViteDevToolsHost({ viteConfig, viteServer }),
+    host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
     builtinRpcDeclarations,
   })
 

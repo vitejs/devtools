@@ -2,7 +2,7 @@
 
 The Messages system allows plugins to emit structured message entries from both the server (Node.js) and client (browser) contexts. Messages are displayed in the built-in **Messages** panel in the DevTools dock, and can optionally appear as toast notifications.
 
-> **Note:** This subsystem was previously named `logs`. The `ctx.logs` field is still available as a deprecated alias for one release cycle — see [DF0018](https://devtools.vite.dev/devframe/errors/DF0018) for migration details.
+> **Note:** This subsystem was previously named `logs`. The `ctx.logs` field is still available as a deprecated alias for one release cycle — see [DF0018](https://devfra.me/errors/DF0018) for migration details.
 
 > For *coded* errors and warnings with stable codes and docs URLs, see [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
 

@@ -5,6 +5,7 @@
 export interface CreateViteDevToolsHostOptions {
   viteConfig: ResolvedConfig;
   viteServer?: ViteDevServer;
+  workspaceRoot?: string;
 }
 // #endregion
 

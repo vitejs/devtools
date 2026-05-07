@@ -120,6 +120,7 @@ export async function createDevServer(
 
   const h3Host = createH3DevToolsHost({
     origin,
+    appName: def.id,
     mount: (base, dir) => {
       app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
     },
