@@ -51,12 +51,13 @@
   },
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "tsdown",
     "watch": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build && mkdir -p ./skills && cp -r ../../../skills/devframe ./skills/devframe"
   },
   "peerDependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
