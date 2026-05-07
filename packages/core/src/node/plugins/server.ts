@@ -3,6 +3,7 @@ import type { Plugin } from 'vite'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
   DEVTOOLS_MOUNT_PATH,
+  DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH,
 } from '@vitejs/devtools-kit/constants'
 import { createDevToolsContext } from '../context'
 import { createDevToolsMiddleware } from '../server'
@@ -53,6 +54,16 @@ export function DevToolsServer(): Plugin {
           host,
         },
         context,
+      })
+      viteDevServer.middlewares.use((req, res, next) => {
+        if (req.url === DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH || req.url?.startsWith(`${DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH}?`)) {
+          res.statusCode = 302
+          res.setHeader('Location', `${DEVTOOLS_MOUNT_PATH}${req.url.slice(DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH.length)}`)
+          res.end()
+          return
+        }
+
+        next()
       })
       viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
     },
