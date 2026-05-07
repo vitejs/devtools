@@ -64,6 +64,10 @@ Examples:
 | `action` | Side effects, mutations | Not cached | ✗ |
 | `event` | Emit events, no response | Not cached | ✗ |
 
+::: tip Streaming chunks instead of single responses
+For chunk-style data (LLM deltas, log lines, build progress, file uploads), reach for [streaming channels](./streaming) rather than hand-rolling `action + delta/end events`. The streaming API gives you stream IDs, cancellation, replay, and Web Streams interop for free.
+:::
+
 ### Handler Arguments
 
 Handlers can accept any serializable arguments:

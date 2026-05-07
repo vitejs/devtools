@@ -149,6 +149,97 @@ state.mutate((draft) => {
 - Mutations round-trip to all clients; the host tracks `syncIds` to avoid replay loops.
 - Prefer shared state over ad-hoc RPC events for UI that must reappear after reconnect.
 
+## Streaming channels
+
+For chunk-style data flowing in either direction — LLM deltas, log tails, build progress, file uploads, mic / screen-share frames — use a streaming channel instead of inventing `action + delta/end` events. The same `channel` object handles both directions:
+
+```ts
+const channel = ctx.rpc.streaming.create<string>('my-inspector:tokens', {
+  replayWindow: 256, // server keeps last N chunks per stream id
+  closedStreamRetention: 30_000, // ms to hold finished streams for late subscribers
+})
+```
+
+### Server-to-client (the common case)
+
+```ts
+// Server — typically inside an action handler that returns the stream id
+const stream = channel.start({ id?: string })
+stream.write(token) // imperative
+stream.error(err) // terminal failure
+stream.close() // terminal success
+stream.signal // AbortSignal — flips when consumers cancel or all subscribers drop
+stream.writable // WritableStream<T> for `pipeTo`-style consumption
+
+// Convenience — start + pipe in one call:
+await channel.pipeFrom(sourceReadable, { id: 'optional' })
+
+// Client
+const reader = rpc.streaming.subscribe<string>('my-inspector:tokens', streamId)
+for await (const token of reader) renderToken(token)
+// Or: reader.readable.pipeTo(domWritable)
+reader.cancel() // server `stream.signal` aborts
+```
+
+### Client-to-server uploads
+
+The same channel exposes `openInbound()` for the server side of a client→server upload. Pair it with a normal action that returns the id:
+
+```ts
+// Server
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-inspector:upload-file',
+  type: 'action',
+  args: [v.object({ name: v.string() })],
+  returns: v.object({ uploadId: v.string() }),
+  handler: async ({ name }) => {
+    const reader = channel.openInbound()
+    ;(async () => {
+      for await (const chunk of reader) saveChunk(chunk)
+    })()
+    return { uploadId: reader.id }
+  },
+}))
+
+// Client
+const { uploadId } = await rpc.call('my-inspector:upload-file', { name: 'foo' })
+const upload = rpc.streaming.upload<Uint8Array>('my-inspector:files', uploadId)
+fileReadable.pipeTo(upload.writable, { signal: upload.signal })
+```
+
+Client disconnect surfaces as `UploadDisconnected` to the server's `for await`. Server-side `reader.cancel()` broadcasts `upload-cancel` to the uploading session, flipping `upload.signal`.
+
+### Lifecycle
+
+| Event | Server | Client |
+|-------|--------|--------|
+| `stream.close()` / `stream.error(err)` | broadcasts `end` to subscribers | `for await` resolves / throws |
+| `reader.cancel()` (last subscriber) | `stream.signal` aborts | reader marked cancelled |
+| WS disconnects (last subscriber drops) | `stream.signal` aborts | reader auto-resubscribes after re-trust |
+
+Producers should always poll `stream.signal.aborted` and exit cooperatively.
+
+### Web / Node Streams interop
+
+Web Streams are the canonical surface. Node 17+ ships free converters:
+
+```ts
+import { Readable, Writable } from 'node:stream'
+
+sourceNodeReadable.pipe(Writable.fromWeb(stream.writable))
+Readable.fromWeb(reader.readable).pipe(targetNodeWritable)
+```
+
+### When to use streaming vs events vs shared state
+
+| Use streaming for | Use `event`-typed RPC for | Use shared state for |
+|-------------------|---------------------------|----------------------|
+| Token / chunk feeds, uploads | Notifications without payload (`refresh`) | Long-lived UI state that survives reconnect |
+| Per-call lifecycles with cancellation | Cross-cutting fire-and-forget signals | Diff-based sync between clients |
+| Replay on reconnect | | |
+
+For chat-style UIs that combine both: keep the **conversation log** in shared state (survives reconnects), and use a streaming channel for **active responses**. The action that starts a response appends a placeholder to shared state; on producer close, commit the joined content back to shared state. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
+
 ## Dock entries
 
 Five entry types: `iframe` (full panel), `action` (client script on click), `custom-render` (mount into panel DOM), `launcher` (setup card + server callback), `json-render` (UI from a JSON spec, zero client code).
@@ -350,6 +441,7 @@ All of the above has a dedicated page at [docs.devtools.vite.dev/devframe](https
 - [Adapters](https://devtools.vite.dev/devframe/adapters) — full reference for all seven adapters
 - [RPC](https://devtools.vite.dev/devframe/rpc) — types, schema, broadcasts, dumps
 - [Shared State](https://devtools.vite.dev/devframe/shared-state) — patches, events, client-side mutation
+- [Streaming](https://devtools.vite.dev/devframe/streaming) — chunked feeds, uploads, replay, Web/Node Streams interop
 - [Dock System](https://devtools.vite.dev/devframe/dock-system) — every entry type + remote docks
 - [Commands](https://devtools.vite.dev/devframe/commands) — palette, keybindings, sub-commands
 - [When Clauses](https://devtools.vite.dev/devframe/when-clauses) — syntax, context, type-safe wrappers

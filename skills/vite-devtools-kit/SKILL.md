@@ -22,6 +22,7 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.views` | Host static files for UI |
 | `ctx.rpc` | Register RPC functions, broadcast to clients |
 | `ctx.rpc.sharedState` | Synchronized server-client state |
+| `ctx.rpc.streaming` | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
 | `ctx.messages` | Emit structured message entries and toast notifications |
 | `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
 | `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
@@ -479,6 +480,81 @@ state.on('updated', (newState) => {
 })
 ```
 
+## Streaming Channels
+
+For chunk-style data flowing in either direction (LLM deltas, build logs, file uploads), use a streaming channel rather than hand-rolling `action + delta/end events`. The same `channel` handles server→client and client→server.
+
+### Server-to-Client
+
+```ts
+ctx.rpc.streaming.create<string>('my-plugin:tokens', {
+  replayWindow: 256, // chunks retained per stream id
+})
+
+// Inside an action handler:
+const stream = channel.start()
+;(async () => {
+  for (const token of fakeLLM(prompt)) {
+    if (stream.signal.aborted)
+      return
+    stream.write(token)
+  }
+  stream.close()
+})()
+return { streamId: stream.id }
+```
+
+```ts
+// Client
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+
+const rpc = await getDevToolsRpcClient()
+const { streamId } = await rpc.call('my-plugin:start', { prompt })
+const reader = rpc.streaming.subscribe<string>('my-plugin:tokens', streamId)
+for await (const token of reader)
+  appendToken(token)
+reader.cancel() // server stream.signal aborts
+```
+
+The reader is also `.readable: ReadableStream<T>` for `pipeTo` consumption. The sink is also `.writable: WritableStream<T>` — `await channel.pipeFrom(readableSource)` is the one-call shortcut.
+
+### Client-to-Server Uploads
+
+```ts
+// Server
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:upload-file',
+  type: 'action',
+  handler: async ({ name }) => {
+    const reader = channel.openInbound()
+    ;(async () => {
+      const file = createWriteStream(name)
+      for await (const chunk of reader)
+        file.write(chunk)
+      file.close()
+    })()
+    return { uploadId: reader.id }
+  },
+}))
+
+// Client
+const { uploadId } = await rpc.call('my-plugin:upload-file', { name })
+const upload = rpc.streaming.upload<Uint8Array>('my-plugin:files', uploadId)
+fileReadable.pipeTo(upload.writable, { signal: upload.signal })
+```
+
+`upload.signal` aborts when the server calls `reader.cancel()`. Client disconnect surfaces as `UploadDisconnected` in the server's `for await`.
+
+### When to use streaming
+
+| Use streaming for | Use `event`-typed RPC for | Use shared state for |
+|-------------------|---------------------------|----------------------|
+| Token / chunk feeds, uploads | Notifications without payload | Long-lived UI state |
+| Per-call lifecycles + cancellation | Cross-cutting fire-and-forget | Diff-based snapshots |
+| Replay on reconnect | | |
+
+For chat-style UIs, combine: keep the **conversation log** in shared state and stream **active responses** through the channel. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat). Full reference: [Streaming Patterns](./references/streaming-patterns.md).
+
 ## Client Scripts
 
 For action buttons and custom renderers:
@@ -553,6 +629,7 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [RPC Patterns](./references/rpc-patterns.md) - Advanced RPC patterns and type utilities
 - [Dock Entry Types](./references/dock-entry-types.md) - Detailed dock configuration options
 - [Shared State Patterns](./references/shared-state-patterns.md) - Framework integration examples
+- [Streaming Patterns](./references/streaming-patterns.md) - Streaming channels, uploads, replay, chat-history pattern
 - [Project Structure](./references/project-structure.md) - Recommended file organization
 - [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
 - [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
