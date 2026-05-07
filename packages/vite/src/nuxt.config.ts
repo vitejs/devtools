@@ -4,7 +4,7 @@ import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const BASE = '/.devtools-vite/'
+const BASE = '/__devtools-vite/'
 
 export default defineNuxtConfig({
   ssr: false,
