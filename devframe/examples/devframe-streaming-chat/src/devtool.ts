@@ -55,6 +55,9 @@ export default defineDevtool({
     command: 'devframe-streaming-chat',
     port: 9897,
     distDir,
+    // Single-user localhost demo — skip the trust handshake that the
+    // Vite-side surface requires.
+    auth: false,
   },
   spa: { loader: 'none' },
   async setup(ctx) {

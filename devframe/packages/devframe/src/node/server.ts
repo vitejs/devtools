@@ -102,6 +102,25 @@ export async function startHttpAndWs(options: StartHttpAndWsOptions): Promise<St
   ;(rpcHost as any)._asyncStorage = asyncStorage
   ;(rpcHost as any)._authDisabled = options.auth === false
 
+  // The browser client unconditionally calls `vite:anonymous:auth` on
+  // connect (see `client/rpc-ws.ts`). When `auth: false` is set on the
+  // standalone server, register a noop handler that auto-trusts so the
+  // client's hardcoded handshake succeeds. The Vite-side adapter
+  // registers the real handler with the same name; the two paths never
+  // overlap because Vite consumers never opt into `auth: false`.
+  if (options.auth === false && !rpcHost.definitions.has('vite:anonymous:auth')) {
+    rpcHost.register({
+      name: 'vite:anonymous:auth',
+      type: 'action',
+      handler: () => {
+        const session = rpcHost.getCurrentRpcSession()
+        if (session)
+          session.meta.isTrusted = true
+        return { isTrusted: true }
+      },
+    })
+  }
+
   await new Promise<void>((resolveListen) => {
     httpServer.listen(port, bindHost, () => resolveListen())
   })
