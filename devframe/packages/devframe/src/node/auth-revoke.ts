@@ -30,7 +30,7 @@ export async function revokeActiveConnectionsForToken(
     return
 
   await rpcHost.broadcast({
-    method: 'devtoolskit:internal:auth:revoked',
+    method: 'devframe:auth:revoked',
     args: [],
     filter: client => affectedSessionIds.has(client.$meta.id),
   })

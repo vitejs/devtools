@@ -90,7 +90,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
 
   let jrCounter = 0
   context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
-    const stateKey = `devtoolskit:internal:json-render:${jrCounter++}`
+    const stateKey = `devframe:json-render:${jrCounter++}`
     const statePromise = rpcHost.sharedState.get(stateKey as any, {
       initialValue: initialSpec as any,
     })
@@ -123,7 +123,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
 
   await docksHost.init()
 
-  const docksSharedState = await rpcHost.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
+  const docksSharedState = await rpcHost.sharedState.get('devframe:docks', { initialValue: [] })
 
   docksHost.events.on('dock:entry:updated', debounce(() => {
     docksSharedState.mutate(() => context.docks.values())
@@ -131,7 +131,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
 
   terminalsHost.events.on('terminal:session:updated', debounce(() => {
     rpcHost.broadcast({
-      method: 'devtoolskit:internal:terminals:updated',
+      method: 'devframe:terminals:updated',
       args: [],
     })
     docksSharedState.mutate(() => context.docks.values())
@@ -139,7 +139,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
 
   const debouncedMessagesUpdate = debounce(() => {
     rpcHost.broadcast({
-      method: 'devtoolskit:internal:messages:updated',
+      method: 'devframe:messages:updated',
       args: [],
     })
     docksSharedState.mutate(() => context.docks.values())
@@ -150,7 +150,7 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
   messagesHost.events.on('message:removed', () => debouncedMessagesUpdate())
   messagesHost.events.on('message:cleared', () => debouncedMessagesUpdate())
 
-  const commandsSharedState = await rpcHost.sharedState.get('devtoolskit:internal:commands', { initialValue: [] })
+  const commandsSharedState = await rpcHost.sharedState.get('devframe:commands', { initialValue: [] })
   const debouncedCommandsSync = debounce(() => {
     commandsSharedState.mutate(() => commandsHost.list())
   }, mode === 'build' ? 0 : 10)

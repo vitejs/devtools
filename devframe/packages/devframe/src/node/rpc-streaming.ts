@@ -92,7 +92,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
   }
 
   rpc.register({
-    name: 'devtoolskit:internal:streaming:subscribe',
+    name: 'devframe:streaming:subscribe',
     type: 'event',
     handler(channelName: string, id: string, opts?: { afterSeq?: number }) {
       const state = channels.get(channelName)
@@ -118,7 +118,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       for (const buffered of record.sink.buffer) {
         if (buffered.seq > afterSeq) {
           rpc.broadcast({
-            method: 'devtoolskit:internal:streaming:chunk',
+            method: 'devframe:streaming:chunk',
             args: [channelName, id, buffered.seq, buffered.chunk],
             event: true,
             optional: true,
@@ -128,7 +128,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       }
       if (record.sink.closed) {
         rpc.broadcast({
-          method: 'devtoolskit:internal:streaming:end',
+          method: 'devframe:streaming:end',
           args: [channelName, id, undefined],
           event: true,
           optional: true,
@@ -139,7 +139,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:streaming:unsubscribe',
+    name: 'devframe:streaming:unsubscribe',
     type: 'event',
     handler(channelName: string, id: string) {
       const state = channels.get(channelName)
@@ -156,7 +156,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:streaming:cancel',
+    name: 'devframe:streaming:cancel',
     type: 'event',
     handler(channelName: string, id: string) {
       const record = findStream(channelName, id)
@@ -175,7 +175,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:streaming:upload-chunk',
+    name: 'devframe:streaming:upload-chunk',
     type: 'event',
     handler(channelName: string, id: string, seq: number, chunk: any) {
       const state = channels.get(channelName)
@@ -201,7 +201,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:streaming:upload-end',
+    name: 'devframe:streaming:upload-end',
     type: 'event',
     handler(channelName: string, id: string, error?: StreamErrorPayload) {
       const state = channels.get(channelName)
@@ -250,7 +250,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       record.unbinders.push(
         sink.events.on('chunk', (seq, chunk) => {
           rpc.broadcast({
-            method: 'devtoolskit:internal:streaming:chunk',
+            method: 'devframe:streaming:chunk',
             args: [name, sink.id, seq, chunk],
             event: true,
             optional: true,
@@ -261,7 +261,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
       record.unbinders.push(
         sink.events.on('end', (error) => {
           rpc.broadcast({
-            method: 'devtoolskit:internal:streaming:end',
+            method: 'devframe:streaming:end',
             args: [name, sink.id, error],
             event: true,
             optional: true,
@@ -304,7 +304,7 @@ export function createRpcStreamingServerHost(rpc: RpcFunctionsHost): RpcStreamin
           if (!targetMeta)
             return
           rpc.broadcast({
-            method: 'devtoolskit:internal:streaming:upload-cancel',
+            method: 'devframe:streaming:upload-cancel',
             args: [name, reader.id],
             event: true,
             optional: true,

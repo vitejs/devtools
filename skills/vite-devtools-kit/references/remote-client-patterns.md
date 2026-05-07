@@ -137,7 +137,7 @@ JSON-encoded then base64url-encoded, appended to the iframe URL under the key `v
 
 - **Pre-approved session token** — no interactive "trust this browser?" prompt. The user agreed to the integration when they installed your plugin.
 - **Session-scoped** — in-memory only, regenerated on every dev-server restart.
-- **Re-register revokes** — registering the same id again revokes the previous token; live clients using the old token receive `devtoolskit:internal:auth:revoked` and become untrusted.
+- **Re-register revokes** — registering the same id again revokes the previous token; live clients using the old token receive `devframe:auth:revoked` and become untrusted.
 - **Origin-locked by default** — only connections whose `Origin` matches the dock URL origin are accepted.
 
 Treat the token as a session secret: don't log URLs to external analytics on the hosted page, and prefer `transport: 'fragment'` unless you have a specific reason not to.

@@ -9,7 +9,7 @@ import { logger } from './diagnostics'
  * standalone client (`packages/core/src/client/webcomponents/state/terminals.ts`)
  * can subscribe by a stable, well-known name.
  */
-const TERMINAL_STREAM_CHANNEL = 'devtoolskit:internal:terminals' as const
+const TERMINAL_STREAM_CHANNEL = 'devframe:terminals' as const
 const TERMINAL_REPLAY_WINDOW = 1000
 
 export class DevToolsTerminalHost implements DevToolsTerminalHostType {
@@ -92,7 +92,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     const channel = this.getStreamingChannel()
     // The streaming channel reuses `session.id` as the stream id so clients
     // can subscribe immediately after seeing the session in
-    // `devtoolskit:internal:terminals:list`.
+    // `devframe:terminals:list`.
     const sink = channel?.start({ id: session.id })
 
     const writer = new WritableStream<string>({

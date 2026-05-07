@@ -104,11 +104,11 @@ ctx.terminals.events.on('terminal:session:updated', (session) => {
 })
 ```
 
-Output chunks aren't delivered as host events anymore — terminals now use the [streaming](./streaming) channel `devtoolskit:internal:terminals` keyed by session id. From the browser:
+Output chunks aren't delivered as host events anymore — terminals now use the [streaming](./streaming) channel `devframe:terminals` keyed by session id. From the browser:
 
 ```ts
 const reader = rpc.streaming.subscribe<string>(
-  'devtoolskit:internal:terminals',
+  'devframe:terminals',
   sessionId,
 )
 for await (const chunk of reader) writeToTerminal(chunk)

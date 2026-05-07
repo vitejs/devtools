@@ -79,7 +79,7 @@ export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevTo
   if (docksEntriesRefByRpc.has(rpc)) {
     return docksEntriesRefByRpc.get(rpc)!
   }
-  const state = await rpc.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
+  const state = await rpc.sharedState.get('devframe:docks', { initialValue: [] })
   const docksEntriesRef = sharedStateToRef(state)
   docksEntriesRefByRpc.set(rpc, docksEntriesRef)
   return docksEntriesRef

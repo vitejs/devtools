@@ -21,7 +21,7 @@ export function createRpcSharedStateServerHost(
         if (patches) {
           debug('patch', { key, syncId })
           rpc.broadcast({
-            method: 'devtoolskit:internal:rpc:client-state:patch',
+            method: 'devframe:rpc:client-state:patch',
             args: [key, patches, syncId],
             filter: client => client.$meta.subscribedStates.has(key),
           })
@@ -29,7 +29,7 @@ export function createRpcSharedStateServerHost(
         else {
           debug('updated', { key, syncId })
           rpc.broadcast({
-            method: 'devtoolskit:internal:rpc:client-state:updated',
+            method: 'devframe:rpc:client-state:updated',
             args: [key, fullState, syncId],
             filter: client => client.$meta.subscribedStates.has(key),
           })
@@ -80,7 +80,7 @@ export function createRpcSharedStateServerHost(
   // server built on `RpcFunctionsHost` (devframe standalone or kit /
   // core) gets the full sync protocol out of the box.
   rpc.register({
-    name: 'devtoolskit:internal:rpc:server-state:subscribe',
+    name: 'devframe:rpc:server-state:subscribe',
     type: 'event',
     handler(key: string) {
       const session = rpc.getCurrentRpcSession()
@@ -92,7 +92,7 @@ export function createRpcSharedStateServerHost(
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:rpc:server-state:get',
+    name: 'devframe:rpc:server-state:get',
     type: 'query',
     handler: async (key: string) => {
       if (!sharedState.has(key))
@@ -108,7 +108,7 @@ export function createRpcSharedStateServerHost(
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:rpc:server-state:set',
+    name: 'devframe:rpc:server-state:set',
     type: 'query',
     handler: async (key: string, value: any, syncId: string) => {
       const state = await host.get(key as keyof DevToolsRpcSharedStates, {
@@ -119,7 +119,7 @@ export function createRpcSharedStateServerHost(
   })
 
   rpc.register({
-    name: 'devtoolskit:internal:rpc:server-state:patch',
+    name: 'devframe:rpc:server-state:patch',
     type: 'query',
     handler: async (key: string, patches: SharedStatePatch[], syncId: string) => {
       if (!sharedState.has(key))

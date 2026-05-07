@@ -46,7 +46,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
   const uploads = new Map<string, StreamSink<any>>()
 
   rpc.client.register({
-    name: 'devtoolskit:internal:streaming:chunk',
+    name: 'devframe:streaming:chunk',
     type: 'event',
     handler(channel: string, id: string, seq: number, chunk: any) {
       const reader = readers.get(streamKey(channel, id))
@@ -55,7 +55,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
   })
 
   rpc.client.register({
-    name: 'devtoolskit:internal:streaming:end',
+    name: 'devframe:streaming:end',
     type: 'event',
     handler(channel: string, id: string, error?: StreamErrorPayload) {
       const key = streamKey(channel, id)
@@ -68,7 +68,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
   })
 
   rpc.client.register({
-    name: 'devtoolskit:internal:streaming:upload-cancel',
+    name: 'devframe:streaming:upload-cancel',
     type: 'event',
     handler(channel: string, id: string) {
       const key = streamKey(channel, id)
@@ -99,7 +99,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
       const channel = key.slice(0, sepIdx)
       const id = key.slice(sepIdx + 1)
       rpc.callEvent(
-        'devtoolskit:internal:streaming:subscribe',
+        'devframe:streaming:subscribe',
         channel,
         id,
         { afterSeq: reader.lastSeenSeq },
@@ -127,7 +127,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
         )
       },
       onCancel() {
-        rpc.callEvent('devtoolskit:internal:streaming:cancel', channel, id)
+        rpc.callEvent('devframe:streaming:cancel', channel, id)
         readers.delete(key)
       },
     })
@@ -137,7 +137,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
     // Subscribe immediately if already trusted; otherwise wait for trust.
     // Mirrors `client/rpc-shared-state.ts` behavior.
     if (rpc.isTrusted) {
-      rpc.callEvent('devtoolskit:internal:streaming:subscribe', channel, id, {
+      rpc.callEvent('devframe:streaming:subscribe', channel, id, {
         afterSeq: 0,
       })
     }
@@ -146,7 +146,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
         if (trusted) {
           off()
           if (readers.has(key) && !reader.cancelled && !reader.done) {
-            rpc.callEvent('devtoolskit:internal:streaming:subscribe', channel, id, {
+            rpc.callEvent('devframe:streaming:subscribe', channel, id, {
               afterSeq: reader.lastSeenSeq,
             })
           }
@@ -167,7 +167,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
 
     sink.events.on('chunk', (seq, chunk) => {
       rpc.callEvent(
-        'devtoolskit:internal:streaming:upload-chunk',
+        'devframe:streaming:upload-chunk',
         channel,
         id,
         seq,
@@ -176,7 +176,7 @@ export function createRpcStreamingClientHost(rpc: DevToolsRpcClient): RpcStreami
     })
     sink.events.on('end', (error) => {
       rpc.callEvent(
-        'devtoolskit:internal:streaming:upload-end',
+        'devframe:streaming:upload-end',
         channel,
         id,
         error,

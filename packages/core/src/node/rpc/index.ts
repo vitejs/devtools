@@ -61,18 +61,18 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {
-    'devtoolskit:internal:auth:revoked': () => Promise<void>
-    'devtoolskit:internal:messages:updated': () => Promise<void>
-    'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
-    'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
+    'devframe:auth:revoked': () => Promise<void>
+    'devframe:messages:updated': () => Promise<void>
+    'devframe:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
+    'devframe:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
-    'devtoolskit:internal:terminals:updated': () => Promise<void>
+    'devframe:terminals:updated': () => Promise<void>
   }
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
-    'devtoolskit:internal:commands': DevToolsServerCommandEntry[]
-    'devtoolskit:internal:docks': DevToolsDockEntry[]
-    'devtoolskit:internal:user-settings': DevToolsDocksUserSettings
+    'devframe:commands': DevToolsServerCommandEntry[]
+    'devframe:docks': DevToolsDockEntry[]
+    'devframe:user-settings': DevToolsDocksUserSettings
   }
 }

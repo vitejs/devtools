@@ -57,7 +57,7 @@ onMounted(async () => {
 
     // Subscribe to the built-in docks shared state to show a live list
     // of dock entries registered on the local dev server.
-    const docks = await client.sharedState.get('devtoolskit:internal:docks' as any)
+    const docks = await client.sharedState.get('devframe:docks' as any)
     const toSummary = (entries: any[]) => (entries ?? [])
       .filter(e => e?.type !== '~builtin')
       .map(e => ({ id: String(e.id), title: String(e.title ?? e.id), type: String(e.type) }))
@@ -117,7 +117,7 @@ ctx.docks.register({
   </table>
 
   <h3>Live dock registry</h3>
-  <p class="remote-demo-dim">Subscribed to the built-in <code>devtoolskit:internal:docks</code> shared state — this list updates whenever a dock is registered, updated, or removed on the local dev server.</p>
+  <p class="remote-demo-dim">Subscribed to the built-in <code>devframe:docks</code> shared state — this list updates whenever a dock is registered, updated, or removed on the local dev server.</p>
   <ul v-if="docksList.length > 0" class="remote-demo-list">
     <li v-for="dock in docksList" :key="dock.id">
       <code>{{ dock.id }}</code> — {{ dock.title }} <span class="remote-demo-dim">({{ dock.type }})</span>
@@ -176,6 +176,6 @@ ctx.docks.register({
 1. Your plugin registers an iframe dock with `remote: true` pointing at this page.
 2. The DevTools core allocates a session-only auth token and appends the connection descriptor to the iframe URL: `#vite-devtools-kit-connection=…`
 3. When this page loads, [`parseRemoteConnection()`](./remote-client#connect-from-the-hosted-page) reads the descriptor, and [`connectRemoteDevTools()`](./remote-client#connect-from-the-hosted-page) opens a WebSocket back to the local dev server.
-4. The live "dock registry" list above subscribes to the `devtoolskit:internal:docks` shared state — it re-renders on every registration change.
+4. The live "dock registry" list above subscribes to the `devframe:docks` shared state — it re-renders on every registration change.
 
 See the [Remote Client guide](./remote-client) for the full API and the underlying security model.
