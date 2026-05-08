@@ -4,7 +4,7 @@ outline: deep
 
 # Client
 
-The browser-side client is how a dock iframe, remote-hosted page, or standalone SPA talks to the DevFrame server. It provides type-safe RPC calls, access to shared state, and (in dev mode) a trust handshake against the local dev server.
+The browser-side client is how a dock iframe, remote-hosted page, or standalone SPA talks to the Devframe server. It provides type-safe RPC calls, access to shared state, and (in dev mode) a trust handshake against the local dev server.
 
 ## Connecting
 
@@ -22,7 +22,7 @@ const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
 
 ### Runtime basePath discovery
 
-DevFrame SPAs are base-agnostic — the same artifact can be served at `/`, `/__<id>/`, or any custom subpath without rebuilding. `connectDevtool` resolves `__connection.json` at runtime by reading `document.baseURI` and the executing script's URL.
+Devframe SPAs are base-agnostic — the same artifact can be served at `/`, `/__<id>/`, or any custom subpath without rebuilding. `connectDevtool` resolves `__connection.json` at runtime by reading `document.baseURI` and the executing script's URL.
 
 For SPA authors, that means:
 
@@ -158,7 +158,7 @@ With caching on, `query` / `static` function responses are memoized per argument
 
 ## Discovery (`__connection.json`)
 
-DevFrame writes a JSON descriptor at `<base>/__connection.json` so the client knows where to connect:
+Devframe writes a JSON descriptor at `<base>/__connection.json` so the client knows where to connect:
 
 ```json
 {

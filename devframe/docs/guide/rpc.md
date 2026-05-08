@@ -4,7 +4,7 @@ outline: deep
 
 # RPC
 
-DevFrame's RPC layer is type-safe bidirectional communication between your server (Node.js) and client (browser), built on [`birpc`](https://github.com/antfu/birpc) and validated at runtime with [`valibot`](https://valibot.dev/). In dev mode it runs over WebSocket; in build / SPA mode it serves a pre-computed static dump so the client still works offline.
+Devframe's RPC layer is type-safe bidirectional communication between your server (Node.js) and client (browser), built on [`birpc`](https://github.com/antfu/birpc) and validated at runtime with [`valibot`](https://valibot.dev/). In dev mode it runs over WebSocket; in build / SPA mode it serves a pre-computed static dump so the client still works offline.
 
 ## Overview
 
@@ -179,7 +179,7 @@ Client-side registration (for server→client calls) goes through `rpc.client.re
 
 ## Static dumps
 
-For `static` functions, DevFrame records the handler's output during `createBuild` and bakes it into the build:
+For `static` functions, Devframe records the handler's output during `createBuild` and bakes it into the build:
 
 ```ts
 defineRpcFunction({
@@ -213,7 +213,7 @@ At runtime, static clients resolve `rpc.call('my-devtool:get-session', 'session-
 
 ## JSON-serializable declaration
 
-DevFrame's WS transport ships payloads using one of two encoders, picked per RPC function:
+Devframe's WS transport ships payloads using one of two encoders, picked per RPC function:
 
 | `jsonSerializable` | Encoder | Wire prefix | Round-trips |
 |---|---|---|---|

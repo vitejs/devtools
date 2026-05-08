@@ -9,7 +9,7 @@ outline: deep
 
 DevTools Kit is the integration hub for Vite DevTools. It owns the dock, the command palette, terminal aggregation, cross-tool toasts, and the `Plugin.devtools.setup` hook that any Vite plugin can implement to surface a UI inside DevTools.
 
-For a fresh Vite-specific integration, reach for `Plugin.devtools.setup` directly — that's where docks, terminals, the palette, and custom renderers live. Kit is built on [DevFrame](https://devfra.me/guide/), the framework-neutral foundation; tools that already have a portable DevFrame definition drop into the hub via `createPluginFromDevframe`, and standalone single-tool deployments can build on DevFrame directly.
+For a fresh Vite-specific integration, reach for `Plugin.devtools.setup` directly — that's where docks, terminals, the palette, and custom renderers live. Kit is built on [Devframe](https://devfra.me/guide/), the framework-neutral foundation; tools that already have a portable Devframe definition drop into the hub via `createPluginFromDevframe`, and standalone single-tool deployments can build on Devframe directly.
 
 ![DevTools Kit Vision](/assets/vision-devtools-kit.jpg)
 
@@ -21,12 +21,12 @@ Kit owns the hub-level surface — the things that only matter once multiple int
 
 | Feature | Description |
 |---------|-------------|
-| **[DevTools Plugin](./devtools-plugin)** | The `Plugin.devtools.setup` hook, plus `createPluginFromDevframe` for porting DevFrame apps into the hub. |
+| **[DevTools Plugin](./devtools-plugin)** | The `Plugin.devtools.setup` hook, plus `createPluginFromDevframe` for porting Devframe apps into the hub. |
 | **[Dock System](./dock-system)** | The unified dock — iframe / action / custom / launcher / json-render entries — with categories, when-clauses, and remote dock support. |
 | **[Commands](./commands)** | The shared command palette: keybindings, children, when-gating across every integration. |
 | **[Messages](./messages)** | Cross-tool toast notifications and the unified messages dock. |
 | **[Terminals](./terminals)** | Aggregate terminal output from any integration into one xterm.js view. |
-| **[RPC](./rpc)** | Type-safe bidirectional RPC backed by DevFrame's birpc + valibot. |
+| **[RPC](./rpc)** | Type-safe bidirectional RPC backed by Devframe's birpc + valibot. |
 | **[Shared State](./shared-state)** | Patch-synced state that bridges server ↔ client across every integration. |
 | **Isomorphic Views** | Deploy your UI as embedded panels, browser extensions, or standalone webpages. |
 
@@ -87,7 +87,7 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-Already have a portable DevFrame app? Wrap it once and Kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`:
+Already have a portable Devframe app? Wrap it once and Kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`:
 
 ```ts
 // vite.config.ts

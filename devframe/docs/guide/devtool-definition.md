@@ -4,7 +4,7 @@ outline: deep
 
 # Devtool Definition
 
-Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
+Every Devframe tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
 
 ## Minimal definition
 

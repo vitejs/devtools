@@ -195,7 +195,7 @@ Describe what *is*, not what *isn't*. Replace constructions like "X is for Y, no
 - ✅ "Analyses production builds in Vite 8+."
 
 - ❌ "For tools that don't need Vite at all."
-- ✅ "Standalone tools can build directly on DevFrame."
+- ✅ "Standalone tools can build directly on Devframe."
 
 ### 2. Use callouts sparingly
 
@@ -207,9 +207,9 @@ Callouts (`> [!NOTE]`, `> [!TIP]`, `> [!INFO]`, `::: tip`, etc.) interrupt the r
 
 ### 3. Kit-first in `/docs/`
 
-The main docs site is for **Vite DevTools** and **`@vitejs/devtools-kit`** users. DevFrame is the framework-neutral foundation underneath; mention it where relevant ("Kit is built on DevFrame; standalone tools can use DevFrame directly — see [DevFrame](https://devfra.me/guide/)") but lead examples and guides with the Kit / Vite plugin path.
+The main docs site is for **Vite DevTools** and **`@vitejs/devtools-kit`** users. Devframe is the framework-neutral foundation underneath; mention it where relevant ("Kit is built on Devframe; standalone tools can use Devframe directly — see [Devframe](https://devfra.me/guide/)") but lead examples and guides with the Kit / Vite plugin path.
 
-`devframe/docs/` is the inverse: DevFrame-first, with cross-links to Kit for hub-only features (docks, terminals, messages, commands).
+`devframe/docs/` is the inverse: Devframe-first, with cross-links to Kit for hub-only features (docks, terminals, messages, commands).
 
 ### 4. Concise and precise
 

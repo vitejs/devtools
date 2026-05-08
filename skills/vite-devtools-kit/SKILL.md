@@ -13,13 +13,13 @@ description: >
 
 # Vite DevTools Kit
 
-**`@vitejs/devtools-kit` is the hub that unites many devtools integrations.** It owns the cross-tool surface — docking, the command palette, terminal aggregation, cross-tool toasts — and wraps the framework-neutral [DevFrame](https://devfra.me/) container with the Vite-specific glue (`Plugin.devtools.setup`).
+**`@vitejs/devtools-kit` is the hub that unites many devtools integrations.** It owns the cross-tool surface — docking, the command palette, terminal aggregation, cross-tool toasts — and wraps the framework-neutral [Devframe](https://devfra.me/) container with the Vite-specific glue (`Plugin.devtools.setup`).
 
-If you have a portable DevFrame app already, drop it in via `createPluginFromDevframe(d)` from `@vitejs/devtools-kit/node` and the kit auto-derives the iframe dock entry. If you're authoring a Vite-specific integration that needs hub features directly, reach for `Plugin.devtools.setup`.
+If you have a portable Devframe app already, drop it in via `createPluginFromDevframe(d)` from `@vitejs/devtools-kit/node` and the kit auto-derives the iframe dock entry. If you're authoring a Vite-specific integration that needs hub features directly, reach for `Plugin.devtools.setup`.
 
 ## Core Concepts
 
-A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context is the **kit-augmented context** (`KitNodeContext` extended with Vite-specific fields) — it carries DevFrame's portable surface plus the hub-only subsystems the kit owns:
+A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context is the **kit-augmented context** (`KitNodeContext` extended with Vite-specific fields) — it carries Devframe's portable surface plus the hub-only subsystems the kit owns:
 
 | Property | Layer | Purpose |
 |----------|-------|---------|
@@ -37,9 +37,9 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.viteServer` | core | Dev server instance (dev mode only) |
 | `ctx.mode` | devframe | `'dev'` or `'build'` |
 
-## Quick Start: Bridge a DevFrame App
+## Quick Start: Bridge a Devframe App
 
-If you already have a portable DevFrame definition, this is the one-liner. The kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`, mounts the SPA via `views.hostStatic`, runs the devtool's own `setup`, then runs the optional kit-only `options.setup`.
+If you already have a portable Devframe definition, this is the one-liner. The kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`, mounts the SPA via `views.hostStatic`, runs the devtool's own `setup`, then runs the optional kit-only `options.setup`.
 
 ```ts
 // vite.config.ts
