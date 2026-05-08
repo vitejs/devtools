@@ -11,12 +11,10 @@ export class JsonParseStreamError extends Error {
   }
 }
 
-export async function parseJsonStreamWithConcatArrays<T, K = T>(
+export async function parseJsonStream<T>(
   stream: NodeJS.ReadableStream,
-  processor?: (value: T) => K,
-): Promise<K[]> {
-  const values: K[] = []
-
+  processor?: (value: T) => void | Promise<void>,
+): Promise<void> {
   let lineNumber = 0
 
   await pipeline(
@@ -32,8 +30,7 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
 
         try {
           const parsed = JSON.parse(line) as T
-          const result = processor ? processor(parsed) : (parsed as unknown as K)
-          values.push(result)
+          await processor?.(parsed)
         }
         catch (e) {
           const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line
@@ -42,6 +39,4 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
       }
     },
   )
-
-  return values
 }

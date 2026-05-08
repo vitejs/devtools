@@ -12,11 +12,9 @@ export const rolldownGetModuleTransforms = defineRpcFunction({
     return {
       handler: async ({ session, module }: { session: string, module: string }) => {
         const reader = await manager.loadSession(session)
-        const events = reader.manager.events
-        const moduleInfo = reader.manager.modules.get(module)
-        const transforms = moduleInfo?.build_metrics?.transforms ?? []
+        const { transforms } = await reader.readModuleBuildMetrics(module)
 
-        if (!events.length) {
+        if (!reader.manager.eventCount) {
           return transforms.map<RolldownModuleTransformInfo>(transform => ({
             ...transform,
             diff_added: 0,

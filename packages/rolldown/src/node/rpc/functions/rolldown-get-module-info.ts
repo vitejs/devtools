@@ -12,12 +12,12 @@ export const rolldownGetModuleInfo = defineRpcFunction({
     return {
       handler: async ({ session, module }: { session: string, module: string }) => {
         const reader = await manager.loadSession(session)
-        const events = reader.manager.events
 
-        if (!events.length)
+        if (!reader.manager.eventCount)
           return null
 
         const moduleInfo = reader.manager.modules.get(module)
+        const moduleMetrics = await reader.readModuleBuildMetrics(module)
 
         const info: Omit<ModuleInfo, 'transforms'> = {
           id: module,
@@ -31,8 +31,8 @@ export const rolldownGetModuleInfo = defineRpcFunction({
             transforms: [],
           },
           ...moduleInfo || {},
-          loads: moduleInfo?.build_metrics?.loads ?? [],
-          resolve_ids: moduleInfo?.build_metrics?.resolve_ids ?? [],
+          loads: moduleMetrics.loads,
+          resolve_ids: moduleMetrics.resolve_ids,
         }
 
         info.chunks = Array.from(reader.manager.chunks.values())
