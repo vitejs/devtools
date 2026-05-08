@@ -4,7 +4,7 @@ outline: deep
 
 # RPC
 
-DevFrame's RPC layer is type-safe bidirectional communication between your server (Node.js) and client (browser), built on [`birpc`](https://github.com/antfu/birpc) and validated at runtime with [`valibot`](https://valibot.dev/). In dev mode it runs over WebSocket; in build / SPA mode it falls back to a pre-computed static dump so the client still works offline.
+DevFrame's RPC layer is type-safe bidirectional communication between your server (Node.js) and client (browser), built on [`birpc`](https://github.com/antfu/birpc) and validated at runtime with [`valibot`](https://valibot.dev/). In dev mode it runs over WebSocket; in build / SPA mode it serves a pre-computed static dump so the client still works offline.
 
 ## Overview
 
@@ -18,7 +18,7 @@ sequenceDiagram
   Server-->>Client: [{ id, size }, …]
 ```
 
-## Defining a Function
+## Defining a function
 
 ```ts
 import { defineRpcFunction } from 'devframe'
@@ -53,14 +53,11 @@ export default defineDevtool({
 })
 ```
 
-### Naming Convention
+### Naming convention
 
-1. Scope with your devtool id: `<id>:<action>`.
-2. Use kebab-case for the action segment.
+Scope with your devtool id and use kebab-case for the action: `my-devtool:get-modules`, `my-devtool:read-file`, `my-devtool:trigger-rebuild`.
 
-Examples: `my-devtool:get-modules`, `my-devtool:read-file`, `my-devtool:trigger-rebuild`.
-
-### Function Types
+### Function types
 
 | Type | Description | Cached | Static Dump |
 |------|-------------|--------|-------------|
@@ -71,9 +68,9 @@ Examples: `my-devtool:get-modules`, `my-devtool:read-file`, `my-devtool:trigger-
 
 Use `static` for data collected once during `setup` and shipped to read-only static / SPA clients.
 
-### Handler Arguments
+### Handler arguments
 
-Handlers accept any serializable arguments. When `args` supplies valibot schemas, arguments are validated at the boundary:
+Handlers accept any serializable arguments. With `args` valibot schemas, arguments are validated at the boundary:
 
 ```ts
 defineRpcFunction({
@@ -90,14 +87,14 @@ defineRpcFunction({
 })
 ```
 
-Prefer **a single object argument** (`args: [v.object({ ... })]`) over positional args — property names are self-describing and agents / IDEs work best with object shapes.
+Prefer a single object argument (`args: [v.object({ ... })]`) over positional args — property names are self-describing and agents/IDEs work best with object shapes.
 
-### Setup vs Handler
+### Setup vs handler
 
 Two ways to wire a handler:
 
-- **`setup(ctx)`** — receives the `DevToolsNodeContext` and returns `{ handler, dump? }`. Use this when you need access to the context (shared state, logs, `ctx.mode`, etc.).
-- **`handler(...)`** — shorthand when the handler is pure and doesn't need the context.
+- **`setup(ctx)`** — receives the `DevToolsNodeContext` and returns `{ handler, dump? }`. Use this when you need the context (shared state, logs, `ctx.mode`, etc.).
+- **`handler(...)`** — shorthand when the handler is pure and doesn't touch the context.
 
 ```ts
 // With setup:
@@ -146,7 +143,7 @@ defineDevtool({
 
 ## Streaming
 
-For chunk-style server→client feeds (chat deltas, log lines, build progress), reach for [streaming channels](./streaming) instead of hand-rolling `action + delta/end events`. The streaming API gives you stream IDs, cancellation, replay, and Web Streams interop for free:
+For chunk-style server→client feeds (chat deltas, log lines, build progress), use [streaming channels](./streaming) — they handle stream IDs, cancellation, replay, and Web Streams interop for you:
 
 ```ts
 const channel = ctx.rpc.streaming.create<string>('my-devtool:chat', {
@@ -158,17 +155,17 @@ sourceReadable.pipeTo(stream.writable)
 
 See the [Streaming guide](./streaming) for the full API.
 
-## Local Invocation
+## Local invocation
 
-`ctx.rpc.invokeLocal` calls a registered server function directly without going through a transport — useful for cross-function composition on the server side:
+`ctx.rpc.invokeLocal` calls a registered server function directly, skipping the transport — useful for cross-function composition on the server side:
 
 ```ts
 const modules = await ctx.rpc.invokeLocal('my-devtool:get-modules', { limit: 10 })
 ```
 
-## Client-Side Calls
+## Client-side calls
 
-From the browser, use [`connectDevtool`](./client) (or `getDevToolsRpcClient`) to obtain a client and call registered functions:
+From the browser, [`connectDevtool`](./client) (or `getDevToolsRpcClient`) returns a client for calling registered functions:
 
 ```ts
 import { connectDevtool } from 'devframe/client'
@@ -180,9 +177,9 @@ const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
 
 Client-side registration (for server→client calls) goes through `rpc.client.register()` — the mirror API of `ctx.rpc.register()`.
 
-## Static Dumps
+## Static dumps
 
-For `static` functions, DevFrame automatically records the handler's output during `createBuild` and bakes it into the output:
+For `static` functions, DevFrame records the handler's output during `createBuild` and bakes it into the build:
 
 ```ts
 defineRpcFunction({
@@ -212,22 +209,22 @@ defineRpcFunction({
 })
 ```
 
-At runtime, static clients resolve `rpc.call('my-devtool:get-session', 'session-a')` from the baked dump; misses fall back to `dump.fallback` (or throw if not provided).
+At runtime, static clients resolve `rpc.call('my-devtool:get-session', 'session-a')` from the baked dump; unmatched arguments resolve to `dump.fallback` (or throw without one).
 
-## JSON-Serializable Declaration
+## JSON-serializable declaration
 
-DevFrame's WS transport ships payloads using one of two encoders, picked **per RPC function**:
+DevFrame's WS transport ships payloads using one of two encoders, picked per RPC function:
 
 | `jsonSerializable` | Encoder | Wire prefix | Round-trips |
 |---|---|---|---|
 | `false` (default) | `structured-clone-es` | `s:` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
 | `true` (opt-in) | strict `JSON.stringify` | _(unprefixed)_ | JSON-only |
 
-The wire is plain JSON when all participating functions are JSON-flagged — debuggable in DevTools, friendlier to MCP, and a good default for tools that already speak JSON.
+The wire stays plain JSON when every participating function is JSON-flagged — debuggable in DevTools, friendly to MCP, and a good default for tools that already speak JSON.
 
 ### Discovering shape errors during dev
 
-Setting `jsonSerializable: true` is a contract: if your handler ever returns a value JSON cannot round-trip losslessly (a `Map`, a `Date`, a class instance, …), the strict serializer **throws `DF0020` synchronously** on the offending call. The error fires in dev, not at build time, so you see it next to the call site that introduced the bad value:
+`jsonSerializable: true` is a contract. When a handler returns a value JSON cannot round-trip (a `Map`, a `Date`, a class instance, …), the strict serializer throws [`DF0020`](../errors/DF0020) synchronously on the offending call — surfacing the bad value next to the call site in dev:
 
 ```ts
 defineRpcFunction({
@@ -238,15 +235,15 @@ defineRpcFunction({
 })
 ```
 
-If you do need fancy types, leave the flag unset (or `false`) — `structured-clone-es` will preserve them on the wire and in build dumps. The flag is opt-in, so existing code keeps working untouched.
+For richer types, leave the flag unset (or `false`) — `structured-clone-es` preserves them on the wire and in build dumps. The flag is opt-in, so existing code keeps working untouched.
 
 ### MCP requires JSON
 
-MCP tools expose their schemas as JSON Schema, and agent harnesses assume JSON-shaped data. So **`agent: {...}` requires `jsonSerializable: true`** — otherwise registration throws `DF0019`. See the next section for how to attach the `agent` field once your function is JSON-safe.
+MCP tools expose their schemas as JSON Schema, and agent harnesses assume JSON-shaped data. `agent: {...}` therefore requires `jsonSerializable: true`; registering one without the other throws [`DF0019`](../errors/DF0019). See the next section for how to attach the `agent` field once your function is JSON-safe.
 
-## Agent Exposure
+## Agent exposure
 
-Add an `agent` field to surface the function to coding agents over MCP. Functions without an `agent` field are not exposed (default-deny). Agent-exposed functions must also declare `jsonSerializable: true` (see above).
+Add an `agent` field to surface the function to coding agents over MCP. Agent exposure is opt-in; functions without an `agent` field stay private. Agent-exposed functions must also declare `jsonSerializable: true` (see above).
 
 ```ts
 defineRpcFunction({
@@ -268,7 +265,7 @@ defineRpcFunction({
 
 See [Agent-Native](./agent-native) for the full safety model and MCP integration.
 
-## What's Next
+## What's next
 
 - [Shared State](./shared-state) — observable state synced across clients
 - [Client](./client) — connecting from the browser

@@ -4,25 +4,25 @@ outline: deep
 
 # DevFrame
 
-**DevFrame** is *the container for one devtool integration, portable across viewers.* You describe a single tool — its RPC surface, its data model, its SPA, its CLI shape — and DevFrame deploys the same definition through any number of runtime adapters: a standalone CLI, a self-contained static report, an embedded SPA, an MCP server, or mounted inside a multi-integration hub.
+**DevFrame** is the container for one devtool integration, portable across viewers. You describe a single tool — its RPC surface, its data model, its SPA, its CLI shape — and DevFrame deploys the same definition through any number of runtime adapters: a standalone CLI, a self-contained static report, an embedded SPA, an MCP server, or mounted inside a multi-integration hub.
 
-DevFrame deliberately stops at the boundary of one tool. **Docking, the command palette, terminal aggregation, cross-tool toasts** — anything that only makes sense when *multiple* devtools share a UI — lives in [`@vitejs/devtools-kit`](https://devtools.vite.dev/kit/), the hub layer. To drop a DevFrame app into Vite DevTools, wrap it with `createPluginFromDevframe` from `@vitejs/devtools-kit/node`; the kit synthesizes the dock entry from your definition's `id` / `name` / `icon` / `basePath` and routes its hub-level ctx fields (`docks`, `terminals`, …) accordingly.
+DevFrame's surface is one tool. Hub-level features — docking, the command palette, terminal aggregation, cross-tool toasts — live in [`@vitejs/devtools-kit`](https://devtools.vite.dev/kit/). To drop a DevFrame app into Vite DevTools, wrap it with `createPluginFromDevframe` from `@vitejs/devtools-kit/node`; the kit synthesises the dock entry from your definition's `id` / `name` / `icon` / `basePath` and routes the hub-level ctx fields (`docks`, `terminals`, …) accordingly.
 
 > [!WARNING] Experimental
-> The DevFrame API is still in development and may change between versions. The agent-native surface (`agent` field on `defineRpcFunction`, `ctx.agent`, and the MCP adapter) is additionally flagged as experimental.
+> The DevFrame API is still in development and may change between versions. The agent-native surface (`agent` on `defineRpcFunction`, `ctx.agent`, and the MCP adapter) is additionally flagged as experimental.
 
-## Design Principles
+## Design principles
 
 DevFrame keeps its surface small and pushes hub-level UX to the kit consuming it:
 
-- **Single-integration scope.** DevFrame describes one tool. Anything that only matters across tools — docks, palette, cross-tool toasts, unified terminals — is the [DevTools Kit's](https://devtools.vite.dev/kit/) job, not DevFrame's.
-- **Headless.** No default startup banners, logging, or styling. Hook into `onReady`, `cli.configure`, and friends to print your own output.
-- **App-owned file watching.** Wire your own watcher (chokidar, fs.watch, …) and signal change via `ctx.rpc.sharedState.set(...)` or event-type RPCs. DevFrame does not ship a watcher primitive.
+- **Single-integration scope.** DevFrame describes one tool. Anything that only matters across tools — docks, palette, cross-tool toasts, unified terminals — belongs in the [DevTools Kit](https://devtools.vite.dev/kit/).
+- **Headless.** Hook into `onReady`, `cli.configure`, and friends to print your own startup banners and styling — DevFrame stays out of the way.
+- **App-owned file watching.** Wire your own watcher (chokidar, fs.watch, …) and signal change via `ctx.rpc.sharedState.set(...)` or event-typed RPCs.
 - **Context-aware mount paths.** Standalone adapters (`cli`, `spa`, `build`) serve at `/` by default; hosted adapters (`vite`, `embedded`, kit's `createPluginFromDevframe`) serve at `/.<id>/`. Override via `DevtoolDefinition.basePath`.
-- **SPAs own their base at runtime.** Build with relative asset paths (`vite.base: './'`); `connectDevtool` discovers the effective base from the executing script's location. No HTML rewrites at build time.
+- **SPAs own their base at runtime.** Build with relative asset paths (`vite.base: './'`); `connectDevtool` discovers the effective base from the executing script's location.
 - **CLI flags compose.** The `cac` instance is exposed to both the devtool (`cli.configure`) and the caller of `createCli`, so capability flags and app flags merge cleanly.
 
-## What DevFrame Provides
+## What DevFrame provides
 
 | Subsystem | What it does |
 |-----------|--------------|
@@ -35,7 +35,7 @@ DevFrame keeps its surface small and pushes hub-level UX to the kit consuming it
 | **[Client](./client)** | Browser-side RPC client (`connectDevtool`) with auto-auth and WebSocket / static modes. |
 | **[Agent-Native](./agent-native)** | Opt-in exposure of your tool's surface to coding agents over MCP. |
 
-> Hub-only subsystems — **[Dock System](https://devtools.vite.dev/kit/dock-system)**, **[Commands](https://devtools.vite.dev/kit/commands)**, **[Messages](https://devtools.vite.dev/kit/messages)**, **[Terminals](https://devtools.vite.dev/kit/terminals)** — are documented in the [Vite DevTools Kit](https://devtools.vite.dev/kit/) since they only matter when multiple integrations share a UI.
+Hub-only subsystems — [Dock System](https://devtools.vite.dev/kit/dock-system), [Commands](https://devtools.vite.dev/kit/commands), [Messages](https://devtools.vite.dev/kit/messages), [Terminals](https://devtools.vite.dev/kit/terminals) — live in the [Vite DevTools Kit](https://devtools.vite.dev/kit/) docs.
 
 ## Architecture
 
@@ -74,7 +74,7 @@ flowchart TB
 pnpm add devframe
 ```
 
-`devframe` ships ESM-only and has no Vite dependency. Adapters that need optional peers (MCP needs `@modelcontextprotocol/sdk`) surface that requirement at import time.
+`devframe` ships ESM-only and has no Vite dependency. Adapters with optional peers (the MCP adapter needs `@modelcontextprotocol/sdk`) surface the requirement at import time.
 
 ## Hello, DevFrame
 
@@ -126,31 +126,31 @@ node ./my-devtool.js mcp    # stdio MCP server (experimental)
 
 The CLI adapter serves the SPA at `/` by default. When the same devtool is embedded inside a host (`vite`, `kit`, `embedded`), the default becomes `/.my-devtool/`. Override either side via `defineDevtool({ basePath })`.
 
-## Adapters at a Glance
+## Adapters at a glance
 
 DevFrame deploys the same `DevtoolDefinition` through one of these adapters:
 
 | Adapter | Entry | Target |
 |---------|-------|--------|
 | `cli` | `createCli(d).parse()` | Standalone CLI with dev / build / mcp subcommands |
-| `vite` | `createVitePlugin(d, opts?)` | Plain Vite plugin — mounts the SPA only (no RPC server, no hub) |
+| `vite` | `createVitePlugin(d, opts?)` | Plain Vite plugin that mounts the SPA |
 | `build` | `createBuild(d, opts?)` | Self-contained static deploy with baked RPC dumps |
 | **kit (bridge)** | `createPluginFromDevframe(d, opts?)` *(from `@vitejs/devtools-kit/node`)* | Mount the devtool into Vite DevTools' hub UI |
 | `embedded` | `createEmbedded(d, { ctx })` | Runtime registration into an existing host |
 | `mcp` | `createMcpServer(d, opts)` | Model Context Protocol server |
 
-`createPluginFromDevframe` lives in the kit, not in DevFrame, because mounting *into a multi-integration hub* is by definition a kit responsibility. See [Adapters](./adapters) for the full reference.
+`createPluginFromDevframe` lives in the kit because mounting into a multi-integration hub is a kit responsibility. See [Adapters](./adapters) for the full reference.
 
-## Dependency Boundary
+## Dependency boundary
 
-DevFrame is the lowest-level package in the Vite DevTools monorepo and is positioned to be extracted into its own repo. It **must not** import from Vite or any `@vitejs/*` package — neither as a dependency nor as a source import. Hub-only concepts (docks, terminals, messages, commands) belong in the layers above:
+DevFrame is the lowest-level package in the Vite DevTools monorepo and is positioned to be extracted into its own repo. Imports from Vite or any `@vitejs/*` package are out of scope, in source and at the dependency-graph level. Hub-only concepts (docks, terminals, messages, commands) belong in the layers above:
 
-- `@vitejs/devtools-kit` — *the hub*. Owns docking, terminals, messages, the command palette; provides `createPluginFromDevframe` to bridge a DevFrame app into Vite DevTools.
-- `@vitejs/devtools` — *the integration*. The Vite plugin that wraps the kit and exposes Vite DevTools' own UI.
+- `@vitejs/devtools-kit` — the hub. Owns docking, terminals, messages, and the command palette; provides `createPluginFromDevframe` to bridge a DevFrame app into Vite DevTools.
+- `@vitejs/devtools` — the integration. Vite plugin that wraps the kit and exposes Vite DevTools' own UI.
 
-If you are porting an existing inspector, prefer the [`cli`](./adapters#cli) adapter for standalone use and `createPluginFromDevframe` (from `@vitejs/devtools-kit/node`) to surface it inside Vite DevTools.
+For porting an existing inspector, use the [`cli`](./adapters#cli) adapter standalone and `createPluginFromDevframe` (from `@vitejs/devtools-kit/node`) to surface it inside Vite DevTools.
 
-## What's Next
+## What's next
 
 - [Devtool Definition](./devtool-definition) — understand `defineDevtool` and the `DevToolsNodeContext`
 - [Adapters](./adapters) — pick the right deployment target for your tool

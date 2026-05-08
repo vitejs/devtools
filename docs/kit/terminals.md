@@ -4,9 +4,9 @@ outline: deep
 
 # Terminals & Subprocesses
 
-DevTools Kit includes a built-in terminal host that lets your plugin spawn and manage child processes. Output is streamed in real-time to an xterm.js UI inside DevTools.
+DevTools Kit's terminal host lets a plugin spawn and manage child processes. Output streams in real time to an xterm.js panel inside DevTools.
 
-## Starting a Child Process
+## Starting a child process
 
 The primary API is `ctx.terminals.startChildProcess()`:
 
@@ -39,7 +39,7 @@ interface DevToolsChildProcessExecuteOptions {
 
 The second argument provides terminal metadata (id, title, and optional description/icon).
 
-### Returned Session
+### Returned session
 
 `startChildProcess()` returns a `DevToolsChildProcessTerminalSession` with lifecycle controls:
 
@@ -54,12 +54,11 @@ await session.restart()
 const cp = session.getChildProcess()
 ```
 
-> [!NOTE]
-> Color output is enabled automatically — `FORCE_COLOR` and `COLORS` environment variables are set to `'true'` by default.
+The spawned process gets `FORCE_COLOR=true` and `COLORS=true` so terminal output stays coloured by default.
 
-## Combining with Launcher Docks
+## Combining with launcher docks
 
-A common pattern is pairing a [launcher dock entry](/kit/dock-system#launcher-entries) with a terminal session. The launcher gives the user a button to start the process on demand:
+Pair a [launcher dock entry](/kit/dock-system#launcher-entries) with a terminal session for a one-button start:
 
 ```ts
 ctx.docks.register({
@@ -87,9 +86,9 @@ ctx.docks.register({
 })
 ```
 
-## Custom Terminal Sessions
+## Custom terminal sessions
 
-For scenarios that don't involve spawning a child process (e.g. streaming logs from an external source), you can register a session directly with a custom `ReadableStream`:
+To stream from any source — external logs, custom protocols, anything yielding strings — register a session with a `ReadableStream`:
 
 ```ts
 let controller: ReadableStreamDefaultController<string>
@@ -111,7 +110,7 @@ ctx.terminals.register({
 controller.enqueue('Hello from custom stream!\n')
 ```
 
-## Session Lifecycle
+## Session lifecycle
 
 Each terminal session has a `status` field:
 
@@ -141,7 +140,7 @@ ctx.terminals.events.on('terminal:session:updated', (session) => {
 })
 ```
 
-Output chunks aren't delivered as host events — terminals stream via the [streaming channel](/kit/streaming) `devframe:terminals`, keyed by session id. From the browser:
+Output chunks travel through the [streaming channel](/kit/streaming) `devframe:terminals`, keyed by session id. The kit's `DevToolsTerminalHost` already pipes each session's `ReadableStream<string>` into the channel; this matters only when building a custom terminal renderer:
 
 ```ts
 const reader = rpc.streaming.subscribe<string>(
@@ -151,8 +150,6 @@ const reader = rpc.streaming.subscribe<string>(
 for await (const chunk of reader) writeToTerminal(chunk)
 ```
 
-A server-side bridge inside the kit's `DevToolsTerminalHost` pipes each session's `ReadableStream<string>` straight into the channel — you don't need to wire anything yourself unless you're building a custom terminal renderer.
-
 ## Inspection
 
 ```ts
@@ -161,4 +158,4 @@ for (const session of ctx.terminals.sessions.values()) {
 }
 ```
 
-`ctx.terminals.sessions` is a live `Map<string, DevToolsTerminalSession>` — handy for diagnostics, testing, and for building custom terminal UIs that mirror the built-in panel.
+`ctx.terminals.sessions` is a live `Map<string, DevToolsTerminalSession>` — useful for diagnostics, testing, and custom terminal UIs that mirror the built-in panel.

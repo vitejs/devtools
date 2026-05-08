@@ -1,17 +1,15 @@
 # Messages & Notifications
 
-The Messages system allows plugins to emit structured message entries from both the server (Node.js) and client (browser) contexts. Messages are displayed in the built-in **Messages** panel in the DevTools dock, and can optionally appear as toast notifications.
+The Messages system lets plugins emit structured message entries from both the server (Node.js) and client (browser) contexts. Entries appear in the **Messages** panel in the DevTools dock and can optionally surface as toast notifications. For *coded* errors and warnings with stable codes and docs URLs, use [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
 
-> For *coded* errors and warnings with stable codes and docs URLs, see [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
+## Use cases
 
-## Use Cases
+- **Accessibility audits** — run a11y checks on the client and report warnings with element positions.
+- **Runtime errors** — capture and display errors with stack traces.
+- **Linting & testing** — run ESLint or test runners alongside the dev server and surface results with file positions.
+- **Notifications** — short-lived messages like "URL copied" that auto-dismiss.
 
-- **Accessibility audits** — Run a11y checks or similar tools on the client side, report warnings with element positions
-- **Runtime errors** — Capture and display errors with stack traces
-- **Linting & testing** — Run ESLint or test runners alongside the dev server and surface results with file positions
-- **Notifications** — Short-lived messages like "URL copied" that auto-dismiss
-
-## Message Entry Fields
+## Message entry fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -29,13 +27,13 @@ The Messages system allows plugins to emit structured message entries from both 
 | `status` | `'loading' \| 'idle'` | No | Status indicator (shows spinner when `'loading'`) |
 | `id` | `string` | No | Explicit id for deduplication — re-adding with the same id updates the existing entry |
 
-The `from` field is automatically set to `'server'` or `'browser'` depending on where the message was emitted.
+The `from` field is set to `'server'` or `'browser'` automatically, based on where the message was emitted.
 
 ## Usage
 
-Both server-side and client-side share the same `context.messages` API. All methods return Promises, but you don't need to `await` them for fire-and-forget usage.
+Server and client share the same `context.messages` API. Methods return Promises; for fire-and-forget usage, skip the `await`.
 
-### Fire-and-Forget
+### Fire-and-forget
 
 ```ts
 // No await needed — just emit the message
@@ -45,9 +43,9 @@ context.messages.add({
 })
 ```
 
-### With Handle
+### With handle
 
-`await` the `add()` call to get a `DevToolsMessageHandle` for subsequent updates:
+`await` the `add()` call for a `DevToolsMessageHandle` you can update later:
 
 ```ts
 // Await to get a handle for later updates
@@ -69,7 +67,7 @@ await handle.update({
 await handle.dismiss()
 ```
 
-### Server-Side Example
+### Server-side example
 
 ```ts
 export function myPlugin() {
@@ -88,7 +86,7 @@ export function myPlugin() {
 }
 ```
 
-### Client-Side Example
+### Client-side example
 
 ```ts
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
@@ -113,7 +111,7 @@ export default async function (context: DockClientScriptContext) {
 }
 ```
 
-## Message Handle
+## Message handle
 
 `context.messages.add()` returns a `Promise<DevToolsMessageHandle>` with:
 
@@ -124,11 +122,11 @@ export default async function (context: DockClientScriptContext) {
 | `handle.update(patch)` | Partially update the message entry (returns `Promise`) |
 | `handle.dismiss()` | Remove the message entry (returns `Promise`) |
 
-Both `handle.update()` and `handle.dismiss()` return Promises but can be used without `await` for fire-and-forget.
+Both `handle.update()` and `handle.dismiss()` return Promises; the `await` is optional.
 
 ## Deduplication
 
-When you call `add()` with an explicit `id` that already exists, the existing entry is **updated** instead of duplicated. This is useful for messages that represent ongoing operations:
+Calling `add()` with an explicit `id` that already exists updates the existing entry rather than creating a duplicate — useful for ongoing operations:
 
 ```ts
 // First call creates the entry
@@ -138,9 +136,9 @@ context.messages.add({ id: 'my-scan', message: 'Scanning...', level: 'info', sta
 context.messages.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
 ```
 
-## Toast Notifications
+## Toast notifications
 
-Set `notify: true` to show the message entry as a toast notification overlay. Toasts appear regardless of whether the Messages panel is open.
+Set `notify: true` to surface the message entry as a toast overlay. Toasts appear whether or not the Messages panel is open.
 
 ```ts
 context.messages.add({
@@ -151,9 +149,9 @@ context.messages.add({
 })
 ```
 
-The default auto-dismiss time for toasts is 5 seconds.
+Toast auto-dismiss defaults to 5 seconds.
 
-## Managing Messages
+## Managing messages
 
 ```ts
 // Remove a specific message by id
@@ -163,18 +161,17 @@ context.messages.remove(entryId)
 context.messages.clear()
 ```
 
-Messages have a maximum capacity of 1000 entries. When the limit is reached, the oldest entries are automatically removed.
+Capacity tops out at 1000 entries; the oldest are dropped automatically when the limit is hit.
 
-> [!TIP]
-> See the [A11y Checker example](/kit/examples#a11y-checker) for a plugin that uses messages to report accessibility violations with severity levels, element positions, and WCAG labels.
+The [A11y Checker example](/kit/examples#a11y-checker) is a plugin that uses messages to report accessibility violations with severity levels, element positions, and WCAG labels.
 
-## Dock Badge
+## Dock badge
 
-The Messages dock icon automatically shows a badge with the total message count. The icon is hidden when there are no messages.
+The Messages dock icon shows a badge with the total message count and hides itself when there are no messages.
 
 ## Events
 
-The host emits events for anyone who wants to observe the message stream:
+The host emits events for observers of the message stream:
 
 ```ts
 ctx.messages.events.on('message:added', (entry) => { /* ... */ })
@@ -183,7 +180,7 @@ ctx.messages.events.on('message:removed', (id) => { /* ... */ })
 ctx.messages.events.on('message:cleared', () => { /* ... */ })
 ```
 
-Use this to bridge messages into external tools — e.g. mirror them into a structured log file or forward certain categories to your own reporter:
+Use the events to bridge messages into external tools — mirror them into a structured log, forward certain categories to your own reporter, etc.:
 
 ```ts
 ctx.messages.events.on('message:added', (entry) => {
@@ -192,7 +189,7 @@ ctx.messages.events.on('message:added', (entry) => {
 })
 ```
 
-## Long-Running Operation Pattern
+## Long-running operation pattern
 
 Combine `id`-based deduplication with `status: 'loading'` to drive a single message through a multi-step lifecycle:
 
