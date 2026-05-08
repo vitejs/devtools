@@ -4,7 +4,7 @@ outline: deep
 
 # Shared State
 
-DevTools Kit provides a built-in shared state system for synchronizing data between server and clients. Changes made on either side are automatically propagated to all connected parties.
+DevTools Kit's shared-state system synchronizes data between server and clients. Changes on either side propagate to every connected party.
 
 ## Overview
 
@@ -26,11 +26,11 @@ flowchart LR
   S_Mutate <-->|RPC sync| B_Value
 ```
 
-## Server-Side Usage
+## Server-side usage
 
-### Creating Shared State
+### Creating shared state
 
-Use `ctx.rpc.sharedState.get()` to create or access shared state:
+`ctx.rpc.sharedState.get()` creates or returns shared state:
 
 ```ts
 const plugin: Plugin = {
@@ -52,7 +52,7 @@ const plugin: Plugin = {
 }
 ```
 
-### Reading State
+### Reading state
 
 ```ts
 const state = await ctx.rpc.sharedState.get('my-plugin:state', {
@@ -64,9 +64,9 @@ const current = state.value()
 console.log(current.count) // 0
 ```
 
-### Mutating State
+### Mutating state
 
-Use `state.mutate()` to update the state. Changes are automatically synced to all clients:
+`state.mutate()` updates the state and syncs the change to every connected client:
 
 ```ts
 // Mutate with a function (recommended)
@@ -74,12 +74,11 @@ state.mutate((draft) => {
   draft.count += 1
   draft.items.push({ id: 1, name: 'New item' })
 })
-
-// The mutation function receives a mutable draft
-// Changes are batched and synced automatically
 ```
 
-### Example: Real-Time Updates
+The mutation function receives a mutable draft; changes are batched and synced automatically.
+
+### Example: real-time updates
 
 ```ts
 const plugin: Plugin = {
@@ -101,11 +100,11 @@ const plugin: Plugin = {
 }
 ```
 
-## Client-Side Usage
+## Client-side usage
 
-### Accessing Shared State
+### Accessing shared state
 
-Use `client.sharedState.get()` to access the shared state:
+`client.sharedState.get()` returns the shared state from the client:
 
 ```ts
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
@@ -118,7 +117,7 @@ const state = await client.sharedState.get('my-plugin:state')
 console.log(state.value())
 ```
 
-You can also access shared state through the global client context:
+The global client context exposes shared state too:
 
 ```ts
 import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
@@ -129,9 +128,9 @@ if (ctx) {
 }
 ```
 
-### Subscribing to Changes
+### Subscribing to changes
 
-Use `state.on('updated', ...)` to react to state changes:
+`state.on('updated', ...)` reacts to state changes:
 
 ```ts
 const state = await client.sharedState.get('my-plugin:state')
@@ -146,11 +145,11 @@ state.on('updated', (newState) => {
 })
 ```
 
-## Framework Integration
+## Framework integration
 
 ### Vue
 
-Create a reactive ref that syncs with shared state:
+A reactive ref that syncs with shared state:
 
 ```ts
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
@@ -174,7 +173,7 @@ const state = await useSharedState('my-plugin:state')
 // `state` is now reactive and auto-updates
 ```
 
-### Vue Composable (Full Example)
+### Vue composable (full example)
 
 ```vue
 <script setup lang="ts">
@@ -291,7 +290,7 @@ function MyComponent() {
 <p>Count: {$state.count}</p>
 ```
 
-## Type Safety
+## Type safety
 
 Extend `DevToolsRpcSharedStates` for type-safe shared state:
 
@@ -338,59 +337,59 @@ state.mutate((draft) => {
 })
 ```
 
-## Best Practices
+## Best practices
 
-### Use Namespaced Keys
+### Namespaced keys
 
 Prefix state keys with your plugin name to avoid collisions:
 
 ```ts
-// Good
+// ✓ Good
 'my-plugin:state'
 'my-plugin:settings'
 
-// Bad - may conflict with other plugins
+// ✗ Bad — may conflict with other plugins
 'state'
 'settings'
 ```
 
-### Keep State Serializable
+### Keep state serializable
 
-Shared state must be JSON-serializable. Avoid:
+Shared state travels over JSON. Stick to plain data — no functions, no circular references:
 
 <!-- eslint-skip -->
 
 ```ts
-// ✗ Bad - functions can't be serialized
+// ✗ Bad — functions don't serialize
 {
   count: 0,
   increment: () => this.count++
 }
 
-// ✗ Bad - circular references
+// ✗ Bad — circular references
 const obj = { child: null }
 obj.child = obj
 
-// ✓ Good - plain data
+// ✓ Good — plain data
 {
   count: 0,
   items: [{ id: 1, name: 'Item' }]
 }
 ```
 
-### Batch Updates
+### Batch updates
 
-When making multiple changes, use a single `mutate` call:
+Group multiple changes into a single `mutate` call to broadcast one sync event:
 
 ```ts
-// ✓ Good - single sync event
+// ✓ Good — single sync event
 state.mutate((draft) => {
   draft.count += 1
   draft.lastUpdate = Date.now()
   draft.items.push(newItem)
 })
 
-// ✗ Bad - multiple sync events
+// ✗ Bad — three sync events
 state.mutate((d) => {
   d.count += 1
 })
@@ -402,24 +401,18 @@ state.mutate((d) => {
 })
 ```
 
-### Consider State Size
+### Mind state size
 
-Large state objects may impact performance. For large datasets, consider:
+Large state objects can drag on sync performance. For large datasets, keep IDs in shared state and fetch the full records via RPC on demand:
 
 <!-- eslint-skip -->
 
 ```ts
-// Instead of storing all data in shared state
-{
-  allModules: [...thousands of modules...]
-}
-
-// Store just IDs and fetch details via RPC
+// ✓ Store just IDs and fetch details via RPC
 {
   moduleIds: ['a', 'b', 'c'],
   selectedModule: 'a'
 }
 
-// Use RPC to fetch full module data
 const module = await rpc.call('my-plugin:get-module', state.selectedModule)
 ```

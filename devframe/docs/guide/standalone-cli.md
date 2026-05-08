@@ -6,7 +6,7 @@ outline: deep
 
 This recipe walks through building a standalone CLI devtool on top of DevFrame — the shape where a user runs `npx my-tool` and gets a local dev server serving a Vue / Nuxt / React SPA backed by type-safe RPC, plus `build` / `spa` / `mcp` subcommands for free.
 
-It's the pattern used by tools like an ESLint config inspector or a bundler-config viewer: no Vite plugin, no host app — just a binary that opens a browser.
+It's the pattern used by tools like an ESLint config inspector or a bundler-config viewer: a binary that opens a browser.
 
 ## What you ship
 
@@ -192,7 +192,7 @@ At build time the handler runs once with no arguments; the result is stored as b
 
 ## On-disk caching
 
-DevFrame deliberately doesn't ship a storage primitive — [`unstorage`](https://unstorage.unjs.io/) is the recommended pattern for anything you want to cache between runs. Keep cache paths under `node_modules/.cache/<your-devtool-id>/` so the cache rotates with the project's `pnpm install`:
+Persistence between runs is the application's job — [`unstorage`](https://unstorage.unjs.io/) is the recommended pattern. Keep cache paths under `node_modules/.cache/<your-devtool-id>/` so the cache rotates with the project's `pnpm install`:
 
 ```ts
 import { resolve } from 'pathe'
@@ -223,7 +223,7 @@ defineDevtool({
 
 ## Live-reload on config changes
 
-DevFrame does not own the filesystem-watching concern — wire your own chokidar and signal the client via shared state:
+Filesystem watching belongs to the application layer — wire your own chokidar and signal the client via shared state:
 
 ```ts [src/cli.ts]
 defineDevtool({
@@ -307,12 +307,12 @@ await program.parseAsync()
 
 `createDevServer` returns the underlying `StartedServer` handle (`origin`, `port`, `app`, `wss`, `rpcGroup`, `close()`) so the surrounding program can drive graceful shutdown — SIGINT, hot reload, integration tests.
 
-For typed flag schemas, `parseCliFlags(schema, rawBag)` (from `devframe/adapters/cli`) validates a commander/yargs flag bag against a `CliFlagsSchema` (the same `defineCliFlags(...)` value you'd put on `cli.flags`). Typed-schema validation isn't tied to cac.
+For typed flag schemas, `parseCliFlags(schema, rawBag)` (from `devframe/adapters/cli`) validates a commander/yargs flag bag against a `CliFlagsSchema` (the same `defineCliFlags(...)` value you'd put on `cli.flags`). Typed-schema validation works with any CLI framework.
 
 ## Why this shape
 
 - **One command, one binary.** `createCli` is a complete CLI — dev, build, spa, mcp all from a single `defineDevtool` value.
-- **Headless.** No default banner; your `onReady` callback is the only stdout output that represents your tool.
+- **Headless.** Your `onReady` callback owns startup output, so your tool's stdout stays yours.
 - **Base-agnostic.** Same SPA build works at `/` (dev, standalone static) and at any deployment base.
 - **Typed end-to-end.** RPC function definitions flow their types through to the client `rpc.call` site.
 - **Agent-ready.** Add `agent: { description }` to any RPC function to expose it through the `mcp` subcommand.

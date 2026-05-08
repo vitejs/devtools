@@ -6,7 +6,7 @@ outline: deep
 
 Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
 
-## Minimal Definition
+## Minimal definition
 
 ```ts twoslash
 import { defineDevtool, defineRpcFunction } from 'devframe'
@@ -28,9 +28,9 @@ export default defineDevtool({
 })
 ```
 
-> The dock entry / iframe mount is auto-derived from `id`, `name`, `icon`, and `basePath` when the devtool is mounted into Vite DevTools via [`createPluginFromDevframe`](./adapters#kit). Hub-level features like `docks`, `terminals`, `messages`, and `commands` belong to the kit-augmented context — not to the devframe-level `setup`.
+When mounted into Vite DevTools via [`createPluginFromDevframe`](./adapters#kit), the dock entry and iframe mount are derived from `id`, `name`, `icon`, and `basePath` automatically. Hub-level features (`docks`, `terminals`, `messages`, `commands`) live on the kit-augmented context.
 
-## Definition Fields
+## Definition fields
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -45,7 +45,7 @@ export default defineDevtool({
 | `cli` | `DevtoolCliOptions` | Defaults for the CLI adapter. See [CLI options](#cli-options) below. |
 | `spa` | `DevtoolSpaOptions` | Defaults for the SPA adapter (`base`, `loader`). |
 
-### Runtime Flags
+### Runtime flags
 
 The `ctx.mode` field is either `'dev'` or `'build'`. Use it to gate work that should only run in one runtime:
 
@@ -66,7 +66,7 @@ defineDevtool({
 
 The CLI dev server sets `mode: 'dev'`; `createBuild` sets `mode: 'build'`.
 
-## The Setup Context
+## The setup context
 
 `setup(ctx)` receives a `DevToolsNodeContext`:
 
@@ -86,7 +86,7 @@ interface DevToolsNodeContext {
 }
 ```
 
-Hub-level subsystems — `docks`, `terminals`, `messages`, `commands` — are owned by `@vitejs/devtools-kit` and only present on the kit-augmented context. A devframe app that wants to register kit-only behavior does so via the optional `setup` hook on `createPluginFromDevframe`.
+Hub-level subsystems — `docks`, `terminals`, `messages`, `commands` — live on the kit-augmented context owned by `@vitejs/devtools-kit`. A devframe app that wants to register kit-only behavior does so through the optional `setup` hook on `createPluginFromDevframe`.
 
 Each host has a dedicated page:
 - [RPC](./rpc) — `ctx.rpc`
@@ -95,9 +95,9 @@ Each host has a dedicated page:
 - [Agent-Native](./agent-native) — `ctx.agent`
 - Hub-side surfaces — [Dock System](https://devtools.vite.dev/kit/dock-system), [Commands](https://devtools.vite.dev/kit/commands), [Messages](https://devtools.vite.dev/kit/messages), [Terminals](https://devtools.vite.dev/kit/terminals) — live in the [Vite DevTools Kit](https://devtools.vite.dev/kit/) docs.
 
-## Browser Setup
+## Browser setup
 
-The SPA adapter supports a `setupBrowser(ctx)` hook that runs inside the deployed client bundle. Use it for tools that perform their own in-browser work rather than fetching from a server (e.g. parsing a dropped file, calling public APIs from the client).
+The SPA adapter supports a `setupBrowser(ctx)` hook that runs inside the deployed client bundle. Use it for tools that perform their own in-browser work — parsing a dropped file, calling public APIs from the client, etc.
 
 ```ts
 defineDevtool({
@@ -110,12 +110,11 @@ defineDevtool({
 })
 ```
 
-> [!NOTE]
-> Automatic bundling of `setupBrowser` into the SPA output is not yet implemented. Until then, deployed SPAs that use it must ship their own client entry that registers the handlers.
+Deployed SPAs that use `setupBrowser` ship their own client entry that registers the handlers.
 
-## CLI Options
+## CLI options
 
-`cli` lets you configure the CLI adapter's defaults and plug additional flags/commands into the CAC instance:
+`cli` configures the CLI adapter's defaults and plugs additional flags/commands into the CAC instance:
 
 ```ts
 defineDevtool({
@@ -155,9 +154,9 @@ defineDevtool({
 | `auth` | `boolean` | Disable the WS trust flow when the tool is localhost-only and single-user. Default `true`. |
 | `configure` | `(cli: CAC) => void` | Contribute capability flags/commands. Runs before `createCli`'s `configureCli` option so the final tool author always has the last word. |
 
-`setup(ctx, info)` receives `info.flags` populated from both devframe's built-in flags and any you declare via `configure`. Use this to avoid duplicating flag parsing yourself.
+`setup(ctx, info)` receives `info.flags` populated from both devframe's built-in flags and any you declared via `configure` — saves duplicating flag parsing.
 
-## SPA Options
+## SPA options
 
 ```ts
 defineDevtool({
@@ -171,9 +170,9 @@ defineDevtool({
 
 See [Adapters](./adapters) for how each adapter consumes these.
 
-## Multiple Runtimes, One Definition
+## Multiple runtimes, one definition
 
-Because the definition is a plain value, you can wire it into multiple adapters from the same file:
+The definition is a plain value, so wire it into multiple adapters from the same file:
 
 ```ts
 import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
@@ -192,7 +191,7 @@ export const myPlugin = () => createPluginFromDevframe(devtool)
 await createBuild(devtool, { outDir: 'dist-static' })
 ```
 
-## What's Next
+## What's next
 
 - [Adapters](./adapters) — pick a deployment target
 - [RPC](./rpc) — register server functions

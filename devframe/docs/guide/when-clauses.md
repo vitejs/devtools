@@ -4,13 +4,13 @@ outline: deep
 
 # When Clauses
 
-When clauses are conditional expressions that gate the visibility and executability of docks, commands, and any other UI surface you wire them into. The syntax is the same one [VS Code uses for its when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts), evaluated against a reactive context object.
+When clauses are conditional expressions that gate the visibility and executability of docks, commands, and any other UI surface you wire them into. The syntax matches [VS Code's when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts), evaluated against a reactive context object.
 
-The evaluator is provided by the external [`whenexpr`](https://github.com/antfu/whenexpr) package. DevFrame re-exports `evaluateWhen`, `resolveContextValue`, and the `WhenExpression<Ctx, S>` type helper from `devframe/utils/when`.
+The evaluator is the external [`whenexpr`](https://github.com/antfu/whenexpr) package. DevFrame re-exports `evaluateWhen`, `resolveContextValue`, and the `WhenExpression<Ctx, S>` type helper from `devframe/utils/when`.
 
 ## Usage
 
-### On Commands
+### On commands
 
 Controls whether the command appears in the palette and whether it can be triggered via shortcuts:
 
@@ -23,7 +23,7 @@ ctx.commands.register({
 })
 ```
 
-### On Dock Entries
+### On dock entries
 
 Controls whether a dock is visible in the dock bar:
 
@@ -38,9 +38,9 @@ ctx.docks.register({
 })
 ```
 
-Set `when: 'false'` to unconditionally hide an entry.
+`when: 'false'` hides an entry unconditionally.
 
-## Expression Syntax
+## Expression syntax
 
 ### Operators
 
@@ -81,7 +81,7 @@ when: '(clientType == embedded && dockOpen) || clientType == standalone'
 when: 'my-devtool.ready' // custom plugin context
 ```
 
-## Built-in Context Variables
+## Built-in context variables
 
 | Variable | Type | Description |
 |----------|------|-------------|
@@ -90,9 +90,9 @@ when: 'my-devtool.ready' // custom plugin context
 | `paletteOpen` | `boolean` | Whether the command palette is currently open. |
 | `dockSelectedId` | `string` | ID of the currently selected dock entry. Empty string `''` when none. |
 
-## Namespaced Context Keys
+## Namespaced context keys
 
-Plugins can add keys using `.` or `:` separators:
+Plugins add keys using `.` or `:` separators:
 
 ```ts
 context['my-devtool.ready'] = true
@@ -108,16 +108,16 @@ when: 'my-devtool:step == build'
 when: 'myDevtool.ready'
 ```
 
-### Lookup Order
+### Lookup order
 
 When resolving a key like `my-devtool.ready`:
 
-1. Exact match — `ctx['my-devtool.ready']`
-2. Nested path — `ctx['my-devtool']?.ready`
+1. Exact match — `ctx['my-devtool.ready']`.
+2. Nested path — `ctx['my-devtool']?.ready`.
 
-Flat keys win if both exist.
+Flat keys take priority when both exist.
 
-## Type-Safe `when` Clauses
+## Type-safe `when` clauses
 
 `defineCommand` and `defineDockEntry` capture `when:` as a TypeScript literal and validate it against `WhenContext` via `whenexpr`'s `WhenExpression<Ctx, S>` helper — syntax errors surface at compile time:
 
@@ -142,7 +142,7 @@ defineCommand({
 
 ### Key validation with plugin contexts
 
-The default `WhenContext` allows any namespaced key (`[key: string]: unknown`), so the type checker only validates **syntax**. For key-level validation, declare a narrower context and build a typed wrapper:
+The default `WhenContext` keeps namespaced plugin keys open-ended (`[key: string]: unknown`); built-in syntax checking covers expression shape. For key-name validation, declare a narrower context and build a typed wrapper:
 
 ```ts
 import type { WhenContext, WhenExpression } from 'devframe/utils/when'
@@ -180,7 +180,7 @@ defineMyCommand({
 })
 ```
 
-## API Reference
+## API reference
 
 ```ts
 import type { WhenContext } from 'devframe/utils/when'
@@ -202,11 +202,11 @@ resolveContextValue('my-devtool.ready', ctx) // true
 
 ### `evaluateWhen(expression, ctx, options?)`
 
-Returns `boolean`. Pass `{ strict: true }` in `options` to throw when the expression references an unknown key — useful in tests to catch typos.
+Returns `boolean`. Pass `{ strict: true }` to throw on unknown keys — useful in tests to catch typos.
 
 ### `resolveContextValue(key, ctx)`
 
-Returns the current value of a single (possibly namespaced) key. Used internally by the evaluator; exposed for integrations that want to surface live context values.
+Returns the current value of a single (possibly namespaced) key. Used internally by the evaluator and exposed for integrations that surface live context values.
 
 ### `WhenExpression<Ctx, S>`
 

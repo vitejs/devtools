@@ -8,15 +8,15 @@ outline: deep
 The agent-native surface (`agent` field on `defineRpcFunction`, `DevToolsAgentHost`, and the `devframe/adapters/mcp` adapter) is experimental and may change without a major version bump until it stabilizes.
 :::
 
-DevFrame can expose the same surface the browser DevTools UI consumes — RPC functions, resources, and shared state — to coding agents (Claude Desktop / Cursor / Zed / Claude Code, or any MCP-speaking client). Plugins opt in to agent exposure explicitly; everything else stays private by default.
+DevFrame can expose the same surface the browser DevTools UI consumes — RPC functions, resources, and shared state — to coding agents (Claude Desktop / Cursor / Zed / Claude Code, or any MCP-speaking client). Agent exposure is opt-in per function; functions stay private by default.
 
 ## How it works
 
 Three building blocks:
 
-1. **An `agent` field on `defineRpcFunction`.** Add `agent: { description, ... }` to opt a function in. Omit the field (default) to keep it private.
-2. **`ctx.agent`** — a host exposed on `DevToolsNodeContext`. Plugins can register tools that aren't backed by an RPC, or expose readable resources (e.g. a Markdown build summary).
-3. **The MCP adapter** (`devframe/adapters/mcp`) — translates the agent host into a [Model Context Protocol](https://modelcontextprotocol.io) server. Today it speaks `stdio`; HTTP transport is planned.
+1. **An `agent` field on `defineRpcFunction`.** Add `agent: { description, ... }` to opt a function in. Functions without the field stay private.
+2. **`ctx.agent`** — a host exposed on `DevToolsNodeContext`. Plugins register tools that aren't backed by an RPC, and expose readable resources (e.g. a Markdown build summary).
+3. **The MCP adapter** (`devframe/adapters/mcp`) — translates the agent host into a [Model Context Protocol](https://modelcontextprotocol.io) server, currently over `stdio`.
 
 ## Exposing an RPC function
 
@@ -41,11 +41,11 @@ export const getSessionSummary = defineRpcFunction({
 })
 ```
 
-Tip: agent tools take a single object input. If your RPC uses positional args (`args: [A, B]`), the MCP adapter synthesizes `arg0`, `arg1`, ... automatically — but agents work best with a single object schema (`args: [v.object({ ... })]`) so property names are self-describing.
+Agent tools take a single object input. The MCP adapter synthesises `arg0`, `arg1`, … from positional args (`args: [A, B]`); a single object schema (`args: [v.object({ ... })]`) reads better at the agent boundary because property names are self-describing.
 
 ## Registering a plugin tool
 
-When a tool doesn't naturally correspond to an RPC — e.g. an on-demand narrative summary — register it directly:
+For tools without a matching RPC — say, an on-demand narrative summary — register them directly:
 
 ```ts
 export default defineDevtool({
@@ -88,7 +88,7 @@ The simplest path is the CLI:
 devframe mcp
 ```
 
-You can also call it programmatically:
+Programmatic equivalent:
 
 ```ts
 import { defineDevtool } from 'devframe'
@@ -101,7 +101,7 @@ await createMcpServer(devtool, { transport: 'stdio' })
 
 `@modelcontextprotocol/sdk` is a peer dependency — add it to your package when you want to ship an MCP-enabled devtool.
 
-## Hooking into Claude Desktop
+## Connecting Claude Desktop
 
 Add an entry to `claude_desktop_config.json`:
 
@@ -120,7 +120,7 @@ Restart Claude Desktop. The tools you flagged with `agent: { ... }` (plus any `r
 
 ## Safety model
 
-- **Default-deny.** Functions without an `agent` field are not exposed.
+- **Opt-in exposure.** Functions opt in via the `agent` field; everything else stays private.
 - **`safety`** — one of `'read'`, `'action'`, `'destructive'`. Inferred from the RPC `type` (`static`/`query` → `read`, `action`/`event` → `action`), with explicit override available.
 - The MCP adapter maps `safety` to tool annotations (`readOnlyHint`, `destructiveHint`). MCP clients use these to decide whether to prompt for confirmation before calling.
 
@@ -129,11 +129,3 @@ Restart Claude Desktop. The tools you flagged with `agent: { ... }` (plus any `r
 | Command | Description |
 |---------|-------------|
 | `devframe mcp` | Start an MCP server on `stdio`. |
-
-More CLI subcommands (`devframe agent list / call / read`) are planned.
-
-## What's next
-
-- HTTP (streamable) MCP transport with a real auth model.
-- A `devframe agent ...` CLI for agents that drive via bash rather than MCP.
-- A built-in `~agent` dock in the browser UI for auditing the agent surface.

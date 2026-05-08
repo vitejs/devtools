@@ -4,13 +4,13 @@ outline: deep
 
 # When Clauses
 
-When clauses are conditional expressions that control visibility and activation of commands and dock entries. They use a simple expression language — the same one used by [VS Code's when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts) — evaluated against a reactive context object.
+When clauses are conditional expressions that control visibility and activation of commands and dock entries. The expression language matches [VS Code's when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts), evaluated against a reactive context object.
 
-The evaluator is powered by [`whenexpr`](https://github.com/antfu/whenexpr), which also provides the `WhenExpression<Ctx, S>` type helper used by `defineCommand` / `defineDockEntry` for compile-time validation (see [Type-safe `when` clauses](#type-safe-when-clauses)).
+The evaluator is [`whenexpr`](https://github.com/antfu/whenexpr), which also provides the `WhenExpression<Ctx, S>` type helper used by `defineCommand` / `defineDockEntry` for compile-time validation — see [Type-safe `when` clauses](#type-safe-when-clauses).
 
 ## Usage
 
-### On Commands
+### On commands
 
 Controls whether the command appears in the palette and whether it can be triggered via shortcuts:
 
@@ -23,7 +23,7 @@ ctx.commands.register(defineCommand({
 }))
 ```
 
-### On Dock Entries
+### On dock entries
 
 Controls whether a dock entry is visible in the dock bar:
 
@@ -38,9 +38,9 @@ ctx.docks.register(defineDockEntry({
 }))
 ```
 
-Set `when: 'false'` to unconditionally hide a dock entry.
+`when: 'false'` hides a dock entry unconditionally.
 
-## Expression Syntax
+## Expression syntax
 
 ### Operators
 
@@ -93,7 +93,7 @@ when: '(clientType == embedded && dockOpen) || clientType == standalone'
 when: 'vite.mode == development'
 ```
 
-## Built-in Context Variables
+## Built-in context variables
 
 | Variable | Type | Description |
 |----------|------|-------------|
@@ -102,9 +102,9 @@ when: 'vite.mode == development'
 | `paletteOpen` | `boolean` | Whether the command palette is currently open |
 | `dockSelectedId` | `string` | ID of the currently selected dock entry. Empty string `''` (falsy) when no dock is selected. |
 
-## Namespaced Context Keys
+## Namespaced context keys
 
-Plugins can register context variables using namespaced keys with `.` or `:` separators to avoid collisions:
+Plugins register context variables under namespaced keys (`.` or `:` separators) to avoid collisions. Use your plugin id as the prefix — `my-plugin.featureEnabled`, `rolldown:buildStep`.
 
 ```ts
 // Flat key (recommended)
@@ -123,22 +123,18 @@ when: 'vite:buildMode == lib'
 when: 'vite.ssr'
 ```
 
-### Lookup Order
+### Lookup order
 
 When resolving a namespaced key like `vite.mode`:
 
-1. **Exact match** — looks for `ctx['vite.mode']` first
-2. **Nested path** — falls back to `ctx.vite?.mode`
+1. **Exact match** — `ctx['vite.mode']` is checked first.
+2. **Nested path** — `ctx.vite?.mode` is the fallback.
 
-Flat keys take priority over nested objects if both exist.
-
-::: tip Naming Convention
-Use your plugin name as a namespace prefix: `my-plugin.featureEnabled`, `rolldown:buildStep`, etc. This prevents collisions between unrelated plugins.
-:::
+Flat keys take priority over nested objects when both exist.
 
 ## Type-safe `when` clauses
 
-`defineCommand` and `defineDockEntry` capture the `when:` string as a TypeScript literal and validate it against `WhenContext` through [`whenexpr`](https://github.com/antfu/whenexpr)'s `WhenExpression<Ctx, S>` helper. Syntax errors surface as compile-time errors at the call site — no runtime check needed.
+`defineCommand` and `defineDockEntry` capture the `when:` string as a TypeScript literal and validate it against `WhenContext` through [`whenexpr`](https://github.com/antfu/whenexpr)'s `WhenExpression<Ctx, S>` helper. Syntax errors surface as compile-time errors at the call site.
 
 ```ts
 import { defineCommand } from '@vitejs/devtools-kit'
@@ -161,9 +157,7 @@ defineCommand({
 
 ### Key validation with plugin-specific contexts
 
-The default `WhenContext` uses `[key: string]: unknown` so that plugins can add any namespaced key. A consequence is that the type checker only validates **syntax** — it cannot flag a typo like `'dockOpn == embedded'`.
-
-If you want key validation for your own plugin, define a narrower context shape and build a plugin-specific `define*` wrapper:
+The default `WhenContext` uses `[key: string]: unknown` to keep namespaced plugin keys open-ended; that means built-in syntax validation alone won't catch typos like `'dockOpn == embedded'`. For key-name validation in your plugin, define a narrower context shape and build a plugin-specific `define*` wrapper:
 
 ```ts
 import type { WhenContext, WhenExpression } from '@vitejs/devtools-kit'
@@ -201,7 +195,7 @@ defineMyCommand({
 })
 ```
 
-## API Reference
+## API reference
 
 The when-clause evaluator is provided by `devframe`:
 
@@ -226,7 +220,7 @@ resolveContextValue('dockOpen', ctx) // true
 
 ### `evaluateWhen(expression, ctx, options?)`
 
-Evaluates a when-clause expression string against a context object. Returns `boolean`. Pass `{ strict: true }` in `options` to throw when an unknown context key is encountered (useful for catching typos during development).
+Evaluates a when-clause expression string against a context object. Returns `boolean`. Pass `{ strict: true }` to throw on unknown context keys — useful for catching typos during development.
 
 ### `resolveContextValue(key, ctx)`
 

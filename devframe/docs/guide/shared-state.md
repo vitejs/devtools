@@ -4,9 +4,9 @@ outline: deep
 
 # Shared State
 
-Shared state is observable, immutable-by-default state synced between the server and every connected client. It is built on [`immer`](https://immerjs.github.io/immer/) so you mutate a draft and DevFrame computes the patches to broadcast.
+Shared state is observable, immutable-by-default state synced between the server and every connected client. It's built on [`immer`](https://immerjs.github.io/immer/): you mutate a draft, DevFrame computes the patches to broadcast.
 
-Shared state survives reconnects — a newly connected client receives the current snapshot before any further updates. Prefer it over ad-hoc RPC events for anything that should stay reactive.
+Shared state survives reconnects — a newly connected client receives the current snapshot before any further updates. Use it for anything that should stay reactive.
 
 ## Overview
 
@@ -25,7 +25,7 @@ flowchart LR
   S <-->|RPC sync| B
 ```
 
-## Creating State
+## Creating state
 
 Use `ctx.rpc.sharedState.get(key, options)` in your `setup`:
 
@@ -48,11 +48,11 @@ export default defineDevtool({
 })
 ```
 
-Keys should be namespaced (`<devtool-id>:<key>`) to avoid collisions with other devtools sharing the same host.
+Namespace keys with `<devtool-id>:<key>` to avoid collisions when multiple devtools share a host.
 
 ## Reading
 
-`state.value()` returns an **immutable** snapshot:
+`state.value()` returns an immutable snapshot:
 
 ```ts
 const current = state.value()
@@ -77,11 +77,11 @@ Under the hood, DevFrame:
 2. Emits an `updated` event with the new state (and patches, if enabled).
 3. Broadcasts the update to all connected clients.
 
-Mutations are idempotent across replay — DevFrame tracks a `syncIds` set internally so a patch round-tripped back from a client doesn't reapply.
+Mutations are idempotent across replay — DevFrame tracks a `syncIds` set internally so a patch round-tripped back from a client applies once.
 
 ## Patches (advanced)
 
-Enable patches when you need minimal network diffs instead of full snapshots:
+Enable patches for minimal network diffs instead of full snapshots:
 
 ```ts
 const state = await ctx.rpc.sharedState.get('my-devtool:big-state', {
@@ -91,19 +91,19 @@ const state = await ctx.rpc.sharedState.get('my-devtool:big-state', {
 })
 ```
 
-When enabled, the `updated` event carries a `Patch[]` alongside the new state so listeners can apply incremental updates.
+With patches enabled, the `updated` event carries a `Patch[]` alongside the new state so listeners can apply incremental updates.
 
 ## Subscribing
 
 ```ts
 state.on('updated', (fullState, patches, syncId) => {
-  // `patches` is undefined unless enablePatches was set.
+  // `patches` is populated only when enablePatches is set.
 })
 ```
 
-## Client-Side Access
+## Client-side access
 
-From the browser, the same key is available on the RPC client:
+The same key is available on the RPC client in the browser:
 
 ```ts
 import { connectDevtool } from 'devframe/client'
@@ -121,7 +121,7 @@ state.mutate((draft) => {
 
 Client-side mutations round-trip through the server before reappearing locally, so `state.value()` always reflects the authoritative source.
 
-## Enumerating Keys
+## Enumerating keys
 
 Both server and client hosts expose `keys()` and `onKeyAdded`:
 
@@ -135,9 +135,9 @@ const unsubscribe = ctx.rpc.sharedState.onKeyAdded((key) => {
 })
 ```
 
-This is how protocol adapters (e.g. the [MCP adapter](./agent-native)) surface shared state as dynamic resources.
+Protocol adapters (the [MCP adapter](./agent-native), for example) use this to surface shared state as dynamic resources.
 
-## When to Use Shared State vs RPC
+## When to use shared state vs RPC
 
 | Use shared state for | Use RPC for |
 |----------------------|-------------|
@@ -145,4 +145,4 @@ This is how protocol adapters (e.g. the [MCP adapter](./agent-native)) surface s
 | Cross-client coordination | Commands / actions with side effects |
 | Data that should reappear after reconnect | Event streams (prefer `broadcast` / `callEvent`) |
 
-For short-lived actions and events, stick with `ctx.rpc.register` + `ctx.rpc.broadcast` from the [RPC](./rpc) page.
+For short-lived actions and events, use `ctx.rpc.register` + `ctx.rpc.broadcast` from the [RPC](./rpc) page.

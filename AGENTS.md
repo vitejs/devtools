@@ -182,3 +182,42 @@ pnpm lint && pnpm test && pnpm typecheck && pnpm build
 ```
 
 Follow conventional commits (`feat:`, `fix:`, etc.).
+
+## Documentation style
+
+These rules apply to every Markdown file under `docs/` and `devframe/docs/` (the error reference pages are template-driven and exempt). Apply them on every doc edit, not just dedicated revision passes.
+
+### 1. Positive framing
+
+Describe what *is*, not what *isn't*. Replace constructions like "X is for Y, not Z" or "there is no X for Y" with the closest natural positive phrasing. Don't document features that don't exist yet — release notes are the place for "now supported" announcements; docs describe what works today.
+
+- ❌ "Build mode only; dev mode is not supported yet."
+- ✅ "Analyses production builds in Vite 8+."
+
+- ❌ "For tools that don't need Vite at all."
+- ✅ "Standalone tools can build directly on DevFrame."
+
+### 2. Use callouts sparingly
+
+Callouts (`> [!NOTE]`, `> [!TIP]`, `> [!INFO]`, `::: tip`, etc.) interrupt the reading flow and should earn their visual weight. Default to prose; reach for a callout only for genuinely critical material.
+
+- **`[!WARNING]` / `[!DANGER]`** — security hazards, footguns, breaking-change pitfalls, experimental-API stability warnings. Keep these.
+- **Bad-practice "✗" inline blocks** — fine inside code samples to contrast with a `✓` good example.
+- **Everything else** — fold into the surrounding prose. A `[!NOTE]` that says "you only need this as a dev dependency" reads better as a sentence in the install section.
+
+### 3. Kit-first in `/docs/`
+
+The main docs site is for **Vite DevTools** and **`@vitejs/devtools-kit`** users. DevFrame is the framework-neutral foundation underneath; mention it where relevant ("Kit is built on DevFrame; standalone tools can use DevFrame directly — see [DevFrame](https://devfra.me/guide/)") but lead examples and guides with the Kit / Vite plugin path.
+
+`devframe/docs/` is the inverse: DevFrame-first, with cross-links to Kit for hub-only features (docks, terminals, messages, commands).
+
+### 4. Concise and precise
+
+Trim filler intros, redundant cross-links (one link per page is enough — VitePress sidebars handle navigation), and code samples that demonstrate more than the point being made. Lead each page with one sentence that says what the reader can build with this. Strip out promises about future work, marketing language ("powerful", "seamless"), and exposition that the surrounding code already conveys.
+
+### What goes where
+
+- Critical security / data-loss hazard → `[!WARNING]` callout.
+- Experimental API / stability caveat → `[!WARNING]` callout at the top of the page.
+- Bad-practice contrast → inline `// ✗ Bad` / `// ✓ Good` comments inside code blocks.
+- Anything else worth saying → prose.

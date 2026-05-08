@@ -4,11 +4,11 @@ outline: deep
 
 # Dock System
 
-Dock entries are the primary way for users to interact with your DevTools integration. They appear as clickable items in the DevTools dock (similar to macOS Dock).
+Dock entries are how users open your DevTools integration — clickable items in the dock, similar to the macOS Dock.
 
-## Entry Types
+## Entry types
 
-DevTools Kit supports five types of dock entries:
+Kit supports five dock entry types:
 
 | Type | Description | Use Case |
 |------|-------------|----------|
@@ -18,11 +18,11 @@ DevTools Kit supports five types of dock entries:
 | `launcher` | Actionable setup card shown in panel | Run one-time setup tasks before showing other tools |
 | `json-render` | Renders UI from a JSON spec — no client code needed | Data panels, config viewers, simple interactive tools |
 
-## Iframe Panels
+## Iframe panels
 
-The most common approach—host your UI in an iframe. This keeps your DevTools isolated from the user's app and lets you use any framework.
+The default choice — host your UI in an iframe. The frame stays isolated from the user's app and works with any framework.
 
-### Basic Example
+### Basic example
 
 ```ts
 ctx.docks.register({
@@ -34,9 +34,9 @@ ctx.docks.register({
 })
 ```
 
-### Hosting Your Own UI
+### Hosting your own UI
 
-For most use cases, you'll build and host your own UI. DevTools can serve your static files:
+For most use cases, you build and host your own UI. DevTools serves the static files:
 
 ```ts
 import { fileURLToPath } from 'node:url'
@@ -57,11 +57,9 @@ ctx.docks.register({
 })
 ```
 
-DevTools handles:
-- Serving files via dev server middleware
-- Copying files to output during production builds
+DevTools serves the files via dev-server middleware and copies them into the build output for production.
 
-### Dock Entry Options
+### Dock entry options
 
 ```ts
 interface DockEntry {
@@ -94,7 +92,7 @@ interface DockEntry {
 
 ### Icons
 
-You can specify icons in several ways:
+Icons accept a URL, a data URI, or an [Iconify](https://icon-sets.iconify.design/) name. The `ph:` (Phosphor) set pairs well with DevTools UIs.
 
 ```ts
 // URL to an image
@@ -103,7 +101,7 @@ icon: 'https://example.com/logo.svg'
 // Data URI
 icon: 'data:image/svg+xml,...'
 
-// Iconify icon name (recommended)
+// Iconify icon name
 icon: 'ph:chart-bar-duotone' // Phosphor Icons
 icon: 'carbon:analytics' // Carbon Icons
 icon: 'mdi:view-dashboard' // Material Design Icons
@@ -115,22 +113,19 @@ icon: {
 }
 ```
 
-> [!TIP]
-> Browse available icons at [Iconify](https://icon-sets.iconify.design/). The `ph:` (Phosphor) icon set works well for DevTools UIs.
-
-> [!TIP]
-> See the [File Explorer example](/kit/examples#file-explorer) for a iframe dock plugin with RPC and static build support.
+The [File Explorer example](/kit/examples#file-explorer) is a complete iframe-dock plugin with RPC and static-build support.
 
 ### Remote-hosted UIs
 
-If you'd rather not bundle a dist with your plugin, an iframe dock can point at a **hosted website** that connects back to the local dev server over WebSocket. See [Remote Client](./remote-client) for the full guide.
+To skip bundling a dist with your plugin, an iframe dock can point at a hosted website that connects back to the local dev server over WebSocket. See [Remote Client](./remote-client).
 
-## Action Buttons
+## Action buttons
 
-Action buttons run client-side scripts when clicked. They're perfect for:
-- Temporary inspector tools (DOM inspector, component picker)
-- Feature toggles
-- One-time actions that don't need a panel
+Action buttons run a client-side script when clicked. They suit:
+
+- Temporary inspector tools (DOM inspector, component picker).
+- Feature toggles.
+- One-shot actions where a button is enough.
 
 ### Registration
 
@@ -147,9 +142,9 @@ ctx.docks.register({
 })
 ```
 
-### Client Script
+### Client script
 
-Create the action script that runs in the user's browser:
+The action script runs in the user's browser:
 
 ```ts
 // src/devtools-action.ts
@@ -191,7 +186,7 @@ export default function setupAction(ctx: DockClientScriptContext) {
 }
 ```
 
-### Package Export
+### Package export
 
 Export the action script from your package:
 
@@ -205,22 +200,18 @@ Export the action script from your package:
 }
 ```
 
-### Available Events
+### Available events
 
 | Event | Description |
 |-------|-------------|
-| `entry:activated` | Fired when the user clicks/activates this dock entry |
-| `entry:deactivated` | Fired when another entry is selected or the dock is closed |
+| `entry:activated` | Fires when the user activates this dock entry |
+| `entry:deactivated` | Fires when another entry is selected or the dock is closed |
 
-> [!TIP]
-> See the [A11y Checker example](/kit/examples#a11y-checker) for a real-world action dock that runs axe-core audits and reports violations as logs.
+For a real-world action dock, see the [A11y Checker example](/kit/examples#a11y-checker) — it runs axe-core audits and reports violations as logs.
 
-## Custom Renderers
+## Custom renderers
 
-Custom renderers let you render directly into the DevTools panel DOM. This gives you full control and is useful when:
-- You need direct DOM access
-- You want to mount a framework app into the panel
-- You need to avoid iframe isolation
+Custom renderers paint directly into the DevTools panel DOM. Use them when you want direct DOM access, want to mount a framework app into the panel, or want to skip iframe isolation.
 
 ### Registration
 
@@ -237,7 +228,7 @@ ctx.docks.register({
 })
 ```
 
-### Renderer Script
+### Renderer script
 
 ```ts
 // src/devtools-renderer.ts
@@ -275,7 +266,7 @@ export default function setupRenderer(ctx: DockClientScriptContext) {
 }
 ```
 
-### Available Events
+### Available events
 
 | Event | Payload | Description |
 |-------|---------|-------------|
@@ -283,12 +274,11 @@ export default function setupRenderer(ctx: DockClientScriptContext) {
 | `entry:activated` | — | Entry was activated |
 | `entry:deactivated` | — | Entry was deactivated |
 
-> [!NOTE]
-> The panel DOM is preserved when users switch between dock entries. Your UI persists, so you only need to set up once in `dom:panel:mounted`.
+The panel DOM is preserved across dock-entry switches, so your UI persists and the one-time setup belongs in `dom:panel:mounted`.
 
-## Launcher Entries
+## Launcher entries
 
-Launcher entries render a dedicated setup panel and trigger a server-side launch task. They are useful for integrations that need an explicit initialization step (for example starting a terminal task or generating artifacts).
+Launchers render a dedicated setup panel and run a server-side launch task. They suit integrations that need an explicit initialization step — starting a terminal task, generating artifacts, and so on.
 
 ```ts
 ctx.docks.register({
@@ -306,14 +296,11 @@ ctx.docks.register({
 })
 ```
 
-> [!NOTE]
-> Built-in messages panel (`~messages`) is currently reserved and hidden while the messages UI is under development.
+## JSON render panels
 
-## JSON Render Panels
+JSON render panels describe a UI as a JSON spec on the server — the client renders it from a built-in component library. This is the shortest path to a DevTools panel: server-side TypeScript only.
 
-JSON render panels let you describe your UI as a JSON spec on the server side — **no client code needed.** This is the simplest way to add a DevTools panel.
-
-Use `ctx.createJsonRenderer()` to create a renderer handle, then pass it as `ui` when registering a `json-render` dock entry:
+Create a renderer handle with `ctx.createJsonRenderer()` and pass it as `ui` when registering a `json-render` dock entry:
 
 ```ts
 const ui = ctx.createJsonRenderer({
@@ -349,9 +336,9 @@ ctx.docks.register({
 })
 ```
 
-See the [JSON Render](/kit/json-render) page for the full component reference, dynamic updates, actions, state bindings, and examples.
+See [JSON Render](/kit/json-render) for the full component reference, dynamic updates, actions, state bindings, and examples.
 
-## Common Options
+## Common options
 
 Every dock type accepts these base fields:
 
@@ -365,7 +352,7 @@ Every dock type accepts these base fields:
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
 
-## Update & Unregister
+## Update
 
 `register()` returns a handle with an `update(patch)` method:
 
@@ -376,11 +363,9 @@ const handle = ctx.docks.register({ /* ... */ })
 handle.update({ badge: '3' })
 ```
 
-The handle only supports `update`. Docks are not individually unregisterable today.
+## Communication with the server
 
-## Communication with Server
-
-All client scripts (actions and custom renderers) can communicate with the server using [RPC](./rpc):
+Action scripts and custom renderers talk to the server through [RPC](./rpc):
 
 ```ts
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
