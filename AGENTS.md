@@ -123,22 +123,29 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
    outline: deep
    ---
    # DTK0033: Short Title
-   > Package: `@vitejs/devtools`
+
    ## Message
    > Something went wrong with "`{name}`"
+
    ## Cause
    When and why this occurs.
+
    ## Example
    Code that triggers it.
+
    ## Fix
    How to resolve it.
+
    ## Source
-   `packages/core/src/node/filename.ts`
+   - [`packages/core/src/node/filename.ts`](https://github.com/vitejs/devtools/blob/main/packages/core/src/node/filename.ts) — `functionName()` throws this when …
+   - [`packages/core/src/node/diagnostics.ts`](https://github.com/vitejs/devtools/blob/main/packages/core/src/node/diagnostics.ts) — defines `DTK0033`.
    ```
 
-4. **Update the index** at `docs/errors/index.md` — add a row to the table.
+   The `## Source` section lists every file involved (the diagnostics-definition file plus each call site that emits the code), with a one-line role per entry. Append `(level: \`warn\`)` to the diagnostics-file line for warn-level codes; omit the level clause when it's the default `error`.
 
-5. **Update the sidebar** in `docs/.vitepress/config.ts` — the DTK items are auto-generated from `Array.from({ length: N })`, so increment the length. RDDT items are listed manually.
+4. **Update the index** at `docs/errors/index.md` — add a row with `Code | Level | Title` (no Package column).
+
+5. **Update the sidebar** in `docs/.vitepress/config.ts` — DTK and RDDT items are listed explicitly; append the new code to the corresponding array.
 
 ### Scope
 
