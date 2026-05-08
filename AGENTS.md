@@ -144,7 +144,7 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
 
 4. **Update the index** at `docs/errors/index.md` — add a row with `Code | Level | Title` (no Package column).
 
-5. **Update the sidebar** in `docs/.vitepress/config.ts` — DTK and RDDT items are listed explicitly; append the new code to the corresponding array.
+The sidebar in `docs/.vitepress/config.ts` (and `devframe/docs/.vitepress/config.ts` for `DF` codes) globs the `errors/` directory by prefix, so the new page is picked up automatically — no sidebar edit needed.
 
 ### Scope
 
