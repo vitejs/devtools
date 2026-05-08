@@ -2,16 +2,25 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { extendConfig } from '@voidzero-dev/vitepress-theme/config'
+import { globSync } from 'tinyglobby'
 import { defineConfig } from 'vitepress'
 import {
   groupIconMdPlugin,
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import devframeSidebar from '../../devframe/docs/.vitepress/sidebar'
+import { devframeNav, devframeSidebar } from '../../devframe/docs/.vitepress/config'
 import { version } from '../../package.json'
 
 const repoRoot = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..')
+
+const errorsDir = fileURLToPath(new URL('../errors/', import.meta.url))
+
+function listErrorCodes(prefix: string): string[] {
+  return globSync(`${prefix}*.md`, { cwd: errorsDir })
+    .map(f => f.replace(/\.md$/, ''))
+    .sort()
+}
 
 const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
@@ -89,7 +98,7 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'DevTools Kit',
         items: DevToolsKitNav,
       },
-      { text: 'DevFrame', link: '/devframe/' },
+      { text: 'DevFrame', items: devframeNav('/devframe') },
       {
         text: `v${version}`,
         items: [
@@ -142,18 +151,18 @@ export default extendConfig(withMermaid(defineConfig({
             {
               text: 'DevTools Kit (DTK)',
               collapsed: true,
-              items: Array.from({ length: 32 }, (_, i) => {
-                const code = `DTK${String(i + 1).padStart(4, '0')}`
-                return { text: code, link: `/errors/${code}` }
-              }),
+              items: listErrorCodes('DTK').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
             },
             {
               text: 'Rolldown DevTools (RDDT)',
               collapsed: true,
-              items: [
-                { text: 'RDDT0001', link: '/errors/RDDT0001' },
-                { text: 'RDDT0002', link: '/errors/RDDT0002' },
-              ],
+              items: listErrorCodes('RDDT').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
             },
           ],
         },

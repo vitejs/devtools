@@ -1,14 +1,70 @@
+import type { DefaultTheme } from 'vitepress'
+import { fileURLToPath } from 'node:url'
+import { globSync } from 'tinyglobby'
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import devframeSidebar from './sidebar'
+
+const errorsDir = fileURLToPath(new URL('../errors/', import.meta.url))
+
+function listErrorCodes(prefix: string): string[] {
+  return globSync(`${prefix}*.md`, { cwd: errorsDir })
+    .map(f => f.replace(/\.md$/, ''))
+    .sort()
+}
+
+function guideItems(prefix: string): DefaultTheme.NavItemWithLink[] {
+  return [
+    { text: 'Introduction', link: `${prefix}/guide/` },
+    { text: 'Devtool Definition', link: `${prefix}/guide/devtool-definition` },
+    { text: 'Adapters', link: `${prefix}/guide/adapters` },
+    { text: 'RPC', link: `${prefix}/guide/rpc` },
+    { text: 'Shared State', link: `${prefix}/guide/shared-state` },
+    { text: 'Streaming', link: `${prefix}/guide/streaming` },
+    { text: 'Dock System', link: `${prefix}/guide/dock-system` },
+    { text: 'Commands', link: `${prefix}/guide/commands` },
+    { text: 'When Clauses', link: `${prefix}/guide/when-clauses` },
+    { text: 'Messages & Notifications', link: `${prefix}/guide/messages` },
+    { text: 'Structured Diagnostics', link: `${prefix}/guide/diagnostics` },
+    { text: 'Terminals', link: `${prefix}/guide/terminals` },
+    { text: 'Client', link: `${prefix}/guide/client` },
+    { text: 'Standalone CLI', link: `${prefix}/guide/standalone-cli` },
+    { text: 'Nuxt Helper', link: `${prefix}/guide/nuxt` },
+    { text: 'Agent-Native (experimental)', link: `${prefix}/guide/agent-native` },
+  ]
+}
+
+export function devframeSidebar(prefix = ''): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      text: 'Guide',
+      items: guideItems(prefix),
+    },
+    {
+      text: 'Error Reference',
+      link: `${prefix}/errors/`,
+      collapsed: true,
+      items: listErrorCodes('DF').map(code => ({
+        text: code,
+        link: `${prefix}/errors/${code}`,
+      })),
+    },
+  ]
+}
+
+export function devframeNav(prefix = ''): DefaultTheme.NavItemWithLink[] {
+  return [
+    ...guideItems(prefix),
+    { text: 'Error Reference', link: `${prefix}/errors/` },
+  ]
+}
 
 export default withMermaid(defineConfig({
   title: 'DevFrame',
   description: 'Framework-neutral foundation for building generic DevTools — RPC layer, hosts, and adapters.',
   themeConfig: {
     nav: [
-      { text: 'Guide', link: '/guide/' },
-      { text: 'Errors', link: '/errors/' },
+      { text: 'Guide', items: guideItems('') },
+      { text: 'Error Reference', link: '/errors/' },
     ],
     sidebar: devframeSidebar(),
     search: {
