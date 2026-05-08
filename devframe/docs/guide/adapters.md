@@ -16,7 +16,7 @@ All adapter factories share the same shape: `createXxx(devtoolDef, options?)`.
 | [`dev`](#dev) | `devframe/adapters/dev` | `createDevServer(def, options?)` | Run the dev server programmatically — drive it from any CLI framework |
 | [`vite`](#vite) | `devframe/adapters/vite` | `createVitePlugin(def, options?)` | Mount a tool's UI inside an existing Vite dev server |
 | [`build`](#build) | `devframe/adapters/build` | `createBuild(def, options?)` | Offline reports, CI artifacts, deployable SPA snapshots |
-| [`kit`](#kit) | `devframe/adapters/kit` | `createKitPlugin(def, options?)` | Integrating into Vite DevTools Kit |
+| [`kit`](#kit) | `@vitejs/devtools-kit/node` | `createPluginFromDevframe(def, options?)` | Integrating into Vite DevTools Kit |
 | [`embedded`](#embedded) | `devframe/adapters/embedded` | `createEmbedded(def, { ctx })` | Runtime registration into an already-running host |
 | [`mcp`](#mcp) | `devframe/adapters/mcp` | `createMcpServer(def, options?)` | Exposing a devtool to coding agents |
 
@@ -256,23 +256,25 @@ When `def.spa` is set on the definition, `createBuild` also writes `spa-loader.j
 
 ## Kit
 
-Wraps a `DevtoolDefinition` so that Vite DevTools Kit's plugin-scan picks it up.
+Wraps a `DevtoolDefinition` so that Vite DevTools Kit's plugin-scan picks it up. The factory lives in `@vitejs/devtools-kit/node` (kit owns docking + process management; devframe stays portable).
 
 ```ts
-import type { Plugin } from 'vite'
-import { createKitPlugin } from 'devframe/adapters/kit'
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import devtool from './devtool'
 
-export default function myVitePlugin(): Plugin {
-  return createKitPlugin(devtool) as unknown as Plugin
+export default function myVitePlugin() {
+  return createPluginFromDevframe(devtool)
 }
 ```
 
-The returned object has the shape `{ name, devtools: { setup, capabilities } }`. Use this adapter when your devtool should live inside the Vite DevTools dock alongside other integrations. For a Vite-specific plugin guide, see the [DevTools Kit → DevTools Plugin](https://devtools.vite.dev/kit/devtools-plugin) page.
+The returned object has the shape `{ name, devtools: { setup, capabilities } }`. Use this adapter when your devtool should live inside the Vite DevTools dock alongside other integrations. The kit synthesises an iframe dock entry from the definition's `id` / `name` / `icon` / `basePath` automatically; for richer kit-specific behaviour (extra terminals, commands, dock overrides) pass `options.setup`. For a Vite-specific plugin guide, see the [DevTools Kit → DevTools Plugin](https://devtools.vite.dev/kit/devtools-plugin) page.
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `name` | `devframe:<id>` | Override the Vite plugin name. |
+| `base` | `def.basePath ?? /.${id}/` | Mount path override. |
+| `dock` | `{}` | Overrides for the synthesized iframe dock entry (category, icon, when). |
+| `setup` | — | Additional kit-only setup hook; receives the kit-augmented context. |
 
 ## Embedded
 

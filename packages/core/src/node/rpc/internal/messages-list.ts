@@ -1,5 +1,4 @@
-import type { DevToolsMessageEntry } from '@vitejs/devtools-kit'
-import type { DevToolsMessagesHost } from 'devframe/node'
+import type { DevToolsMessageEntry, DevToolsMessagesHost } from '@vitejs/devtools-kit'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export interface MessagesListResult {

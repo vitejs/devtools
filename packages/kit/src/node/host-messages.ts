@@ -1,4 +1,10 @@
-import type { DevToolsMessageEntry, DevToolsMessageEntryInput, DevToolsMessageHandle, DevToolsMessagesHost as DevToolsMessagesHostType, DevToolsNodeContext } from 'devframe/types'
+import type {
+  DevToolsMessageEntry,
+  DevToolsMessageEntryInput,
+  DevToolsMessageHandle,
+  DevToolsMessagesHost as DevToolsMessagesHostType,
+} from '../types/messages'
+import type { KitNodeContext } from './context'
 import { createEventEmitter } from 'devframe/utils/events'
 import { nanoid } from 'devframe/utils/nanoid'
 
@@ -21,7 +27,7 @@ export class DevToolsMessagesHost implements DevToolsMessagesHostType {
   }
 
   constructor(
-    public readonly context: DevToolsNodeContext,
+    public readonly context: KitNodeContext,
   ) {}
 
   async add(input: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle> {

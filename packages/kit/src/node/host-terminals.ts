@@ -1,13 +1,23 @@
-import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession, DevToolsNodeContext, DevToolsTerminalHost as DevToolsTerminalHostType, DevToolsTerminalSession, DevToolsTerminalSessionBase, PartialWithoutId, RpcStreamingChannel } from 'devframe/types'
+import type { RpcStreamingChannel } from 'devframe/types'
 import type { Result as TinyExecResult } from 'tinyexec'
+import type {
+  DevToolsChildProcessExecuteOptions,
+  DevToolsChildProcessTerminalSession,
+  DevToolsTerminalHost as DevToolsTerminalHostType,
+  DevToolsTerminalSession,
+  DevToolsTerminalSessionBase,
+} from '../types/terminals'
+import type { KitNodeContext } from './context'
 import process from 'node:process'
 import { createEventEmitter } from 'devframe/utils/events'
 import { logger } from './diagnostics'
 
+type PartialWithoutId<T extends { id: string }> = Partial<T> & { id: string }
+
 /**
- * Channel name used for terminal stream output. Built into devframe so the
+ * Channel name used for terminal stream output. Stable, well-known so the
  * standalone client (`packages/core/src/client/webcomponents/state/terminals.ts`)
- * can subscribe by a stable, well-known name.
+ * can subscribe by name.
  */
 const TERMINAL_STREAM_CHANNEL = 'devframe:terminals' as const
 const TERMINAL_REPLAY_WINDOW = 1000
@@ -24,7 +34,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
   private _channel?: RpcStreamingChannel<string>
 
   constructor(
-    public readonly context: DevToolsNodeContext,
+    public readonly context: KitNodeContext,
   ) {
   }
 
@@ -47,7 +57,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
     if (this.sessions.has(session.id)) {
-      throw logger.DF0004({ id: session.id }).throw()
+      throw logger.DTK0053({ id: session.id }).throw()
     }
     this.sessions.set(session.id, session)
     this.bindStream(session)
@@ -57,7 +67,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   update(patch: PartialWithoutId<DevToolsTerminalSession>): void {
     if (!this.sessions.has(patch.id)) {
-      throw logger.DF0005({ id: patch.id }).throw()
+      throw logger.DTK0054({ id: patch.id }).throw()
     }
     const session = this.sessions.get(patch.id)!
     Object.assign(session, patch)
@@ -126,7 +136,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
-      throw logger.DF0004({ id: terminal.id }).throw()
+      throw logger.DTK0053({ id: terminal.id }).throw()
     }
     const { exec } = await import('tinyexec')
 

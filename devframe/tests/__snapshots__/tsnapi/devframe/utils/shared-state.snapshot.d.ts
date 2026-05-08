@@ -11,5 +11,5 @@ export { ImmutableSet }
 export { SharedState }
 export { SharedStateEvents }
 export { SharedStateOptions }
-export { Patch as SharedStatePatch }
+export { SharedStatePatch }
 // #endregion

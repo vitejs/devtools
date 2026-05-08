@@ -212,14 +212,5 @@ export default defineDevtool({
         })
       },
     }))
-
-    ctx.views.hostStatic(BASE_PATH, distDir)
-    ctx.docks.register({
-      id: 'devframe-streaming-chat',
-      title: 'Streaming Chat',
-      icon: 'ph:chat-circle-dots-duotone',
-      type: 'iframe',
-      url: BASE_PATH,
-    })
   },
 })

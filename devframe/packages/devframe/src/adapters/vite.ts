@@ -26,7 +26,8 @@ export interface DevframeVitePlugin {
  * pulling the full Vite DevTools Kit.
  *
  * Note: this does not yet spin up the RPC WS server — for the full
- * RPC path, use `createKitPlugin` alongside `@vitejs/devtools`, or the
+ * RPC path, use `createPluginFromDevframe` from
+ * `@vitejs/devtools-kit/node` alongside `@vitejs/devtools`, or the
  * standalone `createCli`.
  */
 export function createVitePlugin(d: DevtoolDefinition, options: CreateVitePluginOptions = {}): DevframeVitePlugin {

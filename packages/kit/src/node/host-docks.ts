@@ -1,11 +1,23 @@
-import type { DevToolsDockEntry, DevToolsDockHost as DevToolsDockHostType, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewBuiltin, DevToolsViewIframe, RemoteConnectionInfo, RemoteDockOptions } from 'devframe/types'
+import type { DevToolsNodeContext } from 'devframe/types'
 import type { SharedState } from 'devframe/utils/shared-state'
-import { DEFAULT_STATE_USER_SETTINGS, REMOTE_CONNECTION_KEY } from 'devframe/constants'
+import type {
+  DevToolsDockEntry,
+  DevToolsDockHost as DevToolsDockHostType,
+  DevToolsDockUserEntry,
+  DevToolsViewBuiltin,
+  DevToolsViewIframe,
+  RemoteConnectionInfo,
+  RemoteDockOptions,
+} from '../types/docks'
+import type { DevToolsDocksUserSettings } from '../types/settings'
+import type { KitNodeContext } from './context'
+import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
+import { getInternalContext } from 'devframe/internal'
+import { createStorage } from 'devframe/node'
 import { createEventEmitter } from 'devframe/utils/events'
 import { join } from 'pathe'
-import { getInternalContext } from './context-internal'
+import { DEFAULT_STATE_USER_SETTINGS } from '../constants'
 import { logger } from './diagnostics'
-import { createStorage } from './storage'
 
 interface RemoteDockRecord {
   token: string
@@ -59,7 +71,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   private readonly remoteDocks = new Map<string, RemoteDockRecord>()
 
   constructor(
-    public readonly context: DevToolsNodeContext,
+    public readonly context: KitNodeContext,
   ) {
 
   }
@@ -120,7 +132,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     if (view.type !== 'iframe' || !view.remote)
       return view
     const record = this.remoteDocks.get(view.id)
-    const endpoint = getInternalContext(this.context).wsEndpoint
+    const endpoint = getInternalContext(this.context as DevToolsNodeContext).wsEndpoint
     if (!record || !endpoint)
       return view
 
@@ -145,7 +157,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     update: (patch: Partial<T>) => void
   } {
     if (this.views.has(view.id) && !force) {
-      throw logger.DF0001({ id: view.id }).throw()
+      throw logger.DTK0050({ id: view.id }).throw()
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)
@@ -154,7 +166,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return {
       update: (patch) => {
         if (patch.id && patch.id !== view.id) {
-          throw logger.DF0002().throw()
+          throw logger.DTK0051().throw()
         }
         this.update(Object.assign(this.views.get(view.id)!, patch))
       },
@@ -163,7 +175,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
   update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
-      throw logger.DF0003({ id: view.id }).throw()
+      throw logger.DTK0052({ id: view.id }).throw()
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)
@@ -171,7 +183,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
   }
 
   private prepareRemoteRegistration(view: DevToolsDockUserEntry): void {
-    const internal = getInternalContext(this.context)
+    const internal = getInternalContext(this.context as DevToolsNodeContext)
     // Always revoke any previously allocated token for this dock id — covers
     // force re-registration and update() paths.
     internal.revokeRemoteTokensForDock(view.id)

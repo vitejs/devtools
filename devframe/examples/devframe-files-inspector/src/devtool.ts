@@ -35,14 +35,5 @@ export default defineDevtool({
       },
       snapshot: true,
     }))
-
-    ctx.views.hostStatic(BASE_PATH, distDir)
-    ctx.docks.register({
-      id: 'devframe-files-inspector',
-      title: 'Files Inspector',
-      icon: 'ph:folder-open-duotone',
-      type: 'iframe',
-      url: BASE_PATH,
-    })
   },
 })

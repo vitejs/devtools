@@ -14,18 +14,13 @@ export function setPendingAuth(_) {}
 
 // #region Other
 export { collectStaticRpcDump }
-export { ContextUtils }
 export { createH3DevToolsHost }
 export { createHostContext }
 export { createRpcSharedStateServerHost }
 export { createRpcStreamingServerHost }
 export { createStorage }
 export { DevToolsAgentHost }
-export { DevToolsCommandsHost }
 export { DevToolsDiagnosticsHost }
-export { DevToolsDockHost }
-export { DevToolsMessagesHost }
-export { DevToolsTerminalHost }
 export { DevToolsViewHost }
 export { getInternalContext }
 export { internalContextMap }

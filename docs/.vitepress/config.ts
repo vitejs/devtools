@@ -142,8 +142,18 @@ export default extendConfig(withMermaid(defineConfig({
             {
               text: 'DevTools Kit (DTK)',
               collapsed: true,
-              items: Array.from({ length: 32 }, (_, i) => {
-                const code = `DTK${String(i + 1).padStart(4, '0')}`
+              items: [
+                ...Array.from({ length: 32 }, (_, i) => i + 1),
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+              ].map((n) => {
+                const code = `DTK${String(n).padStart(4, '0')}`
                 return { text: code, link: `/errors/${code}` }
               }),
             },

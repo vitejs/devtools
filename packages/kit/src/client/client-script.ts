@@ -1,5 +1,5 @@
-import type { DockEntryState, DocksContext } from 'devframe/client'
-import type { DevToolsMessagesClient } from 'devframe/types'
+import type { DevToolsMessagesClient } from '../types/messages'
+import type { DockEntryState, DocksContext } from './docks'
 
 /**
  * Context for client scripts running in dock entries

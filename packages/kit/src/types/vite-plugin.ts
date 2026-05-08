@@ -1,5 +1,6 @@
-import type { DevToolsCapabilities, DevToolsNodeContext as DevToolsNodeContextBase } from 'devframe/types'
+import type { DevToolsCapabilities } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { KitNodeContext } from '../node/context'
 
 export interface DevToolsPluginOptions {
   capabilities?: {
@@ -10,12 +11,14 @@ export interface DevToolsPluginOptions {
 }
 
 /**
- * Vite-extended node context — framework-neutral {@link DevToolsNodeContextBase}
- * plus the Vite-specific slots consumers can rely on when running under
- * `@vitejs/devtools`. Callers that want portability should target the base
- * type from `devframe/types`.
+ * Vite-extended node context — kit-augmented context with the four hub
+ * subsystems (`docks`, `terminals`, `messages`, `commands`) plus the
+ * Vite-specific slots (`viteConfig`, `viteServer`). Plugins running
+ * under `@vitejs/devtools` rely on this surface; portable devframe
+ * apps should target {@link KitNodeContext} or the framework-neutral
+ * `DevToolsNodeContext` from `devframe/types`.
  */
-export interface ViteDevToolsNodeContext extends DevToolsNodeContextBase {
+export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig
   readonly viteServer?: ViteDevServer
 }

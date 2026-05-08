@@ -15,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
     "devframe": "workspace:*",
     "preact": "catalog:frontend",
     "tinyglobby": "catalog:deps"

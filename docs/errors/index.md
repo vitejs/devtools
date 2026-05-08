@@ -51,6 +51,14 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0030](./DTK0030) | error | Dock Entry Not Found | `@vitejs/devtools` |
 | [DTK0031](./DTK0031) | error | Dock Entry Not a Launcher | `@vitejs/devtools` |
 | [DTK0032](./DTK0032) | error | Dock Launch Error | `@vitejs/devtools` |
+| [DTK0050](./DTK0050) | error | Dock Already Registered | `@vitejs/devtools-kit` |
+| [DTK0051](./DTK0051) | error | Cannot Change Dock ID | `@vitejs/devtools-kit` |
+| [DTK0052](./DTK0052) | error | Dock Not Registered | `@vitejs/devtools-kit` |
+| [DTK0053](./DTK0053) | error | Terminal Session Already Registered | `@vitejs/devtools-kit` |
+| [DTK0054](./DTK0054) | error | Terminal Session Not Registered | `@vitejs/devtools-kit` |
+| [DTK0055](./DTK0055) | error | Command Already Registered | `@vitejs/devtools-kit` |
+| [DTK0056](./DTK0056) | error | Cannot Change Command ID | `@vitejs/devtools-kit` |
+| [DTK0057](./DTK0057) | error | Command Not Registered | `@vitejs/devtools-kit` |
 
 ## Rolldown DevTools (RDDT)
 

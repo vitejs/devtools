@@ -72,8 +72,9 @@ export async function startInspectorServer(
   const h3Host = createH3DevToolsHost({
     origin,
     appName: devtool.id,
-    mount: (base, dir) =>
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true }))),
+    mount: (base, dir) => {
+      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
+    },
   })
 
   const ctx = await createHostContext({ cwd, mode: 'dev', host: h3Host })

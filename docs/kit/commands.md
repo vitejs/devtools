@@ -254,6 +254,41 @@ context.commands.register({
 })
 ```
 
+## Executing Programmatically
+
+Any code with access to the kit context can trigger a command by id:
+
+```ts
+await ctx.commands.execute('my-plugin:clear-cache')
+
+// With arguments:
+await ctx.commands.execute('my-plugin:open-file', '/src/main.ts')
+```
+
+`execute` throws if the command isn't registered or has no handler. It searches both top-level commands and children.
+
+## Listing & Introspection
+
+The host exposes a `list()` method returning serializable command entries (without handlers) — useful when implementing your own palette UI or exporting the current command set:
+
+```ts
+const commands = ctx.commands.list()
+for (const cmd of commands) {
+  console.log(cmd.id, cmd.title, cmd.keybindings)
+}
+```
+
+Subscribe to lifecycle events to react to registrations:
+
+```ts
+ctx.commands.events.on('command:registered', (cmd) => {
+  console.log('new command:', cmd.id)
+})
+ctx.commands.events.on('command:unregistered', (id) => {
+  console.log('removed:', id)
+})
+```
+
 ## Complete Example
 
 ::: code-group

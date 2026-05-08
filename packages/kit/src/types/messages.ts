@@ -1,4 +1,4 @@
-import type { EventEmitter } from './events'
+import type { EventEmitter } from 'devframe/types'
 
 export type DevToolsMessageLevel = 'info' | 'warn' | 'error' | 'success' | 'debug'
 export type DevToolsMessageEntryFrom = 'server' | 'browser'

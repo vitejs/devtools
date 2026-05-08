@@ -1,9 +1,9 @@
-import type { DevToolsNodeContext } from 'devframe/types'
+import type { KitNodeContext } from '../context'
 import { describe, expect, it, vi } from 'vitest'
 import { DevToolsMessagesHost } from '../host-messages'
 
 describe('devToolsMessagesHost', () => {
-  const mockContext = {} as DevToolsNodeContext
+  const mockContext = {} as KitNodeContext
 
   function createHost() {
     return new DevToolsMessagesHost(mockContext)

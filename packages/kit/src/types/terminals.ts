@@ -1,6 +1,6 @@
+import type { EventEmitter } from 'devframe/types'
 import type { ChildProcess } from 'node:child_process'
 import type { DevToolsDockEntryIcon } from './docks'
-import type { EventEmitter } from './events'
 
 export interface DevToolsTerminalHost {
   readonly sessions: Map<string, DevToolsTerminalSession>

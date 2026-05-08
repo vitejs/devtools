@@ -1,8 +1,12 @@
-import type { RpcFunctionsCollector } from 'devframe/rpc'
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsDockUserEntry, DevToolsRpcClientFunctions, EventEmitter } from 'devframe/types'
+import type { DevToolsRpcContext } from 'devframe/client'
+import type { EventEmitter } from 'devframe/types'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
-import type { DevToolsRpcClient } from './rpc'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding } from '../types/commands'
+import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDockUserEntry } from '../types/docks'
+import type { DevToolsDocksUserSettings } from '../types/settings'
+
+export type { DevToolsClientRpcHost, RpcClientEvents } from 'devframe/client'
 
 export interface DockPanelStorage {
   mode: 'float' | 'edge'
@@ -16,13 +20,6 @@ export interface DockPanelStorage {
 }
 
 export type DockClientType = 'embedded' | 'standalone'
-
-export interface DevToolsRpcContext {
-  /**
-   * The RPC client to interact with the server
-   */
-  readonly rpc: DevToolsRpcClient
-}
 
 export interface DocksContext extends DevToolsRpcContext {
   /**
@@ -57,8 +54,6 @@ export interface WhenClauseContext {
    */
   readonly context: WhenContext
 }
-
-export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsRpcContext>
 
 export type DevToolsClientContext = DocksContext
 
@@ -110,10 +105,6 @@ export interface DockEntryStateEvents {
   'entry:updated': (newMeta: DevToolsDockUserEntry) => void
   'dom:panel:mounted': (panel: HTMLDivElement) => void
   'dom:iframe:mounted': (iframe: HTMLIFrameElement) => void
-}
-
-export interface RpcClientEvents {
-  'rpc:is-trusted:updated': (isTrusted: boolean) => void
 }
 
 export interface CommandsContext {

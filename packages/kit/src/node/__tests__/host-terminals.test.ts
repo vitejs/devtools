@@ -1,10 +1,11 @@
-import type { DevToolsNodeContext, DevToolsTerminalSession } from 'devframe/types'
+import type { DevToolsTerminalSession } from '../../types/terminals'
+import type { KitNodeContext } from '../context'
 import { describe, expect, it, vi } from 'vitest'
 import { DevToolsTerminalHost } from '../host-terminals'
 
 describe('devToolsTerminalHost', () => {
   it('disposes bound stream entry on remove', () => {
-    const host = new DevToolsTerminalHost({} as DevToolsNodeContext)
+    const host = new DevToolsTerminalHost({} as KitNodeContext)
     const session: DevToolsTerminalSession = {
       id: 'terminal-1',
       title: 'Terminal 1',

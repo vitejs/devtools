@@ -22,28 +22,6 @@ export interface CreateStorageOptions<T extends object> {
   mergeInitialValue?: false | ((_: T, _: T) => T);
   debounce?: number;
 }
-export interface DevToolsInternalContext {
-  storage: {
-    auth: SharedState<InternalAnonymousAuthStorage>;
-  };
-  revokeAuthToken: (_: string) => Promise<void>;
-  remoteTokens: Map<string, RemoteTokenRecord>;
-  allocateRemoteToken: (_: string, _: string, _: boolean) => string;
-  revokeRemoteToken: (_: string) => void;
-  revokeRemoteTokensForDock: (_: string) => void;
-  isRemoteTokenTrusted: (_: string, _?: string) => boolean;
-  wsEndpoint?: {
-    url: string;
-  };
-}
-export interface InternalAnonymousAuthStorage {
-  trusted: Record<string, {
-    authToken: string;
-    ua: string;
-    origin: string;
-    timestamp: number;
-  } | undefined>;
-}
 export interface PendingAuthRequest {
   clientAuthToken: string;
   session: DevToolsNodeRpcSession;
@@ -54,11 +32,6 @@ export interface PendingAuthRequest {
   }) => void;
   abortController: AbortController;
   timeout: ReturnType<typeof setTimeout>;
-}
-export interface RemoteTokenRecord {
-  dockId: string;
-  origin: string;
-  originLock: boolean;
 }
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest;
@@ -112,18 +85,6 @@ export declare class DevToolsAgentHost implements DevToolsAgentHost$1 {
   private _findRpcDefinition;
   private _coercePositionalArgs;
 }
-export declare class DevToolsCommandsHost implements DevToolsCommandsHost$1 {
-  readonly context: DevToolsNodeContext;
-  readonly commands: DevToolsCommandsHost$1['commands'];
-  readonly events: DevToolsCommandsHost$1['events'];
-  constructor(_: DevToolsNodeContext);
-  register(_: DevToolsServerCommandInput): DevToolsCommandHandle;
-  unregister(_: string): boolean;
-  execute(_: string, ..._: any[]): Promise<unknown>;
-  list(): DevToolsServerCommandEntry[];
-  private findCommand;
-  private toSerializable;
-}
 export declare class DevToolsDiagnosticsHost implements DevToolsDiagnosticsHost$1 {
   readonly context: DevToolsNodeContext;
   private _definitions;
@@ -134,60 +95,6 @@ export declare class DevToolsDiagnosticsHost implements DevToolsDiagnosticsHost$
   get logger(): DevToolsDiagnosticsLogger;
   register(_: unknown): void;
   private _rebuild;
-}
-export declare class DevToolsDockHost implements DevToolsDockHost$1 {
-  readonly context: DevToolsNodeContext;
-  readonly views: DevToolsDockHost$1['views'];
-  readonly events: DevToolsDockHost$1['events'];
-  userSettings: SharedState<DevToolsDocksUserSettings>;
-  private readonly remoteDocks;
-  constructor(_: DevToolsNodeContext);
-  init(): Promise<void>;
-  values({
-    includeBuiltin
-  }?: {
-    includeBuiltin?: boolean;
-  }): DevToolsDockEntry[];
-  private projectView;
-  private resolveDevServerOrigin;
-  register<T extends DevToolsDockUserEntry>(_: T, _?: boolean): {
-    update: (_: Partial<T>) => void;
-  };
-  update(_: DevToolsDockUserEntry): void;
-  private prepareRemoteRegistration;
-}
-export declare class DevToolsMessagesHost implements DevToolsMessagesHost$1 {
-  readonly context: DevToolsNodeContext;
-  readonly entries: DevToolsMessagesHost$1['entries'];
-  readonly events: DevToolsMessagesHost$1['events'];
-  readonly lastModified: Map<string, number>;
-  readonly removals: Array<{
-    id: string;
-    time: number;
-  }>;
-  private _autoDeleteTimers;
-  private _clock;
-  private _tick;
-  constructor(_: DevToolsNodeContext);
-  add(_: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle>;
-  update(_: string, _: Partial<DevToolsMessageEntryInput>): Promise<DevToolsMessageEntry | undefined>;
-  remove(_: string): Promise<void>;
-  clear(): Promise<void>;
-  private _createHandle;
-}
-export declare class DevToolsTerminalHost implements DevToolsTerminalHost$1 {
-  readonly context: DevToolsNodeContext;
-  readonly sessions: DevToolsTerminalHost$1['sessions'];
-  readonly events: DevToolsTerminalHost$1['events'];
-  private _boundStreams;
-  private _channel?;
-  constructor(_: DevToolsNodeContext);
-  private getStreamingChannel;
-  register(_: DevToolsTerminalSession): DevToolsTerminalSession;
-  update(_: PartialWithoutId<DevToolsTerminalSession>): void;
-  remove(_: DevToolsTerminalSession): void;
-  private bindStream;
-  startChildProcess(_: DevToolsChildProcessExecuteOptions, _: Omit<DevToolsTerminalSessionBase, 'status'>): Promise<DevToolsChildProcessTerminalSession>;
 }
 export declare class DevToolsViewHost implements DevToolsViewHost$1 {
   readonly context: DevToolsNodeContext;
@@ -220,7 +127,6 @@ export declare function createHostContext(_: CreateHostContextOptions): Promise<
 export declare function createRpcSharedStateServerHost(_: RpcFunctionsHost$1): RpcSharedStateHost;
 export declare function createRpcStreamingServerHost(_: RpcFunctionsHost$1): RpcStreamingHost;
 export declare function createStorage<T extends object>(_: CreateStorageOptions<T>): SharedState<T>;
-export declare function getInternalContext(_: DevToolsNodeContext): DevToolsInternalContext;
 export declare function getPendingAuth(): PendingAuthRequest | null;
 export declare function getTempAuthToken(): string;
 export declare function isObject(_: unknown): value is Record<string, any>;
@@ -231,14 +137,12 @@ export declare function revokeAuthToken(_: DevToolsNodeContext, _: SharedState<I
 export declare function setPendingAuth(_: PendingAuthRequest | null): void;
 // #endregion
 
-// #region Variables
-export declare const ContextUtils: {
-  createSimpleClientScript(fn: string | ((ctx: any) => void)): ClientScriptEntry;
-};
-export declare const internalContextMap: WeakMap<DevToolsNodeContext, DevToolsInternalContext>;
-// #endregion
-
 // #region Other
+export { DevToolsInternalContext }
+export { getInternalContext }
+export { InternalAnonymousAuthStorage }
+export { internalContextMap }
+export { RemoteTokenRecord }
 export { StartedServer }
 export { startHttpAndWs }
 export { StartHttpAndWsOptions }

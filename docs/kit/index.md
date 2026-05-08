@@ -7,7 +7,9 @@ outline: deep
 > [!WARNING] Experimental
 > The API is still in development and may change in any version. If you are building on top of it, please mind the version of packages you are using and warn your users about the experimental status.
 
-DevTools Kit is the **Vite-specific superset** of [DevFrame](https://devfra.me/guide/) — the framework-neutral foundation. Everything in DevFrame (RPC, hosts, docks, shared state, agents) is available through Kit, plus Vite-specific glue: the `devtools` hook on Vite plugins, Vite dev-server integration, and the Vite DevTools client. If you're building a tool that doesn't need Vite at all, start from [DevFrame](https://devfra.me/guide/) directly.
+DevTools Kit is **the hub that unites many DevTools integrations**. While [DevFrame](https://devfra.me/guide/) describes one tool — its RPC, its data, its SPA — Kit is the layer that takes many of those tools and gives them a single home: the dock, the command palette, terminal aggregation, cross-tool toasts, and the Vite plugin glue (`Plugin.devtools.setup`) that ties it all together.
+
+If you have a portable DevFrame app, drop it in via `createPluginFromDevframe(d)` from `@vitejs/devtools-kit/node` — the kit auto-derives an iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`. If you're authoring a fresh Vite-specific integration that needs hub features (terminals, palette, custom-render docks), reach for the `Plugin.devtools.setup` hook directly. If you have a tool that doesn't need a hub at all, stay in [DevFrame](https://devfra.me/guide/).
 
 The vision of DevTools Kit is to provide a unified foundation for building custom developer tools that integrate seamlessly with Vite and frameworks built on top of it.
 
@@ -19,15 +21,18 @@ If you are interested in more details, you can also check out [Anthony Fu's talk
 
 ## What DevTools Kit Provides
 
-DevTools Kit offers a complete toolkit for building DevTools integrations:
+DevTools Kit owns the **hub-level surface** — the things that only make sense once you have multiple integrations sharing a UI:
 
 | Feature | Description |
 |---------|-------------|
-| **[Extensible Architecture](./devtools-plugin)** | Simple, well-typed APIs for registering custom visualizations, actions, and interactions |
-| **[Dock System](./dock-system)** | A unified entry point where users can discover and switch between all DevTools integrations |
-| **[Built-in RPC Layer](./rpc)** | Type-safe bidirectional communication between Node.js server and browser clients |
-| **[Shared State](./shared-state)** | Share data between server and client with automatic synchronization |
-| **Isomorphic Views** | Deploy your UI as embedded panels, browser extensions, or standalone webpages |
+| **[DevTools Plugin](./devtools-plugin)** | The `Plugin.devtools.setup` hook, plus `createPluginFromDevframe` for porting DevFrame apps into the hub. |
+| **[Dock System](./dock-system)** | The unified dock — iframe / action / custom / launcher / json-render entries — with categories, when-clauses, and remote dock support. |
+| **[Commands](./commands)** | The shared command palette: keybindings, children, when-gating across every integration. |
+| **[Messages](./messages)** | Cross-tool toast notifications and the unified messages dock. |
+| **[Terminals](./terminals)** | Aggregate terminal output from any integration into one xterm.js view. |
+| **[RPC](./rpc)** | Type-safe bidirectional RPC backed by DevFrame's birpc + valibot. |
+| **[Shared State](./shared-state)** | Patch-synced state that bridges server ↔ client across every integration. |
+| **Isomorphic Views** | Deploy your UI as embedded panels, browser extensions, or standalone webpages. |
 
 ## Architecture Overview
 
@@ -67,7 +72,32 @@ Whether you're building a framework-specific inspector, a build analysis tool, o
 
 ## Quick Example
 
-Here's a minimal example to add a DevTools panel to your Vite plugin:
+Two paths into the hub.
+
+**Have a portable DevFrame app already?** Wrap it once. The kit auto-derives an iframe dock from the definition:
+
+```ts
+// vite.config.ts
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import devtool from './my-devtool'
+
+export default {
+  plugins: [
+    createPluginFromDevframe(devtool, {
+      // Optional kit-only setup for hub features:
+      setup(ctx) {
+        ctx.commands.register({
+          id: 'my-devtool:clear-cache',
+          title: 'Clear Cache',
+          handler: () => { /* ... */ },
+        })
+      },
+    }),
+  ],
+}
+```
+
+**Authoring a fresh Vite-specific integration?** Reach for the hook directly:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -78,7 +108,7 @@ export default function myPlugin(): Plugin {
     name: 'my-plugin',
     devtools: {
       setup(ctx) {
-        // Register a dock entry that shows an iframe
+        // ctx is the kit-augmented context: rpc + docks + terminals + messages + commands
         ctx.docks.register({
           id: 'my-plugin',
           title: 'My Plugin',
@@ -94,12 +124,10 @@ export default function myPlugin(): Plugin {
 
 ## Getting Started
 
-If you're building a Vite plugin and want to add DevTools capabilities, or if you're creating a framework-specific DevTools integration, DevTools Kit makes it straightforward:
-
-1. **[DevTools Plugin](./devtools-plugin)** - Learn how to create a DevTools plugin and understand the setup context
-2. **[Dock System](./dock-system)** - Create UI panels, action buttons, or custom renderers
-3. **[RPC](./rpc)** - Enable bidirectional communication between server and client
-4. **[Shared State](./shared-state)** - Share data between server and client with automatic synchronization
+1. **[DevTools Plugin](./devtools-plugin)** — Learn how to register a hub plugin and understand the kit-augmented context
+2. **[Dock System](./dock-system)** — Iframe panels, action buttons, custom renderers, launchers, json-render specs
+3. **[RPC](./rpc)** — Bidirectional, type-safe communication between server and client
+4. **[Shared State](./shared-state)** — Patch-synced cross-integration state
 
 > [!TIP] Help Us Improve
 > If you are building something on top of Vite DevTools Kit, we invite you to label your repository with `vite-devtools` on GitHub to help us track usage and improve the project. Thank you!
