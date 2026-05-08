@@ -1,7 +1,6 @@
 [build]
-publish = "devframe/docs/.vitepress/dist"
-command = "pnpm -C devframe/docs run docs:build"
-ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ./devframe ./pnpm-lock.yaml ./pnpm-workspace.yaml"
+publish = "docs/.vitepress/dist"
+command = "pnpm -C docs run docs:build"
 
 [build.environment]
 NODE_VERSION = "24"
