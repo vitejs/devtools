@@ -138,10 +138,9 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
 
    ## Source
    - [`packages/core/src/node/filename.ts`](https://github.com/vitejs/devtools/blob/main/packages/core/src/node/filename.ts) — `functionName()` throws this when …
-   - [`packages/core/src/node/diagnostics.ts`](https://github.com/vitejs/devtools/blob/main/packages/core/src/node/diagnostics.ts) — defines `DTK0033`.
    ```
 
-   The `## Source` section lists every file involved (the diagnostics-definition file plus each call site that emits the code), with a one-line role per entry. Append `(level: \`warn\`)` to the diagnostics-file line for warn-level codes; omit the level clause when it's the default `error`.
+   The `## Source` section lists each call site that emits the code, with a one-line role per entry. Don't list the `diagnostics.ts` definition — it's implied. Add additional bullets only when the same code is genuinely thrown from multiple files.
 
 4. **Update the index** at `docs/errors/index.md` — add a row with `Code | Level | Title` (no Package column).
 
