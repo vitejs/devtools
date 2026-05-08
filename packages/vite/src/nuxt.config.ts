@@ -5,6 +5,7 @@ import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
 const BASE = '/__devtools-vite/'
+const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({
   ssr: false,
@@ -30,6 +31,7 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
     clientNodeCompat: true,
+    viteEnvironmentApi: true,
   },
 
   features: {
@@ -83,7 +85,7 @@ export default defineNuxtConfig({
   debug: false,
 
   vite: {
-    base: BASE,
+    base: VITE_BASE,
     build: {
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
