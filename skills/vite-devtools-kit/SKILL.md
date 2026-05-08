@@ -1,38 +1,70 @@
 ---
 name: writing-vite-devtools-integrations
 description: >
-  Creates devtools integrations for Vite using @vitejs/devtools-kit.
-  Use when building Vite plugins with devtools panels, RPC functions,
-  dock entries, shared state, logs/notifications, or any devtools-related
-  functionality. Applies to files importing from @vitejs/devtools-kit or
-  containing devtools.setup hooks in Vite plugins.
+  Creates devtools integrations that mount inside the Vite DevTools
+  hub via @vitejs/devtools-kit. Use when building Vite plugins with
+  devtools panels, RPC functions, dock entries, shared state,
+  messages/notifications, terminals, command palette entries, or any
+  hub-level integration. Applies to files importing from
+  @vitejs/devtools-kit or containing devtools.setup hooks in Vite
+  plugins. For building one portable devtool integration without a
+  hub (CLI, static deploy, MCP), see the `devframe` skill instead.
 ---
 
 # Vite DevTools Kit
 
-Build custom developer tools that integrate with Vite DevTools using `@vitejs/devtools-kit`.
+**`@vitejs/devtools-kit` is the hub that unites many devtools integrations.** It owns the cross-tool surface — docking, the command palette, terminal aggregation, cross-tool toasts — and wraps the framework-neutral [DevFrame](https://devfra.me/) container with the Vite-specific glue (`Plugin.devtools.setup`).
+
+If you have a portable DevFrame app already, drop it in via `createPluginFromDevframe(d)` from `@vitejs/devtools-kit/node` and the kit auto-derives the iframe dock entry. If you're authoring a Vite-specific integration that needs hub features directly, reach for `Plugin.devtools.setup`.
 
 ## Core Concepts
 
-A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context provides:
+A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context is the **kit-augmented context** (`KitNodeContext` extended with Vite-specific fields) — it carries DevFrame's portable surface plus the hub-only subsystems the kit owns:
 
-| Property | Purpose |
-|----------|---------|
-| `ctx.docks` | Register dock entries (iframe, action, custom-render, launcher, json-render) |
-| `ctx.views` | Host static files for UI |
-| `ctx.rpc` | Register RPC functions, broadcast to clients |
-| `ctx.rpc.sharedState` | Synchronized server-client state |
-| `ctx.rpc.streaming` | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
-| `ctx.messages` | Emit structured message entries and toast notifications |
-| `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
-| `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
-| `ctx.createJsonRenderer` | Create server-side JSON render specs for zero-client-code UIs |
-| `ctx.commands` | Register executable commands with keyboard shortcuts and palette visibility |
-| `ctx.viteConfig` | Resolved Vite configuration |
-| `ctx.viteServer` | Dev server instance (dev mode only) |
-| `ctx.mode` | `'dev'` or `'build'` |
+| Property | Layer | Purpose |
+|----------|-------|---------|
+| `ctx.docks` | **kit** | Register dock entries (iframe, action, custom-render, launcher, json-render) |
+| `ctx.terminals` | **kit** | Spawn and manage child processes with streaming terminal output |
+| `ctx.messages` | **kit** | Emit structured message entries and toast notifications |
+| `ctx.commands` | **kit** | Register executable commands with keyboard shortcuts and palette visibility |
+| `ctx.rpc` | devframe | Register RPC functions, broadcast to clients |
+| `ctx.rpc.sharedState` | devframe | Synchronized server-client state |
+| `ctx.rpc.streaming` | devframe | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
+| `ctx.views` | devframe | Host static files for UI (`hostStatic(base, distDir)`) |
+| `ctx.diagnostics` | devframe | Structured diagnostics host (logs-sdk) — register custom error codes |
+| `ctx.createJsonRenderer` | devframe | Create server-side JSON render specs for zero-client-code UIs |
+| `ctx.viteConfig` | core | Resolved Vite configuration |
+| `ctx.viteServer` | core | Dev server instance (dev mode only) |
+| `ctx.mode` | devframe | `'dev'` or `'build'` |
 
-## Quick Start: Minimal Plugin
+## Quick Start: Bridge a DevFrame App
+
+If you already have a portable DevFrame definition, this is the one-liner. The kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`, mounts the SPA via `views.hostStatic`, runs the devtool's own `setup`, then runs the optional kit-only `options.setup`.
+
+```ts
+// vite.config.ts
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import devtool from './my-devtool'
+
+export default {
+  plugins: [
+    createPluginFromDevframe(devtool, {
+      // Optional kit-only setup for hub features:
+      setup(ctx) {
+        ctx.commands.register({
+          id: 'my-devtool:clear-cache',
+          title: 'Clear Cache',
+          handler: () => {/* ... */},
+        })
+      },
+    }),
+  ],
+}
+```
+
+## Quick Start: Minimal Hub-Native Plugin
+
+When the integration is intrinsically tied to Vite (it inspects the resolved config, augments middleware, etc.), reach for `Plugin.devtools.setup` directly:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />

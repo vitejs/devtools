@@ -1,11 +1,12 @@
-import type { DevToolsDockUserEntry, DevToolsNodeContext, DevToolsViewIframe, RemoteConnectionInfo } from 'devframe/types'
+import type { DevToolsDockUserEntry, DevToolsViewIframe, RemoteConnectionInfo } from '../../types/docks'
+import type { KitNodeContext } from '../context'
 import { Buffer } from 'node:buffer'
 import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
+import { getInternalContext, internalContextMap } from 'devframe/internal'
 import { describe, expect, it } from 'vitest'
-import { getInternalContext, internalContextMap } from '../context-internal'
 import { DevToolsDockHost } from '../host-docks'
 
-function createMockContext(): DevToolsNodeContext {
+function createMockContext(): KitNodeContext {
   return {
     viteConfig: {
       server: { host: 'localhost', port: 5173, https: false },
@@ -17,7 +18,7 @@ function createMockContext(): DevToolsNodeContext {
       resolveOrigin: () => 'http://localhost:5173',
       getStorageDir: () => '/tmp/devframe-test-storage',
     },
-  } as unknown as DevToolsNodeContext
+  } as unknown as KitNodeContext
 }
 
 function decodeDescriptor(url: string): RemoteConnectionInfo {
@@ -37,7 +38,7 @@ describe('devToolsDockHost', () => {
       resolveOrigin: () => 'http://localhost:5173',
       getStorageDir: () => '/tmp/devframe-test-storage',
     },
-  } as unknown as DevToolsNodeContext
+  } as unknown as KitNodeContext
 
   describe('builtin entries', () => {
     it('does not include popup in builtin docks', () => {

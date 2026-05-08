@@ -44,10 +44,16 @@
     "vite": "*"
   },
   "dependencies": {
+    "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "devframe": "workspace:*",
+    "logs-sdk": "catalog:deps",
+    "mlly": "catalog:deps",
     "ohash": "catalog:deps",
-    "sirv": "catalog:deps"
+    "pathe": "catalog:deps",
+    "perfect-debounce": "catalog:deps",
+    "sirv": "catalog:deps",
+    "tinyexec": "catalog:deps"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",

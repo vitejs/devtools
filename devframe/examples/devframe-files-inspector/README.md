@@ -27,7 +27,7 @@ pnpm -C examples/devframe-files-inspector run test        # E2E tests
 | Path | Purpose |
 |------|---------|
 | `src/devtool.ts` | The single `DevtoolDefinition` consumed by every adapter. |
-| `src/plugin.ts` | `createKitPlugin(devtool)` re-export for `@vitejs/devtools`. |
+| `src/plugin.ts` | `createPluginFromDevframe(devtool)` re-export for `@vitejs/devtools`. |
 | `src/client/` | Preact SPA: `index.html`, `main.tsx`, `app.tsx`, `routes/*`, `vite.config.ts`. |
 | `bin.mjs` | `createCli(devtool).parse()` — exposes `dev`, `build`, `spa`, `mcp`. |
 | `tests/` | E2E tests for dev server, static build, and kit plugin shape. |

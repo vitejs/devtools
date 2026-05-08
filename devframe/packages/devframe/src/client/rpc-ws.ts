@@ -1,6 +1,5 @@
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter } from 'devframe/types'
-import type { DevToolsClientRpcHost, RpcClientEvents } from './docks'
-import type { DevToolsRpcClientMode, DevToolsRpcClientOptions } from './rpc'
+import type { DevToolsClientRpcHost, DevToolsRpcClientMode, DevToolsRpcClientOptions, RpcClientEvents } from './rpc'
 import { createRpcClient } from 'devframe/rpc/client'
 import { createWsRpcChannel } from 'devframe/rpc/transports/ws-client'
 import { promiseWithResolver } from 'devframe/utils/promise'

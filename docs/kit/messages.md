@@ -2,8 +2,6 @@
 
 The Messages system allows plugins to emit structured message entries from both the server (Node.js) and client (browser) contexts. Messages are displayed in the built-in **Messages** panel in the DevTools dock, and can optionally appear as toast notifications.
 
-> **Note:** This subsystem was previously named `logs`. The `ctx.logs` field is still available as a deprecated alias for one release cycle — see [DF0018](https://devfra.me/errors/DF0018) for migration details.
-
 > For *coded* errors and warnings with stable codes and docs URLs, see [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
 
 ## Use Cases
@@ -173,3 +171,52 @@ Messages have a maximum capacity of 1000 entries. When the limit is reached, the
 ## Dock Badge
 
 The Messages dock icon automatically shows a badge with the total message count. The icon is hidden when there are no messages.
+
+## Events
+
+The host emits events for anyone who wants to observe the message stream:
+
+```ts
+ctx.messages.events.on('message:added', (entry) => { /* ... */ })
+ctx.messages.events.on('message:updated', (entry) => { /* ... */ })
+ctx.messages.events.on('message:removed', (id) => { /* ... */ })
+ctx.messages.events.on('message:cleared', () => { /* ... */ })
+```
+
+Use this to bridge messages into external tools — e.g. mirror them into a structured log file or forward certain categories to your own reporter:
+
+```ts
+ctx.messages.events.on('message:added', (entry) => {
+  if (entry.category === 'a11y')
+    console.log('a11y finding:', entry.message)
+})
+```
+
+## Long-Running Operation Pattern
+
+Combine `id`-based deduplication with `status: 'loading'` to drive a single message through a multi-step lifecycle:
+
+```ts
+async function rebuild(ctx) {
+  const handle = await ctx.messages.add({
+    id: 'my-plugin:rebuild',
+    message: 'Rebuilding...',
+    level: 'info',
+    status: 'loading',
+  })
+
+  try {
+    await doRebuild()
+    await handle.update({ message: 'Rebuild complete', level: 'success', status: 'idle' })
+  }
+  catch (error) {
+    await handle.update({
+      message: 'Rebuild failed',
+      level: 'error',
+      description: (error as Error).message,
+      stacktrace: (error as Error).stack,
+      status: 'idle',
+    })
+  }
+}
+```

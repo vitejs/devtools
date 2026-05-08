@@ -18,6 +18,7 @@ export declare const defineRpcFunction: <NAME extends string, TYPE extends _$dev
 // #region Other
 export { ClientScriptEntry }
 export { ConnectionMeta }
+export { CreateKitContextOptions }
 export { DevToolsCapabilities }
 export { DevToolsChildProcessExecuteOptions }
 export { DevToolsChildProcessTerminalSession }
@@ -61,7 +62,6 @@ export { DevToolsMessagesClient }
 export { DevToolsMessagesHost }
 export { DevToolsNodeContext }
 export { DevToolsNodeRpcSession }
-export { DevToolsNodeUtils }
 export { DevToolsPluginOptions }
 export { DevToolsRpcClientFunctions }
 export { DevToolsRpcServerFunctions }
@@ -87,6 +87,7 @@ export { EventUnsubscribe }
 export { JsonRenderElement }
 export { JsonRenderer }
 export { JsonRenderSpec }
+export { KitNodeContext }
 export { PartialWithoutId }
 export { PluginWithDevTools }
 export { RemoteConnectionInfo }

@@ -18,24 +18,15 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 
 | Code | Level | Title |
 |------|-------|-------|
-| [DF0001](./DF0001) | error | Dock Already Registered |
-| [DF0002](./DF0002) | error | Cannot Change Dock ID |
-| [DF0003](./DF0003) | error | Dock Not Registered |
-| [DF0004](./DF0004) | error | Terminal Session Already Registered |
-| [DF0005](./DF0005) | error | Terminal Session Not Registered |
 | [DF0006](./DF0006) | error | RPC Function Not Registered |
 | [DF0007](./DF0007) | error | AsyncLocalStorage Not Set |
 | [DF0008](./DF0008) | error | View distDir Not Found |
-| [DF0009](./DF0009) | error | Command Already Registered |
-| [DF0010](./DF0010) | error | Cannot Change Command ID |
-| [DF0011](./DF0011) | error | Command Not Registered |
 | [DF0012](./DF0012) | warn | Storage Parse Failed |
 | [DF0013](./DF0013) | error | Shared State Not Found |
 | [DF0014](./DF0014) | error | Invalid Agent Field |
 | [DF0015](./DF0015) | error | Agent Tool Already Registered |
 | [DF0016](./DF0016) | error | Agent Resource Already Registered |
 | [DF0017](./DF0017) | error | MCP Server Start Failure |
-| [DF0018](./DF0018) | warn | `ctx.logs` Deprecated |
 | [DF0019](./DF0019) | error | Agent Requires JSON-Serializable RPC |
 | [DF0020](./DF0020) | error | Non-JSON Value in JSON-Serializable RPC |
 | [DF0021](./DF0021) | error | RPC Function Already Registered |

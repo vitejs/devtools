@@ -1,16 +1,10 @@
 import type { RpcFunctionDefinitionAny } from 'devframe/rpc'
 import type { DevToolsHost, DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from 'devframe/types'
-import { debounce } from 'perfect-debounce'
 import { diagnostics as rpcDiagnostics } from '../rpc/diagnostics'
-import { ContextUtils } from './context-utils'
-import { diagnostics as devframeDiagnostics, logger } from './diagnostics'
+import { diagnostics as devframeDiagnostics } from './diagnostics'
 import { DevToolsAgentHost } from './host-agent'
-import { DevToolsCommandsHost } from './host-commands'
 import { DevToolsDiagnosticsHost } from './host-diagnostics'
-import { DevToolsDockHost } from './host-docks'
 import { RpcFunctionsHost } from './host-functions'
-import { DevToolsMessagesHost } from './host-messages'
-import { DevToolsTerminalHost } from './host-terminals'
 import { DevToolsViewHost } from './host-views'
 import { BUILTIN_AGENT_RPC } from './rpc'
 
@@ -28,11 +22,13 @@ export interface CreateHostContextOptions {
 }
 
 /**
- * Framework-neutral core of the DevTools node context. Wires the six
- * host subsystems, the JSON-render factory, and the standard shared-state
- * bookkeeping. Framework-specific extensions (Vite plugin scan, Vite
- * config/server fields, built-in RPCs like `open-in-editor`) layer on
- * top via wrapper functions such as kit's `createDevToolsContext`.
+ * Framework-neutral core of the DevTools node context. Wires the RPC
+ * host, view (HTTP file-serving) host, diagnostics, and agent
+ * subsystems plus the JSON-render factory. Hub-level subsystems
+ * (`docks`, `terminals`, `messages`, `commands`) are owned by
+ * `@vitejs/devtools-kit` — its `createKitContext` wraps this and
+ * attaches them when the devtool is mounted into a multi-integration
+ * hub.
  */
 export async function createHostContext(options: CreateHostContextOptions): Promise<DevToolsNodeContext> {
   const { cwd, workspaceRoot = cwd, mode, host, builtinRpcDeclarations = [] } = options
@@ -43,45 +39,19 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     mode,
     host,
     rpc: undefined!,
-    docks: undefined!,
     views: undefined!,
-    terminals: undefined!,
-    messages: undefined!,
     diagnostics: undefined!,
-    commands: undefined!,
     agent: undefined!,
-    utils: ContextUtils,
     createJsonRenderer: undefined!,
   } as unknown as DevToolsNodeContext
 
   const rpcHost = new RpcFunctionsHost(context)
-  const docksHost = new DevToolsDockHost(context)
   const viewsHost = new DevToolsViewHost(context)
-  const terminalsHost = new DevToolsTerminalHost(context)
-  const messagesHost = new DevToolsMessagesHost(context)
   const diagnosticsHost = new DevToolsDiagnosticsHost(context, [devframeDiagnostics, rpcDiagnostics])
-  const commandsHost = new DevToolsCommandsHost(context)
   context.rpc = rpcHost
-  context.docks = docksHost
   context.views = viewsHost
-  context.terminals = terminalsHost
-  context.messages = messagesHost
   context.diagnostics = diagnosticsHost
-  context.commands = commandsHost
 
-  // Deprecated `ctx.logs` getter — emits DF0018 once per process when accessed.
-  let _warnedLogs = false
-  Object.defineProperty(context, 'logs', {
-    get() {
-      if (!_warnedLogs) {
-        _warnedLogs = true
-        logger.DF0018().log()
-      }
-      return messagesHost
-    },
-    enumerable: false,
-    configurable: true,
-  })
   // Agent host must be constructed after `rpcHost` so it can subscribe
   // to `onChanged` — it auto-discovers RPC functions flagged with
   // the `agent` field.
@@ -120,42 +90,6 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
   for (const fn of builtinRpcDeclarations) {
     rpcHost.register(fn)
   }
-
-  await docksHost.init()
-
-  const docksSharedState = await rpcHost.sharedState.get('devframe:docks', { initialValue: [] })
-
-  docksHost.events.on('dock:entry:updated', debounce(() => {
-    docksSharedState.mutate(() => context.docks.values())
-  }, mode === 'build' ? 0 : 10))
-
-  terminalsHost.events.on('terminal:session:updated', debounce(() => {
-    rpcHost.broadcast({
-      method: 'devframe:terminals:updated',
-      args: [],
-    })
-    docksSharedState.mutate(() => context.docks.values())
-  }, mode === 'build' ? 0 : 10))
-
-  const debouncedMessagesUpdate = debounce(() => {
-    rpcHost.broadcast({
-      method: 'devframe:messages:updated',
-      args: [],
-    })
-    docksSharedState.mutate(() => context.docks.values())
-  }, mode === 'build' ? 0 : 10)
-
-  messagesHost.events.on('message:added', () => debouncedMessagesUpdate())
-  messagesHost.events.on('message:updated', () => debouncedMessagesUpdate())
-  messagesHost.events.on('message:removed', () => debouncedMessagesUpdate())
-  messagesHost.events.on('message:cleared', () => debouncedMessagesUpdate())
-
-  const commandsSharedState = await rpcHost.sharedState.get('devframe:commands', { initialValue: [] })
-  const debouncedCommandsSync = debounce(() => {
-    commandsSharedState.mutate(() => commandsHost.list())
-  }, mode === 'build' ? 0 : 10)
-  commandsHost.events.on('command:registered', () => debouncedCommandsSync())
-  commandsHost.events.on('command:unregistered', () => debouncedCommandsSync())
 
   return context
 }

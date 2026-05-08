@@ -183,7 +183,7 @@ await connectDevtool({
 
 ## Remote Docks
 
-Remote docks (see [Dock System → Remote Docks](./dock-system#remote-docks)) work by DevFrame injecting a connection descriptor into the iframe URL. On the hosted page, `connectDevtool` auto-detects the descriptor from the URL fragment / query string — no code change required beyond calling it as usual:
+Remote docks are a kit-side feature (see [Vite DevTools Kit → Remote Client](https://devtools.vite.dev/kit/remote-client)). The kit injects a connection descriptor into the iframe URL; on the hosted page, `connectDevtool` auto-detects the descriptor from the URL fragment / query string — no code change required beyond calling it as usual:
 
 ```ts
 import { connectDevtool } from 'devframe/client'

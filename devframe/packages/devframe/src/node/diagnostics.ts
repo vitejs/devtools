@@ -5,22 +5,6 @@ import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devfra.me/errors',
   codes: {
-    DF0001: {
-      message: (p: { id: string }) => `Dock with id "${p.id}" is already registered`,
-      hint: 'Use the `force` parameter to overwrite an existing registration.',
-    },
-    DF0002: {
-      message: 'Cannot change the id of a dock. Use register() to add new docks.',
-    },
-    DF0003: {
-      message: (p: { id: string }) => `Dock with id "${p.id}" is not registered. Use register() to add new docks.`,
-    },
-    DF0004: {
-      message: (p: { id: string }) => `Terminal session with id "${p.id}" already registered`,
-    },
-    DF0005: {
-      message: (p: { id: string }) => `Terminal session with id "${p.id}" not registered`,
-    },
     DF0006: {
       message: (p: { name: string }) => `RPC function "${p.name}" is not registered`,
     },
@@ -29,15 +13,6 @@ export const diagnostics = defineDiagnostics({
     },
     DF0008: {
       message: (p: { distDir: string }) => `distDir ${p.distDir} does not exist`,
-    },
-    DF0009: {
-      message: (p: { id: string }) => `Command "${p.id}" is already registered`,
-    },
-    DF0010: {
-      message: 'Cannot change the id of a command. Use register() to add new commands.',
-    },
-    DF0011: {
-      message: (p: { id: string }) => `Command "${p.id}" is not registered`,
     },
     DF0012: {
       message: (p: { filepath: string }) => `Failed to parse storage file: ${p.filepath}, falling back to defaults.`,
@@ -59,11 +34,6 @@ export const diagnostics = defineDiagnostics({
     },
     DF0017: {
       message: (p: { transport: string, reason: string }) => `Failed to start MCP server (${p.transport}): ${p.reason}`,
-    },
-    DF0018: {
-      message: '`ctx.logs` is deprecated and will be removed in a future release. Use `ctx.messages` instead.',
-      hint: 'Replace any access to `ctx.logs` (or `context.logs`) with `ctx.messages`. The runtime behavior is identical.',
-      level: 'warn',
     },
     DF0029: {
       message: (p: { channel: string, id: string, dropped: number }) =>

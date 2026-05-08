@@ -1,4 +1,4 @@
-import type { EventEmitter } from './events'
+import type { ConnectionMeta, EventEmitter } from 'devframe/types'
 
 export interface DevToolsDockHost {
   readonly views: Map<string, DevToolsDockUserEntry>
@@ -41,7 +41,7 @@ export interface DevToolsDockEntryBase {
    * Set to `'false'` to unconditionally hide the entry.
    *
    * @example 'clientType == embedded'
-   * @see {@link import('../utils/when').evaluateWhen}
+   * @see {@link import('devframe/utils/when').evaluateWhen}
    */
   when?: string
   /**
@@ -118,6 +118,14 @@ export interface RemoteDockOptions {
   originLock?: boolean
 }
 
+export interface RemoteConnectionInfo extends ConnectionMeta {
+  backend: 'websocket'
+  websocket: string
+  v: 1
+  authToken: string
+  origin: string
+}
+
 export type DevToolsViewLauncherStatus = 'idle' | 'loading' | 'success' | 'error'
 
 export interface DevToolsViewLauncher extends DevToolsDockEntryBase {
@@ -149,40 +157,10 @@ export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
   id: '~terminals' | '~messages' | '~client-auth-notice' | '~settings' | '~popup'
 }
 
-export interface JsonRenderElement {
-  type: string
-  props?: Record<string, unknown>
-  children?: string[]
-  /** json-render event bindings (e.g. `{ press: { action: "my:action" } }`) */
-  on?: Record<string, unknown>
-  /** json-render visibility condition */
-  visible?: unknown
-  /** json-render repeat binding */
-  repeat?: unknown
-  /** Allow additional json-render element fields */
-  [key: string]: unknown
-}
-
-export interface JsonRenderSpec {
-  root: string
-  elements: Record<string, JsonRenderElement>
-  /** Initial client-side state model for $state/$bindState expressions */
-  state?: Record<string, unknown>
-}
-
-export interface JsonRenderer {
-  /** Replace the entire spec */
-  updateSpec: (spec: JsonRenderSpec) => void | Promise<void>
-  /** Update json-render state values (shallow merge into spec.state) */
-  updateState: (state: Record<string, unknown>) => void | Promise<void>
-  /** Internal: shared state key used by the client to subscribe */
-  readonly _stateKey: string
-}
-
 export interface DevToolsViewJsonRender extends DevToolsDockEntryBase {
   type: 'json-render'
   /** JsonRenderer handle created by ctx.createJsonRenderer() */
-  ui: JsonRenderer
+  ui: import('devframe/types').JsonRenderer
 }
 
 export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher | DevToolsViewJsonRender

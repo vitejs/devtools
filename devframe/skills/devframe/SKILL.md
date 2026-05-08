@@ -1,20 +1,25 @@
 ---
 name: devframe
 description: >
-  Use when building devtools with devframe — the framework-neutral
-  foundation that powers Vite DevTools. Covers DevtoolDefinition,
-  picking the right adapter (cli / build / spa / vite / kit / embedded /
-  mcp), designing RPC contracts, registering docks / commands / logs /
-  terminals, exposing an agent-native surface over MCP, and wiring the
-  author's SPA client. Triggers on `devframe` imports, `defineDevtool`,
-  `createCli`, `createMcpServer`, `connectDevtool`, and on migrations of
-  existing inspectors (eslint-config-inspector, unocss-inspector,
-  node-modules-inspector-style tools) to devframe.
+  Use when building one devtool integration with devframe — the
+  portable, framework-neutral container for a single tool. Covers
+  DevtoolDefinition, picking the right deployment adapter
+  (cli / build / spa / vite / embedded / mcp), designing RPC
+  contracts, exposing an agent-native surface over MCP, and wiring
+  the author's SPA client. Hub-only concerns (docks, terminals,
+  commands, the unified messages dock) belong to
+  `@vitejs/devtools-kit` — see the `vite-devtools-kit` skill for
+  those. Triggers on `devframe` imports, `defineDevtool`,
+  `createCli`, `createMcpServer`, `connectDevtool`, and on
+  migrations of existing inspectors (eslint-config-inspector,
+  unocss-inspector, node-modules-inspector-style tools) to devframe.
 ---
 
 # devframe skill
 
-A devtool built on devframe is a **single `DevtoolDefinition`** plus an author-provided SPA. Use one of seven adapters to ship it. `devframe` must not depend on Vite or any `@vitejs/*` package — it's the lowest-level layer in the monorepo, and the Kit / core packages build on top.
+**Devframe is the container for one devtool integration, portable across viewers.** A devtool built on devframe is a single `DevtoolDefinition` plus an author-provided SPA — the same definition deploys as a standalone CLI, a static report, an embedded SPA, an MCP server, or as a dock entry inside the Vite DevTools hub via `createPluginFromDevframe`.
+
+Devframe deliberately stops at the boundary of one tool. Anything that only matters across multiple integrations — docks, terminals, command palette, cross-tool toasts — lives in `@vitejs/devtools-kit`, the hub layer. `devframe` must not depend on Vite, any `@vitejs/*` package, or hub-only concepts; it's the lowest-level layer in the monorepo.
 
 Full reference: [devfra.me/](https://devfra.me/).
 
@@ -28,7 +33,7 @@ All adapter factories share the shape `createXxx(devtoolDef, options?)`.
 | Run the dev server programmatically (any CLI framework) | `createDevServer(def, options?)` | `devframe/adapters/dev` |
 | Mount a SPA in an existing Vite dev server | `createVitePlugin(def, options?)` | `devframe/adapters/vite` |
 | Self-contained static deploy with baked data | `createBuild(def, options?)` | `devframe/adapters/build` |
-| Integrate into Vite DevTools | `createKitPlugin(def, options?)` | `devframe/adapters/kit` |
+| Integrate into Vite DevTools | `createPluginFromDevframe(def, options?)` | `@vitejs/devtools-kit/node` |
 | Register dynamically at runtime | `createEmbedded(def, { ctx })` | `devframe/adapters/embedded` |
 | Expose to coding agents (MCP) | `createMcpServer(def, options?)` | `devframe/adapters/mcp` *(experimental)* |
 
@@ -50,16 +55,11 @@ export default defineDevtool({
       type: 'static',
       handler: () => ({ count: 42 }),
     }))
-    ctx.docks.register({
-      id: 'my-inspector',
-      title: 'My Inspector',
-      icon: 'ph:magnifying-glass-duotone',
-      type: 'iframe',
-      url: '/__devtools/',
-    })
   },
 })
 ```
+
+`setup(ctx)` registers RPC functions, shared state, diagnostics, and any other devframe-level wiring. It does **not** receive `docks` / `terminals` / `messages` / `commands` — those are hub features. When mounted into Vite DevTools via `createPluginFromDevframe(d)`, the kit auto-derives an iframe dock entry from `id` / `name` / `icon` / `basePath`; for richer hub-side behaviour (custom-render, terminals, palette commands) pass `options.setup` to `createPluginFromDevframe`.
 
 See `templates/counter-devtool.ts` for a runnable counter example, `templates/spa-devtool.ts` for an SPA-ready shape, and `templates/vite-client.ts` for the author's client entry.
 
@@ -75,20 +75,18 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 
 ## DevToolsNodeContext at a glance
 
-`setup(ctx)` receives the full server-side surface. Each host corresponds to a [docs](https://devfra.me/) page:
+`setup(ctx)` receives the framework-neutral server-side surface. Each host corresponds to a [docs](https://devfra.me/) page:
 
 | Host | Purpose |
 |------|---------|
-| `ctx.rpc` | Register RPC functions, broadcast, shared state |
-| `ctx.docks` | Dock entries (iframe / action / custom-render / launcher / json-render) |
+| `ctx.rpc` | Register RPC functions, broadcast, shared state, streaming channels |
 | `ctx.views` | Serve static files via `hostStatic(base, distDir)` |
-| `ctx.commands` | Command palette entries with keybindings + `when` gating |
-| `ctx.messages` | Structured message entries, toasts, file / element positions |
 | `ctx.diagnostics` | Structured diagnostics host (logs-sdk) — register custom error codes |
-| `ctx.terminals` | Spawn and stream child processes |
 | `ctx.agent` | Expose tools + resources to coding agents (experimental) |
 | `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin`, `getStorageDir` |
 | `ctx.mode` | `'dev'` or `'build'` — gate setup work per runtime |
+
+> Hub-only hosts (`ctx.docks`, `ctx.terminals`, `ctx.messages`, `ctx.commands`) only exist when the devtool is mounted into Vite DevTools via `createPluginFromDevframe`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for those.
 
 ## RPC contracts
 
@@ -240,84 +238,36 @@ Readable.fromWeb(reader.readable).pipe(targetNodeWritable)
 
 For chat-style UIs that combine both: keep the **conversation log** in shared state (survives reconnects), and use a streaming channel for **active responses**. The action that starts a response appends a placeholder to shared state; on producer close, commit the joined content back to shared state. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
 
-## Dock entries
+## Mounting into Vite DevTools
 
-Five entry types: `iframe` (full panel), `action` (client script on click), `custom-render` (mount into panel DOM), `launcher` (setup card + server callback), `json-render` (UI from a JSON spec, zero client code).
-
-```ts
-// Iframe — most common:
-ctx.docks.register({
-  id: 'my-inspector',
-  title: 'My Inspector',
-  icon: 'ph:magnifying-glass-duotone',
-  type: 'iframe',
-  url: '/__my-inspector/',
-})
-
-ctx.views.hostStatic('/__my-inspector/', clientDist)
-```
-
-All entries accept `when` for conditional visibility and `badge` for short indicator text. See `/devframe/dock-system` for the full type reference.
-
-### Remote docks
-
-Set `remote: true` on an iframe dock to turn a hosted URL into a live DevFrame client. DevFrame injects an auth-approved connection descriptor into the iframe URL; on the hosted page, `connectDevtool()` parses it and returns a fully connected client — no extra wiring. Dev-mode only.
-
-## Commands
+A portable devframe definition is dropped into the Vite DevTools hub via `createPluginFromDevframe`:
 
 ```ts
-import { defineCommand } from 'devframe'
+// vite.config.ts
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import myInspector from './my-inspector'
 
-ctx.commands.register(defineCommand({
-  id: 'my-inspector:clear-cache',
-  title: 'Clear Cache',
-  icon: 'ph:trash-duotone',
-  keybindings: [{ key: 'Mod+Shift+C' }],
-  when: 'clientType == embedded',
-  handler: async () => clearCache(),
-}))
+export default {
+  plugins: [
+    createPluginFromDevframe(myInspector, {
+      // Optional kit-only setup — runs after the auto-derived dock entry.
+      setup(kitCtx) {
+        kitCtx.commands.register({
+          id: 'my-inspector:clear-cache',
+          title: 'Clear Cache',
+          handler: () => { /* ... */ },
+        })
+      },
+    }),
+  ],
+}
 ```
 
-- Two-level hierarchy (parent + `children`) max.
-- Use `Mod` for platform-aware modifier (Cmd on macOS, Ctrl elsewhere).
-- `ctx.commands.execute(id, ...args)` runs a command programmatically.
-- `when` is a whenexpr expression — see below.
-
-## Logs & notifications
-
-```ts
-// Fire-and-forget
-ctx.messages.add({ message: 'Scan complete', level: 'success', notify: true })
-
-// With handle for in-place updates
-const handle = await ctx.messages.add({
-  id: 'my-inspector:build',
-  message: 'Building…',
-  level: 'info',
-  status: 'loading',
-})
-await handle.update({ message: 'Built', level: 'success', status: 'idle' })
-```
-
-`notify: true` also renders a toast. `filePosition: { file, line, column }` makes the entry click-to-editor. `elementPosition: { selector, boundingBox }` highlights a DOM element. Re-adding with the same `id` updates the existing entry (deduplication pattern).
-
-## Terminals
-
-```ts
-const session = await ctx.terminals.startChildProcess(
-  { command: 'vite', args: ['build', '--watch'], cwd: process.cwd() },
-  { id: 'my-inspector:build', title: 'Build', icon: 'ph:terminal-duotone' },
-)
-
-await session.terminate()
-await session.restart()
-```
-
-Color is enabled automatically (`FORCE_COLOR=true`). Output streams into the built-in Terminals panel and is buffered for late-joining clients.
+The kit auto-derives an iframe dock entry from `id` / `name` / `icon` / `basePath`. For dock variations (custom-render, launcher, action, json-render), terminals, palette commands, and toasts, use the `options.setup` hook — those APIs live on the kit-augmented context, not on the devframe-level `setup`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for the hub-side reference.
 
 ## When clauses
 
-Gate dock / command visibility with VS Code-style expressions (evaluated by the external `whenexpr` package):
+Gate kit-side dock / command visibility with VS Code-style expressions evaluated by the external `whenexpr` package. The runtime + types ship from `devframe/utils/when`, but the consumers (`when` field on docks and commands) live in the kit:
 
 ```ts
 when: 'clientType == embedded'
@@ -387,7 +337,7 @@ const rpc = await connectDevtool()
 const data = await rpc.call('my-inspector:get-stats', { limit: 10 })
 ```
 
-`connectDevtool` auto-detects the backend via `/__devtools/__connection.json`:
+`connectDevtool` auto-detects the backend via `/.devtools/.connection.json`:
 
 - **websocket** (dev mode) — full read/write, requires auth handshake. Listen for token updates on the `vite-devtools-auth` BroadcastChannel.
 - **static** (build / spa output) — read-only, resolves calls from the baked RPC dump.
@@ -420,7 +370,7 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 | Subcommand | Action |
 |------------|--------|
-| *(default)* | Dev server on port 9999 (or `--port`) — WebSocket RPC, `cli.distDir` served at `/__devtools/` |
+| *(default)* | Dev server on port 9999 (or `--port`) — WebSocket RPC, `cli.distDir` served at `/.devtools/` |
 | `build` | Static snapshot → `./dist-static/` (configurable via `--out-dir`) |
 | `spa` | Deployable SPA → `./dist-spa/` |
 | `mcp` | stdio MCP server (experimental) |
@@ -431,22 +381,26 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 - Unit-test host classes with fake contexts.
 - Run `templates/counter-devtool.ts` under each adapter for integration coverage.
-- Snapshot the build-static RPC dump (`<outDir>/__devtools/__rpc-dump/index.json`) to catch accidental drift in `static` function outputs.
+- Snapshot the build-static RPC dump (`<outDir>/.devtools/.rpc-dump/index.json`) to catch accidental drift in `static` function outputs.
 
 ## Further reading
 
-All of the above has a dedicated page at [devfra.me](https://devfra.me/):
+Devframe-level pages (one-tool, portable surface):
 
 - [Devtool Definition](https://devfra.me/devtool-definition) — fields, runtime flags, multi-adapter wiring
-- [Adapters](https://devfra.me/adapters) — full reference for all seven adapters
+- [Adapters](https://devfra.me/adapters) — full reference for all deployment adapters
 - [RPC](https://devfra.me/rpc) — types, schema, broadcasts, dumps
 - [Shared State](https://devfra.me/shared-state) — patches, events, client-side mutation
 - [Streaming](https://devfra.me/streaming) — chunked feeds, uploads, replay, Web/Node Streams interop
-- [Dock System](https://devfra.me/dock-system) — every entry type + remote docks
-- [Commands](https://devfra.me/commands) — palette, keybindings, sub-commands
 - [When Clauses](https://devfra.me/when-clauses) — syntax, context, type-safe wrappers
-- [Messages & Notifications](https://devfra.me/messages) — entry fields, positional hints
 - [Structured Diagnostics](https://devfra.me/diagnostics) — coded errors via `ctx.diagnostics`, register custom codes
-- [Terminals](https://devfra.me/terminals) — child processes, external sessions
 - [Client](https://devfra.me/client) — auth handshake, modes, discovery
 - [Agent-Native](https://devfra.me/agent-native) — agent field, tools/resources, MCP + Claude Desktop
+
+Hub-only surfaces (Vite DevTools Kit — only available when mounted into the hub):
+
+- [Vite DevTools Kit overview](https://devtools.vite.dev/kit/)
+- [Dock System](https://devtools.vite.dev/kit/dock-system) — every entry type + remote docks
+- [Commands](https://devtools.vite.dev/kit/commands) — palette, keybindings, sub-commands
+- [Messages & Notifications](https://devtools.vite.dev/kit/messages) — entry fields, positional hints
+- [Terminals](https://devtools.vite.dev/kit/terminals) — child processes, external sessions
