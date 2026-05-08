@@ -1,4 +1,5 @@
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
+import path from 'node:path'
 import { createKitContext } from '@vitejs/devtools-kit/node'
 import { createH3DevToolsHost } from 'devframe/node'
 import { describe, expect, it, vi } from 'vitest'
@@ -32,6 +33,8 @@ describe('kit-plugin (Vite DevTools dock surface)', () => {
     expect(dock!.title).toBe('Files Inspector')
 
     expect(mount).toHaveBeenCalledTimes(1)
-    expect(mount).toHaveBeenCalledWith('/__devframe-files-inspector/', devtool.cli!.distDir)
+    const [[base, distDir]] = mount.mock.calls
+    expect(base).toBe('/__devframe-files-inspector/')
+    expect(path.resolve(distDir)).toBe(path.resolve(devtool.cli!.distDir))
   })
 })
