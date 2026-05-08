@@ -1,9 +1,11 @@
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const BASE = '/.devtools-self-inspect/'
+const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({
   ssr: false,
@@ -29,6 +31,7 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
     clientNodeCompat: true,
+    viteEnvironmentApi: true,
   },
 
   features: {
@@ -79,7 +82,7 @@ export default defineNuxtConfig({
   debug: false,
 
   vite: {
-    base: BASE,
+    base: VITE_BASE,
     build: {
       cssMinify: false,
     },

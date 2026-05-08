@@ -7,6 +7,7 @@ import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
 const BASE = '/.devtools-rolldown/'
+const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({
   ssr: false,
@@ -32,6 +33,7 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
     clientNodeCompat: true,
+    viteEnvironmentApi: true,
   },
 
   features: {
@@ -91,7 +93,7 @@ export default defineNuxtConfig({
   debug: false,
 
   vite: {
-    base: BASE,
+    base: VITE_BASE,
     build: {
       rolldownOptions: {
         devtools: {},
