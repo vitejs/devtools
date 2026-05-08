@@ -317,4 +317,4 @@ A working version of this pattern lives in [`devframe/examples/devframe-streamin
 
 ## Reference
 
-The API surface — `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — is re-exported from `@vitejs/devtools-kit`. Streaming is built on the same primitive as DevFrame's [streaming guide](/devframe/guide/streaming); error codes for backpressure and lifecycle live there: [`DF0029`](/devframe/errors/DF0029), [`DF0030`](/devframe/errors/DF0030), [`DF0031`](/devframe/errors/DF0031), [`DF0032`](/devframe/errors/DF0032).
+The API surface — `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — is re-exported from `@vitejs/devtools-kit`. Streaming is built on the same primitive as Devframe's [streaming guide](/devframe/guide/streaming); error codes for backpressure and lifecycle live there: [`DF0029`](/devframe/errors/DF0029), [`DF0030`](/devframe/errors/DF0030), [`DF0031`](/devframe/errors/DF0031), [`DF0032`](/devframe/errors/DF0032).

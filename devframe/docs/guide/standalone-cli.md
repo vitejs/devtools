@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# Standalone CLI with DevFrame
+# Standalone CLI with Devframe
 
-This recipe walks through building a standalone CLI devtool on top of DevFrame — the shape where a user runs `npx my-tool` and gets a local dev server serving a Vue / Nuxt / React SPA backed by type-safe RPC, plus `build` / `spa` / `mcp` subcommands for free.
+This recipe walks through building a standalone CLI devtool on top of Devframe — the shape where a user runs `npx my-tool` and gets a local dev server serving a Vue / Nuxt / React SPA backed by type-safe RPC, plus `build` / `spa` / `mcp` subcommands for free.
 
 It's the pattern used by tools like an ESLint config inspector or a bundler-config viewer: a binary that opens a browser.
 

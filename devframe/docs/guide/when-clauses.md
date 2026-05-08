@@ -6,7 +6,7 @@ outline: deep
 
 When clauses are conditional expressions that gate the visibility and executability of docks, commands, and any other UI surface you wire them into. The syntax matches [VS Code's when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts), evaluated against a reactive context object.
 
-The evaluator is the external [`whenexpr`](https://github.com/antfu/whenexpr) package. DevFrame re-exports `evaluateWhen`, `resolveContextValue`, and the `WhenExpression<Ctx, S>` type helper from `devframe/utils/when`.
+The evaluator is the external [`whenexpr`](https://github.com/antfu/whenexpr) package. Devframe re-exports `evaluateWhen`, `resolveContextValue`, and the `WhenExpression<Ctx, S>` type helper from `devframe/utils/when`.
 
 ## Usage
 

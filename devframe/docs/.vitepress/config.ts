@@ -55,7 +55,7 @@ export function devframeNav(prefix = ''): DefaultTheme.NavItemWithLink[] {
 }
 
 export default withMermaid(defineConfig({
-  title: 'DevFrame',
+  title: 'Devframe',
   description: 'Framework-neutral foundation for building generic DevTools — RPC layer, hosts, and adapters.',
   themeConfig: {
     nav: [

@@ -1,4 +1,4 @@
-# DevFrame
+# Devframe
 
 Framework-neutral foundation for building generic DevTools — an RPC layer (birpc + valibot + WS presets), runtime hosts (RPC / docks / views / terminals / logs / commands / agent), and adapters that deploy a single devtool definition to seven targets: `cli`, `build`, `vite`, `kit`, `embedded`, `mcp`, plus the `spa` mode.
 

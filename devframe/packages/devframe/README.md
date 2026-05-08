@@ -10,13 +10,13 @@ pnpm add devframe
 
 ## Docs
 
-See the [DevFrame documentation](https://devfra.me/) for the full guide and API reference.
+See the [Devframe documentation](https://devfra.me/) for the full guide and API reference.
 
 ## Agent-Native (experimental)
 
 > ⚠️ **Experimental.** The agent-native surface — the `agent` field on `defineRpcFunction`, `DevToolsAgentHost`, and the `devframe/adapters/mcp` adapter — is experimental and may change without a major version bump until it stabilizes.
 
-DevFrame can expose a devtool's RPC functions, tools, and resources to coding agents over [MCP](https://modelcontextprotocol.io). Flag an RPC function with `agent: { description }` to surface it, then spin up an MCP server:
+Devframe can expose a devtool's RPC functions, tools, and resources to coding agents over [MCP](https://modelcontextprotocol.io). Flag an RPC function with `agent: { description }` to surface it, then spin up an MCP server:
 
 ```ts
 import { defineDevtool, defineRpcFunction } from 'devframe'

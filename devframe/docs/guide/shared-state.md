@@ -4,7 +4,7 @@ outline: deep
 
 # Shared State
 
-Shared state is observable, immutable-by-default state synced between the server and every connected client. It's built on [`immer`](https://immerjs.github.io/immer/): you mutate a draft, DevFrame computes the patches to broadcast.
+Shared state is observable, immutable-by-default state synced between the server and every connected client. It's built on [`immer`](https://immerjs.github.io/immer/): you mutate a draft, Devframe computes the patches to broadcast.
 
 Shared state survives reconnects — a newly connected client receives the current snapshot before any further updates. Use it for anything that should stay reactive.
 
@@ -71,13 +71,13 @@ state.mutate((draft) => {
 })
 ```
 
-Under the hood, DevFrame:
+Under the hood, Devframe:
 
 1. Applies the recipe to the current state via `immer.produce`.
 2. Emits an `updated` event with the new state (and patches, if enabled).
 3. Broadcasts the update to all connected clients.
 
-Mutations are idempotent across replay — DevFrame tracks a `syncIds` set internally so a patch round-tripped back from a client applies once.
+Mutations are idempotent across replay — Devframe tracks a `syncIds` set internally so a patch round-tripped back from a client applies once.
 
 ## Patches (advanced)
 

@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: DevFrame
+  name: Devframe
   text: Framework-neutral foundation for DevTools
   tagline: One devtool definition. Seven adapters. RPC, hosts, shared state, agent-native — without depending on Vite or any framework.
   actions:
@@ -21,7 +21,7 @@ features:
     details: Bidirectional, schema-validated calls built on birpc + valibot. Query, static, action, and event function types.
     link: /guide/rpc
   - title: Headless by Default
-    details: No banners, no logging, no opinionated styling. Hooks let your app own the UX while DevFrame owns the plumbing.
+    details: No banners, no logging, no opinionated styling. Hooks let your app own the UX while Devframe owns the plumbing.
     link: /guide/
   - title: Agent-Native (experimental)
     details: Surface your devtool's RPC functions, tools, and resources to coding agents over MCP with a single field.

@@ -4,7 +4,7 @@ outline: deep
 
 # Error Reference
 
-DevFrame uses structured diagnostics to surface actionable warnings and errors at runtime. Each diagnostic has a unique error code, a human-readable message, and a link back to this documentation.
+Devframe uses structured diagnostics to surface actionable warnings and errors at runtime. Each diagnostic has a unique error code, a human-readable message, and a link back to this documentation.
 
 ## How error codes work
 

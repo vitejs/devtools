@@ -6,7 +6,7 @@ outline: deep
 
 A DevTools plugin is a Vite plugin with one extra hook: `devtools.setup(ctx)`. The hook receives the kit-augmented context (`KitNodeContext`) — RPC, views, and the four hub subsystems Kit owns: `docks`, `terminals`, `messages`, `commands`.
 
-This page covers the direct hook approach. To bring in a portable [DevFrame](https://devfra.me/guide/) app instead, see [`createPluginFromDevframe`](https://devfra.me/guide/adapters#kit) — Kit auto-mounts the SPA, derives the iframe dock entry from `id` / `name` / `icon` / `basePath`, then runs an optional kit-only `setup` for hub features.
+This page covers the direct hook approach. To bring in a portable [Devframe](https://devfra.me/guide/) app instead, see [`createPluginFromDevframe`](https://devfra.me/guide/adapters#kit) — Kit auto-mounts the SPA, derives the iframe dock entry from `id` / `name` / `icon` / `basePath`, then runs an optional kit-only `setup` for hub features.
 
 ## Installation
 

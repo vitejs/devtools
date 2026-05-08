@@ -9,7 +9,7 @@ Vite DevTools uses structured diagnostics to surface actionable warnings and err
 ## How error codes work
 
 - Codes follow the pattern **prefix + 4-digit number** (e.g., `DF0001`, `DTK0008`, `RDDT0002`).
-- Each prefix maps to a package: `DTK` for `@vitejs/devtools` (Vite-specific pieces), `RDDT` for `@vitejs/devtools-rolldown`. The framework-neutral `devframe` package documents its own `DF`-prefixed codes at the [DevFrame docs site](https://devfra.me/errors/).
+- Each prefix maps to a package: `DTK` for `@vitejs/devtools` (Vite-specific pieces), `RDDT` for `@vitejs/devtools-rolldown`. The framework-neutral `devframe` package documents its own `DF`-prefixed codes at the [Devframe docs site](https://devfra.me/errors/).
 - Every error page includes the cause, recommended fix, and a reference to the source file that emits it.
 - The diagnostics system is powered by [`logs-sdk`](https://github.com/vercel-labs/logs-sdk), which provides structured logging with docs URLs, ANSI-formatted console output, and level-based filtering.
 

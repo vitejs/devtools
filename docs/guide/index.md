@@ -144,6 +144,6 @@ export default defineConfig({
 
 ## Architecture
 
-Vite DevTools is built on **`@vitejs/devtools-kit`**, the integration hub that owns the dock, command palette, terminal aggregation, and the `Plugin.devtools.setup` hook every integration uses. Kit in turn builds on **DevFrame**, a framework-neutral foundation that any single tool can use directly — including standalone CLIs, MCP servers, or static dashboards that have no Vite dependency. See [DevFrame](https://devfra.me/guide/) for that path.
+Vite DevTools is built on **`@vitejs/devtools-kit`**, the integration hub that owns the dock, command palette, terminal aggregation, and the `Plugin.devtools.setup` hook every integration uses. Kit in turn builds on **Devframe**, a framework-neutral foundation that any single tool can use directly — including standalone CLIs, MCP servers, or static dashboards that have no Vite dependency. See [Devframe](https://devfra.me/guide/) for that path.
 
 Third-party integrations like [Oxc Inspector](https://github.com/yuyinws/oxc-inspector) plug into Kit's plugin API. To extend Vite DevTools, see [Vite DevTools Kit](/kit/).
