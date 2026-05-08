@@ -12,7 +12,7 @@ export function DevToolsRolldownUI(): PluginWithDevTools {
         }
 
         ctx.views.hostStatic(
-          '/.devtools-rolldown/',
+          '/__devtools-rolldown/',
           clientPublicDir,
         )
 
@@ -25,7 +25,7 @@ export function DevToolsRolldownUI(): PluginWithDevTools {
           category: '~viteplus',
           icon: rolldownIconDataUri,
           type: 'iframe',
-          url: '/.devtools-rolldown/',
+          url: '/__devtools-rolldown/',
         })
       },
     },

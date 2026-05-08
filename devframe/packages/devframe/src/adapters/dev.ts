@@ -138,7 +138,7 @@ export async function createDevServer(
   // In dev the WS endpoint shares the HTTP port, so the client only needs
   // to know it's a websocket backend bound to that same port. The path
   // sits at the SPA root (next to index.html) so the deployed SPA can
-  // discover it via a relative `./.connection.json` fetch.
+  // discover it via a relative `./__connection.json` fetch.
   const connectionMetaPath = `${basePath}${DEVTOOLS_CONNECTION_META_FILENAME}`
   app.use(connectionMetaPath, eventHandler((event) => {
     event.node.res.setHeader('Content-Type', 'application/json')

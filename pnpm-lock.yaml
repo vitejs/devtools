@@ -592,6 +592,9 @@ importers:
       mermaid:
         specifier: catalog:docs
         version: 11.14.0
+      tinyglobby:
+        specifier: catalog:deps
+        version: 0.2.16
       vitepress:
         specifier: catalog:docs
         version: 2.0.0-alpha.17(@types/node@25.0.3)(@vitejs/devtools@0.1.20(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.11))(change-case@5.4.4)(esbuild@0.28.0)(fuse.js@7.3.0)(idb-keyval@6.2.2)(jiti@2.6.1)(oxc-minify@0.128.0)(postcss@8.5.14)(terser@5.44.1)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.8.3)
@@ -761,6 +764,9 @@ importers:
       mermaid:
         specifier: catalog:docs
         version: 11.14.0
+      tinyglobby:
+        specifier: catalog:deps
+        version: 0.2.16
       vitepress:
         specifier: catalog:docs
         version: 2.0.0-alpha.17(@types/node@25.0.3)(@vitejs/devtools@packages+core)(change-case@5.4.4)(esbuild@0.28.0)(fuse.js@7.3.0)(idb-keyval@6.2.2)(jiti@2.6.1)(oxc-minify@0.128.0)(postcss@8.5.14)(terser@5.44.1)(tsx@4.21.0)(typescript@6.0.3)(yaml@2.8.3)

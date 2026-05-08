@@ -3,7 +3,7 @@ import { defineRpcFunction } from 'devframe'
 import { defineDevtool } from 'devframe/types'
 import { glob } from 'tinyglobby'
 
-const BASE_PATH = '/.devframe-files-inspector/'
+const BASE_PATH = '/__devframe-files-inspector/'
 const distDir = fileURLToPath(new URL('../dist/client', import.meta.url))
 
 export default defineDevtool({

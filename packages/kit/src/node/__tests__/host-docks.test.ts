@@ -366,11 +366,11 @@ describe('devToolsDockHost', () => {
         id: 'plain-dock',
         title: 'Plain',
         icon: 'ph:app-window-duotone',
-        url: '/.devtools-plain/',
+        url: '/__devtools-plain/',
       })
 
       const projected = host.values({ includeBuiltin: false })[0] as DevToolsViewIframe
-      expect(projected.url).toBe('/.devtools-plain/')
+      expect(projected.url).toBe('/__devtools-plain/')
       internalContextMap.delete(ctx)
     })
 

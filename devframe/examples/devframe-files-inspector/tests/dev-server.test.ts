@@ -40,11 +40,11 @@ describe('dev-server (CLI surface)', () => {
 
   it('serves the connection meta at the SPA root pointing at the WebSocket backend', async () => {
     // The meta sits next to index.html so the SPA can discover it via a
-    // relative `./.connection.json` fetch — same lookup whether the
-    // devtool is mounted at `/`, `/.devframe-files-inspector/`, or any
+    // relative `./__connection.json` fetch — same lookup whether the
+    // devtool is mounted at `/`, `/__devframe-files-inspector/`, or any
     // other base.
     const res = await fetch(
-      `${server.origin}${server.basePath}.connection.json`,
+      `${server.origin}${server.basePath}__connection.json`,
     )
     expect(res.status).toBe(200)
     const meta = await res.json() as { backend: string, websocket: number }

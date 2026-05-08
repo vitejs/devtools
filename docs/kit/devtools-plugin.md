@@ -64,7 +64,7 @@ export default function myPlugin(): Plugin {
           title: 'My Plugin',
           icon: 'ph:puzzle-piece-duotone',
           type: 'iframe',
-          url: '/.my-plugin/',
+          url: '/__my-plugin/',
         })
       },
     },
@@ -137,7 +137,7 @@ const plugin: Plugin = {
       )
 
       // Host at a specific route
-      ctx.views.hostStatic('/.my-plugin/', clientPath)
+      ctx.views.hostStatic('/__my-plugin/', clientPath)
 
       // Register as a dock entry
       ctx.docks.register({
@@ -145,7 +145,7 @@ const plugin: Plugin = {
         title: 'My Plugin',
         icon: 'ph:puzzle-piece-duotone',
         type: 'iframe',
-        url: '/.my-plugin/',
+        url: '/__my-plugin/',
       })
     }
   }
@@ -186,7 +186,7 @@ export default function myAnalyzerPlugin(): Plugin {
         const clientPath = fileURLToPath(
           new URL('../dist/client', import.meta.url)
         )
-        ctx.views.hostStatic('/.my-analyzer/', clientPath)
+        ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
         // Register dock entry
         ctx.docks.register({
@@ -194,7 +194,7 @@ export default function myAnalyzerPlugin(): Plugin {
           title: 'Module Analyzer',
           icon: 'ph:chart-bar-duotone',
           type: 'iframe',
-          url: '/.my-analyzer/',
+          url: '/__my-analyzer/',
         })
 
         // Register RPC function to fetch data

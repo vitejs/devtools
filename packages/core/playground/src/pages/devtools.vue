@@ -31,7 +31,7 @@ const updateStatus = ref<'idle' | 'loading'>('idle')
 const levels: DevToolsMessageLevel[] = ['info', 'warn', 'error', 'success', 'debug']
 
 onMounted(async () => {
-  // Playground page lives outside the `/.devtools/` mount, so resolve the
+  // Playground page lives outside the `/__devtools/` mount, so resolve the
   // connection meta against the explicit Vite DevTools base.
   const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
   client.value = rpc

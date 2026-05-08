@@ -12,7 +12,7 @@ export function DevToolsSelfInspect(): PluginWithDevTools {
         }
 
         ctx.views.hostStatic(
-          '/.devtools-self-inspect/',
+          '/__devtools-self-inspect/',
           clientPublicDir,
         )
 
@@ -22,7 +22,7 @@ export function DevToolsSelfInspect(): PluginWithDevTools {
           category: 'advanced',
           icon: 'ph:stethoscope-duotone',
           type: 'iframe',
-          url: '/.devtools-self-inspect/',
+          url: '/__devtools-self-inspect/',
         })
       },
     },

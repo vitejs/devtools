@@ -53,9 +53,9 @@ describe('static build (CLI build surface)', () => {
   })
 
   it('writes a static-backend connection meta next to index.html', async () => {
-    // The meta sits at the SPA root (not under `.devtools/`) so any
+    // The meta sits at the SPA root (not under `__devtools/`) so any
     // generic static file server (`serve`, `nginx`, `python -m http.server`)
-    // can serve it without dotfile-directory exclusions.
+    // can serve it as a flat tree without nested-dir exclusions.
     const meta = JSON.parse(
       await readFile(
         path.join(outBuild, DEVTOOLS_CONNECTION_META_FILENAME),
@@ -63,8 +63,8 @@ describe('static build (CLI build surface)', () => {
       ),
     ) as { backend: string }
     expect(meta).toMatchObject({ backend: 'static' })
-    // Guard the design: nothing should land under a `.devtools/` subdir.
-    expect(existsSync(path.join(outBuild, '.devtools'))).toBe(false)
+    // Guard the design: nothing should land under a `__devtools/` subdir.
+    expect(existsSync(path.join(outBuild, '__devtools'))).toBe(false)
   })
 
   it('dumps both RPC functions into the manifest', async () => {

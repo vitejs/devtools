@@ -18,7 +18,7 @@ packages/kit/skills
 devframe/packages/devframe/skills
 .rolldown
 *.tsbuildinfo
-docs/.vitepress/cache
+**/.vitepress/cache
 .turbo
 .context
 

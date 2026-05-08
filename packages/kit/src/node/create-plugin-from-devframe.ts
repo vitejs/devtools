@@ -11,7 +11,7 @@ export interface CreatePluginFromDevframeOptions {
    */
   name?: string
   /**
-   * Mount path override. Defaults to `d.basePath` or `/.${d.id}/`.
+   * Mount path override. Defaults to `d.basePath` or `/__${d.id}/`.
    */
   base?: string
   /**
