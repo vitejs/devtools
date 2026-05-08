@@ -4,9 +4,7 @@ outline: deep
 
 # Structured Diagnostics
 
-`ctx.diagnostics` is a thin layer over [`logs-sdk`](https://github.com/vercel-labs/logs-sdk) that lets integrations register their own coded errors and warnings into a shared logger — without taking a direct dependency on `logs-sdk`.
-
-Use it for *author-defined coded diagnostics* (errors, warnings, deprecations) that have a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](https://devtools.vite.dev/kit/messages) instead.
+`ctx.diagnostics` is a thin layer over [`logs-sdk`](https://github.com/vercel-labs/logs-sdk) that lets integrations register coded errors and warnings into a shared logger without depending on `logs-sdk` directly. Use it for author-defined coded diagnostics — errors, warnings, deprecations — with a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](https://devtools.vite.dev/kit/messages).
 
 | Surface | Purpose | Example |
 |---------|---------|---------|
@@ -33,7 +31,7 @@ interface DevToolsDiagnosticsHost {
 
 The host ships pre-seeded with devframe's own `DF*` codes, plus the host package's codes (`DTK*` for `@vitejs/devtools`, etc.). Call `register()` to add your own.
 
-## Register Your Own Codes
+## Register your own codes
 
 ```ts
 export function MyPlugin(): PluginWithDevTools {
@@ -65,9 +63,9 @@ export function MyPlugin(): PluginWithDevTools {
 }
 ```
 
-## Code Conventions
+## Code conventions
 
-Use a **4-letter prefix + 4-digit number** for your codes (e.g. `MYP0001`). Pick a prefix that's specific to your plugin or tool — short enough to type, distinctive enough not to collide with other integrations.
+Codes are 4-letter prefix + 4-digit number (e.g. `MYP0001`). Pick a prefix specific to your plugin or tool — short enough to type, distinctive enough to avoid collisions with other integrations.
 
 Prefixes already in use in this monorepo:
 
@@ -80,7 +78,7 @@ Prefixes already in use in this monorepo:
 
 Each definition supports a `message` (string or function), an optional `hint`, an optional `level` (`'error'` / `'warn'` / `'suggestion'` / `'deprecation'` — defaults to `'error'`), and a `docsBase` for generating documentation URLs. See [`logs-sdk`](https://github.com/vercel-labs/logs-sdk) for the full schema.
 
-## Emit a Diagnostic
+## Emit a diagnostic
 
 Each registered code becomes a callable factory on `ctx.diagnostics.logger`. The factory returns an object with `.throw()`, `.warn()`, `.error()`, `.log()`, and `.format()`.
 
@@ -98,15 +96,15 @@ ctx.diagnostics.logger.MYP0002().warn()
 ctx.diagnostics.logger.MYP0001({ name: 'foo' }, { cause: error }).log()
 ```
 
-`.throw()` is also typed `never` — TypeScript will treat the line after it as unreachable, so prefix it with `throw` for control-flow narrowing:
+`.throw()` is typed `never`, so TypeScript treats the line after as unreachable. Prefix the call with `throw` for control-flow narrowing:
 
 ```ts
 throw ctx.diagnostics.logger.MYP0001({ name }).throw()
 ```
 
-## Typed Logger Reference
+## Typed logger reference
 
-`ctx.diagnostics.logger` is loosely typed (it covers an unbounded set of registered codes). If you want full type narrowing — e.g. autocompletion for your plugin's specific codes — keep your own typed reference returned from `createLogger`:
+`ctx.diagnostics.logger` is loosely typed — it covers an unbounded set of registered codes, beyond what TypeScript can narrow. For autocompletion on your plugin's specific codes, keep a typed reference returned from `createLogger`:
 
 ```ts
 const myDiagnostics = ctx.diagnostics.defineDiagnostics({
@@ -126,9 +124,9 @@ logger.MYP0001({ name: 'foo' }).warn()
 
 Both loggers share the formatter and reporter defaults set by the host (ANSI console output).
 
-## Updating the Combined Logger
+## Updating the combined logger
 
-`ctx.diagnostics.logger` is a *getter* — it always returns the freshest combined logger, rebuilt each time `register()` is called. Don't cache it:
+`ctx.diagnostics.logger` is a getter — it returns the freshest combined logger, rebuilt each time `register()` is called. Don't cache it:
 
 ```ts
 // ❌ Stale after a later register() call
@@ -139,9 +137,9 @@ log.MYP0001({ name: 'foo' }).log()
 ctx.diagnostics.logger.MYP0001({ name: 'foo' }).log()
 ```
 
-If you want a stable reference, use `ctx.diagnostics.createLogger({ diagnostics: [myDiagnostics] })` — that one stays bound to *your* definitions.
+For a stable reference, use `ctx.diagnostics.createLogger({ diagnostics: [myDiagnostics] })` — that one stays bound to your definitions.
 
-## Document Your Codes
+## Document your codes
 
 Pair each code with a documentation page. devframe and the published Vite DevTools packages follow this layout:
 
@@ -152,11 +150,11 @@ docs/errors/
   MYP0002.md
 ```
 
-Each page covers the message, cause, example, and fix — see any [DF code page](https://devfra.me/errors/) for the canonical template. Set `docsBase` on `defineDiagnostics({...})` so the URL is auto-attached to every emitted diagnostic.
+Each page covers the message, cause, example, and fix — see any [DF code page](https://devfra.me/errors/) for the canonical template. Setting `docsBase` on `defineDiagnostics({...})` auto-attaches the URL to every emitted diagnostic.
 
-## When to Use What
+## When to use what
 
-- **`ctx.diagnostics`** — Coded conditions you want users (or other tools) to be able to look up: misconfiguration, deprecations, validation failures, internal invariants. Always have a docs page. Often `.throw()`.
-- **`ctx.messages`** — User-facing activity surfaces in the DevTools UI: progress indicators, audit results, "URL copied" toasts. No code, no docs URL — just a message and a level.
+- **`ctx.diagnostics`** — coded conditions worth looking up: misconfiguration, deprecations, validation failures, internal invariants. Always docs-backed. Often `.throw()`.
+- **`ctx.messages`** — user-facing activity surfaces in the DevTools UI: progress indicators, audit results, "URL copied" toasts. Just a message and a level.
 
-The two systems are intentionally separate: diagnostics are for tool authors and CI; messages are for the human in front of the DevTools panel.
+Diagnostics target tool authors and CI; messages target the human in front of the DevTools panel.

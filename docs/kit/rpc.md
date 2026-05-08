@@ -4,7 +4,7 @@ outline: deep
 
 # Remote Procedure Calls (RPC)
 
-DevTools Kit provides a built-in RPC layer for type-safe bidirectional communication between your Node.js server and browser clients.
+DevTools Kit's RPC layer is type-safe, bidirectional, and works between your Node.js server and any connected browser client.
 
 ## Overview
 
@@ -18,11 +18,11 @@ sequenceDiagram
   Server->>Client: { id, data: '...' }
 ```
 
-## Server-Side Functions
+## Server-side functions
 
-### Defining RPC Functions
+### Defining RPC functions
 
-Use `defineRpcFunction` to create type-safe server functions:
+Use `defineRpcFunction` for type-safe server functions:
 
 ```ts
 import { defineRpcFunction } from '@vitejs/devtools-kit'
@@ -44,31 +44,22 @@ const getModules = defineRpcFunction({
 })
 ```
 
-### Naming Convention
+### Naming convention
 
-Recommended RPC function naming:
+Scope each function with your package prefix and use kebab-case for the function part: `my-plugin:get-modules`, `my-plugin:read-file`.
 
-1. Scope functions with your package prefix: `<package-name>:...`
-2. Use kebab-case for the function part after `:`
+### Function types
 
-Examples:
-- `my-plugin:get-modules`
-- `my-plugin:read-file`
+| Type | Use for | Cached | Dump support |
+|------|---------|--------|--------------|
+| `query` | Fetch data, read operations | Yes | Manual |
+| `static` | Constant data | Indefinitely | Automatic |
+| `action` | Side effects, mutations | No | — |
+| `event` | Notifications without a response | No | — |
 
-### Function Types
+For chunk-style data (LLM deltas, log lines, build progress, file uploads), reach for [streaming channels](./streaming) — they handle stream IDs, cancellation, replay, and Web Streams interop for you.
 
-| Type | Description | Caching | Dump Support |
-|------|-------------|---------|--------------|
-| `query` | Fetch data, read operations | Can be cached | ✓ (manual) |
-| `static` | Constant data that never changes | Cached indefinitely | ✓ (automatic) |
-| `action` | Side effects, mutations | Not cached | ✗ |
-| `event` | Emit events, no response | Not cached | ✗ |
-
-::: tip Streaming chunks instead of single responses
-For chunk-style data (LLM deltas, log lines, build progress, file uploads), reach for [streaming channels](./streaming) rather than hand-rolling `action + delta/end events`. The streaming API gives you stream IDs, cancellation, replay, and Web Streams interop for free.
-:::
-
-### Handler Arguments
+### Handler arguments
 
 Handlers can accept any serializable arguments:
 
@@ -85,7 +76,7 @@ const getModule = defineRpcFunction({
 })
 ```
 
-### Context in Setup
+### Context in setup
 
 The `setup` function receives the full `DevToolsNodeContext`:
 
@@ -106,12 +97,11 @@ setup: (ctx) => {
 }
 ```
 
-> [!IMPORTANT]
-> For build mode compatibility, compute data in the setup function using the context rather than relying on runtime global state. This allows the dump feature to pre-compute results at build time.
+For build-mode compatibility, compute data in `setup` using the context and let the handler use it. The dump feature then pre-computes results at build time using values that already exist in `setup`'s closure.
 
-### Registering Functions
+### Registering functions
 
-Register your RPC function in the `devtools.setup`:
+Register the RPC function from `devtools.setup`:
 
 ```ts
 const plugin: Plugin = {
@@ -123,22 +113,21 @@ const plugin: Plugin = {
 }
 ```
 
-### Dump Feature for Build Mode
+### Dump feature for build mode
 
-When creating a static DevTools build (via `vite devtools build` CLI or the [`build.withApp`](/guide/#building-with-the-app) plugin option), the server cannot execute functions at runtime. The **dump feature** solves this by pre-computing RPC results at build time.
+A static DevTools build (via `vite devtools build` or the [`build.withApp`](/guide/#building-with-the-app) plugin option) has no live server. The dump feature pre-computes RPC results at build time and bakes them into the static output.
 
-#### How It Works
+#### How it works
 
-1. At build time, `dumpFunctions()` executes your RPC handlers with predefined arguments
-2. Results are stored in `__rpc-dump/index.json` in the build output
-3. The static client reads from this JSON file instead of making live RPC calls
+1. At build time, `dumpFunctions()` runs each RPC handler with predefined arguments.
+2. Results land in `__rpc-dump/index.json` (and sharded `__rpc-dump/*.json` files) in the build output.
+3. The static client reads from those files instead of making live RPC calls.
 
-Dump shard files are written to `__rpc-dump/*.json`. Function names in shard file keys replace `:` with `~` (for example `my-plugin:get-data` -> `my-plugin~get-data`).
-Query record maps are embedded directly in `__rpc-dump/index.json`; no per-function index files are generated.
+Function names in shard file keys replace `:` with `~` (e.g. `my-plugin:get-data` → `my-plugin~get-data`). Query record maps are embedded directly in `__rpc-dump/index.json`.
 
-#### Static Functions (Recommended)
+#### Static functions
 
-Functions with `type: 'static'` are **automatically dumped** with no arguments:
+Functions with `type: 'static'` are dumped automatically with no arguments — the recommended default for constant data:
 
 ```ts
 const getConfig = defineRpcFunction({
@@ -153,9 +142,9 @@ const getConfig = defineRpcFunction({
 })
 ```
 
-This works in both dev mode (live) and build mode (pre-computed).
+Works in both dev mode (live) and build mode (pre-computed).
 
-#### Query Functions with Dumps
+#### Query functions with dumps
 
 For `query` functions that need arguments, define `dump` in the setup:
 
@@ -181,17 +170,17 @@ const getModule = defineRpcFunction({
 })
 ```
 
-#### Recommendations for Plugin Authors
+#### Recommendations for plugin authors
 
-To ensure your DevTools work in build mode:
+For DevTools that work in both dev and build:
 
-1. **Prefer `type: 'static'`** for functions that return constant data
-2. **Return context-based data in setup** rather than accessing global state in handlers
-3. **Define dumps in setup function** for query functions that need pre-computation
-4. **Use fallback values** for graceful degradation when arguments don't match
+1. Prefer `type: 'static'` for functions that return constant data.
+2. Compute context-based data in `setup` rather than accessing global state in handlers.
+3. Define `dump` in `setup` for query functions that need pre-computation.
+4. Provide fallback values so unmatched arguments degrade gracefully.
 
 ```ts
-// ✓ Good: Returns static data, works in build mode
+// ✓ Good: returns static data, works in build mode
 const getPluginInfo = defineRpcFunction({
   name: 'my-plugin:info',
   type: 'static',
@@ -203,29 +192,26 @@ const getPluginInfo = defineRpcFunction({
   }),
 })
 
-// ✗ Avoid: Depends on runtime server state
+// ✗ Avoid: depends on runtime server state, dev-mode only
 const getLiveMetrics = defineRpcFunction({
   name: 'my-plugin:metrics',
-  type: 'query', // No dump - won't work in build mode
+  type: 'query',
   handler: async () => {
-    return getCurrentMetrics() // Requires live server
+    return getCurrentMetrics() // requires live server
   },
 })
 ```
 
-> [!TIP]
-> If your data genuinely needs live server state, use `type: 'query'` without dumps. The function will work in dev mode but gracefully fail in build mode.
+`type: 'query'` without a dump still works in dev mode — use it when the data genuinely needs live server state.
 
-### Organization Convention
+### Organization convention
 
-For plugin-scale RPC modules, we recommend this structure:
+For plugin-scale RPC modules, we recommend:
 
-General guidelines:
-
-1. Keep function definitions small and focused: one RPC function per file.
-2. Use `src/node/rpc/index.ts` as the single composition point for registration and type augmentation.
-3. Store plugin-specific runtime options in `src/node/rpc/context.ts` (instead of mutating the base DevTools context object).
-4. Use `context.rpc.invokeLocal(...)` for server-side cross-function composition.
+1. One RPC function per file — small and focused.
+2. `src/node/rpc/index.ts` as the single composition point for registration and type augmentation.
+3. Plugin-specific runtime options stored in `src/node/rpc/context.ts` rather than mutated onto the base DevTools context.
+4. `context.rpc.invokeLocal(...)` for server-side cross-function composition.
 
 Rough file tree:
 
@@ -319,12 +305,11 @@ export const readFile = defineRpcFunction({
 })
 ```
 
-> [!TIP]
-> See the [File Explorer example](/kit/examples#file-explorer) for a plugin using RPC functions with dump support, organized following the conventions above.
+The [File Explorer example](/kit/examples#file-explorer) follows these conventions for a plugin with RPC functions and dump support.
 
-## Schema Validation (Optional)
+## Schema validation
 
-The RPC system has built-in support for runtime schema validation using [Valibot](https://valibot.dev). When you provide schemas, TypeScript types are automatically inferred and validation happens at runtime.
+The RPC system supports runtime schema validation through [Valibot](https://valibot.dev). When you provide schemas, TypeScript types are inferred and validation runs at the call site. Schemas are optional — without them, RPC works on plain TypeScript types.
 
 ```ts
 import { defineRpcFunction } from '@vitejs/devtools-kit'
@@ -357,12 +342,9 @@ const getModule = defineRpcFunction({
 })
 ```
 
-> [!NOTE]
-> Schema validation is optional. If you don't provide `args` or `returns` schemas, the RPC system will work without validation and you can use regular TypeScript types instead.
+## Client-side calls
 
-## Client-Side Calls
-
-### In Iframe Pages
+### In iframe pages
 
 Use `getDevToolsRpcClient()` to get the RPC client:
 
@@ -382,7 +364,7 @@ async function loadData() {
 }
 ```
 
-### In Action/Renderer Scripts
+### In action/renderer scripts
 
 Use `ctx.rpc` from the script context:
 
@@ -397,9 +379,9 @@ export default function setup(ctx: DockClientScriptContext) {
 }
 ```
 
-### Sharing State Across RPC Functions
+### Sharing state across RPC functions
 
-When multiple RPC functions need access to the same plugin-specific state (a manager instance, plugin options, cached data, etc.), use a `WeakMap` keyed by `DevToolsNodeContext` to store and retrieve that state. This avoids mutating the base context object and keeps your plugin state scoped and garbage-collectable.
+When multiple RPC functions need the same plugin-specific state (a manager instance, plugin options, cached data), key a `WeakMap` by `DevToolsNodeContext`. This keeps the plugin state scoped, garbage-collectable, and out of the base context.
 
 Create a helper file with get/set functions:
 
@@ -465,9 +447,9 @@ export const getData = defineRpcFunction({
 
 :::
 
-### Global Client Context
+### Global client context
 
-Use `getDevToolsClientContext()` to access the client context (`DevToolsClientContext`) from anywhere on the client side. This is set automatically when DevTools initializes in embedded or standalone mode.
+`getDevToolsClientContext()` returns the `DevToolsClientContext` from anywhere on the client side. DevTools sets it automatically in embedded or standalone mode, and the function returns `undefined` until initialization completes.
 
 ```ts
 import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
@@ -478,14 +460,11 @@ if (ctx) {
 }
 ```
 
-Returns `undefined` if the context has not been initialized yet.
-```
+## Client-side functions
 
-## Client-Side Functions
+The client can also expose functions that the server calls.
 
-You can also define functions on the client that the server can call.
-
-### Registering Client Functions
+### Registering client functions
 
 ```ts
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
@@ -507,9 +486,9 @@ export default function setup(ctx: DockClientScriptContext) {
 }
 ```
 
-### Broadcasting from Server
+### Broadcasting from server
 
-Use `ctx.rpc.broadcast()` to call client functions from the server:
+`ctx.rpc.broadcast()` sends an event-style call to every connected client and resolves once dispatch completes:
 
 ```ts
 const plugin: Plugin = {
@@ -525,14 +504,11 @@ const plugin: Plugin = {
 }
 ```
 
-> [!NOTE]
-> `broadcast` sends an event-style call to all connected clients and resolves when dispatch completes.
+## Type safety
 
-## Type Safety
+Extend the DevTools Kit interfaces for end-to-end type checking.
 
-For full type safety, extend the DevTools Kit interfaces.
-
-### Server Functions
+### Server functions
 
 ```ts
 // src/types.ts
@@ -555,7 +531,7 @@ interface Module {
 }
 ```
 
-### Client Functions
+### Client functions
 
 ```ts
 // src/types.ts
@@ -580,9 +556,9 @@ const module = await rpc.call('my-plugin:get-module', '/src/main.ts')
 const data = await rpc.call('my-plugin:unknown')
 ```
 
-## Complete Example
+## Complete example
 
-Here's a complete example with both server and client RPC functions:
+A plugin with both server and client RPC functions:
 
 ::: code-group
 

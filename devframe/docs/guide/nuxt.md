@@ -4,11 +4,11 @@ outline: deep
 
 # Nuxt Helper
 
-The `@devframes/nuxt` module wires a Nuxt-built SPA up as a devframe client. It's an integration helper, not a deployment adapter — it runs inside the Nuxt app that consumes your devtool, not as part of the CLI that serves it.
+The `@devframes/nuxt` module wires a Nuxt-built SPA as a devframe client. It runs inside the Nuxt app that consumes your devtool — separate from the CLI that serves it.
 
-It handles the three things every Nuxt-powered standalone devtool needs to get right:
+It handles the three things every Nuxt-powered standalone devtool needs:
 
-1. **Base-agnostic assets.** Forces `app.baseURL: './'` and `vite.base: './'` so the same production build works at `/`, at `/tool/`, and on any other deployment path without build-time URL rewriting.
+1. **Base-agnostic assets.** Sets `app.baseURL: './'` and `vite.base: './'` so the same production build works at `/`, `/tool/`, and any other deployment path without build-time URL rewriting.
 2. **Runtime RPC connection.** Adds a client plugin that calls [`connectDevtool()`](./client) once on page load and provides the result as `$rpc` on the Nuxt app.
 3. **TypeScript augmentation.** `useNuxtApp().$rpc` is typed as `DevToolsRpcClient` out of the box.
 
@@ -52,8 +52,8 @@ export default defineNuxtConfig({
 })
 ```
 
-- **`baseURL`** defaults to `'./'`, which resolves against `document.baseURI` at runtime. The connection meta and dump shards sit next to `index.html`, so the same build works at any deployment path — no need to pass `--base` at build time.
-- **`skipAppDefaults: true`** disables the `app.baseURL: './'` / `vite.base: './'` defaults. Use this only if you're deliberately shipping with absolute asset paths and have your own base-URL story.
+- **`baseURL`** defaults to `'./'`, which resolves against `document.baseURI` at runtime. The connection meta and dump shards sit next to `index.html`, so the same build works at any deployment path.
+- **`skipAppDefaults: true`** disables the `app.baseURL: './'` / `vite.base: './'` defaults. Use this when you're shipping with absolute asset paths and have your own base-URL story.
 
 ## How it works
 
@@ -72,7 +72,7 @@ At runtime the built SPA fetches `./__connection.json` (resolved against `docume
 
 ## Relationship to `createCli`
 
-The Nuxt helper is a client-side integration; it does **not** start a server. The typical shape is:
+The Nuxt helper is a client-side integration — `createCli` runs the server side. The typical shape is:
 
 ```
 my-tool/
@@ -88,7 +88,7 @@ my-tool/
 - `createCli` (from `devframe/adapters/cli`) runs the Node side — HTTP + WS + static build + MCP.
 - `@devframes/nuxt` handles the client side — RPC connection + base-URL plumbing.
 
-They're decoupled: swap Nuxt for any other SPA framework as long as it calls `connectDevtool()` in the browser.
+They're decoupled: swap Nuxt for any other SPA framework that calls `connectDevtool()` in the browser.
 
 ## See also
 

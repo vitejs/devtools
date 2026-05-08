@@ -4,7 +4,7 @@ outline: deep
 
 # Commands & Command Palette
 
-DevTools Kit provides a commands system that lets plugins register executable commands — both on the server and client side. Users can discover and run commands through a built-in command palette, and customize keyboard shortcuts.
+DevTools Kit's commands system lets plugins register executable commands on the server and client. Users discover and run them through the built-in command palette, and rebind keyboard shortcuts to taste.
 
 ## Overview
 
@@ -27,11 +27,11 @@ sequenceDiagram
   Client->>Client: Direct action (client commands)
 ```
 
-## Server-Side Commands
+## Server-side commands
 
-### Defining Commands
+### Defining commands
 
-Use `defineCommand` and register via `ctx.commands.register()`:
+Use `defineCommand` and register through `ctx.commands.register()`:
 
 ```ts
 import { defineCommand } from '@vitejs/devtools-kit'
@@ -60,7 +60,7 @@ const plugin: Plugin = {
 }
 ```
 
-### Command Options
+### Command options
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -75,7 +75,7 @@ const plugin: Plugin = {
 | `handler` | `Function` | Server-side handler. Optional if the command is a group for children. |
 | `children` | `DevToolsServerCommandInput[]` | Static sub-commands (two levels max) |
 
-### Command Handle
+### Command handle
 
 `register()` returns a handle for live updates:
 
@@ -93,9 +93,9 @@ handle.update({ title: 'Show Status (3 items)' })
 handle.unregister()
 ```
 
-## Sub-Commands
+## Sub-commands
 
-Commands can have static children, creating a two-level hierarchy. In the palette, selecting a parent drills down into its children.
+Commands can have static children, forming a two-level hierarchy. Selecting a parent in the palette drills into its children.
 
 ```ts
 ctx.commands.register({
@@ -126,14 +126,13 @@ ctx.commands.register({
 })
 ```
 
-In the palette, users see **Git** → select it → drill down to see **Commit**, **Push**, **Pull**. Sub-commands with keybindings (like `Mod+Shift+G` above) can be executed directly via the shortcut without opening the palette.
+In the palette, users see **Git** → select → drill into **Commit**, **Push**, **Pull**. Sub-commands with keybindings (like `Mod+Shift+G` above) execute directly from the shortcut without opening the palette.
 
-> [!NOTE]
-> Each child must have a globally unique `id`. We recommend the pattern `parentId:childAction` (e.g. `git:commit`).
+Each child needs a globally unique `id`; the recommended pattern is `parentId:childAction` (`git:commit`).
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
-### Defining Shortcuts
+### Defining shortcuts
 
 Add default keybindings when registering a command:
 
@@ -148,7 +147,7 @@ ctx.commands.register({
 })
 ```
 
-### Key Format
+### Key format
 
 Use `Mod` as a platform-aware modifier — it maps to `Cmd` on macOS and `Ctrl` on other platforms.
 
@@ -158,7 +157,7 @@ Use `Mod` as a platform-aware modifier — it maps to `Cmd` on macOS and `Ctrl` 
 | `Mod+Shift+P` | `Cmd+Shift+P` | `Ctrl+Shift+P` |
 | `Alt+N` | `Option+N` | `Alt+N` |
 
-### Conditional `when` Clauses
+### Conditional `when` clauses
 
 Commands support a `when` expression for conditional visibility and activation:
 
@@ -171,45 +170,39 @@ ctx.commands.register(defineCommand({
 }))
 ```
 
-When set, the command is only shown in the palette and only triggerable via shortcuts when the expression evaluates to `true`. Supports `==`, `!=`, `&&`, `||`, `!`, bare truthy, literal `true`/`false`, and namespaced keys like `vite.mode`.
+When set, the command shows in the palette and triggers via its shortcut only while the expression evaluates to `true`. The grammar covers `==`, `!=`, `&&`, `||`, `!`, bare truthy, literal `true`/`false`, and namespaced keys like `vite.mode` — see [When Clauses](/kit/when-clauses) for the full reference.
 
-See [When Clauses](/kit/when-clauses) for the full syntax reference, context variables, and namespaced key support.
+### User overrides
 
-### User Overrides
+Users customise shortcuts in the DevTools Settings page under **Keyboard Shortcuts**. Overrides land in shared state and persist across sessions; setting an empty array disables a shortcut.
 
-Users can customize shortcuts in the DevTools Settings page under **Keyboard Shortcuts**. Overrides are stored in shared state and persist across sessions. Setting an empty array disables a shortcut.
-
-### Shortcut Editor
+### Shortcut editor
 
 The Settings page includes an inline shortcut editor with:
 
-- **Key capture** — click the input and press any key combination
-- **Modifier toggles** — toggle Cmd/Ctrl, Alt, Shift individually
-- **Conflict detection** — warns when a shortcut conflicts with:
-  - Common browser shortcuts (e.g. `Cmd+T` → "Open new tab", `Cmd+W` → "Close tab")
-  - Other registered commands
-  - Weak shortcuts (single key without modifiers)
+- **Key capture** — click the input and press any key combination.
+- **Modifier toggles** — toggle Cmd/Ctrl, Alt, Shift individually.
+- **Conflict detection** — warns when a shortcut conflicts with common browser shortcuts (`Cmd+T` → "Open new tab", `Cmd+W` → "Close tab"), with another registered command, or with a weak single-key combo without modifiers.
 
-The list of known browser shortcuts (`KNOWN_BROWSER_SHORTCUTS`) is exported from `@vitejs/devtools-kit` and maps each key combination to a human-readable description.
+`KNOWN_BROWSER_SHORTCUTS` is exported from `@vitejs/devtools-kit` and maps each key combination to a human-readable description.
 
-## Command Palette
+## Command palette
 
-The built-in command palette is toggled with `Mod+K` (or `Ctrl+K` on Windows/Linux). It provides:
+`Mod+K` (or `Ctrl+K` on Windows/Linux) toggles the built-in palette. It offers:
 
-- **Fuzzy search** across all registered commands (including sub-commands)
-- **Keyboard navigation** — Arrow keys to navigate, Enter to select, Escape to close
-- **Drill-down** — Commands with children show a breadcrumb navigation
-- **Server command execution** — Server commands are executed via RPC with a loading indicator
-- **Dynamic sub-menus** — Client commands can return sub-items at runtime
+- **Fuzzy search** across all registered commands (including sub-commands).
+- **Keyboard navigation** — arrow keys, Enter to select, Escape to close.
+- **Drill-down** — commands with children show breadcrumb navigation.
+- **Server-command execution** — RPC with a loading indicator.
+- **Dynamic sub-menus** — client commands can return sub-items at runtime.
 
-### Embedded vs Standalone
+### Embedded vs standalone
 
-- **Embedded mode**: The palette floats over the user's application as part of the DevTools overlay
-- **Standalone mode**: The palette appears as a modal dialog in the standalone DevTools window
+In embedded mode, the palette floats over the user's app as part of the DevTools overlay. In standalone mode, it appears as a modal dialog in the standalone DevTools window.
 
-## Client-Side Commands
+## Client-side commands
 
-Client commands are registered in the webcomponent context and execute directly in the browser:
+Client commands register in the webcomponent context and execute directly in the browser:
 
 ```ts
 // From within the DevTools client context
@@ -254,9 +247,9 @@ context.commands.register({
 })
 ```
 
-## Executing Programmatically
+## Executing programmatically
 
-Any code with access to the kit context can trigger a command by id:
+Code with access to the kit context can trigger a command by id:
 
 ```ts
 await ctx.commands.execute('my-plugin:clear-cache')
@@ -265,11 +258,11 @@ await ctx.commands.execute('my-plugin:clear-cache')
 await ctx.commands.execute('my-plugin:open-file', '/src/main.ts')
 ```
 
-`execute` throws if the command isn't registered or has no handler. It searches both top-level commands and children.
+`execute` searches both top-level commands and children, and throws when the command isn't registered or has no handler.
 
-## Listing & Introspection
+## Listing & introspection
 
-The host exposes a `list()` method returning serializable command entries (without handlers) — useful when implementing your own palette UI or exporting the current command set:
+The host exposes a `list()` method returning serializable command entries (without handlers) — useful for custom palette UIs or exporting the current command set:
 
 ```ts
 const commands = ctx.commands.list()
@@ -289,7 +282,7 @@ ctx.commands.events.on('command:unregistered', (id) => {
 })
 ```
 
-## Complete Example
+## Complete example
 
 ::: code-group
 

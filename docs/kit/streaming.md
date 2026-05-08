@@ -4,7 +4,7 @@ outline: deep
 
 # Streaming
 
-DevTools Kit ships a first-class streaming-channel API for chunk-style data flowing in either direction between server and client — chat deltas, log lines, build progress, file uploads, mic / screen-share frames. It's the same primitive as DevFrame's [streaming guide](/devframe/guide/streaming), surfaced through the Kit's Vite plugin idioms.
+DevTools Kit ships a streaming-channel API for chunk-style data flowing in either direction between server and client — chat deltas, log lines, build progress, file uploads, mic / screen-share frames.
 
 Reach for streaming when you need:
 
@@ -13,7 +13,7 @@ Reach for streaming when you need:
 - Replay on reconnect — a panel reopened mid-stream picks up where it left off.
 - Client-to-server uploads without inventing a multipart protocol.
 
-For *snapshot* state that survives reconnect and syncs across panels, prefer [shared state](./shared-state) instead.
+For *snapshot* state that survives reconnect and syncs across panels, use [shared state](./shared-state) instead.
 
 ## Overview
 
@@ -32,11 +32,11 @@ sequenceDiagram
 
 A **channel** owns a wire namespace. Each call to `channel.start()` produces an individual **stream** keyed by an id (auto-generated unless you pass one). Subscribers join by `(channelName, id)`.
 
-## Server-to-Client (the common case)
+## Server-to-client (the common case)
 
-### Defining a Channel
+### Defining a channel
 
-In your `devtools.setup`, create the channel once. Channels are framework-neutral, so the same code works whether you ship via `@vitejs/devtools-kit` (Vite) or DevFrame's other adapters:
+Create the channel once in `devtools.setup`:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -78,9 +78,9 @@ export default function chatPlugin(): Plugin {
 }
 ```
 
-The channel name follows the same `<plugin-id>:<name>` convention as RPC functions and shared-state keys.
+Channel names follow the `<plugin-id>:<name>` convention used by RPC functions and shared-state keys.
 
-### Producing — Three Surfaces, One Stream
+### Producing — three surfaces, one stream
 
 The handle returned by `channel.start({ id? })` is both an imperative producer and a Web Streams `WritableStream<T>`:
 
@@ -112,9 +112,9 @@ for (const token of source) {
 stream.close()
 ```
 
-#### Node.js Stream Interop
+#### Node.js stream interop
 
-Web Streams are the canonical surface, but Node 17+ ships free converters that bridge to `node:stream`:
+Web Streams are the canonical surface. Node 17+ ships standard-library converters for bridging to `node:stream`:
 
 ```ts
 import { Readable, Writable } from 'node:stream'
@@ -125,8 +125,6 @@ sourceNodeReadable.pipe(Writable.fromWeb(stream.writable))
 // Pipe the channel out to a Node Writable
 Readable.fromWeb(reader.readable).pipe(targetNodeWritable)
 ```
-
-DevTools Kit doesn't wrap these — they're standard library, and the surface stays small.
 
 ### Consuming — `for await` or `pipeTo`
 
@@ -152,11 +150,11 @@ await reader.readable.pipeTo(downloadWritable)
 reader.cancel() // sends cancel upstream; server stream.signal flips
 ```
 
-Pick one surface per reader — they share a single internal queue, so concurrent draining will race.
+Use one surface per reader — they share a single internal queue, so concurrent draining races.
 
-## Client-to-Server Uploads
+## Client-to-server uploads
 
-The same channel works in reverse for chunk-style uploads — file content, mic / screen-share frames, browser-side logs forwarded to disk, anything you'd otherwise hand-roll as `multipart` over HTTP. The pattern uses one normal RPC call to allocate the id, then dedicated streaming events for the chunks:
+The same channel works in reverse for chunk-style uploads — file content, mic / screen-share frames, browser-side logs forwarded to disk, anything that would otherwise need a hand-rolled multipart-over-HTTP. The pattern: one regular RPC call allocates the id, then dedicated streaming events carry the chunks.
 
 ```ts
 // Server — typically inside an action handler
@@ -204,9 +202,9 @@ Lifecycle mirrors the outbound case:
 - `upload.error(err)` propagates as a thrown error inside the server's `for await`.
 - If the client disconnects mid-upload, the server's `for await` exits with an `UploadDisconnected` error so consumers can clean up.
 
-Each `openInbound()` allocates a fresh server-allocated id and is owned by exactly one uploading session — there's no fan-in, no shared subscribers, and no replay (the producer is the client, so reconnect means restart).
+Each `openInbound()` allocates a fresh server-side id owned by exactly one uploading session. Uploads are point-to-point: one producer, no fan-in, no shared subscribers, no replay (reconnect means the client restarts).
 
-## Lifecycle and Cancellation
+## Lifecycle and cancellation
 
 | Event | Server side | Client side |
 |-------|-------------|-------------|
@@ -215,11 +213,11 @@ Each `openInbound()` allocates a fresh server-allocated id and is owned by exact
 | WS disconnects | When the **last** subscriber drops, server aborts `stream.signal` | Reader stays alive; resubscribes automatically when trust is re-established |
 | Panel closes mid-stream | Reader cancel cascades upstream | — |
 
-A stream with multiple subscribers stays alive until the last one cancels or disconnects. Producers should always make `stream.signal.aborted` part of their inner loop.
+A stream with multiple subscribers stays alive until the last one cancels or disconnects. Producers should make `stream.signal.aborted` part of their inner loop.
 
-## Replay on Reconnect
+## Replay on reconnect
 
-When the channel is created with `replayWindow: N`, the server keeps a rolling buffer of the last `N` chunks per stream. On (re)subscribe, the client passes the highest sequence number it has seen, and the server replays anything newer before resuming live.
+With `replayWindow: N`, the server keeps a rolling buffer of the last `N` chunks per stream. On (re)subscribe, the client passes the highest sequence number it has seen, and the server replays anything newer before resuming live.
 
 ```ts
 ctx.rpc.streaming.create<string>('my-plugin:chat', {
@@ -228,11 +226,11 @@ ctx.rpc.streaming.create<string>('my-plugin:chat', {
 })
 ```
 
-`closedStreamRetention` defaults to 30 seconds when `replayWindow > 0` (so a panel re-opened a few seconds after a chat finishes still gets the full transcript), or 0 when replay is disabled. Set it explicitly to opt in or out.
+`closedStreamRetention` defaults to 30 seconds when `replayWindow > 0` (so a panel re-opened seconds after a chat finishes still gets the full transcript). Set it explicitly to tune retention.
 
 ## Backpressure
 
-The client maintains a bounded queue per subscription (`highWaterMark`, default 256). When the consumer can't keep up, the **oldest** queued chunk is dropped and a [`DF0029`](/devframe/errors/DF0029) warning is logged. This is best-effort — proper transport-level backpressure isn't worth threading through the RPC layer for the streaming use cases that exist today.
+The client maintains a bounded queue per subscription (`highWaterMark`, default 256). When the consumer falls behind, the oldest queued chunk drops and a [`DF0029`](/devframe/errors/DF0029) warning is logged. This is best-effort — sufficient for current streaming use cases without threading transport-level backpressure through the RPC layer.
 
 ```ts
 const reader = rpc.streaming.subscribe('my-plugin:chat', id, {
@@ -240,9 +238,9 @@ const reader = rpc.streaming.subscribe('my-plugin:chat', id, {
 })
 ```
 
-If you need authoritative state rather than every intermediate value, prefer [shared state](./shared-state) — it carries Immer patches with delivery guarantees, at the cost of being structured rather than streaming.
+When you need authoritative state rather than every intermediate value, [shared state](./shared-state) carries Immer patches with delivery guarantees — structured rather than streaming.
 
-## Combining Streaming with Shared State
+## Combining streaming with shared state
 
 Token-level streaming and shared-state snapshots compose naturally for chat-style UIs:
 
@@ -308,7 +306,7 @@ ctx.rpc.register(defineRpcFunction({
 
 A working version of this pattern lives in [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
 
-## When to Use Streaming vs Events vs Shared State
+## When to use streaming vs events vs shared state
 
 | Use streaming for | Use `event`-typed RPC for | Use shared state for |
 |-------------------|---------------------------|----------------------|
@@ -319,6 +317,4 @@ A working version of this pattern lives in [`devframe/examples/devframe-streamin
 
 ## Reference
 
-- API surface: `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — re-exported from `@vitejs/devtools-kit`.
-- Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
-- Errors: [`DF0029`](/devframe/errors/DF0029) (overflow), [`DF0030`](/devframe/errors/DF0030) (unknown stream id), [`DF0031`](/devframe/errors/DF0031) (write to closed stream), [`DF0032`](/devframe/errors/DF0032) (channel name collision).
+The API surface — `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — is re-exported from `@vitejs/devtools-kit`. Streaming is built on the same primitive as DevFrame's [streaming guide](/devframe/guide/streaming); error codes for backpressure and lifecycle live there: [`DF0029`](/devframe/errors/DF0029), [`DF0030`](/devframe/errors/DF0030), [`DF0031`](/devframe/errors/DF0031), [`DF0032`](/devframe/errors/DF0032).

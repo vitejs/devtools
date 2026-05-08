@@ -4,11 +4,11 @@ outline: deep
 
 # JSON Render
 
-JSON render panels let you build DevTools UIs entirely from server-side TypeScript — no client code needed. You describe your UI as a JSON spec, and the DevTools client renders it with the built-in component library.
+JSON render panels build DevTools UIs from server-side TypeScript alone. You describe the UI as a JSON spec; the DevTools client renders it with the built-in component library.
 
-## Getting Started
+## Getting started
 
-Use `ctx.createJsonRenderer()` to create a renderer handle from a spec, then pass it as `ui` when registering a `json-render` dock entry:
+Create a renderer handle with `ctx.createJsonRenderer()` and pass it as `ui` when registering a `json-render` dock entry:
 
 ```ts
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
@@ -55,7 +55,7 @@ export function MyPlugin(): PluginWithDevTools {
 }
 ```
 
-## Spec Structure
+## Spec structure
 
 A JSON render spec has three parts: a `root` element ID, an `elements` map, and an optional `state` object for two-way bindings.
 
@@ -85,9 +85,9 @@ ctx.createJsonRenderer({
 
 Every element has a `type` (component name), `props`, and optionally `children` (array of element IDs) or `on` (event handlers).
 
-## Dynamic Updates
+## Dynamic updates
 
-The `JsonRenderer` handle returned by `ctx.createJsonRenderer()` provides two methods for updating the UI reactively:
+The `JsonRenderer` handle returned by `ctx.createJsonRenderer()` exposes two methods for updating the UI reactively:
 
 ```ts
 const ui = ctx.createJsonRenderer(buildSpec(initialData))
@@ -112,9 +112,9 @@ ctx.docks.update({
 })
 ```
 
-## Handling Actions via RPC
+## Handling actions via RPC
 
-Buttons in the spec can trigger RPC functions on the server. Use the `on` property with an `action` key that matches a registered RPC function name:
+Buttons in the spec can trigger RPC functions on the server. The `on` property carries an `action` key that matches a registered RPC function name:
 
 ```ts
 // In the spec — Button with an action
@@ -164,9 +164,9 @@ const ui = ctx.createJsonRenderer({
 })
 ```
 
-## State and Two-Way Binding
+## State and two-way binding
 
-Use `$bindState` on TextInput `value` to create two-way binding with a state key. Use `$state` to read the bound value in action params:
+`$bindState` on a TextInput `value` creates a two-way binding with a state key; `$state` reads the bound value in action params:
 
 ```ts
 const ui = ctx.createJsonRenderer({
@@ -213,7 +213,7 @@ ctx.rpc.register(defineRpcFunction({
 }))
 ```
 
-## Built-in Components
+## Built-in components
 
 ### Layout
 
@@ -390,7 +390,7 @@ Text input field with optional two-way state binding.
 
 See [State and Two-Way Binding](#state-and-two-way-binding) for a full example.
 
-### Data Display
+### Data display
 
 #### KeyValueTable
 
@@ -513,7 +513,7 @@ Expandable tree view for inspecting nested objects.
 }
 ```
 
-## Full Example
+## Full example
 
 A complete panel combining layout, data display, inputs, and actions:
 
@@ -619,5 +619,4 @@ export function BuildReportPlugin(): PluginWithDevTools {
 }
 ```
 
-> [!TIP]
-> See the [Git UI example](/kit/examples#git-ui) for a more advanced plugin using json-render with per-file actions, text input with state binding, and dynamic badge updates.
+For a more advanced plugin using json-render with per-file actions, text input with state binding, and dynamic badge updates, see the [Git UI example](/kit/examples#git-ui).
