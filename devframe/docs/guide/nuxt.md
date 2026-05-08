@@ -68,7 +68,7 @@ At build time the module:
   return { provide: { rpc } }
   ```
 
-At runtime the built SPA fetches `./.connection.json` (resolved against `document.baseURI`) and branches on the `backend` field — `websocket` in dev, `static` from a `createBuild` snapshot.
+At runtime the built SPA fetches `./__connection.json` (resolved against `document.baseURI`) and branches on the `backend` field — `websocket` in dev, `static` from a `createBuild` snapshot.
 
 ## Relationship to `createCli`
 

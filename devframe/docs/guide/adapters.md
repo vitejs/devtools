@@ -48,7 +48,7 @@ my-devtool build --out-dir dist-static --base /devtools/
 my-devtool mcp                 # stdio MCP server (experimental)
 ```
 
-> Standalone CLI serves the SPA at `/` by default — no `/.devtools/` prefix. That prefix is reserved for *hosted* adapters where devframe mounts alongside an existing app. See [Mount paths](#mount-paths) below.
+> Standalone CLI serves the SPA at `/` by default — no `/__devtools/` prefix. That prefix is reserved for *hosted* adapters where devframe mounts alongside an existing app. See [Mount paths](#mount-paths) below.
 
 ### Options
 
@@ -180,7 +180,7 @@ The basePath where a devtool's SPA is mounted depends on the adapter it's runnin
 | Adapter kind | Default basePath | Reason |
 |--------------|------------------|--------|
 | `cli`, `spa`, `build` (standalone) | `/` | The devtool is the only thing on the origin. |
-| `vite`, `kit`, `embedded` (hosted) | `/.<id>/` | The devtool shares the origin with a host app and must namespace itself. |
+| `vite`, `kit`, `embedded` (hosted) | `/__<id>/` | The devtool shares the origin with a host app and must namespace itself. |
 
 Override either side explicitly with `DevtoolDefinition.basePath`:
 
@@ -196,7 +196,7 @@ SPA authors should **build with relative asset paths** (`vite.base: './'`) rathe
 
 ## Vite
 
-A thin Vite plugin that mounts a devtool's SPA into an existing Vite dev server as a *hosted* adapter — the mount path defaults to `/.<id>/` to avoid colliding with the app. It **does not** start an RPC WebSocket server — use `kit` or `cli` when you need RPC.
+A thin Vite plugin that mounts a devtool's SPA into an existing Vite dev server as a *hosted* adapter — the mount path defaults to `/__<id>/` to avoid colliding with the app. It **does not** start an RPC WebSocket server — use `kit` or `cli` when you need RPC.
 
 ```ts
 import { createVitePlugin } from 'devframe/adapters/vite'
@@ -210,7 +210,7 @@ export default defineConfig({
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `base` | `def.basePath ?? '/.<id>/'` | Mount path inside the Vite dev server. |
+| `base` | `def.basePath ?? '/__<id>/'` | Mount path inside the Vite dev server. |
 
 Use this adapter when a devtool's UI is purely static (no server calls) and you want to surface it during Vite `serve` without shipping a separate dev server. Set `DevtoolDefinition.basePath` on the definition if you want a custom path that stays consistent across adapters.
 
@@ -221,7 +221,7 @@ Produces a self-contained static deploy of a devtool:
 1. Copies the author's SPA dist (`cli.distDir` or `options.distDir`) into `<outDir>`.
 2. Runs `setup(ctx)` with `mode: 'build'`.
 3. Collects RPC dumps for every `'static'` function and any `'query'` function with `dump.inputs` / `snapshot: true`.
-4. Writes `<outDir>/.connection.json` (`{ backend: 'static' }`) and sharded dump files under `<outDir>/.rpc-dump/` — both at the SPA root so the deployed client discovers them via relative paths from `document.baseURI`.
+4. Writes `<outDir>/__connection.json` (`{ backend: 'static' }`) and sharded dump files under `<outDir>/__rpc-dump/` — both at the SPA root so the deployed client discovers them via relative paths from `document.baseURI`.
 5. When `def.spa` is set, also writes `<outDir>/spa-loader.json` describing how the SPA hydrates its data.
 
 ```ts
@@ -240,7 +240,7 @@ await createBuild(devtool, {
 | `base` | `/` | Absolute URL base the output is served from. |
 | `distDir` | `def.cli?.distDir` | Override the SPA dist directory. |
 
-The resulting directory can be hosted by any static web server (`serve`, nginx, GitHub Pages, …). The client auto-detects `static` mode via `./.connection.json` resolved against `document.baseURI` and runs in read-only form.
+The resulting directory can be hosted by any static web server (`serve`, nginx, GitHub Pages, …). The client auto-detects `static` mode via `./__connection.json` resolved against `document.baseURI` and runs in read-only form.
 
 > [!TIP]
 > `createBuild` copies the SPA verbatim. To deploy under a custom URL base, build your SPA with relative asset paths (`vite.base: './'`) — the client discovers the effective base at runtime. No HTML rewriting is performed at build time.
@@ -276,7 +276,7 @@ The returned object has the shape `{ name, devtools: { setup, capabilities } }`.
 
 ## Embedded
 
-Register a devtool into an already-running context at runtime. Mirrors the internal plugin-scan that Kit runs at startup, but exposes it for callers that need dynamic, post-startup registration. The host decides the mount path; `embedded` is treated as a hosted adapter and inherits the `/.<id>/` default when one is needed.
+Register a devtool into an already-running context at runtime. Mirrors the internal plugin-scan that Kit runs at startup, but exposes it for callers that need dynamic, post-startup registration. The host decides the mount path; `embedded` is treated as a hosted adapter and inherits the `/__<id>/` default when one is needed.
 
 ```ts
 import { createEmbedded } from 'devframe/adapters/embedded'

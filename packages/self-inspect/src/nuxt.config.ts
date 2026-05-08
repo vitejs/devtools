@@ -3,7 +3,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
-const BASE = '/.devtools-self-inspect/'
+const BASE = '/__devtools-self-inspect/'
 
 export default defineNuxtConfig({
   ssr: false,

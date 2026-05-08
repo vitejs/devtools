@@ -40,8 +40,8 @@ export interface CreateBuildOptions {
  *
  *   - Build a `mode: 'build'` context and run `devtool.setup(ctx)`.
  *   - Copy the author's SPA dist into `<outDir>/`.
- *   - Write `<outDir>/.connection.json` (`{ backend: 'static' }`) and the
- *     sharded RPC dump under `<outDir>/.rpc-dump/` so the deployed SPA
+ *   - Write `<outDir>/__connection.json` (`{ backend: 'static' }`) and the
+ *     sharded RPC dump under `<outDir>/__rpc-dump/` so the deployed SPA
  *     discovers both via relative paths from `document.baseURI`.
  *   - When `def.spa` is configured, also write `<outDir>/spa-loader.json`
  *     describing the SPA's data-loader mode (`'query'` / `'upload'` /

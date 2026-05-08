@@ -27,10 +27,10 @@ describe('kit-plugin (Vite DevTools dock surface)', () => {
     const dock = ctx.docks.views.get('devframe-files-inspector') as DevToolsViewIframe | undefined
     expect(dock).toBeDefined()
     expect(dock!.type).toBe('iframe')
-    expect(dock!.url).toBe('/.devframe-files-inspector/')
+    expect(dock!.url).toBe('/__devframe-files-inspector/')
     expect(dock!.title).toBe('Files Inspector')
 
     expect(mount).toHaveBeenCalledTimes(1)
-    expect(mount).toHaveBeenCalledWith('/.devframe-files-inspector/', devtool.cli!.distDir)
+    expect(mount).toHaveBeenCalledWith('/__devframe-files-inspector/', devtool.cli!.distDir)
   })
 })

@@ -7,7 +7,7 @@ export type DevtoolRuntime = 'cli' | 'build' | 'spa' | 'vite' | 'kit' | 'embedde
 /**
  * Classification of how a devtool is being deployed. Hosted adapters
  * (`vite`, `kit`, `embedded`) share their origin with a host app and
- * must namespace their mount path under `/.<id>/`. Standalone adapters
+ * must namespace their mount path under `/__<id>/`. Standalone adapters
  * (`cli`, `spa`, `build`) own the origin and default to `/`.
  */
 export type DevtoolDeploymentKind = 'standalone' | 'hosted'
@@ -110,7 +110,7 @@ export interface DevtoolDefinition {
   version?: string
   /**
    * Mount path override. Defaults depend on the adapter:
-   * `/` for standalone (`cli` / `spa` / `build`), `/.<id>/` for hosted
+   * `/` for standalone (`cli` / `spa` / `build`), `/__<id>/` for hosted
    * (`vite` / `kit` / `embedded`).
    */
   basePath?: string

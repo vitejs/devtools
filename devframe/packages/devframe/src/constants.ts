@@ -1,15 +1,15 @@
 import type { DevToolsDockEntryCategory, DevToolsDocksUserSettings } from './types'
 
 // DevTools runtime routes and static output conventions.
-export const DEVTOOLS_MOUNT_PATH = '/.devtools/'
-export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/.devtools'
-export const DEVTOOLS_DIRNAME = '.devtools'
+export const DEVTOOLS_MOUNT_PATH = '/__devtools/'
+export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/__devtools'
+export const DEVTOOLS_DIRNAME = '__devtools'
 
-export const DEVTOOLS_CONNECTION_META_FILENAME = '.connection.json'
-export const DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME = '.rpc-dump/index.json'
-export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '.client-imports.js'
-export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/.devtools-client-imports.js'
-export const DEVTOOLS_RPC_DUMP_DIRNAME = '.rpc-dump'
+export const DEVTOOLS_CONNECTION_META_FILENAME = '__connection.json'
+export const DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME = '__rpc-dump/index.json'
+export const DEVTOOLS_DOCK_IMPORTS_FILENAME = '__client-imports.js'
+export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
+export const DEVTOOLS_RPC_DUMP_DIRNAME = '__rpc-dump'
 
 /**
  * URL fragment / query parameter name carrying the {@link RemoteConnectionInfo}

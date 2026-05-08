@@ -76,7 +76,7 @@ export const anonymousAuth = defineRpcFunction({
         // Derive the server URL for the auth link
         const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
           ?? `http://localhost:${context.viteConfig.server.port}`
-        const authUrl = `${serverUrl}/.devtools/auth?id=${encodeURIComponent(tempId)}`
+        const authUrl = `${serverUrl}/__devtools/auth?id=${encodeURIComponent(tempId)}`
 
         const message = [
           `A browser is requesting permissions to connect to the Vite DevTools.`,

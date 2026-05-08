@@ -67,7 +67,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -80,14 +80,14 @@ const clientDist = fileURLToPath(
   new URL('../dist/client', import.meta.url)
 )
 
-ctx.views.hostStatic('/.my-plugin/', clientDist)
+ctx.views.hostStatic('/__my-plugin/', clientDist)
 
 ctx.docks.register({
   id: 'my-plugin',
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -399,7 +399,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
   category: 'framework',
 })
 ```

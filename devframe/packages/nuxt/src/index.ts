@@ -3,7 +3,7 @@ import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
 export interface DevframeNuxtModuleOptions {
   /**
    * Base URL, relative to the deployed page, where the devframe
-   * connection meta (`.connection.json`) and dump shards live.
+   * connection meta (`__connection.json`) and dump shards live.
    * Defaults to `'./'` — the SPA root — so a single build works at any
    * deployment base (the browser resolves relative fetches against
    * `document.baseURI`).

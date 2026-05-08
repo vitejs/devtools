@@ -6,7 +6,7 @@ import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const BASE = '/.devtools-rolldown/'
+const BASE = '/__devtools-rolldown/'
 
 export default defineNuxtConfig({
   ssr: false,

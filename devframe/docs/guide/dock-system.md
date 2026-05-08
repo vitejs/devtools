@@ -34,14 +34,14 @@ export default defineDevtool({
   id: 'my-devtool',
   name: 'My Devtool',
   setup(ctx) {
-    ctx.views.hostStatic('/.my-devtool/', clientDist)
+    ctx.views.hostStatic('/__my-devtool/', clientDist)
 
     ctx.docks.register({
       id: 'my-devtool:main',
       title: 'My Devtool',
       icon: 'ph:gauge-duotone',
       type: 'iframe',
-      url: '/.my-devtool/',
+      url: '/__my-devtool/',
     })
   },
 })
@@ -225,7 +225,7 @@ The handle only supports `update`. Docks are not individually unregisterable tod
 `ctx.views` is a thin helper used for hosting static assets. You'll typically only call `hostStatic`:
 
 ```ts
-ctx.views.hostStatic('/.my-devtool/', clientDist)
+ctx.views.hostStatic('/__my-devtool/', clientDist)
 ```
 
 Internal state (`buildStaticDirs`) is used by the build adapter — treat it as an implementation detail.
