@@ -4,7 +4,7 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
-const BASE = '/.devtools-self-inspect/'
+const BASE = '/__devtools-self-inspect/'
 const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({

@@ -6,6 +6,7 @@ function nullHost(): DevToolsHost {
   return {
     mountStatic: () => { /* no-op */ },
     resolveOrigin: () => 'http://localhost:0',
+    getStorageDir: () => '/tmp/devframe-test-storage',
   }
 }
 

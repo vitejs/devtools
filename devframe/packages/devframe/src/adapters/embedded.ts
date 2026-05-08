@@ -13,7 +13,7 @@ export interface CreateEmbeddedOptions {
  * dynamic, post-startup registration.
  *
  * The host owns the mount path; when a hosted mount is needed the
- * effective default follows the hosted rule of `def.basePath ?? '/.<id>/'`.
+ * effective default follows the hosted rule of `def.basePath ?? '/__<id>/'`.
  */
 export async function createEmbedded(d: DevtoolDefinition, options: CreateEmbeddedOptions): Promise<void> {
   await d.setup(options.ctx)

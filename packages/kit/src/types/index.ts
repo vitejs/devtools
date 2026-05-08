@@ -1,7 +1,16 @@
-export type { WhenContext, WhenExpression } from '../utils/when'
+// Re-export the kit-augmented context type so consumers can import it
+// from the kit's main `types` barrel.
+export type { CreateKitContextOptions, KitNodeContext } from '../node/context'
 
+export type { WhenContext, WhenExpression } from '../utils/when'
+export * from './commands'
+export * from './docks'
+export * from './messages'
+export * from './settings'
+export * from './terminals'
 export * from './vite-augment'
 export * from './vite-plugin'
+
 export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'devframe/rpc'
 
 // NOTE: we re-export devframe's types individually rather than using
@@ -10,68 +19,17 @@ export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'devframe/r
 // from external packages (tsdown 0.21 / rolldown-plugin-dts 0.23).
 // Revisit once upstream supports it.
 export type {
-  ClientScriptEntry,
   ConnectionMeta,
   DevToolsCapabilities,
-  DevToolsChildProcessExecuteOptions,
-  DevToolsChildProcessTerminalSession,
-  DevToolsClientCommand,
-  DevToolsCommandBase,
-  DevToolsCommandEntry,
-  DevToolsCommandHandle,
-  DevToolsCommandKeybinding,
-  DevToolsCommandShortcutOverrides,
-  DevToolsCommandsHost,
-  DevToolsCommandsHostEvents,
   DevToolsDiagnosticsDefinition,
   DevToolsDiagnosticsHost,
   DevToolsDiagnosticsLogger,
-  DevToolsDockEntriesGrouped,
-  DevToolsDockEntry,
-  DevToolsDockEntryBase,
-  DevToolsDockEntryCategory,
-  DevToolsDockEntryIcon,
-  DevToolsDockHost,
-  DevToolsDocksUserSettings,
-  DevToolsDockUserEntry,
   DevToolsHost,
-  DevToolsLogElementPosition,
-  DevToolsLogEntry,
-  DevToolsLogEntryFrom,
-  DevToolsLogEntryInput,
-  DevToolsLogFilePosition,
-  DevToolsLogHandle,
-  DevToolsLogLevel,
-  DevToolsLogsClient,
-  DevToolsLogsHost,
-  DevToolsMessageElementPosition,
-  DevToolsMessageEntry,
-  DevToolsMessageEntryFrom,
-  DevToolsMessageEntryInput,
-  DevToolsMessageFilePosition,
-  DevToolsMessageHandle,
-  DevToolsMessageLevel,
-  DevToolsMessagesClient,
-  DevToolsMessagesHost,
   DevToolsNodeRpcSession,
-  DevToolsNodeUtils,
   DevToolsRpcClientFunctions,
   DevToolsRpcServerFunctions,
   DevToolsRpcSharedStates,
-  DevToolsServerCommandEntry,
-  DevToolsServerCommandInput,
-  DevToolsTerminalHost,
-  DevToolsTerminalSession,
-  DevToolsTerminalSessionBase,
-  DevToolsTerminalStatus,
-  DevToolsViewAction,
-  DevToolsViewBuiltin,
-  DevToolsViewCustomRender,
   DevToolsViewHost,
-  DevToolsViewIframe,
-  DevToolsViewJsonRender,
-  DevToolsViewLauncher,
-  DevToolsViewLauncherStatus,
   EntriesToObject,
   EventEmitter,
   EventsMap,
@@ -80,8 +38,6 @@ export type {
   JsonRenderer,
   JsonRenderSpec,
   PartialWithoutId,
-  RemoteConnectionInfo,
-  RemoteDockOptions,
   RpcBroadcastOptions,
   RpcFunctionsHost,
   RpcSharedStateGetOptions,

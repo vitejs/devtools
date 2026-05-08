@@ -33,6 +33,9 @@
       "devframe/constants": [
         "./devframe/packages/devframe/src/constants.ts"
       ],
+      "devframe/internal": [
+        "./devframe/packages/devframe/src/internal/index.ts"
+      ],
       "devframe/utils/events": [
         "./devframe/packages/devframe/src/utils/events.ts"
       ],
@@ -69,20 +72,17 @@
       "devframe/adapters/vite": [
         "./devframe/packages/devframe/src/adapters/vite.ts"
       ],
-      "devframe/adapters/kit": [
-        "./devframe/packages/devframe/src/adapters/kit.ts"
-      ],
       "devframe/adapters/embedded": [
         "./devframe/packages/devframe/src/adapters/embedded.ts"
       ],
       "devframe/adapters/mcp": [
         "./devframe/packages/devframe/src/adapters/mcp.ts"
       ],
-      "devframe/helpers/nuxt/runtime/plugin.client": [
-        "./devframe/packages/devframe/src/helpers/nuxt/runtime/plugin.client.ts"
+      "@devframes/nuxt/runtime/plugin.client": [
+        "./devframe/packages/nuxt/src/runtime/plugin.client.ts"
       ],
-      "devframe/helpers/nuxt": [
-        "./devframe/packages/devframe/src/helpers/nuxt/index.ts"
+      "@devframes/nuxt": [
+        "./devframe/packages/nuxt/src/index.ts"
       ],
       "devframe/recipes/open-helpers": [
         "./devframe/packages/devframe/src/recipes/open-helpers.ts"

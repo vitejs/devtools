@@ -1,8 +1,7 @@
 import type { BirpcOptions, BirpcReturn } from 'birpc'
-import type { RpcCacheOptions } from 'devframe/rpc'
+import type { RpcCacheOptions, RpcFunctionsCollector } from 'devframe/rpc'
 import type { WsRpcChannelOptions } from 'devframe/rpc/transports/ws-client'
 import type { ConnectionMeta, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, EventEmitter, RpcSharedStateHost } from 'devframe/types'
-import type { DevToolsClientRpcHost, DevToolsRpcContext, RpcClientEvents } from './docks'
 import type { RpcStreamingClientHost } from './rpc-streaming'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
@@ -14,6 +13,19 @@ import { createRpcSharedStateClientHost } from './rpc-shared-state'
 import { createStaticRpcClientMode } from './rpc-static'
 import { createRpcStreamingClientHost } from './rpc-streaming'
 import { createWsRpcClientMode } from './rpc-ws'
+
+export interface DevToolsRpcContext {
+  /**
+   * The RPC client to interact with the server
+   */
+  readonly rpc: DevToolsRpcClient
+}
+
+export type DevToolsClientRpcHost = RpcFunctionsCollector<DevToolsRpcClientFunctions, DevToolsRpcContext>
+
+export interface RpcClientEvents {
+  'rpc:is-trusted:updated': (isTrusted: boolean) => void
+}
 
 const CONNECTION_META_KEY = '__VITE_DEVTOOLS_CONNECTION_META__'
 const CONNECTION_AUTH_TOKEN_KEY = '__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__'

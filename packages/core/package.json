@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -62,7 +62,7 @@
     "cac": "catalog:deps",
     "devframe": "workspace:*",
     "h3": "catalog:deps",
-    "immer": "catalog:inlined",
+    "immer": "catalog:deps",
     "launch-editor": "catalog:deps",
     "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
@@ -97,12 +97,18 @@
     "@clack/prompts": "1.3.0",
     "@json-render/core": "0.13.0",
     "@json-render/vue": "0.13.0",
-    "@vueuse/core": "14.2.1",
-    "@vueuse/shared": "14.2.1",
+    "@vueuse/core": [
+      "14.2.1",
+      "14.3.0"
+    ],
+    "@vueuse/shared": [
+      "14.2.1",
+      "14.3.0"
+    ],
     "@xterm/addon-fit": "0.11.0",
     "@xterm/xterm": "6.0.0",
     "ansis": "4.2.0",
-    "dompurify": "3.4.1",
+    "dompurify": "3.4.2",
     "fast-string-truncated-width": "3.0.3",
     "fast-string-width": "3.0.2",
     "fast-wrap-ansi": "0.2.0",

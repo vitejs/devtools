@@ -144,12 +144,12 @@ Treat the token as a session secret: don't log URLs to external analytics on the
 
 ## Build mode
 
-The WebSocket server exists only in dev mode. When `remote` is set, DevTools automatically hides the dock in build mode by defaulting `when` to `'mode != build'`. Override with your own `when` if needed:
+The WebSocket server exists only in dev mode. Remote-iframe docks are skipped in static-dump output automatically, so you don't need to gate them with a `when` clause — but you can add one if you want different rules per `clientType`:
 
 ```ts
 ctx.docks.register({
   // ...
   remote: true,
-  when: 'clientType == embedded', // overrides the default
+  when: 'clientType == embedded',
 })
 ```

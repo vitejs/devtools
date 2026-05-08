@@ -18,11 +18,11 @@ const rpc = await connectDevtool()
 const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
 ```
 
-`connectDevtool` auto-detects the backend via `.devtools/.connection.json` and falls back through a sequence of base URLs. No arguments are needed when the client is hosted from the default mount path.
+`connectDevtool` auto-detects the backend via `__devtools/__connection.json` and falls back through a sequence of base URLs. No arguments are needed when the client is hosted from the default mount path.
 
 ### Runtime basePath discovery
 
-SPAs built for devframe are designed to be **base-agnostic**: the same artifact can be served at `/`, at `/.<id>/`, or at any custom subpath, without rebuilding. `connectDevtool` resolves `.connection.json` relative to the page at runtime by reading `document.baseURI` and the executing script's URL.
+SPAs built for devframe are designed to be **base-agnostic**: the same artifact can be served at `/`, at `/__<id>/`, or at any custom subpath, without rebuilding. `connectDevtool` resolves `__connection.json` relative to the page at runtime by reading `document.baseURI` and the executing script's URL.
 
 The practical consequence for SPA authors:
 
@@ -46,16 +46,16 @@ await connectDevtool({
 
 | Option | Description |
 |--------|-------------|
-| `baseURL` | Mount path to probe for `.connection.json`. Accepts an array for fallback. Default: `'./'` — resolved relative to `document.baseURI` so the SPA finds its meta wherever it was deployed. Pass an explicit absolute path (e.g. `'/.devtools/'`) when calling from outside the SPA — for instance, an embedded webcomponent injected into a host app. |
+| `baseURL` | Mount path to probe for `__connection.json`. Accepts an array for fallback. Default: `'./'` — resolved relative to `document.baseURI` so the SPA finds its meta wherever it was deployed. Pass an explicit absolute path (e.g. `'/__devtools/'`) when calling from outside the SPA — for instance, an embedded webcomponent injected into a host app. |
 | `authToken` | Override the auth token. Defaults to a locally-persisted human-readable id. |
 | `cacheOptions` | `true` to enable caching with defaults, or an options object. |
 | `wsOptions` | Forwarded to the WebSocket transport (reconnect, heartbeat, etc.). |
 | `rpcOptions` | Forwarded to `birpc`. |
-| `connectionMeta` | Skip the `.connection.json` fetch with a pre-known descriptor. |
+| `connectionMeta` | Skip the `__connection.json` fetch with a pre-known descriptor. |
 
 ## Modes
 
-The client runs in one of two modes depending on what the server advertises in `.devtools/.connection.json`:
+The client runs in one of two modes depending on what the server advertises in `__devtools/__connection.json`:
 
 | Backend | When | Capabilities |
 |---------|------|--------------|
@@ -156,9 +156,9 @@ const rpc = await connectDevtool({ cacheOptions: true })
 
 With caching on, `query` / `static` function responses are memoized per argument hash. Server-side broadcasts like `rpc:cache:invalidate` clear entries automatically — plugins that mutate state should broadcast that message after the change.
 
-## Discovery (`.connection.json`)
+## Discovery (`__connection.json`)
 
-DevFrame writes a small JSON descriptor at `<base>/.connection.json` so the client knows where to connect:
+DevFrame writes a small JSON descriptor at `<base>/__connection.json` so the client knows where to connect:
 
 ```json
 {
@@ -183,7 +183,7 @@ await connectDevtool({
 
 ## Remote Docks
 
-Remote docks (see [Dock System → Remote Docks](./dock-system#remote-docks)) work by DevFrame injecting a connection descriptor into the iframe URL. On the hosted page, `connectDevtool` auto-detects the descriptor from the URL fragment / query string — no code change required beyond calling it as usual:
+Remote docks are a kit-side feature (see [Vite DevTools Kit → Remote Client](https://devtools.vite.dev/kit/remote-client)). The kit injects a connection descriptor into the iframe URL; on the hosted page, `connectDevtool` auto-detects the descriptor from the URL fragment / query string — no code change required beyond calling it as usual:
 
 ```ts
 import { connectDevtool } from 'devframe/client'

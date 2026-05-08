@@ -130,3 +130,35 @@ ctx.terminals.update({
   title: 'Build Watcher (done)',
 })
 ```
+
+## Events
+
+Subscribe to lifecycle changes (register, update, remove) via the host event emitter:
+
+```ts
+ctx.terminals.events.on('terminal:session:updated', (session) => {
+  console.log(session.id, session.status)
+})
+```
+
+Output chunks aren't delivered as host events — terminals stream via the [streaming channel](/kit/streaming) `devframe:terminals`, keyed by session id. From the browser:
+
+```ts
+const reader = rpc.streaming.subscribe<string>(
+  'devframe:terminals',
+  sessionId,
+)
+for await (const chunk of reader) writeToTerminal(chunk)
+```
+
+A server-side bridge inside the kit's `DevToolsTerminalHost` pipes each session's `ReadableStream<string>` straight into the channel — you don't need to wire anything yourself unless you're building a custom terminal renderer.
+
+## Inspection
+
+```ts
+for (const session of ctx.terminals.sessions.values()) {
+  console.log(session.id, session.title, session.status)
+}
+```
+
+`ctx.terminals.sessions` is a live `Map<string, DevToolsTerminalSession>` — handy for diagnostics, testing, and for building custom terminal UIs that mirror the built-in panel.

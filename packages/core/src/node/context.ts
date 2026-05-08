@@ -1,8 +1,8 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
-import { createViteDevToolsHost } from '@vitejs/devtools-kit/node'
-import { createHostContext, isObject } from 'devframe/node'
+import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
+import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
 import { diagnostics, logger } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
@@ -24,27 +24,26 @@ function shouldSkipSetupByCapabilities(
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
   viteServer?: ViteDevServer,
-): Promise<DevToolsNodeContext> {
+): Promise<ViteDevToolsNodeContext> {
   const cwd = viteConfig.root
 
   const { searchForWorkspaceRoot } = await import('vite')
   const mode = viteConfig.command === 'serve' ? 'dev' : 'build'
+  const workspaceRoot = searchForWorkspaceRoot(cwd) ?? cwd
 
-  const context = await createHostContext({
+  const context = (await createKitContext({
     cwd,
-    workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
+    workspaceRoot,
     mode,
-    host: createViteDevToolsHost({ viteConfig, viteServer }),
+    host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
     builtinRpcDeclarations,
-  })
+    viteConfig,
+    viteServer,
+  })) as ViteDevToolsNodeContext
 
   // Fold the core (Vite) diagnostics into the shared host logger so plugin
   // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
   context.diagnostics.register(diagnostics)
-
-  // Attach the Vite-specific fields on top of the framework-neutral context.
-  ;(context as any).viteConfig = viteConfig
-  ;(context as any).viteServer = viteServer
 
   // Vite-specific built-in server commands.
   const rpcHost = context.rpc as RpcFunctionsHost
@@ -76,12 +75,12 @@ export async function createDevToolsContext(
     }
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
-      await plugin.devtools?.setup?.(context as DevToolsNodeContext)
+      await plugin.devtools?.setup?.(context)
     }
     catch (error) {
       throw logger.DTK0014({ name: plugin.name }, { cause: error }).throw()
     }
   }
 
-  return context as DevToolsNodeContext
+  return context
 }

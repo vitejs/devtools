@@ -8,7 +8,7 @@ A simplified [node-modules-inspector](https://github.com/antfu/node-modules-insp
 
 The Preact client showcases two patterns relevant to devframe authors:
 
-1. **Runtime base discovery.** The client is built with `vite.base: './'` and reads `document.baseURI` at runtime to resolve its mount path. The same `dist/client` works under any base path (`/.devframe-files-inspector/`, `/`, `/custom/`, …) without rebuilding.
+1. **Runtime base discovery.** The client is built with `vite.base: './'` and reads `document.baseURI` at runtime to resolve its mount path. The same `dist/client` works under any base path (`/__devframe-files-inspector/`, `/`, `/custom/`, …) without rebuilding.
 2. **Two RPC types.** `:list-files` is a `query` with `dump.inputs: [[]]` (live in dev, baked in static). `:get-cwd` is a `static` RPC.
 
 ## Run
@@ -16,7 +16,7 @@ The Preact client showcases two patterns relevant to devframe authors:
 ```sh
 pnpm install
 pnpm -C examples/devframe-files-inspector run build       # build the Preact client
-pnpm -C examples/devframe-files-inspector run dev         # http://127.0.0.1:9876/.devframe-files-inspector/
+pnpm -C examples/devframe-files-inspector run dev         # http://127.0.0.1:9876/__devframe-files-inspector/
 pnpm -C examples/devframe-files-inspector run cli:build   # static deploy in ./dist/static
 serve examples/devframe-files-inspector/dist/static       # any static host works (relative paths)
 pnpm -C examples/devframe-files-inspector run test        # E2E tests
@@ -27,7 +27,7 @@ pnpm -C examples/devframe-files-inspector run test        # E2E tests
 | Path | Purpose |
 |------|---------|
 | `src/devtool.ts` | The single `DevtoolDefinition` consumed by every adapter. |
-| `src/plugin.ts` | `createKitPlugin(devtool)` re-export for `@vitejs/devtools`. |
+| `src/plugin.ts` | `createPluginFromDevframe(devtool)` re-export for `@vitejs/devtools`. |
 | `src/client/` | Preact SPA: `index.html`, `main.tsx`, `app.tsx`, `routes/*`, `vite.config.ts`. |
 | `bin.mjs` | `createCli(devtool).parse()` — exposes `dev`, `build`, `spa`, `mcp`. |
 | `tests/` | E2E tests for dev server, static build, and kit plugin shape. |

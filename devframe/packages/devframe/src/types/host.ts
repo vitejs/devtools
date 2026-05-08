@@ -25,4 +25,22 @@ export interface DevToolsHost {
    * reasonable value.
    */
   resolveOrigin: () => string
+
+  /**
+   * Resolve a directory the host owns for persisted devtools state.
+   * Each host picks its own app-name namespace so storage doesn't
+   * collide between, say, the Vite host (`.vite/devtools`) and a
+   * standalone CLI host (`.<appName>/devtools`).
+   *
+   *   - `workspace` — per-project state (settings, caches). Typically
+   *     under `${workspaceRoot}/node_modules/.<appName>/devtools/`.
+   *   - `global`    — per-user state (auth tokens, machine-wide
+   *     preferences). Typically under
+   *     `${homedir()}/.<appName>/devtools/`.
+   *
+   * Implementations should ensure the directory exists or be safe to
+   * pass to a downstream `createStorage(...)` call that creates it
+   * lazily.
+   */
+  getStorageDir: (scope: 'workspace' | 'global') => string
 }

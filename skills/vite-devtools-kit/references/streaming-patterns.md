@@ -258,7 +258,7 @@ Working example: [`devframe/examples/devframe-streaming-chat`](https://github.co
 
 ## Errors
 
-- [`DF0029`](https://devtools.vite.dev/devframe/errors/DF0029) — buffer overflow (consumer too slow)
-- [`DF0030`](https://devtools.vite.dev/devframe/errors/DF0030) — unknown stream id
-- [`DF0031`](https://devtools.vite.dev/devframe/errors/DF0031) — write to closed stream
-- [`DF0032`](https://devtools.vite.dev/devframe/errors/DF0032) — channel name collision
+- [`DF0029`](https://devfra.me/errors/DF0029) — buffer overflow (consumer too slow)
+- [`DF0030`](https://devfra.me/errors/DF0030) — unknown stream id
+- [`DF0031`](https://devfra.me/errors/DF0031) — write to closed stream
+- [`DF0032`](https://devfra.me/errors/DF0032) — channel name collision

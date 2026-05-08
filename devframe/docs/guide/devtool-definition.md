@@ -4,28 +4,31 @@ outline: deep
 
 # Devtool Definition
 
-Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the seven [adapters](./adapters) can consume — the same definition runs under `createCli`, `createKitPlugin`, `createBuild`, `createMcpServer`, and so on.
+Every DevFrame tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
 
 ## Minimal Definition
 
 ```ts twoslash
-import { defineDevtool } from 'devframe'
+import { defineDevtool, defineRpcFunction } from 'devframe'
+import * as v from 'valibot'
 
 export default defineDevtool({
   id: 'my-devtool',
   name: 'My Devtool',
+  icon: 'ph:gauge-duotone',
   setup(ctx) {
-    // Register RPC, docks, commands, logs, terminals, agents here.
-    ctx.docks.register({
-      id: 'my-devtool:main',
-      title: 'My Devtool',
-      icon: 'ph:gauge-duotone',
-      type: 'iframe',
-      url: '/.devtools/',
-    })
+    // Register your RPC functions, shared state, etc. here.
+    ctx.rpc.register(defineRpcFunction({
+      name: 'my-devtool:hello',
+      type: 'static',
+      jsonSerializable: true,
+      handler: () => ({ message: 'hello' }),
+    }))
   },
 })
 ```
+
+> The dock entry / iframe mount is auto-derived from `id`, `name`, `icon`, and `basePath` when the devtool is mounted into Vite DevTools via [`createPluginFromDevframe`](./adapters#kit). Hub-level features like `docks`, `terminals`, `messages`, and `commands` belong to the kit-augmented context — not to the devframe-level `setup`.
 
 ## Definition Fields
 
@@ -73,30 +76,24 @@ interface DevToolsNodeContext {
   readonly workspaceRoot: string
   readonly mode: 'dev' | 'build'
 
-  host: DevToolsHost // runtime abstraction (mountStatic / resolveOrigin)
+  host: DevToolsHost // runtime abstraction (mountStatic / resolveOrigin / getStorageDir)
   rpc: RpcFunctionsHost // register + broadcast + sharedState
-  docks: DevToolsDockHost // dock entries
-  views: DevToolsViewHost // static file hosting
-  terminals: DevToolsTerminalHost
-  messages: DevToolsMessagesHost
+  views: DevToolsViewHost // static file hosting (`hostStatic`)
   diagnostics: DevToolsDiagnosticsHost
-  commands: DevToolsCommandsHost
   agent: DevToolsAgentHost // experimental
 
   createJsonRenderer: (spec) => JsonRenderer
-  utils: DevToolsNodeUtils
 }
 ```
+
+Hub-level subsystems — `docks`, `terminals`, `messages`, `commands` — are owned by `@vitejs/devtools-kit` and only present on the kit-augmented context. A devframe app that wants to register kit-only behavior does so via the optional `setup` hook on `createPluginFromDevframe`.
 
 Each host has a dedicated page:
 - [RPC](./rpc) — `ctx.rpc`
 - [Shared State](./shared-state) — `ctx.rpc.sharedState`
-- [Dock System](./dock-system) — `ctx.docks`, `ctx.views`
-- [Commands](./commands) — `ctx.commands`
-- [Messages](./messages) — `ctx.messages`
 - [Diagnostics](./diagnostics) — `ctx.diagnostics`
-- [Terminals](./terminals) — `ctx.terminals`
 - [Agent-Native](./agent-native) — `ctx.agent`
+- Hub-side surfaces — [Dock System](https://devtools.vite.dev/kit/dock-system), [Commands](https://devtools.vite.dev/kit/commands), [Messages](https://devtools.vite.dev/kit/messages), [Terminals](https://devtools.vite.dev/kit/terminals) — live in the [Vite DevTools Kit](https://devtools.vite.dev/kit/) docs.
 
 ## Browser Setup
 
@@ -179,9 +176,9 @@ See [Adapters](./adapters) for how each adapter consumes these.
 Because the definition is a plain value, you can wire it into multiple adapters from the same file:
 
 ```ts
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { createBuild } from 'devframe/adapters/build'
 import { createCli } from 'devframe/adapters/cli'
-import { createKitPlugin } from 'devframe/adapters/kit'
 
 const devtool = defineDevtool({ id: 'my-devtool', name: 'My Devtool', setup() {} })
 
@@ -189,7 +186,7 @@ const devtool = defineDevtool({ id: 'my-devtool', name: 'My Devtool', setup() {}
 await createCli(devtool).parse()
 
 // 2. Embedded in a Vite project (from `vite.config.ts`):
-export const myPlugin = () => createKitPlugin(devtool)
+export const myPlugin = () => createPluginFromDevframe(devtool)
 
 // 3. Offline snapshot:
 await createBuild(devtool, { outDir: 'dist-static' })
@@ -199,4 +196,4 @@ await createBuild(devtool, { outDir: 'dist-static' })
 
 - [Adapters](./adapters) — pick a deployment target
 - [RPC](./rpc) — register server functions
-- [Dock System](./dock-system) — add UI surfaces
+- [Vite DevTools Kit](https://devtools.vite.dev/kit/) — mount your devtool into the multi-integration hub

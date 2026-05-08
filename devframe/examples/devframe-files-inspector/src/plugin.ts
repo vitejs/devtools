@@ -1,4 +1,4 @@
-import { createKitPlugin } from 'devframe/adapters/kit'
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import devtool from './devtool'
 
-export default createKitPlugin(devtool)
+export default createPluginFromDevframe(devtool)

@@ -13,7 +13,7 @@ function makeTmpDist(): string {
 }
 
 describe('adapters/dev', () => {
-  it('createDevServer starts, exposes .connection.json, and closes', async () => {
+  it('createDevServer starts, exposes __connection.json, and closes', async () => {
     const distDir = makeTmpDist()
     const devtool = defineDevtool({
       id: 'devframe-test',
@@ -34,7 +34,7 @@ describe('adapters/dev', () => {
       expect(handle.port).toBe(port)
       expect(handle.origin).toBe(`http://${host}:${port}`)
 
-      const res = await fetch(`http://${host}:${port}/.connection.json`)
+      const res = await fetch(`http://${host}:${port}/__connection.json`)
       expect(res.ok).toBe(true)
       const meta = await res.json()
       expect(meta).toEqual({ backend: 'websocket', websocket: port })

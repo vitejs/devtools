@@ -50,6 +50,12 @@
         "dist/**"
       ]
     },
+    "@devframes/nuxt#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "devframe#build": {
       "outputLogs": "new-only",
       "outputs": [

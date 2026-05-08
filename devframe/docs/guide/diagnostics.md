@@ -6,12 +6,12 @@ outline: deep
 
 `ctx.diagnostics` is a thin layer over [`logs-sdk`](https://github.com/vercel-labs/logs-sdk) that lets integrations register their own coded errors and warnings into a shared logger — without taking a direct dependency on `logs-sdk`.
 
-Use it for *author-defined coded diagnostics* (errors, warnings, deprecations) that have a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](./messages) instead.
+Use it for *author-defined coded diagnostics* (errors, warnings, deprecations) that have a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](https://devtools.vite.dev/kit/messages) instead.
 
 | Surface | Purpose | Example |
 |---------|---------|---------|
 | `ctx.diagnostics` | Coded errors and warnings emitted from node-side plugin code | `MYP0001: Plugin foo not configured` |
-| [`ctx.messages`](./messages) | Free-form, user-facing notifications shown in the Messages panel | `'Audit complete — 3 issues found'` |
+| [`ctx.messages`](https://devtools.vite.dev/kit/messages) | Free-form, user-facing notifications shown in the Messages panel | `'Audit complete — 3 issues found'` |
 
 ## Shape
 
@@ -152,7 +152,7 @@ docs/errors/
   MYP0002.md
 ```
 
-Each page covers the message, cause, example, and fix — see any [DF code page](https://devtools.vite.dev/devframe/errors/) for the canonical template. Set `docsBase` on `defineDiagnostics({...})` so the URL is auto-attached to every emitted diagnostic.
+Each page covers the message, cause, example, and fix — see any [DF code page](https://devfra.me/errors/) for the canonical template. Set `docsBase` on `defineDiagnostics({...})` so the URL is auto-attached to every emitted diagnostic.
 
 ## When to Use What
 

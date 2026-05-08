@@ -4,7 +4,7 @@ import { defineDevtool } from 'devframe/types'
 import { nanoid } from 'devframe/utils/nanoid'
 import * as v from 'valibot'
 
-const BASE_PATH = '/.devframe-streaming-chat/'
+const BASE_PATH = '/__devframe-streaming-chat/'
 const distDir = fileURLToPath(new URL('../dist/client', import.meta.url))
 
 const CHANNEL_NAME = 'devframe-streaming-chat:tokens'
@@ -212,14 +212,5 @@ export default defineDevtool({
         })
       },
     }))
-
-    ctx.views.hostStatic(BASE_PATH, distDir)
-    ctx.docks.register({
-      id: 'devframe-streaming-chat',
-      title: 'Streaming Chat',
-      icon: 'ph:chat-circle-dots-duotone',
-      type: 'iframe',
-      url: BASE_PATH,
-    })
   },
 })

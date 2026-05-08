@@ -45,7 +45,7 @@ import { fileURLToPath } from 'node:url'
 const clientDist = fileURLToPath(new URL('../dist/client', import.meta.url))
 
 // Host the static files
-ctx.views.hostStatic('/.my-plugin/', clientDist)
+ctx.views.hostStatic('/__my-plugin/', clientDist)
 
 // Register the dock entry
 ctx.docks.register({
@@ -53,7 +53,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:puzzle-piece-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -350,6 +350,33 @@ ctx.docks.register({
 ```
 
 See the [JSON Render](/kit/json-render) page for the full component reference, dynamic updates, actions, state bindings, and examples.
+
+## Common Options
+
+Every dock type accepts these base fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Unique, namespaced. |
+| `title` | `string` | Label shown in the dock. |
+| `icon` | `string \| { light, dark }` | Iconify name, URL, data URI, or light/dark pair. |
+| `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Grouping in the dock panel. Defaults to `'default'`. |
+| `defaultOrder` | `number` | Higher numbers appear first. Default `0`. |
+| `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
+| `badge` | `string` | Short text badge (e.g. unread count). |
+
+## Update & Unregister
+
+`register()` returns a handle with an `update(patch)` method:
+
+```ts
+const handle = ctx.docks.register({ /* ... */ })
+
+// Live update (e.g. refresh the badge)
+handle.update({ badge: '3' })
+```
+
+The handle only supports `update`. Docks are not individually unregisterable today.
 
 ## Communication with Server
 

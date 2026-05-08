@@ -4,7 +4,14 @@ outline: deep
 
 # DevTools Plugin
 
-A DevTools plugin is a **superset** of a Vite plugin—meaning any Vite plugin can become a DevTools plugin by simply adding a `devtools` hook. This allows you to extend the DevTools infrastructure with custom data visualizations, actions, and integrations.
+A DevTools plugin is a **superset** of a Vite plugin — any Vite plugin can become one by adding a `devtools` hook. The hook's `setup(ctx)` receives the **kit-augmented context** (`KitNodeContext`) — DevFrame's framework-neutral surface plus the hub-level subsystems the kit owns: `docks`, `terminals`, `messages`, `commands`.
+
+There are two common ways to author one:
+
+- **From a portable [DevFrame](https://devfra.me/guide/) app.** Wrap the definition with `createPluginFromDevframe(d, opts?)` from `@vitejs/devtools-kit/node`. The kit auto-mounts the SPA via `views.hostStatic`, synthesizes an iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`, runs the devtool's own `setup`, then runs your optional kit-only `opts.setup` for hub features (terminals, commands, custom dock metadata).
+- **As a Vite-specific plugin from scratch.** Implement the `Plugin.devtools.setup` hook directly — useful when the integration is intrinsically tied to Vite's lifecycle (e.g. inspecting the resolved config, reading the dev-server middleware stack).
+
+The rest of this page covers the manual hook approach. See `createPluginFromDevframe` for the portable path.
 
 ## Installation
 
@@ -57,7 +64,7 @@ export default function myPlugin(): Plugin {
           title: 'My Plugin',
           icon: 'ph:puzzle-piece-duotone',
           type: 'iframe',
-          url: '/.my-plugin/',
+          url: '/__my-plugin/',
         })
       },
     },
@@ -130,7 +137,7 @@ const plugin: Plugin = {
       )
 
       // Host at a specific route
-      ctx.views.hostStatic('/.my-plugin/', clientPath)
+      ctx.views.hostStatic('/__my-plugin/', clientPath)
 
       // Register as a dock entry
       ctx.docks.register({
@@ -138,7 +145,7 @@ const plugin: Plugin = {
         title: 'My Plugin',
         icon: 'ph:puzzle-piece-duotone',
         type: 'iframe',
-        url: '/.my-plugin/',
+        url: '/__my-plugin/',
       })
     }
   }
@@ -179,7 +186,7 @@ export default function myAnalyzerPlugin(): Plugin {
         const clientPath = fileURLToPath(
           new URL('../dist/client', import.meta.url)
         )
-        ctx.views.hostStatic('/.my-analyzer/', clientPath)
+        ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
         // Register dock entry
         ctx.docks.register({
@@ -187,7 +194,7 @@ export default function myAnalyzerPlugin(): Plugin {
           title: 'Module Analyzer',
           icon: 'ph:chart-bar-duotone',
           type: 'iframe',
-          url: '/.my-analyzer/',
+          url: '/__my-analyzer/',
         })
 
         // Register RPC function to fetch data

@@ -9,6 +9,7 @@ function nullHost(): DevToolsHost {
   return {
     mountStatic: () => { /* no-op */ },
     resolveOrigin: () => 'mcp://test',
+    getStorageDir: () => '/tmp/devframe-test-storage',
   }
 }
 

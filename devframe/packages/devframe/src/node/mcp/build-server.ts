@@ -1,6 +1,7 @@
 import type { RpcFunctionDefinitionAnyWithContext } from 'devframe/rpc'
 import type { AgentTool, DevtoolDefinition, DevToolsHost, DevToolsNodeContext } from 'devframe/types'
 import type { GenericSchema } from 'valibot'
+import { homedir } from 'node:os'
 import process from 'node:process'
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import {
@@ -9,6 +10,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js'
+import { join } from 'pathe'
 import { createHostContext } from '../context'
 import { logger } from '../diagnostics'
 import { valibotArgsToJsonSchema, valibotReturnToJsonSchema } from './to-json-schema'
@@ -104,6 +106,9 @@ export async function createMcpServer(
   const host: DevToolsHost = {
     mountStatic: () => { /* MCP has no static surface */ },
     resolveOrigin: () => 'mcp://devframe',
+    getStorageDir: scope => scope === 'workspace'
+      ? join(process.cwd(), `node_modules/.${definition.id}/devtools`)
+      : join(homedir(), `.${definition.id}/devtools`),
   }
 
   const ctx = await createHostContext({
