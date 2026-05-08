@@ -1,17 +1,8 @@
 # Devframe
 
-Framework-neutral foundation for building generic DevTools — an RPC layer (birpc + valibot + WS presets), runtime hosts (RPC / docks / views / terminals / logs / commands / agent), and adapters that deploy a single devtool definition to seven targets: `cli`, `build`, `vite`, `kit`, `embedded`, `mcp`, plus the `spa` mode.
+Framework-neutral foundation for building generic DevTools. Describe one devtool — its RPC, its data, its SPA, its CLI shape — and deploy the same definition through any of seven adapters.
 
-## Layout
-
-This directory is staged for extraction into a standalone repository. Until then it lives inside the [`vitejs/devtools`](https://github.com/vitejs/devtools) monorepo.
-
-| Path | Description |
-|------|-------------|
-| [`packages/devframe`](./packages/devframe) | The published [`devframe`](https://www.npmjs.com/package/devframe) npm package. |
-| [`docs`](./docs) | VitePress documentation site, deployed at https://devfra.me/. |
-| [`examples`](./examples) | End-to-end demos: [`devframe-counter`](./examples/devframe-counter) (smallest cross-adapter demo) and [`devframe-files-inspector`](./examples/devframe-files-inspector) (CLI dev/build/spa + Vite DevTools dock). |
-| [`tests`](./tests) | Public-API snapshot tests via [`tsnapi`](https://github.com/posva/tsnapi). |
+Documentation: [https://devfra.me/](https://devfra.me/).
 
 ## Install
 
@@ -19,9 +10,29 @@ This directory is staged for extraction into a standalone repository. Until then
 pnpm add devframe
 ```
 
-## Documentation
+## Hello, Devframe
 
-See [https://devfra.me/](https://devfra.me/) for the full guide and API reference.
+```ts
+import { defineDevtool, defineRpcFunction } from 'devframe'
+import { createCli } from 'devframe/adapters/cli'
+
+const devtool = defineDevtool({
+  id: 'my-devtool',
+  name: 'My Devtool',
+  setup(ctx) {
+    ctx.rpc.register(defineRpcFunction({
+      name: 'my-devtool:hello',
+      type: 'static',
+      jsonSerializable: true,
+      handler: () => ({ message: 'hello' }),
+    }))
+  },
+})
+
+await createCli(devtool).parse()
+```
+
+Drop the same definition into Vite DevTools via `createPluginFromDevframe` from `@vitejs/devtools-kit`. The dock entry is auto-derived from the definition.
 
 ## Adapters
 
@@ -30,9 +41,20 @@ See [https://devfra.me/](https://devfra.me/) for the full guide and API referenc
 | `cli` | Standalone CLI tool with `dev` / `build` / `mcp` subcommands. |
 | `build` | Generates a static, self-contained SPA snapshot. |
 | `vite` | Runs as a Vite plugin alongside the host app's dev server. |
-| `kit` | Plugs into the DevTools Kit aggregator. |
-| `embedded` | Mounts as an overlay inside another devtool's UI. |
-| `mcp` | Exposes the devtool's RPC surface to coding agents over MCP. |
+| `kit` | Mounts into the DevTools Kit aggregator. |
+| `embedded` | Overlays inside another devtool's UI. |
+| `mcp` | Surfaces the devtool's RPC to coding agents over MCP. |
+
+## Repo layout
+
+This directory is staged for extraction into a standalone repository. Until then it lives inside the [`vitejs/devtools`](https://github.com/vitejs/devtools) monorepo.
+
+| Path | Description |
+|------|-------------|
+| [`packages/devframe`](./packages/devframe) | The published [`devframe`](https://www.npmjs.com/package/devframe) npm package. |
+| [`docs`](./docs) | VitePress documentation site, deployed at https://devfra.me/. |
+| [`examples`](./examples) | End-to-end demos: [`devframe-counter`](./examples/devframe-counter) (smallest cross-adapter demo), [`devframe-files-inspector`](./examples/devframe-files-inspector) (CLI dev/build/spa + Vite DevTools dock), and [`devframe-streaming-chat`](./examples/devframe-streaming-chat) (streaming channels demo). |
+| [`tests`](./tests) | Public-API snapshot tests via [`tsnapi`](https://github.com/posva/tsnapi). |
 
 ## License
 
