@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Devframe
   text: Framework-neutral foundation for DevTools
-  tagline: One devtool definition. Seven adapters. RPC, hosts, shared state, agent-native — without depending on Vite or any framework.
+  tagline: One devtool definition. Seven adapters. RPC, hosts, shared state, and agent-native — independent of Vite and any UI framework.
   actions:
     - theme: brand
       text: Get Started
@@ -14,16 +14,28 @@ hero:
       link: https://github.com/vitejs/devtools
 
 features:
-  - title: One Definition, Many Deployments
+  - icon: 🧱
+    title: One Definition, Many Deployments
     details: A single `defineDevtool` call deploys to CLI, static build, SPA, Vite plugin, embedded overlay, kit host, or MCP server.
     link: /guide/devtool-definition
-  - title: Type-safe RPC
+  - icon: 🔌
+    title: Type-safe RPC
     details: Bidirectional, schema-validated calls built on birpc + valibot. Query, static, action, and event function types.
     link: /guide/rpc
-  - title: Headless by Default
-    details: No banners, no logging, no opinionated styling. Hooks let your app own the UX while Devframe owns the plumbing.
+  - icon: 🔄
+    title: Shared State
+    details: Observable, patch-synced state that survives reconnects and bridges server and browser with structured updates.
+    link: /guide/shared-state
+  - icon: 🌊
+    title: Streaming Channels
+    details: One-way RPC streams and two-way upload channels for long-running data, progress reporting, and live feeds.
+    link: /guide/streaming
+  - icon: 🎨
+    title: Bring Your Own UX
+    details: Hooks like `onReady` and `cli.configure` let your app own banners, logging, and styling while Devframe owns the plumbing.
     link: /guide/
-  - title: Agent-Native (experimental)
-    details: Surface your devtool's RPC functions, tools, and resources to coding agents over MCP with a single field.
+  - icon: 🤖
+    title: Agent-Native (experimental)
+    details: Surface RPC functions, tools, and resources to coding agents over MCP with a single `agent` field on each function.
     link: /guide/agent-native
 ---
