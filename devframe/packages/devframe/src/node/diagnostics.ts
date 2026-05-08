@@ -2,13 +2,6 @@ import c from 'ansis'
 import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
 import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 
-// `DF` codes cover the framework-neutral host / shared-state / auth
-// surface owned by devframe. Vite-specific codes stay under the `DTK`
-// prefix in `@vitejs/devtools`.
-//
-// Numbers intentionally start at 0001 — they do not correspond to the
-// historical DTK numbers. See `docs/errors/DF\**.md` + the
-// `DTK -> DF` redirect table in the migration guide for the mapping.
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devfra.me/errors',
   codes: {
