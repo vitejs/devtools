@@ -38,6 +38,7 @@ export const DataTable = defineComponent({
                   position: 'sticky',
                   top: 0,
                   backgroundColor: bg,
+                  backdropFilter: 'blur(60px)',
                 },
               }, col.label),
             )),
