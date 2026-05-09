@@ -3,9 +3,15 @@ import type { PluginItem } from '~~/shared/types'
 import { useRoute } from '#app/composables/router'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 
-defineProps<{
+withDefaults(defineProps<{
   plugins: PluginItem[]
-}>()
+  itemSize?: number
+  pageMode?: boolean
+  scroller?: 'dynamic' | 'window'
+}>(), {
+  pageMode: true,
+  scroller: 'dynamic',
+})
 
 const route = useRoute()
 </script>
@@ -15,6 +21,9 @@ const route = useRoute()
     <DataVirtualList
       :items="plugins"
       key-prop="plugin_id"
+      :item-size="itemSize"
+      :page-mode="pageMode"
+      :scroller="scroller"
     >
       <template #default="{ item }">
         <div flex pb2>

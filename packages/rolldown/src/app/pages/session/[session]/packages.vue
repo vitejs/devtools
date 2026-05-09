@@ -151,7 +151,7 @@ watch(() => settings.value.packageViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative>
+  <div v-else relative h-full min-h-0 flex="~ col">
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="packageTypeRules">
         <div flex="~ wrap gap-2 items-center" p2 border="t base">
@@ -169,7 +169,7 @@ watch(() => settings.value.packageViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <div flex="~ col gap-2" pt4 px4 pb4 overflow-x-auto>
+    <div flex="~ col gap-2" flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto overflow-y-hidden>
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div

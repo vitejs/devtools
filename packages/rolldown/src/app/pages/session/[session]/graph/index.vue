@@ -189,11 +189,13 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
       v-if="settings.moduleGraphViewType === 'list'"
       :session="session"
       :modules="searched"
+      scroller="window"
     />
     <ModulesDetailedList
       v-else-if="settings.moduleGraphViewType === 'detailed-list'"
       :session="session"
       :modules="searched"
+      scroller="window"
     />
     <ModulesGraph
       v-else-if="settings.moduleGraphViewType === 'graph'"

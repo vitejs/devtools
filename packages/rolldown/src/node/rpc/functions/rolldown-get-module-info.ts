@@ -11,7 +11,7 @@ export const rolldownGetModuleInfo = defineRpcFunction({
     const manager = getLogsManager(context)
     return {
       handler: async ({ session, module }: { session: string, module: string }) => {
-        const reader = await manager.loadSession(session)
+        const reader = await manager.loadAssetSession(session)
 
         if (!reader.manager.eventCount)
           return null

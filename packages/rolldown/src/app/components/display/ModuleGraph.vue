@@ -1,6 +1,7 @@
 <script setup lang="ts" generic="T extends { id: string, imports: unknown[] }, I">
 import type { SessionContext } from '~~/shared/types'
-import { onMounted, unref, watch } from 'vue'
+import { useEventListener, useResizeObserver } from '@vueuse/core'
+import { computed, onBeforeUnmount, onMounted, ref, unref, watch } from 'vue'
 import { generateModuleGraphLink, getModuleGraphLinkColor, useGraphDraggingScroll, useGraphZoom, useModuleGraph, useToggleGraphNodeExpanded } from '~/composables/module-graph'
 
 const props = withDefaults(defineProps<{
@@ -17,9 +18,71 @@ const { zoomIn, zoomOut, ZOOM_MIN, ZOOM_MAX } = useGraphZoom()
 const { isGraphNodeToggling, toggleNode, expandAll, collapseAll } = useToggleGraphNodeExpanded({
   modules: props.modules,
 })
+const GRAPH_VIEWPORT_OVERSCAN = 800
+
+const viewport = ref({
+  left: -GRAPH_VIEWPORT_OVERSCAN,
+  top: -GRAPH_VIEWPORT_OVERSCAN,
+  right: window.innerWidth + GRAPH_VIEWPORT_OVERSCAN,
+  bottom: window.innerHeight + GRAPH_VIEWPORT_OVERSCAN,
+})
+
+let viewportFrame: number | undefined
+
+function readViewport() {
+  const el = container.value
+  if (!el)
+    return
+
+  const currentScale = scale.value || 1
+  const overscan = GRAPH_VIEWPORT_OVERSCAN / currentScale
+
+  viewport.value = {
+    left: el.scrollLeft / currentScale - overscan,
+    top: el.scrollTop / currentScale - overscan,
+    right: (el.scrollLeft + el.clientWidth) / currentScale + overscan,
+    bottom: (el.scrollTop + el.clientHeight) / currentScale + overscan,
+  }
+}
+
+function scheduleReadViewport() {
+  if (viewportFrame !== undefined)
+    return
+
+  viewportFrame = requestAnimationFrame(() => {
+    viewportFrame = undefined
+    readViewport()
+  })
+}
+
+const visibleNodes = computed(() => {
+  const { left, top, right, bottom } = viewport.value
+  const halfWidth = unref(spacing.width) / 2
+  const halfHeight = unref(spacing.height) / 2
+
+  return nodes.value.filter((node) => {
+    const x = node.x ?? 0
+    const y = node.y ?? 0
+    return x + halfWidth >= left
+      && x - halfWidth <= right
+      && y + halfHeight >= top
+      && y - halfHeight <= bottom
+  })
+})
+
+useEventListener(container, 'scroll', scheduleReadViewport, { passive: true })
+useEventListener(window, 'resize', scheduleReadViewport, { passive: true })
+useResizeObserver(container, scheduleReadViewport)
+
+onBeforeUnmount(() => {
+  if (viewportFrame !== undefined) {
+    cancelAnimationFrame(viewportFrame)
+  }
+})
 
 onMounted(() => {
   initGraphDraggingScroll()
+  readViewport()
 
   watch(
     () => props.modules,
@@ -28,9 +91,12 @@ onMounted(() => {
       collapsedNodes.clear()
       childToParentMap.clear()
       calculateGraph()
+      scheduleReadViewport()
     },
     { immediate: true },
   )
+
+  watch([nodes, width, height, scale], scheduleReadViewport, { flush: 'post' })
 })
 </script>
 
@@ -73,7 +139,7 @@ onMounted(() => {
           </g>
         </svg>
         <template
-          v-for="node of nodes"
+          v-for="node of visibleNodes"
           :key="node.data.module.id"
         >
           <template v-if="node.data.module.id !== '~root'">

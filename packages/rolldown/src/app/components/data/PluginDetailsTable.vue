@@ -8,7 +8,6 @@ import { useCycleList } from '@vueuse/core'
 import { Menu as VMenu } from 'floating-vue'
 import { computed, ref } from 'vue'
 import { settings } from '~~/app/state/settings'
-import { parseReadablePath } from '~/utils/filepath'
 import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
@@ -25,44 +24,63 @@ const HOOK_NAME_MAP = {
 }
 
 const parsedPaths = computed(() => props.session.modulesList.map((mod) => {
-  const path = parseReadablePath(mod.id, props.session.meta.cwd)
   const type = getFileTypeFromModuleId(mod.id)
   return {
     mod,
-    path,
     type,
   }
 }))
 
 const searchFilterTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
+const moduleTypeNameMap = computed(() => {
+  const map = new Map<string, string>()
+  for (const { mod, type } of parsedPaths.value) {
+    map.set(mod.id, type.name)
+  }
+  return map
+})
 
 const filterModuleTypes = ref<string[]>(settings.value.pluginDetailsModuleTypes ?? searchFilterTypes.value.map(i => i.name))
+const selectedModuleTypes = computed(() => new Set(filterModuleTypes.value))
 const { state: durationSortType, next } = useCycleList(['', 'desc', 'asc'], {
   initialValue: settings.value.pluginDetailsDurationSortType,
 })
 const filtered = computed(() => {
-  const sorted = durationSortType.value
-    ? props.buildMetrics.calls.toSorted((a, b) => {
-        if (durationSortType.value === 'asc') {
-          return a.duration - b.duration
-        }
-        return b.duration - a.duration
-      })
-    : props.buildMetrics.calls
-  return sorted
-    .filter((i) => {
-      if (!i.module)
-        return false
-      const matched = getFileTypeFromModuleId(i.module)
-      return filterModuleTypes.value.includes(matched.name)
-    })
-    .filter(settings.value.pluginDetailSelectedHook ? i => i.type === settings.value.pluginDetailSelectedHook : Boolean)
-    .filter((i) => {
-      if (settings.value.pluginDetailsShowType === 'all' || !['load', 'transform'].includes(settings.value.pluginDetailSelectedHook))
-        return true
+  const selectedHook = settings.value.pluginDetailSelectedHook
+  const showType = settings.value.pluginDetailsShowType
+  const shouldFilterChangedState = showType !== 'all' && ['load', 'transform'].includes(selectedHook)
+  const typeNameCache = new Map(moduleTypeNameMap.value)
+  const result: RolldownPluginBuildMetrics['calls'] = []
 
-      return settings.value.pluginDetailsShowType === 'changed' ? !i.unchanged : i.unchanged
+  for (const item of props.buildMetrics.calls) {
+    if (!item.module)
+      continue
+    if (selectedHook && item.type !== selectedHook)
+      continue
+    if (shouldFilterChangedState && (showType === 'changed' ? item.unchanged : !item.unchanged))
+      continue
+
+    let moduleType = typeNameCache.get(item.module)
+    if (!moduleType) {
+      moduleType = getFileTypeFromModuleId(item.module).name
+      typeNameCache.set(item.module, moduleType)
+    }
+    if (!selectedModuleTypes.value.has(moduleType))
+      continue
+
+    result.push(item)
+  }
+
+  if (durationSortType.value) {
+    result.sort((a, b) => {
+      if (durationSortType.value === 'asc') {
+        return a.duration - b.duration
+      }
+      return b.duration - a.duration
     })
+  }
+
+  return result
 })
 
 function toggleModuleType(rule: FilterMatchRule) {
@@ -90,6 +108,8 @@ function toggleDurationSortType() {
     :items="filtered"
     key-prop="id"
     :page-mode="false"
+    scroller="fixed"
+    :item-size="36"
   >
     <template #before>
       <div role="row" class="border-b border-base bg-base" flex="~ row">
@@ -149,6 +169,7 @@ function toggleDurationSortType() {
       <div
         role="row"
         flex="~ row"
+        h-9
         class="border-base border-b border-dashed"
         :class="[index === filtered.length - 1 ? 'border-b-0' : '']"
       >

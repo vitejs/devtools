@@ -50,4 +50,22 @@ export class RolldownLogsManager {
     }
     return reader
   }
+
+  async loadAssetSession(session: string) {
+    const reader = await this.loadSession(session)
+    await reader.readAssets()
+    return reader
+  }
+
+  async loadPackageSession(session: string) {
+    const filepath = join(this.dir, session, 'logs.json')
+    const reader = RolldownEventsReader.get(filepath, `${filepath}:package-summary`)
+    await reader.readPackageSummary()
+    if (!reader.meta) {
+      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
+      await metaReader.read()
+      reader.meta = metaReader.meta!
+    }
+    return reader
+  }
 }

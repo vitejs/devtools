@@ -10,7 +10,7 @@ export const rolldownGetChunksGraph = defineRpcFunction({
     const manager = getLogsManager(context)
     return {
       handler: async ({ session }: { session: string }) => {
-        const reader = await manager.loadSession(session)
+        const reader = await manager.loadAssetSession(session)
         const chunks = Array.from(reader.manager.chunks.values())
 
         chunks.forEach((chunk) => {

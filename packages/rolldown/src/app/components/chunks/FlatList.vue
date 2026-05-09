@@ -8,9 +8,14 @@ withDefaults(defineProps<{
   session: SessionContext
   link?: boolean
   basic?: boolean
+  itemSize?: number
+  pageMode?: boolean
+  scroller?: 'dynamic' | 'window'
 }>(), {
   link: true,
   basic: false,
+  pageMode: true,
+  scroller: 'dynamic',
 })
 
 const emit = defineEmits<{
@@ -22,6 +27,9 @@ const emit = defineEmits<{
   <DataVirtualList
     :items="chunks"
     key-prop="chunk_id"
+    :item-size="itemSize"
+    :page-mode="pageMode"
+    :scroller="scroller"
   >
     <template #default="{ item }">
       <div flex pb2 @click="emit('select', item)">

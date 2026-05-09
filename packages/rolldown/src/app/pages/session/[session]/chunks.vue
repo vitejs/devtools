@@ -3,6 +3,7 @@ import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { ChunkChartInfo, ChunkChartNode } from '~/types/chart'
 import { useRpc } from '#imports'
+import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -258,21 +259,31 @@ watch(() => settings.value.chunkViewType, () => {
       <ChunksFlatList
         :session="session"
         :chunks="searched"
+        scroller="window"
       />
     </div>
     <div
-      v-if="settings.chunkViewType === 'detailed-list'"
+      v-else-if="settings.chunkViewType === 'detailed-list'"
       class="px5 pt-4" flex="~ col gap-4"
     >
-      <DataChunkDetails
-        v-for="chunk of searched"
-        :key="chunk.id"
-        border="~ base rounded-lg"
-        p3
-        :chunk="chunk"
-        :chunks="searched!"
-        :session="session"
-      />
+      <DataVirtualList
+        :items="searched"
+        key-prop="id"
+        scroller="window"
+        :min-item-size="220"
+      >
+        <template #default="{ item }">
+          <div pb4>
+            <DataChunkDetails
+              border="~ base rounded-lg"
+              p3
+              :chunk="item"
+              :chunks="searched"
+              :session="session"
+            />
+          </div>
+        </template>
+      </DataVirtualList>
     </div>
     <ChunksGraph
       v-else-if="settings.chunkViewType === 'graph'"

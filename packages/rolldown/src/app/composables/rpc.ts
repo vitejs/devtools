@@ -28,7 +28,7 @@ export async function connect() {
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {
         onConnected: () => {
-          connectionState.connected = true
+          connectionState.error = null
         },
         onError: (e) => {
           connectionState.error = e
@@ -48,6 +48,10 @@ export async function connect() {
         },
       },
     })
+
+    const isTrusted = await rpc.value.ensureTrusted()
+    if (!isTrusted)
+      throw new Error('Vite DevTools client is not trusted.')
 
     const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
     const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
