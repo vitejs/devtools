@@ -1,7 +1,6 @@
 import type { DevToolsAgentHost } from './agent'
 import type { DevToolsDiagnosticsHost } from './diagnostics'
 import type { DevToolsHost } from './host'
-import type { JsonRenderer, JsonRenderSpec } from './json-render'
 import type { DevToolsViewHost } from './views'
 
 export interface DevToolsCapabilities {
@@ -52,10 +51,6 @@ export interface DevToolsNodeContext {
    * @experimental
    */
   agent: DevToolsAgentHost
-  /**
-   * Create a JsonRenderer handle for building json-render powered UIs.
-   */
-  createJsonRenderer: (spec: JsonRenderSpec) => JsonRenderer
 }
 
 export interface ConnectionMeta {

@@ -86,7 +86,7 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 | `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin`, `getStorageDir` |
 | `ctx.mode` | `'dev'` or `'build'` — gate setup work per runtime |
 
-> Hub-only hosts (`ctx.docks`, `ctx.terminals`, `ctx.messages`, `ctx.commands`) only exist when the devtool is mounted into Vite DevTools via `createPluginFromDevframe`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for those.
+> Hub-only hosts (`ctx.docks`, `ctx.terminals`, `ctx.messages`, `ctx.commands`, `ctx.createJsonRenderer`) only exist when the devtool is mounted into Vite DevTools via `createPluginFromDevframe`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for those.
 
 ## RPC contracts
 

@@ -1,4 +1,5 @@
 import type { ConnectionMeta, EventEmitter } from 'devframe/types'
+import type { JsonRenderer } from './json-render'
 
 export interface DevToolsDockHost {
   readonly views: Map<string, DevToolsDockUserEntry>
@@ -160,7 +161,7 @@ export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
 export interface DevToolsViewJsonRender extends DevToolsDockEntryBase {
   type: 'json-render'
   /** JsonRenderer handle created by ctx.createJsonRenderer() */
-  ui: import('devframe/types').JsonRenderer
+  ui: JsonRenderer
 }
 
 export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher | DevToolsViewJsonRender

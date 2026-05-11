@@ -81,12 +81,10 @@ interface DevToolsNodeContext {
   views: DevToolsViewHost // static file hosting (`hostStatic`)
   diagnostics: DevToolsDiagnosticsHost
   agent: DevToolsAgentHost // experimental
-
-  createJsonRenderer: (spec) => JsonRenderer
 }
 ```
 
-Hub-level subsystems — `docks`, `terminals`, `messages`, `commands` — live on the kit-augmented context owned by `@vitejs/devtools-kit`. A devframe app that wants to register kit-only behavior does so through the optional `setup` hook on `createPluginFromDevframe`.
+Hub-level subsystems — `docks`, `terminals`, `messages`, `commands`, `createJsonRenderer` — live on the kit-augmented context owned by `@vitejs/devtools-kit`. A devframe app that wants to register kit-only behavior does so through the optional `setup` hook on `createPluginFromDevframe`.
 
 Each host has a dedicated page:
 - [RPC](./rpc) — `ctx.rpc`
