@@ -103,9 +103,6 @@ catalogs:
     publint:
       specifier: ^0.3.19
       version: 0.3.19
-    sirv:
-      specifier: ^3.0.2
-      version: 3.0.2
     split2:
       specifier: ^4.2.0
       version: 4.2.0
@@ -632,9 +629,6 @@ importers:
       h3:
         specifier: catalog:deps
         version: 1.15.11
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       vite:
         specifier: ^8.0.11
         version: 8.0.11(@types/node@25.0.3)(@vitejs/devtools@0.1.21(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.11))(esbuild@0.28.0)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
@@ -663,9 +657,6 @@ importers:
       h3:
         specifier: catalog:deps
         version: 1.15.11
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       vite:
         specifier: ^8.0.11
         version: 8.0.11(@types/node@25.0.3)(@vitejs/devtools@0.1.21(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.2)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.11))(esbuild@0.28.0)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.3)
@@ -702,15 +693,15 @@ importers:
       logs-sdk:
         specifier: catalog:deps
         version: 0.0.6
+      mrmime:
+        specifier: catalog:deps
+        version: 2.0.1
       ohash:
         specifier: catalog:deps
         version: 2.0.11
       pathe:
         specifier: catalog:deps
         version: 2.0.3
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       structured-clone-es:
         specifier: catalog:deps
         version: 2.0.0
@@ -911,9 +902,6 @@ importers:
       perfect-debounce:
         specifier: catalog:deps
         version: 2.1.0
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       tinyexec:
         specifier: catalog:deps
         version: 1.1.2
@@ -990,9 +978,6 @@ importers:
       perfect-debounce:
         specifier: catalog:deps
         version: 2.1.0
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       tinyexec:
         specifier: catalog:deps
         version: 1.1.2
@@ -1072,9 +1057,6 @@ importers:
       publint:
         specifier: catalog:deps
         version: 0.3.19
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       split2:
         specifier: catalog:deps
         version: 4.2.0
@@ -1251,9 +1233,6 @@ importers:
       pathe:
         specifier: catalog:deps
         version: 2.0.3
-      sirv:
-        specifier: catalog:deps
-        version: 3.0.2
       structured-clone-es:
         specifier: catalog:deps
         version: 2.0.0

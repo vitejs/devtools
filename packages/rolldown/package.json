@@ -53,7 +53,6 @@
     "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
     "publint": "catalog:deps",
-    "sirv": "catalog:deps",
     "split2": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "tinyglobby": "catalog:deps",

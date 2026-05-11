@@ -44,7 +44,6 @@
     "h3": "catalog:deps",
     "ohash": "catalog:deps",
     "pathe": "catalog:deps",
-    "sirv": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "ws": "catalog:deps"
   },

@@ -66,8 +66,9 @@ describe('adapters/dev', () => {
       const meta = await res.json()
       expect(meta).toEqual({ backend: 'websocket', websocket: port })
 
-      // The SPA mount is absent — without a distDir, sirv isn't wired,
-      // so the basePath returns a 404 from h3 instead of an index.html.
+      // The SPA mount is absent — without a distDir, no static handler
+      // is wired, so the basePath returns a 404 from h3 instead of an
+      // index.html.
       const spa = await fetch(`http://${host}:${port}/`)
       expect(spa.status).toBe(404)
     }

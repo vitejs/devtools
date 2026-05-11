@@ -20,6 +20,7 @@ export const alias = {
   'devframe/utils/human-id': df('devframe/src/utils/human-id.ts'),
   'devframe/utils/nanoid': df('devframe/src/utils/nanoid.ts'),
   'devframe/utils/promise': df('devframe/src/utils/promise.ts'),
+  'devframe/utils/serve-static': df('devframe/src/utils/serve-static.ts'),
   'devframe/utils/shared-state': df('devframe/src/utils/shared-state.ts'),
   'devframe/utils/state': df('devframe/src/utils/state.ts'),
   'devframe/utils/streaming-channel': df('devframe/src/utils/streaming-channel.ts'),

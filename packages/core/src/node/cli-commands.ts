@@ -42,16 +42,13 @@ export async function start(options: StartOptions) {
   })
 
   const { createServer } = await import('node:http')
-  const { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } = await import('h3')
-  const { default: sirv } = await import('sirv')
+  const { createApp, eventHandler, sendRedirect, toNodeListener } = await import('h3')
+  const { serveStaticHandler } = await import('devframe/utils/serve-static')
 
   const app = createApp()
 
   for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs) {
-    app.use(baseUrl, fromNodeMiddleware(sirv(distDir, {
-      dev: true,
-      single: true,
-    })))
+    app.use(baseUrl, serveStaticHandler(distDir))
   }
 
   app.use(DEVTOOLS_MOUNT_PATH, h3.handler)

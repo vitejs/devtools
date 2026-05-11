@@ -11,10 +11,10 @@ import {
   createHostContext,
   startHttpAndWs,
 } from 'devframe/node'
+import { serveStaticHandler } from 'devframe/utils/serve-static'
 import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
+import { createApp, eventHandler } from 'h3'
 import { resolve } from 'pathe'
-import sirv from 'sirv'
 import devframe from '../src/devframe'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
@@ -45,7 +45,7 @@ export async function startStreamingChatServer(): Promise<StartedServer & {
     origin,
     appName: devframe.id,
     mount: (base, dir) =>
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true }))),
+      app.use(base, serveStaticHandler(dir)),
   })
 
   const ctx = await createHostContext({ cwd: process.cwd(), mode: 'dev', host: h3Host })
@@ -62,10 +62,7 @@ export async function startStreamingChatServer(): Promise<StartedServer & {
     }),
   )
   if (existsSync(path.join(resolve(distDir), 'index.html'))) {
-    app.use(
-      basePath,
-      fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })),
-    )
+    app.use(basePath, serveStaticHandler(resolve(distDir)))
   }
 
   const server = await startHttpAndWs({

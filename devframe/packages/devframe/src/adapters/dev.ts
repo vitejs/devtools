@@ -3,13 +3,13 @@ import type { StartedServer } from '../node/server'
 import type { DevframeDefinition, DevframeSetupInfo } from '../types/devframe'
 import process from 'node:process'
 import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
+import { createApp, eventHandler } from 'h3'
 import { resolve } from 'pathe'
-import sirv from 'sirv'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
+import { serveStaticHandler } from '../utils/serve-static'
 import { normalizeBasePath, resolveBasePath } from './_shared'
 
 const DEFAULT_PORT = 9999
@@ -101,8 +101,8 @@ export async function resolveDevServerPort(
  *
  * When `distDir` is omitted (and `def.cli?.distDir` is unset) the
  * server runs in **bridge mode**: only `__connection.json` and the WS
- * endpoint are mounted, with no sirv-served SPA. The SPA is expected to
- * be hosted elsewhere (e.g. by a parent Vite/Nuxt dev server) — see
+ * endpoint are mounted, with no SPA mount. The SPA is expected to be
+ * hosted elsewhere (e.g. by a parent Vite/Nuxt dev server) — see
  * `createVitePlugin({ devMiddleware })`.
  *
  * Returns the underlying {@link StartedServer} handle so callers can
@@ -129,7 +129,7 @@ export async function createDevServer(
     origin,
     appName: def.id,
     mount: (base, dir) => {
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
+      app.use(base, serveStaticHandler(dir))
     },
   })
 
@@ -153,7 +153,7 @@ export async function createDevServer(
   }))
 
   if (distDir)
-    app.use(basePath, fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })))
+    app.use(basePath, serveStaticHandler(resolve(distDir)))
 
   return startHttpAndWs({
     context: ctx,

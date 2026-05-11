@@ -24,7 +24,6 @@
     "@preact/preset-vite": "catalog:build",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
-    "sirv": "catalog:deps",
     "vite": "catalog:build",
     "vitest": "catalog:testing",
     "ws": "catalog:deps"
