@@ -1,9 +1,10 @@
 import * as v from 'valibot'
 import { defineRpcFunction } from '../rpc/define'
+import { launchEditor } from '../utils/launch-editor'
+import { open } from '../utils/open'
 
 /**
- * Prebuilt RPC action that opens a file in the user's configured editor
- * via [`launch-editor`](https://www.npmjs.com/package/launch-editor).
+ * Prebuilt RPC action that opens a file in the user's configured editor.
  *
  * Registered name: `devframe:open-in-editor`.
  *
@@ -18,9 +19,6 @@ import { defineRpcFunction } from '../rpc/define'
  *   },
  * })
  * ```
- *
- * Requires `launch-editor` to be installed by the consumer (declared as
- * an optional peer dependency on devframe).
  */
 export const openInEditor = defineRpcFunction({
   name: 'devframe:open-in-editor',
@@ -29,15 +27,12 @@ export const openInEditor = defineRpcFunction({
   args: [v.string()],
   returns: v.void(),
   async handler(filename: string) {
-    const mod = await import('launch-editor')
-    const launch = (mod as any).default ?? mod
-    launch(filename)
+    launchEditor(filename)
   },
 })
 
 /**
- * Prebuilt RPC action that reveals a path in the OS file explorer via
- * [`open`](https://www.npmjs.com/package/open).
+ * Prebuilt RPC action that reveals a path in the OS file explorer.
  *
  * Registered name: `devframe:open-in-finder`.
  *
@@ -54,7 +49,6 @@ export const openInFinder = defineRpcFunction({
   args: [v.string()],
   returns: v.void(),
   async handler(path: string) {
-    const { default: open } = await import('open')
     await open(path)
   },
 })

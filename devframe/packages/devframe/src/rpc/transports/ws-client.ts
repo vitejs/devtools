@@ -1,11 +1,7 @@
 import type { ChannelOptions } from 'birpc'
 import type { RpcFunctionDefinitionAny } from '../types'
-import {
-  strictJsonStringify,
-  STRUCTURED_CLONE_PREFIX,
-  structuredCloneParse,
-  structuredCloneStringify,
-} from '../serialization'
+import { structuredCloneParse, structuredCloneStringify } from '../../utils/structured-clone'
+import { strictJsonStringify, STRUCTURED_CLONE_PREFIX } from '../serialization'
 
 export interface WsRpcChannelOptions {
   url: string

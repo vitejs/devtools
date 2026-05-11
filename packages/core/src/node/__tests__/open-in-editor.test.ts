@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { openInEditor } from '../rpc/public/open-in-editor'
 
 // Mock launch-editor so tests don't actually open files
-vi.mock('launch-editor', () => ({
-  default: vi.fn(),
+vi.mock('devframe/utils/launch-editor', () => ({
+  launchEditor: vi.fn(),
 }))
 
 describe('openInEditor – path traversal protection', () => {

@@ -267,7 +267,7 @@ The kit auto-derives an iframe dock entry from `id` / `name` / `icon` / `basePat
 
 ## When clauses
 
-Gate kit-side dock / command visibility with VS Code-style expressions evaluated by the external `whenexpr` package. The runtime + types ship from `devframe/utils/when`, but the consumers (`when` field on docks and commands) live in the kit:
+Gate kit-side dock / command visibility with VS Code-style expressions. The runtime + types ship bundled from `devframe/utils/when` — no separate install. The consumers (`when` field on docks and commands) live in the kit:
 
 ```ts
 when: 'clientType == embedded'
@@ -275,7 +275,7 @@ when: 'dockOpen && !paletteOpen'
 when: 'my-inspector.ready && count >= 10'
 ```
 
-Built-in context: `clientType` (`'embedded' | 'standalone'`), `dockOpen`, `paletteOpen`, `dockSelectedId`. Plugins can add namespaced keys (`.` or `:` separators). Both the types (`WhenExpression<Ctx, S>`) and runtime (`evaluateWhen`, `resolveContextValue`) are re-exported from `devframe/utils/when`.
+Built-in context: `clientType` (`'embedded' | 'standalone'`), `dockOpen`, `paletteOpen`, `dockSelectedId`. Plugins can add namespaced keys (`.` or `:` separators). Both the types (`WhenExpression<Ctx, S>`) and runtime (`evaluateWhen`, `resolveContextValue`) come from `devframe/utils/when`.
 
 ## Agent-native surface (experimental)
 
@@ -377,6 +377,27 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 **Bring your own CLI framework?** `createCli` is just a cac wrapper around three peer factories — `createDevServer` (`devframe/adapters/dev`), `createBuild` (`devframe/adapters/build`), and `createMcpServer` (`devframe/adapters/mcp`). Use them directly with commander/yargs/oclif when `createCli`'s baked-in command structure doesn't fit. `createDevServer` returns a `StartedServer` handle (`origin`, `port`, `app`, `wss`, `close()`) so you can wire SIGINT / hot-reload teardown into the surrounding program. `parseCliFlags(schema, raw)` and `defineCliFlags(...)` (both from `devframe/adapters/cli`) validate an arbitrary flag bag against a `CliFlagsSchema` — typed flags aren't tied to cac.
 
+## Bundled utilities
+
+Devframe re-exports a curated set of helpers under `devframe/utils/*`. They are bundled — never add the underlying packages to a devtool's own `package.json`:
+
+| Import | Wraps | Use for |
+|--------|-------|---------|
+| `colors` from `devframe/utils/colors` | `ansis` | Terminal ANSI colors (`c.red`, `c.green`, tagged templates) |
+| `open` from `devframe/utils/open` | `open` | Open URLs / files in the OS default handler |
+| `launchEditor` from `devframe/utils/launch-editor` | `launch-editor` | Open `file:line:column` in the user's editor (optional `editor` arg) |
+| `hash` from `devframe/utils/hash` | `ohash` | Stable structural hash — cache keys, dedup |
+| `structuredClone{Serialize,Deserialize,Stringify,Parse}` from `devframe/utils/structured-clone` | `structured-clone-es` | JSON-safe round-trip of `Map` / `Set` / `Date` / `BigInt` / cycles |
+| `humanId` from `devframe/utils/human-id` | `human-id` | Human-readable IDs (`bright-orange-tiger`) |
+| `nanoid` from `devframe/utils/nanoid` | (vendored) | URL-safe random IDs |
+| `promiseWithResolver` from `devframe/utils/promise` | — | Externally-controlled `Promise` |
+| `createEventEmitter` from `devframe/utils/events` | — | Typed event bus |
+| `createSharedState` from `devframe/utils/shared-state` | (immer internal) | Immutable state container (see `ctx.rpc.sharedState`) |
+| `createStreamSink` / `createStreamReader` from `devframe/utils/streaming-channel` | — | Low-level streaming primitives |
+| `evaluateWhen` / `WhenExpression` from `devframe/utils/when` | `whenexpr` | When-clause expressions |
+
+For "open file in editor" + "reveal in finder", prefer the prebuilt `openHelpers` RPC recipe — it wires the two utilities into named RPC functions ready to register.
+
 ## Testing
 
 - Unit-test host classes with fake contexts.
@@ -394,6 +415,7 @@ Devframe-level pages (one-tool, portable surface):
 - [Streaming](https://devfra.me/streaming) — chunked feeds, uploads, replay, Web/Node Streams interop
 - [When Clauses](https://devfra.me/when-clauses) — syntax, context, type-safe wrappers
 - [Structured Diagnostics](https://devfra.me/diagnostics) — coded errors via `ctx.diagnostics`, register custom codes
+- [Utilities](https://devfra.me/utilities) — bundled `devframe/utils/*` helpers (colors, hash, launchEditor, structured-clone, …)
 - [Client](https://devfra.me/client) — auth handshake, modes, discovery
 - [Agent-Native](https://devfra.me/agent-native) — agent field, tools/resources, MCP + Claude Desktop
 

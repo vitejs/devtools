@@ -22,6 +22,7 @@ function guideItems(prefix: string): DefaultTheme.NavItemWithLink[] {
     { text: 'Streaming', link: `${prefix}/guide/streaming` },
     { text: 'When Clauses', link: `${prefix}/guide/when-clauses` },
     { text: 'Structured Diagnostics', link: `${prefix}/guide/diagnostics` },
+    { text: 'Utilities', link: `${prefix}/guide/utilities` },
     { text: 'Client', link: `${prefix}/guide/client` },
     { text: 'Standalone CLI', link: `${prefix}/guide/standalone-cli` },
     { text: 'Nuxt Helper', link: `${prefix}/guide/nuxt` },

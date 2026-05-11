@@ -39,14 +39,26 @@
       "devframe/constants": [
         "./devframe/packages/devframe/src/constants.ts"
       ],
+      "devframe/utils/colors": [
+        "./devframe/packages/devframe/src/utils/colors.ts"
+      ],
       "devframe/utils/events": [
         "./devframe/packages/devframe/src/utils/events.ts"
+      ],
+      "devframe/utils/hash": [
+        "./devframe/packages/devframe/src/utils/hash.ts"
       ],
       "devframe/utils/human-id": [
         "./devframe/packages/devframe/src/utils/human-id.ts"
       ],
+      "devframe/utils/launch-editor": [
+        "./devframe/packages/devframe/src/utils/launch-editor.ts"
+      ],
       "devframe/utils/nanoid": [
         "./devframe/packages/devframe/src/utils/nanoid.ts"
+      ],
+      "devframe/utils/open": [
+        "./devframe/packages/devframe/src/utils/open.ts"
       ],
       "devframe/utils/promise": [
         "./devframe/packages/devframe/src/utils/promise.ts"
@@ -57,11 +69,11 @@
       "devframe/utils/shared-state": [
         "./devframe/packages/devframe/src/utils/shared-state.ts"
       ],
-      "devframe/utils/state": [
-        "./devframe/packages/devframe/src/utils/state.ts"
-      ],
       "devframe/utils/streaming-channel": [
         "./devframe/packages/devframe/src/utils/streaming-channel.ts"
+      ],
+      "devframe/utils/structured-clone": [
+        "./devframe/packages/devframe/src/utils/structured-clone.ts"
       ],
       "devframe/utils/when": [
         "./devframe/packages/devframe/src/utils/when.ts"

@@ -11,7 +11,7 @@ import {
   DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
-import c from 'ansis'
+import { colors as c } from 'devframe/utils/colors'
 import { dirname, join, relative, resolve } from 'pathe'
 import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'

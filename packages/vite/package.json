@@ -42,9 +42,7 @@
     "envinfo": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
-    "ohash": "catalog:deps",
     "pathe": "catalog:deps",
-    "structured-clone-es": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { open } from 'devframe/utils/open'
 import { logger } from '../../diagnostics'
 
 export const openInFinder = defineRpcFunction({
@@ -17,7 +18,7 @@ export const openInFinder = defineRpcFunction({
           throw logger.DTK0029().throw()
         }
 
-        await import('open').then(r => r.default(resolved))
+        await open(resolved)
       },
     }
   },
