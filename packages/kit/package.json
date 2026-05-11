@@ -44,12 +44,10 @@
     "vite": "*"
   },
   "dependencies": {
-    "ansis": "catalog:deps",
     "birpc": "catalog:deps",
     "devframe": "workspace:*",
     "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
-    "ohash": "catalog:deps",
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps",
     "sirv": "catalog:deps",
@@ -57,7 +55,6 @@
   },
   "devDependencies": {
     "human-id": "catalog:inlined",
-    "immer": "catalog:deps",
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"

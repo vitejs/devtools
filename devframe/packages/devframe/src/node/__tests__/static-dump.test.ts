@@ -1,6 +1,7 @@
 import { defineRpcFunction } from 'devframe'
 import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
-import { strictJsonStringify, structuredCloneDeserialize, structuredCloneStringify } from 'devframe/rpc'
+import { strictJsonStringify } from 'devframe/rpc'
+import { structuredCloneDeserialize, structuredCloneStringify } from 'devframe/utils/structured-clone'
 import { describe, expect, it } from 'vitest'
 import { collectStaticRpcDump } from '../static-dump'
 

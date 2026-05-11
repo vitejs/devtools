@@ -1,5 +1,5 @@
-import { hash } from 'ohash'
-import { structuredCloneDeserialize } from '../rpc/serialization'
+import { hash } from '../utils/hash'
+import { structuredCloneDeserialize } from '../utils/structured-clone'
 
 export type StaticRpcSerialization = 'json' | 'structured-clone'
 

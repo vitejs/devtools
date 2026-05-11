@@ -17,7 +17,7 @@ let pendingAuth: PendingAuthRequest | null = null
 let tempAuthToken: string = generateTempId()
 
 function generateTempId(): string {
-  return humanId({ separator: '-', capitalize: false })
+  return humanId()
 }
 
 export function getTempAuthToken(): string {

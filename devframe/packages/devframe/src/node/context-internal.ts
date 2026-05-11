@@ -80,7 +80,7 @@ export function getInternalContext(context: DevToolsNodeContext): DevToolsIntern
       revokeAuthToken: (token: string) => revokeAuthToken(context, storage, token),
       remoteTokens,
       allocateRemoteToken(dockId, origin, originLock) {
-        const token = humanId({ separator: '-', capitalize: false })
+        const token = humanId()
         remoteTokens.set(token, { dockId, origin, originLock })
         return token
       },

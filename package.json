@@ -53,7 +53,6 @@
     "@unocss/eslint-config": "catalog:devtools",
     "@unocss/preset-web-fonts": "catalog:devtools",
     "@vueuse/core": "catalog:frontend",
-    "ansis": "catalog:deps",
     "axe-core": "catalog:devtools",
     "bumpp": "catalog:devtools",
     "chokidar": "catalog:devtools",

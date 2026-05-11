@@ -1,4 +1,4 @@
-import { hash } from 'ohash'
+import { hash } from '../utils/hash'
 
 export interface RpcCacheOptions {
   functions: string[]
