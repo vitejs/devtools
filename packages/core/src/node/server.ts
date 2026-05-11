@@ -1,8 +1,8 @@
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
 import { consumeTempAuthToken, getInternalContext } from 'devframe/node'
-import { createApp, eventHandler, fromNodeMiddleware, getQuery, toNodeListener } from 'h3'
-import sirv from 'sirv'
+import { serveStaticHandler } from 'devframe/utils/serve-static'
+import { createApp, eventHandler, getQuery, toNodeListener } from 'h3'
 import { dirClientStandalone } from '../dirs'
 import { createWsServer } from './ws'
 
@@ -88,10 +88,7 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
     return event.node.res.end(generateAuthPageHtml())
   }))
 
-  h3.use(fromNodeMiddleware(sirv(dirClientStandalone, {
-    dev: true,
-    single: true,
-  })))
+  h3.use(serveStaticHandler(dirClientStandalone))
 
   return {
     h3,

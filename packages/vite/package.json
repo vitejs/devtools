@@ -43,7 +43,6 @@
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
     "pathe": "catalog:deps",
-    "sirv": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {

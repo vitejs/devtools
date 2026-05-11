@@ -3,14 +3,14 @@ import type { StartedServer } from '../node/server'
 import type { DevframeDefinition, DevframeSetupInfo } from '../types/devframe'
 import process from 'node:process'
 import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
+import { createApp, eventHandler } from 'h3'
 import { resolve } from 'pathe'
-import sirv from 'sirv'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
 import { open } from '../utils/open'
+import { serveStaticHandler } from '../utils/serve-static'
 import { normalizeBasePath, resolveBasePath } from './_shared'
 
 const DEFAULT_PORT = 9999
@@ -31,8 +31,11 @@ export interface CreateDevServerOptions {
    */
   flags?: Record<string, unknown>
   /**
-   * Override `def.cli?.distDir`. Throws when neither is set — the dev
-   * server has nothing to mount otherwise.
+   * Override `def.cli?.distDir`. When neither this option nor
+   * `def.cli?.distDir` is set, the dev server runs in **bridge mode** —
+   * only `__connection.json` and the WS endpoint are mounted; the SPA
+   * is expected to be hosted elsewhere (e.g. by a parent Vite/Nuxt
+   * dev server via `createVitePlugin({ devMiddleware })`).
    */
   distDir?: string
   /**
@@ -94,8 +97,14 @@ export async function resolveDevServerPort(
 
 /**
  * Start a devframe dev server for a {@link DevframeDefinition} —
- * h3 + WebSocket RPC + the author's SPA mounted at the resolved base
- * path.
+ * h3 + WebSocket RPC + (optionally) the author's SPA mounted at the
+ * resolved base path.
+ *
+ * When `distDir` is omitted (and `def.cli?.distDir` is unset) the
+ * server runs in **bridge mode**: only `__connection.json` and the WS
+ * endpoint are mounted, with no SPA mount. The SPA is expected to be
+ * hosted elsewhere (e.g. by a parent Vite/Nuxt dev server) — see
+ * `createVitePlugin({ devMiddleware })`.
  *
  * Returns the underlying {@link StartedServer} handle so callers can
  * close it gracefully (SIGINT, hot-reload, test teardown).
@@ -109,8 +118,6 @@ export async function createDevServer(
   options: CreateDevServerOptions = {},
 ): Promise<StartedServer> {
   const distDir = options.distDir ?? def.cli?.distDir
-  if (!distDir)
-    throw new Error(`[devframe] createDevServer: no distDir for "${def.id}". Set \`cli.distDir\` on the definition or pass it as an option.`)
 
   const host = options.host ?? def.cli?.host ?? 'localhost'
   const port = options.port ?? await resolveDevServerPort(def, { host })
@@ -123,7 +130,7 @@ export async function createDevServer(
     origin,
     appName: def.id,
     mount: (base, dir) => {
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
+      app.use(base, serveStaticHandler(dir))
     },
   })
 
@@ -146,7 +153,8 @@ export async function createDevServer(
     return event.node.res.end(JSON.stringify({ backend: 'websocket', websocket: port }))
   }))
 
-  app.use(basePath, fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })))
+  if (distDir)
+    app.use(basePath, serveStaticHandler(resolve(distDir)))
 
   return startHttpAndWs({
     context: ctx,

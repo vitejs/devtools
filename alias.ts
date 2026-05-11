@@ -24,6 +24,7 @@ export const alias = {
   'devframe/utils/nanoid': df('devframe/src/utils/nanoid.ts'),
   'devframe/utils/open': df('devframe/src/utils/open.ts'),
   'devframe/utils/promise': df('devframe/src/utils/promise.ts'),
+  'devframe/utils/serve-static': df('devframe/src/utils/serve-static.ts'),
   'devframe/utils/shared-state': df('devframe/src/utils/shared-state.ts'),
   'devframe/utils/streaming-channel': df('devframe/src/utils/streaming-channel.ts'),
   'devframe/utils/structured-clone': df('devframe/src/utils/structured-clone.ts'),

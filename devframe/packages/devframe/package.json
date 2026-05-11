@@ -45,6 +45,7 @@
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./utils/open": "./dist/utils/open.mjs",
     "./utils/promise": "./dist/utils/promise.mjs",
+    "./utils/serve-static": "./dist/utils/serve-static.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./utils/streaming-channel": "./dist/utils/streaming-channel.mjs",
     "./utils/structured-clone": "./dist/utils/structured-clone.mjs",
@@ -75,8 +76,8 @@
     "cac": "catalog:deps",
     "h3": "catalog:deps",
     "logs-sdk": "catalog:deps",
+    "mrmime": "catalog:deps",
     "pathe": "catalog:deps",
-    "sirv": "catalog:deps",
     "valibot": "catalog:deps",
     "ws": "catalog:deps"
   },

@@ -12,20 +12,19 @@ import {
   createHostContext,
   startHttpAndWs,
 } from 'devframe/node'
+import { serveStaticHandler } from 'devframe/utils/serve-static'
 import { getPort } from 'get-port-please'
-import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
+import { createApp, eventHandler } from 'h3'
 import { resolve } from 'pathe'
-import sirv from 'sirv'
 import devframe from '../src/devframe'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
 export const CLIENT_DIST = resolve(HERE, '../dist/client')
 
 /**
- * Asserts the Preact client has been built. Tests boot a sirv-backed
- * dev server that serves files from `dist/client`; if the build is
- * missing the failure message is loud enough to tell the contributor
- * what to run.
+ * Asserts the Preact client has been built. Tests boot a dev server
+ * that serves files from `dist/client`; if the build is missing the
+ * failure message is loud enough to tell the contributor what to run.
  */
 export function assertClientBuilt(): void {
   if (!existsSync(path.join(CLIENT_DIST, 'index.html'))) {
@@ -53,7 +52,7 @@ export interface InspectorServer extends StartedServer {
 
 /**
  * Boot the inspector dev server in-process. Mirrors the cli adapter's
- * runDevServer wiring so tests exercise the same RPC + sirv path the
+ * runDevServer wiring so tests exercise the same RPC + static path the
  * real `node bin.mjs` does, but with a controllable lifecycle.
  *
  * Bound to 127.0.0.1 explicitly to avoid the IPv4/IPv6 race documented
@@ -73,7 +72,7 @@ export async function startInspectorServer(
     origin,
     appName: devframe.id,
     mount: (base, dir) => {
-      app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
+      app.use(base, serveStaticHandler(dir))
     },
   })
 
@@ -90,10 +89,7 @@ export async function startInspectorServer(
       )
     }),
   )
-  app.use(
-    basePath,
-    fromNodeMiddleware(sirv(resolve(distDir), { dev: true, single: true })),
-  )
+  app.use(basePath, serveStaticHandler(resolve(distDir)))
 
   const server = await startHttpAndWs({
     context: ctx,

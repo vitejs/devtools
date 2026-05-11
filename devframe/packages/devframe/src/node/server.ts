@@ -16,7 +16,8 @@ export interface StartHttpAndWsOptions {
   port: number
   /**
    * Optional h3 app to mount on. When omitted a fresh one is created;
-   * when provided, callers can add their own routes (sirv etc.) first.
+   * when provided, callers can add their own routes (static handlers,
+   * auth middleware, etc.) first.
    */
   app?: App
   /**

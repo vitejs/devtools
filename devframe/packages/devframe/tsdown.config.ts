@@ -20,6 +20,7 @@ export default defineConfig({
     'utils/nanoid': 'src/utils/nanoid.ts',
     'utils/open': 'src/utils/open.ts',
     'utils/promise': 'src/utils/promise.ts',
+    'utils/serve-static': 'src/utils/serve-static.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
     'utils/streaming-channel': 'src/utils/streaming-channel.ts',
     'utils/structured-clone': 'src/utils/structured-clone.ts',

@@ -4,6 +4,11 @@
 // #region Interfaces
 export interface CreateVitePluginOptions {
   base?: string;
+  devMiddleware?: boolean | {
+    port?: number;
+    host?: string;
+    flags?: Record<string, unknown>;
+  };
 }
 export interface DevframeVitePlugin {
   name: string;
@@ -12,7 +17,11 @@ export interface DevframeVitePlugin {
     middlewares: {
       use: (_: string, _: any) => void;
     };
-  }) => void;
+    httpServer?: {
+      once: (_: 'close', _: () => void) => void;
+    } | null;
+  }) => void | Promise<void>;
+  closeBundle?: () => void | Promise<void>;
 }
 // #endregion
 

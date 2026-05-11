@@ -60,6 +60,9 @@
       "devframe/utils/promise": [
         "./devframe/packages/devframe/src/utils/promise.ts"
       ],
+      "devframe/utils/serve-static": [
+        "./devframe/packages/devframe/src/utils/serve-static.ts"
+      ],
       "devframe/utils/shared-state": [
         "./devframe/packages/devframe/src/utils/shared-state.ts"
       ],

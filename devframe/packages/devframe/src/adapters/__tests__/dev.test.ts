@@ -44,15 +44,37 @@ describe('adapters/dev', () => {
     }
   })
 
-  it('createDevServer throws when no distDir is configured', async () => {
+  it('createDevServer runs in bridge mode when no distDir is configured', async () => {
     const devframe = defineDevframe({
       id: 'devframe-test-nodist',
       name: 'No Dist',
       setup: () => {},
     })
-    await expect(createDevServer(devframe, { openBrowser: false }))
-      .rejects
-      .toThrow(/no distDir/)
+    const host = '127.0.0.1'
+    const port = await getPort({ port: 19990, host })
+    const handle = await createDevServer(devframe, {
+      host,
+      port,
+      openBrowser: false,
+    })
+
+    try {
+      // Connection meta is still served — the bridge endpoint that lets
+      // a host-served SPA discover the WS backend.
+      const res = await fetch(`http://${host}:${port}/__connection.json`)
+      expect(res.ok).toBe(true)
+      const meta = await res.json()
+      expect(meta).toEqual({ backend: 'websocket', websocket: port })
+
+      // The SPA mount is absent — without a distDir, no static handler
+      // is wired, so the basePath returns a 404 from h3 instead of an
+      // index.html.
+      const spa = await fetch(`http://${host}:${port}/`)
+      expect(spa.status).toBe(404)
+    }
+    finally {
+      await handle.close()
+    }
   })
 
   it('resolveDevServerPort honors def.cli.port as the preferred default', async () => {

@@ -56,6 +56,12 @@ export const diagnostics = defineDiagnostics({
         `Streaming channel "${p.channel}" is already registered.`,
       hint: 'Each channel name must be unique within a context. Pick a different name or reuse the existing channel handle.',
     },
+    DF0033: {
+      message: (p: { id: string, reason: string }) =>
+        `Failed to start dev RPC bridge for "${p.id}": ${p.reason}`,
+      hint: 'Verify the bridge port is free and the devframe setup function does not throw. Pin a port via `cli.port` / `cli.portRange` on the definition, or via `devMiddleware.port` on `createVitePlugin`.',
+      level: 'warn',
+    },
   },
 })
 
