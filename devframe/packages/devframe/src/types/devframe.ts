@@ -2,18 +2,18 @@ import type { CAC } from 'cac'
 import type { CliFlagsSchema } from '../adapters/flags'
 import type { DevToolsNodeContext } from './context'
 
-export type DevtoolRuntime = 'cli' | 'build' | 'spa' | 'vite' | 'kit' | 'embedded'
+export type DevframeRuntime = 'cli' | 'build' | 'spa' | 'vite' | 'kit' | 'embedded'
 
 /**
- * Classification of how a devtool is being deployed. Hosted adapters
+ * Classification of how a devframe is being deployed. Hosted adapters
  * (`vite`, `kit`, `embedded`) share their origin with a host app and
  * must namespace their mount path under `/__<id>/`. Standalone adapters
  * (`cli`, `spa`, `build`) own the origin and default to `/`.
  */
-export type DevtoolDeploymentKind = 'standalone' | 'hosted'
+export type DevframeDeploymentKind = 'standalone' | 'hosted'
 
-export interface DevtoolCliOptions {
-  /** Binary name; default: the devtool's `id`. */
+export interface DevframeCliOptions {
+  /** Binary name; default: the devframe's `id`. */
   command?: string
   /** Preferred port for the dev server (default 9999). */
   port?: number
@@ -38,7 +38,7 @@ export interface DevtoolCliOptions {
    * `devtools.clientAuth` today.
    */
   auth?: boolean
-  /** Author's SPA dist directory (served as the devtool's UI). */
+  /** Author's SPA dist directory (served as the devframe's UI). */
   distDir?: string
   /**
    * Capability-side CAC hook. Called with the CAC instance after the
@@ -64,7 +64,7 @@ export interface DevtoolCliOptions {
    *   config: v.optional(v.string()),
    * })
    *
-   * defineDevtool({
+   * defineDevframe({
    *   cli: { flags: appFlags },
    *   setup(ctx, info) {
    *     const flags = info.flags as InferCliFlags<typeof appFlags>
@@ -75,7 +75,7 @@ export interface DevtoolCliOptions {
   flags?: CliFlagsSchema
 }
 
-export interface DevtoolSpaOptions {
+export interface DevframeSpaOptions {
   base?: string
   /**
    * How the deployed SPA loads its data.
@@ -86,7 +86,7 @@ export interface DevtoolSpaOptions {
   loader?: 'query' | 'upload' | 'none'
 }
 
-export interface DevtoolBrowserContext {
+export interface DevframeBrowserContext {
   /**
    * The connected RPC client (may be write-disabled in static/spa modes).
    */
@@ -98,12 +98,12 @@ export interface DevtoolBrowserContext {
  * populate the fields that make sense for their deployment. In
  * particular, `createCli` fills `flags` with the parsed CAC bag.
  */
-export interface DevtoolSetupInfo {
+export interface DevframeSetupInfo {
   /** Parsed CLI flags, populated by the CLI adapter. */
   flags?: Record<string, unknown>
 }
 
-export interface DevtoolDefinition {
+export interface DevframeDefinition {
   id: string
   name: string
   icon?: string | { light: string, dark: string }
@@ -120,13 +120,40 @@ export interface DevtoolDefinition {
     spa?: boolean | Record<string, boolean>
   }
   /** Server-side setup — the primary entrypoint. Runs in every runtime. */
-  setup: (ctx: DevToolsNodeContext, info?: DevtoolSetupInfo) => void | Promise<void>
+  setup: (ctx: DevToolsNodeContext, info?: DevframeSetupInfo) => void | Promise<void>
   /** Browser-only setup for the SPA adapter (bundled into the client). */
-  setupBrowser?: (ctx: DevtoolBrowserContext) => void | Promise<void>
-  cli?: DevtoolCliOptions
-  spa?: DevtoolSpaOptions
+  setupBrowser?: (ctx: DevframeBrowserContext) => void | Promise<void>
+  cli?: DevframeCliOptions
+  spa?: DevframeSpaOptions
 }
 
-export function defineDevtool(d: DevtoolDefinition): DevtoolDefinition {
+export function defineDevframe(d: DevframeDefinition): DevframeDefinition {
+  return d
+}
+
+// --- Deprecated aliases (backward compatibility) ---
+
+/** @deprecated Use `DevframeRuntime`. */
+export type DevtoolRuntime = DevframeRuntime
+/** @deprecated Use `DevframeDeploymentKind`. */
+export type DevtoolDeploymentKind = DevframeDeploymentKind
+/** @deprecated Use `DevframeCliOptions`. */
+export type DevtoolCliOptions = DevframeCliOptions
+/** @deprecated Use `DevframeSpaOptions`. */
+export type DevtoolSpaOptions = DevframeSpaOptions
+/** @deprecated Use `DevframeBrowserContext`. */
+export type DevtoolBrowserContext = DevframeBrowserContext
+/** @deprecated Use `DevframeSetupInfo`. */
+export type DevtoolSetupInfo = DevframeSetupInfo
+/** @deprecated Use `DevframeDefinition`. */
+export type DevtoolDefinition = DevframeDefinition
+
+let warnedDefineDevtool = false
+/** @deprecated Use `defineDevframe`. */
+export function defineDevtool(d: DevframeDefinition): DevframeDefinition {
+  if (!warnedDefineDevtool) {
+    warnedDefineDevtool = true
+    console.warn('[devframe] `defineDevtool` is deprecated; use `defineDevframe` instead.')
+  }
   return d
 }

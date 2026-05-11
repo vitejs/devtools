@@ -8,34 +8,34 @@ The browser-side client is how a dock iframe, remote-hosted page, or standalone 
 
 ## Connecting
 
-`devframe/client` exports `connectDevtool` (an alias of `getDevToolsRpcClient`) — use either name:
+`devframe/client` exports `connectDevframe` (an alias of `getDevToolsRpcClient`) — use either name:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 
-const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
+const modules = await rpc.call('my-devframe:get-modules', { limit: 10 })
 ```
 
-`connectDevtool` auto-detects the backend via `__devtools/__connection.json`, with a sequence of base URLs as fallback. No arguments are needed when the client is hosted from the default mount path.
+`connectDevframe` auto-detects the backend via `__devtools/__connection.json`, with a sequence of base URLs as fallback. No arguments are needed when the client is hosted from the default mount path.
 
 ### Runtime basePath discovery
 
-Devframe SPAs are base-agnostic — the same artifact can be served at `/`, `/__<id>/`, or any custom subpath without rebuilding. `connectDevtool` resolves `__connection.json` at runtime by reading `document.baseURI` and the executing script's URL.
+Devframe SPAs are base-agnostic — the same artifact can be served at `/`, `/__<id>/`, or any custom subpath without rebuilding. `connectDevframe` resolves `__connection.json` at runtime by reading `document.baseURI` and the executing script's URL.
 
 For SPA authors, that means:
 
 - Build with relative asset paths — Vite `base: './'`, Nuxt `vite.base: './'` + `app.baseURL: './'`.
 - Leave the mount path out of the HTML. The server serves files at *some* base; the client figures out which.
-- Skip the `baseURL` option on `connectDevtool` unless you're connecting across origins or to a non-colocated devtool server.
+- Skip the `baseURL` option on `connectDevframe` unless you're connecting across origins or to a non-colocated devframe server.
 
 That's how `createBuild` deploys SPA output verbatim under any URL — no build-time HTML rewriting needed.
 
 ### Options
 
 ```ts
-await connectDevtool({
+await connectDevframe({
   baseURL: './', // string or string[] fallback list — see notes below
   authToken: 'user-provided-token',
   cacheOptions: true, // enable response caching
@@ -69,7 +69,7 @@ The client picks a mode automatically from the backend field. Mode-specific code
 Dev-mode connections require trust before the server accepts calls. The client handles this automatically: on first connect it submits the locally-stored auth token, and `ensureTrusted()` resolves once the server accepts.
 
 ```ts
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 
 // Blocks until the server trusts this client (default timeout 60s)
 const trusted = await rpc.ensureTrusted()
@@ -89,21 +89,21 @@ const ok = await rpc.requestTrustWithToken('another-token')
 
 ### Broadcast-channel sync
 
-`connectDevtool` listens on `BroadcastChannel('vite-devtools-auth')` for `auth-update` messages. When an auth page in another tab announces a new token, every open client requests trust with it automatically — no reload required.
+`connectDevframe` listens on `BroadcastChannel('vite-devtools-auth')` for `auth-update` messages. When an auth page in another tab announces a new token, every open client requests trust with it automatically — no reload required.
 
 ## Calling functions
 
 ```ts
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 
 // Standard call — awaits a response or throws.
-const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
+const modules = await rpc.call('my-devframe:get-modules', { limit: 10 })
 
 // Optional — returns undefined when no handler responds (useful while HMR is restarting).
-const maybe = await rpc.callOptional('my-devtool:get-modules', { limit: 10 })
+const maybe = await rpc.callOptional('my-devframe:get-modules', { limit: 10 })
 
 // Event — fire-and-forget, no response expected.
-rpc.callEvent('my-devtool:notify', { message: 'hello' })
+rpc.callEvent('my-devframe:notify', { message: 'hello' })
 ```
 
 TypeScript types flow through from the server's `defineRpcFunction` definitions, so argument and return shapes are known at the call site.
@@ -116,7 +116,7 @@ The client can register functions that the server calls via `ctx.rpc.broadcast`:
 import { defineRpcFunction } from 'devframe'
 
 rpc.client.register(defineRpcFunction({
-  name: 'my-devtool:on-file-changed',
+  name: 'my-devframe:on-file-changed',
   type: 'event',
   setup: () => ({
     handler: async ({ file }: { file: string }) => {
@@ -131,7 +131,7 @@ That's how the server pushes live updates into the UI — file-watcher events, s
 ## Shared state
 
 ```ts
-const state = await rpc.sharedState.get('my-devtool:state')
+const state = await rpc.sharedState.get('my-devframe:state')
 
 console.log(state.value())
 
@@ -151,7 +151,7 @@ Client-side mutations round-trip through the server before reappearing locally. 
 Set `cacheOptions: true` (or an options object) when constructing the client:
 
 ```ts
-const rpc = await connectDevtool({ cacheOptions: true })
+const rpc = await connectDevframe({ cacheOptions: true })
 ```
 
 With caching on, `query` / `static` function responses are memoized per argument hash. Server-side broadcasts like `rpc:cache:invalidate` clear entries automatically — plugins that mutate state should broadcast that message after the change.
@@ -176,19 +176,19 @@ or for static mode:
 The client handles this for you. To override discovery (testing, advanced setups), pass `connectionMeta` directly:
 
 ```ts
-await connectDevtool({
+await connectDevframe({
   connectionMeta: { backend: 'static' },
 })
 ```
 
 ## Remote docks
 
-Remote docks are a kit-side feature (see [Vite DevTools Kit → Remote Client](https://devtools.vite.dev/kit/remote-client)). The kit injects a connection descriptor into the iframe URL; on the hosted page, `connectDevtool` auto-detects the descriptor from the URL fragment / query string — call it as usual:
+Remote docks are a kit-side feature (see [Vite DevTools Kit → Remote Client](https://devtools.vite.dev/kit/remote-client)). The kit injects a connection descriptor into the iframe URL; on the hosted page, `connectDevframe` auto-detects the descriptor from the URL fragment / query string — call it as usual:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 // Already wired to the local dev server via the injected descriptor.
 ```
 

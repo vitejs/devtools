@@ -10,7 +10,15 @@ export { AgentResourceInput }
 export { AgentTool }
 export { AgentToolInput }
 export { ConnectionMeta }
+export { defineDevframe }
 export { defineDevtool }
+export { DevframeBrowserContext }
+export { DevframeCliOptions }
+export { DevframeDefinition }
+export { DevframeDeploymentKind }
+export { DevframeRuntime }
+export { DevframeSetupInfo }
+export { DevframeSpaOptions }
 export { DevtoolBrowserContext }
 export { DevtoolCliOptions }
 export { DevtoolDefinition }

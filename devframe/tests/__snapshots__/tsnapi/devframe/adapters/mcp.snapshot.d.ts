@@ -17,5 +17,5 @@ export interface McpServerHandle {
 // #endregion
 
 // #region Functions
-export declare function createMcpServer(_: DevtoolDefinition, _?: CreateMcpServerOptions): Promise<McpServerHandle>;
+export declare function createMcpServer(_: DevframeDefinition, _?: CreateMcpServerOptions): Promise<McpServerHandle>;
 // #endregion

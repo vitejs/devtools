@@ -4,7 +4,7 @@ outline: deep
 
 # Standalone CLI with Devframe
 
-This recipe walks through building a standalone CLI devtool on top of Devframe — the shape where a user runs `npx my-tool` and gets a local dev server serving a Vue / Nuxt / React SPA backed by type-safe RPC, plus `build` / `spa` / `mcp` subcommands for free.
+This recipe walks through building a standalone CLI devframe on top of Devframe — the shape where a user runs `npx my-tool` and gets a local dev server serving a Vue / Nuxt / React SPA backed by type-safe RPC, plus `build` / `spa` / `mcp` subcommands for free.
 
 It's the pattern used by tools like an ESLint config inspector or a bundler-config viewer: a binary that opens a browser.
 
@@ -14,7 +14,7 @@ It's the pattern used by tools like an ESLint config inspector or a bundler-conf
 my-tool/
 ├── bin.mjs                  # shebang + import './dist/cli.mjs'
 ├── src/
-│   ├── cli.ts               # defineDevtool + createCli
+│   ├── cli.ts               # defineDevframe + createCli
 │   ├── rpc.ts               # your RPC function definitions
 │   └── data.ts              # your domain-specific logic
 ├── app/                     # Nuxt / Vue / React SPA source
@@ -29,13 +29,13 @@ my-tool/
 ```ts [src/cli.ts]
 import process from 'node:process'
 import c from 'ansis'
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 import { createCli } from 'devframe/adapters/cli'
 import { resolve } from 'pathe'
 
 const distDir = resolve(import.meta.dirname, '../dist/public')
 
-const devtool = defineDevtool({
+const devframe = defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   cli: {
@@ -65,7 +65,7 @@ const devtool = defineDevtool({
   },
 })
 
-await createCli(devtool, {
+await createCli(devframe, {
   onReady({ origin }) {
     console.log(c.green`My Tool ready at ${origin}`)
   },
@@ -85,7 +85,7 @@ my-tool mcp                                 # agent exposure (experimental)
 
 ## Nuxt SPA setup
 
-For the Nuxt side, add the devframe helper module — it sets `app.baseURL: './'` / `vite.base: './'`, injects a client plugin that wires `connectDevtool()` into `useNuxtApp().$rpc`, and exposes the typed RPC client to the whole app:
+For the Nuxt side, add the devframe helper module — it sets `app.baseURL: './'` / `vite.base: './'`, injects a client plugin that wires `connectDevframe()` into `useNuxtApp().$rpc`, and exposes the typed RPC client to the whole app:
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
@@ -111,16 +111,16 @@ export async function fetchPayload() {
 }
 ```
 
-For non-Nuxt frontends (Vite + Vue, React, plain HTML, etc.), call `connectDevtool()` yourself:
+For non-Nuxt frontends (Vite + Vue, React, plain HTML, etc.), call `connectDevframe()` yourself:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 const payload = await rpc.call('my-tool:get-payload')
 ```
 
-`connectDevtool` auto-resolves the connection descriptor relative to the current page — it works both in dev (WebSocket backend) and in the built static snapshot (`static` backend reads the baked RPC dump).
+`connectDevframe` auto-resolves the connection descriptor relative to the current page — it works both in dev (WebSocket backend) and in the built static snapshot (`static` backend reads the baked RPC dump).
 
 ## Typed CLI flags
 
@@ -128,7 +128,7 @@ For flags that are specific to your tool, declare them as valibot schemas so the
 
 ```ts
 import type { InferCliFlags } from 'devframe/adapters/cli'
-import { defineDevtool } from 'devframe'
+import { defineDevframe } from 'devframe'
 import { defineCliFlags } from 'devframe/adapters/cli'
 import * as v from 'valibot'
 
@@ -138,7 +138,7 @@ const appFlags = defineCliFlags({
   verbose: v.optional(v.boolean()),
 })
 
-defineDevtool({
+defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   cli: {
@@ -162,7 +162,7 @@ For the two actions every CLI devtool needs — open a file in the editor, revea
 ```ts
 import { openHelpers } from 'devframe/recipes/open-helpers'
 
-defineDevtool({
+defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   setup(ctx) {
@@ -205,7 +205,7 @@ const cache = createStorage({
   }),
 })
 
-defineDevtool({
+defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   async setup(ctx) {
@@ -226,7 +226,7 @@ defineDevtool({
 Filesystem watching belongs to the application layer — wire your own chokidar and signal the client via shared state:
 
 ```ts [src/cli.ts]
-defineDevtool({
+defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   async setup(ctx, { flags }) {
@@ -266,16 +266,16 @@ state.on('updated', () => fetchPayload().then(setData))
 | `createBuild(def, opts?)`     | `devframe/adapters/build` |
 | `createMcpServer(def, opts?)` | `devframe/adapters/mcp` |
 
-Each one runs against the same `DevtoolDefinition` you'd pass to `createCli`. A commander example:
+Each one runs against the same `DevframeDefinition` you'd pass to `createCli`. A commander example:
 
 ```ts [src/cli.ts]
 import process from 'node:process'
 import { Command } from 'commander'
-import { defineDevtool } from 'devframe'
+import { defineDevframe } from 'devframe'
 import { createBuild } from 'devframe/adapters/build'
 import { createDevServer } from 'devframe/adapters/dev'
 
-const devtool = defineDevtool({
+const devframe = defineDevframe({
   id: 'my-tool',
   name: 'My Tool',
   cli: { distDir: './dist/public', port: 7777 },
@@ -289,7 +289,7 @@ program
   .option('-p, --port <port>', 'Port', '7777')
   .option('--config <file>', 'Config file path')
   .action(async (opts) => {
-    const handle = await createDevServer(devtool, {
+    const handle = await createDevServer(devframe, {
       port: Number(opts.port),
       flags: { config: opts.config },
       onReady: ({ origin }) => console.log(`Ready at ${origin}`),
@@ -300,7 +300,7 @@ program
 program
   .command('build')
   .option('--out-dir <dir>', 'Output directory', 'dist-static')
-  .action(opts => createBuild(devtool, { outDir: opts.outDir }))
+  .action(opts => createBuild(devframe, { outDir: opts.outDir }))
 
 await program.parseAsync()
 ```
@@ -311,7 +311,7 @@ For typed flag schemas, `parseCliFlags(schema, rawBag)` (from `devframe/adapters
 
 ## Why this shape
 
-- **One command, one binary.** `createCli` is a complete CLI — dev, build, spa, mcp all from a single `defineDevtool` value.
+- **One command, one binary.** `createCli` is a complete CLI — dev, build, spa, mcp all from a single `defineDevframe` value.
 - **Headless.** Your `onReady` callback owns startup output, so your tool's stdout stays yours.
 - **Base-agnostic.** Same SPA build works at `/` (dev, standalone static) and at any deployment base.
 - **Typed end-to-end.** RPC function definitions flow their types through to the client `rpc.call` site.
@@ -319,8 +319,8 @@ For typed flag schemas, `parseCliFlags(schema, rawBag)` (from `devframe/adapters
 
 ## See also
 
-- [Devtool Definition](./devtool-definition) — field reference
+- [Devframe Definition](./devframe-definition) — field reference
 - [Adapters → CLI](./adapters#cli) — full CLI adapter reference including `configureCli` and mount-path rules
 - [Adapters → Dev](./adapters#dev) — `createDevServer` reference for bring-your-own-CLI integration
-- [Client](./client) — `connectDevtool`, shared state, caching
+- [Client](./client) — `connectDevframe`, shared state, caching
 - [Agent-Native](./agent-native) — exposing your tool to Claude Desktop, Cursor, etc.

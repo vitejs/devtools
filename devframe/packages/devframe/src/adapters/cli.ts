@@ -1,6 +1,6 @@
 import type { CAC } from 'cac'
 import type { App } from 'h3'
-import type { DevtoolDefinition } from '../types/devtool'
+import type { DevframeDefinition } from '../types/devframe'
 import process from 'node:process'
 import c from 'ansis'
 import cac from 'cac'
@@ -36,7 +36,7 @@ export interface CliHandle {
   parse: (argv?: string[]) => Promise<void>
 }
 
-export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}): CliHandle {
+export function createCli(d: DevframeDefinition, options: CreateCliOptions = {}): CliHandle {
   const defaultPort = options.defaultPort ?? d.cli?.port ?? 9999
   const defaultHost = d.cli?.host ?? 'localhost'
   const command = d.cli?.command ?? d.id
@@ -78,7 +78,7 @@ export function createCli(d: DevtoolDefinition, options: CreateCliOptions = {}):
   })
 
   cli
-    .command('build', 'Build a self-contained static deploy of the devtool')
+    .command('build', 'Build a self-contained static deploy of the devframe')
     .option('--out-dir <outDir>', 'Output directory', { default: 'dist-static' })
     .option('--base <base>', 'URL base', { default: '/' })
     .option('--pretty', 'Pretty-print dump JSON (larger on disk)')
@@ -125,7 +125,7 @@ interface CliFlags {
   [key: string]: unknown
 }
 
-function resolveTypedFlags(d: DevtoolDefinition, raw: Record<string, unknown>): Record<string, unknown> {
+function resolveTypedFlags(d: DevframeDefinition, raw: Record<string, unknown>): Record<string, unknown> {
   if (!d.cli?.flags)
     return raw
   const { flags, issues } = parseCliFlags(d.cli.flags, raw)

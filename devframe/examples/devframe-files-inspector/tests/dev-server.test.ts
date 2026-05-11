@@ -29,7 +29,7 @@ describe('dev-server (CLI surface)', () => {
       await rm(cwd, { recursive: true, force: true })
   })
 
-  it('serves index.html with relative asset URLs at the devtool base', async () => {
+  it('serves index.html with relative asset URLs at the devframe base', async () => {
     const res = await fetch(`${server.origin}${server.basePath}`)
     expect(res.status).toBe(200)
     const html = await res.text()
@@ -41,7 +41,7 @@ describe('dev-server (CLI surface)', () => {
   it('serves the connection meta at the SPA root pointing at the WebSocket backend', async () => {
     // The meta sits next to index.html so the SPA can discover it via a
     // relative `./__connection.json` fetch — same lookup whether the
-    // devtool is mounted at `/`, `/__devframe-files-inspector/`, or any
+    // devframe is mounted at `/`, `/__devframe-files-inspector/`, or any
     // other base.
     const res = await fetch(
       `${server.origin}${server.basePath}__connection.json`,

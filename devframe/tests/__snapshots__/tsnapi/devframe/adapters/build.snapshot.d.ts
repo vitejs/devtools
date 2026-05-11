@@ -11,5 +11,5 @@ export interface CreateBuildOptions {
 // #endregion
 
 // #region Functions
-export declare function createBuild(_: DevtoolDefinition, _?: CreateBuildOptions): Promise<void>;
+export declare function createBuild(_: DevframeDefinition, _?: CreateBuildOptions): Promise<void>;
 // #endregion

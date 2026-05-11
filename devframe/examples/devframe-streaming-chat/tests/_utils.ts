@@ -15,7 +15,7 @@ import { getPort } from 'get-port-please'
 import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
-import devtool from '../src/devtool'
+import devframe from '../src/devframe'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
 export const CLIENT_DIST = resolve(HERE, '../dist/client')
@@ -34,8 +34,8 @@ export async function startStreamingChatServer(): Promise<StartedServer & {
   // Build the client only if a test exercises the served HTML — RPC-only
   // tests don't need the dist (we don't call assertClientBuilt unless the
   // test fetches index.html).
-  const distDir = devtool.cli!.distDir!
-  const basePath = devtool.basePath!
+  const distDir = devframe.cli!.distDir!
+  const basePath = devframe.basePath!
   const host = '127.0.0.1'
   const port = await getPort({ host, random: true })
 
@@ -43,13 +43,13 @@ export async function startStreamingChatServer(): Promise<StartedServer & {
   const origin = `http://${host}:${port}`
   const h3Host = createH3DevToolsHost({
     origin,
-    appName: devtool.id,
+    appName: devframe.id,
     mount: (base, dir) =>
       app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true }))),
   })
 
   const ctx = await createHostContext({ cwd: process.cwd(), mode: 'dev', host: h3Host })
-  await devtool.setup(ctx)
+  await devframe.setup(ctx)
 
   const metaPath = `${basePath}${DEVTOOLS_CONNECTION_META_FILENAME}`
   app.use(

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { DevtoolDefinition } from '../types/devtool'
+import type { DevframeDefinition } from '../types/devframe'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import process from 'node:process'
@@ -23,7 +23,7 @@ export interface CreateBuildOptions {
   base?: string
   /**
    * Override the SPA dist directory to copy into `outDir`. When omitted
-   * the adapter reads `devtool.cli?.distDir` — authors typically set this
+   * the adapter reads `devframe.cli?.distDir` — authors typically set this
    * once on the definition itself.
    */
   distDir?: string
@@ -36,9 +36,9 @@ export interface CreateBuildOptions {
 }
 
 /**
- * Produce a self-contained static deploy of a devtool:
+ * Produce a self-contained static deploy of a devframe:
  *
- *   - Build a `mode: 'build'` context and run `devtool.setup(ctx)`.
+ *   - Build a `mode: 'build'` context and run `devframe.setup(ctx)`.
  *   - Copy the author's SPA dist into `<outDir>/`.
  *   - Write `<outDir>/__connection.json` (`{ backend: 'static' }`) and the
  *     sharded RPC dump under `<outDir>/__rpc-dump/` so the deployed SPA
@@ -48,7 +48,7 @@ export interface CreateBuildOptions {
  *     `'none'`). The output is mount-path agnostic — the same bundle
  *     works at `/`, `/devtools/`, or any base, no rewriting required.
  */
-export async function createBuild(d: DevtoolDefinition, options: CreateBuildOptions = {}): Promise<void> {
+export async function createBuild(d: DevframeDefinition, options: CreateBuildOptions = {}): Promise<void> {
   const outDir = resolve(options.outDir ?? 'dist-static')
   const distDir = options.distDir ?? d.cli?.distDir
   if (!distDir)

@@ -23,6 +23,6 @@ export interface ResolveDevServerPortOptions {
 // #endregion
 
 // #region Functions
-export declare function createDevServer(_: DevtoolDefinition, _?: CreateDevServerOptions): Promise<StartedServer>;
-export declare function resolveDevServerPort(_: DevtoolDefinition, _?: ResolveDevServerPortOptions): Promise<number>;
+export declare function createDevServer(_: DevframeDefinition, _?: CreateDevServerOptions): Promise<StartedServer>;
+export declare function resolveDevServerPort(_: DevframeDefinition, _?: ResolveDevServerPortOptions): Promise<number>;
 // #endregion

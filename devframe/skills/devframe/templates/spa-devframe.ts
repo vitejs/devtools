@@ -1,10 +1,10 @@
-// Devtool with setupBrowser + SPA query-loader — deployable as a static site.
+// Devframe with setupBrowser + SPA query-loader — deployable as a static site.
 // When mounted into Vite DevTools via `createPluginFromDevframe`, the kit
 // auto-derives an iframe dock from `id` / `name` / `icon`.
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 import * as v from 'valibot'
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'my-inspector',
   name: 'My Inspector',
   icon: 'ph:magnifying-glass-duotone',

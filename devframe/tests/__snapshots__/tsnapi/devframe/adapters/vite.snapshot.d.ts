@@ -17,5 +17,5 @@ export interface DevframeVitePlugin {
 // #endregion
 
 // #region Functions
-export declare function createVitePlugin(_: DevtoolDefinition, _?: CreateVitePluginOptions): DevframeVitePlugin;
+export declare function createVitePlugin(_: DevframeDefinition, _?: CreateVitePluginOptions): DevframeVitePlugin;
 // #endregion

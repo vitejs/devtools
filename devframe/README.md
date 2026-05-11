@@ -1,6 +1,6 @@
 # Devframe
 
-Framework-neutral foundation for building generic DevTools. Describe one devtool — its RPC, its data, its SPA, its CLI shape — and deploy the same definition through any of seven adapters.
+Framework-neutral foundation for building generic DevTools. Describe one devframe — its RPC, its data, its SPA, its CLI shape — and deploy the same definition through any of seven adapters.
 
 Documentation: [https://devfra.me/](https://devfra.me/).
 
@@ -13,15 +13,15 @@ pnpm add devframe
 ## Hello, Devframe
 
 ```ts
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 import { createCli } from 'devframe/adapters/cli'
 
-const devtool = defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+const devframe = defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   setup(ctx) {
     ctx.rpc.register(defineRpcFunction({
-      name: 'my-devtool:hello',
+      name: 'my-devframe:hello',
       type: 'static',
       jsonSerializable: true,
       handler: () => ({ message: 'hello' }),
@@ -29,7 +29,7 @@ const devtool = defineDevtool({
   },
 })
 
-await createCli(devtool).parse()
+await createCli(devframe).parse()
 ```
 
 Drop the same definition into Vite DevTools via `createPluginFromDevframe` from `@vitejs/devtools-kit`. The dock entry is auto-derived from the definition.
@@ -42,8 +42,8 @@ Drop the same definition into Vite DevTools via `createPluginFromDevframe` from 
 | `build` | Generates a static, self-contained SPA snapshot. |
 | `vite` | Runs as a Vite plugin alongside the host app's dev server. |
 | `kit` | Mounts into the DevTools Kit aggregator. |
-| `embedded` | Overlays inside another devtool's UI. |
-| `mcp` | Surfaces the devtool's RPC to coding agents over MCP. |
+| `embedded` | Overlays inside another devframe's UI. |
+| `mcp` | Surfaces the devframe's RPC to coding agents over MCP. |
 
 ## Repo layout
 

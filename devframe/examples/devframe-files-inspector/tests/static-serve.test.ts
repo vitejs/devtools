@@ -7,7 +7,7 @@ import { getPort } from 'get-port-please'
 import { createApp, fromNodeMiddleware, toNodeListener } from 'h3'
 import sirv from 'sirv'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import devtool from '../src/devtool'
+import devframe from '../src/devframe'
 import { assertClientBuilt, makeFixtureCwd } from './_utils'
 
 interface StaticServer {
@@ -45,7 +45,7 @@ describe('static serve (deployed SPA contract)', () => {
     // pin the test's expected value to the realpath the build will record.
     cwd = process.cwd()
     outDir = await mkdtemp(path.join(os.tmpdir(), 'devframe-files-inspector-serve-'))
-    await createBuild(devtool, { outDir })
+    await createBuild(devframe, { outDir })
   })
 
   afterAll(async () => {

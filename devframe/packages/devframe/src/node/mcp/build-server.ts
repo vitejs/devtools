@@ -1,5 +1,5 @@
 import type { RpcFunctionDefinitionAnyWithContext } from 'devframe/rpc'
-import type { AgentTool, DevtoolDefinition, DevToolsHost, DevToolsNodeContext } from 'devframe/types'
+import type { AgentTool, DevframeDefinition, DevToolsHost, DevToolsNodeContext } from 'devframe/types'
 import type { GenericSchema } from 'valibot'
 import { homedir } from 'node:os'
 import process from 'node:process'
@@ -89,14 +89,14 @@ export function buildMcpServerFromContext(
 }
 
 /**
- * Build an MCP server over the agent surface of a devtool definition.
+ * Build an MCP server over the agent surface of a devframe definition.
  * Currently supports `stdio` transport only.
  *
  * @experimental The agent-native surface is experimental and may change
  * without a major version bump until it stabilizes.
  */
 export async function createMcpServer(
-  definition: DevtoolDefinition,
+  definition: DevframeDefinition,
   options: CreateMcpServerOptions = {},
 ): Promise<McpServerHandle> {
   const transport = options.transport ?? 'stdio'

@@ -27,7 +27,7 @@ export interface CreateHostContextOptions {
  * subsystems. Hub-level subsystems (`docks`, `terminals`, `messages`,
  * `commands`, `createJsonRenderer`) are owned by
  * `@vitejs/devtools-kit` — its `createKitContext` wraps this and
- * attaches them when the devtool is mounted into a multi-integration
+ * attaches them when the devframe is mounted into a multi-integration
  * hub.
  */
 export async function createHostContext(options: CreateHostContextOptions): Promise<DevToolsNodeContext> {

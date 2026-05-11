@@ -1,7 +1,7 @@
 import type { DevToolsRpcClient } from 'devframe/client'
 import type { StreamReader } from 'devframe/utils/streaming-channel'
-import type { ChatHistory, ChatMessage } from '../devtool'
-import { connectDevtool } from 'devframe/client'
+import type { ChatHistory, ChatMessage } from '../devframe'
+import { connectDevframe } from 'devframe/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'preact/hooks'
 
 const CHANNEL_NAME = 'devframe-streaming-chat:tokens'
@@ -21,7 +21,7 @@ export function App() {
   // Connect once and surface demo prompts.
   useEffect(() => {
     let cancelled = false
-    connectDevtool().then(async (r) => {
+    connectDevframe().then(async (r) => {
       if (cancelled)
         return
       setRpc(r)
@@ -166,7 +166,7 @@ export function App() {
   }, [rpc, isStreaming])
 
   if (!rpc)
-    return <main><p>Connecting to devtool…</p></main>
+    return <main><p>Connecting to devframe…</p></main>
 
   return (
     <main>

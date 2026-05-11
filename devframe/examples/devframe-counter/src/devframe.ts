@@ -1,11 +1,11 @@
 import process from 'node:process'
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 import * as v from 'valibot'
 
 let counter = 0
 let watchInterval: ReturnType<typeof setInterval> | undefined
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'devframe-counter',
   name: 'Devframe Counter',
   icon: 'ph:counter-duotone',

@@ -28,7 +28,7 @@ interface RegisteredResource {
 
 /**
  * Framework-neutral host aggregating the agent-exposed surface of a
- * devtool. Auto-discovers RPC functions with an `agent` field from
+ * devframe. Auto-discovers RPC functions with an `agent` field from
  * `ctx.rpc.definitions`, and accepts plugin-registered tools /
  * resources via `registerTool` / `registerResource`.
  *

@@ -16,7 +16,7 @@ import { getPort } from 'get-port-please'
 import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
 import { resolve } from 'pathe'
 import sirv from 'sirv'
-import devtool from '../src/devtool'
+import devframe from '../src/devframe'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
 export const CLIENT_DIST = resolve(HERE, '../dist/client')
@@ -62,8 +62,8 @@ export interface InspectorServer extends StartedServer {
 export async function startInspectorServer(
   { cwd }: { cwd: string },
 ): Promise<InspectorServer> {
-  const distDir = devtool.cli!.distDir!
-  const basePath = devtool.basePath!
+  const distDir = devframe.cli!.distDir!
+  const basePath = devframe.basePath!
   const host = '127.0.0.1'
   const port = await getPort({ host, random: true })
 
@@ -71,14 +71,14 @@ export async function startInspectorServer(
   const origin = `http://${host}:${port}`
   const h3Host = createH3DevToolsHost({
     origin,
-    appName: devtool.id,
+    appName: devframe.id,
     mount: (base, dir) => {
       app.use(base, fromNodeMiddleware(sirv(dir, { dev: true, single: true })))
     },
   })
 
   const ctx = await createHostContext({ cwd, mode: 'dev', host: h3Host })
-  await devtool.setup(ctx)
+  await devframe.setup(ctx)
 
   const metaPath = `${basePath}${DEVTOOLS_CONNECTION_META_FILENAME}`
   app.use(

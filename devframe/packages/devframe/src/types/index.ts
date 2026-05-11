@@ -1,6 +1,6 @@
 export * from './agent'
 export * from './context'
-export * from './devtool'
+export * from './devframe'
 export * from './diagnostics'
 export * from './events'
 export * from './host'

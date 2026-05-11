@@ -4,12 +4,12 @@ outline: deep
 
 # Nuxt Helper
 
-The `@devframes/nuxt` module wires a Nuxt-built SPA as a devframe client. It runs inside the Nuxt app that consumes your devtool — separate from the CLI that serves it.
+The `@devframes/nuxt` module wires a Nuxt-built SPA as a devframe client. It runs inside the Nuxt app that consumes your devframe — separate from the CLI that serves it.
 
 It handles the three things every Nuxt-powered standalone devtool needs:
 
 1. **Base-agnostic assets.** Sets `app.baseURL: './'` and `vite.base: './'` so the same production build works at `/`, `/tool/`, and any other deployment path without build-time URL rewriting.
-2. **Runtime RPC connection.** Adds a client plugin that calls [`connectDevtool()`](./client) once on page load and provides the result as `$rpc` on the Nuxt app.
+2. **Runtime RPC connection.** Adds a client plugin that calls [`connectDevframe()`](./client) once on page load and provides the result as `$rpc` on the Nuxt app.
 3. **TypeScript augmentation.** `useNuxtApp().$rpc` is typed as `DevToolsRpcClient` out of the box.
 
 ## Install
@@ -64,7 +64,7 @@ At build time the module:
 - Merges `{ devframe: { baseURL } }` into `runtimeConfig.public`
 - Injects a client-only plugin (`helpers/nuxt/runtime/plugin.client`) that:
   ```ts
-  const rpc = await connectDevtool({ baseURL: config.public.devframe.baseURL })
+  const rpc = await connectDevframe({ baseURL: config.public.devframe.baseURL })
   return { provide: { rpc } }
   ```
 
@@ -78,7 +78,7 @@ The Nuxt helper is a client-side integration — `createCli` runs the server sid
 my-tool/
 ├── bin.mjs               # createCli(devtool).parse()
 ├── src/
-│   ├── cli.ts            # defineDevtool + setup(ctx) { ctx.rpc.register(...) }
+│   ├── cli.ts            # defineDevframe + setup(ctx) { ctx.rpc.register(...) }
 │   └── app/              # Nuxt SPA — uses `@devframes/nuxt`
 └── dist/
     ├── cli.mjs           # bundled Node entry
@@ -88,10 +88,10 @@ my-tool/
 - `createCli` (from `devframe/adapters/cli`) runs the Node side — HTTP + WS + static build + MCP.
 - `@devframes/nuxt` handles the client side — RPC connection + base-URL plumbing.
 
-They're decoupled: swap Nuxt for any other SPA framework that calls `connectDevtool()` in the browser.
+They're decoupled: swap Nuxt for any other SPA framework that calls `connectDevframe()` in the browser.
 
 ## See also
 
 - [Standalone CLI recipe](./standalone-cli) — end-to-end walk-through
-- [Client](./client) — `connectDevtool` reference
+- [Client](./client) — `connectDevframe` reference
 - [Adapters](./adapters) — CLI / Vite / Build / SPA / Kit / Embedded / MCP

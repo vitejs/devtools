@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'node:url'
 import { defineRpcFunction } from 'devframe'
-import { defineDevtool } from 'devframe/types'
+import { defineDevframe } from 'devframe/types'
 import { glob } from 'tinyglobby'
 
 const BASE_PATH = '/__devframe-files-inspector/'
 const distDir = fileURLToPath(new URL('../dist/client', import.meta.url))
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'devframe-files-inspector',
   name: 'Files Inspector',
   icon: 'ph:folder-open-duotone',

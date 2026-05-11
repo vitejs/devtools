@@ -1,5 +1,5 @@
 // Public entry for the devframe MCP adapter. Translates the agent-host
-// surface of a DevtoolDefinition into an MCP server.
+// surface of a DevframeDefinition into an MCP server.
 //
 // Usage:
 //   import { createMcpServer } from 'devframe/adapters/mcp'

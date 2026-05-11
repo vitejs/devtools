@@ -15,7 +15,7 @@ function listErrorCodes(prefix: string): string[] {
 function guideItems(prefix: string): DefaultTheme.NavItemWithLink[] {
   return [
     { text: 'Introduction', link: `${prefix}/guide/` },
-    { text: 'Devtool Definition', link: `${prefix}/guide/devtool-definition` },
+    { text: 'Devframe Definition', link: `${prefix}/guide/devframe-definition` },
     { text: 'Adapters', link: `${prefix}/guide/adapters` },
     { text: 'RPC', link: `${prefix}/guide/rpc` },
     { text: 'Shared State', link: `${prefix}/guide/shared-state` },

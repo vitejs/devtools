@@ -4,7 +4,7 @@ A simplified [node-modules-inspector](https://github.com/antfu/node-modules-insp
 
 - **CLI dev server** — `node bin.mjs` boots an HTTP + WebSocket server backing live RPC.
 - **Static build** — `node bin.mjs build` produces a self-contained directory (SPA + baked RPC dump) deployable to any static host.
-- **Vite DevTools dock** — `import devtoolsFilesInspector from 'devframe-files-inspector-example/src/plugin'` plugs into a host Vite app via `@vitejs/devtools`.
+- **Vite DevTools dock** — `import filesInspectorPlugin from 'devframe-files-inspector-example/src/plugin'` plugs into a host Vite app via `@vitejs/devtools`.
 
 The Preact client showcases two patterns relevant to devframe authors:
 
@@ -26,8 +26,8 @@ pnpm -C examples/devframe-files-inspector run test        # E2E tests
 
 | Path | Purpose |
 |------|---------|
-| `src/devtool.ts` | The single `DevtoolDefinition` consumed by every adapter. |
-| `src/plugin.ts` | `createPluginFromDevframe(devtool)` re-export for `@vitejs/devtools`. |
+| `src/devframe.ts` | The single `DevframeDefinition` consumed by every adapter. |
+| `src/plugin.ts` | `createPluginFromDevframe(devframe)` re-export for `@vitejs/devtools`. |
 | `src/client/` | Preact SPA: `index.html`, `main.tsx`, `app.tsx`, `routes/*`, `vite.config.ts`. |
-| `bin.mjs` | `createCli(devtool).parse()` — exposes `dev`, `build`, `spa`, `mcp`. |
+| `bin.mjs` | `createCli(devframe).parse()` — exposes `dev`, `build`, `spa`, `mcp`. |
 | `tests/` | E2E tests for dev server, static build, and kit plugin shape. |

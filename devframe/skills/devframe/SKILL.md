@@ -3,21 +3,21 @@ name: devframe
 description: >
   Use when building one devtool integration with devframe — the
   portable, framework-neutral container for a single tool. Covers
-  DevtoolDefinition, picking the right deployment adapter
+  DevframeDefinition, picking the right deployment adapter
   (cli / build / spa / vite / embedded / mcp), designing RPC
   contracts, exposing an agent-native surface over MCP, and wiring
   the author's SPA client. Hub-only concerns (docks, terminals,
   commands, the unified messages dock) belong to
   `@vitejs/devtools-kit` — see the `vite-devtools-kit` skill for
-  those. Triggers on `devframe` imports, `defineDevtool`,
-  `createCli`, `createMcpServer`, `connectDevtool`, and on
+  those. Triggers on `devframe` imports, `defineDevframe`,
+  `createCli`, `createMcpServer`, `connectDevframe`, and on
   migrations of existing inspectors (eslint-config-inspector,
   unocss-inspector, node-modules-inspector-style tools) to devframe.
 ---
 
 # devframe skill
 
-**Devframe is the container for one devtool integration, portable across viewers.** A devtool built on devframe is a single `DevtoolDefinition` plus an author-provided SPA — the same definition deploys as a standalone CLI, a static report, an embedded SPA, an MCP server, or as a dock entry inside the Vite DevTools hub via `createPluginFromDevframe`.
+**Devframe is the container for one devtool integration, portable across viewers.** A devtool built on devframe is a single `DevframeDefinition` plus an author-provided SPA — the same definition deploys as a standalone CLI, a static report, an embedded SPA, an MCP server, or as a dock entry inside the Vite DevTools hub via `createPluginFromDevframe`.
 
 Devframe deliberately stops at the boundary of one tool. Anything that only matters across multiple integrations — docks, terminals, command palette, cross-tool toasts — lives in `@vitejs/devtools-kit`, the hub layer. `devframe` must not depend on Vite, any `@vitejs/*` package, or hub-only concepts; it's the lowest-level layer in the monorepo.
 
@@ -25,7 +25,7 @@ Full reference: [devfra.me/](https://devfra.me/).
 
 ## When to use devframe
 
-All adapter factories share the shape `createXxx(devtoolDef, options?)`.
+All adapter factories share the shape `createXxx(devframeDef, options?)`.
 
 | Author goal | Factory | Entry |
 |-------------|---------|-------|
@@ -37,14 +37,14 @@ All adapter factories share the shape `createXxx(devtoolDef, options?)`.
 | Register dynamically at runtime | `createEmbedded(def, { ctx })` | `devframe/adapters/embedded` |
 | Expose to coding agents (MCP) | `createMcpServer(def, options?)` | `devframe/adapters/mcp` *(experimental)* |
 
-The same `DevtoolDefinition` runs under every adapter — pick based on deployment, not on what the tool does.
+The same `DevframeDefinition` runs under every adapter — pick based on deployment, not on what the tool does.
 
-## Minimum viable devtool
+## Minimum viable devframe
 
 ```ts
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'my-inspector',
   name: 'My Inspector',
   icon: 'ph:magnifying-glass-duotone',
@@ -61,16 +61,16 @@ export default defineDevtool({
 
 `setup(ctx)` registers RPC functions, shared state, diagnostics, and any other devframe-level wiring. It does **not** receive `docks` / `terminals` / `messages` / `commands` — those are hub features. When mounted into Vite DevTools via `createPluginFromDevframe(d)`, the kit auto-derives an iframe dock entry from `id` / `name` / `icon` / `basePath`; for richer hub-side behaviour (custom-render, terminals, palette commands) pass `options.setup` to `createPluginFromDevframe`.
 
-See `templates/counter-devtool.ts` for a runnable counter example, `templates/spa-devtool.ts` for an SPA-ready shape, and `templates/vite-client.ts` for the author's client entry.
+See `templates/counter-devframe.ts` for a runnable counter example, `templates/spa-devframe.ts` for an SPA-ready shape, and `templates/vite-client.ts` for the author's client entry.
 
 ## Namespacing
 
-**Always prefix** RPC names, dock IDs, command IDs, shared-state keys, and agent tool IDs with the devtool `id`:
+**Always prefix** RPC names, dock IDs, command IDs, shared-state keys, and agent tool IDs with the devframe `id`:
 
 ```ts
 'my-inspector:get-modules' // ✓
 'my-inspector:state' // ✓
-'get-modules' // ✗ — may collide with other devtools sharing the host
+'get-modules' // ✗ — may collide with other devframes sharing the host
 ```
 
 ## DevToolsNodeContext at a glance
@@ -86,7 +86,7 @@ See `templates/counter-devtool.ts` for a runnable counter example, `templates/sp
 | `ctx.host` | Runtime abstraction — `mountStatic`, `resolveOrigin`, `getStorageDir` |
 | `ctx.mode` | `'dev'` or `'build'` — gate setup work per runtime |
 
-> Hub-only hosts (`ctx.docks`, `ctx.terminals`, `ctx.messages`, `ctx.commands`, `ctx.createJsonRenderer`) only exist when the devtool is mounted into Vite DevTools via `createPluginFromDevframe`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for those.
+> Hub-only hosts (`ctx.docks`, `ctx.terminals`, `ctx.messages`, `ctx.commands`, `ctx.createJsonRenderer`) only exist when the devframe is mounted into Vite DevTools via `createPluginFromDevframe`. See the [`vite-devtools-kit` skill](../../skills/vite-devtools-kit) for those.
 
 ## RPC contracts
 
@@ -319,25 +319,25 @@ Expose via MCP:
 ```ts
 import { createMcpServer } from 'devframe/adapters/mcp'
 
-await createMcpServer(devtool, { transport: 'stdio' })
+await createMcpServer(devframe, { transport: 'stdio' })
 ```
 
-`@modelcontextprotocol/sdk` is a peer dependency. The CLI adapter also exposes `my-devtool mcp` — route host logs to stderr (stdout is the MCP transport). Safety classifications (`'read' | 'action' | 'destructive'`) drive MCP hint annotations that agent clients use to prompt for confirmation.
+`@modelcontextprotocol/sdk` is a peer dependency. The CLI adapter also exposes `my-devframe mcp` — route host logs to stderr (stdout is the MCP transport). Safety classifications (`'read' | 'action' | 'destructive'`) drive MCP hint annotations that agent clients use to prompt for confirmation.
 
 ## Author SPA
 
 Authors bring their own SPA (any framework or plain HTML). Client entry:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 // await rpc.ensureTrusted() // WS mode only — blocks until server accepts
 
 const data = await rpc.call('my-inspector:get-stats', { limit: 10 })
 ```
 
-`connectDevtool` auto-detects the backend via `/.devtools/.connection.json`:
+`connectDevframe` auto-detects the backend via `/.devtools/.connection.json`:
 
 - **websocket** (dev mode) — full read/write, requires auth handshake. Listen for token updates on the `vite-devtools-auth` BroadcastChannel.
 - **static** (build / spa output) — read-only, resolves calls from the baked RPC dump.
@@ -366,7 +366,7 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 
 ## CLI adapter subcommands
 
-`createCli(devtool).parse()` gives the tool four subcommands out of the box:
+`createCli(devframe).parse()` gives the tool four subcommands out of the box:
 
 | Subcommand | Action |
 |------------|--------|
@@ -380,14 +380,14 @@ At runtime, static clients look up the argument hash in the dump; misses resolve
 ## Testing
 
 - Unit-test host classes with fake contexts.
-- Run `templates/counter-devtool.ts` under each adapter for integration coverage.
+- Run `templates/counter-devframe.ts` under each adapter for integration coverage.
 - Snapshot the build-static RPC dump (`<outDir>/.devtools/.rpc-dump/index.json`) to catch accidental drift in `static` function outputs.
 
 ## Further reading
 
 Devframe-level pages (one-tool, portable surface):
 
-- [Devtool Definition](https://devfra.me/devtool-definition) — fields, runtime flags, multi-adapter wiring
+- [Devframe Definition](https://devfra.me/devframe-definition) — fields, runtime flags, multi-adapter wiring
 - [Adapters](https://devfra.me/adapters) — full reference for all deployment adapters
 - [RPC](https://devfra.me/rpc) — types, schema, broadcasts, dumps
 - [Shared State](https://devfra.me/shared-state) — patches, events, client-side mutation

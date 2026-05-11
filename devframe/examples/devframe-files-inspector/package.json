@@ -4,7 +4,7 @@
   "version": "0.1.21",
   "private": true,
   "description": "End-to-end devframe demo — lists files in cwd via RPC, exercises CLI dev/build/spa and Vite DevTools dock integration.",
-  "main": "src/devtool.ts",
+  "main": "src/devframe.ts",
   "bin": {
     "devframe-files-inspector": "./bin.mjs"
   },

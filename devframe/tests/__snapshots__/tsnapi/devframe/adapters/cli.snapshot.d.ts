@@ -18,7 +18,7 @@ export interface CreateCliOptions {
 // #endregion
 
 // #region Functions
-export declare function createCli(_: DevtoolDefinition, _?: CreateCliOptions): CliHandle;
+export declare function createCli(_: DevframeDefinition, _?: CreateCliOptions): CliHandle;
 // #endregion
 
 // #region Other

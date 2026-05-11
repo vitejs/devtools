@@ -89,7 +89,7 @@ export declare class DevToolsTerminalHost implements DevToolsTerminalHost$1 {
 // #endregion
 
 // #region Functions
-export declare function createPluginFromDevframe(_: DevtoolDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
+export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): DevToolsHost;
 // #endregion
