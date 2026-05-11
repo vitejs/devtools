@@ -2,7 +2,7 @@ import type { DevToolsDockUserEntry, DevToolsViewIframe, RemoteConnectionInfo } 
 import type { KitNodeContext } from '../context'
 import { Buffer } from 'node:buffer'
 import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
-import { getInternalContext, internalContextMap } from 'devframe/internal'
+import { getInternalContext, internalContextMap } from 'devframe/node/internal'
 import { describe, expect, it } from 'vitest'
 import { DevToolsDockHost } from '../host-docks'
 

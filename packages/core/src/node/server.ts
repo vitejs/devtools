@@ -1,6 +1,7 @@
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
-import { consumeTempAuthToken, getInternalContext } from 'devframe/node'
+import { consumeTempAuthToken } from 'devframe/node/auth'
+import { getInternalContext } from 'devframe/node/internal'
 import { serveStaticHandler } from 'devframe/utils/serve-static'
 import { createApp, eventHandler, getQuery, toNodeListener } from 'h3'
 import { dirClientStandalone } from '../dirs'

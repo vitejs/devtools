@@ -2,7 +2,8 @@
 import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { abortPendingAuth, getInternalContext, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node'
+import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node/auth'
+import { getInternalContext } from 'devframe/node/internal'
 import { colors as c } from 'devframe/utils/colors'
 import { MARK_INFO } from '../../constants'
 

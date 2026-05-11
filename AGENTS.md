@@ -45,7 +45,7 @@ flowchart TD
 
 `devframe/packages/devframe` is the lowest-level package in this monorepo and is positioned to be extracted into its own repo. It MUST NOT import from `vite`, `@vitejs/*`, or any hub-only concept (docks, terminals, messages, commands) — not as a `dependencies` entry, not as an inlined dep, not as a source import. `packages/kit` and above build on top of devframe; never the reverse. If a feature requires multi-integration awareness, it goes in kit.
 
-`devframe/internal` is a marked-internal subpath that exposes a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters that need to reach into devframe's private machinery — kit's relocated `DocksHost` uses it for remote-dock token allocation. End users should not import it.
+`devframe/node/internal` is a marked-internal subpath that exposes a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters that need to reach into devframe's private machinery — kit's relocated `DocksHost` uses it for remote-dock token allocation. End users should not import it.
 
 ## Architecture
 

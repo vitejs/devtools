@@ -22,17 +22,6 @@ export interface CreateStorageOptions<T extends object> {
   mergeInitialValue?: false | ((_: T, _: T) => T);
   debounce?: number;
 }
-export interface PendingAuthRequest {
-  clientAuthToken: string;
-  session: DevToolsNodeRpcSession;
-  ua: string;
-  origin: string;
-  resolve: (_: {
-    isTrusted: boolean;
-  }) => void;
-  abortController: AbortController;
-  timeout: ReturnType<typeof setTimeout>;
-}
 export interface StaticRpcDumpCollection {
   manifest: StaticRpcDumpManifest;
   files: Record<string, StaticRpcDumpFile>;
@@ -119,30 +108,17 @@ export declare class RpcFunctionsHost extends RpcFunctionsCollectorBase<DevTools
 // #endregion
 
 // #region Functions
-export declare function abortPendingAuth(): void;
 export declare function collectStaticRpcDump(_: Iterable<RpcFunctionDefinitionAny>, _: any): Promise<StaticRpcDumpCollection>;
-export declare function consumeTempAuthToken(_: string, _: SharedState<InternalAnonymousAuthStorage>): string | null;
 export declare function createH3DevToolsHost(_: CreateH3DevToolsHostOptions): DevToolsHost;
 export declare function createHostContext(_: CreateHostContextOptions): Promise<DevToolsNodeContext>;
 export declare function createRpcSharedStateServerHost(_: RpcFunctionsHost$1): RpcSharedStateHost;
 export declare function createRpcStreamingServerHost(_: RpcFunctionsHost$1): RpcStreamingHost;
 export declare function createStorage<T extends object>(_: CreateStorageOptions<T>): SharedState<T>;
-export declare function getPendingAuth(): PendingAuthRequest | null;
-export declare function getTempAuthToken(): string;
 export declare function isObject(_: unknown): value is Record<string, any>;
 export declare function normalizeHttpServerUrl(_: string, _: number | string): string;
-export declare function refreshTempAuthToken(): string;
-export declare function revokeActiveConnectionsForToken(_: DevToolsNodeContext, _: string): Promise<void>;
-export declare function revokeAuthToken(_: DevToolsNodeContext, _: SharedState<InternalAnonymousAuthStorage>, _: string): Promise<void>;
-export declare function setPendingAuth(_: PendingAuthRequest | null): void;
 // #endregion
 
 // #region Other
-export { DevToolsInternalContext }
-export { getInternalContext }
-export { InternalAnonymousAuthStorage }
-export { internalContextMap }
-export { RemoteTokenRecord }
 export { StartedServer }
 export { startHttpAndWs }
 export { StartHttpAndWsOptions }
