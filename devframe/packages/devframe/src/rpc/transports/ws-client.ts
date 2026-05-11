@@ -84,7 +84,12 @@ export function createWsRpcChannel(options: WsRpcChannelOptions): ChannelOptions
         method = pendingRequestMethods.get(msg.i)
         pendingRequestMethods.delete(msg.i)
       }
-      const useJson = !!method && definitions.get(method)?.jsonSerializable === true
+      // `jsonSerializable` constrains the return-value path (args + return).
+      // Error envelopes (`{ t: 's', i, e }`) carry a thrown value — fall back
+      // to structured-clone so they round-trip instead of crashing the serializer.
+      // Detect via `'e' in msg` so `throw undefined` still routes through SC.
+      const isErrorResponse = msg.t === 's' && 'e' in msg
+      const useJson = !isErrorResponse && !!method && definitions.get(method)?.jsonSerializable === true
       if (useJson)
         return strictJsonStringify(msg, method ?? '')
       return `${STRUCTURED_CLONE_PREFIX}${structuredCloneStringify(msg)}`

@@ -52,4 +52,38 @@ describe('devtools rpc', () => {
 
     expect(await server.broadcast.$call('hey', 'server')).toEqual(expect.arrayContaining(['hey server, I\'m client 1', 'hey server, I\'m client 2']))
   })
+
+  // Regression: a `jsonSerializable: true` RPC that throws used to crash the
+  // WS serializer with DF0020 because the error envelope was strict-JSON-encoded
+  // alongside the result path.
+  it('returns a rejection (not a serialization crash) when a jsonSerializable RPC throws', async () => {
+    const PORT = 3334
+    const HOST = '127.0.0.1'
+    const WS_URL = `ws://${HOST}:${PORT}`
+
+    const serverFunctions = {
+      explode: async () => {
+        throw new Error('boom')
+      },
+    }
+
+    const definitions = new Map<string, { jsonSerializable?: boolean }>([
+      ['explode', { jsonSerializable: true }],
+    ])
+
+    const server = createRpcServer<Record<string, never>, typeof serverFunctions>(serverFunctions)
+    const { wss } = attachWsRpcTransport(server, { port: PORT, host: HOST, definitions: definitions as any })
+
+    try {
+      const client = createRpcClient<typeof serverFunctions, Record<string, never>>({}, {
+        channel: createWsRpcChannel({ url: WS_URL, definitions: definitions as any }),
+      })
+
+      await expect(client.$call('explode')).rejects.toThrow(/boom/)
+    }
+    finally {
+      for (const c of wss.clients) c.terminate()
+      await new Promise<void>(resolve => wss.close(() => resolve()))
+    }
+  })
 })
