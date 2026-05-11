@@ -5,6 +5,12 @@
 export interface DevframeNuxtModuleOptions {
   baseURL?: string;
   skipAppDefaults?: boolean;
+  devframe?: DevframeDefinition;
+  devMiddleware?: boolean | {
+    port?: number;
+    host?: string;
+    flags?: Record<string, unknown>;
+  };
 }
 // #endregion
 

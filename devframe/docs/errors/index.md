@@ -41,3 +41,4 @@ Emitted by `devframe` — framework-neutral host / shared-state / auth surface.
 | [DF0030](./DF0030) | error | Unknown Stream ID |
 | [DF0031](./DF0031) | error | Write to Closed Stream |
 | [DF0032](./DF0032) | error | Streaming Channel Already Registered |
+| [DF0033](./DF0033) | warn | Dev RPC Bridge Failed to Start |
