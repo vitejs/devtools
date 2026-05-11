@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { getPort } from 'get-port-please'
 import { describe, expect, it } from 'vitest'
-import { defineDevtool } from '../../types/devtool'
+import { defineDevframe } from '../../types/devframe'
 import { createDevServer, resolveDevServerPort } from '../dev'
 
 function makeTmpDist(): string {
@@ -15,7 +15,7 @@ function makeTmpDist(): string {
 describe('adapters/dev', () => {
   it('createDevServer starts, exposes __connection.json, and closes', async () => {
     const distDir = makeTmpDist()
-    const devtool = defineDevtool({
+    const devframe = defineDevframe({
       id: 'devframe-test',
       name: 'Devframe Test',
       setup: () => {},
@@ -23,7 +23,7 @@ describe('adapters/dev', () => {
 
     const host = '127.0.0.1'
     const port = await getPort({ port: 19999, host })
-    const handle = await createDevServer(devtool, {
+    const handle = await createDevServer(devframe, {
       host,
       port,
       distDir,
@@ -45,37 +45,37 @@ describe('adapters/dev', () => {
   })
 
   it('createDevServer throws when no distDir is configured', async () => {
-    const devtool = defineDevtool({
+    const devframe = defineDevframe({
       id: 'devframe-test-nodist',
       name: 'No Dist',
       setup: () => {},
     })
-    await expect(createDevServer(devtool, { openBrowser: false }))
+    await expect(createDevServer(devframe, { openBrowser: false }))
       .rejects
       .toThrow(/no distDir/)
   })
 
   it('resolveDevServerPort honors def.cli.port as the preferred default', async () => {
     const preferred = await getPort({ port: 19500, host: '127.0.0.1' })
-    const devtool = defineDevtool({
+    const devframe = defineDevframe({
       id: 'devframe-test-port',
       name: 'Port Test',
       setup: () => {},
       cli: { port: preferred },
     })
-    const port = await resolveDevServerPort(devtool, { host: '127.0.0.1' })
+    const port = await resolveDevServerPort(devframe, { host: '127.0.0.1' })
     expect(port).toBe(preferred)
   })
 
   it('resolveDevServerPort: defaultPort overrides def.cli.port', async () => {
     const override = await getPort({ port: 19600, host: '127.0.0.1' })
-    const devtool = defineDevtool({
+    const devframe = defineDevframe({
       id: 'devframe-test-port-override',
       name: 'Port Override',
       setup: () => {},
       cli: { port: 9999 },
     })
-    const port = await resolveDevServerPort(devtool, {
+    const port = await resolveDevServerPort(devframe, {
       host: '127.0.0.1',
       defaultPort: override,
     })

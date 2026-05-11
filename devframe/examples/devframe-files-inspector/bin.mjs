@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import process from 'node:process'
 import { createCli } from 'devframe/adapters/cli'
-import devtool from './src/devtool.ts'
+import devframe from './src/devframe.ts'
 
 async function main() {
-  const cli = createCli(devtool)
+  const cli = createCli(devframe)
   await cli.parse()
 }
 

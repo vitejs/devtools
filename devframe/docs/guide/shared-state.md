@@ -30,13 +30,13 @@ flowchart LR
 Use `ctx.rpc.sharedState.get(key, options)` in your `setup`:
 
 ```ts
-import { defineDevtool } from 'devframe'
+import { defineDevframe } from 'devframe'
 
-export default defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+export default defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   async setup(ctx) {
-    const state = await ctx.rpc.sharedState.get('my-devtool:state', {
+    const state = await ctx.rpc.sharedState.get('my-devframe:state', {
       initialValue: {
         count: 0,
         items: [] as { id: string, name: string }[],
@@ -48,7 +48,7 @@ export default defineDevtool({
 })
 ```
 
-Namespace keys with `<devtool-id>:<key>` to avoid collisions when multiple devtools share a host.
+Namespace keys with `<devframe-id>:<key>` to avoid collisions when multiple devframes share a host.
 
 ## Reading
 
@@ -84,7 +84,7 @@ Mutations are idempotent across replay — Devframe tracks a `syncIds` set inter
 Enable patches for minimal network diffs instead of full snapshots:
 
 ```ts
-const state = await ctx.rpc.sharedState.get('my-devtool:big-state', {
+const state = await ctx.rpc.sharedState.get('my-devframe:big-state', {
   initialValue: largeTree,
   // sharedState-level enablePatches is opt-in:
   sharedState: createSharedState({ initialValue: largeTree, enablePatches: true }),
@@ -106,11 +106,11 @@ state.on('updated', (fullState, patches, syncId) => {
 The same key is available on the RPC client in the browser:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 
-const state = await rpc.sharedState.get('my-devtool:state')
+const state = await rpc.sharedState.get('my-devframe:state')
 
 console.log(state.value().count)
 

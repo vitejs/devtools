@@ -23,7 +23,7 @@ export interface DevframeNuxtModuleOptions {
  *   - Sets `app.baseURL: './'` + `vite.base: './'` so the production
  *     build is base-agnostic (works at any deployment path without
  *     build-time rewriting).
- *   - Injects a client plugin that calls {@link connectDevtool} once on
+ *   - Injects a client plugin that calls {@link connectDevframe} once on
  *     page load and exposes the RPC client via `useNuxtApp().$rpc`.
  *
  * ```ts [nuxt.config.ts]

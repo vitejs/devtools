@@ -8,7 +8,7 @@ import {
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from 'devframe/constants'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import devtool from '../src/devtool'
+import devframe from '../src/devframe'
 import { assertClientBuilt, makeFixtureCwd } from './_utils'
 
 interface DumpManifest {
@@ -41,7 +41,7 @@ describe('static build (CLI build surface)', () => {
   })
 
   it('createBuild copies the SPA with relative asset URLs', async () => {
-    await createBuild(devtool, { outDir: outBuild })
+    await createBuild(devframe, { outDir: outBuild })
 
     const html = await readFile(path.join(outBuild, 'index.html'), 'utf-8')
     expect(html).toContain('<base href="./" />')
@@ -91,14 +91,14 @@ describe('static build (CLI build surface)', () => {
   })
 
   it('writes spa-loader.json honoring a custom base when def.spa is set', async () => {
-    // The example's devtool sets `spa: { loader: 'none' }`, which opts
+    // The example's devframe sets `spa: { loader: 'none' }`, which opts
     // into the spa-loader sidecar. A `--base` override should be reflected
     // verbatim in the loader descriptor without forcing a rebuild — the
     // SPA bundle itself uses runtime base discovery, so the descriptor is
     // the only place the deploy base needs to land.
     const out = await mkdtemp(path.join(os.tmpdir(), 'devframe-files-inspector-base-'))
     try {
-      await createBuild(devtool, { outDir: out, base: '/custom-base/' })
+      await createBuild(devframe, { outDir: out, base: '/custom-base/' })
       const loader = JSON.parse(
         await readFile(path.join(out, 'spa-loader.json'), 'utf-8'),
       ) as { version: number, mode: string, base: string }

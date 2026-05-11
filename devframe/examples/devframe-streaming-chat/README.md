@@ -46,7 +46,7 @@ with partial content, clear, and replay-after-finish.
 
 ## Wire it to a real LLM
 
-Replace `fakeTokens(prompt)` in `src/devtool.ts` with anything that
+Replace `fakeTokens(prompt)` in `src/devframe.ts` with anything that
 yields strings — the rest of the example doesn't care. For OpenAI:
 
 ```ts

@@ -1,7 +1,7 @@
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
 async function main() {
-  const rpc = await connectDevtool()
+  const rpc = await connectDevframe()
 
   async function refresh() {
     const result = await rpc.call('devframe-counter:get' as any)

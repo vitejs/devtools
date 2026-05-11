@@ -10,7 +10,7 @@ import { defineRpcFunction } from '../rpc/define'
  * ```ts
  * import { openInEditor } from 'devframe/recipes/open-helpers'
  *
- * defineDevtool({
+ * defineDevframe({
  *   id: 'my-tool',
  *   name: 'My Tool',
  *   setup(ctx) {

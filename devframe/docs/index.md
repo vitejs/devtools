@@ -4,7 +4,7 @@ layout: home
 hero:
   name: Devframe
   text: Framework-neutral foundation for DevTools
-  tagline: One devtool definition. Seven adapters. RPC, hosts, shared state, and agent-native — independent of Vite and any UI framework.
+  tagline: One devframe definition. Seven adapters. RPC, hosts, shared state, and agent-native — independent of Vite and any UI framework.
   actions:
     - theme: brand
       text: Get Started
@@ -16,8 +16,8 @@ hero:
 features:
   - icon: 🧱
     title: One Definition, Many Deployments
-    details: A single `defineDevtool` call deploys to CLI, static build, SPA, Vite plugin, embedded overlay, kit host, or MCP server.
-    link: /guide/devtool-definition
+    details: A single `defineDevframe` call deploys to CLI, static build, SPA, Vite plugin, embedded overlay, kit host, or MCP server.
+    link: /guide/devframe-definition
   - icon: 🔌
     title: Type-safe RPC
     details: Bidirectional, schema-validated calls built on birpc + valibot. Query, static, action, and event function types.

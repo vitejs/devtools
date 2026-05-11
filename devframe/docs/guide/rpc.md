@@ -13,7 +13,7 @@ sequenceDiagram
   participant Client as Browser client
   participant Server as Node server
 
-  Client->>Server: rpc.call('my-devtool:get-modules')
+  Client->>Server: rpc.call('my-devframe:get-modules')
   Note over Server: handler: async () =><br/>readModules()
   Server-->>Client: [{ id, size }, …]
 ```
@@ -25,7 +25,7 @@ import { defineRpcFunction } from 'devframe'
 import * as v from 'valibot'
 
 export const getModules = defineRpcFunction({
-  name: 'my-devtool:get-modules',
+  name: 'my-devframe:get-modules',
   type: 'query',
   args: [v.object({ limit: v.number() })],
   returns: v.array(v.object({ id: v.string(), size: v.number() })),
@@ -41,12 +41,12 @@ export const getModules = defineRpcFunction({
 Register it in `setup`:
 
 ```ts
-import { defineDevtool } from 'devframe'
+import { defineDevframe } from 'devframe'
 import { getModules } from './rpc/get-modules'
 
-export default defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+export default defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   setup(ctx) {
     ctx.rpc.register(getModules)
   },
@@ -55,7 +55,7 @@ export default defineDevtool({
 
 ### Naming convention
 
-Scope with your devtool id and use kebab-case for the action: `my-devtool:get-modules`, `my-devtool:read-file`, `my-devtool:trigger-rebuild`.
+Scope with your devframe id and use kebab-case for the action: `my-devframe:get-modules`, `my-devframe:read-file`, `my-devframe:trigger-rebuild`.
 
 ### Function types
 
@@ -74,7 +74,7 @@ Handlers accept any serializable arguments. With `args` valibot schemas, argumen
 
 ```ts
 defineRpcFunction({
-  name: 'my-devtool:get-file',
+  name: 'my-devframe:get-file',
   type: 'query',
   args: [v.object({ path: v.string(), includeSource: v.optional(v.boolean()) })],
   returns: v.object({ path: v.string(), source: v.optional(v.string()) }),
@@ -99,7 +99,7 @@ Two ways to wire a handler:
 ```ts
 // With setup:
 defineRpcFunction({
-  name: 'my-devtool:count',
+  name: 'my-devframe:count',
   type: 'query',
   setup: ctx => ({
     handler: async () => ctx.rpc.sharedState.keys().length,
@@ -108,7 +108,7 @@ defineRpcFunction({
 
 // Shorthand:
 defineRpcFunction({
-  name: 'my-devtool:echo',
+  name: 'my-devframe:echo',
   type: 'query',
   handler: (msg: string) => msg,
 })
@@ -119,13 +119,13 @@ defineRpcFunction({
 `ctx.rpc.broadcast` sends a message from the server to every connected client:
 
 ```ts
-defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   setup(ctx) {
     watcher.on('change', (file) => {
       void ctx.rpc.broadcast({
-        method: 'my-devtool:on-file-changed',
+        method: 'my-devframe:on-file-changed',
         args: [{ file }],
       })
     })
@@ -146,7 +146,7 @@ defineDevtool({
 For chunk-style server→client feeds (chat deltas, log lines, build progress), use [streaming channels](./streaming) — they handle stream IDs, cancellation, replay, and Web Streams interop for you:
 
 ```ts
-const channel = ctx.rpc.streaming.create<string>('my-devtool:chat', {
+const channel = ctx.rpc.streaming.create<string>('my-devframe:chat', {
   replayWindow: 256,
 })
 const stream = channel.start()
@@ -160,19 +160,19 @@ See the [Streaming guide](./streaming) for the full API.
 `ctx.rpc.invokeLocal` calls a registered server function directly, skipping the transport — useful for cross-function composition on the server side:
 
 ```ts
-const modules = await ctx.rpc.invokeLocal('my-devtool:get-modules', { limit: 10 })
+const modules = await ctx.rpc.invokeLocal('my-devframe:get-modules', { limit: 10 })
 ```
 
 ## Client-side calls
 
-From the browser, [`connectDevtool`](./client) (or `getDevToolsRpcClient`) returns a client for calling registered functions:
+From the browser, [`connectDevframe`](./client) (or `getDevToolsRpcClient`) returns a client for calling registered functions:
 
 ```ts
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 
-const rpc = await connectDevtool()
+const rpc = await connectDevframe()
 
-const modules = await rpc.call('my-devtool:get-modules', { limit: 10 })
+const modules = await rpc.call('my-devframe:get-modules', { limit: 10 })
 ```
 
 Client-side registration (for server→client calls) goes through `rpc.client.register()` — the mirror API of `ctx.rpc.register()`.
@@ -183,7 +183,7 @@ For `static` functions, Devframe records the handler's output during `createBuil
 
 ```ts
 defineRpcFunction({
-  name: 'my-devtool:build-meta',
+  name: 'my-devframe:build-meta',
   type: 'static',
   args: [],
   returns: v.object({ version: v.string(), builtAt: v.number() }),
@@ -197,7 +197,7 @@ For `query` functions, provide an explicit `dump` to enumerate which argument se
 
 ```ts
 defineRpcFunction({
-  name: 'my-devtool:get-session',
+  name: 'my-devframe:get-session',
   type: 'query',
   setup: ctx => ({
     handler: async (id: string) => loadSession(id),
@@ -209,7 +209,7 @@ defineRpcFunction({
 })
 ```
 
-At runtime, static clients resolve `rpc.call('my-devtool:get-session', 'session-a')` from the baked dump; unmatched arguments resolve to `dump.fallback` (or throw without one).
+At runtime, static clients resolve `rpc.call('my-devframe:get-session', 'session-a')` from the baked dump; unmatched arguments resolve to `dump.fallback` (or throw without one).
 
 ## JSON-serializable declaration
 
@@ -228,7 +228,7 @@ The wire stays plain JSON when every participating function is JSON-flagged — 
 
 ```ts
 defineRpcFunction({
-  name: 'my-devtool:graph',
+  name: 'my-devframe:graph',
   jsonSerializable: true,
   // ⚠ throws DF0020 because Map cannot round-trip through JSON
   handler: () => ({ nodes: new Map([['a', 1]]) }),
@@ -247,7 +247,7 @@ Add an `agent` field to surface the function to coding agents over MCP. Agent ex
 
 ```ts
 defineRpcFunction({
-  name: 'my-devtool:get-modules',
+  name: 'my-devframe:get-modules',
   type: 'query',
   jsonSerializable: true,
   args: [v.object({ limit: v.number() })],

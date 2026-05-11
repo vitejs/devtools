@@ -2,24 +2,24 @@
 outline: deep
 ---
 
-# Devtool Definition
+# Devframe Definition
 
-Every Devframe tool starts with a single `defineDevtool` call. The returned `DevtoolDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
+Every Devframe tool starts with a single `defineDevframe` call. The returned `DevframeDefinition` is a portable value that any of the [adapters](./adapters) can consume — the same definition runs under `createCli`, `createBuild`, `createMcpServer`, kit's `createPluginFromDevframe`, and so on.
 
 ## Minimal definition
 
 ```ts twoslash
-import { defineDevtool, defineRpcFunction } from 'devframe'
+import { defineDevframe, defineRpcFunction } from 'devframe'
 import * as v from 'valibot'
 
-export default defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+export default defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   icon: 'ph:gauge-duotone',
   setup(ctx) {
     // Register your RPC functions, shared state, etc. here.
     ctx.rpc.register(defineRpcFunction({
-      name: 'my-devtool:hello',
+      name: 'my-devframe:hello',
       type: 'static',
       jsonSerializable: true,
       handler: () => ({ message: 'hello' }),
@@ -42,17 +42,17 @@ When mounted into Vite DevTools via [`createPluginFromDevframe`](./adapters#kit)
 | `capabilities` | `{ dev?, build?, spa? }` | Per-runtime feature flags. A `boolean` applies to the runtime as a whole; an object enables individual features. |
 | `setup` | `(ctx, info?) => void \| Promise<void>` | **Required.** Server-side entry point. Runs in every runtime. The optional second argument carries runtime metadata — most notably the parsed CLI `flags` when running under `createCli`. |
 | `setupBrowser` | `(ctx) => void \| Promise<void>` | Browser-only entry used by the SPA adapter. |
-| `cli` | `DevtoolCliOptions` | Defaults for the CLI adapter. See [CLI options](#cli-options) below. |
-| `spa` | `DevtoolSpaOptions` | Defaults for the SPA adapter (`base`, `loader`). |
+| `cli` | `DevframeCliOptions` | Defaults for the CLI adapter. See [CLI options](#cli-options) below. |
+| `spa` | `DevframeSpaOptions` | Defaults for the SPA adapter (`base`, `loader`). |
 
 ### Runtime flags
 
 The `ctx.mode` field is either `'dev'` or `'build'`. Use it to gate work that should only run in one runtime:
 
 ```ts
-defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   setup(ctx) {
     if (ctx.mode === 'build') {
       // Static-only work — baked into the RPC dump.
@@ -98,9 +98,9 @@ Each host has a dedicated page:
 The SPA adapter supports a `setupBrowser(ctx)` hook that runs inside the deployed client bundle. Use it for tools that perform their own in-browser work — parsing a dropped file, calling public APIs from the client, etc.
 
 ```ts
-defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   setup(ctx) { /* server-side */ },
   setupBrowser(ctx) {
     // `ctx.rpc` is the write-disabled static client in SPA mode.
@@ -115,11 +115,11 @@ Deployed SPAs that use `setupBrowser` ship their own client entry that registers
 `cli` configures the CLI adapter's defaults and plugs additional flags/commands into the CAC instance:
 
 ```ts
-defineDevtool({
-  id: 'my-devtool',
-  name: 'My Devtool',
+defineDevframe({
+  id: 'my-devframe',
+  name: 'My Devframe',
   cli: {
-    command: 'my-devtool', // binary name; default: the `id`
+    command: 'my-devframe', // binary name; default: the `id`
     distDir: './client/dist', // required for dev / build / spa
     port: 9876, // preferred port; default: 9999
     portRange: [9876, 10000], // forwarded to get-port-please
@@ -157,8 +157,8 @@ defineDevtool({
 ## SPA options
 
 ```ts
-defineDevtool({
-  id: 'my-devtool',
+defineDevframe({
+  id: 'my-devframe',
   spa: {
     base: '/',
     loader: 'query', // 'query' | 'upload' | 'none'
@@ -177,20 +177,20 @@ import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { createBuild } from 'devframe/adapters/build'
 import { createCli } from 'devframe/adapters/cli'
 
-const devtool = defineDevtool({ id: 'my-devtool', name: 'My Devtool', setup() {} })
+const devframe = defineDevframe({ id: 'my-devframe', name: 'My Devframe', setup() {} })
 
 // 1. Standalone CLI:
-await createCli(devtool).parse()
+await createCli(devframe).parse()
 
 // 2. Embedded in a Vite project (from `vite.config.ts`):
-export const myPlugin = () => createPluginFromDevframe(devtool)
+export const myPlugin = () => createPluginFromDevframe(devframe)
 
 // 3. Offline snapshot:
-await createBuild(devtool, { outDir: 'dist-static' })
+await createBuild(devframe, { outDir: 'dist-static' })
 ```
 
 ## What's next
 
 - [Adapters](./adapters) — pick a deployment target
 - [RPC](./rpc) — register server functions
-- [Vite DevTools Kit](https://devtools.vite.dev/kit/) — mount your devtool into the multi-integration hub
+- [Vite DevTools Kit](https://devtools.vite.dev/kit/) — mount your devframe into the multi-integration hub

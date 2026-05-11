@@ -8,5 +8,5 @@ export interface CreateEmbeddedOptions {
 // #endregion
 
 // #region Functions
-export declare function createEmbedded(_: DevtoolDefinition, _: CreateEmbeddedOptions): Promise<void>;
+export declare function createEmbedded(_: DevframeDefinition, _: CreateEmbeddedOptions): Promise<void>;
 // #endregion

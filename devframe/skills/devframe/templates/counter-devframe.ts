@@ -1,11 +1,11 @@
-// Smallest possible devtool. The dock entry is auto-derived from
+// Smallest possible devframe. The dock entry is auto-derived from
 // `id` / `name` / `icon` when this definition is mounted into Vite
-// DevTools via `createPluginFromDevframe(devtool)`.
-import { defineDevtool, defineRpcFunction } from 'devframe'
+// DevTools via `createPluginFromDevframe(devframe)`.
+import { defineDevframe, defineRpcFunction } from 'devframe'
 
 let counter = 0
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'counter',
   name: 'Counter',
   icon: 'ph:counter-duotone',

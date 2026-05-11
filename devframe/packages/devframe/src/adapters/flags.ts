@@ -20,7 +20,7 @@ export type CliFlagsSchema = Record<string, GenericSchema>
  *   config: v.optional(v.string()),
  * })
  *
- * defineDevtool({
+ * defineDevframe({
  *   cli: { flags: appFlags },
  *   setup(ctx, info) {
  *     const flags = info.flags as InferCliFlags<typeof appFlags>

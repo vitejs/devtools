@@ -3,7 +3,7 @@ import path from 'node:path'
 import { createKitContext } from '@vitejs/devtools-kit/node'
 import { createH3DevToolsHost } from 'devframe/node'
 import { describe, expect, it, vi } from 'vitest'
-import devtool from '../src/devtool'
+import devframe from '../src/devframe'
 import kitPlugin from '../src/plugin'
 
 describe('kit-plugin (Vite DevTools dock surface)', () => {
@@ -16,7 +16,7 @@ describe('kit-plugin (Vite DevTools dock surface)', () => {
     const mount = vi.fn()
     const host = createH3DevToolsHost({
       origin: 'http://test.localhost',
-      appName: devtool.id,
+      appName: devframe.id,
       mount,
     })
     const ctx = await createKitContext({ cwd: process.cwd(), mode: 'dev', host })
@@ -35,6 +35,6 @@ describe('kit-plugin (Vite DevTools dock surface)', () => {
     expect(mount).toHaveBeenCalledTimes(1)
     const [[base, distDir]] = mount.mock.calls
     expect(base).toBe('/__devframe-files-inspector/')
-    expect(path.resolve(distDir)).toBe(path.resolve(devtool.cli!.distDir))
+    expect(path.resolve(distDir)).toBe(path.resolve(devframe.cli!.distDir))
   })
 })

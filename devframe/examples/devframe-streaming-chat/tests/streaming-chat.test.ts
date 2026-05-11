@@ -1,5 +1,5 @@
 import type { DevToolsNodeContext, StartedServer } from 'devframe/node'
-import type { ChatHistory } from '../src/devtool'
+import type { ChatHistory } from '../src/devframe'
 import { createRpcStreamingClientHost } from 'devframe/client'
 import { createRpcClient } from 'devframe/rpc/client'
 import { createWsRpcChannel } from 'devframe/rpc/transports/ws-client'
@@ -19,7 +19,7 @@ interface FakeClient {
 
 /**
  * Build a minimal RPC client + streaming host. We don't go through
- * `connectDevtool` because that needs a browser-like environment for
+ * `connectDevframe` because that needs a browser-like environment for
  * connection-meta lookup; the WS channel is what matters for streaming.
  * Shared-state syncing happens server-side, so tests inspect it through
  * the harness `ctx` rather than over the wire.

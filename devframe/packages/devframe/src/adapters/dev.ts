@@ -1,6 +1,6 @@
 import type { App } from 'h3'
 import type { StartedServer } from '../node/server'
-import type { DevtoolDefinition, DevtoolSetupInfo } from '../types/devtool'
+import type { DevframeDefinition, DevframeSetupInfo } from '../types/devframe'
 import process from 'node:process'
 import { getPort } from 'get-port-please'
 import { createApp, eventHandler, fromNodeMiddleware } from 'h3'
@@ -75,7 +75,7 @@ export interface ResolveDevServerPortOptions {
  * the server.
  */
 export async function resolveDevServerPort(
-  def: DevtoolDefinition,
+  def: DevframeDefinition,
   options: ResolveDevServerPortOptions = {},
 ): Promise<number> {
   const host = options.host ?? def.cli?.host ?? 'localhost'
@@ -92,7 +92,7 @@ export async function resolveDevServerPort(
 }
 
 /**
- * Start a devframe dev server for a {@link DevtoolDefinition} —
+ * Start a devframe dev server for a {@link DevframeDefinition} —
  * h3 + WebSocket RPC + the author's SPA mounted at the resolved base
  * path.
  *
@@ -104,7 +104,7 @@ export async function resolveDevServerPort(
  * `dev` / `build` / `mcp` shell, reach for {@link createCli} instead.
  */
 export async function createDevServer(
-  def: DevtoolDefinition,
+  def: DevframeDefinition,
   options: CreateDevServerOptions = {},
 ): Promise<StartedServer> {
   const distDir = options.distDir ?? def.cli?.distDir
@@ -131,7 +131,7 @@ export async function createDevServer(
     mode: 'dev',
     host: h3Host,
   })
-  const setupInfo: DevtoolSetupInfo = { flags }
+  const setupInfo: DevframeSetupInfo = { flags }
   await def.setup(ctx, setupInfo)
 
   // Connection meta — the SPA fetches this to discover the RPC backend.
@@ -161,7 +161,7 @@ export async function createDevServer(
 }
 
 async function maybeOpenBrowser(
-  def: DevtoolDefinition,
+  def: DevframeDefinition,
   flags: Record<string, unknown>,
   origin: string,
   override: boolean | string | undefined,

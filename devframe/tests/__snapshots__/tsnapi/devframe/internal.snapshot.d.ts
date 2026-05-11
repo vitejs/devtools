@@ -3,7 +3,7 @@
  */
 // #region Functions
 export declare function normalizeBasePath(_: string): string;
-export declare function resolveBasePath(_: DevtoolDefinition, _: DevtoolDeploymentKind): string;
+export declare function resolveBasePath(_: DevframeDefinition, _: DevframeDeploymentKind): string;
 // #endregion
 
 // #region Other

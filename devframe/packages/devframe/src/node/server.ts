@@ -49,7 +49,7 @@ export interface StartedServer {
 }
 
 /**
- * Compose an h3 + WebSocket server for a devtool context. The RPC
+ * Compose an h3 + WebSocket server for a devframe context. The RPC
  * group is bound to `context.rpc.functions`; the WS endpoint lives on
  * the same port as the HTTP server.
  */

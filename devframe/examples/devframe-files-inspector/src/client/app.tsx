@@ -1,5 +1,5 @@
 import type { DevToolsRpcClient } from 'devframe/client'
-import { connectDevtool } from 'devframe/client'
+import { connectDevframe } from 'devframe/client'
 import { useEffect, useState } from 'preact/hooks'
 import { About } from './routes/about'
 import { Home } from './routes/home'
@@ -23,7 +23,7 @@ export function App() {
 
   useEffect(() => {
     let cancelled = false
-    connectDevtool().then((r) => {
+    connectDevframe().then((r) => {
       if (!cancelled)
         setRpc(r)
     })
@@ -42,7 +42,7 @@ export function App() {
   }
 
   if (!rpc)
-    return <p>Connecting to devtool…</p>
+    return <p>Connecting to devframe…</p>
 
   return (
     <main>

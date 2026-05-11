@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { defineRpcFunction } from 'devframe'
-import { defineDevtool } from 'devframe/types'
+import { defineDevframe } from 'devframe/types'
 import { nanoid } from 'devframe/utils/nanoid'
 import * as v from 'valibot'
 
@@ -79,7 +79,7 @@ function* fakeTokens(prompt: string): Generator<string> {
   for (const token of tokens) yield token
 }
 
-export default defineDevtool({
+export default defineDevframe({
   id: 'devframe-streaming-chat',
   name: 'Streaming Chat',
   icon: 'ph:chat-circle-dots-duotone',

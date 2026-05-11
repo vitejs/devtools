@@ -8,7 +8,7 @@ outline: deep
 The agent-native surface (`agent` field on `defineRpcFunction`, `DevToolsAgentHost`, and the `devframe/adapters/mcp` adapter) is experimental and may change without a major version bump until it stabilizes.
 :::
 
-Devframe can expose the same surface the browser DevTools UI consumes — RPC functions, resources, and shared state — to coding agents (Claude Desktop / Cursor / Zed / Claude Code, or any MCP-speaking client). Agent exposure is opt-in per function; functions stay private by default.
+Devframe can expose the same surface a browser UI consumes — RPC functions, resources, and shared state — to coding agents (Claude Desktop / Cursor / Zed / Claude Code, or any MCP-speaking client). Agent exposure is opt-in per function; functions stay private by default.
 
 ## How it works
 
@@ -48,7 +48,7 @@ Agent tools take a single object input. The MCP adapter synthesises `arg0`, `arg
 For tools without a matching RPC — say, an on-demand narrative summary — register them directly:
 
 ```ts
-export default defineDevtool({
+export default defineDevframe({
   id: 'my-plugin',
   setup(ctx) {
     ctx.agent.registerTool({
@@ -91,15 +91,15 @@ devframe mcp
 Programmatic equivalent:
 
 ```ts
-import { defineDevtool } from 'devframe'
+import { defineDevframe } from 'devframe'
 import { createMcpServer } from 'devframe/adapters/mcp'
 
-const devtool = defineDevtool({ /* … */ })
+const devframe = defineDevframe({ /* … */ })
 
-await createMcpServer(devtool, { transport: 'stdio' })
+await createMcpServer(devframe, { transport: 'stdio' })
 ```
 
-`@modelcontextprotocol/sdk` is a peer dependency — add it to your package when you want to ship an MCP-enabled devtool.
+`@modelcontextprotocol/sdk` is a peer dependency — add it to your package when you want to ship an MCP-enabled devframe.
 
 ## Connecting Claude Desktop
 
@@ -108,9 +108,9 @@ Add an entry to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "my-devtool": {
+    "my-devframe": {
       "command": "pnpm",
-      "args": ["--filter", "my-devtool", "exec", "devframe", "mcp"]
+      "args": ["--filter", "my-devframe", "exec", "devframe", "mcp"]
     }
   }
 }
