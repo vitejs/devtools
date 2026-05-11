@@ -43,7 +43,10 @@ function showOverflowPanel() {
         groups: props.groups,
         isVertical: false,
         selected: props.selected,
-        onSelect: e => emit('select', e),
+        onSelect: (e) => {
+          emit('select', e)
+          hideOverflowPanel()
+        },
       }),
     ]),
     el: overflowButton.value,
