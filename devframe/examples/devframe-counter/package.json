@@ -1,7 +1,7 @@
 {
   "name": "devframe-counter-example",
   "type": "module",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "description": "Smallest end-to-end devframe demo — exercises all six adapters.",
   "main": "src/devframe.ts",
