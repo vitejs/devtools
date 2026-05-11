@@ -15,7 +15,7 @@ export const messagesList = defineRpcFunction({
   setup: (context) => {
     const host = context.messages as unknown as DevToolsMessagesHost
     return {
-      async handler(since?: number): Promise<MessagesListResult> {
+      async handler(since?: number | null): Promise<MessagesListResult> {
         const currentVersion = (host as any)._clock as number
 
         if (since == null) {
