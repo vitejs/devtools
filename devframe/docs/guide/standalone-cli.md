@@ -28,9 +28,9 @@ my-tool/
 
 ```ts [src/cli.ts]
 import process from 'node:process'
-import c from 'ansis'
 import { defineDevframe, defineRpcFunction } from 'devframe'
 import { createCli } from 'devframe/adapters/cli'
+import { colors as c } from 'devframe/utils/colors'
 import { resolve } from 'pathe'
 
 const distDir = resolve(import.meta.dirname, '../dist/public')
@@ -171,7 +171,7 @@ defineDevframe({
 })
 ```
 
-This registers `devframe:open-in-editor` (backed by [`launch-editor`](https://www.npmjs.com/package/launch-editor)) and `devframe:open-in-finder` (backed by [`open`](https://www.npmjs.com/package/open)). `launch-editor` is an optional peer dependency — install it in your tool's `package.json`.
+This registers `devframe:open-in-editor` and `devframe:open-in-finder`. Both helpers reuse the bundled [`launchEditor`](./utilities#devframe-utils-launch-editor) and [`open`](./utilities#devframe-utils-open) utilities, so there's nothing extra to install.
 
 ## Snapshot queries for static builds
 
