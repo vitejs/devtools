@@ -16,6 +16,7 @@ export default defineConfig({
     'utils/human-id': 'src/utils/human-id.ts',
     'utils/nanoid': 'src/utils/nanoid.ts',
     'utils/promise': 'src/utils/promise.ts',
+    'utils/serve-static': 'src/utils/serve-static.ts',
     'utils/shared-state': 'src/utils/shared-state.ts',
     'utils/state': 'src/utils/state.ts',
     'utils/streaming-channel': 'src/utils/streaming-channel.ts',

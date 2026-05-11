@@ -41,6 +41,7 @@
     "./utils/human-id": "./dist/utils/human-id.mjs",
     "./utils/nanoid": "./dist/utils/nanoid.mjs",
     "./utils/promise": "./dist/utils/promise.mjs",
+    "./utils/serve-static": "./dist/utils/serve-static.mjs",
     "./utils/shared-state": "./dist/utils/shared-state.mjs",
     "./utils/state": "./dist/utils/state.mjs",
     "./utils/streaming-channel": "./dist/utils/streaming-channel.mjs",
@@ -74,9 +75,9 @@
     "immer": "catalog:deps",
     "launch-editor": "catalog:deps",
     "logs-sdk": "catalog:deps",
+    "mrmime": "catalog:deps",
     "ohash": "catalog:deps",
     "pathe": "catalog:deps",
-    "sirv": "catalog:deps",
     "structured-clone-es": "catalog:deps",
     "valibot": "catalog:deps",
     "ws": "catalog:deps"

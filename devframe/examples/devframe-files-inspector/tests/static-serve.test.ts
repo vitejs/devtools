@@ -3,9 +3,9 @@ import { createServer } from 'node:http'
 import os from 'node:os'
 import path from 'node:path'
 import { createBuild } from 'devframe/adapters/build'
+import { serveStaticHandler } from 'devframe/utils/serve-static'
 import { getPort } from 'get-port-please'
-import { createApp, fromNodeMiddleware, toNodeListener } from 'h3'
-import sirv from 'sirv'
+import { createApp, toNodeListener } from 'h3'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import devframe from '../src/devframe'
 import { assertClientBuilt, makeFixtureCwd } from './_utils'
@@ -21,7 +21,7 @@ async function startStaticServer(outDir: string, mountBase: string): Promise<Sta
   const host = '127.0.0.1'
   const port = await getPort({ host, random: true })
   const app = createApp()
-  app.use(mountBase, fromNodeMiddleware(sirv(outDir, { dev: true, single: true })))
+  app.use(mountBase, serveStaticHandler(outDir))
   const httpServer = createServer(toNodeListener(app))
   await new Promise<void>(r => httpServer.listen(port, host, () => r()))
   return {

@@ -1,8 +1,8 @@
 import type { DevframeDefinition } from '../types/devframe'
 import { resolve } from 'pathe'
-import sirv from 'sirv'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
 import { logger } from '../node/diagnostics'
+import { serveStaticNodeMiddleware } from '../utils/serve-static'
 import { resolveBasePath } from './_shared'
 import { createDevServer, resolveDevServerPort } from './dev'
 
@@ -22,8 +22,8 @@ export interface CreateVitePluginOptions {
    * registering Vite middleware at `<base>__connection.json` so the
    * host-served SPA can discover the WS endpoint.
    *
-   *  - `false` (default) — sirv-mount the SPA at `base` (today's
-   *    behavior). No RPC server is started.
+   *  - `false` (default) — static-mount the SPA at `base` with SPA
+   *    fallback. No RPC server is started.
    *  - `true` — bridge mode with all defaults (port from
    *    {@link resolveDevServerPort}, host from `def.cli?.host`).
    *  - object — bridge mode with explicit overrides.
@@ -53,15 +53,15 @@ export interface DevframeVitePlugin {
  *
  * Two modes, picked via `options.devMiddleware`:
  *
- *   - **sirv mode** (default) — mounts `def.cli.distDir` at `options.base`
- *     via sirv. Single-page fallback enabled. No RPC server is started.
+ *   - **static-mount mode** (default) — mounts `def.cli.distDir` at
+ *     `options.base` with SPA fallback enabled. No RPC server is started.
  *
- *   - **bridge mode** (`devMiddleware: true | {…}`) — skips the sirv
+ *   - **bridge mode** (`devMiddleware: true | {…}`) — skips the static
  *     mount; the host app owns the SPA. Devframe starts a separate
- *     RPC + WS dev server (via {@link createDevServer} in bridge mode,
- *     i.e. without sirv) and registers Vite middleware at
- *     `<base>__connection.json` so the host-served SPA can discover
- *     the WS endpoint via {@link connectDevframe}.
+ *     RPC + WS dev server (via {@link createDevServer} in bridge mode)
+ *     and registers Vite middleware at `<base>__connection.json` so the
+ *     host-served SPA can discover the WS endpoint via
+ *     {@link connectDevframe}.
  *
  * Use bridge mode when integrating with frameworks that own the SPA
  * (Nuxt, Astro, SolidStart, plain Vite apps). For the all-in-one
@@ -78,7 +78,7 @@ export function createVitePlugin(d: DevframeDefinition, options: CreateVitePlugi
       configureServer(server) {
         if (!distDir)
           return
-        server.middlewares.use(base, sirv(resolve(distDir), { dev: true, single: true }))
+        server.middlewares.use(base, serveStaticNodeMiddleware(resolve(distDir)))
       },
     }
   }
