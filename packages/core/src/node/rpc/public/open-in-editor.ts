@@ -1,5 +1,6 @@
 import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { launchEditor } from 'devframe/utils/launch-editor'
 import { logger } from '../../diagnostics'
 
 export const openInEditor = defineRpcFunction({
@@ -17,7 +18,7 @@ export const openInEditor = defineRpcFunction({
           throw logger.DTK0028().throw()
         }
 
-        await import('launch-editor').then(r => r.default(resolved))
+        launchEditor(resolved)
       },
     }
   },

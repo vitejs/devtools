@@ -13,10 +13,6 @@ export { RpcCacheManager }
 export { RpcFunctionsCollectorBase }
 export { strictJsonStringify }
 export { STRUCTURED_CLONE_PREFIX }
-export { structuredCloneDeserialize }
-export { structuredCloneParse }
-export { structuredCloneSerialize }
-export { structuredCloneStringify }
 export { validateDefinition }
 export { validateDefinitions }
 // #endregion

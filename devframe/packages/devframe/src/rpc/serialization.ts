@@ -1,17 +1,4 @@
-import {
-  deserialize as structuredCloneDeserialize,
-  parse as structuredCloneParse,
-  serialize as structuredCloneSerialize,
-  stringify as structuredCloneStringify,
-} from 'structured-clone-es'
 import { logger } from './diagnostics'
-
-export {
-  structuredCloneDeserialize,
-  structuredCloneParse,
-  structuredCloneSerialize,
-  structuredCloneStringify,
-}
 
 /**
  * Wire format used by the WS RPC transport.

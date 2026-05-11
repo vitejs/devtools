@@ -18,7 +18,15 @@ export type ImmutableMap<K, V> = ReadonlyMap<Immutable<K>, Immutable<V>>
 export type ImmutableSet<T> = ReadonlySet<Immutable<T>>
 export type ImmutableObject<T> = { readonly [K in keyof T]: Immutable<T[K]> }
 
-export type { Patch as SharedStatePatch } from 'immer'
+/**
+ * Serializable patch describing a single mutation to a `SharedState`.
+ * Structurally compatible with JSON-Patch and is safe to send over RPC.
+ */
+export interface SharedStatePatch {
+  op: 'add' | 'remove' | 'replace'
+  path: readonly (string | number)[]
+  value?: unknown
+}
 
 /**
  * State host that is immutable by default with explicit mutate.
@@ -39,7 +47,7 @@ export interface SharedState<T> {
   /**
    * Apply patches to the state.
    */
-  patch: (patches: Patch[], syncId?: string) => void
+  patch: (patches: SharedStatePatch[], syncId?: string) => void
   /**
    * Sync IDs that have been applied to the state.
    */
@@ -47,7 +55,7 @@ export interface SharedState<T> {
 }
 
 export interface SharedStateEvents<T> {
-  updated: (fullState: T, patches: Patch[] | undefined, syncId: string) => void
+  updated: (fullState: T, patches: SharedStatePatch[] | undefined, syncId: string) => void
 }
 
 export interface SharedStateOptions<T> {
@@ -63,7 +71,7 @@ export interface SharedStateOptions<T> {
   enablePatches?: boolean
 }
 
-export function createSharedState<T extends Objectish>(
+export function createSharedState<T extends object>(
   options: SharedStateOptions<T>,
 ): SharedState<T> {
   const {
@@ -77,12 +85,12 @@ export function createSharedState<T extends Objectish>(
   return {
     on: events.on,
     value: () => state as Immutable<T>,
-    patch: (patches: Patch[], syncId = nanoid()) => {
+    patch: (patches: SharedStatePatch[], syncId = nanoid()) => {
       // Avoid loop syncs
       if (syncIds.has(syncId))
         return
       enableImmerPatches()
-      state = applyPatches<T>(state, patches)
+      state = applyPatches(state as unknown as Objectish, patches as unknown as Patch[]) as T
       syncIds.add(syncId)
       events.emit('updated', state, undefined, syncId)
     },
@@ -93,12 +101,15 @@ export function createSharedState<T extends Objectish>(
 
       syncIds.add(syncId)
       if (enablePatches) {
-        const [newState, patches] = produceWithPatches(state, fn)
+        const [newState, patches] = produceWithPatches(
+          state as unknown as Objectish,
+          fn as (draft: any) => void,
+        ) as unknown as [T, Patch[]]
         state = newState
-        events.emit('updated', state, patches, syncId)
+        events.emit('updated', state, patches as unknown as SharedStatePatch[], syncId)
       }
       else {
-        state = produce(state, fn)
+        state = produce(state as unknown as Objectish, fn as (draft: any) => void) as T
         events.emit('updated', state, undefined, syncId)
       }
     },

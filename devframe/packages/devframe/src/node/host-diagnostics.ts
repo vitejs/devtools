@@ -1,7 +1,7 @@
 import type { DevToolsDiagnosticsHost as DevToolsDiagnosticsHostType, DevToolsDiagnosticsLogger, DevToolsNodeContext } from 'devframe/types'
-import c from 'ansis'
 import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
 import { ansiFormatter } from 'logs-sdk/formatters/ansi'
+import { colors as c } from '../utils/colors'
 
 export class DevToolsDiagnosticsHost implements DevToolsDiagnosticsHostType {
   private _definitions: unknown[] = []

@@ -32,6 +32,7 @@ Devframe keeps its surface small and pushes hub-level UX to the kit consuming it
 | **[Diagnostics](./diagnostics)** | Coded warnings/errors via `logs-sdk` — registered into the host logger so adapters and consumers share the same surface. |
 | **[Streaming](./streaming)** | One-way (RPC streaming) and two-way (uploads) channel primitives for long-running data. |
 | **[When Clauses](./when-clauses)** | VS Code-style conditional expressions for docks, commands, and custom UI. |
+| **[Utilities](./utilities)** | Bundled helpers under `devframe/utils/*` — terminal colors, hashing, editor launch, structured-clone serialization, and more. |
 | **[Client](./client)** | Browser-side RPC client (`connectDevframe`) with auto-auth and WebSocket / static modes. |
 | **[Agent-Native](./agent-native)** | Opt-in exposure of your tool's surface to coding agents over MCP. |
 

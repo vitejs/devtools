@@ -1,6 +1,6 @@
 import { DEVTOOLS_RPC_DUMP_DIRNAME } from 'devframe/constants'
-import { structuredCloneStringify } from 'devframe/rpc'
-import { hash } from 'ohash'
+import { hash } from 'devframe/utils/hash'
+import { structuredCloneStringify } from 'devframe/utils/structured-clone'
 import { describe, expect, it } from 'vitest'
 import { createStaticRpcCaller } from './static-rpc'
 

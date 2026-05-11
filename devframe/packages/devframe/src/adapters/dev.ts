@@ -9,6 +9,7 @@ import { DEVTOOLS_CONNECTION_META_FILENAME } from '../constants'
 import { createHostContext } from '../node/context'
 import { createH3DevToolsHost } from '../node/host-h3'
 import { startHttpAndWs } from '../node/server'
+import { open } from '../utils/open'
 import { serveStaticHandler } from '../utils/serve-static'
 import { normalizeBasePath, resolveBasePath } from './_shared'
 
@@ -185,12 +186,11 @@ async function maybeOpenBrowser(
     ? resolveOpenTarget(origin, resolved)
     : origin
   try {
-    const { default: open } = await import('open')
     await open(target)
   }
   catch {
-    // `open` is optional; failing to launch a browser shouldn't break
-    // the dev server. The user can navigate manually.
+    // Failing to launch a browser shouldn't break the dev server.
+    // The user can navigate manually.
   }
 }
 

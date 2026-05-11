@@ -3,8 +3,9 @@
 import {
   DEVTOOLS_MOUNT_PATH,
 } from '@vitejs/devtools-kit/constants'
-import c from 'ansis'
 import { normalizeHttpServerUrl } from 'devframe/node'
+import { colors as c } from 'devframe/utils/colors'
+import { open } from 'devframe/utils/open'
 import { resolve } from 'pathe'
 import { MARK_NODE } from './constants'
 import { logger } from './diagnostics'
@@ -62,7 +63,6 @@ export async function start(options: StartOptions) {
   server.listen(port, host, async () => {
     const url = normalizeHttpServerUrl(host, port)
     console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(url), '\n')
-    const { default: open } = await import('open')
     if (options.open)
       await open(url)
   })

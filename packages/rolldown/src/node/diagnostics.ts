@@ -1,4 +1,4 @@
-import c from 'ansis'
+import { colors as c } from 'devframe/utils/colors'
 import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
 import { ansiFormatter } from 'logs-sdk/formatters/ansi'
 

@@ -144,7 +144,7 @@ function getConnectionAuthTokenFromWindows(userAuthToken?: string): string {
   }
 
   if (!value)
-    value = humanId({ separator: '-', capitalize: false })
+    value = humanId()
 
   localStorage.setItem(CONNECTION_AUTH_TOKEN_KEY, value)
   ;(globalThis as any)[CONNECTION_AUTH_TOKEN_KEY] = value
