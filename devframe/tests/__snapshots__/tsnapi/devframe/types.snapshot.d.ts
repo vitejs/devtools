@@ -36,9 +36,6 @@ export { EntriesToObject }
 export { EventEmitter }
 export { EventsMap }
 export { EventUnsubscribe }
-export { JsonRenderElement }
-export { JsonRenderer }
-export { JsonRenderSpec }
 export { PartialWithoutId }
 export { RpcBroadcastOptions }
 export { RpcFunctionAgentOptions }

@@ -3,6 +3,7 @@ import type { DevToolsNodeContext } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { DevToolsCommandsHost } from '../types/commands'
 import type { DevToolsDockHost } from '../types/docks'
+import type { JsonRenderer, JsonRenderSpec } from '../types/json-render'
 import type { DevToolsMessagesHost } from '../types/messages'
 import type { DevToolsTerminalHost } from '../types/terminals'
 import { createHostContext } from 'devframe/node'
@@ -15,15 +16,20 @@ import { DevToolsTerminalHost as TerminalsHostImpl } from './host-terminals'
 /**
  * Kit-augmented node context — extends devframe's framework-neutral
  * `DevToolsNodeContext` with the hub-level subsystems (`docks`,
- * `terminals`, `messages`, `commands`) that are owned by
- * `@vitejs/devtools-kit`. When kit hosts the devtool inside Vite
- * DevTools, also exposes the underlying Vite handles.
+ * `terminals`, `messages`, `commands`) and the `createJsonRenderer`
+ * factory, all owned by `@vitejs/devtools-kit`. When kit hosts the
+ * devtool inside Vite DevTools, also exposes the underlying Vite
+ * handles.
  */
 export interface KitNodeContext extends DevToolsNodeContext {
   docks: DevToolsDockHost
   terminals: DevToolsTerminalHost
   messages: DevToolsMessagesHost
   commands: DevToolsCommandsHost
+  /**
+   * Create a JsonRenderer handle for building json-render powered UIs.
+   */
+  createJsonRenderer: (spec: JsonRenderSpec) => JsonRenderer
   readonly viteConfig?: ResolvedConfig
   readonly viteServer?: ViteDevServer
 }
@@ -61,6 +67,28 @@ export async function createKitContext(options: CreateKitContextOptions): Promis
     Object.defineProperty(context, 'viteServer', { value: options.viteServer, enumerable: true })
 
   await docks.init()
+
+  let jrCounter = 0
+  context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
+    const stateKey = `devframe:json-render:${jrCounter++}`
+    const statePromise = context.rpc.sharedState.get(stateKey as any, {
+      initialValue: initialSpec as any,
+    })
+
+    return {
+      _stateKey: stateKey,
+      async updateSpec(spec) {
+        const state = await statePromise
+        state.mutate(() => spec as any)
+      },
+      async updateState(newState) {
+        const state = await statePromise
+        state.mutate((draft: any) => {
+          draft.state = { ...draft.state, ...newState }
+        })
+      },
+    }
+  }
 
   const debounceMs = options.mode === 'build' ? 0 : 10
 

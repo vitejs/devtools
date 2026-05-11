@@ -32,7 +32,7 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.rpc.streaming` | devframe | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
 | `ctx.views` | devframe | Host static files for UI (`hostStatic(base, distDir)`) |
 | `ctx.diagnostics` | devframe | Structured diagnostics host (logs-sdk) — register custom error codes |
-| `ctx.createJsonRenderer` | devframe | Create server-side JSON render specs for zero-client-code UIs |
+| `ctx.createJsonRenderer` | **kit** | Create server-side JSON render specs for zero-client-code UIs |
 | `ctx.viteConfig` | core | Resolved Vite configuration |
 | `ctx.viteServer` | core | Dev server instance (dev mode only) |
 | `ctx.mode` | devframe | `'dev'` or `'build'` |

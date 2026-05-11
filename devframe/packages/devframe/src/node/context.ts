@@ -1,5 +1,5 @@
 import type { RpcFunctionDefinitionAny } from 'devframe/rpc'
-import type { DevToolsHost, DevToolsNodeContext, JsonRenderer, JsonRenderSpec } from 'devframe/types'
+import type { DevToolsHost, DevToolsNodeContext } from 'devframe/types'
 import { diagnostics as rpcDiagnostics } from '../rpc/diagnostics'
 import { diagnostics as devframeDiagnostics } from './diagnostics'
 import { DevToolsAgentHost } from './host-agent'
@@ -24,8 +24,8 @@ export interface CreateHostContextOptions {
 /**
  * Framework-neutral core of the DevTools node context. Wires the RPC
  * host, view (HTTP file-serving) host, diagnostics, and agent
- * subsystems plus the JSON-render factory. Hub-level subsystems
- * (`docks`, `terminals`, `messages`, `commands`) are owned by
+ * subsystems. Hub-level subsystems (`docks`, `terminals`, `messages`,
+ * `commands`, `createJsonRenderer`) are owned by
  * `@vitejs/devtools-kit` — its `createKitContext` wraps this and
  * attaches them when the devtool is mounted into a multi-integration
  * hub.
@@ -42,7 +42,6 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
     views: undefined!,
     diagnostics: undefined!,
     agent: undefined!,
-    createJsonRenderer: undefined!,
   } as unknown as DevToolsNodeContext
 
   const rpcHost = new RpcFunctionsHost(context)
@@ -57,28 +56,6 @@ export async function createHostContext(options: CreateHostContextOptions): Prom
   // the `agent` field.
   const agentHost = new DevToolsAgentHost(context)
   context.agent = agentHost
-
-  let jrCounter = 0
-  context.createJsonRenderer = (initialSpec: JsonRenderSpec): JsonRenderer => {
-    const stateKey = `devframe:json-render:${jrCounter++}`
-    const statePromise = rpcHost.sharedState.get(stateKey as any, {
-      initialValue: initialSpec as any,
-    })
-
-    return {
-      _stateKey: stateKey,
-      async updateSpec(spec) {
-        const state = await statePromise
-        state.mutate(() => spec as any)
-      },
-      async updateState(newState) {
-        const state = await statePromise
-        state.mutate((draft: any) => {
-          draft.state = { ...draft.state, ...newState }
-        })
-      },
-    }
-  }
 
   // Auto-register devframe's own agent introspection RPCs. These power
   // the MCP adapter and any future agent CLI. They are not themselves

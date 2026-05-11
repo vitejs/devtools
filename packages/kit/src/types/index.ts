@@ -5,6 +5,7 @@ export type { CreateKitContextOptions, KitNodeContext } from '../node/context'
 export type { WhenContext, WhenExpression } from '../utils/when'
 export * from './commands'
 export * from './docks'
+export * from './json-render'
 export * from './messages'
 export * from './settings'
 export * from './terminals'
@@ -34,9 +35,6 @@ export type {
   EventEmitter,
   EventsMap,
   EventUnsubscribe,
-  JsonRenderElement,
-  JsonRenderer,
-  JsonRenderSpec,
   PartialWithoutId,
   RpcBroadcastOptions,
   RpcFunctionsHost,
