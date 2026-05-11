@@ -27,14 +27,17 @@
       "devframe/types": [
         "./devframe/packages/devframe/src/types/index.ts"
       ],
+      "devframe/node/auth": [
+        "./devframe/packages/devframe/src/node/auth/index.ts"
+      ],
+      "devframe/node/internal": [
+        "./devframe/packages/devframe/src/node/internal/index.ts"
+      ],
       "devframe/node": [
         "./devframe/packages/devframe/src/node/index.ts"
       ],
       "devframe/constants": [
         "./devframe/packages/devframe/src/constants.ts"
-      ],
-      "devframe/internal": [
-        "./devframe/packages/devframe/src/internal/index.ts"
       ],
       "devframe/utils/events": [
         "./devframe/packages/devframe/src/utils/events.ts"

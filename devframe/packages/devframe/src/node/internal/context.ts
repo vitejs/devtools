@@ -2,8 +2,8 @@ import type { DevToolsNodeContext } from 'devframe/types'
 import type { SharedState } from 'devframe/utils/shared-state'
 import { humanId } from 'devframe/utils/human-id'
 import { join } from 'pathe'
-import { revokeActiveConnectionsForToken, revokeAuthToken } from './auth-revoke'
-import { createStorage } from './storage'
+import { revokeActiveConnectionsForToken, revokeAuthToken } from '../auth/revoke'
+import { createStorage } from '../storage'
 
 export interface InternalAnonymousAuthStorage {
   trusted: Record<string, {

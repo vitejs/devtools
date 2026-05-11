@@ -1,6 +1,6 @@
 import type { DevToolsNodeRpcSession } from 'devframe/types'
 import type { SharedState } from 'devframe/utils/shared-state'
-import type { InternalAnonymousAuthStorage } from './context-internal'
+import type { InternalAnonymousAuthStorage } from '../internal/context'
 import { humanId } from 'devframe/utils/human-id'
 
 export interface PendingAuthRequest {

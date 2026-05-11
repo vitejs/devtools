@@ -2,7 +2,7 @@ import type { DevframeDefinition, DevToolsCapabilities } from 'devframe/types'
 import type { DevToolsViewIframe } from '../types/docks'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { KitNodeContext } from './context'
-import { resolveBasePath } from 'devframe/internal'
+import { resolveBasePath } from 'devframe/node/internal'
 import { resolve } from 'pathe'
 
 export interface CreatePluginFromDevframeOptions {

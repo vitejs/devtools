@@ -1,8 +1,5 @@
 // Node-side public API for consumers that wire up their own runtime.
-export * from './auth-revoke'
-export * from './auth-state'
 export * from './context'
-export * from './context-internal'
 export * from './host-agent'
 export * from './host-diagnostics'
 export * from './host-functions'

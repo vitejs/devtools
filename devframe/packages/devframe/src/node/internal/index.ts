@@ -12,15 +12,15 @@
 export {
   normalizeBasePath,
   resolveBasePath,
-} from '../adapters/_shared'
+} from '../../adapters/_shared'
 
 export {
   getInternalContext,
   internalContextMap,
-} from '../node/context-internal'
+} from './context'
 
 export type {
   DevToolsInternalContext,
   InternalAnonymousAuthStorage,
   RemoteTokenRecord,
-} from '../node/context-internal'
+} from './context'
