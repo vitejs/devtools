@@ -1,4 +1,6 @@
-import { addPlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import type { DevframeDefinition } from 'devframe/types'
+import { addPlugin, addVitePlugin, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { createVitePlugin } from 'devframe/adapters/vite'
 
 export interface DevframeNuxtModuleOptions {
   /**
@@ -15,20 +17,57 @@ export interface DevframeNuxtModuleOptions {
    * Defaults to `false` — devframe sets sensible base-agnostic defaults.
    */
   skipAppDefaults?: boolean
+  /**
+   * Devframe definition that powers the dev-time RPC bridge. When set
+   * (and Nuxt is in dev mode), the module starts a separate RPC + WS
+   * server alongside `nuxt dev` and registers Vite middleware at
+   * `${baseURL}__connection.json` so the client SPA can discover the
+   * WS endpoint. Without it the module stays client-only.
+   */
+  devframe?: DevframeDefinition
+  /**
+   * Dev-time middleware mode. Mirrors `createVitePlugin`'s option of the
+   * same name.
+   *
+   *  - `true` (default) — when `devframe` is set and Nuxt is in dev
+   *    mode, start the RPC bridge with all defaults.
+   *  - `false` — skip the bridge entirely. The module remains
+   *    client-only.
+   *  - object — enable with explicit overrides.
+   */
+  devMiddleware?: boolean | {
+    /** Override the bridge port. Default: resolved via `get-port-please`. */
+    port?: number
+    /**
+     * Override the bridge bind host. Defaults to
+     * `nuxt.options.devServer.host ?? devframe.cli?.host ?? 'localhost'`,
+     * so `nuxt dev --host` propagates automatically.
+     */
+    host?: string
+    /** Flag bag forwarded to `devframe.setup(ctx, { flags })`. */
+    flags?: Record<string, unknown>
+  }
 }
 
 /**
- * Nuxt module that wires a Nuxt-built SPA up as a devframe client:
+ * Nuxt module that wires a Nuxt-built SPA up as a devframe client, and
+ * (optionally) serves the dev-time RPC bridge alongside `nuxt dev`.
  *
  *   - Sets `app.baseURL: './'` + `vite.base: './'` so the production
  *     build is base-agnostic (works at any deployment path without
  *     build-time rewriting).
  *   - Injects a client plugin that calls {@link connectDevframe} once on
  *     page load and exposes the RPC client via `useNuxtApp().$rpc`.
+ *   - When `devframe` is provided and Nuxt is in dev mode, registers a
+ *     Vite plugin (via `addVitePlugin(createVitePlugin(devframe, {
+ *     devMiddleware: ... }))`) that starts the RPC + WS bridge and
+ *     serves `${baseURL}__connection.json`.
  *
  * ```ts [nuxt.config.ts]
+ * import devframe from './src/devframe' // defineDevframe(...) export
+ *
  * export default defineNuxtConfig({
- *   modules: ['@devframes/nuxt'],
+ *   modules: [['@devframes/nuxt', { devframe }]],
  * })
  * ```
  *
@@ -49,6 +88,7 @@ export default defineNuxtModule<DevframeNuxtModuleOptions>({
   defaults: {
     baseURL: './',
     skipAppDefaults: false,
+    devMiddleware: true,
   },
   setup(options, nuxt) {
     const { resolve } = createResolver(import.meta.url)
@@ -77,5 +117,26 @@ export default defineNuxtModule<DevframeNuxtModuleOptions>({
       src: resolve('./runtime/plugin.client'),
       mode: 'client',
     })
+
+    // Dev-time RPC bridge. Skipped without a definition or when the
+    // user opts out; `apply: 'serve'` on the inner Vite plugin is a
+    // second guard against accidental activation during build.
+    if (options.devframe && options.devMiddleware !== false && nuxt.options.dev) {
+      const mw = options.devMiddleware === true || options.devMiddleware === undefined
+        ? {}
+        : options.devMiddleware
+      const host = mw.host
+        ?? (nuxt.options.devServer as any)?.host
+        ?? options.devframe.cli?.host
+
+      addVitePlugin(createVitePlugin(options.devframe, {
+        base: options.baseURL ?? './',
+        devMiddleware: {
+          port: mw.port,
+          host,
+          flags: mw.flags,
+        },
+      }) as any)
+    }
   },
 })
