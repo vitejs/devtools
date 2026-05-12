@@ -4,10 +4,10 @@
 
 Two layers, one mental model:
 
-- **`devframe`** — *the container for one devtool integration, portable across viewers.* Build a single tool (its RPC, its SPA, its diagnostics, its CLI/build/spa/embedded outputs) without caring how it'll be displayed. A devframe app runs standalone (CLI, static deploy, embedded SPA) just as well as it mounts inside a hub.
+- **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`). A checked-in submodule at `devframe/` mirrors the source at the pinned tag for browsing and upstream contributions.
 - **`@vitejs/devtools-kit`** — *the hub that unites many devtools integrations.* Owns docking, the command palette, toasts, terminal sessions — anything that only makes sense when more than one tool shares a UI. Provides `createPluginFromDevframe(devframeApp)` so a portable devframe definition drops into Vite DevTools as a Vite plugin, with the dock entry auto-derived from the definition's metadata.
 
-When deciding where something belongs: if a single-app standalone CLI would still need it, it lives in devframe; if it only matters once you have multiple integrations or a host UI, it lives in the kit.
+When deciding where something belongs: if a single-app standalone CLI would still need it, it belongs upstream in devframe; if it only matters once you have multiple integrations or a host UI, it lives in the kit.
 
 ## Stack & Structure
 
@@ -17,7 +17,6 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `devframe/packages/devframe` | `devframe` | Framework-neutral container for one devtool integration. RPC layer (birpc + valibot + WS presets), `createHostContext`, six deployment adapters at `devframe/adapters/*` (cli/dev/build/vite/embedded/mcp), `connectDevframe` client. No docks, no terminals, no command palette — those are hub concerns. |
 | `packages/kit` | `@vitejs/devtools-kit` | The hub. `createKitContext` wraps devframe's context with `docks` / `terminals` / `messages` / `commands` host subsystems plus the Vite-augmented context type. `createPluginFromDevframe` bridges a portable devframe app into a `Plugin.devtools.setup` Vite plugin, auto-deriving its iframe dock entry from the definition. |
 | `packages/core` | `@vitejs/devtools` | Vite plugin + CLI + standalone/webcomponents client for Vite DevTools itself. Calls kit's `createKitContext`, scans Vite plugins for `.devtools.setup`, and serves the dock UI. |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
@@ -29,6 +28,8 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 Other top-level directories:
 - `docs/` — VitePress docs; guides in `docs/guide/`
 - `skills/` — Agent skill files generated from docs via [Agent Skills](https://agentskills.io/home). Structured references (RPC patterns, dock types, shared state, project structure) for AI agent context.
+- `devframe/` — Git submodule pinned to the `devframe` version in `catalogs.deps`. Run `pnpm sync` to align with the catalog; `pnpm sync <version>` or `pnpm sync --latest` to bump.
+- `scripts/sync.ts` — Submodule pin manager (see `pnpm sync --help`).
 
 ```mermaid
 flowchart TD
@@ -43,13 +44,13 @@ flowchart TD
 
 ## Dep Boundary
 
-`devframe/packages/devframe` is the lowest-level package in this monorepo and is positioned to be extracted into its own repo. It MUST NOT import from `vite`, `@vitejs/*`, or any hub-only concept (docks, terminals, messages, commands) — not as a `dependencies` entry, not as an inlined dep, not as a source import. `packages/kit` and above build on top of devframe; never the reverse. If a feature requires multi-integration awareness, it goes in kit.
+`devframe` is an external package consumed via `catalog:deps` — contribute upstream at [github.com/devframes/devframe](https://github.com/devframes/devframe). `packages/kit` and above build on top of it. Features that require multi-integration awareness (docks, terminals, messages, commands) belong in kit.
 
-`devframe/node/internal` is a marked-internal subpath that exposes a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters that need to reach into devframe's private machinery — kit's relocated `DocksHost` uses it for remote-dock token allocation. End users should not import it.
+`devframe/node/internal` is a marked-internal subpath exposing a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters reaching into devframe's private machinery — kit's `DocksHost` uses it for remote-dock token allocation. End users should not import it.
 
 ## Architecture
 
-- **Devframe context** (`devframe/packages/devframe/src/node/context.ts`): `createHostContext` returns a `DevToolsNodeContext` carrying `rpc`, `views` (HTTP file-serving via `hostStatic`), `diagnostics`, `agent`, plus `cwd`/`workspaceRoot`/`mode`/`host`. No docks, no terminals, no json-render.
+- **Devframe context** (external — see [devfra.me](https://devfra.me)): `createHostContext` returns a `DevToolsNodeContext` carrying `rpc`, `views` (HTTP file-serving via `hostStatic`), `diagnostics`, `agent`, plus `cwd`/`workspaceRoot`/`mode`/`host`. No docks, no terminals, no json-render.
 - **Kit context** (`packages/kit/src/node/context.ts`): `createKitContext` wraps `createHostContext` and attaches the four hub hosts — `docks`, `terminals`, `messages`, `commands` — plus the `createJsonRenderer` factory. Optionally surfaces `viteConfig`/`viteServer` when mounted inside Vite DevTools. Wires the `'devframe:docks'` / `'devframe:commands'` shared-state sync.
 - **Bridge** (`packages/kit/src/node/create-plugin-from-devframe.ts`): `createPluginFromDevframe(d, opts?)` returns `PluginWithDevTools`; in its `setup`, mounts the SPA via `views.hostStatic`, auto-registers an iframe dock entry from `id`/`name`/`icon`/`basePath`, runs `d.setup(ctx)` for the devframe-level wiring, then runs `opts.setup?.(ctx)` for kit-only extensions.
 - **Vite DevTools entry** (`packages/core/src/node/context.ts`): `createDevToolsContext` calls `createKitContext`, registers Vite-specific commands (`vite:open-in-editor`, `vite:open-in-finder`), then scans Vite plugins for `.devtools.setup` hooks (which now receive the kit-augmented context).
@@ -80,16 +81,7 @@ pnpm -C docs run docs                 # docs dev server
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 
-### Devframe design principles
-
-These apply to everything inside `devframe/packages/devframe` and reinforce its positioning as "the container for one devtool integration, portable to multiple viewers". When in doubt, err on the side of "devframe provides primitives, the hub provides UX".
-
-- **Single-integration scope.** Devframe describes one tool. If a feature only makes sense when multiple tools share a UI — docking, a unified command palette, cross-tool toasts, terminal aggregation — it lives in `@vitejs/devtools-kit`, not here.
-- **Headless by default.** No default startup banners, no opinionated logging to stdout, no default styling. Provide hooks (`onReady`, `cli.configure`, etc.); let the application print its own branding. Structured diagnostics via `logs-sdk` are fine — ad-hoc `console.log`s baked into adapters are not.
-- **File watching is the app's job, not devframe's.** Don't add a generic watcher primitive. Authors wire chokidar / fs.watch / watchman themselves and signal change via `ctx.rpc.sharedState.set(...)` or event-type RPCs. devframe stays out of the filesystem-observation business.
-- **Mount path depends on adapter context.** Given `id: 'foo'`, the default mount path is `/__foo/` for *hosted* adapters (`vite`, `embedded`, kit's `createPluginFromDevframe`) and `/` for *standalone* adapters (`cli`, `spa`, `build`). Authors override via `DevframeDefinition.basePath`. Don't hardcode `DEVTOOLS_MOUNT_PATH` in adapter code paths that may run standalone.
-- **SPAs own their basePath at runtime.** Build SPAs with relative asset paths (`vite.base: './'`); discover the effective base in the browser from the executing script's location / `document.baseURI`. `createBuild` / `createSpa` copy SPA output verbatim — no HTML rewriting, no build-time `--base` injection. The client (`connectDevframe`) resolves `.connection.json` relative to the runtime base automatically.
-- **CLI flags compose from both sides.** The `cac` instance backing `createCli` is exposed both to the `DevframeDefinition` (`cli.configure(cli)`) — for capabilities contributed by the tool itself — and to the `createCli` caller — for flags added at the final assembly stage. Parsed flag values are forwarded to `setup(ctx, { flags })`. Never hardcode domain-specific flags into `createCli`.
+Devframe's internal design principles (single-integration scope, headless-by-default, mount-path / SPA-basePath conventions, CLI flag composition) live in its own AGENTS.md upstream. Read them at [github.com/devframes/devframe/blob/main/AGENTS.md](https://github.com/devframes/devframe/blob/main/AGENTS.md) before contributing patches.
 
 ### Kit design principles
 
@@ -107,10 +99,11 @@ All node-side warnings and errors use structured diagnostics via [`logs-sdk`](ht
 
 | Prefix | Package(s) | Diagnostics file |
 |--------|-----------|-----------------|
-| `DF` | `devframe/packages/devframe` | `devframe/packages/devframe/src/node/diagnostics.ts`, `devframe/packages/devframe/src/rpc/diagnostics.ts` |
 | `DTK` | `packages/kit` + `packages/core` (shared codespace, hub-side) | `packages/kit/src/node/diagnostics.ts`, `packages/core/src/node/diagnostics.ts` |
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
 | `VDT` | `packages/vite` (reserved) | — |
+
+`DF` codes belong to the upstream devframe project — file new ones there.
 
 `DTK` is shared between core and kit because they're sibling layers of the Vite DevTools hub. Coordinate code numbers across both files: kit currently reserves `DTK0050+`; core's existing codes top out below that.
 
@@ -168,7 +161,7 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
 
 4. **Update the index** at `docs/errors/index.md` — add a row with `Code | Level | Title` (no Package column).
 
-The sidebar in `docs/.vitepress/config.ts` (and `devframe/docs/.vitepress/config.ts` for `DF` codes) globs the `errors/` directory by prefix, so the new page is picked up automatically — no sidebar edit needed.
+The sidebar in `docs/.vitepress/config.ts` globs the `errors/` directory by prefix, so the new page is picked up automatically — no sidebar edit needed.
 
 ### Scope
 
@@ -185,7 +178,7 @@ Follow conventional commits (`feat:`, `fix:`, etc.).
 
 ## Documentation style
 
-These rules apply to every Markdown file under `docs/` and `devframe/docs/` (the error reference pages are template-driven and exempt). Apply them on every doc edit, not just dedicated revision passes.
+These rules apply to every Markdown file under `docs/` (the error reference pages are template-driven and exempt). Apply them on every doc edit, not just dedicated revision passes.
 
 ### 1. Positive framing
 
@@ -207,9 +200,7 @@ Callouts (`> [!NOTE]`, `> [!TIP]`, `> [!INFO]`, `::: tip`, etc.) interrupt the r
 
 ### 3. Kit-first in `/docs/`
 
-The main docs site is for **Vite DevTools** and **`@vitejs/devtools-kit`** users. Devframe is the framework-neutral foundation underneath; mention it where relevant ("Kit is built on Devframe; standalone tools can use Devframe directly — see [Devframe](https://devfra.me/guide/)") but lead examples and guides with the Kit / Vite plugin path.
-
-`devframe/docs/` is the inverse: Devframe-first, with cross-links to Kit for hub-only features (docks, terminals, messages, commands).
+The main docs site is for **Vite DevTools** and **`@vitejs/devtools-kit`** users. Devframe is the framework-neutral foundation underneath; link to [`devfra.me`](https://devfra.me/guide/) for its docs and lead examples and guides with the Kit / Vite plugin path.
 
 ### 4. Concise and precise
 

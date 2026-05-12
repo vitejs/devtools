@@ -41,7 +41,7 @@
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "d3-shape": "catalog:frontend",
-    "devframe": "workspace:*",
+    "devframe": "catalog:deps",
     "diff": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
