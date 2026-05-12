@@ -230,7 +230,7 @@ ctx.rpc.streaming.create<string>('my-plugin:chat', {
 
 ## Backpressure
 
-The client maintains a bounded queue per subscription (`highWaterMark`, default 256). When the consumer falls behind, the oldest queued chunk drops and a [`DF0029`](/devframe/errors/DF0029) warning is logged. This is best-effort — sufficient for current streaming use cases without threading transport-level backpressure through the RPC layer.
+The client maintains a bounded queue per subscription (`highWaterMark`, default 256). When the consumer falls behind, the oldest queued chunk drops and a [`DF0029`](https://devfra.me/errors/DF0029) warning is logged. This is best-effort — sufficient for current streaming use cases without threading transport-level backpressure through the RPC layer.
 
 ```ts
 const reader = rpc.streaming.subscribe('my-plugin:chat', id, {
@@ -304,7 +304,7 @@ ctx.rpc.register(defineRpcFunction({
 }))
 ```
 
-A working version of this pattern lives in [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat).
+A working version of this pattern lives in [`devframe-streaming-chat`](https://github.com/devframes/devframe/tree/main/examples/devframe-streaming-chat).
 
 ## When to use streaming vs events vs shared state
 
@@ -317,4 +317,4 @@ A working version of this pattern lives in [`devframe/examples/devframe-streamin
 
 ## Reference
 
-The API surface — `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — is re-exported from `@vitejs/devtools-kit`. Streaming is built on the same primitive as Devframe's [streaming guide](/devframe/guide/streaming); error codes for backpressure and lifecycle live there: [`DF0029`](/devframe/errors/DF0029), [`DF0030`](/devframe/errors/DF0030), [`DF0031`](/devframe/errors/DF0031), [`DF0032`](/devframe/errors/DF0032).
+The API surface — `RpcStreamingHost`, `RpcStreamingChannel<T>`, `StreamSink<T>`, `StreamReader<T>` — is re-exported from `@vitejs/devtools-kit`. Streaming is built on the same primitive as Devframe's [streaming guide](https://devfra.me/guide/streaming); error codes for backpressure and lifecycle live there: [`DF0029`](https://devfra.me/errors/DF0029), [`DF0030`](https://devfra.me/errors/DF0030), [`DF0031`](https://devfra.me/errors/DF0031), [`DF0032`](https://devfra.me/errors/DF0032).

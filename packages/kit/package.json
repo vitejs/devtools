@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "birpc": "catalog:deps",
-    "devframe": "workspace:*",
+    "devframe": "catalog:deps",
     "logs-sdk": "catalog:deps",
     "mlly": "catalog:deps",
     "pathe": "catalog:deps",

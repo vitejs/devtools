@@ -9,7 +9,6 @@ import {
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { devframeNav, devframeSidebar } from '../../devframe/docs/.vitepress/config'
 import { version } from '../../package.json'
 
 const repoRoot = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..')
@@ -52,8 +51,6 @@ export default extendConfig(withMermaid(defineConfig({
   description: 'An extensible devtools framework for the Vite ecosystem. Build, compose, and integrate developer tools with a unified foundation.',
   srcDir: repoRoot,
   rewrites(id) {
-    if (id.startsWith('devframe/docs/'))
-      return `devframe/${id.slice('devframe/docs/'.length)}`
     if (id.startsWith('docs/'))
       return id.slice('docs/'.length)
     return id
@@ -61,15 +58,11 @@ export default extendConfig(withMermaid(defineConfig({
   srcExclude: [
     '**/node_modules/**',
     '*.md',
-    'devframe/*.md',
     'packages/**',
     'examples/**',
     'tests/**',
-    'devframe/packages/**',
-    'devframe/examples/**',
-    'devframe/tests/**',
+    'devframe/**',
     'docs/.vitepress/**',
-    'devframe/docs/.vitepress/**',
     '.github/**',
     '.context/**',
     '.agents/**',
@@ -98,7 +91,7 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'DevTools Kit',
         items: DevToolsKitNav,
       },
-      { text: 'Devframe', items: devframeNav('/devframe') },
+      { text: 'Devframe', link: 'https://devfra.me/' },
       {
         text: `v${version}`,
         items: [
@@ -109,7 +102,6 @@ export default extendConfig(withMermaid(defineConfig({
     ],
 
     sidebar: {
-      '/devframe/': devframeSidebar('/devframe'),
       '/': [
         {
           text: 'Guide',

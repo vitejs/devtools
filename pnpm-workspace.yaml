@@ -16,9 +16,6 @@ packages:
   - packages/*
   - examples/*
   - docs
-  - devframe/packages/*
-  - devframe/examples/*
-  - devframe/docs
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
@@ -40,7 +37,6 @@ catalogs:
     '@antfu/ni': ^30.1.0
     '@nuxt/kit': ^4.4.5
     '@nuxt/vite-builder': ^4.4.5
-    '@preact/preset-vite': ^2.10.5
     '@unocss/nuxt': ^66.6.8
     '@vitejs/plugin-vue': ^6.0.6
     '@vueuse/nuxt': ^14.3.0
@@ -56,25 +52,19 @@ catalogs:
     unplugin-vue: ^7.2.0
     vite: ^8.0.12
   deps:
-    '@modelcontextprotocol/sdk': ^1.29.0
     '@pnpm/read-project-manifest': ^1001.2.6
     '@rolldown/debug': ^1.0.0
-    '@valibot/to-json-schema': ^1.7.0
-    ansis: ^4.2.0
     birpc: ^4.0.0
     cac: ^7.0.0
+    devframe: ^0.2.0
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
     h3: ^1.15.11
-    immer: ^11.1.8
-    launch-editor: ^2.13.2
     logs-sdk: ^0.0.6
     mlly: ^1.8.2
     mrmime: ^2.0.1
     obug: ^2.1.1
-    ohash: ^2.0.11
-    open: ^11.0.0
     p-limit: ^7.3.0
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
@@ -85,10 +75,8 @@ catalogs:
     tinyglobby: ^0.2.16
     unconfig: ^7.5.0
     unstorage: ^1.17.5
-    valibot: ^1.4.0
     vue: ^3.5.34
     webext-bridge: ^6.0.1
-    whenexpr: ^0.1.2
     ws: ^8.20.0
   devtools:
     '@antfu/eslint-config': ^8.2.0
@@ -139,7 +127,6 @@ catalogs:
     idb-keyval: ^6.2.2
     modern-monaco: ^0.4.1
     nanovis: ^1.0.0
-    preact: ^10.29.1
     react: ^19.2.6
     react-dom: ^19.2.6
     splitpanes: ^4.0.4

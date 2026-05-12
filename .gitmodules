@@ -1,0 +1,3 @@
+[submodule "devframe"]
+	path = devframe
+	url = https://github.com/devframes/devframe.git
