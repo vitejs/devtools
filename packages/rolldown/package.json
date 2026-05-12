@@ -113,7 +113,7 @@
     "parse-json": "5.2.0",
     "picocolors": "1.1.1",
     "read-yaml-file": "2.1.0",
-    "semver": "7.7.4",
+    "semver": "7.8.0",
     "signal-exit": "4.1.0",
     "strip-bom": "4.0.0",
     "strip-comments-strings": "1.2.0",
