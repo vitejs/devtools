@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { RolldownChunkImport, RolldownChunkInfo } from '~~/shared/types/data'
-import { useRoute } from '#app/composables/router'
-import { NuxtLink } from '#components'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { NuxtLink } from '#components'
 
 const props = withDefaults(defineProps<{
   chunk: RolldownChunkInfo | RolldownChunkImport

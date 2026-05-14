@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useRpc } from '#imports'
 import { onMounted, shallowRef } from 'vue'
+import { useRpc } from '#imports'
 import { useRefreshProvider } from '../composables/refresh'
 
 const rpc = useRpc()

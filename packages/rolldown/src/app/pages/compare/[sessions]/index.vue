@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SessionCompareContext } from '~~/shared/types'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
-import { computed, onMounted, ref } from 'vue'
 
 const isLoading = ref(false)
 const params = useRoute().params as {

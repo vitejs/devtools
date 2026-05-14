@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SideNavItem } from '../composables/nav'
-import { NuxtLink } from '#components'
 import { computed } from 'vue'
+import { NuxtLink } from '#components'
 import { toggleDark } from '../composables/dark'
 import { sideNavItems } from '../composables/nav'
 

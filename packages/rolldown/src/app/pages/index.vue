@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
-import { useRpc } from '#imports'
 import { computed, ref } from 'vue'
+import { useRpc } from '#imports'
 
 const sessionMode = ref<'list' | 'compare'>('list')
 

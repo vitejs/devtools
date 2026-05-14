@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useRpc } from '#imports'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
+import { useRpc } from '#imports'
 
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(

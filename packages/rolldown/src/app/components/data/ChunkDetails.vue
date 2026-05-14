@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import { useRoute } from '#app/composables/router'
-import { useRpc } from '#imports'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { useRpc } from '#imports'
 
 const props = withDefaults(defineProps<{
   chunk: RolldownChunkInfo
