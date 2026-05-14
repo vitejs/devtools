@@ -10,7 +10,7 @@
     "dev:rolldown": "pnpm -C packages/rolldown run dev",
     "dev:vite": "pnpm -C packages/vite run dev",
     "docs": "pnpm -C docs run docs",
-    "docs:build": "pnpm -C docs run docs:build",
+    "docs:build": "pnpm build && pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
     "play": "pnpm -C packages/core run play",
     "play:debug": "pnpm -C packages/core run play:debug",
