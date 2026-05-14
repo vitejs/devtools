@@ -20,6 +20,7 @@
     "sync": "tsx scripts/sync.ts",
     "lint": "eslint --cache",
     "test": "vitest",
+    "test:e2e": "pnpm -C e2e run test",
     "release": "bumpp -r",
     "typecheck": "vue-tsc -b"
   },
