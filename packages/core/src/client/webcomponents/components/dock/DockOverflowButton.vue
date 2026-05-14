@@ -17,6 +17,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'select', entry: DevToolsDockEntry): void
+  (e: 'activity'): void
 }>()
 
 const overflowButton = useTemplateRef<HTMLButtonElement>('overflowButton')
@@ -37,6 +38,7 @@ function showOverflowPanel() {
   setDocksOverflowPanel({
     content: () => h('div', {
       class: 'flex gap-0 flex-wrap max-w-220px',
+      onMousemove: () => emit('activity'),
     }, [
       h(DockEntriesWithCategories, {
         context: props.context,
