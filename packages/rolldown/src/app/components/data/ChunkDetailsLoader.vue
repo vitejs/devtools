@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types/data'
-import { useRpc } from '#imports'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import { useAsyncState } from '@vueuse/core'
+import { useRpc } from '#imports'
 
 const props = defineProps<{
   chunk: number

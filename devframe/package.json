@@ -1,9 +1,0 @@
-{
-  "name": "devframe-monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "examples/*",
-    "docs"
-  ]
-}

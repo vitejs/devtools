@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import { useRoute } from '#app/composables/router'
-import { useRpc } from '#imports'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { settings } from '~~/app/state/settings'
+import { useRoute } from '#app/composables/router'
+import { useRpc } from '#imports'
 
 const props = withDefaults(defineProps<{
   session: SessionContext

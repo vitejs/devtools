@@ -1,8 +1,8 @@
-import type { DevtoolDefinition, DevToolsCapabilities } from 'devframe/types'
+import type { DevframeDefinition, DevToolsCapabilities } from 'devframe/types'
 import type { DevToolsViewIframe } from '../types/docks'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { KitNodeContext } from './context'
-import { resolveBasePath } from 'devframe/internal'
+import { resolveBasePath } from 'devframe/node/internal'
 import { resolve } from 'pathe'
 
 export interface CreatePluginFromDevframeOptions {
@@ -18,7 +18,7 @@ export interface CreatePluginFromDevframeOptions {
    * Overrides for the auto-synthesized iframe dock entry. Use this to
    * customize the entry's `category`, override the icon, hide it via
    * `when`, etc. Cannot change `id`, `type`, or `url` — those are
-   * derived from the devtool definition.
+   * derived from the devframe definition.
    */
   dock?: Partial<Omit<DevToolsViewIframe, 'id' | 'type' | 'url'>>
   /**
@@ -30,7 +30,7 @@ export interface CreatePluginFromDevframeOptions {
    * Additional kit-only setup hook. Runs after the devframe-level
    * `d.setup(ctx)` and after the auto-derived dock entry has been
    * registered. Use this for kit-specific behavior that should not
-   * bleed into the portable {@link DevtoolDefinition} — e.g.
+   * bleed into the portable {@link DevframeDefinition} — e.g.
    * registering terminals/commands/messages, or enriching the
    * synthesized dock entry.
    */
@@ -38,7 +38,7 @@ export interface CreatePluginFromDevframeOptions {
 }
 
 /**
- * Wrap a {@link DevtoolDefinition} as a Vite plugin that mounts inside
+ * Wrap a {@link DevframeDefinition} as a Vite plugin that mounts inside
  * `@vitejs/devtools` (Vite DevTools). The kit takes care of mounting
  * the SPA at the resolved base path, synthesizing an iframe dock entry
  * from the definition's metadata, and threading the kit-augmented
@@ -49,7 +49,7 @@ export interface CreatePluginFromDevframeOptions {
  * adding additional dock entries), use `options.setup`.
  */
 export function createPluginFromDevframe(
-  d: DevtoolDefinition,
+  d: DevframeDefinition,
   options: CreatePluginFromDevframeOptions = {},
 ): PluginWithDevTools {
   const base = options.base ?? resolveBasePath(d, 'hosted')

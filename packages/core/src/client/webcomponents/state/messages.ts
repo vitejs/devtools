@@ -24,7 +24,7 @@ export function useMessages(context: DocksContext): Reactive<MessagesState> {
 
   const entryMap = new Map<string, DevToolsMessageEntry>()
   let isInitialFetch = true
-  let lastVersion: number | undefined
+  let lastVersion: number | null = null
 
   async function updateMessages() {
     const result = await context.rpc.call('devtoolskit:internal:messages:list', lastVersion)

@@ -51,6 +51,7 @@ export async function createDocksContext(
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
+      panelStore.value.open = false
       return true
     }
     if (id === '~client-auth-notice') {

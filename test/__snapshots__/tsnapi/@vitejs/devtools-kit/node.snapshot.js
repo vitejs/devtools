@@ -3,6 +3,7 @@
  */
 // #region Classes
 export class DevToolsCommandsHost {
+  context
   commands
   events
   constructor(_) {}
@@ -14,6 +15,7 @@ export class DevToolsCommandsHost {
   toSerializable(_) {}
 }
 export class DevToolsDockHost {
+  context
   views
   events
   userSettings
@@ -28,6 +30,7 @@ export class DevToolsDockHost {
   prepareRemoteRegistration(_) {}
 }
 export class DevToolsMessagesHost {
+  context
   entries
   events
   lastModified
@@ -43,6 +46,7 @@ export class DevToolsMessagesHost {
   _createHandle(_) {}
 }
 export class DevToolsTerminalHost {
+  context
   sessions
   events
   _boundStreams

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useHead } from '#app/composables/head'
 import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
+import { useHead } from '#app/composables/head'
 import { connect, rpcConnectionState } from './composables/rpc'
 import './styles/global.css'
 import '@vitejs/devtools-ui/composables/dark'

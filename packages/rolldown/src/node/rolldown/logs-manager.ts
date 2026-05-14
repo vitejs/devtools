@@ -23,13 +23,16 @@ export class RolldownLogsManager {
     const sessions = await fs.readdir(this.dir, {
       withFileTypes: true,
     })
-    return await Promise.all(sessions
+    const entries = await Promise.all(sessions
       .filter(d => d.isDirectory())
       .filter(d => existsSync(join(this.dir, d.name, 'meta.json')))
-      .map(async (d): Promise<BuildInfo> => {
+      .map(async (d): Promise<BuildInfo | undefined> => {
         const reader = RolldownEventsReader.get(join(this.dir, d.name, 'meta.json'))
         await reader.read()
-        const meta = reader.meta!
+        const meta = reader.meta
+        if (!meta) {
+          return
+        }
         return {
           id: d.name,
           // @ts-expect-error missing type
@@ -38,6 +41,7 @@ export class RolldownLogsManager {
         }
       }),
     )
+    return entries.filter((entry): entry is BuildInfo => !!entry)
   }
 
   async loadSession(session: string) {

@@ -1,0 +1,18 @@
+{
+  "name": "@vitejs/devtools-e2e",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "mrmime": "catalog:deps",
+    "pathe": "catalog:deps",
+    "playwright-core": "catalog:testing",
+    "tinyexec": "catalog:deps",
+    "vite": "catalog:build",
+    "vitest": "catalog:testing"
+  }
+}

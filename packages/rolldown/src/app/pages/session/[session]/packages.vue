@@ -2,12 +2,12 @@
 import type { PackageInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
-import { useRoute, useRouter } from '#app/composables/router'
-import { useRpc } from '#imports'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Treemap } from 'nanovis'
 import { computed, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
+import { useRpc } from '#imports'
 import ChartTreemap from '~/components/chart/Treemap.vue'
 import { useChartGraph } from '~/composables/chart'
 import { settings } from '~/state/settings'
@@ -169,7 +169,11 @@ watch(() => settings.value.packageViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <div flex="~ col gap-2" flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto overflow-y-hidden>
+    <div
+      flex="~ col gap-2"
+      flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto
+      :class="settings.packageViewType === 'table' ? 'overflow-y-hidden' : 'overflow-y-auto'"
+    >
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div

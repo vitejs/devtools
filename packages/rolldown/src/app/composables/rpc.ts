@@ -1,10 +1,10 @@
 import type {} from '@vitejs/devtools'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
-import { useRuntimeConfig } from '#app/nuxt'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
+import { useRuntimeConfig } from '#app/nuxt'
 
 export const connectionState = reactive<{
   connected: boolean
@@ -28,7 +28,7 @@ export async function connect() {
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {
         onConnected: () => {
-          connectionState.error = null
+          connectionState.connected = true
         },
         onError: (e) => {
           connectionState.error = e
@@ -48,10 +48,6 @@ export async function connect() {
         },
       },
     })
-
-    const isTrusted = await rpc.value.ensureTrusted()
-    if (!isTrusted)
-      throw new Error('Vite DevTools client is not trusted.')
 
     const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
     const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)

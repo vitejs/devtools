@@ -1,6 +1,5 @@
 import { defineConfig } from 'tsdown'
 import Vue from 'unplugin-vue/rolldown'
-import { buildCSS } from './src/client/webcomponents/scripts/build-css'
 
 const define = {
   'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
@@ -34,7 +33,6 @@ export default defineConfig({
       '@vueuse/shared',
       '@xterm/addon-fit',
       '@xterm/xterm',
-      'ansis',
       'csstype',
       'dompurify',
       'fast-string-truncated-width',
@@ -74,6 +72,7 @@ export default defineConfig({
   define,
   hooks: {
     'build:before': async function () {
+      const { buildCSS } = await import('./src/client/webcomponents/scripts/build-css')
       await buildCSS()
     },
   },

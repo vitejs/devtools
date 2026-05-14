@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
-import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 import { DefaultPluginType, getPluginTypeFromName, PluginTypeRules } from '~/utils/icon'
 
 const props = defineProps<{

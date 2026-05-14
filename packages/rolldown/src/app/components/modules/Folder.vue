@@ -2,6 +2,7 @@
 import type { ModuleDest, ModuleListItem, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 import { toTree } from '../../utils/format'
+import DisplayVirtualTree from '../display/VirtualTree.vue'
 
 const props = defineProps<{
   session: SessionContext
@@ -54,43 +55,40 @@ const moduleTree = computed(() => {
     virtual: toTree(inVirtual, 'Virtual Modules'),
   }
 })
+
+const moduleTreeRoots = computed(() => {
+  const tree = moduleTree.value
+  return [
+    {
+      key: 'workspace',
+      node: tree.workspace,
+      icon: 'i-catppuccin:folder-dist icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-dist-open icon-catppuccin',
+    },
+    {
+      key: 'node-modules',
+      node: tree.nodeModules,
+      icon: 'i-catppuccin:folder-node icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-node-open icon-catppuccin',
+      open: false,
+      dividerBefore: true,
+    },
+    {
+      key: 'virtual',
+      node: tree.virtual,
+      icon: 'i-catppuccin:folder-components icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-components-open icon-catppuccin',
+      open: false,
+      dividerBefore: true,
+    },
+  ]
+})
 </script>
 
 <template>
-  <div of-auto max-h-screen relative>
-    <div flex="~ col gap-2" p4>
-      <DisplayTreeNode
-        v-if="Object.keys(moduleTree.workspace.children).length"
-        :node="moduleTree.workspace"
-        p="l3"
-        icon="i-catppuccin:folder-dist icon-catppuccin"
-        icon-open="i-catppuccin:folder-dist-open icon-catppuccin"
-        :link="true"
-      />
-
-      <template v-if="Object.keys(moduleTree.nodeModules.children).length">
-        <div w-full h-1px border="t base" />
-        <DisplayTreeNode
-          :node="moduleTree.nodeModules"
-          p="l3"
-          icon="i-catppuccin:folder-node icon-catppuccin"
-          icon-open="i-catppuccin:folder-node-open icon-catppuccin"
-          :link="true"
-          :open="false"
-        />
-      </template>
-
-      <template v-if="Object.keys(moduleTree.virtual.children).length">
-        <div w-full h-1px border="t base" />
-        <DisplayTreeNode
-          :node="moduleTree.virtual"
-          p="l3"
-          icon="i-catppuccin:folder-components icon-catppuccin"
-          icon-open="i-catppuccin:folder-components-open icon-catppuccin"
-          :link="true"
-          :open="false"
-        />
-      </template>
-    </div>
-  </div>
+  <DisplayVirtualTree
+    relative
+    :roots="moduleTreeRoots"
+    :link="true"
+  />
 </template>

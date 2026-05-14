@@ -2,7 +2,7 @@ import type { DevToolsHost } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import sirv from 'sirv'
+import { serveStaticNodeMiddleware } from 'devframe/utils/serve-static'
 
 export interface CreateViteDevToolsHostOptions {
   viteConfig: ResolvedConfig
@@ -27,7 +27,7 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
         return
       if (!viteServer)
         throw new Error('viteServer is required to mount static assets in dev mode')
-      viteServer.middlewares.use(base, sirv(distDir, { dev: true, single: true }))
+      viteServer.middlewares.use(base, serveStaticNodeMiddleware(distDir))
     },
     resolveOrigin() {
       const resolved = viteServer?.resolvedUrls?.local?.[0]

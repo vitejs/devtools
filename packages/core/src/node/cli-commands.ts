@@ -3,8 +3,9 @@
 import {
   DEVTOOLS_MOUNT_PATH,
 } from '@vitejs/devtools-kit/constants'
-import c from 'ansis'
 import { normalizeHttpServerUrl } from 'devframe/node'
+import { colors as c } from 'devframe/utils/colors'
+import { open } from 'devframe/utils/open'
 import { resolve } from 'pathe'
 import { MARK_NODE } from './constants'
 import { logger } from './diagnostics'
@@ -42,16 +43,13 @@ export async function start(options: StartOptions) {
   })
 
   const { createServer } = await import('node:http')
-  const { createApp, eventHandler, fromNodeMiddleware, sendRedirect, toNodeListener } = await import('h3')
-  const { default: sirv } = await import('sirv')
+  const { createApp, eventHandler, sendRedirect, toNodeListener } = await import('h3')
+  const { serveStaticHandler } = await import('devframe/utils/serve-static')
 
   const app = createApp()
 
   for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs) {
-    app.use(baseUrl, fromNodeMiddleware(sirv(distDir, {
-      dev: true,
-      single: true,
-    })))
+    app.use(baseUrl, serveStaticHandler(distDir))
   }
 
   app.use(DEVTOOLS_MOUNT_PATH, h3.handler)
@@ -65,7 +63,6 @@ export async function start(options: StartOptions) {
   server.listen(port, host, async () => {
     const url = normalizeHttpServerUrl(host, port)
     console.log(c.green`${MARK_NODE} Vite DevTools started at`, c.green(url), '\n')
-    const { default: open } = await import('open')
     if (options.open)
       await open(url)
   })

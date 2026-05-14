@@ -4,37 +4,8 @@ import { join, relative } from 'pathe'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
 const r = (path: string) => fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
-const df = (path: string) => fileURLToPath(new URL(`./devframe/packages/${path}`, import.meta.url))
 
 export const alias = {
-  'devframe/rpc/transports/ws-server': df('devframe/src/rpc/transports/ws-server.ts'),
-  'devframe/rpc/transports/ws-client': df('devframe/src/rpc/transports/ws-client.ts'),
-  'devframe/rpc/client': df('devframe/src/rpc/client.ts'),
-  'devframe/rpc/server': df('devframe/src/rpc/server.ts'),
-  'devframe/rpc': df('devframe/src/rpc'),
-  'devframe/types': df('devframe/src/types/index.ts'),
-  'devframe/node': df('devframe/src/node/index.ts'),
-  'devframe/constants': df('devframe/src/constants.ts'),
-  'devframe/internal': df('devframe/src/internal/index.ts'),
-  'devframe/utils/events': df('devframe/src/utils/events.ts'),
-  'devframe/utils/human-id': df('devframe/src/utils/human-id.ts'),
-  'devframe/utils/nanoid': df('devframe/src/utils/nanoid.ts'),
-  'devframe/utils/promise': df('devframe/src/utils/promise.ts'),
-  'devframe/utils/shared-state': df('devframe/src/utils/shared-state.ts'),
-  'devframe/utils/state': df('devframe/src/utils/state.ts'),
-  'devframe/utils/streaming-channel': df('devframe/src/utils/streaming-channel.ts'),
-  'devframe/utils/when': df('devframe/src/utils/when.ts'),
-  'devframe/adapters/cli': df('devframe/src/adapters/cli.ts'),
-  'devframe/adapters/dev': df('devframe/src/adapters/dev.ts'),
-  'devframe/adapters/build': df('devframe/src/adapters/build.ts'),
-  'devframe/adapters/vite': df('devframe/src/adapters/vite.ts'),
-  'devframe/adapters/embedded': df('devframe/src/adapters/embedded.ts'),
-  'devframe/adapters/mcp': df('devframe/src/adapters/mcp.ts'),
-  '@devframes/nuxt/runtime/plugin.client': df('nuxt/src/runtime/plugin.client.ts'),
-  '@devframes/nuxt': df('nuxt/src/index.ts'),
-  'devframe/recipes/open-helpers': df('devframe/src/recipes/open-helpers.ts'),
-  'devframe/client': df('devframe/src/client/index.ts'),
-  'devframe': df('devframe/src'),
   '@vitejs/devtools-kit/node': r('kit/src/node/index.ts'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
   '@vitejs/devtools-kit/constants': r('kit/src/constants.ts'),

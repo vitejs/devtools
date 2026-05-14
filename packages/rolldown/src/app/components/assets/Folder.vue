@@ -2,6 +2,7 @@
 import type { ModuleDest, RolldownAssetInfo, SessionContext } from '~~/shared/types'
 import { computed } from 'vue'
 import { toTree } from '../../utils/format'
+import DisplayVirtualTree from '../display/VirtualTree.vue'
 
 const props = defineProps<{
   assets: RolldownAssetInfo[]
@@ -19,26 +20,30 @@ const assetTree = computed(() => {
 })
 
 const assetsMap = computed(() => new Map<string, RolldownAssetInfo>(props.assets.map(a => [a.filename, a])))
+
+const assetTreeRoots = computed(() => [
+  {
+    key: 'assets',
+    node: assetTree.value,
+    icon: 'i-catppuccin:folder-dist catppuccin',
+    iconOpen: 'i-catppuccin:folder-dist-open catppuccin',
+  },
+])
 </script>
 
 <template>
-  <div flex="~ gap-2" p4>
-    <DisplayTreeNode
-      v-if="assets?.length"
-      flex-1
-      :node="assetTree"
-      icon="i-catppuccin:folder-dist catppuccin"
-      icon-open="i-catppuccin:folder-dist-open catppuccin"
-      :link="true"
-      link-query-key="asset"
-    >
-      <template #extra="{ node }">
-        <span op50>
-          ({{ assetsMap.get(node.full)?.chunk?.name?.replace(/[\[\]]/g, '') }})
-        </span>
-      </template>
-    </DisplayTreeNode>
-  </div>
+  <DisplayVirtualTree
+    v-if="assets?.length"
+    :roots="assetTreeRoots"
+    :link="true"
+    link-query-key="asset"
+  >
+    <template #extra="{ node }">
+      <span op50>
+        ({{ assetsMap.get(node.full)?.chunk?.name?.replace(/[\[\]]/g, '') }})
+      </span>
+    </template>
+  </DisplayVirtualTree>
 </template>
 
 <style scoped>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { ModuleImport } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
-import { useRoute } from '#app/composables/router'
-import { NuxtLink } from '#components'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { Tooltip } from 'floating-vue'
 import { relative } from 'pathe'
 import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { NuxtLink } from '#components'
 
 const props = withDefaults(
   defineProps<{

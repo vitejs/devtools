@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-vite",
   "type": "module",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "description": "DevTools for Vite (work in progress)",
   "author": "VoidZero Inc.",
@@ -38,14 +38,11 @@
     "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
     "birpc": "catalog:deps",
-    "devframe": "workspace:*",
+    "devframe": "catalog:deps",
     "envinfo": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",
-    "ohash": "catalog:deps",
     "pathe": "catalog:deps",
-    "sirv": "catalog:deps",
-    "structured-clone-es": "catalog:deps",
     "ws": "catalog:deps"
   },
   "devDependencies": {
