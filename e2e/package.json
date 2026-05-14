@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-e2e",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.23",
   "private": true,
   "scripts": {
     "test": "vitest --run"
