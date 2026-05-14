@@ -43,22 +43,18 @@ export async function start(options: StartOptions) {
   })
 
   const { createServer } = await import('node:http')
-  const { createApp, eventHandler, sendRedirect, toNodeListener } = await import('h3')
-  const { serveStaticHandler } = await import('devframe/utils/serve-static')
+  const { defineHandler, H3, sendRedirect, toNodeHandler } = await import('h3')
+  const { mountStaticHandler } = await import('devframe/utils/serve-static')
 
-  const app = createApp()
+  const app = new H3()
 
-  for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs) {
-    app.use(baseUrl, serveStaticHandler(distDir))
-  }
+  for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs)
+    mountStaticHandler(app, baseUrl, distDir)
 
-  app.use(DEVTOOLS_MOUNT_PATH, h3.handler)
-  app.use('/', eventHandler(async (event) => {
-    if (event.node.req.url === '/')
-      return sendRedirect(event, DEVTOOLS_MOUNT_PATH)
-  }))
+  app.use(DEVTOOLS_MOUNT_PATH, h3)
+  app.use('/', defineHandler(event => sendRedirect(event, DEVTOOLS_MOUNT_PATH, 302)))
 
-  const server = createServer(toNodeListener(app))
+  const server = createServer(toNodeHandler(app))
 
   server.listen(port, host, async () => {
     const url = normalizeHttpServerUrl(host, port)

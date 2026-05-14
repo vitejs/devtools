@@ -56,8 +56,8 @@ catalogs:
       specifier: ^3.2.0
       version: 3.2.0
     h3:
-      specifier: ^1.15.11
-      version: 1.15.11
+      specifier: 2.0.1-rc.22
+      version: 2.0.1-rc.22
     logs-sdk:
       specifier: ^0.0.6
       version: 0.0.6
@@ -726,7 +726,7 @@ importers:
         version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       h3:
         specifier: catalog:deps
-        version: 1.15.11
+        version: 2.0.1-rc.22
       logs-sdk:
         specifier: catalog:deps
         version: 0.0.6
@@ -863,7 +863,7 @@ importers:
         version: 3.2.0
       h3:
         specifier: catalog:deps
-        version: 1.15.11
+        version: 2.0.1-rc.22
       logs-sdk:
         specifier: catalog:deps
         version: 0.0.6
@@ -1048,7 +1048,7 @@ importers:
         version: 3.2.0
       h3:
         specifier: catalog:deps
-        version: 1.15.11
+        version: 2.0.1-rc.22
       pathe:
         specifier: catalog:deps
         version: 2.0.3
