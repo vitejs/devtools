@@ -5,8 +5,8 @@
  * (never a branch). Run via `pnpm sync` — also runs in `postinstall` so a
  * fresh clone initializes the submodule automatically.
  */
-import { existsSync } from 'node:fs'
-import { readFile, writeFile } from 'node:fs/promises'
+import { existsSync, readdirSync } from 'node:fs'
+import { readFile, rm, writeFile } from 'node:fs/promises'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { cac } from 'cac'
@@ -63,8 +63,17 @@ async function tryGit(args: string[], opts: { cwd?: string } = {}): Promise<stri
 }
 
 async function ensureSubmoduleInit(): Promise<void> {
-  if (existsSync(resolve(ROOT, SUBMODULE, '.git')))
+  const submodulePath = resolve(ROOT, SUBMODULE)
+  if (existsSync(resolve(submodulePath, '.git')))
     return
+  // A non-empty directory without `.git` is leftover from a previous clone
+  // whose git metadata was wiped (e.g. by `git clean -ffdx`). Submodule init
+  // refuses to overwrite it, so clear it first — there's no git tracking,
+  // hence nothing to lose beyond regeneratable build artifacts.
+  if (existsSync(submodulePath) && readdirSync(submodulePath).length > 0) {
+    console.log(`[sync] Clearing stale ${SUBMODULE}/ (missing .git link)…`)
+    await rm(submodulePath, { recursive: true, force: true })
+  }
   console.log(`[sync] Initializing ${SUBMODULE} submodule…`)
   await git(['submodule', 'update', '--init', SUBMODULE])
 }
