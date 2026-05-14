@@ -16,6 +16,7 @@ packages:
   - packages/*
   - examples/*
   - docs
+  - e2e
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
@@ -161,6 +162,7 @@ catalogs:
     langium: ^4.2.3
     semver: ^7.8.0
   testing:
+    playwright-core: ^1.60.0
     tsnapi: ^0.3.2
     vitest: ^4.1.5
   types:
