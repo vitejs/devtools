@@ -57,7 +57,7 @@ catalogs:
     '@rolldown/debug': ^1.0.1
     birpc: ^4.0.0
     cac: ^7.0.0
-    devframe: ^0.2.1
+    devframe: ^0.2.2
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
