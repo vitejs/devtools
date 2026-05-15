@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rolldown",
   "type": "module",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "description": "DevTools for Rolldown",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -113,6 +113,7 @@
     "read-yaml-file": "2.1.0",
     "semver": "7.8.0",
     "signal-exit": "4.1.0",
+    "split2": "4.2.0",
     "strip-bom": "4.0.0",
     "strip-comments-strings": "1.2.0",
     "write-file-atomic": "5.0.1",

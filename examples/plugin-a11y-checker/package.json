@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-a11y-checker",
   "type": "module",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build:node": "tsdown --config-loader=tsx",
+    "build:node": "tsdown --config-loader=unrun",
     "build": "pnpm run build:node",
     "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite"
   },
