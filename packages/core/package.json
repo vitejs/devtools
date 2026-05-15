@@ -41,9 +41,9 @@
   ],
   "scripts": {
     "build": "pnpm build:js && pnpm build:standalone",
-    "build:js": "tsdown --config-loader=tsx",
+    "build:js": "tsdown --config-loader=unrun",
     "build:standalone": "cd src/client/standalone && vite build",
-    "watch": "tsdown --watch --config-loader=tsx",
+    "watch": "tsdown --watch --config-loader=unrun",
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
