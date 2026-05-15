@@ -4,7 +4,6 @@ allowBuilds:
   simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true
-
 ignoreWorkspaceRootCheck: true
 shamefullyHoist: true
 shellEmulator: true
@@ -33,6 +32,8 @@ overrides:
   semver: 'catalog:resolutions'
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
+patchedDependencies:
+  devframe@0.3.0: patches/devframe@0.3.0.patch
 catalogs:
   build:
     '@antfu/ni': ^30.1.0
