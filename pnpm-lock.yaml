@@ -44,8 +44,8 @@ catalogs:
       specifier: ^4.0.0
       version: 4.0.0
     devframe:
-      specifier: ^0.2.3
-      version: 0.2.3
+      specifier: 0.2.2
+      version: 0.2.2
     diff:
       specifier: ^9.0.0
       version: 9.0.0
@@ -576,7 +576,7 @@ importers:
         version: 4.8.4(change-case@5.4.4)(focus-trap@8.0.0)(fuse.js@7.3.0)(idb-keyval@6.2.2)(typescript@6.0.3)(vite@8.0.13(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.6.1)(terser@5.44.1)(tsx@4.22.0)(yaml@2.8.4))(vitepress@2.0.0-alpha.17(@types/node@25.0.3)(@vitejs/devtools@packages+core)(change-case@5.4.4)(esbuild@0.28.0)(fuse.js@7.3.0)(idb-keyval@6.2.2)(jiti@2.6.1)(oxc-minify@0.128.0)(postcss@8.5.14)(terser@5.44.1)(tsx@4.22.0)(typescript@6.0.3)(yaml@2.8.4))(vue@3.5.34(typescript@6.0.3))
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       mermaid:
         specifier: catalog:docs
         version: 11.15.0
@@ -723,7 +723,7 @@ importers:
         version: 7.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       h3:
         specifier: catalog:deps
         version: 2.0.1-rc.22
@@ -799,7 +799,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       logs-sdk:
         specifier: catalog:deps
         version: 0.0.6
@@ -854,7 +854,7 @@ importers:
         version: 3.2.0
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       diff:
         specifier: catalog:deps
         version: 9.0.0
@@ -978,7 +978,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       pathe:
         specifier: catalog:deps
         version: 2.0.3
@@ -1039,7 +1039,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       envinfo:
         specifier: catalog:deps
         version: 7.21.0
@@ -5233,6 +5233,14 @@ packages:
 
   devframe@0.1.21:
     resolution: {integrity: sha512-tOCbGyJKYyYatfk1E7I96KVZQRTyFwewF1c5BVsm92EN6ezuUkAmJqNu6/kR6sAA8lUSnRG4iTUrk+bOtutJjQ==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.0.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
+  devframe@0.2.2:
+    resolution: {integrity: sha512-nB5xJR0XREJSVD7Me7j9UUY1NIpPlBGYI/b6EMigeoVPaUv7/RwKf/uyc/94P00yMMxQzSMy/94NzWemDd70SQ==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.0.0
     peerDependenciesMeta:
@@ -13535,6 +13543,25 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  devframe@0.2.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3):
+    dependencies:
+      '@valibot/to-json-schema': 1.7.0(valibot@1.4.0(typescript@6.0.3))
+      birpc: 4.0.0
+      cac: 7.0.0
+      h3: 2.0.1-rc.22
+      logs-sdk: 0.0.6
+      mrmime: 2.0.1
+      pathe: 2.0.3
+      valibot: 1.4.0(typescript@6.0.3)
+      ws: 8.20.1
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.29.0(zod@4.3.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - crossws
+      - typescript
+      - utf-8-validate
+
   devframe@0.2.3(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3):
     dependencies:
       '@valibot/to-json-schema': 1.7.0(valibot@1.4.0(typescript@6.0.3))
@@ -13553,6 +13580,7 @@ snapshots:
       - crossws
       - typescript
       - utf-8-validate
+    optional: true
 
   devlop@1.1.0:
     dependencies:
