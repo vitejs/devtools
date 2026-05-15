@@ -1,5 +1,10 @@
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'tsdown'
 import Vue from 'unplugin-vue/rolldown'
+
+const here = dirname(fileURLToPath(import.meta.url))
+const distDir = resolve(here, 'dist')
 
 const define = {
   'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
@@ -79,6 +84,16 @@ export default defineConfig([
       'build:before': async function () {
         const { buildCSS } = await import('./src/client/webcomponents/scripts/build-css')
         await buildCSS()
+      },
+      'build:done': async function () {
+        const { checkClientDist } = await import('./scripts/check-client-dist')
+        await checkClientDist({
+          entries: [
+            resolve(distDir, 'client/inject.js'),
+            resolve(distDir, 'client/webcomponents.js'),
+          ],
+          cwd: here,
+        })
       },
     },
   },
