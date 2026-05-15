@@ -1,6 +1,5 @@
 import type { Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
 import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownAssetInfo, RolldownChunkInfo } from '../../shared/types'
-import { createHash } from 'node:crypto'
 import { guessChunkName } from '../../shared/utils/guess-chunk-name'
 import { getInitialChunkIds } from '../utils/chunk'
 import { getContentByteSize } from '../utils/format'
@@ -14,12 +13,13 @@ type ModuleBuildHookEvents = (Exclude<Event, 'StringRef'> & (HookResolveIdCallSt
 const MODULE_BUILD_START_HOOKS = ['HookResolveIdCallStart', 'HookLoadCallStart', 'HookTransformCallStart']
 const MODULE_BUILD_END_HOOKS = ['HookResolveIdCallEnd', 'HookLoadCallEnd', 'HookTransformCallEnd']
 
-interface ContentInfo {
+export interface ContentInfo {
   byteSize: number
-  hash: string
 }
 
-type PendingModuleBuildHookEvent
+type ModuleSnapshot = Omit<ModuleInfo & { build_metrics?: ModuleBuildMetrics }, 'build_metrics'>
+
+export type PendingModuleBuildHookEvent
   = | {
     action: 'HookResolveIdCallStart'
     timestamp: string
@@ -37,20 +37,27 @@ type PendingModuleBuildHookEvent
     contentInfo: ContentInfo
   }
 
-function getContentHash(content: string) {
-  return createHash('sha1').update(content).digest('hex')
+export interface RolldownEventsManagerSnapshot {
+  eventCount: number
+  lastEvent: RolldownEvent | undefined
+  chunks: Array<[number, RolldownChunkInfo]>
+  modules: Array<[string, ModuleSnapshot]>
+  source_refs: Array<[string, ContentInfo]>
+  module_build_hook_events: Array<[string, PendingModuleBuildHookEvent]>
+  module_build_metrics: Array<[string, ModuleBuildMetrics]>
+  plugin_build_metrics: Array<[number, PluginBuildMetrics]>
+  build_start_time: number
+  build_end_time: number
 }
 
 function getContentInfo(content: string | null | undefined): ContentInfo {
   if (!content) {
     return {
       byteSize: 0,
-      hash: '',
     }
   }
   return {
     byteSize: getContentByteSize(content),
-    hash: getContentHash(content),
   }
 }
 
@@ -211,7 +218,6 @@ export class RolldownEventsManager {
             ...info,
             type: 'transform',
             module: event.module_id,
-            unchanged: sourceContentInfo.hash === transformedContentInfo.hash,
           })
         }
         this.plugin_build_metrics.set(pluginId, plugin_build_metrics)
@@ -304,6 +310,42 @@ export class RolldownEventsManager {
     this.plugin_build_metrics.clear()
     this.build_start_time = 0
     this.build_end_time = 0
+  }
+
+  snapshot(): RolldownEventsManagerSnapshot {
+    return {
+      eventCount: this.eventCount,
+      lastEvent: this.lastEvent,
+      chunks: Array.from(this.chunks.entries()),
+      modules: Array.from(this.modules.entries()).map(([id, module]) => {
+        const { build_metrics, ...snapshot } = module
+        return [id, snapshot]
+      }),
+      source_refs: Array.from(this.source_refs.entries()),
+      module_build_hook_events: Array.from(this.module_build_hook_events.entries()),
+      module_build_metrics: Array.from(this.module_build_metrics.entries()),
+      plugin_build_metrics: Array.from(this.plugin_build_metrics.entries()),
+      build_start_time: this.build_start_time,
+      build_end_time: this.build_end_time,
+    }
+  }
+
+  restore(snapshot: RolldownEventsManagerSnapshot) {
+    this.eventCount = snapshot.eventCount
+    this.lastEvent = snapshot.lastEvent
+    this.chunks = new Map(snapshot.chunks)
+    this.assets.clear()
+    this.chunkAssetMap.clear()
+    this.source_refs = new Map(snapshot.source_refs)
+    this.module_build_hook_events = new Map(snapshot.module_build_hook_events)
+    this.module_build_metrics = new Map(snapshot.module_build_metrics)
+    this.modules = new Map(snapshot.modules.map(([id, module]) => [id, {
+      ...module,
+      build_metrics: this.module_build_metrics.get(id),
+    }]))
+    this.plugin_build_metrics = new Map(snapshot.plugin_build_metrics)
+    this.build_start_time = snapshot.build_start_time
+    this.build_end_time = snapshot.build_end_time
   }
 
   [Symbol.dispose]() {
