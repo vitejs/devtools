@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -41,9 +41,9 @@
   ],
   "scripts": {
     "build": "pnpm build:js && pnpm build:standalone",
-    "build:js": "tsdown --config-loader=tsx",
+    "build:js": "tsdown --config-loader=unrun",
     "build:standalone": "cd src/client/standalone && vite build",
-    "watch": "tsdown --watch --config-loader=tsx",
+    "watch": "tsdown --watch --config-loader=unrun",
     "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
     "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",

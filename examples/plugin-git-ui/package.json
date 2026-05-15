@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-git-ui",
   "type": "module",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown --config-loader=tsx",
+    "build": "tsdown --config-loader=unrun",
     "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite",
     "play:build": "pnpm run build && cd playground && vite build && vite-devtools build",
     "play:preview": "serve ./playground/.vite-devtools"
