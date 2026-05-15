@@ -31,7 +31,7 @@ A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The c
 | `ctx.rpc.sharedState` | devframe | Synchronized server-client state |
 | `ctx.rpc.streaming` | devframe | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
 | `ctx.views` | devframe | Host static files for UI (`hostStatic(base, distDir)`) |
-| `ctx.diagnostics` | devframe | Structured diagnostics host (logs-sdk) — register custom error codes |
+| `ctx.diagnostics` | devframe | Structured diagnostics host (nostics) — register custom error codes |
 | `ctx.createJsonRenderer` | **kit** | Create server-side JSON render specs for zero-client-code UIs |
 | `ctx.viteConfig` | core | Resolved Vite configuration |
 | `ctx.viteServer` | core | Dev server instance (dev mode only) |
@@ -666,7 +666,7 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
 - [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
 - [Messages Patterns](./references/messages-patterns.md) - Message entries, toast notifications, and handle patterns
-- [Diagnostics Patterns](./references/diagnostics-patterns.md) - Coded errors / warnings via `ctx.diagnostics` (logs-sdk integration)
+- [Diagnostics Patterns](./references/diagnostics-patterns.md) - Coded errors / warnings via `ctx.diagnostics` (nostics integration)
 - [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
 - [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
 - [Remote Client Patterns](./references/remote-client-patterns.md) - Remote-hosted iframe docks, `connectRemoteDevTools`, trust model

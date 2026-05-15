@@ -1,5 +1,5 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { logger } from '../../diagnostics'
+import { diagnostics } from '../../diagnostics'
 
 export const docksOnLaunch = defineRpcFunction({
   name: 'devtoolskit:internal:docks:on-launch',
@@ -14,10 +14,10 @@ export const docksOnLaunch = defineRpcFunction({
 
         const entry = context.docks.values().find(entry => entry.id === entryId)
         if (!entry) {
-          throw logger.DTK0030({ id: entryId }).throw()
+          throw diagnostics.DTK0030.throw({ id: entryId })
         }
         if (entry.type !== 'launcher') {
-          throw logger.DTK0031({ id: entryId }).throw()
+          throw diagnostics.DTK0031.throw({ id: entryId })
         }
         try {
           context.docks.update({
@@ -43,7 +43,7 @@ export const docksOnLaunch = defineRpcFunction({
           return result
         }
         catch (error) {
-          logger.DTK0032({ id: entryId }, { cause: error }).log()
+          diagnostics.DTK0032.report({ id: entryId, cause: error })
           context.docks.update({
             ...entry,
             launcher: {

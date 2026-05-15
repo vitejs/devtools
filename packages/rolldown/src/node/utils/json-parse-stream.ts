@@ -1,6 +1,6 @@
 import { pipeline } from 'node:stream/promises'
 import split2 from 'split2'
-import { logger } from '../diagnostics'
+import { diagnostics } from '../diagnostics'
 
 export class JsonParseStreamError extends Error {
   constructor(
@@ -37,7 +37,7 @@ export async function parseJsonStreamWithConcatArrays<T, K = T>(
         }
         catch (e) {
           const preview = line.length > 256 ? `${line.slice(0, 256)}...` : line
-          logger.RDDT0002({ line: lineNumber, error: (e as Error).message, preview }).log()
+          diagnostics.RDDT0002.report({ line: lineNumber, error: (e as Error).message, preview })
         }
       }
     },

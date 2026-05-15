@@ -2,7 +2,7 @@ import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 import { join } from 'pathe'
-import { logger } from '../diagnostics'
+import { diagnostics } from '../diagnostics'
 import { RolldownLogsManager } from '../rolldown/logs-manager'
 
 const weakMap = new WeakMap<DevToolsNodeContext, RolldownLogsManager>()
@@ -16,7 +16,7 @@ export function getLogsManager(context: DevToolsNodeContext): RolldownLogsManage
     ]
     const dir = dirs.find(dir => existsSync(dir))
     if (!dir) {
-      logger.RDDT0001().log()
+      diagnostics.RDDT0001.report()
     }
     manager = new RolldownLogsManager(dir ?? dirs[0]!)
   }

@@ -11,7 +11,7 @@ import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
-import { logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 
 const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
@@ -50,7 +50,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
-    logger.DTK0008().log()
+    diagnostics.DTK0008.report()
   }
 
   contextInternal.wsEndpoint = {
@@ -74,10 +74,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
     {
       rpcOptions: {
         onFunctionError(error, name) {
-          logger.DTK0011({ name }, { cause: error }).log()
+          diagnostics.DTK0011.report({ name, cause: error })
         },
         onGeneralError(error) {
-          logger.DTK0012({ cause: error }).log()
+          diagnostics.DTK0012.report({ cause: error })
         },
         resolver(name, fn) {
           // eslint-disable-next-line ts/no-this-alias
@@ -86,7 +86,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           // Block unauthorized access to non-anonymous methods
           if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
             return () => {
-              throw logger.DTK0013({ name, clientId: rpc.$meta.id }).throw()
+              throw diagnostics.DTK0013.throw({ name, clientId: rpc.$meta.id })
             }
           }
 

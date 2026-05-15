@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { launchEditor } from 'devframe/utils/launch-editor'
-import { logger } from '../../diagnostics'
+import { diagnostics } from '../../diagnostics'
 
 export const openInEditor = defineRpcFunction({
   name: 'vite:core:open-in-editor',
@@ -15,7 +15,7 @@ export const openInEditor = defineRpcFunction({
 
         // Prevent escaping the workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          throw logger.DTK0028().throw()
+          throw diagnostics.DTK0028.throw()
         }
 
         launchEditor(resolved)
