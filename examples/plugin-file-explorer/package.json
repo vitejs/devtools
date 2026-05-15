@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build:node": "tsdown --config-loader=tsx",
+    "build:node": "tsdown --config-loader=unrun",
     "build:ui": "cd src/ui && vite build",
     "build": "pnpm run build:node && pnpm run build:ui",
     "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite",
