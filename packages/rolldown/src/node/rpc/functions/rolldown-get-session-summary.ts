@@ -17,7 +17,7 @@ export const rolldownGetSessionSummary = defineRpcFunction({
     const manager = getLogsManager(context)
     return {
       handler: async ({ session }: { session: string }) => {
-        const reader = await manager.loadSession(session)
+        const reader = await manager.loadSessionSummary(session)
 
         return {
           id: session,

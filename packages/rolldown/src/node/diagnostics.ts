@@ -10,7 +10,7 @@ export const diagnostics = defineDiagnostics({
       level: 'warn',
     },
     RDDT0002: {
-      message: (p: { line: number, error: string, preview: string }) => `JSON parse stream skip bad line ${p.line}: ${p.error}\n${p.preview}`,
+      message: (p: { line: number, error: string, preview: string }) => `Rolldown log reader skipped bad line ${p.line}: ${p.error}\n${p.preview}`,
       level: 'warn',
     },
   },

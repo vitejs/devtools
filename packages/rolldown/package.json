@@ -51,7 +51,6 @@
     "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
     "publint": "catalog:deps",
-    "split2": "catalog:deps",
     "tinyglobby": "catalog:deps",
     "unconfig": "catalog:deps",
     "unstorage": "catalog:deps",
@@ -59,7 +58,6 @@
     "ws": "catalog:deps"
   },
   "devDependencies": {
-    "@types/split2": "catalog:types",
     "@types/splitpanes": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vueuse/components": "catalog:frontend",
@@ -115,6 +113,7 @@
     "read-yaml-file": "2.1.0",
     "semver": "7.8.0",
     "signal-exit": "4.1.0",
+    "split2": "4.2.0",
     "strip-bom": "4.0.0",
     "strip-comments-strings": "1.2.0",
     "write-file-atomic": "5.0.1",

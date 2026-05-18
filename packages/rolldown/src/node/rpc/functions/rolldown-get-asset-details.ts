@@ -10,7 +10,7 @@ export const rolldownGetAssetDetails = defineRpcFunction({
     const manager = getLogsManager(context)
     return {
       handler: async ({ session, id }: { session: string, id: string }) => {
-        const reader = await manager.loadSession(session)
+        const reader = await manager.loadAssetSession(session)
         const assets = reader.manager.assets
         const chunks = reader.manager.chunks
         const asset = assets.get(id)!

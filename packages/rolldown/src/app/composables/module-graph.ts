@@ -12,6 +12,7 @@ import { useZoomElement } from './zoom-element'
 export interface ModuleGraphNode<M, I> {
   module: M
   import?: I
+  depth?: number
   expanded?: boolean
   hasChildren?: boolean
 }
@@ -107,6 +108,17 @@ export function generateModuleGraphLink<M, I>(link: ModuleGraphLink<M, I>, spaci
 // @unocss-include
 export function getModuleGraphLinkColor<M, I>(_link: ModuleGraphLink<M, I>) {
   return 'stroke-#8885'
+}
+
+export function getModuleGraphSize<M, I>(nodes: HierarchyNode<ModuleGraphNode<M, I>>[], spacing: ModuleGraphSpacing) {
+  const nodeWidth = unref(spacing.width)
+  const nodeHeight = unref(spacing.height)
+  const margin = unref(spacing.margin)
+
+  return {
+    width: Math.max(...nodes.map(node => (node.x ?? 0) + nodeWidth / 2), 0) + margin,
+    height: Math.max(...nodes.map(node => (node.y ?? 0) + nodeHeight / 2), 0) + margin,
+  }
 }
 
 export function createModuleGraph<M extends { id: string }, I>(options: ModuleGraphOptions<M, I>) {

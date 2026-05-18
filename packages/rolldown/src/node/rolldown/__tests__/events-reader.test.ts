@@ -28,7 +28,7 @@ describe('rolldown events reader', () => {
       resolveRead()
       await Promise.all(reads)
 
-      expect(reader.manager.events).toHaveLength(1)
+      expect(reader.manager.eventCount).toBe(1)
 
       await reader.read()
       expect(readChanges).toHaveBeenCalledTimes(2)
