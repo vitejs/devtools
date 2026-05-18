@@ -10,7 +10,7 @@ export const rolldownGetSessionCompareSummary = defineRpcFunction({
     const manager = getLogsManager(context)
     return {
       handler: async ({ sessions }: { sessions: string[] }) => {
-        const reader = await Promise.all(sessions.map(s => manager.loadSession(s)))
+        const reader = await Promise.all(sessions.map(s => manager.loadAssetSession(s)))
 
         return sessions.map((s, index) => {
           const _reader = reader[index]!

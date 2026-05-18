@@ -1,10 +1,27 @@
 <script setup lang="ts">
-import type { RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import type { ModuleListItem, RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
+
+type ChunkImportInfo = RolldownChunkInfo['imports'][number]
+
+interface SessionModulesIndex {
+  modulesList: ModuleListItem[]
+  map: Map<string, ModuleListItem>
+}
+
+interface ChunkImporterRef {
+  chunk: RolldownChunkInfo
+  importChunk: ChunkImportInfo
+}
+
+interface ChunksIndex {
+  byId: Map<RolldownChunkInfo['chunk_id'], RolldownChunkInfo>
+  importersById: Map<RolldownChunkInfo['chunk_id'], ChunkImporterRef[]>
+}
 
 const props = withDefaults(defineProps<{
   chunk: RolldownChunkInfo
@@ -15,13 +32,51 @@ const props = withDefaults(defineProps<{
   showDetails: true,
 })
 
-const modulesMap = computed(() => {
-  const map = new Map()
-  for (const module of props.session.modulesList) {
+const sessionModulesIndexCache = new Map<string, SessionModulesIndex>()
+const chunksIndexCache = new WeakMap<RolldownChunkInfo[], ChunksIndex>()
+
+function getSessionModulesMap(session: SessionContext) {
+  const cached = sessionModulesIndexCache.get(session.id)
+  if (cached?.modulesList === session.modulesList)
+    return cached.map
+
+  const map = new Map<string, ModuleListItem>()
+  for (const module of session.modulesList) {
     map.set(module.id, module)
   }
+  sessionModulesIndexCache.set(session.id, {
+    modulesList: session.modulesList,
+    map,
+  })
   return map
-})
+}
+
+function getChunksIndex(chunks: RolldownChunkInfo[]) {
+  const cached = chunksIndexCache.get(chunks)
+  if (cached)
+    return cached
+
+  const byId = new Map<RolldownChunkInfo['chunk_id'], RolldownChunkInfo>()
+  const importersById = new Map<RolldownChunkInfo['chunk_id'], ChunkImporterRef[]>()
+
+  for (const chunk of chunks) {
+    byId.set(chunk.chunk_id, chunk)
+    for (const importChunk of chunk.imports) {
+      const importers = importersById.get(importChunk.chunk_id) ?? []
+      importers.push({ chunk, importChunk })
+      importersById.set(importChunk.chunk_id, importers)
+    }
+  }
+
+  const index = {
+    byId,
+    importersById,
+  }
+  chunksIndexCache.set(chunks, index)
+  return index
+}
+
+const modulesMap = computed(() => getSessionModulesMap(props.session))
 
 function getModuleSize(modules: string[]) {
   return modules.reduce((total, id) => {
@@ -52,10 +107,11 @@ const { state, isLoading } = useAsyncState(
 )
 
 const normalizedChunks = computed(() => props.chunks || state.value)
+const chunksIndex = computed(() => normalizedChunks.value ? getChunksIndex(normalizedChunks.value) : undefined)
 
 const imports = computed((): Array<RolldownChunkImport & { size: number }> => {
   return props.chunk.imports.map((importChunk) => {
-    const chunk = normalizedChunks.value?.find(c => c.chunk_id === importChunk.chunk_id)
+    const chunk = chunksIndex.value?.byId.get(importChunk.chunk_id)
     return {
       ...importChunk,
       name: chunk?.name || '[unnamed]',
@@ -68,9 +124,7 @@ const imports = computed((): Array<RolldownChunkImport & { size: number }> => {
 })
 
 const importers = computed((): RolldownChunkImport[] => {
-  return normalizedChunks.value?.filter(c => c.imports.some(i => i.chunk_id === props.chunk.chunk_id)).map((chunk) => {
-    const importChunk = chunk.imports.find(i => i.chunk_id === props.chunk.chunk_id)!
-
+  return chunksIndex.value?.importersById.get(props.chunk.chunk_id)?.map(({ chunk, importChunk }) => {
     return {
       ...importChunk,
       chunk_id: chunk.chunk_id,

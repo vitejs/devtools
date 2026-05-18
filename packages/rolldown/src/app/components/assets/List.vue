@@ -2,9 +2,16 @@
 import type { RolldownAssetInfo } from '~~/shared/types'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 
-defineProps<{
+withDefaults(defineProps<{
   assets: RolldownAssetInfo[]
-}>()
+  itemSize?: number
+  pageMode?: boolean
+  scroller?: 'dynamic' | 'window'
+}>(), {
+  itemSize: 40,
+  pageMode: true,
+  scroller: 'window',
+})
 </script>
 
 <template>
@@ -12,9 +19,12 @@ defineProps<{
     <DataVirtualList
       :items="assets"
       key-prop="filename"
+      :item-size="itemSize"
+      :page-mode="pageMode"
+      :scroller="scroller"
     >
       <template #default="{ item }">
-        <div flex pb2>
+        <div h-10 flex>
           <AssetsListItem :asset="item" />
         </div>
       </template>

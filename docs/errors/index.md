@@ -47,4 +47,4 @@ Emitted by `@vitejs/devtools-rolldown`.
 | Code | Level | Title |
 |------|-------|-------|
 | [RDDT0001](./RDDT0001) | warn | Rolldown Logs Directory Not Found |
-| [RDDT0002](./RDDT0002) | warn | JSON Parse Stream Bad Line |
+| [RDDT0002](./RDDT0002) | warn | Rolldown Log Reader Bad Line |
