@@ -8,7 +8,7 @@ import { colors as c } from 'devframe/utils/colors'
 import { open } from 'devframe/utils/open'
 import { resolve } from 'pathe'
 import { MARK_NODE } from './constants'
-import { logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 
 export interface StartOptions {
   root?: string
@@ -88,5 +88,5 @@ export async function build(options: BuildOptions) {
     outDir,
   })
 
-  logger.DTK0010().log()
+  diagnostics.DTK0010.report()
 }

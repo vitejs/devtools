@@ -5,7 +5,7 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import { parseToEvent } from '@rolldown/debug'
-import { logger } from '../diagnostics'
+import { diagnostics } from '../diagnostics'
 import { getContentByteSize } from '../utils/format'
 import { getContentRef, RolldownEventsManager } from './events-manager'
 import { RolldownLogCache } from './log-cache'
@@ -386,7 +386,7 @@ export class RolldownEventsReader {
       }
       catch (e) {
         const preview = text.length > 256 ? `${text.slice(0, 256)}...` : text
-        logger.RDDT0002({ line: this.lineNumber, error: (e as Error).message, preview }).log()
+        diagnostics.RDDT0002.report({ line: this.lineNumber, error: (e as Error).message, preview })
       }
     }
 

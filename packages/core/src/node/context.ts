@@ -4,7 +4,7 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
-import { diagnostics, logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
@@ -78,7 +78,7 @@ export async function createDevToolsContext(
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {
-      throw logger.DTK0014({ name: plugin.name }, { cause: error }).throw()
+      throw diagnostics.DTK0014.throw({ name: plugin.name, cause: error })
     }
   }
 

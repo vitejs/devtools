@@ -10,7 +10,7 @@ import type {
 import type { KitNodeContext } from './context'
 import process from 'node:process'
 import { createEventEmitter } from 'devframe/utils/events'
-import { logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 
 type PartialWithoutId<T extends { id: string }> = Partial<T> & { id: string }
 
@@ -57,7 +57,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
     if (this.sessions.has(session.id)) {
-      throw logger.DTK0053({ id: session.id }).throw()
+      throw diagnostics.DTK0053.throw({ id: session.id })
     }
     this.sessions.set(session.id, session)
     this.bindStream(session)
@@ -67,7 +67,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   update(patch: PartialWithoutId<DevToolsTerminalSession>): void {
     if (!this.sessions.has(patch.id)) {
-      throw logger.DTK0054({ id: patch.id }).throw()
+      throw diagnostics.DTK0054.throw({ id: patch.id })
     }
     const session = this.sessions.get(patch.id)!
     Object.assign(session, patch)
@@ -136,7 +136,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
-      throw logger.DTK0053({ id: terminal.id }).throw()
+      throw diagnostics.DTK0053.throw({ id: terminal.id })
     }
     const { exec } = await import('tinyexec')
 

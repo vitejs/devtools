@@ -1,22 +1,22 @@
 # Structured Diagnostics Patterns
 
-`ctx.diagnostics` exposes a shared [`logs-sdk`](https://github.com/vercel-labs/logs-sdk) logger and lets plugins register their own coded errors / warnings without depending on `logs-sdk` directly. Use it for *author-defined coded conditions* with a stable code and a docs URL — distinct from `ctx.messages`, which is for free-form user-facing notifications shown in the DevTools UI.
+`ctx.diagnostics` exposes a shared [`nostics`](https://github.com/vercel-labs/nostics) registry and lets plugins register their own coded errors / warnings without depending on `nostics` directly. Use it for *author-defined coded conditions* with a stable code and a docs URL — distinct from `ctx.messages`, which is for free-form user-facing notifications shown in the DevTools UI.
 
 ## API Surface
 
 ```ts
 interface DevToolsDiagnosticsHost {
-  /** Combined logs-sdk Logger across all registered diagnostics. Always returns the freshest logger — rebuilt on each `register()`. */
-  readonly logger: Logger
+  /** Proxy-backed lookup of every registered code by name. Each entry is a
+   * `nostics` handle with `.report()` and `.throw()` methods. Loosely typed
+   * because it spans heterogeneous definitions from different integrations. */
+  readonly logger: Record<string, any>
 
   /** Register additional diagnostic definitions with the host. */
-  register: (definitions: DiagnosticsResult) => void
+  register: (definitions: Record<string, unknown>) => void
 
-  /** Re-export of logs-sdk's `defineDiagnostics`. */
+  /** Mirror of `nostics`'s `defineDiagnostics`, pre-wired with the host's
+   * ANSI console reporter. Plugins typically omit `reporters`. */
   defineDiagnostics: typeof defineDiagnostics
-
-  /** Re-export of logs-sdk's `createLogger`. */
-  createLogger: typeof createLogger
 }
 ```
 
@@ -41,11 +41,10 @@ ctx.diagnostics.defineDiagnostics({
   docsBase: 'https://example.com/errors',
   codes: {
     MYP0001: {
-      message: 'Static string message',
+      why: 'Static string message',
       // OR a template function:
-      // message: (p: { name: string }) => `Plugin "${p.name}" failed`,
-      hint: 'Optional secondary guidance — shown after the message.',
-      level: 'warn', // 'error' (default) | 'warn' | 'suggestion' | 'deprecation'
+      // why: (p: { name: string }) => `Plugin "${p.name}" failed`,
+      fix: 'Optional secondary remediation guidance — shown after the message.',
     },
   },
 })
@@ -65,12 +64,11 @@ export function MyPlugin(): PluginWithDevTools {
           docsBase: 'https://my-plugin.dev/errors',
           codes: {
             MYP0001: {
-              message: (p: { name: string }) => `Plugin "${p.name}" is not configured`,
-              hint: 'Pass an options object to the plugin in `vite.config.ts`.',
+              why: (p: { name: string }) => `Plugin "${p.name}" is not configured`,
+              fix: 'Pass an options object to the plugin in `vite.config.ts`.',
             },
             MYP0002: {
-              message: 'Cache directory missing — running cold.',
-              level: 'warn',
+              why: 'Cache directory missing — running cold.',
             },
           },
         })
@@ -83,56 +81,43 @@ export function MyPlugin(): PluginWithDevTools {
 
 ## Emit a Diagnostic
 
-Each code becomes a callable factory on `ctx.diagnostics.logger`. Each call returns an object with `.throw()`, `.warn()`, `.error()`, `.log()`, and `.format()`.
+Each registered code is reachable as a property on `ctx.diagnostics.logger`. Every handle exposes `.throw(params)` and `.report(params)`.
 
 ```ts
 // Throw — control flow stops here. Prefix with `throw` for TS narrowing.
-throw ctx.diagnostics.logger.MYP0001({ name: 'foo' }).throw()
+throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
 
-// Log without throwing
-ctx.diagnostics.logger.MYP0002().log()
+// Report without throwing (goes through the host's reporter)
+ctx.diagnostics.logger.MYP0002.report()
 
-// Override level per call
-ctx.diagnostics.logger.MYP0002().warn()
-
-// Attach a cause
-ctx.diagnostics.logger.MYP0001({ name }, { cause: error }).log()
+// Attach a cause via the params object
+ctx.diagnostics.logger.MYP0001.report({ name, cause: error })
 ```
 
-## Loosely Typed `logger` vs Typed Reference
+## Loosely Typed `logger` vs Typed Handle
 
-`ctx.diagnostics.logger` covers an unbounded set of registered codes, so TypeScript can't narrow them. For full autocompletion, keep your own typed reference via `createLogger`:
+`ctx.diagnostics.logger` is a proxy covering an unbounded set of registered codes, so TypeScript can't narrow them. For full autocompletion, keep your own reference to the typed handle returned from `defineDiagnostics()`:
 
 ```ts
 const diagnostics = ctx.diagnostics.defineDiagnostics({ /* ... */ })
 
-// Register so the shared logger sees it too
+// Register so the shared lookup sees it too
 ctx.diagnostics.register(diagnostics)
 
-// Typed reference — autocompletes MYP* codes
-const logger = ctx.diagnostics.createLogger({ diagnostics: [diagnostics] })
-logger.MYP0001({ name: 'foo' }).warn()
+// Typed handle — autocompletes MYP* codes
+diagnostics.MYP0001.report({ name: 'foo' })
 ```
 
-Both loggers share the host's default formatter (ANSI) and reporter (console).
+Both paths share the host's default formatter (ANSI) and reporter (console).
 
 ## Anti-Patterns
 
 ```ts
-// ❌ Caching the getter — stale after a later register() call
-const log = ctx.diagnostics.logger
-log.MYP0001({ name: 'foo' }).log()
-
-// ✅ Always go through the getter
-ctx.diagnostics.logger.MYP0001({ name: 'foo' }).log()
-```
-
-```ts
-// ❌ Using a raw throw with an ad-hoc string
+// ❌ Raw throw with an ad-hoc string
 throw new Error('Plugin foo not configured')
 
 // ✅ Use a structured code
-throw ctx.diagnostics.logger.MYP0001({ name: 'foo' }).throw()
+throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
 ```
 
 ```ts
@@ -140,7 +125,7 @@ throw ctx.diagnostics.logger.MYP0001({ name: 'foo' }).throw()
 ctx.messages.add({ message: 'Plugin failed: bad config', level: 'error' })
 
 // ✅ Use ctx.diagnostics for coded conditions; ctx.messages for UI activity
-ctx.diagnostics.logger.MYP0001({ name }).log()
+ctx.diagnostics.logger.MYP0001.report({ name })
 ```
 
 ## Document Your Codes
@@ -166,4 +151,4 @@ Each page covers: message, cause, example trigger, and fix. The `docsBase` you s
 - `packages/core/src/node/diagnostics.ts` — `DTK*` codes (Vite-specific)
 - `packages/rolldown/src/node/diagnostics.ts` — `RDDT*` codes (rolldown UI)
 
-Each defines a `diagnostics` object via `defineDiagnostics(...)` and either keeps its own `createLogger`-built `logger` or — in plugin setup — calls `ctx.diagnostics.register(diagnostics)` to fold the codes into the shared host logger.
+Each defines a `diagnostics` object via `defineDiagnostics(...)` and either uses its own typed handle directly, or — in plugin setup — calls `ctx.diagnostics.register(diagnostics)` to fold the codes into the shared host lookup.

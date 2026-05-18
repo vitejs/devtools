@@ -1,23 +1,14 @@
-import { colors as c } from 'devframe/utils/colors'
-import { consoleReporter, createLogger, defineDiagnostics } from 'logs-sdk'
-import { ansiFormatter } from 'logs-sdk/formatters/ansi'
+import { defineDiagnostics, reporterLog } from 'nostics'
 
 export const diagnostics = defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
+  reporters: [reporterLog],
   codes: {
     RDDT0001: {
-      message: 'Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.',
-      level: 'warn',
+      why: 'Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.',
     },
     RDDT0002: {
-      message: (p: { line: number, error: string, preview: string }) => `Rolldown log reader skipped bad line ${p.line}: ${p.error}\n${p.preview}`,
-      level: 'warn',
+      why: (p: { line: number, error: string, preview: string }) => `Rolldown log reader skipped bad line ${p.line}: ${p.error}\n${p.preview}`,
     },
   },
-})
-
-export const logger = createLogger({
-  diagnostics: [diagnostics],
-  formatter: ansiFormatter(c),
-  reporters: consoleReporter,
 })

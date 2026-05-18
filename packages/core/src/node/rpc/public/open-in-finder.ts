@@ -1,7 +1,7 @@
 import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { open } from 'devframe/utils/open'
-import { logger } from '../../diagnostics'
+import { diagnostics } from '../../diagnostics'
 
 export const openInFinder = defineRpcFunction({
   name: 'vite:core:open-in-finder',
@@ -15,7 +15,7 @@ export const openInFinder = defineRpcFunction({
 
         // Ensure the path stays within workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          throw logger.DTK0029().throw()
+          throw diagnostics.DTK0029.throw()
         }
 
         await open(resolved)

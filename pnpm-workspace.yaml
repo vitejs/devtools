@@ -4,7 +4,6 @@ allowBuilds:
   simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true
-
 ignoreWorkspaceRootCheck: true
 shamefullyHoist: true
 shellEmulator: true
@@ -33,6 +32,8 @@ overrides:
   semver: 'catalog:resolutions'
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
+patchedDependencies:
+  devframe@0.3.0: patches/devframe@0.3.0.patch
 catalogs:
   build:
     '@antfu/ni': ^30.1.0
@@ -57,15 +58,14 @@ catalogs:
     '@rolldown/debug': ^1.0.1
     birpc: ^4.0.0
     cac: ^7.0.0
-    # 0.2.3 emits dts in a way that breaks kit/core's `declare module` augmentations.
-    devframe: 0.2.2
+    devframe: ^0.3.0
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
     h3: 2.0.1-rc.22
-    logs-sdk: ^0.0.6
     mlly: ^1.8.2
     mrmime: ^2.0.1
+    nostics: ^0.1.0
     obug: ^2.1.1
     p-limit: ^7.3.0
     pathe: ^2.0.3

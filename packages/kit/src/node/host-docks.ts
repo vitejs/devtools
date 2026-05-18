@@ -17,7 +17,7 @@ import { getInternalContext } from 'devframe/node/internal'
 import { createEventEmitter } from 'devframe/utils/events'
 import { join } from 'pathe'
 import { DEFAULT_STATE_USER_SETTINGS } from '../constants'
-import { logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 
 interface RemoteDockRecord {
   token: string
@@ -157,7 +157,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     update: (patch: Partial<T>) => void
   } {
     if (this.views.has(view.id) && !force) {
-      throw logger.DTK0050({ id: view.id }).throw()
+      throw diagnostics.DTK0050.throw({ id: view.id })
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)
@@ -166,7 +166,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return {
       update: (patch) => {
         if (patch.id && patch.id !== view.id) {
-          throw logger.DTK0051().throw()
+          throw diagnostics.DTK0051.throw()
         }
         this.update(Object.assign(this.views.get(view.id)!, patch))
       },
@@ -175,7 +175,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
   update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
-      throw logger.DTK0052({ id: view.id }).throw()
+      throw diagnostics.DTK0052.throw({ id: view.id })
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)

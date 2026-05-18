@@ -93,7 +93,7 @@ The kit is the integration hub. When adding to it, the question is "does this he
 
 ## Structured Diagnostics (Error Codes)
 
-All node-side warnings and errors use structured diagnostics via [`logs-sdk`](https://github.com/vercel-labs/logs-sdk). Never use raw `console.warn`, `console.error`, or `throw new Error` with ad-hoc messages in node-side code — always define a coded diagnostic.
+All node-side warnings and errors use structured diagnostics via [`nostics`](https://github.com/vercel-labs/nostics). Never use raw `console.warn`, `console.error`, or `throw new Error` with ad-hoc messages in node-side code — always define a coded diagnostic.
 
 ### Code prefixes
 
@@ -115,23 +115,21 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
    ```txt
    // diagnostics.ts
    DTK0033: {
-     message: (p: { name: string }) => `Something went wrong with "${p.name}"`,
-     hint: 'Optional hint for the user.',
-     level: 'warn', // defaults to 'error' if omitted
+     why: (p: { name: string }) => `Something went wrong with "${p.name}"`,
+     fix: 'Optional remediation hint for the user.',
    },
    ```
 
-2. **Use the logger** at the call site:
+2. **Emit the diagnostic** at the call site:
    ```ts
-   import { logger } from './diagnostics'
+   import { diagnostics } from './diagnostics'
 
    // For thrown errors — always prefix with `throw` for TypeScript control flow:
-   throw logger.DTK0033({ name }).throw()
+   throw diagnostics.DTK0033.throw({ name })
 
-   // For logged warnings/errors (not thrown):
-   logger.DTK0033({ name }).log() // uses definition level
-   logger.DTK0033({ name }).warn() // override to warn
-   logger.DTK0033({ name }, { cause: error }).log() // attach cause
+   // For reported (non-thrown) diagnostics:
+   diagnostics.DTK0033.report({ name })
+   diagnostics.DTK0033.report({ name, cause: error }) // attach cause via params
    ```
 
 3. **Create a docs page** at `docs/errors/DTK0033.md`:
