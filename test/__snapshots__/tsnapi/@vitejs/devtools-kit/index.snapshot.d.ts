@@ -42,15 +42,6 @@ export { DevToolsDockHost }
 export { DevToolsDocksUserSettings }
 export { DevToolsDockUserEntry }
 export { DevToolsHost }
-export { DevToolsLogElementPosition }
-export { DevToolsLogEntry }
-export { DevToolsLogEntryFrom }
-export { DevToolsLogEntryInput }
-export { DevToolsLogFilePosition }
-export { DevToolsLogHandle }
-export { DevToolsLogLevel }
-export { DevToolsLogsClient }
-export { DevToolsLogsHost }
 export { DevToolsMessageElementPosition }
 export { DevToolsMessageEntry }
 export { DevToolsMessageEntryFrom }
@@ -60,7 +51,6 @@ export { DevToolsMessageHandle }
 export { DevToolsMessageLevel }
 export { DevToolsMessagesClient }
 export { DevToolsMessagesHost }
-export { DevToolsNodeContext }
 export { DevToolsNodeRpcSession }
 export { DevToolsPluginOptions }
 export { DevToolsRpcClientFunctions }
@@ -103,6 +93,4 @@ export { RpcStreamingChannelOptions }
 export { RpcStreamingHost }
 export { Thenable }
 export { ViteDevToolsNodeContext }
-export { WhenContext }
-export { WhenExpression }
 // #endregion

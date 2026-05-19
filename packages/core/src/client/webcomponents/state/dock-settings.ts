@@ -1,5 +1,6 @@
-import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
 import type { Immutable } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import { evaluateWhen } from 'devframe/utils/when'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 

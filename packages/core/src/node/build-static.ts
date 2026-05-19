@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import {
@@ -17,7 +17,7 @@ import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
 
 export interface BuildStaticOptions {
-  context: DevToolsNodeContext
+  context: ViteDevToolsNodeContext
   outDir: string
   withApp?: boolean
 }

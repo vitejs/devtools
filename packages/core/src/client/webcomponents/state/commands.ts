@@ -1,6 +1,7 @@
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDocksUserSettings, DevToolsServerCommandEntry, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDocksUserSettings, DevToolsServerCommandEntry } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import type { ShallowRef } from 'vue'
 import { evaluateWhen } from 'devframe/utils/when'
 import { computed, markRaw, reactive, ref } from 'vue'

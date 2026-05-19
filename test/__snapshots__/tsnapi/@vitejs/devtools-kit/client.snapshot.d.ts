@@ -14,7 +14,6 @@ export interface CommandsContext {
 export interface DockClientScriptContext extends DocksContext {
   current: DockEntryState;
   messages: DevToolsMessagesClient;
-  readonly logs: DevToolsMessagesClient;
 }
 export interface DockEntryState {
   entryMeta: DevToolsDockEntry;

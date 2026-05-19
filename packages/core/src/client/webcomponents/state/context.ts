@@ -1,6 +1,7 @@
-import type { DevToolsClientCommand, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'

@@ -144,22 +144,3 @@ export interface DevToolsMessagesHost {
    */
   clear: () => Promise<void>
 }
-
-/** @deprecated alias of {@link DevToolsMessageLevel}. Will be removed in a future release. */
-export type DevToolsLogLevel = DevToolsMessageLevel
-/** @deprecated alias of {@link DevToolsMessageEntryFrom}. Will be removed in a future release. */
-export type DevToolsLogEntryFrom = DevToolsMessageEntryFrom
-/** @deprecated alias of {@link DevToolsMessageElementPosition}. Will be removed in a future release. */
-export type DevToolsLogElementPosition = DevToolsMessageElementPosition
-/** @deprecated alias of {@link DevToolsMessageFilePosition}. Will be removed in a future release. */
-export type DevToolsLogFilePosition = DevToolsMessageFilePosition
-/** @deprecated alias of {@link DevToolsMessageEntry}. Will be removed in a future release. */
-export type DevToolsLogEntry = DevToolsMessageEntry
-/** @deprecated alias of {@link DevToolsMessageEntryInput}. Will be removed in a future release. */
-export type DevToolsLogEntryInput = DevToolsMessageEntryInput
-/** @deprecated alias of {@link DevToolsMessageHandle}. Will be removed in a future release. */
-export type DevToolsLogHandle = DevToolsMessageHandle
-/** @deprecated alias of {@link DevToolsMessagesClient}. Will be removed in a future release. */
-export type DevToolsLogsClient = DevToolsMessagesClient
-/** @deprecated alias of {@link DevToolsMessagesHost}. Will be removed in a future release. */
-export type DevToolsLogsHost = DevToolsMessagesHost

@@ -78,7 +78,7 @@ const getModule = defineRpcFunction({
 
 ### Context in setup
 
-The `setup` function receives the full `DevToolsNodeContext`:
+The `setup` function receives the full `ViteDevToolsNodeContext`:
 
 ```ts
 setup: (ctx) => {
@@ -255,15 +255,15 @@ Use a shared context helper (for example `WeakMap`-backed `set/get`) to provide 
 
 ```ts
 // src/node/rpc/context.ts
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 
-const rpcContext = new WeakMap<DevToolsNodeContext, { targetDir: string }>()
+const rpcContext = new WeakMap<ViteDevToolsNodeContext, { targetDir: string }>()
 
-export function setRpcContext(context: DevToolsNodeContext, options: { targetDir: string }) {
+export function setRpcContext(context: ViteDevToolsNodeContext, options: { targetDir: string }) {
   rpcContext.set(context, options)
 }
 
-export function getRpcContext(context: DevToolsNodeContext) {
+export function getRpcContext(context: ViteDevToolsNodeContext) {
   const value = rpcContext.get(context)
   if (!value)
     throw new Error('Missing RPC context')
@@ -381,29 +381,29 @@ export default function setup(ctx: DockClientScriptContext) {
 
 ### Sharing state across RPC functions
 
-When multiple RPC functions need the same plugin-specific state (a manager instance, plugin options, cached data), key a `WeakMap` by `DevToolsNodeContext`. This keeps the plugin state scoped, garbage-collectable, and out of the base context.
+When multiple RPC functions need the same plugin-specific state (a manager instance, plugin options, cached data), key a `WeakMap` by `ViteDevToolsNodeContext`. This keeps the plugin state scoped, garbage-collectable, and out of the base context.
 
 Create a helper file with get/set functions:
 
 ```ts
 // src/node/rpc/context.ts
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 
 interface MyPluginContext {
   dataDir: string
   manager: DataManager
 }
 
-const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+const pluginContext = new WeakMap<ViteDevToolsNodeContext, MyPluginContext>()
 
-export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+export function getPluginContext(ctx: ViteDevToolsNodeContext): MyPluginContext {
   const value = pluginContext.get(ctx)
   if (!value)
     throw new Error('Plugin context not initialized')
   return value
 }
 
-export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+export function setPluginContext(ctx: ViteDevToolsNodeContext, value: MyPluginContext) {
   pluginContext.set(ctx, value)
 }
 ```

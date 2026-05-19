@@ -1,4 +1,4 @@
-import type { ClientScriptEntry, DevToolsDockEntry, DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
@@ -36,7 +36,7 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
 }
 
 export function DevToolsServer(): Plugin {
-  let context: DevToolsNodeContext
+  let context: ViteDevToolsNodeContext
   return {
     name: 'vite:devtools:server',
     enforce: 'post',

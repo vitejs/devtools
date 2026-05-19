@@ -22,9 +22,3 @@ export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig
   readonly viteServer?: ViteDevServer
 }
-
-/**
- * @deprecated — alias of {@link ViteDevToolsNodeContext}. Exists for one
- * release cycle while callers migrate.
- */
-export type DevToolsNodeContext = ViteDevToolsNodeContext

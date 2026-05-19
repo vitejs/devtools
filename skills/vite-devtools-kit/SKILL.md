@@ -401,7 +401,7 @@ const getModules = defineRpcFunction({
   type: 'query', // 'query' | 'action' | 'static'
   setup: ctx => ({
     handler: async (filter?: string) => {
-      // ctx has full DevToolsNodeContext
+      // ctx has full ViteDevToolsNodeContext
       return modules.filter(m => !filter || m.includes(filter))
     },
   }),
@@ -670,3 +670,4 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
 - [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
 - [Remote Client Patterns](./references/remote-client-patterns.md) - Remote-hosted iframe docks, `connectRemoteDevTools`, trust model
+- [Migration Guide](https://github.com/vitejs/devtools/blob/main/MIGRATION.md) - Breaking changes between versions

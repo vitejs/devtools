@@ -1,7 +1,8 @@
-import type { DevToolsDockUserEntry, DevToolsNodeContext, DevToolsServerCommandInput, JsonRenderSpec, WhenContext, WhenExpression } from './types'
+import type { WhenContext, WhenExpression } from 'devframe/utils/when'
+import type { DevToolsDockUserEntry, DevToolsServerCommandInput, JsonRenderSpec, ViteDevToolsNodeContext } from './types'
 import { createDefineWrapperWithContext } from 'devframe/rpc'
 
-export const defineRpcFunction = createDefineWrapperWithContext<DevToolsNodeContext>()
+export const defineRpcFunction = createDefineWrapperWithContext<ViteDevToolsNodeContext>()
 
 export function defineCommand<const W extends string = ''>(
   command: Omit<DevToolsServerCommandInput, 'when'> & { when?: WhenExpression<WhenContext, W> },
