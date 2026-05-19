@@ -87,7 +87,7 @@ const listModules = defineRpcFunction({
 
 ## Context Access in Setup
 
-The `setup` function receives the full `DevToolsNodeContext`:
+The `setup` function receives the full `ViteDevToolsNodeContext`:
 
 ```ts
 defineRpcFunction({
@@ -111,27 +111,27 @@ defineRpcFunction({
 
 ## Sharing State Across RPC Functions
 
-When multiple RPC functions need shared plugin state (manager instances, options, cached data), use a `WeakMap<DevToolsNodeContext, T>` with get/set helpers instead of mutating the context object:
+When multiple RPC functions need shared plugin state (manager instances, options, cached data), use a `WeakMap<ViteDevToolsNodeContext, T>` with get/set helpers instead of mutating the context object:
 
 ```ts
 // src/node/rpc/context.ts
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 
 interface MyPluginContext {
   dataDir: string
   manager: DataManager
 }
 
-const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+const pluginContext = new WeakMap<ViteDevToolsNodeContext, MyPluginContext>()
 
-export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+export function getPluginContext(ctx: ViteDevToolsNodeContext): MyPluginContext {
   const value = pluginContext.get(ctx)
   if (!value)
     throw new Error('Plugin context not initialized')
   return value
 }
 
-export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+export function setPluginContext(ctx: ViteDevToolsNodeContext, value: MyPluginContext) {
   pluginContext.set(ctx, value)
 }
 ```

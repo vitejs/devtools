@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { WebSocket } from 'ws'
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -20,10 +20,10 @@ export interface CreateWsServerOptions {
   websocket: {
     port?: number
     host: string
-    https?: DevToolsNodeContext['viteConfig']['server']['https'] | false
+    https?: ViteDevToolsNodeContext['viteConfig']['server']['https'] | false
   }
   base?: string
-  context: DevToolsNodeContext
+  context: ViteDevToolsNodeContext
 }
 
 const ANONYMOUS_SCOPE = 'vite:anonymous:'

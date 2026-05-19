@@ -1,6 +1,4 @@
-/** @deprecated Import from `devframe/utils/shared-state` instead. */
 export { createSharedState } from 'devframe/utils/shared-state'
-/** @deprecated Import from `devframe/utils/shared-state` instead. */
 export type {
   Immutable,
   ImmutableArray,

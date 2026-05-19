@@ -68,7 +68,7 @@ export default function myPlugin(): Plugin {
 
 ## DevTools context
 
-The `setup` function receives a `DevToolsNodeContext` providing access to every DevTools API:
+The `setup` function receives a `ViteDevToolsNodeContext` providing access to every DevTools API:
 
 ```ts
 const plugin: Plugin = {

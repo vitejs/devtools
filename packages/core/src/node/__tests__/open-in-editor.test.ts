@@ -1,4 +1,4 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { resolve } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { openInEditor } from '../rpc/public/open-in-editor'
@@ -11,7 +11,7 @@ vi.mock('devframe/utils/launch-editor', () => ({
 describe('openInEditor – path traversal protection', () => {
   const cwd = resolve('/project/root')
   const workspaceRoot = resolve('/project')
-  const mockContext = { cwd, workspaceRoot } as DevToolsNodeContext
+  const mockContext = { cwd, workspaceRoot } as ViteDevToolsNodeContext
 
   async function getHandler() {
     const setup = openInEditor.setup!

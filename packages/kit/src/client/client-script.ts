@@ -13,8 +13,4 @@ export interface DockClientScriptContext extends DocksContext {
    * Messages client scoped to this dock entry's source
    */
   messages: DevToolsMessagesClient
-  /**
-   * @deprecated Use `messages` instead. Will be removed in a future release.
-   */
-  readonly logs: DevToolsMessagesClient
 }

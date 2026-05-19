@@ -2,7 +2,6 @@
 // from the kit's main `types` barrel.
 export type { CreateKitContextOptions, KitNodeContext } from '../node/context'
 
-export type { WhenContext, WhenExpression } from '../utils/when'
 export * from './commands'
 export * from './docks'
 export * from './json-render'
