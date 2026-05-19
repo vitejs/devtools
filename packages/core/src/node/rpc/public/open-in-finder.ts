@@ -10,7 +10,7 @@ export const openInFinder = defineRpcFunction({
   setup: (context) => {
     return {
       handler: async (path: string) => {
-        const resolved = resolve(context.workspaceRoot, path)
+        const resolved = resolve(context.cwd, path)
         const rel = relative(context.workspaceRoot, resolved)
 
         // Ensure the path stays within workspace root
