@@ -2,6 +2,7 @@
 
 import {
   DEVTOOLS_MOUNT_PATH,
+  DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH,
 } from '@vitejs/devtools-kit/constants'
 import { normalizeHttpServerUrl } from 'devframe/node'
 import { colors as c } from 'devframe/utils/colors'
@@ -51,7 +52,7 @@ export async function start(options: StartOptions) {
   for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs)
     mountStaticHandler(app, baseUrl, distDir)
 
-  app.use(DEVTOOLS_MOUNT_PATH, h3)
+  app.use(DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH, h3)
   app.use('/', defineHandler(event => sendRedirect(event, DEVTOOLS_MOUNT_PATH, 302)))
 
   const server = createServer(toNodeHandler(app))
