@@ -40,6 +40,23 @@ export function normalizeKeyEvent(e: KeyboardEvent): string {
   return parts.join('+')
 }
 
+export function areKeybindingsEqual(
+  left: DevToolsCommandKeybinding[] | undefined,
+  right: DevToolsCommandKeybinding[] | undefined,
+): boolean {
+  const leftBindings = left ?? []
+  const rightBindings = right ?? []
+  return leftBindings.length === rightBindings.length
+    && leftBindings.every((binding, index) => binding.key === rightBindings[index]?.key)
+}
+
+export function isKeybindingOverrideDifferentFromDefault(
+  override: DevToolsCommandKeybinding[] | undefined,
+  defaults: DevToolsCommandKeybinding[] | undefined,
+): boolean {
+  return override !== undefined && !areKeybindingsEqual(override, defaults)
+}
+
 export function collectAllKeybindings(
   commands: { value: DevToolsCommandEntry[] },
   getKeybindings: (id: string) => DevToolsCommandKeybinding[],
