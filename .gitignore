@@ -20,6 +20,7 @@ packages/kit/skills
 **/.vitepress/cache
 .turbo
 .context
+.ghfs
 
 # Agent skills from npm packages (managed by skills-npm)
 **/skills/npm-*
