@@ -7,8 +7,10 @@
 ```ts
 interface DevToolsDiagnosticsHost {
   /** Proxy-backed lookup of every registered code by name. Each entry is a
-   * `nostics` handle with `.report()` and `.throw()` methods. Loosely typed
-   * because it spans heterogeneous definitions from different integrations. */
+   * `nostics` `DiagnosticHandle` — a callable that builds a diagnostic and
+   * routes it through registered reporters; prefix with `throw` to raise.
+   * Loosely typed because it spans heterogeneous definitions from different
+   * integrations. */
   readonly logger: Record<string, any>
 
   /** Register additional diagnostic definitions with the host. */
@@ -81,17 +83,20 @@ export function MyPlugin(): PluginWithDevTools {
 
 ## Emit a Diagnostic
 
-Each registered code is reachable as a property on `ctx.diagnostics.logger`. Every handle exposes `.throw(params)` and `.report(params)`.
+Each registered code is reachable as a property on `ctx.diagnostics.logger`. Every handle is a callable — invoke it to report (returns the `Diagnostic`), or prefix with `throw` to raise.
 
 ```ts
 // Throw — control flow stops here. Prefix with `throw` for TS narrowing.
-throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
+throw ctx.diagnostics.logger.MYP0001({ name: 'foo' })
 
-// Report without throwing (goes through the host's reporter)
-ctx.diagnostics.logger.MYP0002.report()
+// Report without throwing (default console method: `warn`)
+ctx.diagnostics.logger.MYP0002()
+
+// Override the console method per call
+ctx.diagnostics.logger.MYP0002({}, { method: 'error' })
 
 // Attach a cause via the params object
-ctx.diagnostics.logger.MYP0001.report({ name, cause: error })
+ctx.diagnostics.logger.MYP0001({ name, cause: error })
 ```
 
 ## Loosely Typed `logger` vs Typed Handle
@@ -105,7 +110,7 @@ const diagnostics = ctx.diagnostics.defineDiagnostics({ /* ... */ })
 ctx.diagnostics.register(diagnostics)
 
 // Typed handle — autocompletes MYP* codes
-diagnostics.MYP0001.report({ name: 'foo' })
+diagnostics.MYP0001({ name: 'foo' })
 ```
 
 Both paths share the host's default formatter (ANSI) and reporter (console).
@@ -117,7 +122,7 @@ Both paths share the host's default formatter (ANSI) and reporter (console).
 throw new Error('Plugin foo not configured')
 
 // ✅ Use a structured code
-throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
+throw ctx.diagnostics.logger.MYP0001({ name: 'foo' })
 ```
 
 ```ts
@@ -125,7 +130,7 @@ throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
 ctx.messages.add({ message: 'Plugin failed: bad config', level: 'error' })
 
 // ✅ Use ctx.diagnostics for coded conditions; ctx.messages for UI activity
-ctx.diagnostics.logger.MYP0001.report({ name })
+ctx.diagnostics.logger.MYP0001({ name })
 ```
 
 ## Document Your Codes
@@ -142,7 +147,7 @@ Each page covers: message, cause, example trigger, and fix. The `docsBase` you s
 
 ## When to Use What
 
-- **`ctx.diagnostics`** — Coded errors / warnings with a stable code and docs URL. Misconfiguration, deprecation, validation failures, internal invariants. Often paired with `.throw()`.
+- **`ctx.diagnostics`** — Coded errors / warnings with a stable code and docs URL. Misconfiguration, deprecation, validation failures, internal invariants. Often `throw`-prefixed.
 - **`ctx.messages`** — Free-form user-facing notifications surfaced in the DevTools Messages panel and as toasts. Progress indicators, audit results, transient status. No code, no docs URL.
 
 ## Real-World Examples

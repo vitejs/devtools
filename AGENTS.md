@@ -125,11 +125,13 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
    import { diagnostics } from './diagnostics'
 
    // For thrown errors — always prefix with `throw` for TypeScript control flow:
-   throw diagnostics.DTK0033.throw({ name })
+   throw diagnostics.DTK0033({ name })
 
-   // For reported (non-thrown) diagnostics:
-   diagnostics.DTK0033.report({ name })
-   diagnostics.DTK0033.report({ name, cause: error }) // attach cause via params
+   // For reported (non-thrown) diagnostics. The default console method is `warn`;
+   // override with the 2nd-arg reporter options when needed:
+   diagnostics.DTK0033({ name }) // console.warn
+   diagnostics.DTK0033({ name }, { method: 'error' }) // console.error
+   diagnostics.DTK0033({ name, cause: error }) // attach cause via params
    ```
 
 3. **Create a docs page** at `docs/errors/DTK0033.md`:

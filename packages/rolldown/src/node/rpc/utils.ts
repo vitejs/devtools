@@ -16,7 +16,7 @@ export function getLogsManager(context: ViteDevToolsNodeContext): RolldownLogsMa
     ]
     const dir = dirs.find(dir => existsSync(dir))
     if (!dir) {
-      diagnostics.RDDT0001.report()
+      diagnostics.RDDT0001()
     }
     manager = new RolldownLogsManager(dir ?? dirs[0]!)
   }

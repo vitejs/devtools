@@ -13,7 +13,8 @@
 interface DevToolsDiagnosticsHost {
   /**
    * Proxy-backed lookup of every registered code by name. Each entry is a
-   * `nostics` handle with `.report()` and `.throw()` methods.
+   * `nostics` `DiagnosticHandle` — a callable that builds a diagnostic and
+   * routes it through registered reporters; prefix with `throw` to raise.
    */
   readonly logger: Record<string, any>
 
@@ -56,7 +57,7 @@ export function MyPlugin(): PluginWithDevTools {
         ctx.diagnostics.register(diagnostics)
 
         // Emit codes through the shared lookup:
-        ctx.diagnostics.logger.MYP0002.report()
+        ctx.diagnostics.logger.MYP0002()
       },
     },
   }
@@ -80,23 +81,26 @@ Each definition supports `why` (string or function returning a string) and an op
 
 ## Emit a diagnostic
 
-Each registered code is reachable as a property on `ctx.diagnostics.logger`. Every handle exposes `.throw(params)` and `.report(params)`.
+Each registered code is reachable as a property on `ctx.diagnostics.logger`. Every handle is a callable — invoke it to report (returns the `Diagnostic`), or prefix with `throw` to raise.
 
 ```ts
 // Throw — control flow stops here
-throw ctx.diagnostics.logger.MYP0001.throw({ name: 'foo' })
+throw ctx.diagnostics.logger.MYP0001({ name: 'foo' })
 
-// Report without throwing (goes through the host's reporter)
-ctx.diagnostics.logger.MYP0002.report()
+// Report without throwing (default console method: `warn`)
+ctx.diagnostics.logger.MYP0002()
+
+// Override the console method per call
+ctx.diagnostics.logger.MYP0002({}, { method: 'error' })
 
 // Attach a `cause` via the params object
-ctx.diagnostics.logger.MYP0001.report({ name: 'foo', cause: error })
+ctx.diagnostics.logger.MYP0001({ name: 'foo', cause: error })
 ```
 
-`.throw()` is typed `never`. Prefix the call with `throw` so TypeScript narrows control flow correctly:
+The callable returns a `Diagnostic` (which extends `Error`). Prefix with `throw` so TypeScript narrows the lines after as unreachable:
 
 ```ts
-throw ctx.diagnostics.logger.MYP0001.throw({ name })
+throw ctx.diagnostics.logger.MYP0001({ name })
 ```
 
 ## Typed handle reference
@@ -115,7 +119,7 @@ const myDiagnostics = ctx.diagnostics.defineDiagnostics({
 ctx.diagnostics.register(myDiagnostics)
 
 // Use the typed handle directly at emit sites
-myDiagnostics.MYP0001.report({ name: 'foo' })
+myDiagnostics.MYP0001({ name: 'foo' })
 ```
 
 Both paths share the formatter and reporter defaults set by the host (ANSI console output).
@@ -135,7 +139,7 @@ Each page covers the message, cause, example, and fix; see any [DTK code page](/
 
 ## When to use what
 
-- **`ctx.diagnostics`** — coded conditions worth looking up: misconfiguration, deprecations, validation failures, internal invariants. Always docs-backed. Often `.throw()`.
+- **`ctx.diagnostics`** — coded conditions worth looking up: misconfiguration, deprecations, validation failures, internal invariants. Always docs-backed. Often `throw`-prefixed.
 - **[`ctx.messages`](./messages)** — user-facing activity surfaces in the DevTools UI: progress indicators, audit results, "URL copied" toasts. Just a message and a level.
 
 Diagnostics target tool authors and CI; messages target the human in front of the DevTools panel.

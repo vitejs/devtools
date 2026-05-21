@@ -50,7 +50,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
-    diagnostics.DTK0008.report()
+    diagnostics.DTK0008()
   }
 
   contextInternal.wsEndpoint = {
@@ -74,10 +74,10 @@ export async function createWsServer(options: CreateWsServerOptions) {
     {
       rpcOptions: {
         onFunctionError(error, name) {
-          diagnostics.DTK0011.report({ name, cause: error })
+          diagnostics.DTK0011({ name, cause: error })
         },
         onGeneralError(error) {
-          diagnostics.DTK0012.report({ cause: error })
+          diagnostics.DTK0012({ cause: error })
         },
         resolver(name, fn) {
           // eslint-disable-next-line ts/no-this-alias
@@ -86,7 +86,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           // Block unauthorized access to non-anonymous methods
           if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
             return () => {
-              throw diagnostics.DTK0013.throw({ name, clientId: rpc.$meta.id })
+              throw diagnostics.DTK0013({ name, clientId: rpc.$meta.id })
             }
           }
 

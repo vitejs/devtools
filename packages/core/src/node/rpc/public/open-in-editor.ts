@@ -15,7 +15,7 @@ export const openInEditor = defineRpcFunction({
 
         // Prevent escaping the workspace root
         if (rel.startsWith('..') || rel.includes('\0')) {
-          throw diagnostics.DTK0028.throw()
+          throw diagnostics.DTK0028()
         }
 
         launchEditor(resolved)
