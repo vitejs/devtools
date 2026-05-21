@@ -56,6 +56,7 @@ catalogs:
   deps:
     '@pnpm/read-project-manifest': ^1001.2.6
     '@rolldown/debug': ^1.0.1
+    actionspack: ^0.1.4
     birpc: ^4.0.0
     cac: ^7.0.0
     devframe: ^0.3.0

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -15,15 +16,15 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
+        uses: pnpm/action-setup@v4
 
       - name: Set node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
 
@@ -44,25 +45,23 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
-        node:
-          - lts/*
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
+        node: [lts/*]
+        os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
+
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
+        uses: pnpm/action-setup@v4
 
-      - name: ${{ format('Set node {0}', matrix.node) }}
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+      - name: Set node ${{ matrix.node }}
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
 
@@ -80,16 +79,17 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
+        uses: pnpm/action-setup@v4
 
       - name: Set node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
 
