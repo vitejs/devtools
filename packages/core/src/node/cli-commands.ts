@@ -89,5 +89,5 @@ export async function build(options: BuildOptions) {
     outDir,
   })
 
-  diagnostics.DTK0010.report()
+  diagnostics.DTK0010()
 }

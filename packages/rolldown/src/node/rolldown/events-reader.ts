@@ -386,7 +386,7 @@ export class RolldownEventsReader {
       }
       catch (e) {
         const preview = text.length > 256 ? `${text.slice(0, 256)}...` : text
-        diagnostics.RDDT0002.report({ line: this.lineNumber, error: (e as Error).message, preview })
+        diagnostics.RDDT0002({ line: this.lineNumber, error: (e as Error).message, preview })
       }
     }
 
