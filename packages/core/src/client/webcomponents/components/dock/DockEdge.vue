@@ -161,10 +161,34 @@ const panelStyle = computed<CSSProperties>(() => {
   return style
 })
 
+const panelLayoutClass = computed(() => {
+  switch (store.position) {
+    case 'bottom':
+      return 'flex flex-col-reverse'
+    case 'top':
+      return 'flex flex-col'
+    case 'left':
+      return 'flex flex-row'
+    case 'right':
+      return 'flex flex-row-reverse'
+    default:
+      return 'flex flex-col-reverse'
+  }
+})
+
 const toolbarClass = computed(() => {
-  return isVertical.value
-    ? 'flex-col h-full w-[40px] border-r border-base'
-    : 'flex-row w-full border-b border-base'
+  switch (store.position) {
+    case 'bottom':
+      return 'flex-row w-full border-t border-base'
+    case 'top':
+      return 'flex-row w-full border-b border-base'
+    case 'left':
+      return 'flex-col h-full w-[40px] border-r border-base'
+    case 'right':
+      return 'flex-col h-full w-[40px] border-l border-base'
+    default:
+      return 'flex-row w-full border-t border-base'
+  }
 })
 
 const contentClass = computed(() => {
@@ -178,7 +202,7 @@ const contentClass = computed(() => {
   <div
     id="vite-devtools-edge-panel"
     class="bg-glass:75 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
-    :class="`flex ${isVertical ? 'flex-row' : 'flex-col'}`"
+    :class="panelLayoutClass"
     :style="panelStyle"
   >
     <DockPanelResizer v-if="hasPanelContent" :panel="context.panel" edge-mode />
