@@ -1,111 +1,198 @@
-import type { PackageInfo } from '../../../shared/types'
+import type { PackageInfo as RolldownPackageInfo } from '@rolldown/debug'
+import type { PackageInfo, PackageMeta } from '../../../shared/types'
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
-import { readProjectManifestOnly } from '@pnpm/read-project-manifest'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { getPackageDirPath, isNodeModulePath } from '../../../shared/utils/filepath'
+import { getPackageDirPath } from '../../../shared/utils/filepath'
 import { getLogsManager } from '../utils'
 
-type ProjectManifest = Awaited<ReturnType<typeof readProjectManifestOnly>>
+type PackageFileInfo = PackageInfo['files'][number]
+type PackageImporterInfo = PackageFileInfo['importers'][number]
+type ResolvePackageDir = (path: string) => string | undefined
 
-function createPackageManifestReader() {
-  const manifestCache = new Map<string, Promise<ProjectManifest | null>>()
+export function getPackagesManifest(
+  reader: RolldownEventsReader,
+) {
+  return reader.manager.packageGraphReady
+    ? getRolldownPackagesManifest(reader)
+    : new Map<string, PackageInfo>()
+}
 
-  return (dir: string) => {
-    let promise = manifestCache.get(dir)
-    if (!promise) {
-      promise = readProjectManifestOnly(dir).catch((err: any) => {
-        if (err?.code === 'ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND') {
-          return null
-        }
-        throw err
-      })
-      manifestCache.set(dir, promise)
-    }
-    return promise
+function getNodeModulePackageDirPath(path: string) {
+  return /[/\\]node_modules[/\\]/.test(path)
+    ? getPackageDirPath(path)
+    : undefined
+}
+
+function createPackageDirResolver(): ResolvePackageDir {
+  const cache = new Map<string, string | undefined>()
+
+  return (path) => {
+    if (!cache.has(path))
+      cache.set(path, getNodeModulePackageDirPath(path))
+    return cache.get(path)
   }
 }
 
-export async function getPackagesManifest(
-  reader: RolldownEventsReader,
-  readPackageManifest: (dir: string) => Promise<ProjectManifest | null> = createPackageManifestReader(),
-) {
-  const modulesMap = reader.manager.modules
-  const chunks = Array.from(reader.manager.chunks.values())
-  const packagesMap = new Map<string, PackageInfo>()
-  const packageImportersMap = new Map<string, string[]>()
+function isPackageModulePath(path: string, packageDir: string, resolvePackageDir: ResolvePackageDir) {
+  return resolvePackageDir(path) === packageDir
+}
 
-  const packageModules = chunks.flatMap(chunk => chunk.modules).filter(isNodeModulePath).map((path) => {
-    const moduleBuildMetrics = modulesMap.get(path)?.build_metrics
+function getPackageKey(name: string, version: string) {
+  return `${name}@${version}`
+}
+
+function getUniquePackageKey(packagesMap: Map<string, PackageInfo>, preferredKey: string) {
+  if (!packagesMap.has(preferredKey))
+    return preferredKey
+
+  let index = 2
+  let key = `${preferredKey}#${index}`
+  while (packagesMap.has(key)) {
+    index += 1
+    key = `${preferredKey}#${index}`
+  }
+  return key
+}
+
+function getModuleTransformedCodeSize(reader: RolldownEventsReader, path: string) {
+  const moduleBuildMetrics = reader.manager.modules.get(path)?.build_metrics
+  return moduleBuildMetrics?.transforms[moduleBuildMetrics.transforms.length - 1]?.transformed_code_size ?? 0
+}
+
+function getPackageImportersMap(reader: RolldownEventsReader, resolvePackageDir: ResolvePackageDir) {
+  const importersMap = new Map<string, Set<string>>()
+
+  for (const [importer, module] of reader.manager.modules) {
+    for (const item of module.imports ?? []) {
+      const packageDir = resolvePackageDir(item.module_id)
+      if (!packageDir || isPackageModulePath(importer, packageDir, resolvePackageDir))
+        continue
+
+      let importers = importersMap.get(packageDir)
+      if (!importers) {
+        importers = new Set()
+        importersMap.set(packageDir, importers)
+      }
+      importers.add(importer)
+    }
+  }
+
+  return importersMap
+}
+
+function getPackageImporters(
+  reader: RolldownEventsReader,
+  packageDir: string,
+  packageModulePaths: Iterable<string>,
+  packageImportersMap: Map<string, Set<string>>,
+  resolvePackageDir: ResolvePackageDir,
+): PackageImporterInfo[] {
+  const modulesMap = reader.manager.modules
+  const modulePaths = new Set(packageModulePaths)
+  const importers = new Set(packageImportersMap.get(packageDir) ?? [])
+
+  for (const path of modulePaths) {
+    for (const importer of modulesMap.get(path)?.importers ?? []) {
+      if (isPackageModulePath(importer, packageDir, resolvePackageDir))
+        continue
+
+      const importsPackageModule = modulesMap.get(importer)?.imports?.some((item) => {
+        if (modulePaths.has(item.module_id))
+          return true
+
+        return resolvePackageDir(item.module_id) === packageDir
+      })
+      if (importsPackageModule)
+        importers.add(importer)
+    }
+  }
+
+  return Array.from(importers)
+    .sort((a, b) => a.localeCompare(b))
+    .map(path => ({ path, version: '' }))
+}
+
+function getRolldownPackagesManifest(reader: RolldownEventsReader) {
+  const packagesMap = new Map<string, PackageInfo>()
+  const resolvePackageDir = createPackageDirResolver()
+  const packageImportersMap = getPackageImportersMap(reader, resolvePackageDir)
+
+  for (const pkg of reader.manager.packages.values()) {
+    const packageInfo = normalizeRolldownPackage(reader, pkg, packagesMap, packageImportersMap, resolvePackageDir)
+    packagesMap.set(packageInfo.id, packageInfo)
+  }
+
+  return packagesMap
+}
+
+function normalizeRolldownPackage(
+  reader: RolldownEventsReader,
+  pkg: RolldownPackageInfo,
+  packagesMap: Map<string, PackageInfo>,
+  packageImportersMap: Map<string, Set<string>>,
+  resolvePackageDir: ResolvePackageDir,
+): PackageInfo {
+  const name = pkg.name || pkg.package_root
+  const version = pkg.version || '(unknown)'
+  const id = getUniquePackageKey(packagesMap, pkg.package_id || getPackageKey(name, version))
+  const modulePaths = Array.from(new Set(pkg.modules)).sort((a, b) => a.localeCompare(b))
+  const importers = getPackageImporters(reader, pkg.package_root, modulePaths, packageImportersMap, resolvePackageDir)
+
+  const files = modulePaths.map((path, index) => {
+    let transformedCodeSize = getModuleTransformedCodeSize(reader, path)
+    if (!transformedCodeSize && modulePaths.length === 1)
+      transformedCodeSize = pkg.size
+
     return {
       path,
-      dir: getPackageDirPath(path),
-      transformedCodeSize: moduleBuildMetrics?.transforms[moduleBuildMetrics.transforms.length - 1]?.transformed_code_size ?? 0,
+      transformedCodeSize,
+      importers: index === 0 ? importers : [],
     }
   })
 
-  const packageModulePaths = new Map<string, Set<string>>()
-  for (const item of packageModules) {
-    let paths = packageModulePaths.get(item.dir)
-    if (!paths) {
-      paths = new Set()
-      packageModulePaths.set(item.dir, paths)
+  return {
+    id,
+    name,
+    version,
+    dir: pkg.package_root,
+    type: pkg.dependency_type,
+    isUsed: pkg.is_used,
+    transformedCodeSize: pkg.size,
+    files,
+  }
+}
+
+export function getPackageMeta(reader: RolldownEventsReader): PackageMeta {
+  if (!reader.manager.packageGraphReady) {
+    return {
+      isSupported: false,
+      packages: [],
     }
-    paths.add(item.path)
   }
 
-  const getPackageImporters = (packageDir: string): string[] => {
-    const cached = packageImportersMap.get(packageDir)
-    if (cached)
-      return cached
+  const packagesMap = getPackagesManifest(reader)
+  const packages = Array.from<PackageInfo>(packagesMap.values())
+  const packageNameGroups = new Map<string, PackageInfo[]>()
 
-    const importers = new Set<string>()
-    for (const path of packageModulePaths.get(packageDir) ?? []) {
-      for (const importer of modulesMap.get(path)?.importers ?? []) {
-        if (importer.startsWith(packageDir))
-          continue
+  for (const item of packages) {
+    const items = packageNameGroups.get(item.name) ?? []
+    items.push(item)
+    packageNameGroups.set(item.name, items)
+  }
 
-        if (modulesMap.get(importer)?.imports?.some(i => getPackageDirPath(i.module_id) === packageDir))
-          importers.add(importer)
+  return {
+    isSupported: true,
+    packages: packages.map((item) => {
+      const sameNamePackages = packageNameGroups.get(item.name) ?? []
+      const duplicated = sameNamePackages.length > 1
+        && sameNamePackages.some(pkg => pkg.version !== item.version || pkg.dir !== item.dir || pkg.id !== item.id)
+
+      return {
+        ...item,
+        duplicated,
       }
-    }
-
-    const result = Array.from(importers).sort((a, b) => a.localeCompare(b))
-    packageImportersMap.set(packageDir, result)
-    return result
+    }),
   }
-
-  const manifests = await Promise.all(packageModules.map(async item => ({
-    item,
-    manifest: await readPackageManifest(item.dir),
-  })))
-
-  for (const { item, manifest } of manifests) {
-    const packageKey = manifest ? `${manifest.name!}@${manifest.version!}` : `${item.dir}`
-    const packageInfo = packagesMap.get(packageKey)
-    const importers = packageInfo
-      ? []
-      : getPackageImporters(item.dir).map(path => ({ path, version: '' }))
-    const file = {
-      path: item.path,
-      transformedCodeSize: item.transformedCodeSize,
-      importers,
-    }
-
-    if (packageInfo) {
-      packageInfo.files.push(file)
-      packageInfo.transformedCodeSize += item.transformedCodeSize
-      continue
-    }
-
-    packagesMap.set(packageKey, {
-      name: manifest?.name || item.dir,
-      version: manifest?.version || '(unknown)',
-      dir: item.dir,
-      files: [file],
-      transformedCodeSize: item.transformedCodeSize,
-    })
-  }
-  return packagesMap
 }
 
 export const rolldownGetPackages = defineRpcFunction({
@@ -118,39 +205,7 @@ export const rolldownGetPackages = defineRpcFunction({
     return {
       handler: async ({ session }: { session: string }) => {
         const reader = await manager.loadPackageSession(session)
-        const modulesMap = reader.manager.modules
-        const packageNameCounts = new Map<string, number>()
-        const readPackageManifest = createPackageManifestReader()
-        const packagesMap = await getPackagesManifest(reader, readPackageManifest)
-        const packages = Array.from<PackageInfo>(packagesMap.values())
-
-        for (const item of packages) {
-          packageNameCounts.set(item.name, (packageNameCounts.get(item.name) ?? 0) + 1)
-        }
-
-        const normalizedPackages = await Promise.all(packages.map(async (item) => {
-          const duplicated = (packageNameCounts.get(item.name) ?? 0) > 1
-          const files = duplicated
-            ? await Promise.all(item.files.map(async (file) => {
-                const importers = await Promise.all(file.importers.map(async (importer) => {
-                  if (!isNodeModulePath(importer.path))
-                    return importer
-
-                  const manifest = await readPackageManifest(getPackageDirPath(importer.path))
-                  return { ...importer, version: manifest?.version ?? '' }
-                }))
-                return { ...file, importers }
-              }))
-            : item.files
-
-          return {
-            ...item,
-            duplicated,
-            files,
-            type: item.files.some(f => modulesMap.get(f.path)?.importers?.some(i => i.includes(reader.meta!.cwd))) ? 'direct' : 'transitive',
-          }
-        }))
-        return normalizedPackages.filter(i => !!i.transformedCodeSize)
+        return getPackageMeta(reader)
       },
     }
   },

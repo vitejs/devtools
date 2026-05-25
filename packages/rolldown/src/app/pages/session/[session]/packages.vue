@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PackageInfo, SessionContext } from '~~/shared/types/data'
+import type { PackageInfo, PackageMeta, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
@@ -33,13 +33,19 @@ const packageTypeRules = [
     description: 'Transitive Dependencies',
     icon: 'i-octicon:package-24 light:filter-invert-30!',
   },
+  {
+    match: /.*/,
+    name: 'unbundled',
+    description: 'Unbundled Dependencies',
+    icon: 'i-ph-package-duotone',
+  },
 ]
 const rpc = useRpc()
-const searchValue = ref<{ search: string, selected: string[] }>({
+const searchValue = ref<{ search: string, selected: string[] | null }>({
   search: '',
   selected: ['direct', 'transitive'],
 })
-const { state: packages, isLoading } = useAsyncState(
+const { state: packageMeta, isLoading } = useAsyncState<PackageMeta | null>(
   async () => {
     return await rpc.value.call(
       'vite:rolldown:get-packages',
@@ -48,10 +54,12 @@ const { state: packages, isLoading } = useAsyncState(
   },
   null,
 )
+const isSupported = computed(() => packageMeta.value?.isSupported ?? true)
+const packages = computed(() => packageMeta.value?.packages ?? [])
 
 const fuse = computedWithControl(
   () => packages.value,
-  () => new Fuse(packages.value!, {
+  () => new Fuse(packages.value, {
     includeScore: true,
     keys: ['name'],
     ignoreLocation: true,
@@ -59,15 +67,43 @@ const fuse = computedWithControl(
   }),
 )
 
-const duplicatePackagesCount = computed(() => {
-  if (!packages.value) {
-    return 0
+const searched = computed(() => (
+  searchValue.value.search
+    ? fuse.value.search(searchValue.value.search).map(r => r.item)
+    : [...packages.value]),
+)
+
+function matchesSelectedPackageType(item: PackageInfo) {
+  const selected = searchValue.value.selected
+  if (!selected)
+    return true
+
+  if (item.isUsed === false)
+    return selected.includes('unbundled')
+
+  return selected.includes(item.type || '')
+}
+
+const filteredPackages = computed(() => searched.value.filter(matchesSelectedPackageType))
+
+const duplicatedPackageNames = computed(() => {
+  const packageNameGroups = new Map<string, PackageInfo[]>()
+
+  for (const item of filteredPackages.value) {
+    const items = packageNameGroups.get(item.name) ?? []
+    items.push(item)
+    packageNameGroups.set(item.name, items)
   }
-  return Object.values(packages.value!.reduce((acc, p) => {
-    acc[p.name] = (acc[p.name] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)).filter(count => count > 1).length
+
+  return new Set(Array.from(packageNameGroups.entries())
+    .filter(([, items]) => {
+      const first = items[0]
+      return first != null && items.length > 1 && items.some(item => item.version !== first.version || item.dir !== first.dir || item.id !== first.id)
+    })
+    .map(([name]) => name))
 })
+
+const duplicatePackagesCount = computed(() => duplicatedPackageNames.value.size)
 
 const packageViewTypes = computed(() => [
   {
@@ -87,21 +123,18 @@ const packageViewTypes = computed(() => [
   },
 ] as const)
 
-const searched = computed(() => (
-  searchValue.value.search
-    ? fuse.value.search(searchValue.value.search).map(r => r.item)
-    : [...(packages.value || [])]),
-)
-
 const normalizedPackages = computed(() => {
   const packagesSizeSortType = settings.value.packageSizeSortType
-  const data = searched.value.toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
+  const data = filteredPackages.value.toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
 
   const sortedPackages = packagesSizeSortType
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)
     : data
 
-  return sortedPackages.filter(item => !searchValue.value.selected || searchValue.value.selected.some(rule => rule.match(item.type!)))
+  return sortedPackages.map(item => ({
+    ...item,
+    duplicated: duplicatedPackageNames.value.has(item.name),
+  }))
 })
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
@@ -123,7 +156,7 @@ const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, select
     },
     onClick(node) {
       if (node.meta?.type === 'package') {
-        router.replace({ query: { ...route.query, package: `${node.meta?.name}@${node.meta?.version}` } })
+        router.replace({ query: { ...route.query, package: node.meta.id } })
       }
     },
     onLeave() {
@@ -151,6 +184,17 @@ watch(() => settings.value.packageViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
+  <div v-else-if="!isSupported" h-full flex="~ items-center justify-center" p4>
+    <div max-w-lg border="~ base rounded-xl" bg-glass p6 flex="~ col gap-3">
+      <div flex="~ gap-2 items-center" font-600>
+        <div i-ph-warning-duotone text-amber-5 />
+        Package graph is not available for this build
+      </div>
+      <p op70 text-sm leading-relaxed>
+        Upgrade to Rolldown 1.0.2 or newer and rebuild to view package data.
+      </p>
+    </div>
+  </div>
   <div v-else relative h-full min-h-0 flex="~ col">
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="packageTypeRules">
@@ -179,7 +223,7 @@ watch(() => settings.value.packageViewType, () => {
         <div
           fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
         >
-          <span op50>{{ searched.length }} of {{ packages?.length || 0 }}</span>
+          <span op50>{{ normalizedPackages.length }} of {{ packages.length }}</span>
         </div>
       </template>
       <template v-else-if="settings.packageViewType === 'treemap'">

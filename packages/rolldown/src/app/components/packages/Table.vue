@@ -81,7 +81,7 @@ function toggleSizeSortType() {
         h-9
         class="border-base border-b-1 border-dashed"
         :class="[index === packages.length - 1 ? 'border-b-0' : '']"
-        :to="{ path: route.path, query: { package: `${item.name}@${item.version}` } }"
+        :to="{ path: route.path, query: { package: item.id } }"
       >
         <Tooltip
           :triggers="['hover']"
@@ -104,7 +104,7 @@ function toggleSizeSortType() {
           {{ item.version }}
         </div>
         <div role="cell" flex="~ items-center justify-end" flex-none font-mono py1.5 px2 text-sm min-w40 op80>
-          <VMenu :delay="{ show: 200, hide: 0 }">
+          <VMenu v-if="item.transformedCodeSize > 0" :delay="{ show: 200, hide: 0 }">
             <DisplayFileSizeBadge :bytes="item.transformedCodeSize" />
             <template #popper>
               <div p2 flex="~ col gap-1">
@@ -117,6 +117,7 @@ function toggleSizeSortType() {
               </div>
             </template>
           </VMenu>
+          <DisplayFileSizeBadge v-else :bytes="0" />
         </div>
         <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 pl20 pr2 text-sm op80>
           <PackagesImporters :package="item" :session="session" :show-version="groupView" />

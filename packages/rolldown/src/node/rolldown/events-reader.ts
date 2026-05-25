@@ -23,6 +23,7 @@ const PACKAGE_SUMMARY_ACTIONS = new Set([
   'ChunkGraphReady',
   'HookTransformCallEnd',
   'ModuleGraphReady',
+  'PackageGraphReady',
   'StringRef',
 ])
 const PACKAGE_SUMMARY_LARGE_LINE_ACTIONS = new Set([
@@ -572,6 +573,7 @@ export class RolldownEventsReader {
       if (
         event.action === 'ChunkGraphReady'
         || event.action === 'ModuleGraphReady'
+        || event.action === 'PackageGraphReady'
       ) {
         this.manager.handleEvent(event)
       }
