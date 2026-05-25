@@ -14,10 +14,10 @@ export const docksOnLaunch = defineRpcFunction({
 
         const entry = context.docks.values().find(entry => entry.id === entryId)
         if (!entry) {
-          throw diagnostics.DTK0030.throw({ id: entryId })
+          throw diagnostics.DTK0030({ id: entryId })
         }
         if (entry.type !== 'launcher') {
-          throw diagnostics.DTK0031.throw({ id: entryId })
+          throw diagnostics.DTK0031({ id: entryId })
         }
         try {
           context.docks.update({
@@ -43,7 +43,7 @@ export const docksOnLaunch = defineRpcFunction({
           return result
         }
         catch (error) {
-          diagnostics.DTK0032.report({ id: entryId, cause: error })
+          diagnostics.DTK0032({ id: entryId, cause: error })
           context.docks.update({
             ...entry,
             launcher: {

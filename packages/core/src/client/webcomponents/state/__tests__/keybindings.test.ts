@@ -1,6 +1,6 @@
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 import { describe, expect, it } from 'vitest'
-import { collectAllKeybindings, formatKeybinding, KNOWN_BROWSER_SHORTCUTS, normalizeKeyEvent } from '../keybindings'
+import { areKeybindingsEqual, collectAllKeybindings, formatKeybinding, isKeybindingOverrideDifferentFromDefault, KNOWN_BROWSER_SHORTCUTS, normalizeKeyEvent } from '../keybindings'
 
 describe('formatKeybinding', () => {
   it('splits key string into parts', () => {
@@ -102,6 +102,44 @@ describe('collectAllKeybindings', () => {
     }
     const result = collectAllKeybindings(commands, () => [])
     expect(result).toHaveLength(0)
+  })
+})
+
+describe('areKeybindingsEqual', () => {
+  it('treats undefined and empty arrays as equal', () => {
+    expect(areKeybindingsEqual(undefined, [])).toBe(true)
+    expect(areKeybindingsEqual([], undefined)).toBe(true)
+  })
+
+  it('compares keybinding arrays by length, order, and key', () => {
+    const defaults = [{ key: 'Mod+K' }, { key: 'Alt+K' }]
+
+    expect(areKeybindingsEqual(defaults, [{ key: 'Mod+K' }, { key: 'Alt+K' }])).toBe(true)
+    expect(areKeybindingsEqual(defaults, [{ key: 'Mod+K' }])).toBe(false)
+    expect(areKeybindingsEqual(defaults, [{ key: 'Alt+K' }, { key: 'Mod+K' }])).toBe(false)
+    expect(areKeybindingsEqual(defaults, [{ key: 'Mod+K' }, { key: 'Alt+N' }])).toBe(false)
+  })
+})
+
+describe('isKeybindingOverrideDifferentFromDefault', () => {
+  it('treats a missing override as default state', () => {
+    expect(isKeybindingOverrideDifferentFromDefault(undefined, [{ key: 'Mod+K' }])).toBe(false)
+  })
+
+  it('treats undefined default and empty override as equivalent', () => {
+    expect(isKeybindingOverrideDifferentFromDefault([], undefined)).toBe(false)
+  })
+
+  it('treats empty override as different from non-empty default', () => {
+    expect(isKeybindingOverrideDifferentFromDefault([], [{ key: 'Mod+K' }])).toBe(true)
+  })
+
+  it('treats custom key as different from empty default', () => {
+    expect(isKeybindingOverrideDifferentFromDefault([{ key: 'Alt+N' }], [])).toBe(true)
+  })
+
+  it('treats matching override and defaults as default state', () => {
+    expect(isKeybindingOverrideDifferentFromDefault([{ key: 'Mod+K' }], [{ key: 'Mod+K' }])).toBe(false)
   })
 })
 

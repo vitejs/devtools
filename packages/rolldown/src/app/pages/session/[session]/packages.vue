@@ -86,24 +86,11 @@ function matchesSelectedPackageType(item: PackageInfo) {
 
 const filteredPackages = computed(() => searched.value.filter(matchesSelectedPackageType))
 
-const duplicatedPackageNames = computed(() => {
-  const packageNameGroups = new Map<string, PackageInfo[]>()
-
-  for (const item of filteredPackages.value) {
-    const items = packageNameGroups.get(item.name) ?? []
-    items.push(item)
-    packageNameGroups.set(item.name, items)
-  }
-
-  return new Set(Array.from(packageNameGroups.entries())
-    .filter(([, items]) => {
-      const first = items[0]
-      return first != null && items.length > 1 && items.some(item => item.version !== first.version || item.dir !== first.dir || item.id !== first.id)
-    })
-    .map(([name]) => name))
-})
-
-const duplicatePackagesCount = computed(() => duplicatedPackageNames.value.size)
+const duplicatePackagesCount = computed(() => new Set(
+  packages.value
+    .filter(item => item.duplicated)
+    .map(item => item.name),
+).size)
 
 const packageViewTypes = computed(() => [
   {
@@ -131,10 +118,7 @@ const normalizedPackages = computed(() => {
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)
     : data
 
-  return sortedPackages.map(item => ({
-    ...item,
-    duplicated: duplicatedPackageNames.value.has(item.name),
-  }))
+  return sortedPackages
 })
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
@@ -184,16 +168,13 @@ watch(() => settings.value.packageViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else-if="!isSupported" h-full flex="~ items-center justify-center" p4>
-    <div max-w-lg border="~ base rounded-xl" bg-glass p6 flex="~ col gap-3">
-      <div flex="~ gap-2 items-center" font-600>
-        <div i-ph-warning-duotone text-amber-5 />
-        Package graph is not available for this build
-      </div>
-      <p op70 text-sm leading-relaxed>
-        Upgrade to Rolldown 1.0.2 or newer and rebuild to view package data.
-      </p>
-    </div>
+  <div v-else-if="!isSupported" h-full flex="~ col gap-2 items-center justify-center" p4 text-center>
+    <p m0 op50>
+      Package graph is not available for this build
+    </p>
+    <p m0 op40 text-sm>
+      Rebuild with Rolldown 1.0.2 or later to generate it.
+    </p>
   </div>
   <div v-else relative h-full min-h-0 flex="~ col">
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
@@ -247,7 +228,7 @@ watch(() => settings.value.packageViewType, () => {
         </span>
       </template>
       <template v-else-if="settings.packageViewType === 'duplicate-packages'">
-        <PackagesDuplicated :packages="normalizedPackages" :session="session" />
+        <PackagesDuplicated :packages="packages" :session="session" />
       </template>
     </div>
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">

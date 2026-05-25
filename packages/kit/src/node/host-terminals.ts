@@ -57,7 +57,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   register(session: DevToolsTerminalSession): DevToolsTerminalSession {
     if (this.sessions.has(session.id)) {
-      throw diagnostics.DTK0053.throw({ id: session.id })
+      throw diagnostics.DTK0053({ id: session.id })
     }
     this.sessions.set(session.id, session)
     this.bindStream(session)
@@ -67,7 +67,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
 
   update(patch: PartialWithoutId<DevToolsTerminalSession>): void {
     if (!this.sessions.has(patch.id)) {
-      throw diagnostics.DTK0054.throw({ id: patch.id })
+      throw diagnostics.DTK0054({ id: patch.id })
     }
     const session = this.sessions.get(patch.id)!
     Object.assign(session, patch)
@@ -136,7 +136,7 @@ export class DevToolsTerminalHost implements DevToolsTerminalHostType {
     terminal: Omit<DevToolsTerminalSessionBase, 'status'>,
   ): Promise<DevToolsChildProcessTerminalSession> {
     if (this.sessions.has(terminal.id)) {
-      throw diagnostics.DTK0053.throw({ id: terminal.id })
+      throw diagnostics.DTK0053({ id: terminal.id })
     }
     const { exec } = await import('tinyexec')
 

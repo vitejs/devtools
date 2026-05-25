@@ -61,7 +61,6 @@ export default extendConfig(withMermaid(defineConfig({
     'packages/**',
     'examples/**',
     'tests/**',
-    'devframe/**',
     'docs/.vitepress/**',
     '.github/**',
     '.context/**',

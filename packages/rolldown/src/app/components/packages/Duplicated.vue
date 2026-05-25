@@ -19,7 +19,7 @@ const groupedDuplicatePackages = computed(() =>
 <template>
   <div v-if="duplicatePackages.length" min-w-max flex="~ col gap-3">
     <div v-for="(p, i) of groupedDuplicatePackages" :key="i">
-      <PackagesTable :packages="p" :session="session" group-view disable-size-sort />
+      <PackagesTable :packages="p" :session="session" group-view disable-size-sort show-used-badge />
     </div>
   </div>
   <template v-else>

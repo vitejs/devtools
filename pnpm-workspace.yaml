@@ -32,25 +32,23 @@ overrides:
   semver: 'catalog:resolutions'
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
-patchedDependencies:
-  devframe@0.3.0: patches/devframe@0.3.0.patch
 catalogs:
   build:
     '@antfu/ni': ^30.1.0
-    '@nuxt/kit': ^4.4.5
-    '@nuxt/vite-builder': ^4.4.5
-    '@unocss/nuxt': ^66.6.8
-    '@vitejs/plugin-vue': ^6.0.6
+    '@nuxt/kit': ^4.4.6
+    '@nuxt/vite-builder': ^4.4.6
+    '@unocss/nuxt': ^66.7.0
+    '@vitejs/plugin-vue': ^6.0.7
     '@vueuse/nuxt': ^14.3.0
     esbuild: ^0.28.0
     magic-string: ^0.30.21
     nitropack: ^2.13.4
-    nuxt: ^4.4.5
+    nuxt: ^4.4.6
     rolldown: ^1.0.2
     tsdown: ^0.22.0
-    tsx: ^4.22.0
+    tsx: ^4.22.3
     turbo: ^2.9.14
-    unocss: ^66.6.8
+    unocss: ^66.7.0
     unplugin-vue: ^7.2.0
     vite: ^8.0.14
   deps:
@@ -58,14 +56,14 @@ catalogs:
     actionspack: ^0.1.4
     birpc: ^4.0.0
     cac: ^7.0.0
-    devframe: ^0.3.0
+    devframe: ^0.4.1
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
     h3: 2.0.1-rc.22
     mlly: ^1.8.2
     mrmime: ^2.0.1
-    nostics: ^0.1.0
+    nostics: ^0.2.0
     obug: ^2.1.1
     p-limit: ^7.3.0
     pathe: ^2.0.3
@@ -83,24 +81,24 @@ catalogs:
     '@antfu/eslint-config': ^9.0.0
     '@nuxt/devtools': ^3.2.4
     '@nuxt/eslint': ^1.15.2
-    '@typescript-eslint/utils': ^8.59.3
-    '@unocss/eslint-config': ^66.6.8
-    '@unocss/preset-web-fonts': ^66.6.8
+    '@typescript-eslint/utils': ^8.59.4
+    '@unocss/eslint-config': ^66.7.0
+    '@unocss/preset-web-fonts': ^66.7.0
     axe-core: ^4.11.4
     bumpp: ^11.1.0
     chokidar: ^5.0.0
-    eslint: ^10.3.0
+    eslint: ^10.4.0
     nano-staged: ^1.0.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.1.1
-    solid-js: ^1.9.12
+    solid-js: ^1.9.13
     typescript: ^6.0.3
-    vite-plugin-inspect: ^12.0.0-beta.1
+    vite-plugin-inspect: ^12.0.0-beta.2
     vite-plugin-solid: ^2.11.12
-    vue-tsc: ^3.2.9
+    vue-tsc: ^3.3.1
   docs:
-    '@shikijs/vitepress-twoslash': ^4.0.2
+    '@shikijs/vitepress-twoslash': ^4.1.0
     '@voidzero-dev/vitepress-theme': ^4.8.4
     mermaid: ^11.15.0
     twoslash: ^0.3.8
@@ -122,10 +120,10 @@ catalogs:
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
     diff-match-patch-es: ^1.0.1
-    dompurify: ^3.4.3
+    dompurify: ^3.4.5
     floating-vue: ^5.2.2
     fuse.js: ^7.3.0
-    idb-keyval: ^6.2.2
+    idb-keyval: ^6.2.3
     modern-monaco: ^0.4.1
     nanovis: ^1.0.0
     react: ^19.2.6
@@ -134,19 +132,19 @@ catalogs:
     theme-vitesse: ^1.0.0
     ua-parser-modern: ^0.1.1
     vite-hot-client: ^2.2.0
-    vue-virtual-scroller: ^3.0.3
+    vue-virtual-scroller: ^3.0.4
   icons:
-    '@iconify-json/carbon': ^1.2.21
+    '@iconify-json/carbon': ^1.2.22
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.54
+    '@iconify-json/codicon': ^1.2.56
     '@iconify-json/fluent': ^1.2.47
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.11
     '@iconify-json/material-icon-theme': ^1.2.64
-    '@iconify-json/octicon': ^1.2.24
+    '@iconify-json/octicon': ^1.2.25
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.82
+    '@iconify-json/simple-icons': ^1.2.83
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.35
@@ -164,14 +162,14 @@ catalogs:
   testing:
     playwright-core: ^1.60.0
     tsnapi: ^0.3.3
-    vitest: ^4.1.6
+    vitest: ^4.1.7
   types:
     '@types/chrome': ^0.1.42
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/envinfo': ^7.8.4
-    '@types/react': ^19.2.14
+    '@types/react': ^19.2.15
     '@types/react-dom': ^19.2.3
     '@types/splitpanes': ^2.2.6
     '@types/ws': ^8.18.1

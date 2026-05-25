@@ -44,11 +44,11 @@ const color = computed(() => {
 
 const ratio = computed(() => props.total ? (props.bytes || 0) * 100 / props.total : 0)
 
-const formatted = computed(() => props.bytes === 0 ? [0, 'kB'] : bytesToHumanSize(props.bytes || 0, props.digits))
+const formatted = computed(() => bytesToHumanSize(props.bytes || 0, props.digits))
 </script>
 
 <template>
-  <div v-if="bytes != null" :class="color" class="px-0.4em py-0.2em font-mono line-height-none bg-gray:5 dark:bg-gray:4 flex items-center">
+  <div v-if="bytes" :class="color" class="px-0.4em py-0.2em font-mono line-height-none bg-gray:5 dark:bg-gray:4 flex items-center">
     <div v-if="icon" :class="icon" class="mr-1" />
     {{ formatted[0] }}<span text-xs op75 ml-0.4>{{ formatted[1] }}</span>
     <slot name="after">

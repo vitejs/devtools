@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PackageInfo, SessionContext } from '~~/shared/types'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import { useCycleList } from '@vueuse/core'
 import { Tooltip, Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'
@@ -14,12 +15,14 @@ withDefaults(defineProps<{
   itemSize?: number
   pageMode?: boolean
   scroller?: 'dynamic' | 'fixed' | 'window'
+  showUsedBadge?: boolean
 }>(), {
   disableSizeSort: false,
   groupView: false,
   itemSize: 36,
   pageMode: false,
   scroller: 'fixed',
+  showUsedBadge: false,
 })
 
 const route = useRoute()
@@ -40,7 +43,7 @@ function toggleSizeSortType() {
     role="table"
     min-w-max h-full min-h-0 border="~ base rounded-xl"
     :items="packages"
-    key-prop="dir"
+    key-prop="id"
     :item-size="itemSize"
     :page-mode="pageMode"
     :scroller="scroller"
@@ -100,8 +103,14 @@ function toggleSizeSortType() {
             </span>
           </template>
         </Tooltip>
-        <div role="cell" flex="~ items-center" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80 :class="{ 'text-primary': item.duplicated }">
-          {{ item.version }}
+        <div role="cell" flex="~ items-center gap-1" text-left flex-none font-mono py1.5 px2 text-sm min-w40 op80 :class="{ 'text-primary': item.duplicated }">
+          <span>{{ item.version }}</span>
+          <DisplayBadge
+            v-if="showUsedBadge && item.isUsed === false"
+            text="Unbundled"
+            :color="30"
+            as="span"
+          />
         </div>
         <div role="cell" flex="~ items-center justify-end" flex-none font-mono py1.5 px2 text-sm min-w40 op80>
           <VMenu v-if="item.transformedCodeSize > 0" :delay="{ show: 200, hide: 0 }">
@@ -117,7 +126,7 @@ function toggleSizeSortType() {
               </div>
             </template>
           </VMenu>
-          <DisplayFileSizeBadge v-else :bytes="0" />
+          <span v-else op50 ws-nowrap>-</span>
         </div>
         <div role="cell" flex="~ items-center" flex-1 font-mono py1.5 pl20 pr2 text-sm op80>
           <PackagesImporters :package="item" :session="session" :show-version="groupView" />

@@ -28,6 +28,7 @@ export const CodeBlock = defineComponent({
             backgroundColor: surfaceMuted,
             borderRadius: filename ? '0 0 4px 4px' : '4px',
             overflow: 'auto',
+            scrollbarGutter: 'stable',
             maxHeight,
           },
         }, [h('code', code)]),

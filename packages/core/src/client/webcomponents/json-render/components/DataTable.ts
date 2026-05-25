@@ -14,6 +14,7 @@ export const DataTable = defineComponent({
         class: 'jr-data-table',
         style: {
           overflow: 'auto',
+          scrollbarGutter: 'stable',
           maxHeight,
           border: borderSolid(border),
           borderRadius: '4px',

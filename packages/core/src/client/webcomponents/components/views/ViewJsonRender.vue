@@ -87,7 +87,7 @@ watch(() => props.entry.ui?._stateKey, loadSpec)
 </script>
 
 <template>
-  <div class="vite-devtools-view-json-render w-full h-full overflow-auto" style="padding: 16px;">
+  <div class="vite-devtools-view-json-render w-full h-full overflow-auto" style="padding: 16px; scrollbar-gutter: stable;">
     <div v-if="isLoading" style="display: flex; align-items: center; justify-content: center; height: 100%; opacity: 0.5; font-size: 13px;">
       Loading...
     </div>

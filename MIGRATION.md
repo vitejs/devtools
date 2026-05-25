@@ -50,3 +50,20 @@ These types are no longer re-exported from `@vitejs/devtools-kit`. Import them f
 ```
 
 The `@vitejs/devtools-kit/utils/when` subpath remains and re-exports these types alongside `evaluateWhen` and `resolveContextValue`.
+
+#### Diagnostic handles are callable
+
+`nostics` 0.2 (pulled in via devframe 0.4) drops the `.report()` / `.throw()` methods on diagnostic handles. Each handle is now a callable that builds and emits a diagnostic; prefix with `throw` to raise.
+
+```diff
+- throw ctx.diagnostics.logger.MYP0001.throw({ name })
++ throw ctx.diagnostics.logger.MYP0001({ name })
+
+- ctx.diagnostics.logger.MYP0002.report()
++ ctx.diagnostics.logger.MYP0002()
+
+- ctx.diagnostics.logger.MYP0002.report({ name }, { method: 'error' })
++ ctx.diagnostics.logger.MYP0002({ name }, { method: 'error' })
+```
+
+The payload shape (including `cause`) and the optional reporter-options second argument are unchanged. Apply the same rewrite to typed handles returned from `ctx.diagnostics.defineDiagnostics()`.

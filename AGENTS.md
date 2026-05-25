@@ -4,7 +4,7 @@
 
 Two layers, one mental model:
 
-- **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`). A checked-in submodule at `devframe/` mirrors the source at the pinned tag for browsing and upstream contributions.
+- **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`).
 - **`@vitejs/devtools-kit`** — *the hub that unites many devtools integrations.* Owns docking, the command palette, toasts, terminal sessions — anything that only makes sense when more than one tool shares a UI. Provides `createPluginFromDevframe(devframeApp)` so a portable devframe definition drops into Vite DevTools as a Vite plugin, with the dock entry auto-derived from the definition's metadata.
 
 When deciding where something belongs: if a single-app standalone CLI would still need it, it belongs upstream in devframe; if it only matters once you have multiple integrations or a host UI, it lives in the kit.
@@ -28,8 +28,6 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 Other top-level directories:
 - `docs/` — VitePress docs; guides in `docs/guide/`
 - `skills/` — Agent skill files generated from docs via [Agent Skills](https://agentskills.io/home). Structured references (RPC patterns, dock types, shared state, project structure) for AI agent context.
-- `devframe/` — Git submodule pinned to the `devframe` version in `catalogs.deps`. Run `pnpm sync` to align with the catalog; `pnpm sync <version>` or `pnpm sync --latest` to bump.
-- `scripts/sync.ts` — Submodule pin manager (see `pnpm sync --help`).
 
 ```mermaid
 flowchart TD
@@ -125,11 +123,13 @@ Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Ch
    import { diagnostics } from './diagnostics'
 
    // For thrown errors — always prefix with `throw` for TypeScript control flow:
-   throw diagnostics.DTK0033.throw({ name })
+   throw diagnostics.DTK0033({ name })
 
-   // For reported (non-thrown) diagnostics:
-   diagnostics.DTK0033.report({ name })
-   diagnostics.DTK0033.report({ name, cause: error }) // attach cause via params
+   // For reported (non-thrown) diagnostics. The default console method is `warn`;
+   // override with the 2nd-arg reporter options when needed:
+   diagnostics.DTK0033({ name }) // console.warn
+   diagnostics.DTK0033({ name }, { method: 'error' }) // console.error
+   diagnostics.DTK0033({ name, cause: error }) // attach cause via params
    ```
 
 3. **Create a docs page** at `docs/errors/DTK0033.md`:

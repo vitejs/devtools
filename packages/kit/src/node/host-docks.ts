@@ -157,7 +157,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     update: (patch: Partial<T>) => void
   } {
     if (this.views.has(view.id) && !force) {
-      throw diagnostics.DTK0050.throw({ id: view.id })
+      throw diagnostics.DTK0050({ id: view.id })
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)
@@ -166,7 +166,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
     return {
       update: (patch) => {
         if (patch.id && patch.id !== view.id) {
-          throw diagnostics.DTK0051.throw()
+          throw diagnostics.DTK0051()
         }
         this.update(Object.assign(this.views.get(view.id)!, patch))
       },
@@ -175,7 +175,7 @@ export class DevToolsDockHost implements DevToolsDockHostType {
 
   update(view: DevToolsDockUserEntry): void {
     if (!this.views.has(view.id)) {
-      throw diagnostics.DTK0052.throw({ id: view.id })
+      throw diagnostics.DTK0052({ id: view.id })
     }
     this.prepareRemoteRegistration(view)
     this.views.set(view.id, view)
