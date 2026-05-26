@@ -86,6 +86,7 @@ function getPackageImporters(
   packageModulePaths: Iterable<string>,
   packageImportersMap: Map<string, Set<string>>,
   resolvePackageDir: ResolvePackageDir,
+  packageVersionsMap: Map<string, string>,
 ): PackageImporterInfo[] {
   const modulesMap = reader.manager.modules
   const modulePaths = new Set(packageModulePaths)
@@ -109,16 +110,33 @@ function getPackageImporters(
 
   return Array.from(importers)
     .sort((a, b) => a.localeCompare(b))
-    .map(path => ({ path, version: '' }))
+    .map((path) => {
+      const importerPackageDir = resolvePackageDir(path)
+      return {
+        path,
+        version: importerPackageDir ? packageVersionsMap.get(importerPackageDir) ?? '' : '',
+      }
+    })
 }
 
 function getRolldownPackagesManifest(reader: RolldownEventsReader) {
   const packagesMap = new Map<string, PackageInfo>()
   const resolvePackageDir = createPackageDirResolver()
+  const packageVersionsMap = new Map(
+    Array.from(reader.manager.packages.values())
+      .map(pkg => [pkg.package_root, pkg.version || '']),
+  )
   const packageImportersMap = getPackageImportersMap(reader, resolvePackageDir)
 
   for (const pkg of reader.manager.packages.values()) {
-    const packageInfo = normalizeRolldownPackage(reader, pkg, packagesMap, packageImportersMap, resolvePackageDir)
+    const packageInfo = normalizeRolldownPackage(
+      reader,
+      pkg,
+      packagesMap,
+      packageImportersMap,
+      resolvePackageDir,
+      packageVersionsMap,
+    )
     packagesMap.set(packageInfo.id, packageInfo)
   }
 
@@ -131,12 +149,20 @@ function normalizeRolldownPackage(
   packagesMap: Map<string, PackageInfo>,
   packageImportersMap: Map<string, Set<string>>,
   resolvePackageDir: ResolvePackageDir,
+  packageVersionsMap: Map<string, string>,
 ): PackageInfo {
   const name = pkg.name || pkg.package_root
   const version = pkg.version || '(unknown)'
   const id = getUniquePackageKey(packagesMap, pkg.package_id || getPackageKey(name, version))
   const modulePaths = Array.from(new Set(pkg.modules)).sort((a, b) => a.localeCompare(b))
-  const importers = getPackageImporters(reader, pkg.package_root, modulePaths, packageImportersMap, resolvePackageDir)
+  const importers = getPackageImporters(
+    reader,
+    pkg.package_root,
+    modulePaths,
+    packageImportersMap,
+    resolvePackageDir,
+    packageVersionsMap,
+  )
 
   const files = modulePaths.map((path, index) => {
     let transformedCodeSize = getModuleTransformedCodeSize(reader, path)
