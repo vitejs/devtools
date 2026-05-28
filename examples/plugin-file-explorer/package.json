@@ -36,6 +36,7 @@
     "serve": "catalog:devtools",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
+    "unrun": "catalog:build",
     "vite": "catalog:build"
   }
 }

@@ -28,6 +28,7 @@
     "solid-js": "catalog:devtools",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
+    "unrun": "catalog:build",
     "vite": "catalog:build",
     "vite-plugin-solid": "catalog:devtools"
   }

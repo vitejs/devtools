@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type * as Monaco from 'modern-monaco/editor-core'
+import type { SplitpanesResizePayload } from 'splitpanes'
 import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { Pane, Splitpanes } from 'splitpanes'
 import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
@@ -223,14 +224,14 @@ const leftPanelSize = computed(() => {
     : settings.value.codeviewerDiffPanelSize
 })
 
-function onUpdate(size: number) {
+function onUpdate({ prevPane }: SplitpanesResizePayload) {
   fromEditor?.layout()
   toEditor?.layout()
 
-  if (props.oneColumn)
+  if (props.oneColumn || !prevPane)
     return
 
-  settings.value.codeviewerDiffPanelSize = size
+  settings.value.codeviewerDiffPanelSize = prevPane.size
 }
 
 onBeforeUnmount(() => {
@@ -243,7 +244,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Splitpanes @resize="onUpdate($event.prevPane.size)">
+  <Splitpanes @resize="onUpdate">
     <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize">
       <div ref="fromEl" h-inherit />
     </Pane>
