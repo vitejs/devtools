@@ -28,6 +28,7 @@
   "devDependencies": {
     "serve": "catalog:devtools",
     "tsdown": "catalog:build",
+    "unrun": "catalog:build",
     "vite": "catalog:build"
   }
 }

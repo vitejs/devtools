@@ -84,6 +84,7 @@
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
     "unplugin-vue": "catalog:build",
+    "unrun": "catalog:build",
     "vite": "catalog:build",
     "vue": "catalog:deps",
     "vue-router": "catalog:playground",
