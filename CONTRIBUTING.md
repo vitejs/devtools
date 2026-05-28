@@ -10,7 +10,7 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## Setup
 
-Requires `pnpm@10.x`.
+Requires `pnpm@11.x`.
 
 ```bash
 pnpm install

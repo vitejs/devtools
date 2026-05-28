@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: lts/*
           cache: pnpm
+          package-manager-cache: true
           registry-url: https://registry.npmjs.org
 
       - name: Install dependencies
