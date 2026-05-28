@@ -47,17 +47,17 @@ catalogs:
     magic-string: ^0.30.21
     nitropack: ^2.13.4
     nuxt: ^4.4.6
-    rolldown: ^1.0.2
+    rolldown: ^1.0.3
     tsdown: ^0.22.0
     tsx: ^4.22.3
-    turbo: ^2.9.14
+    turbo: ^2.9.15
     unocss: ^66.7.0
     unplugin-vue: ^7.2.0
     vite: ^8.0.14
   deps:
     '@devframes/hub': ^0.5.2
-    '@rolldown/debug': ^1.0.2
-    actionspack: ^0.1.4
+    '@rolldown/debug': ^1.0.3
+    actionspack: ^0.1.5
     birpc: ^4.0.0
     cac: ^7.0.0
     devframe: ^0.5.2
@@ -78,14 +78,14 @@ catalogs:
     tinyglobby: ^0.2.16
     unconfig: ^7.5.0
     unstorage: ^1.17.5
-    vue: ^3.5.34
+    vue: ^3.5.35
     webext-bridge: ^6.0.1
-    ws: ^8.20.1
+    ws: ^8.21.0
   devtools:
     '@antfu/eslint-config': ^9.0.0
     '@nuxt/devtools': ^3.2.4
     '@nuxt/eslint': ^1.15.2
-    '@typescript-eslint/utils': ^8.59.4
+    '@typescript-eslint/utils': ^8.60.0
     '@unocss/eslint-config': ^66.7.0
     '@unocss/preset-web-fonts': ^66.7.0
     axe-core: ^4.11.4
@@ -100,7 +100,7 @@ catalogs:
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.0-beta.2
     vite-plugin-solid: ^2.11.12
-    vue-tsc: ^3.3.1
+    vue-tsc: ^3.3.2
   docs:
     '@shikijs/vitepress-twoslash': ^4.1.0
     '@voidzero-dev/vitepress-theme': ^4.8.4
@@ -124,15 +124,15 @@ catalogs:
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
     diff-match-patch-es: ^1.0.1
-    dompurify: ^3.4.5
+    dompurify: ^3.4.7
     floating-vue: ^5.2.2
     fuse.js: ^7.3.0
-    idb-keyval: ^6.2.3
+    idb-keyval: ^6.2.4
     modern-monaco: ^0.4.1
     nanovis: ^1.0.0
     react: ^19.2.6
     react-dom: ^19.2.6
-    splitpanes: ^4.0.4
+    splitpanes: ^4.1.2
     theme-vitesse: ^1.0.0
     ua-parser-modern: ^0.1.1
     vite-hot-client: ^2.2.0
@@ -140,15 +140,15 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.22
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.56
-    '@iconify-json/fluent': ^1.2.47
+    '@iconify-json/codicon': ^1.2.57
+    '@iconify-json/fluent': ^1.2.48
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.11
-    '@iconify-json/material-icon-theme': ^1.2.64
+    '@iconify-json/material-icon-theme': ^1.2.66
     '@iconify-json/octicon': ^1.2.25
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.83
+    '@iconify-json/simple-icons': ^1.2.84
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.35
@@ -162,7 +162,7 @@ catalogs:
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
     langium: ^4.2.4
-    semver: ^7.8.0
+    semver: ^7.8.1
   testing:
     playwright-core: ^1.60.0
     tsnapi: ^0.3.3
