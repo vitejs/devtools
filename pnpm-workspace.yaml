@@ -1,10 +1,12 @@
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
+  rolldown: true
   simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true
 ignoreWorkspaceRootCheck: true
+minimumReleaseAge: 0
 shamefullyHoist: true
 shellEmulator: true
 strictPeerDependencies: false
@@ -175,10 +177,3 @@ catalogs:
     '@types/react-dom': ^19.2.3
     '@types/splitpanes': ^2.2.6
     '@types/ws': ^8.18.1
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
-  - rolldown
-  - simple-git-hooks
-  - unrs-resolver
-  - vue-demi

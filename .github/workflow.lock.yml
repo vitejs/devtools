@@ -7,7 +7,7 @@ entries:
         requested: v5
         foundAt: .github/workflows/src/ci.yml#jobs.lint.steps[0].uses
       - package: github:pnpm/action-setup
-        requested: v4
+        requested: v6
         foundAt: .github/workflows/src/ci.yml#jobs.lint.steps[1].uses
       - package: github:actions/setup-node
         requested: v5
@@ -34,7 +34,7 @@ packages:
     external: true
     contentDigest: sha256:11b63452f6e43ffb5ab8bfdaaafb8a915b354318e3ad9bce4eb0686b9e380f90
     dependencies: []
-    requested: de0fac2e4500dabe0009e67214ff5f5447ce83dd
+    requested: v5
     resolved: de0fac2e4500dabe0009e67214ff5f5447ce83dd
   github:actions/setup-node:
     source: github
@@ -45,7 +45,7 @@ packages:
     external: true
     contentDigest: sha256:ad45f1922115116fb4706651d0a9262332bc4e4f11eb2021e09789dd1af18085
     dependencies: []
-    requested: 48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+    requested: v5
     resolved: 48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
   github:pnpm/action-setup:
     source: github
@@ -56,7 +56,7 @@ packages:
     external: true
     contentDigest: sha256:7903b0a83562cd93df4d70181e610d9a4d6aedf76c83197208a6fdc13614d6f1
     dependencies: []
-    requested: 0e279bb959325dab635dd2c09392533439d90093
+    requested: v6
     resolved: 0e279bb959325dab635dd2c09392533439d90093
   github:sxzz/workflows/.github/workflows/release-commit.yml:
     source: github
@@ -70,27 +70,27 @@ packages:
         requested: main
         foundAt: sxzz/workflows/.github/workflows/release-commit.yml#jobs.release.steps[0].uses
     requested: v1
-    resolved: 2e7328a5d564218c4c647f48f1db6e7d6b90c76e
+    resolved: 866f46ed892502b45a58ba4de02987123ccf8e17
   github:sxzz/workflows/.github/workflows/release.yml:
     source: github
     owner: sxzz
     repo: workflows
     path: .github/workflows/release.yml
     type: reusable-workflow
-    contentDigest: sha256:716fb2eae20dfe7e87c92eabd1b4be35deeb2f6fca8f999f63412d26904abbf8
+    contentDigest: sha256:d9f3f6aed20404bc6299078667fbc05960ef0d825debea678c98ade002521de5
     dependencies:
       - package: github:sxzz/workflows/setup-js
         requested: main
         foundAt: sxzz/workflows/.github/workflows/release.yml#jobs.release.steps[0].uses
     requested: v1
-    resolved: 2e7328a5d564218c4c647f48f1db6e7d6b90c76e
+    resolved: 866f46ed892502b45a58ba4de02987123ccf8e17
   github:sxzz/workflows/setup-js:
     source: github
     owner: sxzz
     repo: workflows
     path: setup-js
     type: composite
-    contentDigest: sha256:ee6696753c61e7206ab75bc50a88f8854a2ea5ceb668cbc2d813658bef7aa993
+    contentDigest: sha256:8e6ea7bb3e82fbe21f52da6e2fecdb3185427c9e2ca68efa5ab0feaddd44262e
     dependencies:
       - package: github:actions/checkout
         requested: de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -102,4 +102,4 @@ packages:
         requested: 48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         foundAt: sxzz/workflows/setup-js#runs.steps[2].uses
     requested: main
-    resolved: 2e7328a5d564218c4c647f48f1db6e7d6b90c76e
+    resolved: 866f46ed892502b45a58ba4de02987123ccf8e17

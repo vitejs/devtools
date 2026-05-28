@@ -62,7 +62,7 @@ flowchart TD
 ## Development
 
 ```sh
-pnpm install                          # requires pnpm@10.x
+pnpm install                          # requires pnpm@11.x
 pnpm build                            # turbo run build
 pnpm test                             # Vitest
 pnpm typecheck                        # vue-tsc -b
