@@ -1,4 +1,4 @@
-import type { Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo } from '@rolldown/debug'
+import type { Event, HookLoadCallEnd, HookLoadCallStart, HookResolveIdCallEnd, HookResolveIdCallStart, HookTransformCallEnd, HookTransformCallStart, Module as ModuleInfo, PackageInfo as RolldownPackageInfo } from '@rolldown/debug'
 import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownAssetInfo, RolldownChunkInfo } from '../../shared/types'
 import { guessChunkName } from '../../shared/utils/guess-chunk-name'
 import { getInitialChunkIds } from '../utils/chunk'
@@ -42,6 +42,8 @@ export interface RolldownEventsManagerSnapshot {
   lastEvent: RolldownEvent | undefined
   chunks: Array<[number, RolldownChunkInfo]>
   modules: Array<[string, ModuleSnapshot]>
+  packageGraphReady: boolean
+  packages: Array<[string, RolldownPackageInfo]>
   source_refs: Array<[string, ContentInfo]>
   module_build_hook_events: Array<[string, PendingModuleBuildHookEvent]>
   module_build_metrics: Array<[string, ModuleBuildMetrics]>
@@ -98,6 +100,8 @@ export class RolldownEventsManager {
   assets: Map<string, RolldownAssetInfo> = new Map()
   chunkAssetMap = new Map<number, RolldownAssetInfo>()
   modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
+  packageGraphReady = false
+  packages: Map<string, RolldownPackageInfo> = new Map()
   source_refs: Map<string, ContentInfo> = new Map()
   module_build_hook_events: Map<string, PendingModuleBuildHookEvent> = new Map()
   module_build_metrics: Map<string, ModuleBuildMetrics> = new Map()
@@ -256,6 +260,12 @@ export class RolldownEventsManager {
       return
     }
 
+    if (event.action === 'PackageGraphReady') {
+      this.packageGraphReady = true
+      this.packages = new Map(event.packages.map(pkg => [pkg.package_id, pkg]))
+      return
+    }
+
     this.recordBuildMetrics(event as ModuleBuildHookEvents)
 
     if ('module_id' in event) {
@@ -304,6 +314,8 @@ export class RolldownEventsManager {
     this.assets.clear()
     this.chunkAssetMap.clear()
     this.modules.clear()
+    this.packageGraphReady = false
+    this.packages.clear()
     this.source_refs.clear()
     this.module_build_hook_events.clear()
     this.module_build_metrics.clear()
@@ -317,6 +329,8 @@ export class RolldownEventsManager {
       eventCount: this.eventCount,
       lastEvent: this.lastEvent,
       chunks: Array.from(this.chunks.entries()),
+      packageGraphReady: this.packageGraphReady,
+      packages: Array.from(this.packages.entries()),
       modules: Array.from(this.modules.entries()).map(([id, module]) => {
         const { build_metrics, ...snapshot } = module
         return [id, snapshot]
@@ -334,6 +348,8 @@ export class RolldownEventsManager {
     this.eventCount = snapshot.eventCount
     this.lastEvent = snapshot.lastEvent
     this.chunks = new Map(snapshot.chunks)
+    this.packageGraphReady = snapshot.packageGraphReady ?? !!snapshot.packages?.length
+    this.packages = new Map(snapshot.packages ?? [])
     this.assets.clear()
     this.chunkAssetMap.clear()
     this.source_refs = new Map(snapshot.source_refs)
