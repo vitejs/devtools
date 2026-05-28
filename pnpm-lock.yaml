@@ -37,6 +37,9 @@ catalogs:
       specifier: ^7.2.0
       version: 7.2.0
   deps:
+    '@devframes/hub':
+      specifier: ^0.5.2
+      version: 0.5.2
     '@pnpm/read-project-manifest':
       specifier: ^1001.2.6
       version: 1001.2.6
@@ -47,8 +50,8 @@ catalogs:
       specifier: ^4.0.0
       version: 4.0.0
     devframe:
-      specifier: ^0.4.1
-      version: 0.4.1
+      specifier: ^0.5.2
+      version: 0.5.2
     diff:
       specifier: ^9.0.0
       version: 9.0.0
@@ -89,8 +92,8 @@ catalogs:
       specifier: ^2.0.0
       version: 2.0.0
     tinyexec:
-      specifier: ^1.1.2
-      version: 1.1.2
+      specifier: ^1.2.2
+      version: 1.2.2
     tinyglobby:
       specifier: ^0.2.16
       version: 0.2.16
@@ -519,7 +522,7 @@ importers:
         version: 1.1.1
       tinyexec:
         specifier: catalog:deps
-        version: 1.1.2
+        version: 1.2.2
       tsdown:
         specifier: catalog:build
         version: 0.22.0(@vitejs/devtools@0.1.24(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.14))(publint@0.3.21)(tsx@4.22.3)(typescript@6.0.3)(unrun@0.2.37(synckit@0.11.12))(vue-tsc@3.3.1(typescript@6.0.3))
@@ -576,7 +579,7 @@ importers:
         version: 4.8.4(change-case@5.4.4)(focus-trap@8.0.0)(fuse.js@7.3.0)(idb-keyval@6.2.3)(typescript@6.0.3)(vite@8.0.14(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0))(vitepress@2.0.0-alpha.17(@types/node@25.0.3)(@vitejs/devtools@packages+core)(change-case@5.4.4)(esbuild@0.28.0)(fuse.js@7.3.0)(idb-keyval@6.2.3)(jiti@2.7.0)(oxc-minify@0.131.0)(postcss@8.5.15)(terser@5.44.1)(tsx@4.22.3)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.34(typescript@6.0.3))
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       mermaid:
         specifier: catalog:docs
         version: 11.15.0
@@ -609,7 +612,7 @@ importers:
         version: 1.60.0
       tinyexec:
         specifier: catalog:deps
-        version: 1.1.2
+        version: 1.2.2
       vite:
         specifier: ^8.0.14
         version: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
@@ -695,7 +698,7 @@ importers:
         version: link:../../packages/kit
       tinyexec:
         specifier: catalog:deps
-        version: 1.1.2
+        version: 1.2.2
     devDependencies:
       serve:
         specifier: catalog:devtools
@@ -709,6 +712,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@devframes/hub':
+        specifier: catalog:deps
+        version: 0.5.2(devframe@0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3))
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
@@ -723,7 +729,7 @@ importers:
         version: 7.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       h3:
         specifier: catalog:deps
         version: 2.0.1-rc.22
@@ -744,7 +750,7 @@ importers:
         version: 2.1.0
       tinyexec:
         specifier: catalog:deps
-        version: 1.1.2
+        version: 1.2.2
       vue:
         specifier: catalog:deps
         version: 3.5.34(typescript@6.0.3)
@@ -794,12 +800,15 @@ importers:
 
   packages/kit:
     dependencies:
+      '@devframes/hub':
+        specifier: catalog:deps
+        version: 0.5.2(devframe@0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3))
       birpc:
         specifier: catalog:deps
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       mlly:
         specifier: catalog:deps
         version: 1.8.2
@@ -814,7 +823,7 @@ importers:
         version: 2.1.0
       tinyexec:
         specifier: catalog:deps
-        version: 1.1.2
+        version: 1.2.2
     devDependencies:
       human-id:
         specifier: catalog:inlined
@@ -854,7 +863,7 @@ importers:
         version: 3.2.0
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       diff:
         specifier: catalog:deps
         version: 9.0.0
@@ -972,7 +981,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       pathe:
         specifier: catalog:deps
         version: 2.0.3
@@ -1033,7 +1042,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+        version: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
       envinfo:
         specifier: catalog:deps
         version: 7.21.0
@@ -1353,6 +1362,11 @@ packages:
 
   '@colordx/core@5.4.3':
     resolution: {integrity: sha512-kIxYSfA5T8HXjav55UaaH/o/cKivF6jCCGIb8eqtcsfI46wsvlSiT8jMDyrl779qLec3c2c2oHBZo4oAhvbjrQ==}
+
+  '@devframes/hub@0.5.2':
+    resolution: {integrity: sha512-qMkBFw1OqhPuNs1tQWkRq0z0Tg49kXNu53bs59tdF4lytKupatWVnL3cpsVPqn+Q5P7A70r99BKTcm+prMtHqw==}
+    peerDependencies:
+      devframe: 0.5.2
 
   '@docsearch/css@4.5.4':
     resolution: {integrity: sha512-gzO4DJwyM9c4YEPHwaLV1nUCDC2N6yoh0QJj44dce2rcfN71mB+jpu3+F+Y/KMDF1EKV0C3m54leSWsraE94xg==}
@@ -5190,6 +5204,14 @@ packages:
       '@modelcontextprotocol/sdk':
         optional: true
 
+  devframe@0.5.2:
+    resolution: {integrity: sha512-8dIdlOmuY+6NcCsaI2qS0uRLTZ3SvpejY8OYVbXvdWSQV7pvjdWaYNZhVfOfCSd/a5dSCgSge4vW4DCyJSf7+g==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.0.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
@@ -7970,8 +7992,8 @@ packages:
     resolution: {integrity: sha512-Ae3OVUqifDw0wBriIBS7yVaW44Dp6eSHQcyq4Igc7eN2TJH/2YsicswaW+J/OuMvhpDPOKEgpAZCjkb4hpoyeA==}
     engines: {node: ^16.14.0 || >= 17.3.0}
 
-  tinyexec@1.1.2:
-    resolution: {integrity: sha512-dAqSqE/RabpBKI8+h26GfLq6Vb3JVXs30XYQjdMjaj/c2tS8IYYMbIzP599KtRj7c57/wYApb3QjgRgXmrCukA==}
+  tinyexec@1.2.2:
+    resolution: {integrity: sha512-M/Q0B2cp4K7kynaT/vnED1j8TlLY+Pp7C6Wl2bl/7u/F0mUVwdyOpwomQb8JpYLitHUssAJRmLZdMCGsrx7i+g==}
     engines: {node: '>=18'}
 
   tinyglobby@0.2.16:
@@ -8344,6 +8366,14 @@ packages:
 
   valibot@1.4.0:
     resolution: {integrity: sha512-iC/x7fVcSyOwlm/VSt7RlHnzNGLGvR9GnxdifUeWoCJo0q4ZZvrVkIHC6faTlkxG47I2Y4UrFquPuVHCrOnrLg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  valibot@1.4.1:
+    resolution: {integrity: sha512-klCmFTz2jeDluy9RwX+F884TCiogtdBJ/YaxSx1EOBYXa3NXNWj8kR1jjN8rzluwojJVWWaHJ4r1U5LfICnM3g==}
     peerDependencies:
       typescript: '>=5'
     peerDependenciesMeta:
@@ -8735,6 +8765,18 @@ packages:
       utf-8-validate:
         optional: true
 
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   wsl-utils@0.1.0:
     resolution: {integrity: sha512-h3Fbisa2nKGPxCpm89Hk33lBLsnaGBvctQopaBSOW/uIs6FTe1ATyAnKFJrzVs9vpGdsTe73WF3V4lIsk4Gacw==}
     engines: {node: '>=18'}
@@ -8874,13 +8916,13 @@ snapshots:
   '@antfu/install-pkg@1.1.0':
     dependencies:
       package-manager-detector: 1.6.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
 
   '@antfu/ni@30.1.0':
     dependencies:
       fzf: 0.5.2
       package-manager-detector: 1.6.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
 
   '@antfu/utils@9.3.0': {}
@@ -9110,6 +9152,15 @@ snapshots:
   '@cloudflare/kv-asset-handler@0.4.2': {}
 
   '@colordx/core@5.4.3': {}
+
+  '@devframes/hub@0.5.2(devframe@0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3))':
+    dependencies:
+      birpc: 4.0.0
+      devframe: 0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3)
+      nostics: 0.2.0
+      pathe: 2.0.3
+      perfect-debounce: 2.1.0
+      tinyexec: 1.2.2
 
   '@docsearch/css@4.5.4': {}
 
@@ -9637,7 +9688,7 @@ snapshots:
       srvx: 0.11.15
       std-env: 4.1.0
       tinyclip: 0.1.12
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       ufo: 1.6.4
       youch: 4.1.1
     optionalDependencies:
@@ -12018,6 +12069,10 @@ snapshots:
     dependencies:
       valibot: 1.4.0(typescript@6.0.3)
 
+  '@valibot/to-json-schema@1.7.0(valibot@1.4.1(typescript@6.0.3))':
+    dependencies:
+      valibot: 1.4.1(typescript@6.0.3)
+
   '@vercel/nft@1.5.0(rollup@4.60.2)':
     dependencies:
       '@mapbox/node-pre-gyp': 2.0.3
@@ -12052,7 +12107,7 @@ snapshots:
       mlly: 1.8.2
       pathe: 2.0.3
       perfect-debounce: 2.1.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@0.1.24(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.14))(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -12069,7 +12124,7 @@ snapshots:
       nostics: 0.2.0
       pathe: 2.0.3
       perfect-debounce: 2.1.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@0.2.0)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -12103,7 +12158,7 @@ snapshots:
       unconfig: 7.5.0
       unstorage: 1.17.5(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)
       vue-virtual-scroller: 3.0.4(vue@3.5.34(typescript@6.0.3))
-      ws: 8.20.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -12157,7 +12212,7 @@ snapshots:
       unconfig: 7.5.0
       unstorage: 1.17.5(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)
       vue-virtual-scroller: 3.0.4(vue@3.5.34(typescript@6.0.3))
-      ws: 8.20.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -12201,10 +12256,10 @@ snapshots:
       obug: 2.1.1
       pathe: 2.0.3
       perfect-debounce: 2.1.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@0.1.24(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.14))(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
       vue: 3.5.34(typescript@6.0.3)
-      ws: 8.20.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -12246,10 +12301,10 @@ snapshots:
       obug: 2.1.1
       pathe: 2.0.3
       perfect-debounce: 2.1.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@0.2.0)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
       vue: 3.5.34(typescript@6.0.3)
-      ws: 8.20.1
+      ws: 8.21.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -13010,7 +13065,7 @@ snapshots:
       jsonc-parser: 3.3.1
       package-manager-detector: 1.6.0
       semver: 7.8.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       unconfig: 7.5.0
       yaml: 2.9.0
@@ -13577,15 +13632,35 @@ snapshots:
 
   devframe@0.4.1(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3):
     dependencies:
-      '@valibot/to-json-schema': 1.7.0(valibot@1.4.0(typescript@6.0.3))
+      '@valibot/to-json-schema': 1.7.0(valibot@1.4.1(typescript@6.0.3))
       birpc: 4.0.0
       cac: 7.0.0
       h3: 2.0.1-rc.22
       mrmime: 2.0.1
       nostics: 0.2.0
       pathe: 2.0.3
-      valibot: 1.4.0(typescript@6.0.3)
-      ws: 8.20.1
+      valibot: 1.4.1(typescript@6.0.3)
+      ws: 8.21.0
+    optionalDependencies:
+      '@modelcontextprotocol/sdk': 1.29.0(zod@4.3.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - crossws
+      - typescript
+      - utf-8-validate
+    optional: true
+
+  devframe@0.5.2(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(typescript@6.0.3):
+    dependencies:
+      '@valibot/to-json-schema': 1.7.0(valibot@1.4.1(typescript@6.0.3))
+      birpc: 4.0.0
+      cac: 7.0.0
+      h3: 2.0.1-rc.22
+      mrmime: 2.0.1
+      nostics: 0.2.0
+      pathe: 2.0.3
+      valibot: 1.4.1(typescript@6.0.3)
+      ws: 8.21.0
     optionalDependencies:
       '@modelcontextprotocol/sdk': 1.29.0(zod@4.3.6)
     transitivePeerDependencies:
@@ -15981,7 +16056,7 @@ snapshots:
     dependencies:
       citty: 0.2.2
       pathe: 2.0.3
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
 
   object-assign@4.1.1:
     optional: true
@@ -17244,7 +17319,7 @@ snapshots:
 
   tinyclip@0.1.12: {}
 
-  tinyexec@1.1.2: {}
+  tinyexec@1.2.2: {}
 
   tinyglobby@0.2.16:
     dependencies:
@@ -17301,7 +17376,7 @@ snapshots:
       rolldown: 1.0.2
       rolldown-plugin-dts: 0.25.0(rolldown@1.0.2)(typescript@6.0.3)(vue-tsc@3.2.9(typescript@6.0.3))
       semver: 7.8.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
@@ -17330,7 +17405,7 @@ snapshots:
       rolldown: 1.0.2
       rolldown-plugin-dts: 0.25.0(rolldown@1.0.2)(typescript@6.0.3)(vue-tsc@3.3.1(typescript@6.0.3))
       semver: 7.8.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
@@ -17359,7 +17434,7 @@ snapshots:
       rolldown: 1.0.2
       rolldown-plugin-dts: 0.25.0(rolldown@1.0.2)(typescript@6.0.3)(vue-tsc@3.2.9(typescript@6.0.3))
       semver: 7.8.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
@@ -17388,7 +17463,7 @@ snapshots:
       rolldown: 1.0.2
       rolldown-plugin-dts: 0.25.0(rolldown@1.0.2)(typescript@6.0.3)(vue-tsc@3.2.9(typescript@6.0.3))
       semver: 7.8.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
@@ -17771,6 +17846,10 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
+  valibot@1.4.1(typescript@6.0.3):
+    optionalDependencies:
+      typescript: 6.0.3
+
   vary@1.1.2: {}
 
   vfile-message@4.0.3:
@@ -18142,7 +18221,7 @@ snapshots:
       picomatch: 4.0.4
       std-env: 4.1.0
       tinybench: 2.9.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
@@ -18170,7 +18249,7 @@ snapshots:
       picomatch: 4.0.4
       std-env: 4.1.0
       tinybench: 2.9.0
-      tinyexec: 1.1.2
+      tinyexec: 1.2.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
       vite: 8.0.14(@types/node@25.0.3)(@vitejs/devtools@0.1.24(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(@pnpm/logger@1001.0.1)(db0@0.3.4)(idb-keyval@6.2.3)(ioredis@5.10.1)(typescript@6.0.3)(vite@8.0.14))(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.3)(yaml@2.9.0)
@@ -18373,6 +18452,8 @@ snapshots:
       write-file-atomic: 5.0.1
 
   ws@8.20.1: {}
+
+  ws@8.21.0: {}
 
   wsl-utils@0.1.0:
     dependencies:

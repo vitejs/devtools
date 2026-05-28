@@ -3,9 +3,18 @@
  */
 // #region Variables
 export declare const DEFAULT_CATEGORIES_ORDER: Record<string, number>;
-export declare const DEFAULT_STATE_USER_SETTINGS: () => DevToolsDocksUserSettings;
+export declare const DEVTOOLS_DIRNAME: string;
+export declare const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID: string;
+export declare const DEVTOOLS_MOUNT_PATH: string;
+export declare const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH: string;
 // #endregion
 
-// #region Re-exports
-export * from "devframe/constants";
+// #region Other
+export { DEFAULT_STATE_USER_SETTINGS }
+export { DEVTOOLS_CONNECTION_META_FILENAME }
+export { DEVTOOLS_DOCK_IMPORTS_FILENAME }
+export { DEVTOOLS_RPC_DUMP_DIRNAME }
+export { DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME }
+export { DevToolsDocksUserSettings }
+export { REMOTE_CONNECTION_KEY }
 // #endregion

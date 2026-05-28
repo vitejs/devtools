@@ -44,6 +44,7 @@
     "vite": "*"
   },
   "dependencies": {
+    "@devframes/hub": "catalog:deps",
     "birpc": "catalog:deps",
     "devframe": "catalog:deps",
     "mlly": "catalog:deps",

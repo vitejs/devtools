@@ -3,4 +3,7 @@ export { DevTools } from './node/plugins'
 export type { BuiltinServerFunctions } from './node/rpc'
 export { createDevToolsMiddleware } from './node/server'
 export type { DevToolsMiddleware } from './node/server'
-export type { DevToolsInternalContext, InternalAnonymousAuthStorage } from 'devframe/node/internal'
+export type {
+  DevframeInternalContext as DevToolsInternalContext,
+  InternalAnonymousAuthStorage,
+} from 'devframe/node/hub-internals'

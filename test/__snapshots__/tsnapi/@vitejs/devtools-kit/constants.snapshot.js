@@ -3,9 +3,17 @@
  */
 // #region Variables
 export var DEFAULT_CATEGORIES_ORDER /* const */
-export var DEFAULT_STATE_USER_SETTINGS /* const */
+export var DEVTOOLS_DIRNAME /* const */
+export var DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID /* const */
+export var DEVTOOLS_MOUNT_PATH /* const */
+export var DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH /* const */
 // #endregion
 
-// #region Re-exports
-export * from "devframe/constants";
+// #region Other
+export { DEFAULT_STATE_USER_SETTINGS }
+export { DEVTOOLS_CONNECTION_META_FILENAME }
+export { DEVTOOLS_DOCK_IMPORTS_FILENAME }
+export { DEVTOOLS_RPC_DUMP_DIRNAME }
+export { DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME }
+export { REMOTE_CONNECTION_KEY }
 // #endregion

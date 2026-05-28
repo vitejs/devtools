@@ -5,10 +5,10 @@
 export interface CreatePluginFromDevframeOptions {
   name?: string;
   base?: string;
-  dock?: Partial<Omit<DevToolsViewIframe, 'id' | 'type' | 'url'>>;
-  capabilities?: DevToolsCapabilities | {
-    dev?: DevToolsCapabilities | boolean;
-    build?: DevToolsCapabilities | boolean;
+  dock?: Partial<Omit<DevframeViewIframe, 'id' | 'type' | 'url'>>;
+  capabilities?: DevframeCapabilities | {
+    dev?: DevframeCapabilities | boolean;
+    build?: DevframeCapabilities | boolean;
   };
   setup?: (_: KitNodeContext) => void | Promise<void>;
 }
@@ -19,83 +19,19 @@ export interface CreateViteDevToolsHostOptions {
 }
 // #endregion
 
-// #region Classes
-export declare class DevToolsCommandsHost implements DevToolsCommandsHost$1 {
-  readonly context: KitNodeContext;
-  readonly commands: DevToolsCommandsHost$1['commands'];
-  readonly events: DevToolsCommandsHost$1['events'];
-  constructor(_: KitNodeContext);
-  register(_: DevToolsServerCommandInput): DevToolsCommandHandle;
-  unregister(_: string): boolean;
-  execute(_: string, ..._: any[]): Promise<unknown>;
-  list(): DevToolsServerCommandEntry[];
-  private findCommand;
-  private toSerializable;
-}
-export declare class DevToolsDockHost implements DevToolsDockHost$1 {
-  readonly context: KitNodeContext;
-  readonly views: DevToolsDockHost$1['views'];
-  readonly events: DevToolsDockHost$1['events'];
-  userSettings: SharedState<DevToolsDocksUserSettings>;
-  private readonly remoteDocks;
-  constructor(_: KitNodeContext);
-  init(): Promise<void>;
-  values({
-    includeBuiltin
-  }?: {
-    includeBuiltin?: boolean;
-  }): DevToolsDockEntry[];
-  private projectView;
-  private resolveDevServerOrigin;
-  register<T extends DevToolsDockUserEntry>(_: T, _?: boolean): {
-    update: (_: Partial<T>) => void;
-  };
-  update(_: DevToolsDockUserEntry): void;
-  private prepareRemoteRegistration;
-}
-export declare class DevToolsMessagesHost implements DevToolsMessagesHost$1 {
-  readonly context: KitNodeContext;
-  readonly entries: DevToolsMessagesHost$1['entries'];
-  readonly events: DevToolsMessagesHost$1['events'];
-  readonly lastModified: Map<string, number>;
-  readonly removals: Array<{
-    id: string;
-    time: number;
-  }>;
-  private _autoDeleteTimers;
-  private _clock;
-  private _tick;
-  constructor(_: KitNodeContext);
-  add(_: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle>;
-  update(_: string, _: Partial<DevToolsMessageEntryInput>): Promise<DevToolsMessageEntry | undefined>;
-  remove(_: string): Promise<void>;
-  clear(): Promise<void>;
-  private _createHandle;
-}
-export declare class DevToolsTerminalHost implements DevToolsTerminalHost$1 {
-  readonly context: KitNodeContext;
-  readonly sessions: DevToolsTerminalHost$1['sessions'];
-  readonly events: DevToolsTerminalHost$1['events'];
-  private _boundStreams;
-  private _channel?;
-  constructor(_: KitNodeContext);
-  private getStreamingChannel;
-  register(_: DevToolsTerminalSession): DevToolsTerminalSession;
-  update(_: PartialWithoutId<DevToolsTerminalSession>): void;
-  remove(_: DevToolsTerminalSession): void;
-  private bindStream;
-  startChildProcess(_: DevToolsChildProcessExecuteOptions, _: Omit<DevToolsTerminalSessionBase, 'status'>): Promise<DevToolsChildProcessTerminalSession>;
-}
-// #endregion
-
 // #region Functions
 export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
-export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): DevToolsHost;
+export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): DevframeHost;
 // #endregion
 
 // #region Other
 export { createKitContext }
 export { CreateKitContextOptions }
+export { DevToolsCommandsHost }
+export { DevToolsDockHost }
+export { DevToolsMessagesHost }
+export { DevToolsTerminalHost }
 export { KitNodeContext }
+export { mountDevframe }
 // #endregion

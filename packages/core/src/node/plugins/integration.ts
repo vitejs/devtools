@@ -26,7 +26,7 @@ export async function runDevTools(builder: unknown) {
   const config = (builder as ViteBuilder).config
   for (const _environment of getDevToolsEnvironments(config)) {
     try {
-      const { start } = await import('@vitejs/devtools/cli-commands')
+      const { start } = await import('../cli-commands')
       await start(config.devtools.config)
     }
     catch (error: any) {

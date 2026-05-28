@@ -2,7 +2,7 @@ import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
 import { consumeTempAuthToken } from 'devframe/node/auth'
-import { getInternalContext } from 'devframe/node/internal'
+import { getInternalContext } from 'devframe/node/hub-internals'
 import { mountStaticHandler } from 'devframe/utils/serve-static'
 import { defineHandler, getQuery, H3, toNodeHandler } from 'h3'
 import { dirClientStandalone } from '../dirs'
@@ -44,10 +44,10 @@ function generateAuthPageHtml(): string {
           const data = await r.json()
           const authToken = data.authToken
 
-          localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__', authToken)
+          localStorage.setItem('__DEVFRAME_CONNECTION_AUTH_TOKEN__', authToken)
 
           try {
-            const bc = new BroadcastChannel('vite-devtools-auth')
+            const bc = new BroadcastChannel('devframe-auth')
             bc.postMessage({ type: 'auth-update', authToken: authToken })
           } catch {}
 

@@ -1,9 +1,8 @@
-import type { DevframeDefinition, DevToolsCapabilities } from 'devframe/types'
-import type { DevToolsViewIframe } from '../types/docks'
+import type { DevframeCapabilities, DevframeViewIframe } from '@devframes/hub/types'
+import type { DevframeDefinition } from 'devframe/types'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { KitNodeContext } from './context'
-import { resolveBasePath } from 'devframe/node/internal'
-import { resolve } from 'pathe'
+import { mountDevframe } from '@devframes/hub/node'
 
 export interface CreatePluginFromDevframeOptions {
   /**
@@ -20,12 +19,12 @@ export interface CreatePluginFromDevframeOptions {
    * `when`, etc. Cannot change `id`, `type`, or `url` — those are
    * derived from the devframe definition.
    */
-  dock?: Partial<Omit<DevToolsViewIframe, 'id' | 'type' | 'url'>>
+  dock?: Partial<Omit<DevframeViewIframe, 'id' | 'type' | 'url'>>
   /**
    * Capability flags forwarded onto the kit plugin's `devtools` slot.
    * Defaults to `d.capabilities`.
    */
-  capabilities?: DevToolsCapabilities | { dev?: DevToolsCapabilities | boolean, build?: DevToolsCapabilities | boolean }
+  capabilities?: DevframeCapabilities | { dev?: DevframeCapabilities | boolean, build?: DevframeCapabilities | boolean }
   /**
    * Additional kit-only setup hook. Runs after the devframe-level
    * `d.setup(ctx)` and after the auto-derived dock entry has been
@@ -39,43 +38,25 @@ export interface CreatePluginFromDevframeOptions {
 
 /**
  * Wrap a {@link DevframeDefinition} as a Vite plugin that mounts inside
- * `@vitejs/devtools` (Vite DevTools). The kit takes care of mounting
- * the SPA at the resolved base path, synthesizing an iframe dock entry
- * from the definition's metadata, and threading the kit-augmented
- * context into both the devframe-level `d.setup` and the optional
- * `options.setup` hook.
- *
- * For richer kit-specific behavior (registering terminals/commands,
- * adding additional dock entries), use `options.setup`.
+ * `@vitejs/devtools` (Vite DevTools). Delegates the mount work
+ * (serving the SPA, registering the iframe dock entry, calling
+ * `d.setup(ctx)`) to `@devframes/hub`'s `mountDevframe`, then runs the
+ * optional kit-only `options.setup` hook.
  */
 export function createPluginFromDevframe(
   d: DevframeDefinition,
   options: CreatePluginFromDevframeOptions = {},
 ): PluginWithDevTools {
-  const base = options.base ?? resolveBasePath(d, 'hosted')
-
   return {
     name: options.name ?? `devframe:${d.id}`,
     devtools: {
       capabilities: options.capabilities ?? (d.capabilities as any),
       async setup(rawCtx) {
         const ctx = rawCtx as KitNodeContext
-
-        if (d.cli?.distDir) {
-          ctx.views.hostStatic(base, resolve(d.cli.distDir))
-        }
-
-        ctx.docks.register({
-          id: d.id,
-          title: d.name,
-          icon: d.icon ?? 'ph:plug-duotone',
-          ...options.dock,
-          type: 'iframe',
-          url: base,
-        } as DevToolsViewIframe)
-
-        await d.setup(ctx)
-
+        await mountDevframe(ctx, d, {
+          base: options.base,
+          dock: options.dock,
+        })
         if (options.setup) {
           await options.setup(ctx)
         }
