@@ -54,7 +54,6 @@ catalogs:
     vite: ^8.0.14
   deps:
     '@devframes/hub': ^0.5.2
-    '@pnpm/read-project-manifest': ^1001.2.6
     '@rolldown/debug': ^1.0.2
     actionspack: ^0.1.4
     birpc: ^4.0.0

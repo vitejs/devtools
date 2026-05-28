@@ -14,7 +14,8 @@ const sessions = ref<SessionCompareContext[]>([])
 const packages = ref<{ total: number, duplicated: number }[]>([])
 
 async function getPackages(id: string) {
-  const packages = await rpc.value.call('vite:rolldown:get-packages', { session: id })
+  const packageMeta = await rpc.value.call('vite:rolldown:get-packages', { session: id })
+  const packages = packageMeta.packages
   const duplicatedPackages = packages.filter(p => p.duplicated)
   return {
     total: packages.length,
