@@ -35,7 +35,7 @@ sequenceDiagram
   Core->>Core: createWsServer → wsEndpoint=ws://localhost:7812
   User->>Core: open dock
   Core->>Hosted: iframe src + connection descriptor
-  Hosted->>Core: WS connect (?vite_devtools_auth_token=...)
+  Hosted->>Core: WS connect (?devframe_auth_token=...)
   Core->>Core: verify token + Origin
   Core-->>Hosted: trusted session
   Hosted->>Core: rpc.call('my-plugin:…')

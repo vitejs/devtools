@@ -31,14 +31,8 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0030](./DTK0030) | error | Dock Entry Not Found |
 | [DTK0031](./DTK0031) | error | Dock Entry Not a Launcher |
 | [DTK0032](./DTK0032) | error | Dock Launch Error |
-| [DTK0050](./DTK0050) | error | Dock Already Registered |
-| [DTK0051](./DTK0051) | error | Cannot Change Dock ID |
-| [DTK0052](./DTK0052) | error | Dock Not Registered |
-| [DTK0053](./DTK0053) | error | Terminal Session Already Registered |
-| [DTK0054](./DTK0054) | error | Terminal Session Not Registered |
-| [DTK0055](./DTK0055) | error | Command Already Registered |
-| [DTK0056](./DTK0056) | error | Cannot Change Command ID |
-| [DTK0057](./DTK0057) | error | Command Not Registered |
+
+Hub-side diagnostics for docks, terminals, messages, and commands live upstream in `@devframes/hub` under the `DF8xxx` range — see the [Devframe error reference](https://devfra.me/errors/).
 
 ## Rolldown DevTools (RDDT)
 

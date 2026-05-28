@@ -1,4 +1,4 @@
-import type { DevToolsHost } from 'devframe/types'
+import type { DevframeHost } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
@@ -15,7 +15,7 @@ export interface CreateViteDevToolsHostOptions {
   workspaceRoot?: string
 }
 
-export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): DevToolsHost {
+export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): DevframeHost {
   const { viteConfig, viteServer } = options
   const workspaceRoot = options.workspaceRoot ?? viteConfig.root
 

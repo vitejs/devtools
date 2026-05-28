@@ -1,11 +1,11 @@
-import type { DevToolsCapabilities } from 'devframe/types'
+import type { DevframeCapabilities } from '@devframes/hub/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { KitNodeContext } from '../node/context'
 
 export interface DevToolsPluginOptions {
   capabilities?: {
-    dev?: DevToolsCapabilities | boolean
-    build?: DevToolsCapabilities | boolean
+    dev?: DevframeCapabilities | boolean
+    build?: DevframeCapabilities | boolean
   }
   setup: (context: ViteDevToolsNodeContext) => void | Promise<void>
 }
@@ -16,7 +16,7 @@ export interface DevToolsPluginOptions {
  * Vite-specific slots (`viteConfig`, `viteServer`). Plugins running
  * under `@vitejs/devtools` rely on this surface; portable devframe
  * apps should target {@link KitNodeContext} or the framework-neutral
- * `DevToolsNodeContext` from `devframe/types`.
+ * `DevframeNodeContext` from `devframe/types`.
  */
 export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig

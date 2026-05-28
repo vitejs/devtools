@@ -4,7 +4,7 @@ import type { RpcFunctionsHost } from 'devframe/node'
 import type { WebSocket } from 'ws'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
-import { getInternalContext } from 'devframe/node/internal'
+import { getInternalContext } from 'devframe/node/hub-internals'
 import { createRpcServer } from 'devframe/rpc/server'
 import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { colors as c } from 'devframe/utils/colors'
@@ -26,7 +26,7 @@ export interface CreateWsServerOptions {
   context: ViteDevToolsNodeContext
 }
 
-const ANONYMOUS_SCOPE = 'vite:anonymous:'
+const ANONYMOUS_SCOPE = 'devframe:anonymous:'
 
 function buildWsUrl({ host, port, https }: { host: string, port: number, https: boolean }): string {
   // 0.0.0.0 / :: / unspecified bindings listen on all interfaces, but a hosted
@@ -116,7 +116,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     definitions: rpcHost.definitions,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
-      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
+      const authToken = url.searchParams.get('devframe_auth_token') ?? undefined
       const requestOrigin = req.headers.origin
       if (isClientAuthDisabled) {
         meta.isTrusted = true

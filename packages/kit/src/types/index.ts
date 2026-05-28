@@ -11,31 +11,26 @@ export * from './terminals'
 export * from './vite-augment'
 export * from './vite-plugin'
 
-export type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from 'devframe/rpc'
-
-// NOTE: we re-export devframe's types individually rather than using
-// `export * from 'devframe/types'` because the rolldown-plugin-dts step
-// fails with a `MemberExpression` AST error on namespace re-exports
-// from external packages (tsdown 0.21 / rolldown-plugin-dts 0.23).
-// Revisit once upstream supports it.
 export type {
   ConnectionMeta,
-  DevToolsCapabilities,
-  DevToolsDiagnosticsDefinition,
-  DevToolsDiagnosticsHost,
-  DevToolsDiagnosticsLogger,
-  DevToolsHost,
-  DevToolsNodeRpcSession,
-  DevToolsRpcClientFunctions,
-  DevToolsRpcServerFunctions,
-  DevToolsRpcSharedStates,
-  DevToolsViewHost,
+  DevframeCapabilities as DevToolsCapabilities,
+  DevframeDiagnosticsDefinition as DevToolsDiagnosticsDefinition,
+  DevframeDiagnosticsHost as DevToolsDiagnosticsHost,
+  DevframeDiagnosticsLogger as DevToolsDiagnosticsLogger,
+  DevframeHost as DevToolsHost,
+  DevframeNodeRpcSession as DevToolsNodeRpcSession,
+  DevframeRpcClientFunctions as DevToolsRpcClientFunctions,
+  DevframeRpcServerFunctions as DevToolsRpcServerFunctions,
+  DevframeRpcSharedStates as DevToolsRpcSharedStates,
+  DevframeViewHost as DevToolsViewHost,
   EntriesToObject,
   EventEmitter,
   EventsMap,
   EventUnsubscribe,
   PartialWithoutId,
   RpcBroadcastOptions,
+  RpcDefinitionsFilter,
+  RpcDefinitionsToFunctions,
   RpcFunctionsHost,
   RpcSharedStateGetOptions,
   RpcSharedStateHost,
@@ -43,4 +38,10 @@ export type {
   RpcStreamingChannelOptions,
   RpcStreamingHost,
   Thenable,
-} from 'devframe/types'
+} from '@devframes/hub/types'
+
+// `DevframeNodeContext` is the base framework-neutral context — hub does
+// not re-export it because hub itself ships `DevframeHubContext` as the
+// canonical hub-augmented surface. The kit aliases it for back-compat
+// with code that referenced `DevToolsNodeContext` directly.
+export type { DevframeNodeContext as DevToolsNodeContext } from 'devframe/types'

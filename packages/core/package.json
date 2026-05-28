@@ -56,6 +56,7 @@
     "vite": "*"
   },
   "dependencies": {
+    "@devframes/hub": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rolldown": "workspace:*",
     "birpc": "catalog:deps",

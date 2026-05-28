@@ -3,7 +3,7 @@ import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node/auth'
-import { getInternalContext } from 'devframe/node/internal'
+import { getInternalContext } from 'devframe/node/hub-internals'
 import { colors as c } from 'devframe/utils/colors'
 import { MARK_INFO } from '../../constants'
 
@@ -20,7 +20,7 @@ export interface DevToolsAuthReturn {
 const AUTH_TIMEOUT_MS = 60_000
 
 export const anonymousAuth = defineRpcFunction({
-  name: 'vite:anonymous:auth',
+  name: 'devframe:anonymous:auth',
   type: 'action',
   jsonSerializable: true,
   setup: (context) => {

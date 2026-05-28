@@ -1,7 +1,26 @@
 import type { DevToolsDockEntryCategory } from './types/docks'
 import type { DevToolsDocksUserSettings } from './types/settings'
 
-export * from 'devframe/constants'
+// Filename / dirname constants whose *values* are unchanged across the
+// devframe `DevTools*` → `Devframe*` rename. Re-export them under both
+// names so downstream code that imports `DEVTOOLS_*` keeps compiling.
+export {
+  DEFAULT_STATE_USER_SETTINGS,
+  DEVFRAME_CONNECTION_META_FILENAME as DEVTOOLS_CONNECTION_META_FILENAME,
+  DEVFRAME_DOCK_IMPORTS_FILENAME as DEVTOOLS_DOCK_IMPORTS_FILENAME,
+  DEVFRAME_RPC_DUMP_DIRNAME as DEVTOOLS_RPC_DUMP_DIRNAME,
+  DEVFRAME_RPC_DUMP_MANIFEST_FILENAME as DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
+  REMOTE_CONNECTION_KEY,
+} from '@devframes/hub/constants'
+
+// Kit-side mount path is pinned at `/__devtools/` regardless of devframe's
+// new `/__devframe/` default. The hosted (Vite-mounted) flow always passes
+// the base path explicitly to `ctx.views.hostStatic()` and to the Vite
+// middleware, so the kit owns the value.
+export const DEVTOOLS_MOUNT_PATH = '/__devtools/'
+export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/__devtools'
+export const DEVTOOLS_DIRNAME = '__devtools'
+export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~viteplus': -1000,
@@ -13,12 +32,4 @@ export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   '~builtin': 1000,
 } satisfies Record<DevToolsDockEntryCategory, number>
 
-export const DEFAULT_STATE_USER_SETTINGS: () => DevToolsDocksUserSettings = () => ({
-  docksHidden: [],
-  docksCategoriesHidden: [],
-  docksPinned: [],
-  docksCustomOrder: {},
-  showIframeAddressBar: false,
-  closeOnOutsideClick: false,
-  commandShortcuts: {},
-})
+export type { DevToolsDocksUserSettings }
