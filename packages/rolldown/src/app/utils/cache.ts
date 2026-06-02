@@ -7,6 +7,18 @@
 export class MaybeWeakMap<K, V> implements WeakMap<any, V> {
   private _map: Map<K, V>
   private _weakMap: WeakMap<any, V>
+  private _isValidWeakMapKey(key: unknown): boolean {
+    switch (typeof key) {
+      case 'object':
+        return key !== null
+      case 'function':
+        return true
+      case 'symbol':
+        return Symbol.keyFor(key) === undefined
+      default:
+        return false
+    }
+  }
 
   constructor() {
     this._map = new Map()
@@ -16,27 +28,29 @@ export class MaybeWeakMap<K, V> implements WeakMap<any, V> {
   [Symbol.toStringTag]: string = 'MaybeWeakMap'
 
   delete(key: K): boolean {
-    if (this._weakMap.has(key))
+    if (this._isValidWeakMapKey(key))
       return this._weakMap.delete(key)
     return this._map.delete(key)
   }
 
   has(key: K): boolean {
-    if (this._weakMap.has(key))
-      return true
+    if (this._isValidWeakMapKey(key))
+      return this._weakMap.has(key)
     return this._map.has(key)
   }
 
   set(key: K, value: V): this {
-    if (this._weakMap.has(key))
+    if (this._isValidWeakMapKey(key)) {
       this._weakMap.set(key, value)
-    else
+    }
+    else {
       this._map.set(key, value)
+    }
     return this
   }
 
   get(key: K): V | undefined {
-    if (this._weakMap.has(key))
+    if (this._isValidWeakMapKey(key))
       return this._weakMap.get(key)
     return this._map.get(key)
   }

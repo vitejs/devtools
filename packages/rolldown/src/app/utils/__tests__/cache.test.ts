@@ -22,6 +22,108 @@ describe('maybeWeakMap', () => {
     map.set(obj, 'b')
     expect(map.get(obj)).toBe('b')
   })
+
+  // -- tests for the fixed `set` routing --
+
+  it('stores object keys in _weakMap', () => {
+    const map = new MaybeWeakMap<object, string>()
+    const key = { id: 1 }
+    map.set(key, 'value')
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(true)
+    expect(Reflect.get(map, '_map').has(key)).toBe(false)
+    expect(map.get(key)).toBe('value')
+  })
+
+  it('stores function keys in _weakMap', () => {
+    const map = new MaybeWeakMap<() => void, string>()
+    const key = () => {}
+    map.set(key, 'value')
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(true)
+    expect(Reflect.get(map, '_map').has(key)).toBe(false)
+    expect(map.get(key)).toBe('value')
+  })
+
+  it('stores local symbol keys in _weakMap', () => {
+    const map = new MaybeWeakMap<symbol, string>()
+    const key = Symbol('local')
+    map.set(key, 'value')
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(true)
+    expect(Reflect.get(map, '_map').has(key)).toBe(false)
+    expect(map.get(key)).toBe('value')
+  })
+
+  it('stores primitive keys in _map', () => {
+    const map = new MaybeWeakMap<string | number | boolean | null | undefined, string>()
+    map.set('primitive', 'value')
+    map.set(42, 'number')
+    map.set(true, 'boolean')
+    map.set(null, 'null')
+    map.set(undefined, 'undefined')
+    expect(Reflect.get(map, '_map').get('primitive')).toBe('value')
+    expect(Reflect.get(map, '_map').get(42)).toBe('number')
+    expect(Reflect.get(map, '_map').get(true)).toBe('boolean')
+    expect(Reflect.get(map, '_map').get(null)).toBe('null')
+    expect(Reflect.get(map, '_map').get(undefined)).toBe('undefined')
+  })
+
+  it('stores global symbol keys in _map', () => {
+    const map = new MaybeWeakMap<symbol, string>()
+    const key = Symbol.for('global')
+    map.set(key, 'value')
+    expect(Reflect.get(map, '_map').has(key)).toBe(true)
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(false)
+    expect(map.get(key)).toBe('value')
+  })
+
+  it('getOrInsert stores object keys in _weakMap', () => {
+    const map = new MaybeWeakMap<object, string>()
+    const key = { id: 3 }
+    const result = map.getOrInsert(key, 'default')
+    expect(result).toBe('default')
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(true)
+    expect(Reflect.get(map, '_map').has(key)).toBe(false)
+  })
+
+  it('getOrInsertComputed stores object keys in _weakMap', () => {
+    const map = new MaybeWeakMap<object, number>()
+    const key = { id: 2 }
+    const result = map.getOrInsertComputed(key, () => 42)
+    expect(result).toBe(42)
+    expect(Reflect.get(map, '_weakMap').has(key)).toBe(true)
+    expect(Reflect.get(map, '_map').has(key)).toBe(false)
+  })
+
+  // -- regression tests for get/has/delete with primitive keys --
+
+  it('get should not throw for primitive keys', () => {
+    const map = new MaybeWeakMap<any, any>()
+    expect(map.get('primitive')).toBe(undefined)
+    expect(map.get(42)).toBe(undefined)
+    expect(map.get(null)).toBe(undefined)
+    expect(map.get(undefined)).toBe(undefined)
+    expect(map.get(true)).toBe(undefined)
+    expect(map.get(Symbol.for('global'))).toBe(undefined)
+  })
+
+  it('has should not throw for primitive keys', () => {
+    const map = new MaybeWeakMap<any, any>()
+    expect(map.has('primitive')).toBe(false)
+    expect(map.has(42)).toBe(false)
+    expect(map.has(null)).toBe(false)
+    expect(map.has(undefined)).toBe(false)
+    expect(map.has(true)).toBe(false)
+    expect(map.has(Symbol.for('global'))).toBe(false)
+  })
+
+  it('delete should not throw for primitive keys', () => {
+    const map = new MaybeWeakMap<any, any>()
+    expect(map.delete('primitive')).toBe(false)
+    expect(map.delete(42)).toBe(false)
+    expect(map.delete(null)).toBe(false)
+    expect(map.delete(undefined)).toBe(false)
+    expect(map.delete(true)).toBe(false)
+    expect(map.delete(Symbol.for('global'))).toBe(false)
+  })
 })
 
 describe('tupleMap', () => {
