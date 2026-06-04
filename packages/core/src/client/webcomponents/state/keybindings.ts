@@ -1,8 +1,7 @@
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 
-// Re-export when utilities from kit
-export type { WhenContext } from '@vitejs/devtools-kit'
-export { evaluateWhen, getContextValue } from '@vitejs/devtools-kit/utils/when'
+export type { WhenContext } from 'devframe/utils/when'
+export { evaluateWhen, resolveContextValue } from 'devframe/utils/when'
 
 export const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 
@@ -39,6 +38,23 @@ export function normalizeKeyEvent(e: KeyboardEvent): string {
     parts.push(key)
 
   return parts.join('+')
+}
+
+export function areKeybindingsEqual(
+  left: DevToolsCommandKeybinding[] | undefined,
+  right: DevToolsCommandKeybinding[] | undefined,
+): boolean {
+  const leftBindings = left ?? []
+  const rightBindings = right ?? []
+  return leftBindings.length === rightBindings.length
+    && leftBindings.every((binding, index) => binding.key === rightBindings[index]?.key)
+}
+
+export function isKeybindingOverrideDifferentFromDefault(
+  override: DevToolsCommandKeybinding[] | undefined,
+  defaults: DevToolsCommandKeybinding[] | undefined,
+): boolean {
+  return override !== undefined && !areKeybindingsEqual(override, defaults)
 }
 
 export function collectAllKeybindings(

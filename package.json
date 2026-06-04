@@ -1,8 +1,8 @@
 {
   "type": "module",
-  "version": "0.1.15",
+  "version": "0.3.1",
   "private": true,
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "build": "turbo run build",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -10,7 +10,7 @@
     "dev:rolldown": "pnpm -C packages/rolldown run dev",
     "dev:vite": "pnpm -C packages/vite run dev",
     "docs": "pnpm -C docs run docs",
-    "docs:build": "pnpm -C docs run docs:build",
+    "docs:build": "pnpm build && pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
     "play": "pnpm -C packages/core run play",
     "play:debug": "pnpm -C packages/core run play:debug",
@@ -19,8 +19,10 @@
     "postinstall": "npx simple-git-hooks && pnpm -C packages/rolldown run dev:prepare && skills-npm",
     "lint": "eslint --cache",
     "test": "vitest",
+    "test:e2e": "pnpm -C e2e run test",
     "release": "bumpp -r",
-    "typecheck": "vue-tsc -b"
+    "typecheck": "vue-tsc -b",
+    "actionspack": "actionspack update"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:devtools",
@@ -53,20 +55,24 @@
     "@unocss/eslint-config": "catalog:devtools",
     "@unocss/preset-web-fonts": "catalog:devtools",
     "@vueuse/core": "catalog:frontend",
-    "ansis": "catalog:deps",
+    "actionspack": "catalog:deps",
     "axe-core": "catalog:devtools",
     "bumpp": "catalog:devtools",
+    "cac": "catalog:deps",
     "chokidar": "catalog:devtools",
     "esbuild": "catalog:build",
     "eslint": "catalog:devtools",
-    "logs-sdk": "catalog:deps",
     "magic-string": "catalog:build",
     "nano-staged": "catalog:devtools",
+    "nostics": "catalog:deps",
     "nuxt": "catalog:build",
     "p-limit": "catalog:deps",
+    "pathe": "catalog:deps",
     "simple-git-hooks": "catalog:devtools",
     "skills-npm": "catalog:devtools",
+    "tinyexec": "catalog:deps",
     "tsdown": "catalog:build",
+    "tsnapi": "catalog:testing",
     "tsx": "catalog:build",
     "turbo": "catalog:build",
     "twoslash": "catalog:docs",
@@ -76,10 +82,8 @@
     "vite-plugin-inspect": "catalog:devtools",
     "vite-plugin-vue-tracer": "catalog:playground",
     "vitest": "catalog:testing",
-    "vitest-package-exports": "catalog:testing",
     "vue": "catalog:deps",
-    "vue-tsc": "catalog:devtools",
-    "yaml": "catalog:testing"
+    "vue-tsc": "catalog:devtools"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx nano-staged"

@@ -17,9 +17,10 @@ packages/rolldown/runtime
 packages/kit/skills
 .rolldown
 *.tsbuildinfo
-docs/.vitepress/cache
+**/.vitepress/cache
 .turbo
 .context
+.ghfs
 
 # Agent skills from npm packages (managed by skills-npm)
 **/skills/npm-*

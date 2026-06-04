@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
-import { NuxtLink } from '#components'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import DisplayTimestamp from '@vitejs/devtools-ui/components/DisplayTimestamp.vue'
 import { computed } from 'vue'
+import { NuxtLink } from '#components'
 import { parseReadablePath } from '~/utils/filepath'
 
 const props = defineProps<{
@@ -17,13 +17,23 @@ const emit = defineEmits<{
 }>()
 
 function parseEntryPath(session: BuildInfo) {
-  return parseReadablePath(session.meta.inputs[0]?.filename ?? '', session.meta.cwd).path
+  const input = session.meta.inputs?.[0]
+  return input ? parseReadablePath(input.filename, session.meta.cwd).path : ''
 }
 
 const selectedSessionEntry = computed(() => {
   const session = props.selectedSessions?.[0]
   return session ? parseEntryPath(session) : ''
 })
+
+const sessionItems = computed(() => props.sessions.map((session) => {
+  const inputs = session.meta.inputs ?? []
+  return {
+    session,
+    primaryInput: inputs[0],
+    additionalInputCount: Math.max(inputs.length - 1, 0),
+  }
+}))
 
 function checkIsDifferentEntry(session: BuildInfo) {
   return selectedSessionEntry.value && selectedSessionEntry.value !== parseEntryPath(session)
@@ -38,7 +48,7 @@ function select(session: BuildInfo) {
 
 <template>
   <div flex="~ col gap-2">
-    <div v-for="session of sessions" :key="session.id" flex="~ row gap-2" relative>
+    <div v-for="{ session, primaryInput, additionalInputCount } of sessionItems" :key="session.id" flex="~ row gap-2" relative>
       <component
         :is="sessionMode === 'list' ? NuxtLink : 'button'"
         :to="`/session/${session.id}`"
@@ -58,11 +68,11 @@ function select(session: BuildInfo) {
         <div font-mono font-sm>
           {{ session.meta.cwd }}
         </div>
-        <div v-if="session.meta.inputs[0]" flex="~ gap-1 items-center">
-          <DisplayModuleId :id="session.meta.inputs[0].filename" :cwd="session.meta.cwd" />
-          <DisplayBadge :text="session.meta.inputs[0].name || 'entry'" />
-          <span v-if="session.meta.inputs.length > 1" op50 text-xs border="~ base rounded-md" px1 font-mono>
-            +{{ session.meta.inputs.length - 1 }}
+        <div v-if="primaryInput" flex="~ gap-1 items-center">
+          <DisplayModuleId :id="primaryInput.filename" :cwd="session.meta.cwd" />
+          <DisplayBadge :text="primaryInput.name || 'entry'" />
+          <span v-if="additionalInputCount > 0" op50 text-xs border="~ base rounded-md" px1 font-mono>
+            +{{ additionalInputCount }}
           </span>
         </div>
         <DisplayTimestamp :timestamp="session.timestamp" pt2 text-sm op50 />

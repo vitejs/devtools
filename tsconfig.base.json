@@ -9,23 +9,8 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-rpc/presets/ws/server": [
-        "./packages/rpc/src/presets/ws/server.ts"
-      ],
-      "@vitejs/devtools-rpc/presets/ws/client": [
-        "./packages/rpc/src/presets/ws/client.ts"
-      ],
-      "@vitejs/devtools-rpc/presets": [
-        "./packages/rpc/src/presets/index.ts"
-      ],
-      "@vitejs/devtools-rpc/client": [
-        "./packages/rpc/src/client.ts"
-      ],
-      "@vitejs/devtools-rpc/server": [
-        "./packages/rpc/src/server.ts"
-      ],
-      "@vitejs/devtools-rpc": [
-        "./packages/rpc/src"
+      "@vitejs/devtools-kit/node": [
+        "./packages/kit/src/node/index.ts"
       ],
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"

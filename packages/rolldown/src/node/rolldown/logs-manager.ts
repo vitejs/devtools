@@ -23,13 +23,16 @@ export class RolldownLogsManager {
     const sessions = await fs.readdir(this.dir, {
       withFileTypes: true,
     })
-    return await Promise.all(sessions
+    const entries = await Promise.all(sessions
       .filter(d => d.isDirectory())
       .filter(d => existsSync(join(this.dir, d.name, 'meta.json')))
-      .map(async (d): Promise<BuildInfo> => {
+      .map(async (d): Promise<BuildInfo | undefined> => {
         const reader = RolldownEventsReader.get(join(this.dir, d.name, 'meta.json'))
         await reader.read()
-        const meta = reader.manager.events.at(-1) as SessionMeta
+        const meta = reader.meta
+        if (!meta) {
+          return
+        }
         return {
           id: d.name,
           // @ts-expect-error missing type
@@ -38,6 +41,7 @@ export class RolldownLogsManager {
         }
       }),
     )
+    return entries.filter((entry): entry is BuildInfo => !!entry)
   }
 
   async loadSession(session: string) {
@@ -46,7 +50,48 @@ export class RolldownLogsManager {
     if (!reader.meta) {
       const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
       await metaReader.read()
-      reader.meta = metaReader.manager.events.at(-1) as SessionMeta
+      reader.meta = metaReader.meta!
+    }
+    return reader
+  }
+
+  async loadSessionSummary(session: string) {
+    const reader = RolldownEventsReader.get(join(this.dir, session, 'logs.json'))
+    await reader.readSummary()
+    if (!reader.meta) {
+      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
+      await metaReader.read()
+      reader.meta = metaReader.meta!
+    }
+    return reader
+  }
+
+  async loadAssetSession(session: string) {
+    const reader = await this.loadSession(session)
+    await reader.readAssets()
+    return reader
+  }
+
+  async loadPackageSession(session: string) {
+    const filepath = join(this.dir, session, 'logs.json')
+    const loadedReader = RolldownEventsReader.peek(filepath)
+    if (loadedReader?.hasCompleteSession() || loadedReader?.isReadingCompleteSession()) {
+      await loadedReader.read()
+      await loadedReader.ensurePackageSummaryCache()
+      if (!loadedReader.meta) {
+        const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
+        await metaReader.read()
+        loadedReader.meta = metaReader.meta!
+      }
+      return loadedReader
+    }
+
+    const reader = RolldownEventsReader.get(filepath, `${filepath}:package-summary`)
+    await reader.readPackageSummary()
+    if (!reader.meta) {
+      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
+      await metaReader.read()
+      reader.meta = metaReader.meta!
     }
     return reader
   }

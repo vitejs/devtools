@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
@@ -59,7 +60,7 @@ export default defineConfig({
         async setup(ctx) {
           ctx.docks.register({
             type: 'action',
-            action: ctx.utils.createSimpleClientScript((ctx) => {
+            action: createSimpleClientScript((ctx) => {
               // eslint-disable-next-line no-alert
               alert('Hello, world! For the first time!')
               ctx.current.events.on('entry:activated', () => {
@@ -74,8 +75,8 @@ export default defineConfig({
 
           ctx.docks.register({
             type: 'custom-render',
-            renderer: ctx.utils.createSimpleClientScript((ctx) => {
-              ctx.current.events.on('dom:panel:mounted', (panel) => {
+            renderer: createSimpleClientScript((ctx) => {
+              ctx.current.events.on('dom:panel:mounted', (panel: any) => {
                 const el = document.createElement('div')
                 el.style.padding = '16px'
                 el.textContent = 'Hello from custom render dock!'
@@ -101,7 +102,7 @@ export default defineConfig({
             icon: 'material-symbols:counter-1',
             title: 'Counter',
             // TODO: HMR
-            action: ctx.utils.createSimpleClientScript(() => {}),
+            action: createSimpleClientScript(() => {}),
           })
 
           ctx.docks.register({
@@ -165,7 +166,7 @@ export default defineConfig({
               type: 'action',
               icon: `material-symbols:counter-${newState.count}`,
               title: `Counter ${newState.count}`,
-              action: ctx.utils.createSimpleClientScript(`() => {
+              action: createSimpleClientScript(`() => {
                 alert('Counter ${newState.count}')
               }`),
             })
@@ -182,7 +183,7 @@ export default defineConfig({
           //     icon: `material-symbols:counter-${count}`,
           //     title: `Counter ${count}`,
           //     // TODO: HMR?
-          //     action: ctx.utils.createSimpleClientScript(`() => {
+          //     action: createSimpleClientScript(`() => {
           //       alert('Counter ${count}')
           //     }`),
           //   })

@@ -5,12 +5,14 @@ import { getLogsManager } from '../utils'
 export const rolldownGetPluginDetails = defineRpcFunction({
   name: 'vite:rolldown:get-plugin-details',
   type: 'query',
+  jsonSerializable: true,
   cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {
       handler: async ({ session, id }: { session: string, id: string }) => {
         const reader = await manager.loadSession(session)
+        await reader.hydratePluginBuildMetrics(+id)
         const pluginBuildMetrics = reader.manager.plugin_build_metrics.get(+id)!
         if (!pluginBuildMetrics) {
           const plugin = reader.meta!.plugins!.find(p => p.plugin_id === +id)!

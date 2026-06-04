@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useHead } from '#app/composables/head'
 import { toggleDark } from '@vitejs/devtools-ui/composables/dark'
+import { useHead } from '#app/composables/head'
 import { useRefresh } from './composables/refresh'
 import { connect, connectionState } from './composables/rpc'
 import './styles/global.css'

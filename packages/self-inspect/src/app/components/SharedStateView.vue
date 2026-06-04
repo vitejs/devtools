@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { JsonEditor } from '@visual-json/vue'
-import { nanoid } from '@vitejs/devtools-kit/utils/nanoid'
+import { nanoid } from 'devframe/utils/nanoid'
 import { computed, ref, shallowRef, watch } from 'vue'
 import { useRpc } from '../composables/rpc'
 
@@ -15,7 +15,7 @@ const selectedKey = ref<string>()
 const filteredKeys = computed(() => {
   if (showInternal.value)
     return props.keys
-  return props.keys.filter(key => !key.startsWith('devtoolskit:internal:') && !key.startsWith('__'))
+  return props.keys.filter(key => !key.startsWith('devframe:') && !key.startsWith('__'))
 })
 const stateValue = shallowRef<any>()
 const loading = ref(false)
@@ -23,7 +23,7 @@ const loading = ref(false)
 async function loadState(key: string) {
   loading.value = true
   try {
-    stateValue.value = await rpc.value.call('devtoolskit:internal:rpc:server-state:get', key)
+    stateValue.value = await rpc.value.call('devframe:rpc:server-state:get', key)
   }
   finally {
     loading.value = false
@@ -45,7 +45,7 @@ async function handleChange(value: any) {
     return
   const syncId = nanoid()
   stateValue.value = value
-  await rpc.value.call('devtoolskit:internal:rpc:server-state:set', selectedKey.value, value, syncId)
+  await rpc.value.call('devframe:rpc:server-state:set', selectedKey.value, value, syncId)
 }
 </script>
 

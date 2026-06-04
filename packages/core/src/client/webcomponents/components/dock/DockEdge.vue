@@ -22,6 +22,12 @@ const isVertical = computed(() => store.position === 'left' || store.position ==
 
 const groupedEntries = computed(() => context.docks.groupedEntries)
 const selectedEntry = computed(() => context.docks.selected)
+const hasPanelContent = computed(() => {
+  const entry = selectedEntry.value
+  return context.panel.store.open
+    && !!entry
+    && entry.type !== 'action'
+})
 
 const positions = ['top', 'right', 'bottom', 'left'] as const
 const positionIcons: Record<string, string> = {
@@ -114,43 +120,75 @@ const panelStyle = computed<CSSProperties>(() => {
       style.left = '0'
       style.right = '0'
       style.bottom = '0'
-      style.height = `${store.height}vh`
-      style.minHeight = '150px'
       style.borderRadius = '8px 8px 0 0'
+      if (hasPanelContent.value) {
+        style.height = `${store.height}vh`
+        style.minHeight = '150px'
+      }
       break
     case 'top':
       style.left = '0'
       style.right = '0'
       style.top = '0'
-      style.height = `${store.height}vh`
-      style.minHeight = '150px'
       style.borderRadius = '0 0 8px 8px'
+      if (hasPanelContent.value) {
+        style.height = `${store.height}vh`
+        style.minHeight = '150px'
+      }
       break
     case 'left':
       style.top = '0'
       style.bottom = '0'
       style.left = '0'
-      style.width = `${store.width}vw`
-      style.minWidth = '200px'
       style.borderRadius = '0 8px 8px 0'
+      if (hasPanelContent.value) {
+        style.width = `${store.width}vw`
+        style.minWidth = '200px'
+      }
       break
     case 'right':
       style.top = '0'
       style.bottom = '0'
       style.right = '0'
-      style.width = `${store.width}vw`
-      style.minWidth = '200px'
       style.borderRadius = '8px 0 0 8px'
+      if (hasPanelContent.value) {
+        style.width = `${store.width}vw`
+        style.minWidth = '200px'
+      }
       break
   }
 
   return style
 })
 
+const panelLayoutClass = computed(() => {
+  switch (store.position) {
+    case 'bottom':
+      return 'flex flex-col-reverse'
+    case 'top':
+      return 'flex flex-col'
+    case 'left':
+      return 'flex flex-row'
+    case 'right':
+      return 'flex flex-row-reverse'
+    default:
+      return 'flex flex-col-reverse'
+  }
+})
+
 const toolbarClass = computed(() => {
-  return isVertical.value
-    ? 'flex-col h-full w-[40px] border-r border-base'
-    : 'flex-row w-full border-b border-base'
+  switch (store.position) {
+    case 'bottom':
+      return 'flex-row w-full border-t border-base'
+    case 'top':
+      return 'flex-row w-full border-b border-base'
+    case 'left':
+      return 'flex-col h-full w-[40px] border-r border-base'
+    case 'right':
+      return 'flex-col h-full w-[40px] border-l border-base'
+    default:
+      return 'flex-row w-full border-t border-base'
+  }
 })
 
 const contentClass = computed(() => {
@@ -164,10 +202,10 @@ const contentClass = computed(() => {
   <div
     id="vite-devtools-edge-panel"
     class="bg-glass:75 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
-    :class="`flex ${isVertical ? 'flex-row' : 'flex-col'}`"
+    :class="panelLayoutClass"
     :style="panelStyle"
   >
-    <DockPanelResizer :panel="context.panel" edge-mode />
+    <DockPanelResizer v-if="hasPanelContent" :panel="context.panel" edge-mode />
 
     <!-- Toolbar -->
     <div class="flex items-center shrink-0 select-none py1" :class="toolbarClass">
@@ -214,25 +252,14 @@ const contentClass = computed(() => {
     </div>
 
     <!-- Content -->
-    <div class="relative" :class="contentClass">
-      <template v-if="selectedEntry && selectedEntry.type !== 'action'">
-        <ViewEntry
-          v-if="viewsContainer"
-          :key="selectedEntry.id"
-          :context
-          :entry="selectedEntry"
-          :persisted-doms="persistedDoms"
-        />
-      </template>
-      <div
-        v-else
-        class="absolute inset-0 flex items-center justify-center op40 select-none"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <div class="i-ph-layout-duotone w-8 h-8" />
-          <span class="text-sm">{{ selectedEntry ? 'Action executed' : 'Select a dock entry' }}</span>
-        </div>
-      </div>
+    <div v-show="hasPanelContent" class="relative" :class="contentClass">
+      <ViewEntry
+        v-if="hasPanelContent && viewsContainer && selectedEntry"
+        :key="selectedEntry.id"
+        :context
+        :entry="selectedEntry"
+        :persisted-doms="persistedDoms"
+      />
       <div
         id="vite-devtools-views-container"
         ref="viewsContainer"

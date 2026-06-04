@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-self-inspect",
   "type": "module",
-  "version": "0.1.15",
+  "version": "0.3.1",
   "description": "DevTools for inspecting the DevTools itself",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -34,8 +34,8 @@
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
     "birpc": "catalog:deps",
+    "devframe": "catalog:deps",
     "pathe": "catalog:deps"
   },
   "devDependencies": {

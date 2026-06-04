@@ -10,12 +10,6 @@ export default defineConfig({
   exports: true,
   dts: true,
   clean: false,
-  deps: {
-    alwaysBundle: [
-      '@pnpm/read-project-manifest',
-    ],
-    onlyBundle: false,
-  },
   inputOptions: {
     experimental: {
       resolveNewUrlToAsset: false,

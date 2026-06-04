@@ -1,12 +1,6 @@
-import type { DevToolsNodeContext, DevToolsServerCommandInput, JsonRenderSpec } from './types'
-import { createDefineWrapperWithContext } from '@vitejs/devtools-rpc'
+import type { ViteDevToolsNodeContext } from './types'
+import { createDefineWrapperWithContext } from 'devframe/rpc'
 
-export const defineRpcFunction = createDefineWrapperWithContext<DevToolsNodeContext>()
+export { defineCommand, defineDockEntry, defineJsonRenderSpec } from '@devframes/hub'
 
-export function defineCommand(command: DevToolsServerCommandInput): DevToolsServerCommandInput {
-  return command
-}
-
-export function defineJsonRenderSpec(spec: JsonRenderSpec): JsonRenderSpec {
-  return spec
-}
+export const defineRpcFunction = createDefineWrapperWithContext<ViteDevToolsNodeContext>()

@@ -172,10 +172,12 @@ export interface ModuleTreeNode {
 }
 
 export interface PackageInfo {
+  id: string
   name: string
   version: string
   dir: string
   type?: string
+  isUsed?: boolean
   transformedCodeSize: number
   duplicated?: boolean
   files: {
@@ -183,6 +185,11 @@ export interface PackageInfo {
     transformedCodeSize: number
     importers: Array<{ path: string, version: string }>
   }[]
+}
+
+export interface PackageMeta {
+  isSupported: boolean
+  packages: PackageInfo[]
 }
 
 export type RolldownPluginBuildMetrics = PluginBuildMetrics & {

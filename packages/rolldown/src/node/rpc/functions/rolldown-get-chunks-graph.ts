@@ -4,12 +4,13 @@ import { getLogsManager } from '../utils'
 export const rolldownGetChunksGraph = defineRpcFunction({
   name: 'vite:rolldown:get-chunks-graph',
   type: 'query',
+  jsonSerializable: true,
   cacheable: true,
   setup: (context) => {
     const manager = getLogsManager(context)
     return {
       handler: async ({ session }: { session: string }) => {
-        const reader = await manager.loadSession(session)
+        const reader = await manager.loadAssetSession(session)
         const chunks = Array.from(reader.manager.chunks.values())
 
         chunks.forEach((chunk) => {

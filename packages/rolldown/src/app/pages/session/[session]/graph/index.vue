@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
-import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
@@ -189,11 +189,13 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
       v-if="settings.moduleGraphViewType === 'list'"
       :session="session"
       :modules="searched"
+      scroller="window"
     />
     <ModulesDetailedList
       v-else-if="settings.moduleGraphViewType === 'detailed-list'"
       :session="session"
       :modules="searched"
+      scroller="window"
     />
     <ModulesGraph
       v-else-if="settings.moduleGraphViewType === 'graph'"

@@ -3,6 +3,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const terminalsRead = defineRpcFunction({
   name: 'devtoolskit:internal:terminals:read',
   type: 'query',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       async handler(id: string) {

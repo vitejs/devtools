@@ -1,36 +1,70 @@
 ---
 name: writing-vite-devtools-integrations
 description: >
-  Creates devtools integrations for Vite using @vitejs/devtools-kit.
-  Use when building Vite plugins with devtools panels, RPC functions,
-  dock entries, shared state, logs/notifications, or any devtools-related
-  functionality. Applies to files importing from @vitejs/devtools-kit or
-  containing devtools.setup hooks in Vite plugins.
+  Creates devtools integrations that mount inside the Vite DevTools
+  hub via @vitejs/devtools-kit. Use when building Vite plugins with
+  devtools panels, RPC functions, dock entries, shared state,
+  messages/notifications, terminals, command palette entries, or any
+  hub-level integration. Applies to files importing from
+  @vitejs/devtools-kit or containing devtools.setup hooks in Vite
+  plugins. For building one portable devtool integration without a
+  hub (CLI, static deploy, MCP), see the `devframe` skill instead.
 ---
 
 # Vite DevTools Kit
 
-Build custom developer tools that integrate with Vite DevTools using `@vitejs/devtools-kit`.
+**`@vitejs/devtools-kit` is the hub that unites many devtools integrations.** It owns the cross-tool surface — docking, the command palette, terminal aggregation, cross-tool toasts — and wraps the framework-neutral [Devframe](https://devfra.me/) container with the Vite-specific glue (`Plugin.devtools.setup`).
+
+If you have a portable Devframe app already, drop it in via `createPluginFromDevframe(d)` from `@vitejs/devtools-kit/node` and the kit auto-derives the iframe dock entry. If you're authoring a Vite-specific integration that needs hub features directly, reach for `Plugin.devtools.setup`.
 
 ## Core Concepts
 
-A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context provides:
+A DevTools plugin extends a Vite plugin with a `devtools.setup(ctx)` hook. The context is the **kit-augmented context** (`KitNodeContext` extended with Vite-specific fields) — it carries Devframe's portable surface plus the hub-only subsystems the kit owns:
 
-| Property | Purpose |
-|----------|---------|
-| `ctx.docks` | Register dock entries (iframe, action, custom-render, launcher, json-render) |
-| `ctx.views` | Host static files for UI |
-| `ctx.rpc` | Register RPC functions, broadcast to clients |
-| `ctx.rpc.sharedState` | Synchronized server-client state |
-| `ctx.logs` | Emit structured log entries and toast notifications |
-| `ctx.terminals` | Spawn and manage child processes with streaming terminal output |
-| `ctx.createJsonRenderer` | Create server-side JSON render specs for zero-client-code UIs |
-| `ctx.commands` | Register executable commands with keyboard shortcuts and palette visibility |
-| `ctx.viteConfig` | Resolved Vite configuration |
-| `ctx.viteServer` | Dev server instance (dev mode only) |
-| `ctx.mode` | `'dev'` or `'build'` |
+| Property | Layer | Purpose |
+|----------|-------|---------|
+| `ctx.docks` | **kit** | Register dock entries (iframe, action, custom-render, launcher, json-render) |
+| `ctx.terminals` | **kit** | Spawn and manage child processes with streaming terminal output |
+| `ctx.messages` | **kit** | Emit structured message entries and toast notifications |
+| `ctx.commands` | **kit** | Register executable commands with keyboard shortcuts and palette visibility |
+| `ctx.rpc` | devframe | Register RPC functions, broadcast to clients |
+| `ctx.rpc.sharedState` | devframe | Synchronized server-client state |
+| `ctx.rpc.streaming` | devframe | Streaming channels — chunk-style server↔client data with cancellation, replay, Web Streams interop |
+| `ctx.views` | devframe | Host static files for UI (`hostStatic(base, distDir)`) |
+| `ctx.diagnostics` | devframe | Structured diagnostics host (nostics) — register custom error codes |
+| `ctx.createJsonRenderer` | **kit** | Create server-side JSON render specs for zero-client-code UIs |
+| `ctx.viteConfig` | core | Resolved Vite configuration |
+| `ctx.viteServer` | core | Dev server instance (dev mode only) |
+| `ctx.mode` | devframe | `'dev'` or `'build'` |
 
-## Quick Start: Minimal Plugin
+## Quick Start: Bridge a Devframe App
+
+If you already have a portable Devframe definition, this is the one-liner. The kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`, mounts the SPA via `views.hostStatic`, runs the devtool's own `setup`, then runs the optional kit-only `options.setup`.
+
+```ts
+// vite.config.ts
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import devtool from './my-devtool'
+
+export default {
+  plugins: [
+    createPluginFromDevframe(devtool, {
+      // Optional kit-only setup for hub features:
+      setup(ctx) {
+        ctx.commands.register({
+          id: 'my-devtool:clear-cache',
+          title: 'Clear Cache',
+          handler: () => {/* ... */},
+        })
+      },
+    }),
+  ],
+}
+```
+
+## Quick Start: Minimal Hub-Native Plugin
+
+When the integration is intrinsically tied to Vite (it inspects the resolved config, augments middleware, etc.), reach for `Plugin.devtools.setup` directly:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -79,7 +113,7 @@ export default function myAnalyzer(): Plugin {
         const clientPath = fileURLToPath(
           new URL('../dist/client', import.meta.url)
         )
-        ctx.views.hostStatic('/.my-analyzer/', clientPath)
+        ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
         // 2. Register dock entry
         ctx.docks.register({
@@ -87,7 +121,7 @@ export default function myAnalyzer(): Plugin {
           title: 'Analyzer',
           icon: 'ph:chart-bar-duotone',
           type: 'iframe',
-          url: '/.my-analyzer/',
+          url: '/__my-analyzer/',
         })
 
         // 3. Register RPC function
@@ -139,7 +173,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -300,7 +334,7 @@ Plugins can emit structured log entries from both server and client contexts. Lo
 
 ```ts
 // No await needed
-context.logs.add({
+context.messages.add({
   message: 'Plugin initialized',
   level: 'info',
 })
@@ -309,7 +343,7 @@ context.logs.add({
 ### With Handle
 
 ```ts
-const handle = await context.logs.add({
+const handle = await context.messages.add({
   id: 'my-build',
   message: 'Building...',
   level: 'info',
@@ -351,8 +385,8 @@ The `from` field is automatically set to `'server'` or `'browser'`.
 Re-adding with the same `id` updates the existing entry instead of creating a duplicate:
 
 ```ts
-context.logs.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
-context.logs.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
+context.messages.add({ id: 'my-scan', message: 'Scanning...', level: 'info', status: 'loading' })
+context.messages.add({ id: 'my-scan', message: 'Scan complete', level: 'success', status: 'idle' })
 ```
 
 ## RPC Functions
@@ -367,7 +401,7 @@ const getModules = defineRpcFunction({
   type: 'query', // 'query' | 'action' | 'static'
   setup: ctx => ({
     handler: async (filter?: string) => {
-      // ctx has full DevToolsNodeContext
+      // ctx has full ViteDevToolsNodeContext
       return modules.filter(m => !filter || m.includes(filter))
     },
   }),
@@ -478,6 +512,81 @@ state.on('updated', (newState) => {
 })
 ```
 
+## Streaming Channels
+
+For chunk-style data flowing in either direction (LLM deltas, build logs, file uploads), use a streaming channel rather than hand-rolling `action + delta/end events`. The same `channel` handles server→client and client→server.
+
+### Server-to-Client
+
+```ts
+ctx.rpc.streaming.create<string>('my-plugin:tokens', {
+  replayWindow: 256, // chunks retained per stream id
+})
+
+// Inside an action handler:
+const stream = channel.start()
+;(async () => {
+  for (const token of fakeLLM(prompt)) {
+    if (stream.signal.aborted)
+      return
+    stream.write(token)
+  }
+  stream.close()
+})()
+return { streamId: stream.id }
+```
+
+```ts
+// Client
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+
+const rpc = await getDevToolsRpcClient()
+const { streamId } = await rpc.call('my-plugin:start', { prompt })
+const reader = rpc.streaming.subscribe<string>('my-plugin:tokens', streamId)
+for await (const token of reader)
+  appendToken(token)
+reader.cancel() // server stream.signal aborts
+```
+
+The reader is also `.readable: ReadableStream<T>` for `pipeTo` consumption. The sink is also `.writable: WritableStream<T>` — `await channel.pipeFrom(readableSource)` is the one-call shortcut.
+
+### Client-to-Server Uploads
+
+```ts
+// Server
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:upload-file',
+  type: 'action',
+  handler: async ({ name }) => {
+    const reader = channel.openInbound()
+    ;(async () => {
+      const file = createWriteStream(name)
+      for await (const chunk of reader)
+        file.write(chunk)
+      file.close()
+    })()
+    return { uploadId: reader.id }
+  },
+}))
+
+// Client
+const { uploadId } = await rpc.call('my-plugin:upload-file', { name })
+const upload = rpc.streaming.upload<Uint8Array>('my-plugin:files', uploadId)
+fileReadable.pipeTo(upload.writable, { signal: upload.signal })
+```
+
+`upload.signal` aborts when the server calls `reader.cancel()`. Client disconnect surfaces as `UploadDisconnected` in the server's `for await`.
+
+### When to use streaming
+
+| Use streaming for | Use `event`-typed RPC for | Use shared state for |
+|-------------------|---------------------------|----------------------|
+| Token / chunk feeds, uploads | Notifications without payload | Long-lived UI state |
+| Per-call lifecycles + cancellation | Cross-cutting fire-and-forget | Diff-based snapshots |
+| Replay on reconnect | | |
+
+For chat-style UIs, combine: keep the **conversation log** in shared state and stream **active responses** through the channel. Working example: [`devframe/examples/devframe-streaming-chat`](https://github.com/vitejs/devtools/tree/main/devframe/examples/devframe-streaming-chat). Full reference: [Streaming Patterns](./references/streaming-patterns.md).
+
 ## Client Scripts
 
 For action buttons and custom renderers:
@@ -512,7 +621,7 @@ Export from package.json:
 
 ## Debugging with Self-Inspect
 
-Use `@vitejs/devtools-self-inspect` to debug your DevTools plugin. It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI at `/.devtools-self-inspect/`.
+Use `@vitejs/devtools-self-inspect` to debug your DevTools plugin. It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI at `/__devtools-self-inspect/`.
 
 ```ts
 import DevTools from '@vitejs/devtools'
@@ -552,10 +661,13 @@ Real-world example plugins in the repo — reference their code structure and pa
 - [RPC Patterns](./references/rpc-patterns.md) - Advanced RPC patterns and type utilities
 - [Dock Entry Types](./references/dock-entry-types.md) - Detailed dock configuration options
 - [Shared State Patterns](./references/shared-state-patterns.md) - Framework integration examples
+- [Streaming Patterns](./references/streaming-patterns.md) - Streaming channels, uploads, replay, chat-history pattern
 - [Project Structure](./references/project-structure.md) - Recommended file organization
 - [JSON Render Patterns](./references/json-render-patterns.md) - Server-side JSON specs, components, state binding
 - [Terminals Patterns](./references/terminals-patterns.md) - Child processes, custom streams, session lifecycle
-- [Logs Patterns](./references/logs-patterns.md) - Log entries, toast notifications, and handle patterns
+- [Messages Patterns](./references/messages-patterns.md) - Message entries, toast notifications, and handle patterns
+- [Diagnostics Patterns](./references/diagnostics-patterns.md) - Coded errors / warnings via `ctx.diagnostics` (nostics integration)
 - [Commands Patterns](./references/commands-patterns.md) - Command registration, sub-commands, keybindings, palette integration
 - [When Clauses](./references/when-clauses.md) - Conditional expression syntax, context variables, API reference
 - [Remote Client Patterns](./references/remote-client-patterns.md) - Remote-hosted iframe docks, `connectRemoteDevTools`, trust model
+- [Migration Guide](https://github.com/vitejs/devtools/blob/main/MIGRATION.md) - Breaking changes between versions

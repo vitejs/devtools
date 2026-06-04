@@ -1,5 +1,8 @@
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash'
 import { extendConfig } from '@voidzero-dev/vitepress-theme/config'
+import { globSync } from 'tinyglobby'
 import { defineConfig } from 'vitepress'
 import {
   groupIconMdPlugin,
@@ -8,6 +11,16 @@ import {
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import { version } from '../../package.json'
 
+const repoRoot = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..')
+
+const errorsDir = fileURLToPath(new URL('../errors/', import.meta.url))
+
+function listErrorCodes(prefix: string): string[] {
+  return globSync(`${prefix}*.md`, { cwd: errorsDir })
+    .map(f => f.replace(/\.md$/, ''))
+    .sort()
+}
+
 const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
@@ -15,9 +28,11 @@ const DevToolsKitNav = [
   { text: 'Remote Client', link: '/kit/remote-client' },
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
+  { text: 'Streaming', link: '/kit/streaming' },
   { text: 'Commands', link: '/kit/commands' },
   { text: 'When Clauses', link: '/kit/when-clauses' },
-  { text: 'Logs & Notifications', link: '/kit/logs' },
+  { text: 'Messages & Notifications', link: '/kit/messages' },
+  { text: 'Structured Diagnostics', link: '/kit/diagnostics' },
   { text: 'Terminals & Processes', link: '/kit/terminals' },
   { text: 'Examples', link: '/kit/examples' },
 ]
@@ -34,6 +49,28 @@ const SocialLinks = [
 export default extendConfig(withMermaid(defineConfig({
   title: 'Vite DevTools',
   description: 'An extensible devtools framework for the Vite ecosystem. Build, compose, and integrate developer tools with a unified foundation.',
+  srcDir: repoRoot,
+  rewrites(id) {
+    if (id.startsWith('docs/'))
+      return id.slice('docs/'.length)
+    return id
+  },
+  srcExclude: [
+    '**/node_modules/**',
+    '*.md',
+    'packages/**',
+    'examples/**',
+    'tests/**',
+    'docs/.vitepress/**',
+    '.github/**',
+    '.context/**',
+    '.agents/**',
+    '.claude/**',
+    '.crush/**',
+    '.goose/**',
+    '.vscode/**',
+    '**/skills/**',
+  ],
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
   ],
@@ -53,6 +90,7 @@ export default extendConfig(withMermaid(defineConfig({
         text: 'DevTools Kit',
         items: DevToolsKitNav,
       },
+      { text: 'Devframe', link: 'https://devfra.me/' },
       {
         text: `v${version}`,
         items: [
@@ -62,61 +100,65 @@ export default extendConfig(withMermaid(defineConfig({
       },
     ],
 
-    sidebar: [
-      {
-        text: 'Guide',
-        items: [
-          { text: 'Getting Started', link: '/guide/' },
-        ],
-      },
-      {
-        text: 'DevTools for Rolldown',
-        items: [
-          { text: 'Introduction', link: '/rolldown/' },
-          { text: 'Features', link: '/rolldown/features' },
-        ],
-      },
-      {
-        text: 'DevTools Kit',
-        items: [
-          { text: 'Introduction', link: '/kit/' },
-          { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
-          { text: 'Dock System', link: '/kit/dock-system' },
-          { text: 'Remote Client', link: '/kit/remote-client' },
-          { text: 'RPC', link: '/kit/rpc' },
-          { text: 'Shared State', link: '/kit/shared-state' },
-          { text: 'Commands', link: '/kit/commands' },
-          { text: 'When Clauses', link: '/kit/when-clauses' },
-          { text: 'Logs', link: '/kit/logs' },
-          { text: 'JSON Render', link: '/kit/json-render' },
-          { text: 'Terminals', link: '/kit/terminals' },
-          { text: 'Examples', link: '/kit/examples' },
-        ],
-      },
-      {
-        text: 'Error Reference',
-        link: '/errors/',
-        collapsed: true,
-        items: [
-          {
-            text: 'DevTools Kit (DTK)',
-            collapsed: true,
-            items: Array.from({ length: 32 }, (_, i) => {
-              const code = `DTK${String(i + 1).padStart(4, '0')}`
-              return { text: code, link: `/errors/${code}` }
-            }),
-          },
-          {
-            text: 'Rolldown DevTools (RDDT)',
-            collapsed: true,
-            items: [
-              { text: 'RDDT0001', link: '/errors/RDDT0001' },
-              { text: 'RDDT0002', link: '/errors/RDDT0002' },
-            ],
-          },
-        ],
-      },
-    ],
+    sidebar: {
+      '/': [
+        {
+          text: 'Guide',
+          items: [
+            { text: 'Getting Started', link: '/guide/' },
+          ],
+        },
+        {
+          text: 'DevTools for Rolldown',
+          items: [
+            { text: 'Introduction', link: '/rolldown/' },
+            { text: 'Features', link: '/rolldown/features' },
+          ],
+        },
+        {
+          text: 'DevTools Kit',
+          items: [
+            { text: 'Introduction', link: '/kit/' },
+            { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
+            { text: 'Dock System', link: '/kit/dock-system' },
+            { text: 'Remote Client', link: '/kit/remote-client' },
+            { text: 'RPC', link: '/kit/rpc' },
+            { text: 'Shared State', link: '/kit/shared-state' },
+            { text: 'Streaming', link: '/kit/streaming' },
+            { text: 'Commands', link: '/kit/commands' },
+            { text: 'When Clauses', link: '/kit/when-clauses' },
+            { text: 'Messages', link: '/kit/messages' },
+            { text: 'Diagnostics', link: '/kit/diagnostics' },
+            { text: 'JSON Render', link: '/kit/json-render' },
+            { text: 'Terminals', link: '/kit/terminals' },
+            { text: 'Examples', link: '/kit/examples' },
+          ],
+        },
+        {
+          text: 'Error Reference',
+          link: '/errors/',
+          collapsed: true,
+          items: [
+            {
+              text: 'DevTools Kit (DTK)',
+              collapsed: true,
+              items: listErrorCodes('DTK').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
+            },
+            {
+              text: 'Rolldown DevTools (RDDT)',
+              collapsed: true,
+              items: listErrorCodes('RDDT').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
+            },
+          ],
+        },
+      ],
+    },
 
     search: {
       provider: 'local',
@@ -159,7 +201,7 @@ export default extendConfig(withMermaid(defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/vitejs/devtools/edit/main/docs/:path',
+      pattern: 'https://github.com/vitejs/devtools/edit/main/:path',
       text: 'Suggest changes to this page',
     },
 
@@ -174,6 +216,7 @@ export default extendConfig(withMermaid(defineConfig({
     },
   },
   vite: {
+    publicDir: resolve(fileURLToPath(new URL('.', import.meta.url)), '../public'),
     plugins: [
       groupIconVitePlugin(),
     ],

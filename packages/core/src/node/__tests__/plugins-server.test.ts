@@ -19,7 +19,7 @@ describe('renderDockImportsMap', () => {
         id: 'iframe-with-script',
         title: 'Iframe With Script',
         icon: 'ph:browser-duotone',
-        url: '/.my-plugin/',
+        url: '/__my-plugin/',
         clientScript: {
           importFrom: 'my-plugin/iframe-script',
         },

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
-import { useRoute, useRouter } from '#app/composables/router'
 import { clearUndefined, toArray } from '@antfu/utils'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 import { DefaultPluginType, getPluginTypeFromName, PluginTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
@@ -80,7 +80,7 @@ watchDebounced(
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes" />
     </div>
-    <PluginsFlatList :plugins="searched ?? []" />
+    <PluginsFlatList :plugins="searched ?? []" scroller="window" />
     <div
       fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
     >

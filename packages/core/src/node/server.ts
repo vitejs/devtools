@@ -1,11 +1,19 @@
+import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
-import { createApp, eventHandler, fromNodeMiddleware, getQuery, toNodeListener } from 'h3'
-import sirv from 'sirv'
+import { consumeTempAuthToken } from 'devframe/node/auth'
+import { getInternalContext } from 'devframe/node/hub-internals'
+import { mountStaticHandler } from 'devframe/utils/serve-static'
+import { defineHandler, getQuery, H3, toNodeHandler } from 'h3'
 import { dirClientStandalone } from '../dirs'
-import { consumeTempAuthToken } from './auth-state'
-import { getInternalContext } from './context-internal'
 import { createWsServer } from './ws'
+
+export interface DevToolsMiddleware {
+  h3: H3
+  rpc: Awaited<ReturnType<typeof createWsServer>>['rpc']
+  middleware: NodeHandler
+  getConnectionMeta: Awaited<ReturnType<typeof createWsServer>>['getConnectionMeta']
+}
 
 function generateAuthPageHtml(): string {
   return `<!DOCTYPE html>
@@ -36,10 +44,10 @@ function generateAuthPageHtml(): string {
           const data = await r.json()
           const authToken = data.authToken
 
-          localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__', authToken)
+          localStorage.setItem('__DEVFRAME_CONNECTION_AUTH_TOKEN__', authToken)
 
           try {
-            const bc = new BroadcastChannel('vite-devtools-auth')
+            const bc = new BroadcastChannel('devframe-auth')
             bc.postMessage({ type: 'auth-update', authToken: authToken })
           } catch {}
 
@@ -56,48 +64,45 @@ function generateAuthPageHtml(): string {
 </html>`
 }
 
-export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
-  const h3 = createApp()
+export async function createDevToolsMiddleware(options: CreateWsServerOptions): Promise<DevToolsMiddleware> {
+  const h3 = new H3()
   const contextInternal = getInternalContext(options.context)
 
   const { rpc, getConnectionMeta } = await createWsServer(options)
 
-  h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, eventHandler(async (event) => {
-    event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify(await getConnectionMeta()))
+  h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify(await getConnectionMeta())
   }))
 
-  h3.use('/auth-verify', eventHandler((event) => {
+  h3.use('/auth-verify', defineHandler((event) => {
     const { id } = getQuery(event) as { id?: string }
     if (!id) {
-      event.node.res.statusCode = 400
-      return event.node.res.end('Missing id parameter')
+      event.res.status = 400
+      return 'Missing id parameter'
     }
 
     const clientAuthToken = consumeTempAuthToken(id, contextInternal.storage.auth)
     if (!clientAuthToken) {
-      event.node.res.statusCode = 403
-      return event.node.res.end('Invalid or expired auth token')
+      event.res.status = 403
+      return 'Invalid or expired auth token'
     }
 
-    event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify({ authToken: clientAuthToken }))
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify({ authToken: clientAuthToken })
   }))
 
-  h3.use('/auth', eventHandler((event) => {
-    event.node.res.setHeader('Content-Type', 'text/html')
-    return event.node.res.end(generateAuthPageHtml())
+  h3.use('/auth', defineHandler((event) => {
+    event.res.headers.set('Content-Type', 'text/html; charset=utf-8')
+    return generateAuthPageHtml()
   }))
 
-  h3.use(fromNodeMiddleware(sirv(dirClientStandalone, {
-    dev: true,
-    single: true,
-  })))
+  mountStaticHandler(h3, '', dirClientStandalone)
 
   return {
     h3,
     rpc,
-    middleware: toNodeListener(h3),
+    middleware: toNodeHandler(h3),
     getConnectionMeta,
   }
 }

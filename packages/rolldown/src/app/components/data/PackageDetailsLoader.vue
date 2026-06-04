@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types/data'
-import { useRpc } from '#imports'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
+import { useRpc } from '#imports'
 
 const props = defineProps<{
   session: SessionContext
@@ -13,11 +13,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
 }>()
-const parsedPackage = computed(() => {
-  const match = props.package.match(/^(@?[^@]+)@(.+)$/)
-  const [, name, version] = match!
-  return { name, version }
-})
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
   async () => {
@@ -33,6 +28,7 @@ const { state, isLoading } = useAsyncState(
 )
 
 const normalizedBundledFiles = computed(() => state.value?.files?.filter(f => !!f.transformedCodeSize) ?? [])
+const packageName = computed(() => state.value?.name ?? props.package)
 
 const importers = computed(() => {
   const pathMap = new Map()
@@ -43,7 +39,7 @@ const importers = computed(() => {
 })
 
 function openInNpm() {
-  const url = `https://www.npmjs.com/package/${parsedPackage.value.name}`
+  const url = `https://www.npmjs.com/package/${packageName.value}`
   window.open(url, '_blank')
 }
 </script>
@@ -56,7 +52,7 @@ function openInNpm() {
       <div flex="~ gap-3 items-center" :title="package">
         <div flex="~ items-center gap-1">
           <div>
-            <DisplayHighlightedPackageName :name="parsedPackage.name!" />
+            <DisplayHighlightedPackageName :name="packageName" />
           </div>
           <DisplayFileSizeBadge :bytes="state.transformedCodeSize" />
         </div>

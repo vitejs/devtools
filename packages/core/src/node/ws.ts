@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
-import type { ConnectionMeta, DevToolsNodeContext, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { RpcFunctionsHost } from 'devframe/node'
 import type { WebSocket } from 'ws'
-import type { RpcFunctionsHost } from './host-functions'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
-import { createWsRpcPreset } from '@vitejs/devtools-rpc/presets/ws/server'
-import { createRpcServer } from '@vitejs/devtools-rpc/server'
-import c from 'ansis'
+import { getInternalContext } from 'devframe/node/hub-internals'
+import { createRpcServer } from 'devframe/rpc/server'
+import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
+import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
-import { getInternalContext } from './context-internal'
-import { logger } from './diagnostics'
+import { diagnostics } from './diagnostics'
 
 const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
@@ -20,13 +20,13 @@ export interface CreateWsServerOptions {
   websocket: {
     port?: number
     host: string
-    https?: DevToolsNodeContext['viteConfig']['server']['https'] | false
+    https?: ViteDevToolsNodeContext['viteConfig']['server']['https'] | false
   }
   base?: string
-  context: DevToolsNodeContext
+  context: ViteDevToolsNodeContext
 }
 
-const ANONYMOUS_SCOPE = 'vite:anonymous:'
+const ANONYMOUS_SCOPE = 'devframe:anonymous:'
 
 function buildWsUrl({ host, port, https }: { host: string, port: number, https: boolean }): string {
   // 0.0.0.0 / :: / unspecified bindings listen on all interfaces, but a hosted
@@ -50,7 +50,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
-    logger.DTK0008().log()
+    diagnostics.DTK0008()
   }
 
   contextInternal.wsEndpoint = {
@@ -67,13 +67,56 @@ export async function createWsServer(options: CreateWsServerOptions) {
     }
   }
 
-  const preset = createWsRpcPreset({
+  const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
+
+  const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
+    rpcHost.functions,
+    {
+      rpcOptions: {
+        onFunctionError(error, name) {
+          diagnostics.DTK0011({ name, cause: error })
+        },
+        onGeneralError(error) {
+          diagnostics.DTK0012({ cause: error })
+        },
+        resolver(name, fn) {
+          // eslint-disable-next-line ts/no-this-alias
+          const rpc = this
+
+          // Block unauthorized access to non-anonymous methods
+          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
+            return () => {
+              throw diagnostics.DTK0013({ name, clientId: rpc.$meta.id })
+            }
+          }
+
+          // If the function is not found, return undefined
+          if (!fn)
+            return undefined
+
+          // Register AsyncContext for the current RPC call
+          return async function (this: any, ...args) {
+            debugInvoked(`${JSON.stringify(name)} from #${rpc.$meta.id}`)
+            return await asyncStorage.run({
+              rpc,
+              meta: rpc.$meta,
+            }, async () => {
+              return (await fn).apply(this, args)
+            })
+          }
+        },
+      },
+    },
+  )
+
+  attachWsRpcTransport(rpcGroup, {
     port,
     host,
     https,
+    definitions: rpcHost.definitions,
     onConnected: (ws, req, meta) => {
       const url = new URL(req.url ?? '', 'http://localhost')
-      const authToken = url.searchParams.get('vite_devtools_auth_token') ?? undefined
+      const authToken = url.searchParams.get('devframe_auth_token') ?? undefined
       const requestOrigin = req.headers.origin
       if (isClientAuthDisabled) {
         meta.isTrusted = true
@@ -97,60 +140,24 @@ export async function createWsServer(options: CreateWsServerOptions) {
     },
     onDisconnected: (ws, meta) => {
       wsClients.delete(ws)
+      rpcHost._emitSessionDisconnected(meta)
       console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
     },
   })
-
-  const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
-
-  const rpcGroup = createRpcServer<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions>(
-    rpcHost.functions,
-    {
-      preset,
-      rpcOptions: {
-        onFunctionError(error, name) {
-          logger.DTK0011({ name }, { cause: error }).log()
-        },
-        onGeneralError(error) {
-          logger.DTK0012({ cause: error }).log()
-        },
-        resolver(name, fn) {
-          // eslint-disable-next-line ts/no-this-alias
-          const rpc = this
-
-          // Block unauthorized access to non-anonymous methods
-          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
-            return () => {
-              throw logger.DTK0013({ name, clientId: rpc.$meta.id }).throw()
-            }
-          }
-
-          // If the function is not found, return undefined
-          if (!fn)
-            return undefined
-
-          // Register AsyncContext for the current RPC call
-          return async function (this: any, ...args) {
-            debugInvoked(`${JSON.stringify(name)} from #${rpc.$meta.id}`)
-            return await asyncStorage.run({
-              rpc,
-              meta: rpc.$meta,
-            }, async () => {
-              return (await fn).apply(this, args)
-            })
-          }
-        },
-      },
-    },
-  )
 
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
+    const jsonSerializableMethods: string[] = []
+    for (const def of rpcHost.definitions.values()) {
+      if (def.jsonSerializable === true)
+        jsonSerializableMethods.push(def.name)
+    }
     return {
       backend: 'websocket',
       websocket: port,
+      jsonSerializableMethods,
     }
   }
 

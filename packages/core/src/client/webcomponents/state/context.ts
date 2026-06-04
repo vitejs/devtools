@@ -1,6 +1,7 @@
-import type { DevToolsClientCommand, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedState } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
@@ -9,7 +10,7 @@ import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
-import { createClientLogsClient } from './logs-client'
+import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
 import { executeSetupScript } from './setup-script'
 
@@ -51,6 +52,7 @@ export async function createDocksContext(
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
+      panelStore.value.open = false
       return true
     }
     if (id === '~client-auth-notice') {
@@ -76,10 +78,12 @@ export async function createDocksContext(
       || (entry.type === 'iframe' && entry.clientScript)
     ) {
       const current = dockEntryStateMap.get(id)!
+      const messagesClient = createClientMessagesClient(rpc)
       const scriptContext: DockClientScriptContext = reactive({
         ...toRefs(docksContext) as any,
         current,
-        logs: createClientLogsClient(rpc),
+        messages: messagesClient,
+        logs: messagesClient,
       })
       await executeSetupScript(entry, scriptContext)
     }
@@ -99,7 +103,7 @@ export async function createDocksContext(
   const getSettingsStore = async () => {
     if (!_settingsStorePromise) {
       _settingsStorePromise = rpc.sharedState.get(
-        'devtoolskit:internal:user-settings',
+        'devframe:user-settings',
         { initialValue: DEFAULT_STATE_USER_SETTINGS() },
       )
     }

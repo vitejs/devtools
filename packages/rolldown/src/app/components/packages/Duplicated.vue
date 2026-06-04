@@ -17,11 +17,11 @@ const groupedDuplicatePackages = computed(() =>
 </script>
 
 <template>
-  <template v-if="duplicatePackages.length">
+  <div v-if="duplicatePackages.length" min-w-max flex="~ col gap-3">
     <div v-for="(p, i) of groupedDuplicatePackages" :key="i">
-      <PackagesTable :packages="p" :session="session" group-view disable-size-sort />
+      <PackagesTable :packages="p" :session="session" group-view disable-size-sort show-used-badge />
     </div>
-  </template>
+  </div>
   <template v-else>
     <div p4>
       <div w-full h-48 flex="~ items-center justify-center" op50 italic>

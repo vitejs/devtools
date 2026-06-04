@@ -3,6 +3,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const viteMetaInfo = defineRpcFunction({
   name: 'vite:meta-info',
   type: 'query',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       handler: async () => {

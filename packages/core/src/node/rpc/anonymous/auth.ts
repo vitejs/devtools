@@ -2,10 +2,10 @@
 import process from 'node:process'
 import * as p from '@clack/prompts'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import c from 'ansis'
-import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from '../../auth-state'
+import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node/auth'
+import { getInternalContext } from 'devframe/node/hub-internals'
+import { colors as c } from 'devframe/utils/colors'
 import { MARK_INFO } from '../../constants'
-import { getInternalContext } from '../../context-internal'
 
 export interface DevToolsAuthInput {
   authToken: string
@@ -20,8 +20,9 @@ export interface DevToolsAuthReturn {
 const AUTH_TIMEOUT_MS = 60_000
 
 export const anonymousAuth = defineRpcFunction({
-  name: 'vite:anonymous:auth',
+  name: 'devframe:anonymous:auth',
   type: 'action',
+  jsonSerializable: true,
   setup: (context) => {
     const internal = getInternalContext(context)
     const storage = internal.storage.auth
@@ -76,7 +77,7 @@ export const anonymousAuth = defineRpcFunction({
         // Derive the server URL for the auth link
         const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
           ?? `http://localhost:${context.viteConfig.server.port}`
-        const authUrl = `${serverUrl}/.devtools/auth?id=${encodeURIComponent(tempId)}`
+        const authUrl = `${serverUrl}/__devtools/auth?id=${encodeURIComponent(tempId)}`
 
         const message = [
           `A browser is requesting permissions to connect to the Vite DevTools.`,

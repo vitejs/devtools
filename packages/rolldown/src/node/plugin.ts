@@ -8,11 +8,11 @@ export function DevToolsRolldownUI(): PluginWithDevTools {
     devtools: {
       setup(ctx) {
         for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn)
+          ctx.rpc.register(fn as any)
         }
 
         ctx.views.hostStatic(
-          '/.devtools-rolldown/',
+          '/__devtools-rolldown/',
           clientPublicDir,
         )
 
@@ -25,7 +25,7 @@ export function DevToolsRolldownUI(): PluginWithDevTools {
           category: '~viteplus',
           icon: rolldownIconDataUri,
           type: 'iframe',
-          url: '/.devtools-rolldown/',
+          url: '/__devtools-rolldown/',
         })
       },
     },

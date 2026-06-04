@@ -1,19 +1,15 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, DevToolsTerminalSessionStreamChunkEvent, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import type { SharedStatePatch } from '@vitejs/devtools-kit/utils/shared-state'
+import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { SharedStatePatch } from 'devframe/utils/shared-state'
 import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
-import { logsAdd } from './internal/logs-add'
-import { logsClear } from './internal/logs-clear'
-import { logsList } from './internal/logs-list'
-import { logsRemove } from './internal/logs-remove'
-import { logsUpdate } from './internal/logs-update'
+import { messagesAdd } from './internal/messages-add'
+import { messagesClear } from './internal/messages-clear'
+import { messagesList } from './internal/messages-list'
+import { messagesRemove } from './internal/messages-remove'
+import { messagesUpdate } from './internal/messages-update'
 import { rpcServerList } from './internal/rpc-server-list'
-import { sharedStateGet } from './internal/state/get'
-import { sharedStatePatch } from './internal/state/patch'
-import { sharedStateSet } from './internal/state/set'
-import { sharedStateSubscribe } from './internal/state/subscribe'
 import { terminalsList } from './internal/terminals-list'
 import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
@@ -34,16 +30,12 @@ export const builtinInternalRpcDeclarations = [
   commandsExecute,
   commandsList,
   docksOnLaunch,
-  logsAdd,
-  logsClear,
-  logsList,
-  logsRemove,
-  logsUpdate,
+  messagesAdd,
+  messagesClear,
+  messagesList,
+  messagesRemove,
+  messagesUpdate,
   rpcServerList,
-  sharedStateGet,
-  sharedStatePatch,
-  sharedStateSet,
-  sharedStateSubscribe,
   terminalsList,
   terminalsRead,
 ] as const
@@ -69,19 +61,18 @@ declare module '@vitejs/devtools-kit' {
 
   // @keep-sorted
   export interface DevToolsRpcClientFunctions {
-    'devtoolskit:internal:auth:revoked': () => Promise<void>
-    'devtoolskit:internal:logs:updated': () => Promise<void>
-    'devtoolskit:internal:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
-    'devtoolskit:internal:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
+    'devframe:auth:revoked': () => Promise<void>
+    'devframe:messages:updated': () => Promise<void>
+    'devframe:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
+    'devframe:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
 
-    'devtoolskit:internal:terminals:stream-chunk': (data: DevToolsTerminalSessionStreamChunkEvent) => Promise<void>
-    'devtoolskit:internal:terminals:updated': () => Promise<void>
+    'devframe:terminals:updated': () => Promise<void>
   }
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {
-    'devtoolskit:internal:commands': DevToolsServerCommandEntry[]
-    'devtoolskit:internal:docks': DevToolsDockEntry[]
-    'devtoolskit:internal:user-settings': DevToolsDocksUserSettings
+    'devframe:commands': DevToolsServerCommandEntry[]
+    'devframe:docks': DevToolsDockEntry[]
+    'devframe:user-settings': DevToolsDocksUserSettings
   }
 }

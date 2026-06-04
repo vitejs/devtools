@@ -4,6 +4,7 @@
   "tasks": {
     "@vitejs/devtools#build": {
       "outputLogs": "new-only",
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**"
       ]
@@ -27,12 +28,6 @@
       ]
     },
     "@vitejs/devtools-self-inspect#build": {
-      "outputLogs": "new-only",
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "@vitejs/devtools-rpc#build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"

@@ -1,21 +1,37 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
-import { computed } from 'vue'
 
-const props = defineProps<{
+withDefaults(defineProps<{
   session: SessionContext
   modules: ModuleListItem[]
-}>()
-
-const filteredTransformsMap = computed(() => {
-  const map = new Map<string, Exclude<ModuleListItem['buildMetrics'], undefined>['transforms']>()
-  for (const mod of props.modules) {
-    const t = mod.buildMetrics?.transforms.filter(i => i.source_code_size !== i.transformed_code_size).filter(i => i.transformed_code_size)
-    map.set(mod.id, t!)
-  }
-  return map
+  itemSize?: number
+  minItemSize?: number
+  pageMode?: boolean
+  scroller?: 'dynamic' | 'window'
+}>(), {
+  minItemSize: 64,
+  pageMode: true,
+  scroller: 'dynamic',
 })
+
+type ModuleTransforms = Exclude<ModuleListItem['buildMetrics'], undefined>['transforms']
+
+const filteredTransformsCache = new WeakMap<ModuleListItem, ModuleTransforms>()
+
+function getFilteredTransforms(mod: ModuleListItem): ModuleTransforms {
+  const cached = filteredTransformsCache.get(mod)
+  if (cached)
+    return cached
+
+  const transforms = mod.buildMetrics?.transforms.filter(i => i.source_code_size !== i.transformed_code_size && i.transformed_code_size) ?? []
+  filteredTransformsCache.set(mod, transforms)
+  return transforms
+}
+
+function isLastFilteredTransform(mod: ModuleListItem, index: number) {
+  return index === getFilteredTransforms(mod).length - 1
+}
 </script>
 
 <template>
@@ -23,6 +39,10 @@ const filteredTransformsMap = computed(() => {
     <DataVirtualList
       :items="modules"
       key-prop="id"
+      :item-size="itemSize"
+      :min-item-size="minItemSize"
+      :page-mode="pageMode"
+      :scroller="scroller"
     >
       <template #default="{ item }">
         <div flex pb2>
@@ -36,13 +56,13 @@ const filteredTransformsMap = computed(() => {
             <template #detail>
               <div flex="~ gap-1 wrap" text-xs>
                 <ul flex="~ auto text-xs wrap">
-                  <template v-for="(p, i) of filteredTransformsMap.get(item.id)" :key="i">
-                    <li v-if="p.source_code_size !== p.transformed_code_size && p.transformed_code_size" flex="~ items-center">
+                  <template v-for="(p, i) of getFilteredTransforms(item)" :key="i">
+                    <li flex="~ items-center">
                       <DisplayPluginName
                         :name="p.plugin_name"
                         class="font-mono ws-nowrap op-50"
                       />
-                      <span v-if="i !== filteredTransformsMap.get(item.id)!.length - 1" op20>|</span>
+                      <span v-if="!isLastFilteredTransform(item, i)" op20>|</span>
                     </li>
                   </template>
                 </ul>

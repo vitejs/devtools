@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
-import c from 'ansis'
+import { colors as c } from 'devframe/utils/colors'
 import { resolve } from 'pathe'
 import { MARK_NODE } from '../constants'
 
@@ -11,7 +11,7 @@ export interface DevToolsBuildOptions {
 }
 
 export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
-  let context: DevToolsNodeContext
+  let context: ViteDevToolsNodeContext
   let resolvedConfig: ResolvedConfig
 
   return {

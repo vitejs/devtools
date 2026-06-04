@@ -3,7 +3,7 @@ import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/de
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, ref, watch } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
-import { formatKeybinding, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
+import { formatKeybinding, isKeybindingOverrideDifferentFromDefault, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
 import KeybindingBadge from '../command-palette/KeybindingBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
@@ -55,24 +55,28 @@ function getEffectiveKeybindings(id: string): DevToolsCommandKeybinding[] {
 }
 
 function isOverridden(id: string): boolean {
-  return shortcutOverrides.value[id] !== undefined
+  return isKeybindingOverrideDifferentFromDefault(shortcutOverrides.value[id], getDefaultKeybindings(id))
 }
 
-function getDefaultKey(id: string): string | undefined {
+function getDefaultKeybindings(id: string): DevToolsCommandKeybinding[] {
   for (const cmd of commandsCtx.commands) {
     if (cmd.id === id)
-      return cmd.keybindings?.[0]?.key
+      return cmd.keybindings ?? []
     if (cmd.children) {
       const child = cmd.children.find(c => c.id === id)
       if (child)
-        return child.keybindings?.[0]?.key
+        return child.keybindings ?? []
     }
   }
+  return []
 }
 
 function clearShortcut(commandId: string) {
   commandsCtx.settings.mutate((state) => {
-    state.commandShortcuts[commandId] = []
+    if (getDefaultKeybindings(commandId).length > 0)
+      state.commandShortcuts[commandId] = []
+    else
+      delete state.commandShortcuts[commandId]
   })
 }
 
@@ -199,17 +203,15 @@ function onEditorKeyDown(e: KeyboardEvent) {
 function saveEditor() {
   if (!editorCommandId.value || !editorCanSave.value)
     return
-  const defaultKey = getDefaultKey(editorCommandId.value)
-  if (editorComposedKey.value === defaultKey) {
-    if (isOverridden(editorCommandId.value)) {
-      commandsCtx.settings.mutate((state) => {
-        delete state.commandShortcuts[editorCommandId.value!]
-      })
-    }
+  const override = [{ key: editorComposedKey.value }]
+  if (isKeybindingOverrideDifferentFromDefault(override, getDefaultKeybindings(editorCommandId.value))) {
+    commandsCtx.settings.mutate((state) => {
+      state.commandShortcuts[editorCommandId.value!] = override
+    })
   }
   else {
     commandsCtx.settings.mutate((state) => {
-      state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
+      delete state.commandShortcuts[editorCommandId.value!]
     })
   }
   closeEditor()

@@ -6,6 +6,8 @@ export default antfu({
   pnpm: true,
   ignores: [
     'skills',
+    'e2e/fixtures/**/dist',
+    'e2e/fixtures/**/.vite-devtools',
   ],
 })
   .append(nuxt())

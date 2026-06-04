@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { useEventListener, useScreenSafeArea } from '@vueuse/core'
+import { useEventListener, useScreenSafeArea, whenever } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../../constants'
 import { docksSplitGroupsWithCapacity } from '../../state/dock-settings'
+import { setDocksOverflowPanel } from '../../state/floating-tooltip'
 import BracketLeft from '../icons/BracketLeft.vue'
 import BracketRight from '../icons/BracketRight.vue'
 import VitePlusCore from '../icons/VitePlusCore.vue'
@@ -245,6 +246,10 @@ const panelStyle = computed(() => {
   return style
 })
 
+whenever(isMinimized, () => {
+  setDocksOverflowPanel(null)
+})
+
 onMounted(() => {
   if (context.panel.store.open && !isRpcTrusted.value)
     context.panel.store.open = false
@@ -344,6 +349,7 @@ onMounted(() => {
               :groups="splitEntries.overflow"
               :selected="selectedEntry"
               @select="(e) => context.docks.switchEntry(e?.id)"
+              @activity="bringUp"
             />
           </template>
         </div>

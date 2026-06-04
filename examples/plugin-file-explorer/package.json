@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-file-explorer",
   "type": "module",
-  "version": "0.1.15",
+  "version": "0.3.1",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build:node": "tsdown --config-loader=tsx",
+    "build:node": "tsdown --config-loader=unrun",
     "build:ui": "cd src/ui && vite build",
     "build": "pnpm run build:node && pnpm run build:ui",
     "play:dev": "pnpm run build && cd playground && DEBUG='vite:devtools:*' vite",
@@ -36,6 +36,7 @@
     "serve": "catalog:devtools",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
+    "unrun": "catalog:build",
     "vite": "catalog:build"
   }
 }

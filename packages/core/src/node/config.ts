@@ -1,8 +1,12 @@
 import type { StartOptions } from './cli-commands'
-import { isObject } from './utils'
+import { isObject } from 'devframe/node'
 
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean
+  /**
+   * Vite environments to enable DevTools for. Defaults to all environments.
+   */
+  environments?: string[]
   /**
    * Disable client authentication.
    *

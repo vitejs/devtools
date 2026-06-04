@@ -1,10 +1,10 @@
 import type {} from '@vitejs/devtools'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
-import { useRuntimeConfig } from '#app/nuxt'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
+import { useRuntimeConfig } from '#app/nuxt'
 
 export const rpcConnectionState = reactive<{
   connected: boolean

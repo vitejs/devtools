@@ -15,7 +15,7 @@ import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { extname } from 'pathe'
 import { getLogsManager } from '../utils'
-import { getNormalizedPackages } from './rolldown-get-packages'
+import { getPackageMeta } from './rolldown-get-packages'
 
 interface SessionCompareSource {
   reader: RolldownEventsReader
@@ -200,24 +200,26 @@ function createPackageProfiles(packages: PackageInfo[]) {
   return profiles
 }
 
-function createPluginProfiles(reader: RolldownEventsReader) {
+async function createPluginProfiles(reader: RolldownEventsReader) {
   const seen = new Map<string, number>()
   const profiles = new Map<string, PluginProfile>()
+  const pluginSummaries = await reader.readPluginBuildMetricsSummary()
 
   for (const plugin of reader.meta?.plugins ?? []) {
     const key = getPluginKey(plugin, seen)
     const metrics = reader.manager.plugin_build_metrics.get(plugin.plugin_id)
     const calls = metrics?.calls ?? []
+    const summary = pluginSummaries.get(plugin.plugin_id)
 
     profiles.set(key, {
       key,
       name: plugin.name,
       pluginId: plugin.plugin_id,
-      duration: calls.reduce((total, call) => total + call.duration, 0),
-      calls: calls.length,
-      resolveDuration: calls.filter(call => call.type === 'resolve').reduce((total, call) => total + call.duration, 0),
-      loadDuration: calls.filter(call => call.type === 'load').reduce((total, call) => total + call.duration, 0),
-      transformDuration: calls.filter(call => call.type === 'transform').reduce((total, call) => total + call.duration, 0),
+      duration: summary?.total.duration ?? calls.reduce((total, call) => total + call.duration, 0),
+      calls: summary?.total.count ?? calls.length,
+      resolveDuration: summary?.resolve.duration ?? calls.filter(call => call.type === 'resolve').reduce((total, call) => total + call.duration, 0),
+      loadDuration: summary?.load.duration ?? calls.filter(call => call.type === 'load').reduce((total, call) => total + call.duration, 0),
+      transformDuration: summary?.transform.duration ?? calls.filter(call => call.type === 'transform').reduce((total, call) => total + call.duration, 0),
     })
   }
 
@@ -230,7 +232,7 @@ function getPluginKey(plugin: PluginItem, seen: Map<string, number>) {
   return count === 0 ? plugin.name : `${plugin.name}#${count + 1}`
 }
 
-async function createCompareSource(reader: RolldownEventsReader): Promise<SessionCompareSource> {
+function createCompareSource(reader: RolldownEventsReader): SessionCompareSource {
   const chunks = Array.from(reader.manager.chunks.values()).map(chunk => ({
     ...chunk,
     asset: reader.manager.chunkAssetMap.get(chunk.chunk_id),
@@ -240,7 +242,7 @@ async function createCompareSource(reader: RolldownEventsReader): Promise<Sessio
     reader,
     assets: Array.from(reader.manager.assets.values()),
     chunks,
-    packages: await getNormalizedPackages(reader),
+    packages: getPackageMeta(reader).packages,
   }
 }
 
@@ -357,9 +359,11 @@ function comparePackages(previous: SessionCompareSource, current: SessionCompare
   }))
 }
 
-function comparePlugins(previous: SessionCompareSource, current: SessionCompareSource): SessionComparePluginDiff[] {
-  const previousPlugins = createPluginProfiles(previous.reader)
-  const currentPlugins = createPluginProfiles(current.reader)
+async function comparePlugins(previous: SessionCompareSource, current: SessionCompareSource): Promise<SessionComparePluginDiff[]> {
+  const [previousPlugins, currentPlugins] = await Promise.all([
+    createPluginProfiles(previous.reader),
+    createPluginProfiles(current.reader),
+  ])
 
   return sortByDeltaImpact(compareMaps(previousPlugins, currentPlugins, (key, previousPlugin, currentPlugin) => {
     const previousDuration = previousPlugin?.duration ?? 0
@@ -403,18 +407,16 @@ export const rolldownGetSessionCompareDetails = defineRpcFunction({
       handler: async ({ sessions }: { sessions: string[] }): Promise<SessionCompareDetails> => {
         const [previousSession, currentSession] = sessions
         const [previousReader, currentReader] = await Promise.all([
-          manager.loadSession(previousSession!),
-          manager.loadSession(currentSession!),
+          manager.loadAssetSession(previousSession!),
+          manager.loadAssetSession(currentSession!),
         ])
-        const [previous, current] = await Promise.all([
-          createCompareSource(previousReader),
-          createCompareSource(currentReader),
-        ])
+        const previous = createCompareSource(previousReader)
+        const current = createCompareSource(currentReader)
 
         const assets = compareAssets(previous, current)
         const chunks = compareChunks(previous, current)
         const packages = comparePackages(previous, current)
-        const plugins = comparePlugins(previous, current)
+        const plugins = await comparePlugins(previous, current)
 
         return {
           sessionStats: {

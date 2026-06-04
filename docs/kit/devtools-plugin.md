@@ -4,11 +4,13 @@ outline: deep
 
 # DevTools Plugin
 
-A DevTools plugin is a **superset** of a Vite plugin—meaning any Vite plugin can become a DevTools plugin by simply adding a `devtools` hook. This allows you to extend the DevTools infrastructure with custom data visualizations, actions, and integrations.
+A DevTools plugin is a Vite plugin with one extra hook: `devtools.setup(ctx)`. The hook receives the kit-augmented context (`KitNodeContext`) — RPC, views, and the four hub subsystems Kit owns: `docks`, `terminals`, `messages`, `commands`.
+
+This page covers the direct hook approach. To bring in a portable [Devframe](https://devfra.me/guide/) app instead, see [`createPluginFromDevframe`](https://devfra.me/guide/adapters#kit) — Kit auto-mounts the SPA, derives the iframe dock entry from `id` / `name` / `icon` / `basePath`, then runs an optional kit-only `setup` for hub features.
 
 ## Installation
 
-Install the `@vitejs/devtools-kit` package in your Vite plugin project:
+`@vitejs/devtools-kit` is fine as a dev dependency — Node-side code only consumes it for types.
 
 ::: code-group
 
@@ -26,10 +28,7 @@ yarn add -D @vitejs/devtools-kit
 
 :::
 
-> [!NOTE]
-> It's typically fine to add it as a dev dependency since we only need it for types on the Node.js side.
-
-## Basic Setup
+## Basic setup
 
 Add the triple-slash reference to augment Vite's `Plugin` interface with the `devtools` property:
 
@@ -57,7 +56,7 @@ export default function myPlugin(): Plugin {
           title: 'My Plugin',
           icon: 'ph:puzzle-piece-duotone',
           type: 'iframe',
-          url: '/.my-plugin/',
+          url: '/__my-plugin/',
         })
       },
     },
@@ -65,12 +64,11 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-> [!TIP] When is `setup` called?
-> The `devtools.setup` function is called when users run their app with Vite DevTools enabled via `vite dev --ui` or `vite build --ui` (not implemented in Vite yet). It runs once during Vite server initialization.
+`devtools.setup` runs once during Vite server initialization, when DevTools is enabled.
 
-## DevTools Context
+## DevTools context
 
-The `setup` function receives a `DevToolsNodeContext` object that provides access to all DevTools APIs:
+The `setup` function receives a `ViteDevToolsNodeContext` providing access to every DevTools API:
 
 ```ts
 const plugin: Plugin = {
@@ -82,7 +80,7 @@ const plugin: Plugin = {
 }
 ```
 
-### Available Properties
+### Available properties
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -90,22 +88,20 @@ const plugin: Plugin = {
 | `ctx.views` | `ViewsHost` | Host static files for your DevTools UI |
 | `ctx.rpc` | `RpcHost` | Register [RPC functions](./rpc) and broadcast to clients |
 | `ctx.viteConfig` | `ResolvedConfig` | The resolved Vite configuration |
-| `ctx.viteServer` | `ViteDevServer \| undefined` | Vite dev server instance (only in dev mode) |
+| `ctx.viteServer` | `ViteDevServer \| undefined` | Vite dev server instance, present in dev mode |
 | `ctx.mode` | `'dev' \| 'build'` | Current mode |
 | `ctx.cwd` | `string` | Current working directory |
 | `ctx.workspaceRoot` | `string` | Workspace root directory |
 
-### Example: Accessing Vite Config
+### Example: accessing Vite config
 
 ```ts
 const plugin: Plugin = {
   devtools: {
     setup(ctx) {
-      // Access Vite configuration
       console.log('Root:', ctx.viteConfig.root)
       console.log('Mode:', ctx.mode)
 
-      // Check if we're in dev mode
       if (ctx.viteServer) {
         console.log('Dev server is running')
       }
@@ -114,9 +110,9 @@ const plugin: Plugin = {
 }
 ```
 
-## Hosting Static Files
+## Hosting static files
 
-If you have a pre-built UI (e.g., a Vue/React SPA), use `ctx.views.hostStatic()` to serve it:
+For a pre-built UI (Vue/React SPA, etc.), serve it with `ctx.views.hostStatic()`:
 
 ```ts
 import { fileURLToPath } from 'node:url'
@@ -130,7 +126,7 @@ const plugin: Plugin = {
       )
 
       // Host at a specific route
-      ctx.views.hostStatic('/.my-plugin/', clientPath)
+      ctx.views.hostStatic('/__my-plugin/', clientPath)
 
       // Register as a dock entry
       ctx.docks.register({
@@ -138,20 +134,18 @@ const plugin: Plugin = {
         title: 'My Plugin',
         icon: 'ph:puzzle-piece-duotone',
         type: 'iframe',
-        url: '/.my-plugin/',
+        url: '/__my-plugin/',
       })
     }
   }
 }
 ```
 
-DevTools handles:
-- Dev server middleware to serve the static files
-- Copying static files to the output directory during production builds
+DevTools handles dev-server middleware and copies the static files into the output directory at build time.
 
-## Complete Example
+## Complete example
 
-Here's a complete example showing a DevTools plugin with dock entry, RPC function, and shared state:
+A plugin with a dock entry and an RPC function that exposes module data:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -179,7 +173,7 @@ export default function myAnalyzerPlugin(): Plugin {
         const clientPath = fileURLToPath(
           new URL('../dist/client', import.meta.url)
         )
-        ctx.views.hostStatic('/.my-analyzer/', clientPath)
+        ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
         // Register dock entry
         ctx.docks.register({
@@ -187,7 +181,7 @@ export default function myAnalyzerPlugin(): Plugin {
           title: 'Module Analyzer',
           icon: 'ph:chart-bar-duotone',
           type: 'iframe',
-          url: '/.my-analyzer/',
+          url: '/__my-analyzer/',
         })
 
         // Register RPC function to fetch data
@@ -212,7 +206,7 @@ export default function myAnalyzerPlugin(): Plugin {
 
 ## Debugging with Self Inspect
 
-When developing or debugging a DevTools plugin, you can install `@vitejs/devtools-self-inspect` to get a live view of all registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins:
+`@vitejs/devtools-self-inspect` adds a "Self Inspect" panel to DevTools that shows registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins — handy when verifying that everything you registered actually shows up:
 
 ```bash
 pnpm add -D @vitejs/devtools-self-inspect
@@ -230,10 +224,8 @@ export default defineConfig({
 })
 ```
 
-This adds a "Self Inspect" panel to DevTools that shows the internal state of the DevTools system — helpful for verifying that your plugin's RPC functions, docks, and client scripts are registered correctly.
+## Next steps
 
-## Next Steps
-
-- **[Dock System](./dock-system)** - Learn about different dock entry types (iframe, action, custom renderer)
-- **[RPC](./rpc)** - Set up bidirectional server-client communication
-- **[Shared State](./shared-state)** - Synchronize state between server and all clients
+- **[Dock System](./dock-system)** — iframe panels, action buttons, custom renderers, launchers, json-render specs.
+- **[RPC](./rpc)** — bidirectional server-client communication.
+- **[Shared State](./shared-state)** — patch-synced state across every connected client.

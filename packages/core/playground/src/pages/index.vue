@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import HelloWorld from '../components/HelloWorld.vue'
 </script>
 
@@ -12,6 +13,7 @@ import HelloWorld from '../components/HelloWorld.vue'
     </a>
   </div>
   <HelloWorld msg="Vite + Vue" />
+  <DisplayBadge text="<DisplayBadge />" />
 </template>
 
 <style scoped>

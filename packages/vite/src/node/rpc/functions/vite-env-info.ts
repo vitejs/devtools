@@ -3,6 +3,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const viteEnvInfo = defineRpcFunction({
   name: 'vite:env-info',
   type: 'query',
+  jsonSerializable: true,
   setup: () => {
     return {
       handler: async () => {

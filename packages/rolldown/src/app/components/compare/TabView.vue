@@ -224,10 +224,6 @@ const sessionSummaries = computed(() => {
   }
 })
 
-watch(() => props.tab, () => {
-  activeDiffMode.value = 'changed'
-})
-
 const assetDiffs = computed(() => changedEntries(props.details?.assets))
 const chunkDiffs = computed(() => changedEntries(props.details?.chunks))
 const packageDiffs = computed(() => changedEntries(props.details?.packages))
@@ -392,6 +388,14 @@ const diffModeOptions = computed<Array<{
 })
 
 const activeDiffOption = computed(() => diffModeOptions.value.find(item => item.id === activeDiffMode.value))
+
+watch(
+  [() => props.tab, () => props.details],
+  () => {
+    activeDiffMode.value = diffModeOptions.value.find(item => item.count > 0)?.id ?? 'changed'
+  },
+  { immediate: true },
+)
 
 const activeDiffFormat = computed(() => activeRows.value[0]?.format || 'bytes')
 
