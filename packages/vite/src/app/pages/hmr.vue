@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { HmrUpdate } from '~~/shared/types'
+import type { HmrUpdate } from '../../shared/types'
 import { useAsyncState, useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRpc } from '#imports'

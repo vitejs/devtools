@@ -1,4 +1,4 @@
-import type { HmrUpdate } from '~~/shared/types'
+import type { HmrUpdate } from '../../shared/types'
 
 /** Maximum number of HMR events retained in the circular buffer. */
 const MAX_HISTORY = 200
