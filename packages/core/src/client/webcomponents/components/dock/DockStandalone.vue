@@ -3,6 +3,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
 import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import CommandPalette from '../command-palette/CommandPalette.vue'
+import Confirm from '../display/Confirm.vue'
 import ToastOverlay from '../display/ToastOverlay.vue'
 import FloatingElements from '../floating/FloatingElements.vue'
 import VitePlus from '../icons/VitePlus.vue'
@@ -80,4 +81,5 @@ function switchEntry(id: string | undefined) {
   <FloatingElements />
   <CommandPalette :context />
   <ToastOverlay :context />
+  <Confirm />
 </template>
