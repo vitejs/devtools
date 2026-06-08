@@ -14,7 +14,7 @@
     "docs:serve": "pnpm -C docs run docs:serve",
     "play": "pnpm -C packages/core run play",
     "play:debug": "pnpm -C packages/core run play:debug",
-    "play:standalone": "pnpm -C packages/core run dev:standalone",
+    "play:standalone": "pnpm -C packages/core run play:standalone",
     "example:plugin-file-explorer": "pnpm -C examples/plugin-file-explorer run play:dev",
     "postinstall": "npx simple-git-hooks && pnpm -C packages/rolldown run dev:prepare && skills-npm",
     "lint": "eslint --cache",
