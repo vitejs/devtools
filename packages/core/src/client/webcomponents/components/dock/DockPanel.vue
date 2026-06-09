@@ -191,7 +191,7 @@ onMounted(() => {
       :entry="selected"
       :persisted-doms="persistedDoms"
       :iframe-style="{
-        border: '1px solid #8883',
+        border: 'none',
         borderRadius: '0.5rem',
       }"
     />
