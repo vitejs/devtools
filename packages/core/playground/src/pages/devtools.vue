@@ -21,6 +21,9 @@ const messageDescription = ref('')
 const messageStacktrace = ref('')
 const messageAutoDismiss = ref<number>()
 const messageAutoDelete = ref<number>()
+const messageFilePositionFile = ref('')
+const messageFilePositionLine = ref<number>()
+const messageFilePositionColumn = ref<number>()
 
 // Update form
 const updateId = ref('')
@@ -63,6 +66,13 @@ async function addMessage() {
     stacktrace: messageStacktrace.value || undefined,
     autoDismiss: messageAutoDismiss.value,
     autoDelete: messageAutoDelete.value,
+    filePosition: messageFilePositionFile.value
+      ? {
+          file: messageFilePositionFile.value,
+          line: messageFilePositionLine.value,
+          column: messageFilePositionColumn.value,
+        }
+      : undefined,
   })
 }
 
@@ -245,6 +255,18 @@ function incrementCounter() {
         <label flex="~ col gap-1">
           <span op50 text-xs>Auto Delete</span>
           <input v-model="messageAutoDelete" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        </label>
+        <label flex="~ col gap-1" col-span-2>
+          <span op50 text-xs>File Position - Path</span>
+          <input v-model="messageFilePositionFile" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        </label>
+        <label flex="~ col gap-1">
+          <span op50 text-xs>File Position - Line</span>
+          <input v-model="messageFilePositionLine" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        </label>
+        <label flex="~ col gap-1">
+          <span op50 text-xs>File Position - Column</span>
+          <input v-model="messageFilePositionColumn" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
         </label>
       </div>
       <div flex items-center gap-3 mt2>

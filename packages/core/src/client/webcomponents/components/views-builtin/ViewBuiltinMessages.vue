@@ -404,10 +404,10 @@ onMounted(() => {
         <!-- File position -->
         <button
           v-if="selectedEntry.filePosition"
-          class="flex items-center gap-1.5 text-sm text-blue hover:underline mb-3"
+          class="flex items-start gap-1.5 text-left text-sm text-blue hover:underline mb-3 break-all"
           @click="openFile(selectedEntry!)"
         >
-          <div class="i-ph:file-code-duotone w-4 h-4" />
+          <div class="i-ph:file-code-duotone w-4 h-4 flex-none mt-0.5" />
           <span>{{ selectedEntry.filePosition.file }}<template v-if="selectedEntry.filePosition.line">:{{ selectedEntry.filePosition.line }}</template><template v-if="selectedEntry.filePosition.column">:{{ selectedEntry.filePosition.column }}</template></span>
         </button>
 
