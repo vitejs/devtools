@@ -8,6 +8,7 @@ import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-tra
 import { rolldownGetPackageDetails } from './functions/rolldown-get-package-details'
 import { rolldownGetPackages } from './functions/rolldown-get-packages'
 import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
+import { rolldownGetSessionCompareDetails } from './functions/rolldown-get-session-compare-details'
 import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
@@ -23,6 +24,7 @@ export const rpcFunctions = [
   rolldownGetAssetDetails,
   rolldownGetPluginDetails,
   rolldownGetSessionCompareSummary,
+  rolldownGetSessionCompareDetails,
   rolldownGetChunkInfo,
   rolldownGetPackages,
   rolldownGetPackageDetails,

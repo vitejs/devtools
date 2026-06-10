@@ -1,6 +1,6 @@
 import type { Event, HookLoadCallEnd, HookTransformCallEnd, HookTransformCallStart, SessionMeta } from '@rolldown/debug'
 import type { ModuleBuildMetrics, PluginBuildMetrics, RolldownModuleLoadInfo, RolldownModuleTransformInfo, RolldownResolveInfo } from '../../shared/types'
-import type { IndexedHookCall, LineLocation, ModuleEventIndex, PendingHookCallStart, RolldownLogCacheState } from './log-cache'
+import type { IndexedHookCall, LineLocation, ModuleEventIndex, PendingHookCallStart, PluginBuildMetricsSummary, RolldownLogCacheState } from './log-cache'
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
@@ -170,6 +170,26 @@ function estimateContentByteSizeFromLine(preview: Buffer, location: LineLocation
   const contentStart = index + marker.length
   // The remaining JSON properties and closing quote are tiny compared to skipped content.
   return Math.max(0, location.length - contentStart - 128)
+}
+
+function summarizePluginCalls(calls: PluginBuildMetrics['calls']): Pick<PluginBuildMetricsSummary, 'total' | 'resolve' | 'load' | 'transform'> {
+  const summary: Pick<PluginBuildMetricsSummary, 'total' | 'resolve' | 'load' | 'transform'> = {
+    total: { count: 0, duration: 0 },
+    resolve: { count: 0, duration: 0 },
+    load: { count: 0, duration: 0 },
+    transform: { count: 0, duration: 0 },
+  }
+
+  for (const call of calls) {
+    const metric = summary[call.type]
+
+    summary.total.count += 1
+    summary.total.duration += call.duration
+    metric.count += 1
+    metric.duration += call.duration
+  }
+
+  return summary
 }
 
 function pruneReaders() {
@@ -530,6 +550,27 @@ export class RolldownEventsReader {
       this.pendingPackageSummaryRead = undefined
     })
     return this.pendingPackageSummaryRead
+  }
+
+  async readPluginBuildMetricsSummary(): Promise<Map<number, PluginBuildMetricsSummary>> {
+    await this.read()
+
+    const stat = await fs.promises.stat(this.filepath)
+    const cachedSummary = await this.logCache.readPluginSummary(stat)
+    if (cachedSummary.size)
+      return cachedSummary
+
+    return new Map(
+      Array.from(this.manager.plugin_build_metrics.values()).map((metrics) => {
+        const summary: PluginBuildMetricsSummary = {
+          plugin_id: metrics.plugin_id,
+          plugin_name: metrics.plugin_name,
+          ...summarizePluginCalls(metrics.calls),
+        }
+
+        return [metrics.plugin_id, summary] as const
+      }),
+    )
   }
 
   async ensurePackageSummaryCache() {

@@ -73,12 +73,12 @@ interface RolldownModuleMetricsSummaryCacheSnapshot {
   metrics: Array<[string, ModuleBuildMetrics]>
 }
 
-interface PluginMetricSummary {
+export interface PluginMetricSummary {
   count: number
   duration: number
 }
 
-interface PluginBuildMetricsSummary {
+export interface PluginBuildMetricsSummary {
   plugin_id: number
   plugin_name: string
   total: PluginMetricSummary
@@ -402,6 +402,11 @@ export class RolldownLogCache {
     this.restorePackageSummarySnapshot(cache, state)
     this.packageSummaryWriteAttempted = true
     return true
+  }
+
+  async readPluginSummary(stat: Stats) {
+    const cache = await this.pluginSummaryCache?.read(stat)
+    return new Map(cache?.plugins ?? [])
   }
 
   async writeCompleteSession(stat: Stats, state: RolldownLogCacheState) {
