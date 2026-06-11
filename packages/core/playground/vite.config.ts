@@ -138,12 +138,13 @@ export default defineConfig({
             category: 'framework',
             defaultChildId: 'nuxt:overview',
           })
-          for (const [id, title, icon] of [
+          const nuxtFeatures = [
             ['nuxt:overview', 'Overview', 'ph:gauge-duotone'],
             ['nuxt:pages', 'Pages', 'ph:files-duotone'],
             ['nuxt:components', 'Components', 'ph:puzzle-piece-duotone'],
             ['nuxt:modules', 'Modules', 'ph:plugs-connected-duotone'],
-          ] as const) {
+          ] as const
+          nuxtFeatures.forEach(([id, title, icon], index) => {
             ctx.docks.register({
               id,
               type: 'iframe',
@@ -151,8 +152,9 @@ export default defineConfig({
               title,
               icon,
               groupId: 'nuxt',
+              defaultOrder: index,
             })
-          }
+          })
 
           ctx.docks.register({
             id: 'launcher',

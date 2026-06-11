@@ -65,4 +65,28 @@ describe('dock groups', () => {
     expect(ids).toContain('nuxt:overview')
     expect(ids).toContain('nuxt:pages')
   })
+
+  it('hides members within a group via docksHidden (settings: hide inside group)', () => {
+    const hidden = { ...settings, docksHidden: ['nuxt:overview'] }
+    // bar/popover/sidebar consumers omit hidden members
+    expect(getGroupMembers(entries, 'nuxt', hidden).map(e => e.id)).toEqual(['nuxt:pages'])
+    // the settings page still lists them with includeHidden
+    expect(getGroupMembers(entries, 'nuxt', hidden, { includeHidden: true }).map(e => e.id).sort())
+      .toEqual(['nuxt:overview', 'nuxt:pages'])
+  })
+
+  it('orders members within a group via docksCustomOrder (settings: order inside group)', () => {
+    const ordered = { ...settings, docksCustomOrder: { 'nuxt:pages': 0, 'nuxt:overview': 1 } }
+    expect(getGroupMembers(entries, 'nuxt', ordered).map(e => e.id)).toEqual(['nuxt:pages', 'nuxt:overview'])
+  })
+
+  it('hides the whole group via docksHidden on the group id (settings: hide group)', () => {
+    const hidden = { ...settings, docksHidden: ['nuxt'] }
+    const grouped = docksGroupByCategories(entries, hidden, { collapseGroups: true })
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    // group button gone and members stay folded — nothing leaks onto the bar
+    expect(ids).not.toContain('nuxt')
+    expect(ids).not.toContain('nuxt:overview')
+    expect(ids).not.toContain('nuxt:pages')
+  })
 })
