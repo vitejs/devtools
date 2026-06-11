@@ -16,7 +16,7 @@ function resolveConfirm(resolve: (value: boolean) => void, value: boolean) {
 <template>
   <ConfirmPromise v-slot="{ resolve, args: [options] }">
     <div
-      class="fixed inset-0 z-2147483647 flex items-center justify-center p-4 color-base"
+      class="vite-devtools-confirm fixed inset-0 z-2147483647 flex items-center justify-center p-4 color-base"
       role="dialog"
       aria-modal="true"
       :aria-labelledby="options.title ? 'vite-devtools-confirm-title' : undefined"
