@@ -93,6 +93,7 @@ export default defineConfig({
             }),
             id: 'custom-render',
             title: 'Custom',
+            groupId: 'local-test',
             icon: 'ph:newspaper-clipping-duotone',
           })
 
@@ -101,6 +102,7 @@ export default defineConfig({
             type: 'action',
             icon: 'material-symbols:counter-1',
             title: 'Counter',
+            groupId: 'local-test',
             // TODO: HMR
             action: createSimpleClientScript(() => {}),
           })
@@ -111,6 +113,7 @@ export default defineConfig({
             url: '/devtools/',
             title: 'Debug Dashboard',
             icon: 'ph:bug-duotone',
+            groupId: 'local-test',
           })
 
           // Dogfood the remote dock feature: point at the docs-site demo page.
@@ -124,6 +127,7 @@ export default defineConfig({
               ?? 'https://devtools.vite.dev/kit/remote-demo',
             title: 'Remote Demo',
             icon: 'ph:cloud-duotone',
+            groupId: 'local-test',
             remote: true,
           })
 
@@ -137,6 +141,13 @@ export default defineConfig({
             icon: 'logos:nuxt-icon',
             category: 'framework',
             defaultChildId: 'nuxt:overview',
+          })
+          ctx.docks.register({
+            id: 'local-test',
+            type: 'group',
+            title: 'Local Test',
+            icon: 'ph:folder-duotone',
+            category: 'framework',
           })
           const nuxtFeatures = [
             ['nuxt:overview', 'Overview', 'ph:gauge-duotone'],
@@ -161,6 +172,7 @@ export default defineConfig({
             type: 'launcher',
             icon: 'ph:rocket-launch-duotone',
             title: 'Launcher',
+            groupId: 'local-test',
             launcher: {
               title: 'Launcher My Cool App',
               onLaunch: async () => {
@@ -193,6 +205,7 @@ export default defineConfig({
             ctx.docks.update({
               id: 'counter',
               type: 'action',
+              groupId: 'local-test',
               icon: `material-symbols:counter-${newState.count}`,
               title: `Counter ${newState.count}`,
               action: createSimpleClientScript(`() => {
