@@ -70,6 +70,7 @@ export default defineConfig({
             }),
             id: 'local2',
             title: 'Local2',
+            groupId: 'local-test',
             icon: 'ph:bell-simple-ringing-duotone',
           })
 
