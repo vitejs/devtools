@@ -1,4 +1,5 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { clientPublicDir } from '../dirs'
 import { rpcFunctions } from './rpc/index'
 
@@ -22,7 +23,7 @@ export function DevToolsRolldownUI(): PluginWithDevTools {
         ctx.docks.register({
           id: 'rolldown',
           title: 'Rolldown',
-          category: '~viteplus',
+          groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
           icon: rolldownIconDataUri,
           type: 'iframe',
           url: '/__devtools-rolldown/',

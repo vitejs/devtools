@@ -22,8 +22,14 @@ export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/__devtools'
 export const DEVTOOLS_DIRNAME = '__devtools'
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
+/**
+ * Id of the built-in dock group that collects Vite Plus integrations
+ * (Rolldown, etc.) under a single "Vite+" dock button. Vite DevTools seeds
+ * this group; integrations join it by setting `groupId` to this value.
+ */
+export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
-  '~viteplus': -1000,
   'default': 0,
   'app': 100,
   'framework': 200,

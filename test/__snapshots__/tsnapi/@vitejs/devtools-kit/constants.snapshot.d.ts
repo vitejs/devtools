@@ -7,6 +7,7 @@ export declare const DEVTOOLS_DIRNAME: string;
 export declare const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID: string;
 export declare const DEVTOOLS_MOUNT_PATH: string;
 export declare const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH: string;
+export declare const DEVTOOLS_VITEPLUS_GROUP_ID: string;
 // #endregion
 
 // #region Other

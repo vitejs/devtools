@@ -21,8 +21,8 @@ export type {
 } from '@devframes/hub/types'
 
 /**
- * The kit's dock-entry category union extends hub's framework-neutral set
- * with the Vite-specific `~viteplus` slot used by Vite DevTools to group
- * Vite Plus integrations above the default categories.
+ * The kit's dock-entry category union. Vite Plus integrations are collected
+ * under a dedicated dock group (see `DEVTOOLS_VITEPLUS_GROUP_ID`) rather than
+ * a category, so this mirrors hub's framework-neutral set directly.
  */
-export type DevToolsDockEntryCategory = DevframeDockEntryCategory | '~viteplus'
+export type DevToolsDockEntryCategory = DevframeDockEntryCategory
