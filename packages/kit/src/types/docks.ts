@@ -11,6 +11,7 @@ export type {
   DevframeViewAction as DevToolsViewAction,
   DevframeViewBuiltin as DevToolsViewBuiltin,
   DevframeViewCustomRender as DevToolsViewCustomRender,
+  DevframeViewGroup as DevToolsViewGroup,
   DevframeViewIframe as DevToolsViewIframe,
   DevframeViewJsonRender as DevToolsViewJsonRender,
   DevframeViewLauncher as DevToolsViewLauncher,

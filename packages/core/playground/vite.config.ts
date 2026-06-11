@@ -127,6 +127,33 @@ export default defineConfig({
             remote: true,
           })
 
+          // Docked group: collapse several sub-tools under a single button.
+          // Mirrors how a framework like Nuxt could surface its features as
+          // individually-pluggable Vite DevTools entries under one umbrella.
+          ctx.docks.register({
+            id: 'nuxt',
+            type: 'group',
+            title: 'Nuxt',
+            icon: 'logos:nuxt-icon',
+            category: 'framework',
+            defaultChildId: 'nuxt:overview',
+          })
+          for (const [id, title, icon] of [
+            ['nuxt:overview', 'Overview', 'ph:gauge-duotone'],
+            ['nuxt:pages', 'Pages', 'ph:files-duotone'],
+            ['nuxt:components', 'Components', 'ph:puzzle-piece-duotone'],
+            ['nuxt:modules', 'Modules', 'ph:plugs-connected-duotone'],
+          ] as const) {
+            ctx.docks.register({
+              id,
+              type: 'iframe',
+              url: '/devtools/',
+              title,
+              icon,
+              groupId: 'nuxt',
+            })
+          }
+
           ctx.docks.register({
             id: 'launcher',
             type: 'launcher',

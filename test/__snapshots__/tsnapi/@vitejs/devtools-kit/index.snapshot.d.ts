@@ -59,6 +59,7 @@ export { DevToolsTerminalStatus }
 export { DevToolsViewAction }
 export { DevToolsViewBuiltin }
 export { DevToolsViewCustomRender }
+export { DevToolsViewGroup }
 export { DevToolsViewHost }
 export { DevToolsViewIframe }
 export { DevToolsViewJsonRender }

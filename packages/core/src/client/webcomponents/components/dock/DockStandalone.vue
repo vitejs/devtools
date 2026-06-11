@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import CommandPalette from '../command-palette/CommandPalette.vue'
 import Confirm from '../display/Confirm.vue'
@@ -10,6 +11,7 @@ import VitePlus from '../icons/VitePlus.vue'
 import ViewBuiltinClientAuthNotice from '../views-builtin/ViewBuiltinClientAuthNotice.vue'
 import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
+import DockGroupSidebar from './DockGroupSidebar.vue'
 
 const props = defineProps<{
   context: DocksContext
@@ -36,6 +38,7 @@ watch(
 )
 
 const groupedEntries = computed(() => context.docks.groupedEntries)
+const activeGroup = computed(() => getEntryGroup(context.docks.entries, context.docks.selected))
 
 function switchEntry(id: string | undefined) {
   if (id) {
@@ -67,15 +70,23 @@ function switchEntry(id: string | undefined) {
         </DockEntriesWithCategories>
       </div>
     </div>
-    <div class="min-h-0">
-      <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
-      <ViewEntry
-        v-if="context.docks.selected && viewsContainer"
-        :key="context.docks.selected.id"
-        :entry="context.docks.selected"
+    <div class="min-h-0 flex">
+      <DockGroupSidebar
+        v-if="activeGroup"
         :context
-        :persisted-doms="persistedDoms"
+        :group="activeGroup"
+        :selected-id="context.docks.selected?.id ?? null"
       />
+      <div class="relative flex-1 min-w-0 min-h-0">
+        <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
+        <ViewEntry
+          v-if="context.docks.selected && viewsContainer"
+          :key="context.docks.selected.id"
+          :entry="context.docks.selected"
+          :context
+          :persisted-doms="persistedDoms"
+        />
+      </div>
     </div>
   </div>
   <FloatingElements />
