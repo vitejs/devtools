@@ -41,8 +41,8 @@ catalogs:
       version: 0.3.0
   deps:
     '@devframes/hub':
-      specifier: ^0.5.2
-      version: 0.5.2
+      specifier: ^0.5.4
+      version: 0.5.4
     actionspack:
       specifier: ^0.1.5
       version: 0.1.5
@@ -50,8 +50,8 @@ catalogs:
       specifier: ^4.0.0
       version: 4.0.0
     devframe:
-      specifier: ^0.5.2
-      version: 0.5.2
+      specifier: ^0.5.4
+      version: 0.5.4
     diff:
       specifier: ^9.0.0
       version: 9.0.0
@@ -579,7 +579,7 @@ importers:
         version: 4.8.4(change-case@5.4.4)(focus-trap@8.0.0)(fuse.js@7.4.1)(idb-keyval@6.2.4)(typescript@6.0.3)(vite@8.0.16(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.4)(yaml@2.9.0))(vitepress@2.0.0-alpha.17(@types/node@25.0.3)(@vitejs/devtools@packages+core)(change-case@5.4.4)(esbuild@0.28.0)(fuse.js@7.4.1)(idb-keyval@6.2.4)(jiti@2.7.0)(oxc-minify@0.131.0)(postcss@8.5.15)(terser@5.44.1)(tsx@4.22.4)(typescript@6.0.3)(yaml@2.9.0))(vue@3.5.35(typescript@6.0.3))
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       mermaid:
         specifier: catalog:docs
         version: 11.15.0
@@ -723,7 +723,7 @@ importers:
     dependencies:
       '@devframes/hub':
         specifier: catalog:deps
-        version: 0.5.2(devframe@0.5.2(typescript@6.0.3))
+        version: 0.5.4(devframe@0.5.4(typescript@6.0.3))
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
@@ -738,7 +738,7 @@ importers:
         version: 7.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       h3:
         specifier: catalog:deps
         version: 2.0.1-rc.22
@@ -814,13 +814,13 @@ importers:
     dependencies:
       '@devframes/hub':
         specifier: catalog:deps
-        version: 0.5.2(devframe@0.5.2(typescript@6.0.3))
+        version: 0.5.4(devframe@0.5.4(typescript@6.0.3))
       birpc:
         specifier: catalog:deps
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       mlly:
         specifier: catalog:deps
         version: 1.8.2
@@ -872,7 +872,7 @@ importers:
         version: 3.2.0
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       diff:
         specifier: catalog:deps
         version: 9.0.0
@@ -990,7 +990,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       pathe:
         specifier: catalog:deps
         version: 2.0.3
@@ -1051,7 +1051,7 @@ importers:
         version: 4.0.0
       devframe:
         specifier: catalog:deps
-        version: 0.5.2(typescript@6.0.3)
+        version: 0.5.4(typescript@6.0.3)
       envinfo:
         specifier: catalog:deps
         version: 7.21.0
@@ -1376,6 +1376,11 @@ packages:
     resolution: {integrity: sha512-qMkBFw1OqhPuNs1tQWkRq0z0Tg49kXNu53bs59tdF4lytKupatWVnL3cpsVPqn+Q5P7A70r99BKTcm+prMtHqw==}
     peerDependencies:
       devframe: 0.5.2
+
+  '@devframes/hub@0.5.4':
+    resolution: {integrity: sha512-NZs5RFuNb6tjQd2JBsRYQT+OqE+z16Kg9/72HG4k+uJdzK90sAGtAjOwK8bsvav/9l85KGx4agfkgxnfbl313w==}
+    peerDependencies:
+      devframe: 0.5.4
 
   '@docsearch/css@4.5.4':
     resolution: {integrity: sha512-gzO4DJwyM9c4YEPHwaLV1nUCDC2N6yoh0QJj44dce2rcfN71mB+jpu3+F+Y/KMDF1EKV0C3m54leSWsraE94xg==}
@@ -4928,6 +4933,14 @@ packages:
 
   devframe@0.5.2:
     resolution: {integrity: sha512-8dIdlOmuY+6NcCsaI2qS0uRLTZ3SvpejY8OYVbXvdWSQV7pvjdWaYNZhVfOfCSd/a5dSCgSge4vW4DCyJSf7+g==}
+    peerDependencies:
+      '@modelcontextprotocol/sdk': ^1.0.0
+    peerDependenciesMeta:
+      '@modelcontextprotocol/sdk':
+        optional: true
+
+  devframe@0.5.4:
+    resolution: {integrity: sha512-dbHU/LuptR1aMXcizjHUeY3gu7qVaRQoFYqbbyyGuO6Y+avFA4uQtwinHtG1qa7lRel/7b8JrBDm0nbnxU3vqg==}
     peerDependencies:
       '@modelcontextprotocol/sdk': ^1.0.0
     peerDependenciesMeta:
@@ -8636,6 +8649,15 @@ snapshots:
     dependencies:
       birpc: 4.0.0
       devframe: 0.5.2(typescript@6.0.3)
+      nostics: 0.2.0
+      pathe: 2.0.3
+      perfect-debounce: 2.1.0
+      tinyexec: 1.2.4
+
+  '@devframes/hub@0.5.4(devframe@0.5.4(typescript@6.0.3))':
+    dependencies:
+      birpc: 4.0.0
+      devframe: 0.5.4(typescript@6.0.3)
       nostics: 0.2.0
       pathe: 2.0.3
       perfect-debounce: 2.1.0
@@ -12605,6 +12627,23 @@ snapshots:
   devalue@5.8.1: {}
 
   devframe@0.5.2(typescript@6.0.3):
+    dependencies:
+      '@valibot/to-json-schema': 1.7.0(valibot@1.4.1(typescript@6.0.3))
+      birpc: 4.0.0
+      cac: 7.0.0
+      h3: 2.0.1-rc.22
+      mrmime: 2.0.1
+      nostics: 0.2.0
+      pathe: 2.0.3
+      valibot: 1.4.1(typescript@6.0.3)
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - crossws
+      - typescript
+      - utf-8-validate
+
+  devframe@0.5.4(typescript@6.0.3):
     dependencies:
       '@valibot/to-json-schema': 1.7.0(valibot@1.4.1(typescript@6.0.3))
       birpc: 4.0.0

@@ -56,12 +56,12 @@ catalogs:
     unrun: ^0.3.0
     vite: ^8.0.16
   deps:
-    '@devframes/hub': ^0.5.2
+    '@devframes/hub': ^0.5.4
     '@rolldown/debug': ^1.0.3
     actionspack: ^0.1.5
     birpc: ^4.0.0
     cac: ^7.0.0
-    devframe: ^0.5.2
+    devframe: ^0.5.4
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0

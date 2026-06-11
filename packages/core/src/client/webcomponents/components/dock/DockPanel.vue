@@ -4,9 +4,11 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import ViewEntry from '../views/ViewEntry.vue'
 import { openDockContextMenu } from './DockContextMenu'
+import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 
 const props = defineProps<{
@@ -18,6 +20,9 @@ const props = defineProps<{
 
 const context = props.context
 const { selected, panelMargins } = toRefs(props)
+
+// When the open entry belongs to a group, surface its siblings in a sidebar.
+const activeGroup = computed(() => getEntryGroup(context.docks.entries, selected.value))
 
 const windowSize = reactive(useWindowSize())
 const isHovering = ref(false)
@@ -184,21 +189,31 @@ onMounted(() => {
     @contextmenu="openContextMenu"
   >
     <DockPanelResizer :panel="context.panel" />
-    <ViewEntry
-      v-if="selected && viewsContainer"
-      :key="selected.id"
-      :context
-      :entry="selected"
-      :persisted-doms="persistedDoms"
-      :iframe-style="{
-        border: 'none',
-        borderRadius: '0.5rem',
-      }"
-    />
-    <div
-      id="vite-devtools-views-container"
-      ref="viewsContainer"
-      class="absolute inset-0 pointer-events-none"
-    />
+    <div class="flex w-full h-full">
+      <DockGroupSidebar
+        v-if="activeGroup"
+        :context
+        :group="activeGroup"
+        :selected-id="selected?.id ?? null"
+      />
+      <div class="relative flex-1 min-w-0 h-full">
+        <ViewEntry
+          v-if="selected && viewsContainer"
+          :key="selected.id"
+          :context
+          :entry="selected"
+          :persisted-doms="persistedDoms"
+          :iframe-style="{
+            border: 'none',
+            borderRadius: '0.5rem',
+          }"
+        />
+        <div
+          id="vite-devtools-views-container"
+          ref="viewsContainer"
+          class="absolute inset-0 pointer-events-none"
+        />
+      </div>
+    </div>
   </div>
 </template>
