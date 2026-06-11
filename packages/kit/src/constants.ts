@@ -1,17 +1,18 @@
 import type { DevToolsDockEntryCategory } from './types/docks'
 import type { DevToolsDocksUserSettings } from './types/settings'
 
+export { DEFAULT_STATE_USER_SETTINGS } from '@devframes/hub/constants'
+
 // Filename / dirname constants whose *values* are unchanged across the
 // devframe `DevTools*` → `Devframe*` rename. Re-export them under both
 // names so downstream code that imports `DEVTOOLS_*` keeps compiling.
 export {
-  DEFAULT_STATE_USER_SETTINGS,
   DEVFRAME_CONNECTION_META_FILENAME as DEVTOOLS_CONNECTION_META_FILENAME,
   DEVFRAME_DOCK_IMPORTS_FILENAME as DEVTOOLS_DOCK_IMPORTS_FILENAME,
   DEVFRAME_RPC_DUMP_DIRNAME as DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVFRAME_RPC_DUMP_MANIFEST_FILENAME as DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
   REMOTE_CONNECTION_KEY,
-} from '@devframes/hub/constants'
+} from 'devframe/constants'
 
 // Kit-side mount path is pinned at `/__devtools/` regardless of devframe's
 // new `/__devframe/` default. The hosted (Vite-mounted) flow always passes
