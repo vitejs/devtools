@@ -21,14 +21,14 @@ const settings = sharedStateToRef(props.settingsStore)
 // group button. A group's members live in their own reorderable container
 // (`grp:<id>`); category containers are keyed `cat:<name>`.
 const categories = computed<DevToolsDockEntriesGrouped>(() => {
-  return docksGroupByCategories(props.context.docks.entries, props.settingsStore.value(), {
+  return docksGroupByCategories(props.context.docks.entries, settings.value, {
     includeHidden: true,
     collapseGroups: true,
   })
 })
 
 function membersOf(groupId: string): DevToolsDockEntry[] {
-  return getGroupMembers(props.context.docks.entries, groupId, props.settingsStore.value(), {
+  return getGroupMembers(props.context.docks.entries, groupId, settings.value, {
     includeHidden: true,
   })
 }
