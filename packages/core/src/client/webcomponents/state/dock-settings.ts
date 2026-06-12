@@ -13,6 +13,21 @@ export interface SplitGroupsResult {
 }
 
 /**
+ * Resolve a dock entry's icon down to a single icon string.
+ *
+ * A dock icon may be a string or a `{ light, dark }` pair, but a command's icon
+ * is string-only. When projecting dock entries into commands (palette + Shortcuts
+ * settings) we collapse the object form to a single string rather than dropping
+ * it — otherwise object-icon docks (e.g. the built-in Vite+ group) lose their
+ * icon entirely. Returns `undefined` only when no icon is available.
+ */
+export function resolveCommandIcon(icon: DevToolsDockEntry['icon']): string | undefined {
+  if (typeof icon === 'string')
+    return icon
+  return icon?.light ?? icon?.dark
+}
+
+/**
  * Collect the ids of every registered dock group (`type: 'group'`).
  *
  * Grouping is one level deep, so a group entry never points at another group;
