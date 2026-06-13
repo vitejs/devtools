@@ -218,15 +218,27 @@ function moveOrder(container: string, id: string, delta: number) {
   applyOrder(array)
 }
 
+function customOrderIdsForContainer(container: string): string[] {
+  const items = itemsOfContainer(container)
+  const ids = items.map(item => item.id)
+  if (container.startsWith('cat:')) {
+    for (const item of items) {
+      if (item.type === 'group')
+        ids.push(...membersOf(item.id).map(member => member.id))
+    }
+  }
+  return ids
+}
+
 function doesContainerHaveCustomOrder(container: string): boolean {
-  return itemsOfContainer(container).some(item => isInCustomOrder(item.id))
+  return customOrderIdsForContainer(container).some(id => isInCustomOrder(id))
 }
 
 function resetCustomOrderForContainer(container: string) {
-  const items = itemsOfContainer(container)
+  const ids = customOrderIdsForContainer(container)
   props.settingsStore.mutate((state) => {
-    items.forEach((item) => {
-      delete state.docksCustomOrder[item.id]
+    ids.forEach((id) => {
+      delete state.docksCustomOrder[id]
     })
   })
 }
