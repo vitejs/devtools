@@ -12,6 +12,7 @@ import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { MARK_INFO } from './constants'
 import { diagnostics } from './diagnostics'
+import { resolveHttpsConfig } from './https'
 
 const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 
@@ -40,7 +41,7 @@ function buildWsUrl({ host, port, https }: { host: string, port: number, https: 
 export async function createWsServer(options: CreateWsServerOptions) {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
   const host = options.websocket.host
-  const https = options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https)
+  const https = await resolveHttpsConfig(options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https))
   const port = options.websocket.port ?? await getPort({ port: 7812, host, random: true })!
 
   const wsClients = new Set<WebSocket>()
