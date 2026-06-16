@@ -80,13 +80,14 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
 
   const rootChildren = ['header', 'branch-info']
   if (interactive)
-    rootChildren.push('commit-section')
+    rootChildren.push('commit-section', 'amend-switch')
   rootChildren.push('divider1', 'staged-card', 'unstaged-card', 'commits-card')
 
   return {
     root: 'root',
     state: {
       commitMessage: '',
+      amend: false,
     },
     elements: {
       'root': {
@@ -133,6 +134,13 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
         props: { direction: 'horizontal', gap: 8 },
         children: ['commit-input', 'commit-btn'],
       },
+      'amend-switch': {
+        type: 'Switch',
+        props: {
+          label: 'Amend last commit',
+          value: { $bindState: '/amend' },
+        },
+      },
       'commit-input': {
         type: 'TextInput',
         props: {
@@ -146,7 +154,10 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
         on: {
           press: {
             action: 'git-ui:commit',
-            params: { message: { $state: '/commitMessage' } },
+            params: {
+              message: { $state: '/commitMessage' },
+              amend: { $state: '/amend' },
+            },
           },
         },
       },
