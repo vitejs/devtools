@@ -94,6 +94,14 @@ export const devtoolsCatalog = defineCatalog(devtoolsSchema, {
       }),
       description: 'Text input field. Use $bindState on the value prop for two-way binding.',
     },
+    Switch: {
+      props: z.object({
+        value: z.boolean().default(false),
+        label: z.string().optional(),
+        disabled: z.boolean().default(false),
+      }),
+      description: 'Toggle switch. Use $bindState on the value prop for two-way binding. Bind "change" event to react to toggles.',
+    },
     KeyValueTable: {
       props: z.object({
         title: z.string().optional(),

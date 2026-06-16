@@ -9,6 +9,7 @@ import { Icon } from './components/Icon'
 import { KeyValueTable } from './components/KeyValueTable'
 import { Progress } from './components/Progress'
 import { Stack } from './components/Stack'
+import { Switch } from './components/Switch'
 import { Text } from './components/Text'
 import { TextInput } from './components/TextInput'
 import { Tree } from './components/Tree'
@@ -22,6 +23,7 @@ export const devtoolsRegistry: Record<string, Component> = {
   Icon,
   Divider,
   TextInput,
+  Switch,
   KeyValueTable,
   DataTable,
   CodeBlock,
