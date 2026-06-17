@@ -1,8 +1,8 @@
-import { defineDiagnostics, reporterLog } from 'nostics'
+import { createConsoleReporter, defineDiagnostics } from 'nostics'
 
-export const diagnostics = defineDiagnostics({
+export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
-  reporters: [reporterLog],
+  reporters: [createConsoleReporter()],
   codes: {
     RDDT0001: {
       why: 'Rolldown logs directory `.rolldown` not found, you might want to run build with `build.rolldownOptions.devtools` enabled first.',
