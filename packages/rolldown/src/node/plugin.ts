@@ -1,15 +1,37 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import { existsSync } from 'node:fs'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+import { join } from 'pathe'
 import { clientPublicDir } from '../dirs'
+import { DEFAULT_MAX_SESSIONS, RolldownLogsManager } from './rolldown/logs-manager'
 import { rpcFunctions } from './rpc/index'
 
-export function DevToolsRolldownUI(): PluginWithDevTools {
+export interface DevToolsRolldownOptions {
+  /**
+   * Maximum number of build sessions to retain on disk.
+   * Older sessions are removed when the limit is exceeded.
+   * Set to 0 to disable automatic cleanup.
+   * @default 10
+   */
+  maxSessions?: number
+}
+
+export function DevToolsRolldownUI(options: DevToolsRolldownOptions = {}): PluginWithDevTools {
   return {
     name: 'vite:devtools:rolldown-ui',
     devtools: {
       setup(ctx) {
         for (const fn of rpcFunctions) {
           ctx.rpc.register(fn as any)
+        }
+
+        const maxSessions = options.maxSessions ?? DEFAULT_MAX_SESSIONS
+        if (maxSessions > 0) {
+          const rolldownDir = join(ctx.cwd, 'node_modules', '.rolldown')
+          if (existsSync(rolldownDir)) {
+            const manager = new RolldownLogsManager(rolldownDir)
+            manager.cleanup(maxSessions).catch(() => {})
+          }
         }
 
         ctx.views.hostStatic(

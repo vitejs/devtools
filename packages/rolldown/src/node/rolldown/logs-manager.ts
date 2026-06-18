@@ -4,6 +4,8 @@ import fs from 'node:fs/promises'
 import { join } from 'pathe'
 import { RolldownEventsReader } from './events-reader'
 
+export const DEFAULT_MAX_SESSIONS = 10
+
 export interface BuildInfo {
   id: string
   timestamp: number
@@ -70,6 +72,22 @@ export class RolldownLogsManager {
     const reader = await this.loadSession(session)
     await reader.readAssets()
     return reader
+  }
+
+  async cleanup(maxSessions: number = DEFAULT_MAX_SESSIONS): Promise<void> {
+    if (!existsSync(this.dir)) {
+      return
+    }
+    const sessions = await this.list()
+    if (sessions.length <= maxSessions) {
+      return
+    }
+    const toDelete = sessions
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .slice(0, sessions.length - maxSessions)
+    await Promise.all(
+      toDelete.map(session => fs.rm(join(this.dir, session.id), { recursive: true, force: true })),
+    )
   }
 
   async loadPackageSession(session: string) {
