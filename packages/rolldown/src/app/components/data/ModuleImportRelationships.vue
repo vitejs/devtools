@@ -37,11 +37,13 @@ const modulesMap = computed(() => {
 })
 
 const importers = computed(() => {
-  return props.module.importers?.map(x => modulesMap.value.get(x))
+  return props.module.importers
+    ?.map(x => modulesMap.value.get(x))
+    .filter((module): module is ModuleListItem => !!module)
 })
 
 const normalizedMaxLinks = computed(() => {
-  return Math.min(Math.max(props.module.importers?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
+  return Math.min(Math.max(importers.value?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
 })
 
 const importersMaxLength = computed(() => Math.min(importers.value?.length || 0, MAX_LINKS))
@@ -140,89 +142,96 @@ onMounted(() => {
     ref="container"
     w-full relative select-none mt4
   >
-    <!-- nodes -->
-    <div flex px2>
-      <!-- importers -->
-      <div
-        v-if="importers?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importersVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(importer, i) of importers" :key="importer!.id">
-          <DisplayModuleId
-            :id="importer!.id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-      <!-- dot: current module -->
-      <div
-        bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
-          margin: dotNodeMargin,
-          width: `${SPACING.dot}px`,
-          height: `${SPACING.dot}px`,
-        }"
-      />
-      <!-- imports -->
-      <div
-        v-if="module.imports?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importsVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(_import, i) of module.imports" :key="_import.module_id">
-          <DisplayModuleId
-            :id="_import!.module_id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-    </div>
-
-    <!-- links -->
-    <svg
-      pointer-events-none absolute left-0 top-0 z-graph-link w-full
-      :style="{
-        height: `${nodesHeight}px`,
-      }"
-    >
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
-          :class="getModuleGraphLinkColor<ModuleListItem, ModuleImport>(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-          fill="none"
+    <template v-if="importers?.length || module.imports?.length">
+      <!-- nodes -->
+      <div flex px2>
+        <!-- importers -->
+        <div
+          v-if="importers?.length"
+          py1
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importersVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(importer, i) of importers" :key="importer.id">
+            <DisplayModuleId
+              :id="importer.id"
+              hover="bg-active" block px2 p1 bg-base ws-nowrap
+              z-graph-node
+              border="~ base rounded"
+              :link="true"
+              :session="session"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+        <!-- dot: current module -->
+        <div
+          bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
+            margin: dotNodeMargin,
+            width: `${SPACING.dot}px`,
+            height: `${SPACING.dot}px`,
+          }"
         />
-      </g>
-    </svg>
+        <!-- imports -->
+        <div
+          v-if="module.imports?.length"
+          py1
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importsVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(_import, i) of module.imports" :key="_import.module_id">
+            <DisplayModuleId
+              :id="_import!.module_id"
+              hover="bg-active" block px2 p1 bg-base ws-nowrap
+              z-graph-node
+              border="~ base rounded"
+              :link="true"
+              :session="session"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+      </div>
+
+      <!-- links -->
+      <svg
+        pointer-events-none absolute left-0 top-0 z-graph-link w-full
+        :style="{
+          height: `${nodesHeight}px`,
+        }"
+      >
+        <g>
+          <path
+            v-for="link of links"
+            :key="link.id"
+            :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
+            :class="getModuleGraphLinkColor<ModuleListItem, ModuleImport>(link)"
+            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+            fill="none"
+          />
+        </g>
+      </svg>
+    </template>
+    <div v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+      <p>
+        No data
+      </p>
+    </div>
   </div>
 </template>
