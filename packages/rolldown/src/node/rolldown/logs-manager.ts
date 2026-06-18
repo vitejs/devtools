@@ -78,6 +78,17 @@ export class RolldownLogsManager {
     if (!existsSync(this.dir)) {
       return
     }
+
+    const allDirs = (await fs.readdir(this.dir, { withFileTypes: true }))
+      .filter(d => d.isDirectory())
+
+    const invalidDirs = allDirs.filter(
+      d => !existsSync(join(this.dir, d.name, 'meta.json')),
+    )
+    await Promise.all(
+      invalidDirs.map(d => fs.rm(join(this.dir, d.name), { recursive: true, force: true })),
+    )
+
     const sessions = await this.list()
     if (sessions.length <= maxSessions) {
       return
