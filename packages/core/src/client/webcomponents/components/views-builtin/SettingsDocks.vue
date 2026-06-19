@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
-import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
+import type { DevToolsDockEntriesGrouped, DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { useDraggable } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
-import { docksGroupByCategories } from '../../state/dock-settings'
+import { docksGroupByCategories, getGroupMembers } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import HashBadge from '../display/HashBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
@@ -16,27 +17,49 @@ const props = defineProps<{
 
 const settings = sharedStateToRef(props.settingsStore)
 
-const categories = computed(() => {
-  return docksGroupByCategories(props.context.docks.entries, props.settingsStore.value(), { includeHidden: true })
+// Top-level rows are grouped by category with members collapsed under their
+// group button. A group's members live in their own reorderable container
+// (`grp:<id>`); category containers are keyed `cat:<name>`.
+const categories = computed<DevToolsDockEntriesGrouped>(() => {
+  return docksGroupByCategories(props.context.docks.entries, settings.value, {
+    includeHidden: true,
+    collapseGroups: true,
+  })
 })
 
+function membersOf(groupId: string): DevToolsDockEntry[] {
+  return getGroupMembers(props.context.docks.entries, groupId, settings.value, {
+    includeHidden: true,
+  })
+}
+
+const CATEGORY_CONTAINER = (category: string) => `cat:${category}`
+const GROUP_CONTAINER = (groupId: string) => `grp:${groupId}`
+
+function itemsOfContainer(container: string): DevToolsDockEntry[] {
+  if (container.startsWith('grp:'))
+    return membersOf(container.slice(4))
+  const category = container.slice(4)
+  return categories.value.find(([cat]) => cat === category)?.[1] ?? []
+}
+
 const sortContainerEl = useTemplateRef<HTMLElement>('sortContainer')
-const entryEls = new Map<string, { el: HTMLElement, category: string }>()
+const entryEls = new Map<string, { el: HTMLElement, container: string }>()
 const draggingId = ref<string | null>(null)
-const draggingCategory = ref<string | null>(null)
+const draggingContainer = ref<string | null>(null)
 const dragOverId = ref<string | null>(null)
 const hasMoved = ref(false)
 let startY = 0
 const DRAG_THRESHOLD = 4
 
-function findEntryFromEvent(event: PointerEvent): { dockId: string | null, category: string | null } {
+function findEntryFromEvent(event: PointerEvent): { dockId: string | null, container: string | null } {
   let el = event.target as HTMLElement | null
   while (el && el !== sortContainerEl.value) {
     if (el.dataset.dockId)
-      return { dockId: el.dataset.dockId, category: el.dataset.category ?? null }
+      return { dockId: el.dataset.dockId, container: el.dataset.container ?? null }
     el = el.parentElement
   }
-  return { dockId: null, category: null }
+  return { dockId: null, container: null }
 }
 
 function isInteractiveElement(el: HTMLElement | null): boolean {
@@ -48,17 +71,25 @@ function isInteractiveElement(el: HTMLElement | null): boolean {
   return false
 }
 
+function applyOrder(items: DevToolsDockEntry[]) {
+  props.settingsStore.mutate((state) => {
+    items.forEach((item, index) => {
+      state.docksCustomOrder[item.id] = index
+    })
+  })
+}
+
 useDraggable(sortContainerEl, {
   onStart(_, event) {
     if (event.button !== 0)
       return false
     if (isInteractiveElement(event.target as HTMLElement))
       return false
-    const { dockId, category } = findEntryFromEvent(event)
-    if (!dockId || !category)
+    const { dockId, container } = findEntryFromEvent(event)
+    if (!dockId || !container)
       return false
     draggingId.value = dockId
-    draggingCategory.value = category
+    draggingContainer.value = container
     hasMoved.value = false
     startY = event.clientY
   },
@@ -71,10 +102,10 @@ useDraggable(sortContainerEl, {
       hasMoved.value = true
     }
     let target: string | null = null
-    for (const [id, { el, category }] of entryEls) {
+    for (const [id, { el, container }] of entryEls) {
       if (id === draggingId.value)
         continue
-      if (category !== draggingCategory.value)
+      if (container !== draggingContainer.value)
         continue
       const rect = el.getBoundingClientRect()
       if (event.clientY >= rect.top && event.clientY <= rect.bottom) {
@@ -85,40 +116,31 @@ useDraggable(sortContainerEl, {
     dragOverId.value = target
   },
   onEnd() {
-    if (draggingId.value && hasMoved.value && dragOverId.value && draggingCategory.value) {
-      const categoryEntries = categories.value.find(([cat]) => cat === draggingCategory.value)
-      if (categoryEntries) {
-        const items = [...categoryEntries[1]]
-        const fromIndex = items.findIndex(item => item.id === draggingId.value)
-        const toIndex = items.findIndex(item => item.id === dragOverId.value)
-        if (fromIndex !== -1 && toIndex !== -1) {
-          items.splice(toIndex, 0, items.splice(fromIndex, 1)[0]!)
-          categoryEntries[1] = items
-          props.settingsStore.mutate((state) => {
-            items.forEach((item, index) => {
-              state.docksCustomOrder[item.id] = index
-            })
-          })
-        }
+    if (draggingId.value && hasMoved.value && dragOverId.value && draggingContainer.value) {
+      const items = [...itemsOfContainer(draggingContainer.value)]
+      const fromIndex = items.findIndex(item => item.id === draggingId.value)
+      const toIndex = items.findIndex(item => item.id === dragOverId.value)
+      if (fromIndex !== -1 && toIndex !== -1) {
+        items.splice(toIndex, 0, items.splice(fromIndex, 1)[0]!)
+        applyOrder(items)
       }
     }
     draggingId.value = null
-    draggingCategory.value = null
+    draggingContainer.value = null
     dragOverId.value = null
     hasMoved.value = false
   },
 })
 
-function setEntryRef(el: any, dockId: string, category: string) {
+function setEntryRef(el: any, dockId: string, container: string) {
   if (el)
-    entryEls.set(dockId, { el: el as HTMLElement, category })
+    entryEls.set(dockId, { el: el as HTMLElement, container })
   else
     entryEls.delete(dockId)
 }
 
 function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
-    '~viteplus': 'Vite+',
     'default': 'Default',
     'app': 'App',
     'framework': 'Framework',
@@ -185,39 +207,25 @@ function isInCustomOrder(id: string): boolean {
   return settings.value.docksCustomOrder[id] !== undefined
 }
 
-function moveOrder(category: string, id: string, delta: number) {
-  const items = categories.value.find(([cat]) => cat === category)
-  if (!items)
-    throw new Error(`Category ${category} not found`)
-  const array = [...items[1]]
+function moveOrder(container: string, id: string, delta: number) {
+  const array = [...itemsOfContainer(container)]
   const index = array.findIndex(item => item.id === id)
   const newIndex = index + delta
   if (newIndex < 0 || newIndex >= array.length)
-    throw new Error(`Invalid new index ${newIndex} for category ${category}`)
+    return
 
   array.splice(newIndex, 0, array.splice(index, 1)[0]!)
-  items[1] = array
-
-  props.settingsStore.mutate((state) => {
-    array.forEach((item, index) => {
-      state.docksCustomOrder[item.id] = index
-    })
-  })
+  applyOrder(array)
 }
 
-function doesCategoryHaveCustomOrder(category: string): boolean {
-  const items = categories.value.find(([cat]) => cat === category)
-  if (!items)
-    return false
-  return items[1].some(item => isInCustomOrder(item.id))
+function doesContainerHaveCustomOrder(container: string): boolean {
+  return itemsOfContainer(container).some(item => isInCustomOrder(item.id))
 }
 
-function resetCustomOrderForCategory(category: string) {
-  const items = categories.value.find(([cat]) => cat === category)
-  if (!items)
-    return
+function resetCustomOrderForContainer(container: string) {
+  const items = itemsOfContainer(container)
   props.settingsStore.mutate((state) => {
-    items[1].forEach((item) => {
+    items.forEach((item) => {
       delete state.docksCustomOrder[item.id]
     })
   })
@@ -256,10 +264,10 @@ function resetCustomOrderForCategory(category: string) {
           <span class="text-xs op40">({{ entries.length }})</span>
           <span class="flex-auto" />
           <button
-            v-if="doesCategoryHaveCustomOrder(category)"
+            v-if="doesContainerHaveCustomOrder(CATEGORY_CONTAINER(category))"
             class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
             title="Reset custom order"
-            @click="resetCustomOrderForCategory(category)"
+            @click="resetCustomOrderForContainer(CATEGORY_CONTAINER(category))"
           >
             <div class="i-ph-arrows-counter-clockwise-duotone text-sm op60" />
           </button>
@@ -267,99 +275,211 @@ function resetCustomOrderForCategory(category: string) {
 
         <!-- Entries -->
         <div>
-          <div
-            v-for="(dock, index) of entries"
-            :key="dock.id"
-            :ref="(el: any) => setEntryRef(el, dock.id, category)"
-            :data-dock-id="dock.id"
-            :data-category="category"
-            class="flex items-center gap-3 px-2 py-2.5 hover:bg-gray/5 transition-all group border-b border-base border-t-0"
-            :class="[
-              settings.docksHidden.includes(dock.id) ? 'op40' : '',
-              hasMoved && draggingId === dock.id ? 'op30 bg-gray/10' : '',
-              dragOverId === dock.id ? 'ring-1.5 ring-purple/50 rounded' : '',
-              hasMoved ? 'select-none' : '',
-            ]"
-          >
-            <!-- drag icon -->
+          <template v-for="(dock, index) of entries" :key="dock.id">
+            <!-- Row -->
             <div
-              class="i-ph-dots-six-vertical w-4 h-4 shrink-0 op25 group-hover:op50 transition-opacity cursor-grab"
-              :style="hasMoved && draggingId === dock.id ? 'cursor: grabbing' : ''"
-            />
-
-            <!-- Visibility toggle -->
-            <button
-              class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
-              :class="dock.id === '~settings' ? 'cursor-not-allowed op50' : settings.docksHidden.includes(dock.id) ? 'op50' : ''"
-              :disabled="dock.id === '~settings'"
-              :title="dock.id === '~settings' ? 'Always visible' : settings.docksHidden.includes(dock.id) ? 'Show' : 'Hide'"
-              @click="toggleDock(dock.id)"
+              :ref="(el: any) => setEntryRef(el, dock.id, CATEGORY_CONTAINER(category))"
+              :data-dock-id="dock.id"
+              :data-container="CATEGORY_CONTAINER(category)"
+              class="flex items-center gap-3 px-2 py-2.5 hover:bg-gray/5 transition-all group border-b border-base border-t-0"
+              :class="[
+                settings.docksHidden.includes(dock.id) ? 'op40' : '',
+                hasMoved && draggingId === dock.id ? 'op30 bg-gray/10' : '',
+                dragOverId === dock.id ? 'ring-1.5 ring-purple/50 rounded' : '',
+                hasMoved ? 'select-none' : '',
+              ]"
             >
+              <!-- drag icon -->
               <div
-                class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                :class="dock.id === '~settings' ? 'bg-gray/30' : settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                class="i-ph-dots-six-vertical w-4 h-4 shrink-0 op25 group-hover:op50 transition-opacity cursor-grab"
+                :style="hasMoved && draggingId === dock.id ? 'cursor: grabbing' : ''"
+              />
+
+              <!-- Visibility toggle -->
+              <button
+                class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
+                :class="dock.id === '~settings' ? 'cursor-not-allowed op50' : settings.docksHidden.includes(dock.id) ? 'op50' : ''"
+                :disabled="dock.id === '~settings'"
+                :title="dock.id === '~settings' ? 'Always visible' : settings.docksHidden.includes(dock.id) ? 'Show' : 'Hide'"
+                @click="toggleDock(dock.id)"
               >
                 <div
-                  v-if="!settings.docksHidden.includes(dock.id)"
-                  class="i-ph-check-bold text-xs"
-                />
-              </div>
-            </button>
-
-            <!-- Icon & Title -->
-            <DockIcon
-              :icon="dock.icon"
-              :title="dock.title"
-              class="w-5 h-5 shrink-0"
-              :class="settings.docksHidden.includes(dock.id) ? 'saturate-0' : ''"
-            />
-            <span
-              class="truncate"
-              :class="settings.docksHidden.includes(dock.id) ? 'line-through op60' : ''"
-            >
-              {{ dock.title }}
-            </span>
-            <HashBadge
-              v-if="dock.type === 'action'"
-              label="Action"
-              class="flex-none text-xs"
-            />
-
-            <div class="flex flex-auto" />
-
-            <!-- Order controls -->
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                v-if="index > 0"
-                class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
-                title="Move up (higher priority)"
-                @click="moveOrder(category, dock.id, -1)"
-              >
-                <div class="i-ph-caret-up text-sm op60" />
+                  class="w-4 h-4 rounded flex items-center justify-center transition-colors"
+                  :class="dock.id === '~settings' ? 'bg-gray/30' : settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                >
+                  <div
+                    v-if="!settings.docksHidden.includes(dock.id)"
+                    class="i-ph-check-bold text-xs"
+                  />
+                </div>
               </button>
-              <button
-                v-if="index < entries.length - 1"
-                class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
-                title="Move down (lower priority)"
-                @click="moveOrder(category, dock.id, 1)"
+
+              <!-- Icon & Title -->
+              <DockIcon
+                :icon="dock.icon"
+                :title="dock.title"
+                class="w-5 h-5 shrink-0"
+                :class="settings.docksHidden.includes(dock.id) ? 'saturate-0' : ''"
+              />
+              <span
+                class="truncate"
+                :class="settings.docksHidden.includes(dock.id) ? 'line-through op60' : ''"
               >
-                <div class="i-ph-caret-down text-sm op60" />
+                {{ dock.title }}
+              </span>
+              <HashBadge
+                v-if="dock.type === 'action'"
+                label="Action"
+                class="flex-none text-xs"
+              />
+              <HashBadge
+                v-else-if="dock.type === 'group'"
+                label="Group"
+                class="flex-none text-xs"
+              />
+
+              <div class="flex flex-auto" />
+
+              <!-- Order controls -->
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  v-if="index > 0"
+                  class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                  title="Move up (higher priority)"
+                  @click="moveOrder(CATEGORY_CONTAINER(category), dock.id, -1)"
+                >
+                  <div class="i-ph-caret-up text-sm op60" />
+                </button>
+                <button
+                  v-if="index < entries.length - 1"
+                  class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                  title="Move down (lower priority)"
+                  @click="moveOrder(CATEGORY_CONTAINER(category), dock.id, 1)"
+                >
+                  <div class="i-ph-caret-down text-sm op60" />
+                </button>
+              </div>
+
+              <!-- Pin toggle -->
+              <button
+                class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
+                :class="settings.docksPinned.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
+                :title="settings.docksPinned.includes(dock.id) ? 'Unpin' : 'Pin'"
+                @click="togglePin(dock.id)"
+              >
+                <div
+                  :class="settings.docksPinned.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
+                  class="text-base"
+                />
               </button>
             </div>
 
-            <!-- Pin toggle -->
-            <button
-              class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
-              :class="settings.docksPinned.includes(dock.id) ? 'text-amber' : 'op40 hover:op70'"
-              :title="settings.docksPinned.includes(dock.id) ? 'Unpin' : 'Pin'"
-              @click="togglePin(dock.id)"
+            <!-- Nested group members -->
+            <div
+              v-if="dock.type === 'group'"
+              class="pl-6 bg-gray/3"
+              :class="settings.docksHidden.includes(dock.id) ? 'op50' : ''"
             >
               <div
-                :class="settings.docksPinned.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
-                class="text-base"
-              />
-            </button>
-          </div>
+                v-if="membersOf(dock.id).length === 0"
+                class="px-2 py-2 text-xs op40 italic border-b border-base border-t-0"
+              >
+                No tools in this group yet
+              </div>
+              <div
+                v-for="(member, memberIndex) of membersOf(dock.id)"
+                :key="member.id"
+                :ref="(el: any) => setEntryRef(el, member.id, GROUP_CONTAINER(dock.id))"
+                :data-dock-id="member.id"
+                :data-container="GROUP_CONTAINER(dock.id)"
+                class="flex items-center gap-3 px-2 py-2 hover:bg-gray/5 transition-all group border-b border-base border-t-0"
+                :class="[
+                  settings.docksHidden.includes(member.id) ? 'op40' : '',
+                  hasMoved && draggingId === member.id ? 'op30 bg-gray/10' : '',
+                  dragOverId === member.id ? 'ring-1.5 ring-purple/50 rounded' : '',
+                  hasMoved ? 'select-none' : '',
+                ]"
+              >
+                <!-- drag icon -->
+                <div
+                  class="i-ph-dots-six-vertical w-4 h-4 shrink-0 op25 group-hover:op50 transition-opacity cursor-grab"
+                  :style="hasMoved && draggingId === member.id ? 'cursor: grabbing' : ''"
+                />
+
+                <!-- Visibility toggle -->
+                <button
+                  class="w-6 h-6 flex items-center justify-center rounded border border-transparent hover:border-base transition-colors shrink-0"
+                  :class="settings.docksHidden.includes(member.id) ? 'op50' : ''"
+                  :title="settings.docksHidden.includes(member.id) ? 'Show' : 'Hide'"
+                  @click="toggleDock(member.id)"
+                >
+                  <div
+                    class="w-4 h-4 rounded flex items-center justify-center transition-colors"
+                    :class="settings.docksHidden.includes(member.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                  >
+                    <div
+                      v-if="!settings.docksHidden.includes(member.id)"
+                      class="i-ph-check-bold text-xs"
+                    />
+                  </div>
+                </button>
+
+                <!-- Icon & Title -->
+                <DockIcon
+                  :icon="member.icon"
+                  :title="member.title"
+                  class="w-5 h-5 shrink-0"
+                  :class="settings.docksHidden.includes(member.id) ? 'saturate-0' : ''"
+                />
+                <span
+                  class="truncate text-sm"
+                  :class="settings.docksHidden.includes(member.id) ? 'line-through op60' : ''"
+                >
+                  {{ member.title }}
+                </span>
+                <HashBadge
+                  v-if="member.type === 'action'"
+                  label="Action"
+                  class="flex-none text-xs"
+                />
+
+                <div class="flex flex-auto" />
+
+                <!-- Order controls -->
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    v-if="memberIndex > 0"
+                    class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                    title="Move up (higher priority)"
+                    @click="moveOrder(GROUP_CONTAINER(dock.id), member.id, -1)"
+                  >
+                    <div class="i-ph-caret-up text-sm op60" />
+                  </button>
+                  <button
+                    v-if="memberIndex < membersOf(dock.id).length - 1"
+                    class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray/20 transition-colors"
+                    title="Move down (lower priority)"
+                    @click="moveOrder(GROUP_CONTAINER(dock.id), member.id, 1)"
+                  >
+                    <div class="i-ph-caret-down text-sm op60" />
+                  </button>
+                </div>
+
+                <!-- Pin toggle -->
+                <button
+                  class="w-7 h-7 flex items-center justify-center rounded hover:bg-gray/20 transition-colors shrink-0"
+                  :class="settings.docksPinned.includes(member.id) ? 'text-amber' : 'op40 hover:op70'"
+                  :title="settings.docksPinned.includes(member.id) ? 'Unpin' : 'Pin'"
+                  @click="togglePin(member.id)"
+                >
+                  <div
+                    :class="settings.docksPinned.includes(member.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
+                    class="text-base"
+                  />
+                </button>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </template>

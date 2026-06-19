@@ -16,7 +16,7 @@ const normalizedPercent = computed(() => {
   return Math.abs((props.current - props.previous) / props.previous * 100).toFixed(2)
 })
 const trendSymbol = computed(() => isNotChanged.value ? '' : (props.current > props.previous ? '+' : '-'))
-const comparisonColorClass = computed(() => isNotChanged.value ? 'text-gray-500' : (props.current > props.previous ? 'text-green-500' : 'text-red-500'))
+const comparisonColorClass = computed(() => isNotChanged.value ? 'text-gray-500' : (props.current > props.previous ? 'text-red-500' : 'text-green-500'))
 </script>
 
 <template>

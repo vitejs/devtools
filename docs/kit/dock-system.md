@@ -8,7 +8,7 @@ Dock entries are how users open your DevTools integration — clickable items in
 
 ## Entry types
 
-Kit supports five dock entry types:
+Kit supports six dock entry types:
 
 | Type | Description | Use Case |
 |------|-------------|----------|
@@ -17,6 +17,7 @@ Kit supports five dock entry types:
 | `custom-render` | Renders directly in the user's app DOM | When you need direct DOM access or framework integration |
 | `launcher` | Actionable setup card shown in panel | Run one-time setup tasks before showing other tools |
 | `json-render` | Renders UI from a JSON spec — no client code needed | Data panels, config viewers, simple interactive tools |
+| `group` | Collapses related entries under one dock button | Bundling a framework's tools under a single button |
 
 ## Iframe panels
 
@@ -70,7 +71,11 @@ interface DockEntry {
   /** Icon URL, data URI, or Iconify icon name (e.g., 'ph:house-duotone') */
   icon: string | { light: string, dark: string }
   /** Entry type */
-  type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render'
+  type: 'iframe' | 'action' | 'custom-render' | 'launcher' | 'json-render' | 'group'
+  /** Id of the group this entry belongs to — see Docked groups */
+  groupId?: string
+  /** Member opened when a group button is activated (for type: 'group') */
+  defaultChildId?: string
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
@@ -338,6 +343,58 @@ ctx.docks.register({
 
 See [JSON Render](/kit/json-render) for the full component reference, dynamic updates, actions, state bindings, and examples.
 
+## Docked groups
+
+Collapse several related entries under one dock button. A group shows as a single button on the dock bar; activating it reveals its members in a popover, and opening a member shows that view alongside a thin sidebar for switching between siblings. This lets a framework split its features into separate, individually-pluggable entries while presenting them as one unit.
+
+Register a `group` entry, then point each member at it with `groupId`:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  defaultChildId: 'nuxt:overview',
+})
+
+ctx.docks.register({
+  id: 'nuxt:overview',
+  title: 'Overview',
+  icon: 'ph:gauge-duotone',
+  type: 'iframe',
+  url: '/__nuxt-overview/',
+  groupId: 'nuxt',
+})
+```
+
+A group carries the usual `title`/`icon`/`category`/`defaultOrder`/`when` fields and has no view of its own. `defaultChildId` names the member opened when the group button is activated; without it, the button reveals the member popover and opens a view once a member is chosen.
+
+Membership is a flat pointer, not containment: every member stays an independently-registered top-level entry. A member whose `groupId` references a group that was never registered renders as a normal top-level entry, and a group with no members stays hidden until an entry joins it. Grouping is one level deep — a group entry does not set its own `groupId`.
+
+### The built-in Vite+ group
+
+Vite DevTools seeds a built-in **Vite+** group that collects Vite ecosystem integrations under one button. Join it with the exported id:
+
+```ts
+import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+
+ctx.docks.register({
+  id: 'rolldown',
+  title: 'Rolldown',
+  icon: 'https://example.com/rolldown.svg',
+  type: 'iframe',
+  url: '/__devtools-rolldown/',
+  groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+})
+```
+
+DevTools for Rolldown joins this group out of the box.
+
+### Visibility and order
+
+From the dock settings panel, users hide or reorder members within a group independently, and hide the whole group from its row.
+
 ## Common options
 
 Every dock type accepts these base fields:
@@ -351,6 +408,7 @@ Every dock type accepts these base fields:
 | `defaultOrder` | `number` | Higher numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
+| `groupId` | `string` | Collapse this entry under a group's button — see [Docked groups](#docked-groups). |
 
 ## Update
 

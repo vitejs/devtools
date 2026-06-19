@@ -1,4 +1,4 @@
-import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { Immutable } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import { evaluateWhen } from 'devframe/utils/when'
@@ -13,19 +13,77 @@ export interface SplitGroupsResult {
 }
 
 /**
+ * Collect the ids of every registered dock group (`type: 'group'`).
+ *
+ * Grouping is one level deep, so a group entry never points at another group;
+ * this set is the authority for deciding whether an entry's `groupId` resolves
+ * to a real group (membership) or dangles (orphan — rendered as a normal
+ * top-level entry).
+ */
+export function getRegisteredGroupIds(entries: DevToolsDockEntry[]): Set<string> {
+  const ids = new Set<string>()
+  for (const entry of entries) {
+    if (entry.type === 'group')
+      ids.add(entry.id)
+  }
+  return ids
+}
+
+/**
+ * Resolve the group entry an entry belongs to, or `undefined` when the entry
+ * is top-level or its `groupId` references a group that was never registered.
+ */
+export function getEntryGroup(
+  entries: DevToolsDockEntry[],
+  entry: DevToolsDockEntry | null | undefined,
+): DevToolsViewGroup | undefined {
+  if (!entry || entry.type === 'group' || !entry.groupId)
+    return undefined
+  const group = entries.find(e => e.id === entry.groupId)
+  return group?.type === 'group' ? group : undefined
+}
+
+/**
+ * List the member entries of a group, preserving the same sorting the dock bar
+ * applies (pinned, custom order, default order). Members hidden by user
+ * settings or a falsy `when` clause are filtered out unless `includeHidden`.
+ */
+export function getGroupMembers(
+  entries: DevToolsDockEntry[],
+  groupId: string,
+  settings?: Immutable<DevToolsDocksUserSettings>,
+  options?: { includeHidden?: boolean, whenContext?: WhenContext },
+): DevToolsDockEntry[] {
+  const members = entries.filter(e => e.type !== 'group' && e.groupId === groupId)
+  if (!settings)
+    return members
+  // Reuse the category grouping (sorting + visibility) then flatten back out.
+  const grouped = docksGroupByCategories(members, settings, options)
+  return grouped.flatMap(([, items]) => items)
+}
+
+/**
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, sorts by pinned status, custom order, and default order.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean, whenContext?: WhenContext },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false, whenContext } = options ?? {}
+  const { includeHidden = false, whenContext, collapseGroups = false } = options ?? {}
+
+  // When collapsing, members whose `groupId` resolves to a registered group are
+  // folded under that group's button; the group entry itself stays on the bar.
+  const registeredGroupIds = collapseGroups ? getRegisteredGroupIds(entries) : undefined
 
   const map = new Map<string, DevToolsDockEntry[]>()
   for (const entry of entries) {
+    // Collapse grouped members out of the top-level bar (orphans stay visible)
+    if (registeredGroupIds && entry.type !== 'group' && entry.groupId && registeredGroupIds.has(entry.groupId))
+      continue
+
     // Skip if hidden by `when` clause
     if (entry.when && whenContext && !evaluateWhen(entry.when, whenContext) && !includeHidden)
       continue

@@ -1,6 +1,7 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
@@ -62,6 +63,17 @@ export async function createDevToolsContext(
     category: 'editor',
     showInPalette: false,
     handler: (path: string) => rpcHost.invokeLocal('vite:core:open-in-finder', path),
+  })
+
+  // Seed the built-in "Vite+" dock group. Integrations (Rolldown, etc.) opt in
+  // by registering their dock with `groupId: DEVTOOLS_VITEPLUS_GROUP_ID`; the
+  // group stays hidden until at least one member joins it.
+  context.docks.register({
+    id: DEVTOOLS_VITEPLUS_GROUP_ID,
+    type: 'group',
+    title: 'Vite+',
+    icon: { light: 'builtin:vite-plus-core', dark: 'builtin:vite-plus-core' },
+    defaultOrder: -1000,
   })
 
   // Scan Vite plugins for `devtools` setup hooks.

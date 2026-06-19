@@ -2,10 +2,12 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { computed, h, markRaw, useTemplateRef } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
 import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
+import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 
 const props = defineProps<{
@@ -22,6 +24,7 @@ const isVertical = computed(() => store.position === 'left' || store.position ==
 
 const groupedEntries = computed(() => context.docks.groupedEntries)
 const selectedEntry = computed(() => context.docks.selected)
+const activeGroup = computed(() => getEntryGroup(context.docks.entries, selectedEntry.value))
 const hasPanelContent = computed(() => {
   const entry = selectedEntry.value
   return context.panel.store.open
@@ -252,19 +255,27 @@ const contentClass = computed(() => {
     </div>
 
     <!-- Content -->
-    <div v-show="hasPanelContent" class="relative" :class="contentClass">
-      <ViewEntry
-        v-if="hasPanelContent && viewsContainer && selectedEntry"
-        :key="selectedEntry.id"
+    <div v-show="hasPanelContent" class="flex" :class="contentClass">
+      <DockGroupSidebar
+        v-if="activeGroup"
         :context
-        :entry="selectedEntry"
-        :persisted-doms="persistedDoms"
+        :group="activeGroup"
+        :selected-id="selectedEntry?.id ?? null"
       />
-      <div
-        id="vite-devtools-views-container"
-        ref="viewsContainer"
-        class="absolute inset-0 pointer-events-none"
-      />
+      <div class="relative flex-1 min-w-0 h-full">
+        <ViewEntry
+          v-if="hasPanelContent && viewsContainer && selectedEntry"
+          :key="selectedEntry.id"
+          :context
+          :entry="selectedEntry"
+          :persisted-doms="persistedDoms"
+        />
+        <div
+          id="vite-devtools-views-container"
+          ref="viewsContainer"
+          class="absolute inset-0 pointer-events-none"
+        />
+      </div>
     </div>
   </div>
 </template>

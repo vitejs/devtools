@@ -1,17 +1,18 @@
 import type { DevToolsDockEntryCategory } from './types/docks'
 import type { DevToolsDocksUserSettings } from './types/settings'
 
+export { DEFAULT_STATE_USER_SETTINGS } from '@devframes/hub/constants'
+
 // Filename / dirname constants whose *values* are unchanged across the
 // devframe `DevTools*` → `Devframe*` rename. Re-export them under both
 // names so downstream code that imports `DEVTOOLS_*` keeps compiling.
 export {
-  DEFAULT_STATE_USER_SETTINGS,
   DEVFRAME_CONNECTION_META_FILENAME as DEVTOOLS_CONNECTION_META_FILENAME,
   DEVFRAME_DOCK_IMPORTS_FILENAME as DEVTOOLS_DOCK_IMPORTS_FILENAME,
   DEVFRAME_RPC_DUMP_DIRNAME as DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVFRAME_RPC_DUMP_MANIFEST_FILENAME as DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
   REMOTE_CONNECTION_KEY,
-} from '@devframes/hub/constants'
+} from 'devframe/constants'
 
 // Kit-side mount path is pinned at `/__devtools/` regardless of devframe's
 // new `/__devframe/` default. The hosted (Vite-mounted) flow always passes
@@ -22,8 +23,14 @@ export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/__devtools'
 export const DEVTOOLS_DIRNAME = '__devtools'
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
+/**
+ * Id of the built-in dock group that collects Vite Plus integrations
+ * (Rolldown, etc.) under a single "Vite+" dock button. Vite DevTools seeds
+ * this group; integrations join it by setting `groupId` to this value.
+ */
+export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
-  '~viteplus': -1000,
   'default': 0,
   'app': 100,
   'framework': 200,

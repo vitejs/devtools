@@ -27,6 +27,16 @@ export function useDocksOverflowPanel() {
   return docksOverflowPanel
 }
 
+const docksGroupPanel = shallowRef<FloatingPopoverProps | null>(null)
+
+export function setDocksGroupPanel(info: FloatingPopoverProps | null) {
+  docksGroupPanel.value = info
+}
+
+export function useDocksGroupPanel() {
+  return docksGroupPanel
+}
+
 export function setDockContextMenu(info: FloatingPopoverProps | null) {
   dockContextMenu.value = info
 }

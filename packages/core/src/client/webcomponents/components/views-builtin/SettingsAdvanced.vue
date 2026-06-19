@@ -3,33 +3,42 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { useConfirm } from '../../state/confirm'
 
 const props = defineProps<{
   context: DocksContext
   settingsStore: SharedState<DevToolsDocksUserSettings>
 }>()
 
-function resetAllSettings() {
-  // eslint-disable-next-line no-alert
-  if (confirm('Reset all settings to defaults? This includes appearance, docks, and shortcuts.')) {
+const confirm = useConfirm()
+
+async function resetAllSettings() {
+  if (await confirm({
+    title: 'Reset All Settings',
+    message: 'Reset all settings to defaults? This includes appearance, docks, and shortcuts.',
+  })) {
     props.settingsStore.mutate(() => {
       return DEFAULT_STATE_USER_SETTINGS()
     })
   }
 }
 
-function resetShortcuts() {
-  // eslint-disable-next-line no-alert
-  if (confirm('Reset all keyboard shortcuts to defaults?')) {
+async function resetShortcuts() {
+  if (await confirm({
+    title: 'Reset Keyboard Shortcuts',
+    message: 'Reset all keyboard shortcuts to defaults?',
+  })) {
     props.settingsStore.mutate((state) => {
       state.commandShortcuts = {}
     })
   }
 }
 
-function resetDocks() {
-  // eslint-disable-next-line no-alert
-  if (confirm('Reset dock visibility, order, and pinning to defaults?')) {
+async function resetDocks() {
+  if (await confirm({
+    title: 'Reset Dock Settings',
+    message: 'Reset dock visibility, order, and pinning to defaults?',
+  })) {
     props.settingsStore.mutate((state) => {
       const defaults = DEFAULT_STATE_USER_SETTINGS()
       state.docksHidden = defaults.docksHidden

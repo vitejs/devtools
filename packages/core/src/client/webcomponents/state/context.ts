@@ -1,4 +1,4 @@
-import type { DevToolsClientCommand } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
@@ -8,7 +8,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
-import { docksGroupByCategories } from './dock-settings'
+import { docksGroupByCategories, getGroupMembers, getRegisteredGroupIds } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
@@ -63,6 +63,20 @@ export async function createDocksContext(
     const entry = dockEntries.value.find(e => e.id === id)
     if (!entry)
       return false
+
+    // A group has no view of its own — resolve to the member it represents.
+    // Prefer the author's `defaultChildId`, otherwise the first visible member.
+    // With neither, the group is popover-only and selecting it is a no-op here
+    // (the dock-bar group button opens the member popover instead).
+    if (entry.type === 'group') {
+      const members = getGroupMembers(dockEntries.value, entry.id)
+      const target = (entry.defaultChildId && members.some(m => m.id === entry.defaultChildId))
+        ? entry.defaultChildId
+        : members[0]?.id
+      if (!target)
+        return false
+      return switchEntry(target)
+    }
 
     // If the action is in a popup, delegate to the main frame
     if (entry.type === 'action') {
@@ -124,7 +138,7 @@ export async function createDocksContext(
   })
 
   const groupedEntries = computed(() => {
-    return docksGroupByCategories(dockEntries.value, settings.value, { whenContext: getWhenContext() })
+    return docksGroupByCategories(dockEntries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
   })
 
   // Initialize commands context with reactive when-context
@@ -199,17 +213,29 @@ export async function createDocksContext(
   watchEffect(() => {
     cleanupDocksCommand?.()
 
+    const toCommand = (entry: DevToolsDockEntry): DevToolsClientCommand => ({
+      id: `devtools:docks:${entry.id}`,
+      source: 'client' as const,
+      title: entry.title,
+      icon: typeof entry.icon === 'string' ? entry.icon : undefined,
+      action: () => {
+        toggleEntry(entry.id)
+      },
+    })
+
+    // Mirror the dock-bar collapse in the palette: members nest under their
+    // group's command, and grouped members drop out of the top level.
+    const registeredGroupIds = getRegisteredGroupIds(dockEntries.value)
     const dockChildren: DevToolsClientCommand[] = dockEntries.value
       .filter(entry => entry.type !== '~builtin')
+      .filter(entry => !(entry.groupId && registeredGroupIds.has(entry.groupId)))
       .map((entry) => {
+        if (entry.type !== 'group')
+          return toCommand(entry)
+        const members = getGroupMembers(dockEntries.value, entry.id, settings.value, { whenContext: getWhenContext() })
         return {
-          id: `devtools:docks:${entry.id}`,
-          source: 'client' as const,
-          title: entry.title,
-          icon: typeof entry.icon === 'string' ? entry.icon : undefined,
-          action: () => {
-            toggleEntry(entry.id)
-          },
+          ...toCommand(entry),
+          children: members.map(toCommand),
         }
       })
 

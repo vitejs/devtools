@@ -1,8 +1,8 @@
-import { defineDiagnostics, reporterLog } from 'nostics'
+import { createConsoleReporter, defineDiagnostics } from 'nostics'
 
-export const diagnostics = defineDiagnostics({
+export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
-  reporters: [reporterLog],
+  reporters: [createConsoleReporter()],
   codes: {
     DTK0008: {
       why: 'Client authentication is disabled. Any browser can connect to the devtools and access your server and filesystem.',

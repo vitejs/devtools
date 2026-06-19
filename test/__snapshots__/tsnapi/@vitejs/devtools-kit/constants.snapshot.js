@@ -7,6 +7,7 @@ export var DEVTOOLS_DIRNAME /* const */
 export var DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID /* const */
 export var DEVTOOLS_MOUNT_PATH /* const */
 export var DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH /* const */
+export var DEVTOOLS_VITEPLUS_GROUP_ID /* const */
 // #endregion
 
 // #region Other
