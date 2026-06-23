@@ -139,6 +139,10 @@ export default defineNuxtConfig({
       compilerOptions: {
         types: ['chrome'], // for devtools-webext package
       },
+      exclude: [
+        '../../../vite/**/*',
+        '../../../self-inspect/**/*',
+      ],
     },
     // Temporary disable type check for nuxt, rely on CI for now
     // typeCheck: true,

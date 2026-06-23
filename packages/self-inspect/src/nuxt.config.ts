@@ -102,10 +102,6 @@ export default defineNuxtConfig({
     enabled: false,
   },
 
-  typescript: {
-    includeWorkspace: true,
-  },
-
   workspaceDir: '../../',
 
   compatibilityDate: '2024-07-17',
