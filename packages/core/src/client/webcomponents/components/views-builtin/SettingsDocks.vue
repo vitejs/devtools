@@ -43,6 +43,15 @@ function itemsOfContainer(container: string): DevToolsDockEntry[] {
   return categories.value.find(([cat]) => cat === category)?.[1] ?? []
 }
 
+function defaultItemsOfContainer(container: string): DevToolsDockEntry[] {
+  const noCustomOrder = { ...settings.value, docksCustomOrder: {} }
+  if (container.startsWith('grp:'))
+    return getGroupMembers(props.context.docks.entries, container.slice(4), noCustomOrder, { includeHidden: true })
+  const category = container.slice(4)
+  return docksGroupByCategories(props.context.docks.entries, noCustomOrder, { includeHidden: true, collapseGroups: true })
+    .find(([cat]) => cat === category)?.[1] ?? []
+}
+
 const sortContainerEl = useTemplateRef<HTMLElement>('sortContainer')
 const entryEls = new Map<string, { el: HTMLElement, container: string }>()
 const draggingId = ref<string | null>(null)
@@ -71,10 +80,15 @@ function isInteractiveElement(el: HTMLElement | null): boolean {
   return false
 }
 
-function applyOrder(items: DevToolsDockEntry[]) {
+function applyOrder(container: string, items: DevToolsDockEntry[]) {
+  const def = defaultItemsOfContainer(container).map(i => i.id)
+  const isDefault = items.length === def.length && items.every((item, i) => item.id === def[i])
   props.settingsStore.mutate((state) => {
     items.forEach((item, index) => {
-      state.docksCustomOrder[item.id] = index
+      if (isDefault)
+        delete state.docksCustomOrder[item.id]
+      else
+        state.docksCustomOrder[item.id] = index
     })
   })
 }
@@ -122,7 +136,7 @@ useDraggable(sortContainerEl, {
       const toIndex = items.findIndex(item => item.id === dragOverId.value)
       if (fromIndex !== -1 && toIndex !== -1) {
         items.splice(toIndex, 0, items.splice(fromIndex, 1)[0]!)
-        applyOrder(items)
+        applyOrder(draggingContainer.value, items)
       }
     }
     draggingId.value = null
@@ -203,10 +217,6 @@ function togglePin(id: string) {
   }
 }
 
-function isInCustomOrder(id: string): boolean {
-  return settings.value.docksCustomOrder[id] !== undefined
-}
-
 function moveOrder(container: string, id: string, delta: number) {
   const array = [...itemsOfContainer(container)]
   const index = array.findIndex(item => item.id === id)
@@ -215,11 +225,13 @@ function moveOrder(container: string, id: string, delta: number) {
     return
 
   array.splice(newIndex, 0, array.splice(index, 1)[0]!)
-  applyOrder(array)
+  applyOrder(container, array)
 }
 
 function doesContainerHaveCustomOrder(container: string): boolean {
-  return itemsOfContainer(container).some(item => isInCustomOrder(item.id))
+  const current = itemsOfContainer(container).map(i => i.id)
+  const def = defaultItemsOfContainer(container).map(i => i.id)
+  return current.length !== def.length || current.some((id, i) => id !== def[i])
 }
 
 function resetCustomOrderForContainer(container: string) {
