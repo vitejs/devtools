@@ -6,6 +6,7 @@ import {
   getEntryGroup,
   getGroupMembers,
   getRegisteredGroupIds,
+  resolveCommandIcon,
 } from '../dock-settings'
 
 function iframe(id: string, extra: Partial<DevToolsDockEntry> = {}): DevToolsDockEntry {
@@ -88,5 +89,23 @@ describe('dock groups', () => {
     expect(ids).not.toContain('nuxt')
     expect(ids).not.toContain('nuxt:overview')
     expect(ids).not.toContain('nuxt:pages')
+  })
+})
+
+describe('resolveCommandIcon (dock icon → command icon projection)', () => {
+  it('passes string icons through unchanged', () => {
+    expect(resolveCommandIcon('logos:nuxt-icon')).toBe('logos:nuxt-icon')
+  })
+
+  it('collapses an object icon to its light variant (e.g. the Vite+ group)', () => {
+    // Regression: object-form icons were dropped to `undefined`, so the Vite+
+    // entry lost its icon in the command palette and Shortcuts settings.
+    expect(resolveCommandIcon({ light: 'builtin:vite-plus-core', dark: 'builtin:vite-plus-core' }))
+      .toBe('builtin:vite-plus-core')
+    expect(resolveCommandIcon({ light: 'i-light', dark: 'i-dark' })).toBe('i-light')
+  })
+
+  it('falls back to dark when light is absent', () => {
+    expect(resolveCommandIcon({ dark: 'i-dark' } as any)).toBe('i-dark')
   })
 })

@@ -8,7 +8,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
-import { docksGroupByCategories, getGroupMembers, getRegisteredGroupIds } from './dock-settings'
+import { docksGroupByCategories, getGroupMembers, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
@@ -217,7 +217,7 @@ export async function createDocksContext(
       id: `devtools:docks:${entry.id}`,
       source: 'client' as const,
       title: entry.title,
-      icon: typeof entry.icon === 'string' ? entry.icon : undefined,
+      icon: resolveCommandIcon(entry.icon),
       action: () => {
         toggleEntry(entry.id)
       },
