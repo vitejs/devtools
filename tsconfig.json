@@ -1,10 +1,9 @@
 {
   "extends": "./tsconfig.base.json",
   "references": [
-    { "path": "./packages/rolldown/src/.nuxt/tsconfig.app.json" },
-    { "path": "./packages/rolldown/src/.nuxt/tsconfig.server.json" },
-    { "path": "./packages/rolldown/src/.nuxt/tsconfig.shared.json" },
-    { "path": "./packages/rolldown/src/.nuxt/tsconfig.node.json" }
+    { "path": "./packages/rolldown/src/tsconfig.json" },
+    { "path": "./packages/vite/src/tsconfig.json" },
+    { "path": "./packages/self-inspect/src/tsconfig.json" }
   ],
   "files": []
 }
