@@ -228,17 +228,37 @@ function moveOrder(container: string, id: string, delta: number) {
   applyOrder(container, array)
 }
 
+function customOrderIdsForContainer(container: string): string[] {
+  const items = itemsOfContainer(container)
+  const ids = items.map(item => item.id)
+  if (container.startsWith('cat:')) {
+    for (const item of items) {
+      if (item.type === 'group')
+        ids.push(...membersOf(item.id).map(member => member.id))
+    }
+  }
+  return ids
+}
+
 function doesContainerHaveCustomOrder(container: string): boolean {
   const current = itemsOfContainer(container).map(i => i.id)
   const def = defaultItemsOfContainer(container).map(i => i.id)
-  return current.length !== def.length || current.some((id, i) => id !== def[i])
+  if (current.length !== def.length || current.some((id, i) => id !== def[i]))
+    return true
+  // Also account for custom ordering inside groups of a category
+  if (container.startsWith('cat:')) {
+    return itemsOfContainer(container).some(item =>
+      item.type === 'group' && doesContainerHaveCustomOrder(GROUP_CONTAINER(item.id)),
+    )
+  }
+  return false
 }
 
 function resetCustomOrderForContainer(container: string) {
-  const items = itemsOfContainer(container)
+  const ids = customOrderIdsForContainer(container)
   props.settingsStore.mutate((state) => {
-    items.forEach((item) => {
-      delete state.docksCustomOrder[item.id]
+    ids.forEach((id) => {
+      delete state.docksCustomOrder[id]
     })
   })
 }
