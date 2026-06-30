@@ -21,6 +21,14 @@ cli
   })
 
 cli
+  .command('mcp', 'Start Vite DevTools MCP server over stdio')
+  .option('--root <root>', 'Root directory', { default: process.cwd() })
+  .action(async (options) => {
+    const { mcp } = await import('./cli-commands')
+    return await mcp(options)
+  })
+
+cli
   .command('', 'Start devtools')
   .option('--root <root>', 'Root directory', { default: process.cwd() })
   .option('--config <config>', 'Vite config file')

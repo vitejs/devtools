@@ -15,6 +15,7 @@ export const alias = {
   '@vitejs/devtools-kit/utils/when': r('kit/src/utils/when.ts'),
   '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
+  '@vitejs/devtools-rolldown/node/agent': r('rolldown/src/node/agent/index.ts'),
   '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
   '@vitejs/devtools-self-inspect': r('self-inspect/src/index.ts'),
   '@vitejs/devtools/internal': r('core/src/internal.ts'),

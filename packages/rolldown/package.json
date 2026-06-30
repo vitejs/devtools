@@ -20,6 +20,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./dirs": "./dist/dirs.mjs",
+    "./node/agent": "./dist/node/agent.mjs",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.mts",
@@ -40,7 +41,6 @@
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "d3-shape": "catalog:frontend",
-    "devframe": "catalog:deps",
     "diff": "catalog:deps",
     "get-port-please": "catalog:deps",
     "h3": "catalog:deps",

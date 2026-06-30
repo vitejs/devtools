@@ -10,6 +10,7 @@ export interface StandaloneDevToolsOptions {
   config?: string
   command?: 'build' | 'serve'
   mode?: 'development' | 'production'
+  builtinDevTools?: boolean
 }
 
 export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
@@ -20,6 +21,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     cwd = process.cwd(),
     command = 'build',
     mode = 'production',
+    builtinDevTools = true,
   } = options
 
   const { resolveConfig } = await import('vite')
@@ -28,7 +30,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
       configFile: options.config,
       root: cwd,
       plugins: [
-        DevTools(),
+        DevTools({ builtinDevTools }),
       ],
     },
     command,

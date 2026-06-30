@@ -91,3 +91,12 @@ export async function build(options: BuildOptions) {
 
   diagnostics.DTK0010()
 }
+
+export interface McpOptions {
+  root?: string
+}
+
+export async function mcp(options: McpOptions) {
+  const { startMcpServer } = await import('./mcp')
+  await startMcpServer(options)
+}

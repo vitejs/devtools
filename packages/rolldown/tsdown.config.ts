@@ -2,8 +2,9 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
   entry: {
-    index: 'src/index.ts',
-    dirs: 'src/dirs.ts',
+    'index': 'src/index.ts',
+    'dirs': 'src/dirs.ts',
+    'node/agent': 'src/node/agent/index.ts',
   },
   tsconfig: '../../tsconfig.base.json',
   target: 'esnext',
