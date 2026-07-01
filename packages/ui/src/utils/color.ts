@@ -19,3 +19,18 @@ export function getHsla(
   const lightness = isDark.value ? 60 : 40
   return `hsla(${hue}, ${saturation}%, ${lightness}%, ${opacity})`
 }
+
+export const predefinedPluginColorMap = {
+  error: 0,
+  client: 60,
+  ssr: 270,
+  vite: 250,
+  virtual: 160,
+} as Record<string, number>
+
+export function getPluginColor(name: string, opacity = 1): string {
+  name = name.replace(/[^a-z]+/gi, '').toLowerCase()
+  if (name in predefinedPluginColorMap)
+    return getHsla(predefinedPluginColorMap[name]!, opacity)
+  return getHashColorFromString(name, opacity)
+}

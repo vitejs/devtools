@@ -2,6 +2,8 @@
 import type { RolldownAssetInfo, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
+import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/ChartNavBreadcrumb.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/DataSearchPanel.vue'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Flamegraph, Sunburst, Treemap } from 'nanovis'

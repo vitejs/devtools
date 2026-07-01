@@ -54,6 +54,11 @@
   "module": "./src/index.ts",
   "peerDependencies": {
     "@vueuse/core": "*",
+    "d3-hierarchy": "*",
+    "d3-shape": "*",
+    "floating-vue": "*",
+    "fuse.js": "*",
+    "nanovis": "*",
     "nuxt": "*",
     "unocss": "*",
     "vue": "*",

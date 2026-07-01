@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { HierarchyNode } from 'd3-hierarchy'
 import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/module-graph'
 
 const props = defineProps<{
   module: ModuleInfo
