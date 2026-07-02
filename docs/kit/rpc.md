@@ -449,16 +449,7 @@ export const getData = defineRpcFunction({
 
 ### Global client context
 
-`getDevToolsClientContext()` returns the `DevToolsClientContext` from anywhere on the client side. DevTools sets it automatically in embedded or standalone mode, and the function returns `undefined` until initialization completes.
-
-```ts
-import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
-
-const ctx = getDevToolsClientContext()
-if (ctx) {
-  const modules = await ctx.rpc.call('my-plugin:get-modules')
-}
-```
+Beyond RPC, the full client context — docks, commands, panel state — is available anywhere in the host page via `getDevToolsClientContext()`. See [Client Script & Context](/kit/client-context).
 
 ## Client-side functions
 

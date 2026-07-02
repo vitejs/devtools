@@ -117,16 +117,7 @@ const state = await client.sharedState.get('my-plugin:state')
 console.log(state.value())
 ```
 
-The global client context exposes shared state too:
-
-```ts
-import { getDevToolsClientContext } from '@vitejs/devtools-kit/client'
-
-const ctx = getDevToolsClientContext()
-if (ctx) {
-  const state = await ctx.rpc.sharedState.get('my-plugin:state')
-}
-```
+The [global client context](/kit/client-context) exposes the same API via `ctx.rpc.sharedState`.
 
 ### Subscribing to changes
 
