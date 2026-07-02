@@ -26,7 +26,6 @@ const DevToolsKitNav = [
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
   { text: 'Dock System', link: '/kit/dock-system' },
   { text: 'Client Script & Context', link: '/kit/client-context' },
-  { text: 'Remote Client', link: '/kit/remote-client' },
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
   { text: 'Streaming', link: '/kit/streaming' },
@@ -35,6 +34,7 @@ const DevToolsKitNav = [
   { text: 'Messages & Notifications', link: '/kit/messages' },
   { text: 'Structured Diagnostics', link: '/kit/diagnostics' },
   { text: 'Terminals & Processes', link: '/kit/terminals' },
+  { text: 'Remote Client', link: '/kit/remote-client' },
   { text: 'Examples', link: '/kit/examples' },
 ]
 
@@ -123,7 +123,6 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
             { text: 'Dock System', link: '/kit/dock-system' },
             { text: 'Client Script & Context', link: '/kit/client-context' },
-            { text: 'Remote Client', link: '/kit/remote-client' },
             { text: 'RPC', link: '/kit/rpc' },
             { text: 'Shared State', link: '/kit/shared-state' },
             { text: 'Streaming', link: '/kit/streaming' },
@@ -133,6 +132,7 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'Diagnostics', link: '/kit/diagnostics' },
             { text: 'JSON Render', link: '/kit/json-render' },
             { text: 'Terminals', link: '/kit/terminals' },
+            { text: 'Remote Client', link: '/kit/remote-client' },
             { text: 'Examples', link: '/kit/examples' },
           ],
         },
