@@ -81,7 +81,7 @@ Iframe panels run in their own document, so they create their own RPC client wit
 
 ## Troubleshooting
 
-### The client script isn't injected
+### Client script not injected
 
 Symptoms: the dock never appears, `getDevToolsClientContext()` always returns `undefined`, and the browser console has no `[VITE DEVTOOLS] Client injected` log.
 
