@@ -5,6 +5,8 @@ import type { PluginChartInfo, PluginChartNode } from '~/types/chart'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
 import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
+import DisplayPluginName from '@vitejs/devtools-ui/components/DisplayPluginName.vue'
+import PluginsSunburst from '@vitejs/devtools-ui/components/PluginsSunburst.vue'
 import { formatDuration } from '@vitejs/devtools-ui/utils/format'
 import { useAsyncState, useMouse } from '@vueuse/core'
 import { normalizeTreeNode, Sunburst } from 'nanovis'
@@ -311,10 +313,19 @@ watch(() => settings.value.pluginDetailsViewType, () => {
       <PluginsSunburst
         v-if="settings.pluginDetailsViewType === 'sunburst' && graph"
         :graph="graph"
-        :session="session"
         :selected="nodeSelected"
         @select="selectNode"
-      />
+      >
+        <template #module="{ child }">
+          <DisplayModuleId
+            :id="child.text!"
+            w-full border-none ws-nowrap
+            :session="session"
+            hover="bg-active"
+            border="~ base rounded" block px2 py1
+          />
+        </template>
+      </PluginsSunburst>
     </div>
   </div>
   <div v-else flex="~ items-center justify-center" w-full h-full>

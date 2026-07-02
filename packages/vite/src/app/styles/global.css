@@ -1,1 +1,82 @@
 @import '@vitejs/devtools-ui/styles/global.css';
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Animations */
+@keyframes spin-reverse {
+  from {
+    transform: rotate(1080deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+.animate-spin-reverse,
+.hover\:animate-spin-reverse:hover {
+  animation: spin-reverse 2.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+/* Xterm */
+.terminal.xterm {
+  height: 100%;
+  padding: 0 1.5em;
+}
+
+.terminal.xterm .xterm-rows {
+  --uno: font-mono;
+}
+
+/* Overrides Floating Vue */
+.v-popper--theme-dropdown .v-popper__inner,
+.v-popper--theme-tooltip .v-popper__inner {
+  --uno: bg-tooltip color-base font-sans rounded border border-base shadow dark:shadow-2xl;
+  box-shadow: 0 6px 30px #0000001a;
+}
+
+.v-popper--theme-tooltip .v-popper__inner {
+  --uno: text-sm;
+}
+
+.v-popper--theme-dropdown .v-popper__inner {
+  max-width: 50vw;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-inner,
+.v-popper--theme-dropdown .v-popper__arrow-inner {
+  visibility: visible;
+  --uno: border-solid border-white dark:border-#111;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-outer,
+.v-popper--theme-dropdown .v-popper__arrow-outer {
+  --uno: border-solid border-base;
+}
+
+.v-popper--theme-tooltip.v-popper--shown,
+.v-popper--theme-tooltip.v-popper--shown * {
+  transition: none !important;
+}
+
+.v-popper__popper--shown {
+  overflow: visible !important;
+}
+
+/* Monaco */
+.monaco-scrollable-element > .scrollbar {
+  background: transparent !important;
+}
+
+.monaco-scrollable-element > .scrollbar > .slider {
+  background-color: var(--app-scrollbar-thumb) !important;
+  border-radius: var(--app-scrollbar-radius) !important;
+  transition: background 0.2s ease;
+}
+
+.monaco-scrollable-element > .scrollbar > .slider.active,
+.monaco-scrollable-element > .scrollbar > .slider:hover {
+  background-color: var(--app-scrollbar-thumb-hover) !important;
+}

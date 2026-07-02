@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ChunkImport } from '@rolldown/debug'
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayModuleGraph from '@vitejs/devtools-ui/components/DisplayModuleGraph.vue'
+import { createModuleGraph, getModuleGraphSize } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, unref } from 'vue'
 import { useRoute } from '#app/composables/router'
-import { createModuleGraph, getModuleGraphSize } from '~/composables/module-graph'
 
 type ChunkInfo = RolldownChunkInfo & {
   id: string
@@ -196,7 +197,6 @@ createModuleGraph<ChunkInfo, ChunkImport>({
 
 <template>
   <DisplayModuleGraph
-    :session="session"
     :modules="chunks"
     :expand-controls="false"
   >

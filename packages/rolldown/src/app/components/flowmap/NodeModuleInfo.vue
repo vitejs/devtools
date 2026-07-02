@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { RolldownModuleFlowNode, SessionContext } from '~~/shared/types'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import DisplayPluginName from '@vitejs/devtools-ui/components/DisplayPluginName.vue'
 import { computed } from 'vue'
 import { isFlowmapSwapping } from '~/state/flowmap'
 

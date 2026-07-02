@@ -34,24 +34,36 @@
     "dev:prepare": "nuxi prepare src",
     "prepack": "pnpm build"
   },
+  "peerDependencies": {
+    "vite": "*"
+  },
   "dependencies": {
     "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
-    "birpc": "catalog:deps",
-    "devframe": "catalog:deps",
+    "d3-shape": "catalog:frontend",
     "envinfo": "catalog:deps",
-    "get-port-please": "catalog:deps",
-    "h3": "catalog:deps",
+    "nostics": "catalog:deps",
     "pathe": "catalog:deps",
-    "ws": "catalog:deps"
+    "perfect-debounce": "catalog:deps"
   },
   "devDependencies": {
+    "@types/d3-hierarchy": "catalog:types",
     "@types/envinfo": "catalog:types",
+    "@types/splitpanes": "catalog:types",
     "@unocss/nuxt": "catalog:build",
+    "@vueuse/components": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
+    "comlink": "catalog:frontend",
+    "d3-hierarchy": "catalog:frontend",
+    "diff-match-patch-es": "catalog:frontend",
     "floating-vue": "catalog:frontend",
+    "fuse.js": "catalog:frontend",
+    "modern-monaco": "catalog:frontend",
+    "nanovis": "catalog:frontend",
+    "splitpanes": "catalog:frontend",
     "tsdown": "catalog:build",
-    "unocss": "catalog:build"
+    "unocss": "catalog:build",
+    "vue-virtual-scroller": "catalog:frontend"
   }
 }

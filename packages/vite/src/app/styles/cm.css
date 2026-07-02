@@ -1,0 +1,23 @@
+:root {
+  --cm-font-family: 'Input Mono', 'FiraCode', monospace;
+}
+
+.code-viewer {
+  min-height: 80px;
+}
+
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor .view-lines,
+.monaco-editor .view-line,
+.monaco-editor .line-numbers {
+  font-family: var(--cm-font-family) !important;
+  font-size: 13px !important;
+}
+
+.monaco-editor,
+.monaco-editor .monaco-editor-background,
+.monaco-editor .overflow-guard,
+.monaco-editor .margin {
+  background-color: transparent !important;
+}

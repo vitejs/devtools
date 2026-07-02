@@ -3,9 +3,11 @@ import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { useHead } from '#app/composables/head'
 import { connect, rpcConnectionState } from './composables/rpc'
+import 'floating-vue/dist/style.css'
+import './styles/cm.css'
+import './styles/splitpanes.css'
 import './styles/global.css'
 import '@vitejs/devtools-ui/composables/dark'
-import 'floating-vue/dist/style.css'
 
 useHead({
   title: 'Vite DevTools',
@@ -19,6 +21,16 @@ useSideNav(() => {
       title: 'Home',
       icon: 'i-ph-house-duotone',
       to: '/home',
+    },
+    {
+      title: 'Modules Graph',
+      icon: 'i-ph-graph-duotone',
+      to: '/graph',
+    },
+    {
+      title: 'Plugins',
+      icon: 'i-ph-plugs-duotone',
+      to: '/plugins',
     },
   ]
 })
