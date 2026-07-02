@@ -20,6 +20,11 @@ useSideNav(() => {
       icon: 'i-ph-house-duotone',
       to: '/home',
     },
+    {
+      title: 'HMR Inspector',
+      icon: 'i-ph-lightning-duotone',
+      to: '/hmr',
+    },
   ]
 })
 </script>
