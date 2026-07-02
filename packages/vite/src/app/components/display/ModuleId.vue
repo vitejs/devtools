@@ -57,6 +57,7 @@ const containerClass = computed(() => 'flex items-center')
       :delay="1200"
       :disabled="disableTooltip || (props.id?.length || 0) < 30"
       placement="bottom-start"
+      :arrow-padding="100"
     >
       <div
         v-if="id"
