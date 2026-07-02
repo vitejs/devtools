@@ -45,13 +45,9 @@
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
-    "birpc": "catalog:deps",
     "devframe": "catalog:deps",
     "mlly": "catalog:deps",
-    "nostics": "catalog:deps",
-    "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "tinyexec": "catalog:deps"
+    "nostics": "catalog:deps"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",

@@ -34,9 +34,7 @@
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
-    "birpc": "catalog:deps",
-    "devframe": "catalog:deps",
-    "pathe": "catalog:deps"
+    "devframe": "catalog:deps"
   },
   "devDependencies": {
     "@unocss/nuxt": "catalog:build",

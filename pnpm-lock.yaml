@@ -58,9 +58,6 @@ catalogs:
     envinfo:
       specifier: ^7.21.0
       version: 7.21.0
-    get-port-please:
-      specifier: ^3.2.0
-      version: 3.2.0
     h3:
       specifier: 2.0.1-rc.22
       version: 2.0.1-rc.22
@@ -85,9 +82,6 @@ catalogs:
     perfect-debounce:
       specifier: ^2.1.0
       version: 2.1.0
-    publint:
-      specifier: ^0.3.21
-      version: 0.3.21
     structured-clone-es:
       specifier: ^2.0.0
       version: 2.0.0
@@ -97,9 +91,6 @@ catalogs:
     tinyglobby:
       specifier: ^0.2.17
       version: 0.2.17
-    unconfig:
-      specifier: ^7.5.0
-      version: 7.5.0
     unstorage:
       specifier: ^1.17.5
       version: 1.17.5
@@ -754,12 +745,6 @@ importers:
       pathe:
         specifier: catalog:deps
         version: 2.0.3
-      perfect-debounce:
-        specifier: catalog:deps
-        version: 2.1.0
-      tinyexec:
-        specifier: catalog:deps
-        version: 1.2.4
       vue:
         specifier: catalog:deps
         version: 3.5.39(typescript@6.0.3)
@@ -815,9 +800,6 @@ importers:
       '@devframes/hub':
         specifier: catalog:deps
         version: 0.5.4(devframe@0.5.4(esbuild@0.28.1)(rolldown@1.1.3)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.2)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.3)(rollup@4.60.2)(vite@8.1.2)(webpack@5.104.1(esbuild@0.28.1))
-      birpc:
-        specifier: catalog:deps
-        version: 4.0.0
       devframe:
         specifier: catalog:deps
         version: 0.5.4(esbuild@0.28.1)(rolldown@1.1.3)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.2)(webpack@5.104.1(esbuild@0.28.1))
@@ -827,15 +809,6 @@ importers:
       nostics:
         specifier: catalog:deps
         version: 1.1.4
-      pathe:
-        specifier: catalog:deps
-        version: 2.0.3
-      perfect-debounce:
-        specifier: catalog:deps
-        version: 2.1.0
-      tinyexec:
-        specifier: catalog:deps
-        version: 1.2.4
     devDependencies:
       human-id:
         specifier: catalog:inlined
@@ -861,60 +834,21 @@ importers:
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
-      birpc:
-        specifier: catalog:deps
-        version: 4.0.0
-      cac:
-        specifier: ^7.0.0
-        version: 7.0.0
       d3-shape:
         specifier: catalog:frontend
         version: 3.2.0
-      devframe:
-        specifier: catalog:deps
-        version: 0.5.4(esbuild@0.28.1)(rolldown@1.1.3)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.2)(webpack@5.104.1(esbuild@0.28.1))
       diff:
         specifier: catalog:deps
         version: 9.0.0
-      get-port-please:
-        specifier: catalog:deps
-        version: 3.2.0
-      h3:
-        specifier: catalog:deps
-        version: 2.0.1-rc.22
-      mlly:
-        specifier: catalog:deps
-        version: 1.8.2
-      mrmime:
-        specifier: catalog:deps
-        version: 2.0.1
       nostics:
         specifier: catalog:deps
         version: 1.1.4
-      p-limit:
-        specifier: catalog:deps
-        version: 7.3.0
       pathe:
         specifier: catalog:deps
         version: 2.0.3
-      publint:
-        specifier: catalog:deps
-        version: 0.3.21
-      tinyglobby:
-        specifier: catalog:deps
-        version: 0.2.17
-      unconfig:
-        specifier: catalog:deps
-        version: 7.5.0
-      unstorage:
-        specifier: catalog:deps
-        version: 1.17.5(db0@0.3.4)(idb-keyval@6.2.6)(ioredis@5.10.1)
       vue-virtual-scroller:
         specifier: catalog:frontend
         version: 3.0.4(vue@3.5.39(typescript@6.0.3))
-      ws:
-        specifier: catalog:deps
-        version: 8.21.0
     devDependencies:
       '@types/splitpanes':
         specifier: catalog:types
@@ -985,15 +919,9 @@ importers:
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
-      birpc:
-        specifier: catalog:deps
-        version: 4.0.0
       devframe:
         specifier: catalog:deps
         version: 0.5.4(esbuild@0.28.1)(rolldown@1.1.3)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.2(@types/node@25.0.3)(@vitejs/devtools@packages+core)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.44.1)(tsx@4.22.4)(yaml@2.9.0))(webpack@5.104.1(esbuild@0.28.1))
-      pathe:
-        specifier: catalog:deps
-        version: 2.0.3
     devDependencies:
       '@unocss/nuxt':
         specifier: catalog:build
@@ -10352,7 +10280,8 @@ snapshots:
 
   '@poppinss/exception@1.2.3': {}
 
-  '@publint/pack@0.1.4': {}
+  '@publint/pack@0.1.4':
+    optional: true
 
   '@quansync/fs@1.0.0':
     dependencies:
@@ -14727,7 +14656,8 @@ snapshots:
 
   module-replacements@3.0.0-beta.8: {}
 
-  mri@1.2.0: {}
+  mri@1.2.0:
+    optional: true
 
   mrmime@2.0.1: {}
 
@@ -15866,6 +15796,7 @@ snapshots:
       package-manager-detector: 1.6.0
       picocolors: 1.1.1
       sade: 1.8.1
+    optional: true
 
   punycode.js@2.3.1: {}
 
@@ -16106,6 +16037,7 @@ snapshots:
   sade@1.8.1:
     dependencies:
       mri: 1.2.0
+    optional: true
 
   safe-buffer@5.1.2: {}
 

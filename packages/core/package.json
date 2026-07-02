@@ -67,8 +67,6 @@
     "nostics": "catalog:deps",
     "obug": "catalog:deps",
     "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "tinyexec": "catalog:deps",
     "vue": "catalog:deps",
     "ws": "catalog:deps"
   },
