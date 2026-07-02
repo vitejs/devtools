@@ -94,6 +94,7 @@ function applyOrder(container: string, items: DevToolsDockEntry[]) {
 }
 
 useDraggable(sortContainerEl, {
+  draggingElement: () => sortContainerEl.value?.ownerDocument?.defaultView ?? window,
   onStart(_, event) {
     if (event.button !== 0)
       return false
