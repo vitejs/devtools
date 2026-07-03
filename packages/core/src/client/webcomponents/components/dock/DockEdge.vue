@@ -45,6 +45,12 @@ const positionLabels: Record<string, string> = {
   bottom: 'Bottom',
   left: 'Left',
 }
+const positionDropdownPlacement: Record<string, 'top' | 'bottom' | 'left' | 'right'> = {
+  top: 'bottom',
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
+}
 
 function switchPosition(pos: 'top' | 'right' | 'bottom' | 'left') {
   store.position = pos
@@ -74,6 +80,7 @@ function togglePositionDropdown() {
   setEdgePositionDropdown({
     el: positionButton.value,
     gap: 6,
+    placement: positionDropdownPlacement[store.position],
     content: () => h('div', { class: 'flex flex-col gap-0.5 min-w-28' }, positions.map(pos =>
       h('button', {
         class: [

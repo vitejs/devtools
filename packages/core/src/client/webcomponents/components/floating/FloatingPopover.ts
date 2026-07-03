@@ -87,7 +87,9 @@ const FloatingPopoverComponent = defineComponent({
 
       const vw = window.innerWidth
       const vh = window.innerHeight
-      if (rect.left < DETECT_MARGIN)
+      if (props.item?.placement)
+        align = props.item.placement
+      else if (rect.left < DETECT_MARGIN)
         align = 'right'
       else if (rect.left + rect.width > vw - DETECT_MARGIN)
         align = 'left'
