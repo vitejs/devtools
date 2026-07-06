@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { defineAsyncComponent } from 'vue'
 import ViewBuiltinClientAuthNotice from '../views-builtin/ViewBuiltinClientAuthNotice.vue'
 import ViewBuiltinSettings from '../views-builtin/ViewBuiltinSettings.vue'
@@ -13,7 +13,7 @@ import ViewLauncher from './ViewLauncher.vue'
 defineProps<{
   context: DocksContext
   entry: DevToolsDockEntry
-  persistedDoms: PersistedDomViewsManager
+  panes: IframePanes
   iframeStyle?: CSSProperties
   divStyle?: CSSProperties
 }>()
@@ -59,14 +59,14 @@ const ViewJsonRender = defineAsyncComponent(() => import('./ViewJsonRender.vue')
       v-else-if="entry.type === 'iframe'"
       :context
       :entry
-      :persisted-doms="persistedDoms"
+      :panes="panes"
       :iframe-style="iframeStyle"
     />
     <ViewCustomRenderer
       v-else-if="entry.type === 'custom-render'"
       :context
       :entry
-      :persisted-doms="persistedDoms"
+      :panes="panes"
       :div-style="divStyle"
     />
     <ViewLauncher

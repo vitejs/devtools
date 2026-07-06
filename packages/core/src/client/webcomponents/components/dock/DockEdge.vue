@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import { computed, h, markRaw, useTemplateRef } from 'vue'
+import { computed, h, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockGroupSidebar from './DockGroupSidebar.vue'
@@ -18,7 +18,7 @@ const context = props.context
 const store = context.panel.store
 
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
+const panes = useIframePanes(viewsContainer, context.panel)
 
 const isVertical = computed(() => store.position === 'left' || store.position === 'right')
 
@@ -264,11 +264,11 @@ const contentClass = computed(() => {
       />
       <div class="relative flex-1 min-w-0 h-full">
         <ViewEntry
-          v-if="hasPanelContent && viewsContainer && selectedEntry"
+          v-if="hasPanelContent && panes && selectedEntry"
           :key="selectedEntry.id"
           :context
           :entry="selectedEntry"
-          :persisted-doms="persistedDoms"
+          :panes="panes"
         />
         <div
           id="vite-devtools-views-container"

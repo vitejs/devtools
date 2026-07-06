@@ -126,6 +126,7 @@ catalogs:
     floating-vue: ^5.2.2
     fuse.js: ^7.4.2
     idb-keyval: ^6.2.6
+    iframe-pane: ^1.1.0
     modern-monaco: ^0.4.2
     nanovis: ^1.0.0
     react: ^19.2.7

@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
 import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watchEffect } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 
 const props = defineProps<{
   context: DocksContext
   entry: DevToolsViewIframe
-  persistedDoms: PersistedDomViewsManager
+  panes: IframePanes
   iframeStyle?: CSSProperties
 }>()
 
@@ -58,7 +58,7 @@ const editingUrl = ref(props.entry.url)
 const isEditing = ref(false)
 
 const iframeElement = computed(() => {
-  return props.persistedDoms.getHolder(props.entry.id, 'iframe')?.element
+  return props.panes.get(props.entry.id)?.iframe
 })
 
 // Get current page's origin for comparison
@@ -183,72 +183,63 @@ function refresh() {
   iframe.src = src
 }
 
-onMounted(() => {
-  if (props.persistedDoms.getHolder(props.entry.id, 'iframe')) {
-    updateCurrentUrl()
-  }
-  const holder = props.persistedDoms.getOrCreateHolder(props.entry.id, 'iframe')
-  holder.element.style.boxShadow = 'none'
-  holder.element.style.outline = 'none'
+let onIframeLoad: (() => void) | undefined
 
-  if (!holder.element.src)
-    holder.element.src = props.entry.url
+onMounted(() => {
+  const existed = props.panes.has(props.entry.id)
+  // `src` is only assigned when the pane is first created, so re-mounting an
+  // existing iframe (tab switch) preserves its navigation/scroll/JS state.
+  const pane = props.panes.ensure(props.entry.id, {
+    src: props.entry.url,
+    style: { boxShadow: 'none', outline: 'none' },
+  })
+  const iframe = pane.iframe
+
+  if (existed)
+    updateCurrentUrl()
 
   // Listen for iframe load events
-  holder.element.addEventListener('load', () => {
+  onIframeLoad = () => {
     isIframeLoading.value = false
     updateCurrentUrl()
-  })
+  }
+  iframe.addEventListener('load', onIframeLoad)
 
   const entryState = props.context.docks.getStateById(props.entry.id)
   if (entryState)
-    entryState.domElements.iframe = holder.element
+    entryState.domElements.iframe = iframe
 
+  // iframe-pane positions the iframe exactly over the mount target (the view
+  // frame below the address bar), so no manual offset is needed — only the
+  // cosmetic borders differ between edge/float and address-bar states.
   watchEffect(() => {
-    Object.assign(holder.element.style, props.iframeStyle)
-    if (showAddressBar.value) {
-      holder.element.style.marginTop = `${ADDRESS_BAR_HEIGHT}px`
-      if (!isEdgeMode.value) {
-        holder.element.style.borderTopLeftRadius = '0px'
-        holder.element.style.borderTopRightRadius = '0px'
-      }
+    Object.assign(iframe.style, props.iframeStyle)
+    if (showAddressBar.value && !isEdgeMode.value) {
+      iframe.style.borderTopLeftRadius = '0px'
+      iframe.style.borderTopRightRadius = '0px'
     }
     else {
-      holder.element.style.marginTop = '0px'
-      holder.element.style.borderTopLeftRadius = ''
-      holder.element.style.borderTopRightRadius = ''
+      iframe.style.borderTopLeftRadius = ''
+      iframe.style.borderTopRightRadius = ''
     }
     if (isEdgeMode.value) {
-      holder.element.style.borderRadius = '0px'
-      holder.element.style.border = 'none'
+      iframe.style.borderRadius = '0px'
+      iframe.style.border = 'none'
     }
   })
 
-  watch(
-    () => props.context.panel,
-    () => {
-      holder.update()
-    },
-    { deep: true },
-  )
-
-  watchEffect(
-    () => {
-      holder.element.style.pointerEvents = (props.context.panel.isDragging || props.context.panel.isResizing) ? 'none' : 'auto'
-    },
-    { flush: 'sync' },
-  )
-
-  holder.mount(viewFrame.value!)
+  pane.mount(viewFrame.value!)
   isLoading.value = false
   nextTick(() => {
-    holder.update()
+    pane.update()
   })
 })
 
 onUnmounted(() => {
-  const holder = props.persistedDoms.getHolder(props.entry.id, 'iframe')
-  holder?.unmount()
+  const pane = props.panes.get(props.entry.id)
+  if (pane && onIframeLoad)
+    pane.iframe?.removeEventListener('load', onIframeLoad)
+  pane?.unmount()
 })
 </script>
 

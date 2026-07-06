@@ -39,6 +39,7 @@ const deps = {
     'fuse.js',
     'get-port-please',
     'human-id',
+    'iframe-pane',
     'sisteransi',
     'vue',
     'zod',

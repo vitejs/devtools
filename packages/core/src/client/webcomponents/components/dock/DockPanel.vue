@@ -3,9 +3,9 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
-import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
+import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
 import { openDockContextMenu } from './DockContextMenu'
 import DockGroupSidebar from './DockGroupSidebar.vue'
@@ -30,7 +30,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
+const panes = useIframePanes(viewsContainer, context.panel)
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
@@ -198,11 +198,11 @@ onMounted(() => {
       />
       <div class="relative flex-1 min-w-0 h-full">
         <ViewEntry
-          v-if="selected && viewsContainer"
+          v-if="selected && panes"
           :key="selected.id"
           :context
           :entry="selected"
-          :persisted-doms="persistedDoms"
+          :panes="panes"
           :iframe-style="{
             border: 'none',
             borderRadius: '0.5rem',

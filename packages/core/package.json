@@ -79,6 +79,7 @@
     "dompurify": "catalog:frontend",
     "fuse.js": "catalog:frontend",
     "human-id": "catalog:inlined",
+    "iframe-pane": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
     "unplugin-vue": "catalog:build",
@@ -103,6 +104,7 @@
     "fast-wrap-ansi": "0.2.0",
     "fuse.js": "7.3.0",
     "get-port-please": "3.2.0",
+    "iframe-pane": "1.1.0",
     "sisteransi": "1.0.5",
     "zod": "4.3.6"
   }

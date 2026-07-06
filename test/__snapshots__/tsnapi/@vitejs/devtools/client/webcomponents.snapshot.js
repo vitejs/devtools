@@ -9,8 +9,6 @@ export var DockEmbedded /* const */
 export { createDockEntryState }
 export { DEFAULT_DOCK_PANEL_STORE }
 export { DockStandalone }
-export { PersistedDomHolder }
-export { PersistedDomViewsManager }
 export { sharedStateToRef }
 export { useDocksEntries }
 // #endregion

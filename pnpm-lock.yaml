@@ -229,6 +229,9 @@ catalogs:
     idb-keyval:
       specifier: ^6.2.6
       version: 6.2.6
+    iframe-pane:
+      specifier: ^1.1.0
+      version: 1.1.0
     modern-monaco:
       specifier: ^0.4.2
       version: 0.4.2
@@ -773,6 +776,9 @@ importers:
       human-id:
         specifier: catalog:inlined
         version: 4.2.0
+      iframe-pane:
+        specifier: catalog:frontend
+        version: 1.1.0
       tsdown:
         specifier: catalog:build
         version: 0.22.3(@vitejs/devtools@0.3.4)(publint@0.3.21)(tsx@4.22.4)(typescript@6.0.3)(unrun@0.3.1(synckit@0.11.13))(vue-tsc@3.3.6(typescript@6.0.3))
@@ -5756,6 +5762,9 @@ packages:
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
+
+  iframe-pane@1.1.0:
+    resolution: {integrity: sha512-UV+PuLDiXZ05vMSNdssR/MRb6qIL4YM7Fxbx1OjZdvW2cfKyukKTx9Xn0YgfjlrFocOuFhk+m+ZPH3ZknmIE/w==}
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
@@ -13727,6 +13736,8 @@ snapshots:
   idb-keyval@6.2.6: {}
 
   ieee754@1.2.1: {}
+
+  iframe-pane@1.1.0: {}
 
   ignore@5.3.2: {}
 
