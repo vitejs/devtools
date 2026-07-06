@@ -1,5 +1,4 @@
 import type { Preview } from '@storybook/vue3-vite'
-import { h } from 'vue'
 
 import '@unocss/reset/tailwind.css'
 import '@xterm/xterm/css/xterm.css'
@@ -44,9 +43,12 @@ const preview: Preview = {
   decorators: [
     (story, context) => {
       applyTheme((context.globals.theme as Theme) ?? 'dark')
+      // Wrap via a template so Storybook composes the StoryFn into a real
+      // component. Rendering the raw `story` fn through `h()` coerces its
+      // return to a text node ("[object Object]").
       return {
         components: { story },
-        render: () => h('div', { class: 'vite-devtools-storybook-root color-base bg-base' }, [h(story)]),
+        template: `<div class="vite-devtools-storybook-root color-base bg-base"><story /></div>`,
       }
     },
   ],
