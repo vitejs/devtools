@@ -27,7 +27,7 @@ let detachColorModeSync: (() => void) | undefined
 let popupDockElement: (HTMLElement & { remove: () => void }) | undefined
 let popupContext: DocksContext | undefined
 let loadDockStandalone: () => Promise<new (props: { context: DocksContext }) => HTMLElement> = async () => {
-  return await import('../components/DockStandalone').then(m => m.DockStandalone)
+  return await import('../components/DockStandalone').then(m => m.registerDockStandalone())
 }
 
 popupEvents.on('popup:open-requested', (context) => {
@@ -250,7 +250,7 @@ export function closeDockPopup() {
 
 export function setDockStandaloneLoaderForTest(loader?: () => Promise<new (props: { context: DocksContext }) => HTMLElement>) {
   loadDockStandalone = loader || (async () => {
-    return await import('../components/DockStandalone').then(m => m.DockStandalone)
+    return await import('../components/DockStandalone').then(m => m.registerDockStandalone())
   })
 }
 

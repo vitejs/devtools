@@ -74,6 +74,15 @@ export function useMessages(context: DocksContext): Reactive<MessagesState> {
   return state
 }
 
+/**
+ * Reset the module-level messages singleton. Intended for tests and stories,
+ * which share one module graph — call before re-initializing `useMessages`
+ * with a fresh context so state doesn't leak between scenarios.
+ */
+export function resetMessagesState(): void {
+  _messagesState = undefined
+}
+
 export function markMessagesAsRead(): void {
   if (_messagesState)
     _messagesState.unreadCount = 0

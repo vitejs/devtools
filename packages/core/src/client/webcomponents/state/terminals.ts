@@ -13,6 +13,16 @@ export interface TerminalState {
 }
 
 let _terminalsMap: Reactive<Map<string, TerminalState>> | undefined
+
+/**
+ * Reset the module-level terminals singleton. Intended for tests and stories,
+ * which share one module graph — call before re-initializing `useTerminals`
+ * with a fresh context so state doesn't leak between scenarios.
+ */
+export function resetTerminalsState(): void {
+  _terminalsMap = undefined
+}
+
 export function useTerminals(context: DocksContext): Reactive<Map<string, TerminalState>> {
   if (_terminalsMap) {
     return _terminalsMap

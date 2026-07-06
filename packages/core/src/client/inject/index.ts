@@ -38,10 +38,11 @@ export async function init(): Promise<void> {
   )
   ;(globalThis as any)[CLIENT_CONTEXT_KEY] = context
 
-  const { DockEmbedded } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
+  const { registerDockEmbedded } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
     ? await import('../webcomponents')
     : await import('@vitejs/devtools/client/webcomponents')
 
+  const DockEmbedded = registerDockEmbedded()
   const dockEl = new DockEmbedded({ context })
   document.body.appendChild(dockEl)
 }

@@ -50,7 +50,9 @@
     "play:debug": "pnpm -C playground run dev:debug",
     "play:standalone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
     "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
-    "play:build": "pnpm -C playground run build"
+    "play:build": "pnpm -C playground run build",
+    "storybook": "storybook dev -p 6006 --host 0.0.0.0",
+    "build:storybook": "storybook build -o dist/storybook"
   },
   "peerDependencies": {
     "vite": "*"
@@ -72,6 +74,8 @@
   },
   "devDependencies": {
     "@clack/prompts": "catalog:inlined",
+    "@storybook/vue3-vite": "catalog:devtools",
+    "@unocss/reset": "catalog:build",
     "@vitejs/devtools-rolldown": "workspace:*",
     "@vitejs/plugin-vue": "catalog:build",
     "@xterm/addon-fit": "catalog:frontend",
@@ -80,8 +84,10 @@
     "fuse.js": "catalog:frontend",
     "human-id": "catalog:inlined",
     "iframe-pane": "catalog:frontend",
+    "storybook": "catalog:devtools",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
+    "unocss": "catalog:build",
     "unplugin-vue": "catalog:build",
     "unrun": "catalog:build",
     "vite": "catalog:build",

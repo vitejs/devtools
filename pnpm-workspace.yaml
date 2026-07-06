@@ -41,6 +41,7 @@ catalogs:
     '@nuxt/kit': ^4.4.8
     '@nuxt/vite-builder': ^4.4.8
     '@unocss/nuxt': ^66.7.4
+    '@unocss/reset': ^66.7.4
     '@vitejs/plugin-vue': ^6.0.7
     '@vueuse/nuxt': ^14.3.0
     esbuild: ^0.28.1
@@ -83,6 +84,7 @@ catalogs:
     '@antfu/eslint-config': ^9.1.0
     '@nuxt/devtools': ^3.2.4
     '@nuxt/eslint': ^1.16.0
+    '@storybook/vue3-vite': ^10.4.6
     '@typescript-eslint/utils': ^8.62.1
     '@unocss/eslint-config': ^66.7.4
     '@unocss/preset-web-fonts': ^66.7.4
@@ -95,6 +97,7 @@ catalogs:
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.2.0
     solid-js: ^1.9.13
+    storybook: ^10.4.6
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.0-beta.3
     vite-plugin-solid: ^2.11.12

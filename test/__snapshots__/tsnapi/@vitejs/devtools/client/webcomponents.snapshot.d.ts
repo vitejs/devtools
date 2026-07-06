@@ -4,11 +4,19 @@
 // #region Functions
 export declare function createDockEntryState(_: DevToolsDockEntry, _: Ref<DevToolsDockEntry | null>): DockEntryState;
 export declare function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage;
+export declare function registerDockEmbedded(): VueElementConstructor<{
+  context: DocksContext;
+}>;
+export declare function registerDockStandalone(): VueElementConstructor<{
+  context: DocksContext;
+}>;
 export declare function sharedStateToRef<T>(_: SharedState<T>): ShallowRef<T>;
 export declare function useDocksEntries(_: DevToolsRpcClient): Promise<Ref<DevToolsDockEntry[]>>;
 // #endregion
 
 // #region Variables
+export declare const DOCK_EMBEDDED_TAG: string;
+export declare const DOCK_STANDALONE_TAG: string;
 export declare const DockEmbedded: VueElementConstructor<{
   context: DocksContext;
 }>;

@@ -1,0 +1,19 @@
+/* Storybook-only chrome. Production styling lives in the shadow-DOM CSS blob. */
+html,
+body,
+#storybook-root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.vite-devtools-storybook-root {
+  min-height: 100vh;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
