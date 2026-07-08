@@ -21,6 +21,16 @@ export {
 export const DEVTOOLS_MOUNT_PATH = '/__devtools/'
 export const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH = '/__devtools'
 export const DEVTOOLS_DIRNAME = '__devtools'
+
+/**
+ * Single upgrade route the RPC WebSocket binds to when it shares the Vite dev
+ * server (route-bound mode). `DEVTOOLS_WS_ROUTE` is the relative form written
+ * into `__connection.json` (resolved by the client against the meta file's
+ * `/__devtools/` location); `DEVTOOLS_WS_PATH` is the absolute upgrade path the
+ * server binds and the remote-dock endpoint URL embeds.
+ */
+export const DEVTOOLS_WS_ROUTE = '__ws'
+export const DEVTOOLS_WS_PATH = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_WS_ROUTE}`
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
 /**
