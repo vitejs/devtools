@@ -2,6 +2,7 @@ import process from 'node:process'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
+import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createPluginFromDevframe, createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
@@ -35,10 +36,14 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
-    createPluginFromDevframe(createTerminalsDevframe()),
-    createPluginFromDevframe(createMessagesDevframe()),
+    createPluginFromDevframe(createTerminalsDevframe(), {
+      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID },
+    }),
+    createPluginFromDevframe(createMessagesDevframe(), {
+      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID },
+    }),
     createPluginFromDevframe(createInspectDevframe(), {
-      dock: { category: 'advanced', icon: 'ph:stethoscope-duotone' },
+      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID, icon: 'ph:stethoscope-duotone' },
     }),
     {
       name: 'build-css',
