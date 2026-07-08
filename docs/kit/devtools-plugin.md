@@ -204,25 +204,9 @@ export default function myAnalyzerPlugin(): Plugin {
 }
 ```
 
-## Debugging with Self Inspect
+## Debugging with the inspector
 
-`@vitejs/devtools-self-inspect` adds a "Self Inspect" panel to DevTools that shows registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins — handy when verifying that everything you registered actually shows up:
-
-```bash
-pnpm add -D @vitejs/devtools-self-inspect
-```
-
-```ts [vite.config.ts]
-import { DevToolsSelfInspect } from '@vitejs/devtools-self-inspect'
-
-export default defineConfig({
-  plugins: [
-    DevTools(),
-    DevToolsSelfInspect(),
-    // ...your plugins
-  ],
-})
-```
+Vite DevTools ships the official `@devframes/plugin-inspect` inspector as a built-in panel, enabled by default with `builtinDevTools`. It shows registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins — handy when verifying that everything you registered actually shows up. Open the "Inspect" dock; no extra install needed.
 
 ## Next steps
 

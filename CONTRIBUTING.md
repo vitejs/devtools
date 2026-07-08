@@ -101,12 +101,6 @@ Typed RPC wrapper over `birpc` with WebSocket presets.
 
 ---
 
-### `packages/self-inspect` - `@vitejs/devtools-self-inspect`
-
-Meta-introspection — DevTools for the DevTools itself.
-
----
-
 ### `packages/webext` - `@vitejs/devtools-webext`
 
 Browser extension (planned for future dev mode). **Not accepting contributions currently.**

@@ -1,5 +1,8 @@
 import process from 'node:process'
-import { createSimpleClientScript } from '@vitejs/devtools-kit/node'
+import { createInspectDevframe } from '@devframes/plugin-inspect'
+import { createMessagesDevframe } from '@devframes/plugin-messages'
+import { createTerminalsDevframe } from '@devframes/plugin-terminals'
+import { createPluginFromDevframe, createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
@@ -13,7 +16,6 @@ import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
-import { DevToolsSelfInspect } from '../../self-inspect/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {
@@ -33,7 +35,11 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
-    DevToolsSelfInspect(),
+    createPluginFromDevframe(createTerminalsDevframe()),
+    createPluginFromDevframe(createMessagesDevframe()),
+    createPluginFromDevframe(createInspectDevframe(), {
+      dock: { category: 'advanced', icon: 'ph:stethoscope-duotone' },
+    }),
     {
       name: 'build-css',
       handleHotUpdate({ file }) {

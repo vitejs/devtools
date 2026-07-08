@@ -29,8 +29,6 @@ const deps = {
     '@vue/shared',
     '@vueuse/core',
     '@vueuse/shared',
-    '@xterm/addon-fit',
-    '@xterm/xterm',
     'csstype',
     'dompurify',
     'fast-string-truncated-width',

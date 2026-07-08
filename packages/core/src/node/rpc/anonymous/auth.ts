@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
-import process from 'node:process'
-import * as p from '@clack/prompts'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { abortPendingAuth, getTempAuthToken, refreshTempAuthToken, setPendingAuth } from 'devframe/node/auth'
+import { buildOtpAuthUrl, exchangeTempAuthCode, getTempAuthCode, refreshTempAuthCode, verifyAuthToken } from 'devframe/node/auth'
 import { getInternalContext } from 'devframe/node/hub-internals'
 import { colors as c } from 'devframe/utils/colors'
 import { MARK_INFO } from '../../constants'
@@ -13,160 +12,107 @@ export interface DevToolsAuthInput {
   origin: string
 }
 
-export interface DevToolsAuthReturn {
-  isTrusted: boolean
+export interface DevToolsAuthExchangeInput {
+  code: string
+  ua: string
+  origin: string
 }
 
-const AUTH_TIMEOUT_MS = 60_000
+// Print the one-time code + magic link once per code so reconnect loops don't
+// spam the terminal. devframe stays headless — the host prints its own banner.
+let lastPromptedCode: string | undefined
 
+function promptForAuth(context: ViteDevToolsNodeContext, input: { authToken?: string, ua?: string, origin?: string }): void {
+  const code = getTempAuthCode()
+  if (code === lastPromptedCode)
+    return
+  lastPromptedCode = code
+
+  const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
+    ?? `http://localhost:${context.viteConfig.server.port}`
+  const magicLink = buildOtpAuthUrl(serverUrl, code)
+
+  const message = [
+    c.yellow(c.bold(' Vite DevTools Permission Request ')),
+    '',
+    `A browser is requesting permission to connect to the Vite DevTools.`,
+    '',
+    `User Agent : ${c.yellow(c.bold(input.ua || 'Unknown'))}`,
+    `Origin     : ${c.yellow(c.bold(input.origin || 'Unknown'))}`,
+    '',
+    `Auth Code  : ${c.green(c.bold(code))}`,
+    `Magic Link : ${c.cyan(c.underline(magicLink))}`,
+    '',
+    'Enter the code in the browser, or open the magic link to authorize.',
+    c.red(c.bold('You should only trust your local development browsers.')),
+  ]
+  console.log(c.reset(message.join('\n')))
+}
+
+/**
+ * `devframe:anonymous:auth` — the connect-time handshake. A client presenting a
+ * previously-issued bearer token (or a configured static token) is trusted
+ * without re-entering the code; otherwise we surface the one-time code + magic
+ * link and leave the client untrusted until it exchanges the code.
+ */
 export const anonymousAuth = defineRpcFunction({
   name: 'devframe:anonymous:auth',
   type: 'action',
   jsonSerializable: true,
-  setup: (context) => {
+  setup: (context: ViteDevToolsNodeContext) => {
     const internal = getInternalContext(context)
     const storage = internal.storage.auth
+    // Seed a fresh code for this server's auth flow.
+    refreshTempAuthCode()
     return {
-      handler: async (query: DevToolsAuthInput): Promise<DevToolsAuthReturn> => {
+      handler: async (query: DevToolsAuthInput): Promise<{ isTrusted: boolean }> => {
         const session = context.rpc.getCurrentRpcSession()
         if (!session)
           throw new Error('Failed to retrieve the current RPC session')
 
-        if (session.meta.isTrusted || storage.value().trusted[query.authToken]) {
-          session.meta.clientAuthToken = query.authToken
-          session.meta.isTrusted = true
-          return {
-            isTrusted: true,
-          }
-        }
+        // Reconnect with a node-issued bearer token persisted in the browser.
+        if (query.authToken && verifyAuthToken(query.authToken, session, storage))
+          return { isTrusted: true }
 
-        // Auto-approve if authToken matches a configured auth token (session-only, not persisted)
+        // Static tokens configured via `devtools.clientAuthTokens` (session-only).
         const tokens = context.viteConfig.devtools?.config?.clientAuthTokens ?? []
-        if (tokens.includes(query.authToken)) {
+        if (query.authToken && tokens.includes(query.authToken)) {
           session.meta.clientAuthToken = query.authToken
           session.meta.isTrusted = true
-          return {
-            isTrusted: true,
-          }
+          return { isTrusted: true }
         }
 
-        // Auto-approve if authToken matches the server-generated temp auth token
-        if (query.authToken === getTempAuthToken()) {
-          storage.mutate((state) => {
-            state.trusted[query.authToken] = {
-              authToken: query.authToken,
-              ua: query.ua,
-              origin: query.origin,
-              timestamp: Date.now(),
-            }
-          })
-          session.meta.clientAuthToken = query.authToken
-          session.meta.isTrusted = true
-          refreshTempAuthToken()
-          return {
-            isTrusted: true,
-          }
-        }
+        // Untrusted — show the code/link so the user can authorize this browser.
+        promptForAuth(context, query)
+        return { isTrusted: false }
+      },
+    }
+  },
+})
 
-        // Abort any existing pending auth request
-        abortPendingAuth()
+/**
+ * `devframe:auth:exchange` — exchange the human-typed one-time code (or the
+ * `devframe_otp` magic-link param) for a fresh node-issued bearer token. On
+ * success the session is trusted and the token is returned for the client to
+ * persist; on failure `authToken` is `null`.
+ */
+export const authExchange = defineRpcFunction({
+  name: 'devframe:auth:exchange',
+  type: 'action',
+  jsonSerializable: true,
+  setup: (context: ViteDevToolsNodeContext) => {
+    const internal = getInternalContext(context)
+    const storage = internal.storage.auth
+    return {
+      handler: async (query: DevToolsAuthExchangeInput): Promise<{ authToken: string | null }> => {
+        const session = context.rpc.getCurrentRpcSession()
+        if (!session)
+          throw new Error('Failed to retrieve the current RPC session')
 
-        // Generate a fresh temp ID for the auth URL
-        const tempId = getTempAuthToken()
-
-        // Derive the server URL for the auth link
-        const serverUrl = context.viteServer?.resolvedUrls?.local?.[0]?.replace(/\/$/, '')
-          ?? `http://localhost:${context.viteConfig.server.port}`
-        const authUrl = `${serverUrl}/__devtools/auth?id=${encodeURIComponent(tempId)}`
-
-        const message = [
-          `A browser is requesting permissions to connect to the Vite DevTools.`,
-          '',
-          `User Agent   : ${c.yellow(c.bold(query.ua || 'Unknown'))}`,
-          `Origin       : ${c.yellow(c.bold(query.origin || 'Unknown'))}`,
-          `Client Token : ${c.green(c.bold(query.authToken))}`,
-          '',
-          `Manual Auth URL   : ${c.cyan(c.underline(authUrl))}`,
-          `Manual Auth Token : ${c.cyan(c.bold(tempId))}`,
-          '',
-          'This will allow the browser to interact with the server, make file changes and run commands.',
-          c.red(c.bold('You should only trust your local development browsers.')),
-        ]
-
-        p.note(
-          c.reset(message.join('\n')),
-          c.bold(c.yellow(' Vite DevTools Permission Request ')),
-        )
-
-        // if non-TTY, skip the prompt
-        if (!process.stdout.isTTY) {
-          return {
-            isTrusted: false,
-          }
-        }
-
-        // Set up abort controller for timeout and external cancellation
-        const abortController = new AbortController()
-
-        return new Promise<DevToolsAuthReturn>((resolve) => {
-          const timeout = setTimeout(() => {
-            abortController.abort()
-            setPendingAuth(null)
-            console.log(c.yellow`${MARK_INFO} Auth request timed out for ${c.bold(query.authToken)}`)
-            resolve({ isTrusted: false })
-          }, AUTH_TIMEOUT_MS)
-
-          // Register as pending auth so auth-verify endpoint can resolve it
-          setPendingAuth({
-            clientAuthToken: query.authToken,
-            session,
-            ua: query.ua,
-            origin: query.origin,
-            resolve,
-            abortController,
-            timeout,
-          })
-
-          // Show terminal confirm prompt with abort signal
-          p.confirm({
-            message: c.bold(`Do you trust this client (${c.green(c.bold(query.authToken))})?`),
-            initialValue: false,
-            signal: abortController.signal,
-          }).then((answer) => {
-            // If already resolved by auth-verify, ignore
-            clearTimeout(timeout)
-            setPendingAuth(null)
-
-            if (p.isCancel(answer)) {
-              // Aborted by auth-verify or timeout — already handled
-              return
-            }
-
-            if (answer) {
-              storage.mutate((state) => {
-                state.trusted[query.authToken] = {
-                  authToken: query.authToken,
-                  ua: query.ua,
-                  origin: query.origin,
-                  timestamp: Date.now(),
-                }
-              })
-              session.meta.clientAuthToken = query.authToken
-              session.meta.isTrusted = true
-
-              p.outro(c.green(c.bold(`You have granted permissions to ${c.bold(query.authToken)}`)))
-              resolve({ isTrusted: true })
-            }
-            else {
-              p.outro(c.red(c.bold(`You have denied permissions to ${c.bold(query.authToken)}`)))
-              resolve({ isTrusted: false })
-            }
-          }).catch(() => {
-            // Abort signal triggered — already handled by timeout or auth-verify
-            clearTimeout(timeout)
-            setPendingAuth(null)
-          })
-        })
+        const authToken = exchangeTempAuthCode(query.code, session, { ua: query.ua, origin: query.origin }, storage)
+        if (authToken)
+          console.log(c.green`${MARK_INFO} A browser has been authorized via one-time code.`)
+        return { authToken }
       },
     }
   },

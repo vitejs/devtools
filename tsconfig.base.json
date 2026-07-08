@@ -39,9 +39,6 @@
       "@vitejs/devtools-rolldown": [
         "./packages/rolldown/src/index.ts"
       ],
-      "@vitejs/devtools-self-inspect": [
-        "./packages/self-inspect/src/index.ts"
-      ],
       "@vitejs/devtools/internal": [
         "./packages/core/src/internal.ts"
       ],

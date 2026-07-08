@@ -18,7 +18,9 @@ const toasts = useToasts()
 function openMessages(toastId: string) {
   dismissToast(toastId)
   selectMessage(toastId)
-  props.context?.docks.switchEntry('~messages')
+  // Open the messages panel provided by `@devframes/plugin-messages`
+  // (its dock id is the plugin's devframe id).
+  props.context?.docks.switchEntry('devframes-plugin-messages')
 }
 </script>
 

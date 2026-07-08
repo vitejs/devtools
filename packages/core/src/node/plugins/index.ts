@@ -1,4 +1,8 @@
 import type { Plugin } from 'vite'
+import { createInspectDevframe } from '@devframes/plugin-inspect'
+import { createMessagesDevframe } from '@devframes/plugin-messages'
+import { createTerminalsDevframe } from '@devframes/plugin-terminals'
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { DevToolsBuild } from './build'
 import { DevToolsInjection } from './injection'
 import { DevToolsServer } from './server'
@@ -48,6 +52,19 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     // eslint-disable-next-line ts/ban-ts-comment
     // @ts-ignore ignore the type error
     plugins.push(await import('@vitejs/devtools-rolldown').then(m => m.DevToolsRolldownUI()))
+
+    // Terminals + messages panels, provided by the official devframe plugins
+    // (replacing the hub's built-in `~terminals` / `~messages` docks, which are
+    // suppressed via `builtinDocks` in `createDevToolsContext`).
+    plugins.push(createPluginFromDevframe(createTerminalsDevframe()))
+    plugins.push(createPluginFromDevframe(createMessagesDevframe()))
+
+    // Meta-introspection ("DevTools for the DevTools"), provided by the
+    // official devframe inspector plugin (replaces the former
+    // `@vitejs/devtools-self-inspect` package).
+    plugins.push(createPluginFromDevframe(createInspectDevframe(), {
+      dock: { category: 'advanced', icon: 'ph:stethoscope-duotone' },
+    }))
   }
 
   return plugins

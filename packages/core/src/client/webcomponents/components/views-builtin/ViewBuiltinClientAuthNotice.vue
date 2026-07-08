@@ -7,13 +7,13 @@ const props = defineProps<{
   context: DocksContext
 }>()
 
-const tokenInput = ref('')
+const codeInput = ref('')
 
-function submitToken() {
-  const value = tokenInput.value.trim()
+function submitCode() {
+  const value = codeInput.value.trim()
   if (!value)
     return
-  props.context.rpc.requestTrustWithToken(value)
+  props.context.rpc.requestTrustWithCode(value)
 }
 </script>
 
@@ -31,22 +31,22 @@ function submitToken() {
         To protect your project from unauthorized access, please authorize your browser before proceeding.
       </p>
       <p class="font-bold bg-green:5 p1 px3 rounded mt8 text-green">
-        Check your terminal for the authorization prompt and come back.
+        Check your terminal for the one-time authorization code and come back.
       </p>
       <div class="mt6 op50">
         or
       </div>
-      <form class="mt2 flex items-center gap-2" @submit.prevent="submitToken">
+      <form class="mt2 flex items-center gap-2" @submit.prevent="submitCode">
         <input
-          v-model="tokenInput"
+          v-model="codeInput"
           type="text"
-          placeholder="Enter auth token"
+          placeholder="Enter auth code"
           class="px3 py1.5 rounded border border-base bg-transparent text-sm outline-none focus:border-violet"
         >
         <button
           type="submit"
           class="px3 py1.5 rounded bg-violet text-white text-sm hover:op80 disabled:op40"
-          :disabled="!tokenInput.trim()"
+          :disabled="!codeInput.trim()"
         >
           Authorize
         </button>

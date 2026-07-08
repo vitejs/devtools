@@ -2,8 +2,7 @@
   "extends": "./tsconfig.base.json",
   "references": [
     { "path": "./packages/rolldown/src/tsconfig.json" },
-    { "path": "./packages/vite/src/tsconfig.json" },
-    { "path": "./packages/self-inspect/src/tsconfig.json" }
+    { "path": "./packages/vite/src/tsconfig.json" }
   ],
   "files": []
 }

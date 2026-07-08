@@ -619,18 +619,16 @@ Export from package.json:
 }
 ```
 
-## Debugging with Self-Inspect
+## Debugging with the inspector
 
-Use `@vitejs/devtools-self-inspect` to debug your DevTools plugin. It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI at `/__devtools-self-inspect/`.
+Vite DevTools ships the official `@devframes/plugin-inspect` inspector as a built-in panel (enabled by default via `builtinDevTools`). It shows registered RPC functions, dock entries, client scripts, and plugins in a meta-introspection UI — open the "Inspect" dock, no extra install needed.
 
 ```ts
 import DevTools from '@vitejs/devtools'
-import DevToolsSelfInspect from '@vitejs/devtools-self-inspect'
 
 export default defineConfig({
   plugins: [
-    DevTools(),
-    DevToolsSelfInspect(),
+    DevTools(), // inspector included by default
   ],
 })
 ```
@@ -644,7 +642,7 @@ export default defineConfig({
 5. **Host static files** - Use `ctx.views.hostStatic()` for your UI assets
 6. **Use Iconify icons** - Prefer `ph:*` (Phosphor) icons: `icon: 'ph:chart-bar-duotone'`
 7. **Deduplicate logs** - Use explicit `id` for logs representing ongoing operations
-8. **Use Self-Inspect** - Add `@vitejs/devtools-self-inspect` during development to debug your plugin
+8. **Use the inspector** - The built-in `@devframes/plugin-inspect` panel helps debug your plugin during development
 9. **Namespace command IDs** - Use `my-plugin:action` pattern for command IDs, same as RPC and state
 10. **Use `when` clauses** - Conditionally show commands/docks with `when` expressions instead of programmatic show/hide
 

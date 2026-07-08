@@ -19,7 +19,6 @@ const MINIFY = true
 
 export async function buildCSS() {
   const reset = await fs.readFile(resolveModulePath('@unocss/reset/tailwind.css'), 'utf-8')
-  const xtermCss = await fs.readFile(resolveModulePath('@xterm/xterm/css/xterm.css'), 'utf-8')
   const files = await glob(GLOBS, {
     cwd: SRC_DIR,
     absolute: true,
@@ -46,7 +45,6 @@ export async function buildCSS() {
   const unoResult = await generator.generate(tokens)
   const input = [
     reset,
-    xtermCss,
     userStyle.toString(),
     unoResult.css,
   ].join('\n')

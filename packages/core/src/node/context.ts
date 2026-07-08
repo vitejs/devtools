@@ -38,6 +38,11 @@ export async function createDevToolsContext(
     mode,
     host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
     builtinRpcDeclarations,
+    // The terminals + messages panels are provided by the official
+    // `@devframes/plugin-terminals` / `@devframes/plugin-messages` devframes
+    // (mounted in `DevTools()`), so suppress the hub's built-in `~terminals` /
+    // `~messages` docks to avoid duplicates. The `~settings` built-in stays.
+    builtinDocks: { terminals: false, messages: false },
     viteConfig,
     viteServer,
   })) as ViteDevToolsNodeContext

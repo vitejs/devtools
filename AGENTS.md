@@ -23,8 +23,9 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-rolldown/`. |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
-| `packages/self-inspect` | `@vitejs/devtools-self-inspect` | Meta-introspection — DevTools for the DevTools. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-self-inspect/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
+
+Meta-introspection ("DevTools for the DevTools") is provided by the official upstream `@devframes/plugin-inspect`, mounted as a built-in via `createPluginFromDevframe` (replaces the former `packages/self-inspect`).
 
 Other top-level directories:
 - `docs/` — VitePress docs; guides in `docs/guide/`
@@ -35,10 +36,9 @@ flowchart TD
   hub --> devframe
   kit --> hub
   core --> kit
-  core --> rolldown & vite & self-inspect
+  core --> rolldown & vite
   rolldown --> kit & ui
   vite --> kit & ui
-  self-inspect --> kit
   webext --> core
 ```
 
@@ -51,13 +51,14 @@ flowchart TD
 ## Architecture
 
 - **Devframe context** (external — see [devfra.me](https://devfra.me)): `createHostContext` returns a `DevframeNodeContext` carrying `rpc`, `views` (HTTP file-serving via `hostStatic`), `diagnostics`, `agent`, plus `cwd`/`workspaceRoot`/`mode`/`host`. No docks, no terminals, no json-render.
-- **Hub context** (external `@devframes/hub/node`): `createHubContext` wraps `createHostContext` and attaches the four hub hosts — `docks`, `terminals`, `messages`, `commands` — plus the `createJsonRenderer` factory. Wires the `'devframe:docks'` / `'devframe:commands'` shared-state sync and seeds the built-in `~terminals` / `~messages` / `~settings` docks. Also ships `mountDevframe(ctx, def)` — the framework-neutral primitive that registers any `DevframeDefinition` as a dock.
+- **Hub context** (external `@devframes/hub/node`): `createHubContext` wraps `createHostContext` and attaches the four hub hosts — `docks`, `terminals`, `messages`, `commands` — plus the `createJsonRenderer` factory. Wires the `'devframe:docks'` / `'devframe:commands'` shared-state sync and seeds the built-in `~terminals` / `~messages` / `~settings` docks (each gateable via `CreateHubContextOptions.builtinDocks`; core disables `~terminals`/`~messages` in favour of the official plugins). Also ships `mountDevframe(ctx, def)` — the framework-neutral primitive that registers any `DevframeDefinition` as a dock.
 - **Kit context** (`packages/kit/src/node/context.ts`): `createKitContext` wraps `createHubContext` and surfaces Vite-specific `viteConfig`/`viteServer` slots when mounted inside Vite DevTools. `KitNodeContext` extends `DevframeHubContext` so all the hub hosts come along for free.
 - **Bridge** (`packages/kit/src/node/create-plugin-from-devframe.ts`): `createPluginFromDevframe(d, opts?)` returns `PluginWithDevTools`; in its `setup`, delegates to `mountDevframe(ctx, d, opts)` to mount the SPA, register the auto-derived iframe dock entry, and run `d.setup(ctx)`, then runs `opts.setup?.(ctx)` for kit-only extensions.
 - **Vite DevTools entry** (`packages/core/src/node/context.ts`): `createDevToolsContext` calls `createKitContext`, registers Vite-specific commands (`vite:open-in-editor`, `vite:open-in-finder`), then scans Vite plugins for `.devtools.setup` hooks (which now receive the kit-augmented context).
 - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`) — dock entries, panels, RPC client. Two modes: `embedded` (overlay in host app) and `standalone` (independent page).
 - **WS server** (`packages/core/src/node/ws.ts`): RPC via `devframe/rpc/transports/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
-- **Hub-mounted Nuxt UI plugins** (rolldown, vite, self-inspect): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
+- **Hub-mounted Nuxt UI plugins** (rolldown, vite): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
+- **Built-in devframe plugins** (`@devframes/plugin-inspect` today; `@devframes/plugin-terminals` / `@devframes/plugin-messages`): official portable `DevframeDefinition`s mounted as built-ins by `DevTools()` via kit's `createPluginFromDevframe` (gated by `builtinDevTools`).
 
 ## Development
 
@@ -78,7 +79,7 @@ pnpm -C docs run docs                 # docs dev server
 - Use workspace aliases from `alias.ts`.
 - RPC functions must use `defineRpcFunction` from kit; always namespace IDs (`my-plugin:fn-name`).
 - Shared state via `devframe/utils/shared-state`; keep values serializable.
-- Nuxt UI base paths: `/__devtools-rolldown/`, `/__devtools-vite/`, `/__devtools-self-inspect/`.
+- Nuxt UI base paths: `/__devtools-rolldown/`, `/__devtools-vite/`.
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 

@@ -54,5 +54,8 @@
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
+  },
+  "inlinedDependencies": {
+    "human-id": "4.2.0"
   }
 }

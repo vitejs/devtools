@@ -19,26 +19,14 @@ defineProps<{
 }>()
 
 // Lazy load some less frequently used builtin views
-const ViewBuiltinTerminals = defineAsyncComponent(() => import('../views-builtin/ViewBuiltinTerminals.vue'))
-const ViewBuiltinMessages = defineAsyncComponent(() => import('../views-builtin/ViewBuiltinMessages.vue'))
 const ViewJsonRender = defineAsyncComponent(() => import('./ViewJsonRender.vue'))
 </script>
 
 <template>
   <Suspense>
     <template v-if="entry.type === '~builtin'">
-      <ViewBuiltinTerminals
-        v-if="entry.id === '~terminals'"
-        :context
-        :entry
-      />
-      <ViewBuiltinMessages
-        v-else-if="entry.id === '~messages'"
-        :context
-        :entry
-      />
       <ViewBuiltinSettings
-        v-else-if="entry.id === '~settings'"
+        v-if="entry.id === '~settings'"
         :context
         :entry
       />

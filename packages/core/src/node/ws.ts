@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { Peer } from 'crossws'
 import type { RpcFunctionsHost } from 'devframe/node'
-import type { WebSocket } from 'ws'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
 import { getInternalContext } from 'devframe/node/hub-internals'
@@ -28,6 +28,9 @@ export interface CreateWsServerOptions {
 }
 
 const ANONYMOUS_SCOPE = 'devframe:anonymous:'
+// Methods an untrusted client may call to complete the auth handshake — the
+// OTP code exchange lives outside the `devframe:anonymous:` scope.
+const PRE_AUTH_METHODS = new Set(['devframe:auth:exchange'])
 
 function buildWsUrl({ host, port, https }: { host: string, port: number, https: boolean }): string {
   // 0.0.0.0 / :: / unspecified bindings listen on all interfaces, but a hosted
@@ -44,7 +47,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   const https = await resolveHttpsConfig(options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https))
   const port = options.websocket.port ?? await getPort({ port: 7812, host, random: true })!
 
-  const wsClients = new Set<WebSocket>()
+  const wsClients = new Set<Peer>()
 
   const context = options.context
   const contextInternal = getInternalContext(context)
@@ -85,7 +88,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
           const rpc = this
 
           // Block unauthorized access to non-anonymous methods
-          if (!name.startsWith(ANONYMOUS_SCOPE) && !rpc.$meta.isTrusted) {
+          if (!name.startsWith(ANONYMOUS_SCOPE) && !PRE_AUTH_METHODS.has(name) && !rpc.$meta.isTrusted) {
             return () => {
               throw diagnostics.DTK0013({ name, clientId: rpc.$meta.id })
             }
@@ -115,10 +118,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
     host,
     https,
     definitions: rpcHost.definitions,
-    onConnected: (ws, req, meta) => {
-      const url = new URL(req.url ?? '', 'http://localhost')
+    onConnected: (peer, meta) => {
+      // crossws exposes the upgrade request (with its query string + headers)
+      // on the peer, replacing the raw `ws`/`req` pair from the old transport.
+      const url = new URL(peer.request?.url ?? '', 'http://localhost')
       const authToken = url.searchParams.get('devframe_auth_token') ?? undefined
-      const requestOrigin = req.headers.origin
+      const requestOrigin = peer.request?.headers.get('origin') ?? undefined
       if (isClientAuthDisabled) {
         meta.isTrusted = true
       }
@@ -135,12 +140,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
         meta.clientAuthToken = authToken
       }
 
-      wsClients.add(ws)
+      wsClients.add(peer)
       const color = meta.isTrusted ? c.green : c.yellow
       console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
-    onDisconnected: (ws, meta) => {
-      wsClients.delete(ws)
+    onDisconnected: (peer, meta) => {
+      wsClients.delete(peer)
       rpcHost._emitSessionDisconnected(meta)
       console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
     },
