@@ -48,6 +48,18 @@ async function resetDocks() {
     })
   }
 }
+
+async function deauthorize() {
+  if (await confirm({
+    title: 'Revoke Authorization',
+    message: 'Revoke this browser\'s access to Vite DevTools? You\'ll need to authorize again with a new code to reconnect.',
+  })) {
+    // Revokes this session's bearer token server-side; the server then
+    // broadcasts `devframe:auth:revoked`, dropping this (and any sibling)
+    // client back to untrusted.
+    await props.context.rpc.call('devtoolskit:internal:auth:revoke')
+  }
+}
 </script>
 
 <template>
@@ -107,6 +119,27 @@ async function resetDocks() {
         >
           <div class="i-ph-arrow-counter-clockwise w-4 h-4" />
           Reset All
+        </button>
+      </div>
+    </div>
+
+    <!-- Revoke Authorization -->
+    <div class="border-t border-base pt-6">
+      <div class="flex items-start gap-4">
+        <div class="flex-1">
+          <div class="text-sm">
+            Revoke Authorization
+          </div>
+          <div class="text-xs op50 mt-0.5">
+            De-authorize this browser and revoke its access token; you'll re-authorize with a new code
+          </div>
+        </div>
+        <button
+          class="px-4 py-2 rounded bg-red/10 text-red hover:bg-red/20 transition-colors flex items-center gap-2 text-sm shrink-0"
+          @click="deauthorize"
+        >
+          <div class="i-ph-sign-out-duotone w-4 h-4" />
+          Revoke Access
         </button>
       </div>
     </div>

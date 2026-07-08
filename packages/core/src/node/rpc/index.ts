@@ -1,5 +1,6 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { anonymousAuth, authExchange } from './anonymous/auth'
+import { authRevoke } from './internal/auth-revoke'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -25,6 +26,7 @@ export const builtinAnonymousRpcDeclarations = [
 
 // @keep-sorted
 export const builtinInternalRpcDeclarations = [
+  authRevoke,
   commandsExecute,
   commandsList,
   docksOnLaunch,
