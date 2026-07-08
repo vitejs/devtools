@@ -32,7 +32,7 @@ sequenceDiagram
 
   User->>Core: configureServer
   Core->>Core: register dock (remote: true) → allocate token
-  Core->>Core: createWsServer → wsEndpoint=ws://localhost:7812
+  Core->>Core: createWsServer → wsEndpoint=ws://localhost:5173/__devtools/__ws
   User->>Core: open dock
   Core->>Hosted: iframe src + connection descriptor
   Hosted->>Core: WS connect (?devframe_auth_token=...)

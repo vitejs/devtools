@@ -25,7 +25,7 @@ Kit owns the hub-level surface — the things that only matter once multiple int
 | **[Dock System](./dock-system)** | The unified dock — iframe / action / custom / launcher / json-render entries — with categories, when-clauses, and remote dock support. |
 | **[Commands](./commands)** | The shared command palette: keybindings, children, when-gating across every integration. |
 | **[Messages](./messages)** | Cross-tool toast notifications and the unified messages dock. |
-| **[Terminals](./terminals)** | Aggregate terminal output from any integration into one xterm.js view. |
+| **[Terminals](./terminals)** | Aggregate terminal output from any integration into one Terminals panel. |
 | **[RPC](./rpc)** | Type-safe bidirectional RPC backed by Devframe's birpc + valibot. |
 | **[Shared State](./shared-state)** | Patch-synced state that bridges server ↔ client across every integration. |
 | **Isomorphic Views** | Deploy your UI as embedded panels, browser extensions, or standalone webpages. |

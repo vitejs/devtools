@@ -1,6 +1,6 @@
 # Messages & Notifications
 
-The Messages system lets plugins emit structured message entries from both the server (Node.js) and client (browser) contexts. Entries appear in the **Messages** panel in the DevTools dock and can optionally surface as toast notifications. For *coded* errors and warnings with stable codes and docs URLs, use [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
+The Messages system lets plugins emit structured message entries from both the server (Node.js) and client (browser) contexts. Entries appear in the **Messages** panel (the official [`@devframes/plugin-messages`](https://devfra.me), mounted as a built-in) and can optionally surface as toast notifications. For *coded* errors and warnings with stable codes and docs URLs, use [Structured Diagnostics](./diagnostics) (`ctx.diagnostics`) instead.
 
 ## Use cases
 
@@ -164,10 +164,6 @@ context.messages.clear()
 Capacity tops out at 1000 entries; the oldest are dropped automatically when the limit is hit.
 
 The [A11y Checker example](/kit/examples#a11y-checker) is a plugin that uses messages to report accessibility violations with severity levels, element positions, and WCAG labels.
-
-## Dock badge
-
-The Messages dock icon shows a badge with the total message count and hides itself when there are no messages.
 
 ## Events
 
