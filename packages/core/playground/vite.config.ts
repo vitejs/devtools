@@ -2,7 +2,6 @@ import process from 'node:process'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
-import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createPluginFromDevframe, createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
@@ -37,13 +36,13 @@ export default defineConfig({
     VueRouter(),
     Vue(),
     createPluginFromDevframe(createTerminalsDevframe(), {
-      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID },
+      dock: { category: '~builtin' },
     }),
     createPluginFromDevframe(createMessagesDevframe(), {
-      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID },
+      dock: { category: '~builtin' },
     }),
     createPluginFromDevframe(createInspectDevframe(), {
-      dock: { groupId: DEVTOOLS_VITEPLUS_GROUP_ID, icon: 'ph:stethoscope-duotone' },
+      dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
     }),
     {
       name: 'build-css',
@@ -81,7 +80,7 @@ export default defineConfig({
             }),
             id: 'local2',
             title: 'Local2',
-            groupId: 'local-test',
+            groupId: 'playground',
             icon: 'ph:bell-simple-ringing-duotone',
           })
 
@@ -105,7 +104,7 @@ export default defineConfig({
             }),
             id: 'custom-render',
             title: 'Custom',
-            groupId: 'local-test',
+            groupId: 'playground',
             icon: 'ph:newspaper-clipping-duotone',
           })
 
@@ -114,7 +113,7 @@ export default defineConfig({
             type: 'action',
             icon: 'material-symbols:counter-1',
             title: 'Counter',
-            groupId: 'local-test',
+            groupId: 'playground',
             // TODO: HMR
             action: createSimpleClientScript(() => {}),
           })
@@ -125,7 +124,7 @@ export default defineConfig({
             url: '/devtools/',
             title: 'Debug Dashboard',
             icon: 'ph:bug-duotone',
-            groupId: 'local-test',
+            groupId: 'playground',
           })
 
           // Dogfood the remote dock feature: point at the docs-site demo page.
@@ -139,7 +138,7 @@ export default defineConfig({
               ?? 'https://devtools.vite.dev/kit/remote-demo',
             title: 'Remote Demo',
             icon: 'ph:cloud-duotone',
-            groupId: 'local-test',
+            groupId: 'playground',
             remote: true,
           })
 
@@ -155,10 +154,10 @@ export default defineConfig({
             defaultChildId: 'nuxt:overview',
           })
           ctx.docks.register({
-            id: 'local-test',
+            id: 'playground',
             type: 'group',
-            title: 'Local Test',
-            icon: 'ph:folder-duotone',
+            title: 'Playground',
+            icon: 'ph:flask-duotone',
             category: 'framework',
           })
           const nuxtFeatures = [
@@ -184,7 +183,7 @@ export default defineConfig({
             type: 'launcher',
             icon: 'ph:rocket-launch-duotone',
             title: 'Launcher',
-            groupId: 'local-test',
+            groupId: 'playground',
             launcher: {
               title: 'Launcher My Cool App',
               onLaunch: async () => {
@@ -217,7 +216,7 @@ export default defineConfig({
             ctx.docks.update({
               id: 'counter',
               type: 'action',
-              groupId: 'local-test',
+              groupId: 'playground',
               icon: `material-symbols:counter-${newState.count}`,
               title: `Counter ${newState.count}`,
               action: createSimpleClientScript(`() => {
