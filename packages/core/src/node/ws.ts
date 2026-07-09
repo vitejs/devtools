@@ -7,12 +7,14 @@ import type { Server as NodeHttpServer } from 'node:http'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
 import { DEVTOOLS_WS_PATH, DEVTOOLS_WS_ROUTE } from '@vitejs/devtools-kit/constants'
+import { isAnonymousRpcMethod } from 'devframe/constants'
 import { getInternalContext } from 'devframe/node/hub-internals'
 import { createRpcServer } from 'devframe/rpc/server'
 import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
+import { getAuthHandler } from './auth-handler'
 import { MARK_INFO } from './constants'
 import { diagnostics } from './diagnostics'
 import { resolveHttpsConfig } from './https'
@@ -30,11 +32,6 @@ export interface CreateWsServerOptions {
   context: ViteDevToolsNodeContext
 }
 
-const ANONYMOUS_SCOPE = 'devframe:anonymous:'
-// Methods an untrusted client may call to complete the auth handshake — the
-// OTP code exchange lives outside the `devframe:anonymous:` scope.
-const PRE_AUTH_METHODS = new Set(['devframe:auth:exchange'])
-
 function buildWsUrl({ host, port, https }: { host: string, port: number, https: boolean }): string {
   // 0.0.0.0 / :: / unspecified bindings listen on all interfaces, but a hosted
   // page can't dial into an unspecified address — substitute localhost so the
@@ -51,6 +48,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   const context = options.context
   const contextInternal = getInternalContext(context)
+  const auth = getAuthHandler(context)
 
   // Route-bound mode: when embedded in a Vite dev server, share its HTTP server
   // and bind the RPC socket to a single upgrade path (`/__devtools/__ws`), so no
@@ -103,8 +101,9 @@ export async function createWsServer(options: CreateWsServerOptions) {
           // eslint-disable-next-line ts/no-this-alias
           const rpc = this
 
-          // Block unauthorized access to non-anonymous methods
-          if (!name.startsWith(ANONYMOUS_SCOPE) && !PRE_AUTH_METHODS.has(name) && !rpc.$meta.isTrusted) {
+          // Only `anonymous:`-prefixed methods (the auth handshake) are
+          // reachable before the session is trusted.
+          if (!isAnonymousRpcMethod(name) && !rpc.$meta.isTrusted) {
             return () => {
               throw diagnostics.DTK0013({ name, clientId: rpc.$meta.id })
             }
@@ -159,6 +158,11 @@ export async function createWsServer(options: CreateWsServerOptions) {
         meta.isTrusted = true
         meta.clientAuthToken = authToken
       }
+
+      // Surface the one-time code + magic link so the user can authorize an
+      // untrusted browser (idempotent per code).
+      if (!meta.isTrusted)
+        auth.printBanner()
 
       wsClients.add(peer)
       const color = meta.isTrusted ? c.green : c.yellow

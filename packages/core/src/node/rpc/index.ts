@@ -1,6 +1,4 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { anonymousAuth, authExchange } from './anonymous/auth'
-import { authRevoke } from './internal/auth-revoke'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -19,14 +17,12 @@ export const builtinPublicRpcDeclarations = [
   openInFinder,
 ] as const
 
-export const builtinAnonymousRpcDeclarations = [
-  anonymousAuth,
-  authExchange,
-] as const
+// The interactive OTP auth handshake (`anonymous:devframe:auth*`) and
+// `devframe:auth:revoke` are registered at runtime from devframe's
+// `createInteractiveAuth` recipe — see `node/auth-handler.ts`.
 
 // @keep-sorted
 export const builtinInternalRpcDeclarations = [
-  authRevoke,
   commandsExecute,
   commandsList,
   docksOnLaunch,
@@ -40,7 +36,6 @@ export const builtinInternalRpcDeclarations = [
 
 export const builtinRpcDeclarations = [
   ...builtinPublicRpcDeclarations,
-  ...builtinAnonymousRpcDeclarations,
   ...builtinInternalRpcDeclarations,
 ] as const
 

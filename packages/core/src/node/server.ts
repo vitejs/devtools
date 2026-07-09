@@ -23,10 +23,10 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
     return JSON.stringify(await getConnectionMeta())
   }))
 
-  // Authentication uses the devframe OTP model: an untrusted client is shown a
-  // one-time code in the terminal (see `rpc/anonymous/auth.ts`) which it
-  // exchanges via `devframe:auth:exchange`, or opens the `?devframe_otp=` magic
-  // link that the client consumes on load — so no server-side auth page here.
+  // Authentication uses the devframe OTP model (see `node/auth-handler.ts`):
+  // an untrusted client is shown a one-time code in the terminal which it
+  // exchanges via `anonymous:devframe:auth:exchange`, or opens the
+  // `?devframe_otp=` magic link the client consumes on load — no auth page here.
 
   mountStaticHandler(h3, '', dirClientStandalone)
 

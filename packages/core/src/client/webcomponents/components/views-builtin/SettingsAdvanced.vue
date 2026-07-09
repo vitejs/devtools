@@ -57,7 +57,7 @@ async function deauthorize() {
     // Revokes this session's bearer token server-side; the server then
     // broadcasts `devframe:auth:revoked`, dropping this (and any sibling)
     // client back to untrusted.
-    await props.context.rpc.call('devtoolskit:internal:auth:revoke')
+    await props.context.rpc.call('devframe:auth:revoke')
   }
 }
 </script>
