@@ -12,7 +12,7 @@
     "docs": "pnpm -C docs run docs",
     "docs:build": "pnpm build && pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
-    "storybook": "pnpm -C packages/core run dev",
+    "storybook": "pnpm -C storybook run dev",
     "play": "pnpm -C packages/core run play",
     "play:debug": "pnpm -C packages/core run play:debug",
     "play:standalone": "pnpm -C packages/core run play:standalone",
