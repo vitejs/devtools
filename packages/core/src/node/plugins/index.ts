@@ -69,29 +69,14 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     plugins.push(createPluginFromDevframe(terminalsDevframe, {
       dock: { category: '~builtin' },
       setup(ctx) {
-        hideDockWhenEmpty(
-          ctx,
-          terminalsDevframe.id,
-          () => ctx.terminals.sessions.size === 0,
-          refresh => ctx.terminals.events.on('terminal:session:updated', refresh),
-        )
+        hideDockWhenEmpty(ctx, terminalsDevframe.id, () => ctx.terminals.sessions.size === 0)
       },
     }))
     const messagesDevframe = createMessagesDevframe()
     plugins.push(createPluginFromDevframe(messagesDevframe, {
       dock: { category: '~builtin' },
       setup(ctx) {
-        hideDockWhenEmpty(
-          ctx,
-          messagesDevframe.id,
-          () => ctx.messages.entries.size === 0,
-          (refresh) => {
-            ctx.messages.events.on('message:added', refresh)
-            ctx.messages.events.on('message:updated', refresh)
-            ctx.messages.events.on('message:removed', refresh)
-            ctx.messages.events.on('message:cleared', refresh)
-          },
-        )
+        hideDockWhenEmpty(ctx, messagesDevframe.id, () => ctx.messages.entries.size === 0)
       },
     }))
 
@@ -111,28 +96,31 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
 /**
  * Keep a dock entry out of the dock bar while its backing collection is empty.
  *
- * Mirrors the hub's built-in `~terminals` / `~messages` auto-hide: sets the
- * dock's `when` clause to `'false'` (unconditionally hidden) when `isEmpty()`
- * and clears it otherwise, re-evaluating whenever the passed `subscribe`
- * callback fires. Each `docks.update` re-broadcasts the dock shared state.
+ * Mirrors the hub's built-in `~terminals` / `~messages` docks: attaches a live
+ * `when` getter to the registered entry that resolves to `'false'`
+ * (unconditionally hidden) while `isEmpty()` and `undefined` (visible)
+ * otherwise. The hub already re-serializes the dock shared state on every
+ * terminal / message change, so the getter is re-read at exactly the right
+ * moments — no explicit event subscription needed here.
+ *
+ * TODO: once devframe/hub ships first-class support for a functional `when`
+ * (`when?: () => string | boolean | undefined`, resolved during dock
+ * serialization), this can become a plain `dock: { when: () => ... }` option
+ * on `createPluginFromDevframe` and the getter trick can be deleted.
  */
 function hideDockWhenEmpty(
   ctx: KitNodeContext,
   dockId: string,
   isEmpty: () => boolean,
-  subscribe: (refresh: () => void) => void,
 ): void {
-  const sync = (): void => {
-    const view = ctx.docks.views.get(dockId)
-    if (!view)
-      return
-    const when = isEmpty() ? 'false' : undefined
-    if (view.when === when)
-      return
-    ctx.docks.update({ ...view, when })
-  }
-  subscribe(sync)
-  sync()
+  const view = ctx.docks.views.get(dockId)
+  if (!view)
+    return
+  Object.defineProperty(view, 'when', {
+    enumerable: true,
+    configurable: true,
+    get: () => (isEmpty() ? 'false' : undefined),
+  })
 }
 
 export {
