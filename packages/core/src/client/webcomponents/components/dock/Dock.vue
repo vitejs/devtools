@@ -5,6 +5,7 @@ import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../../constants'
 import { docksSplitGroupsWithCapacity } from '../../state/dock-settings'
 import { setDocksOverflowPanel } from '../../state/floating-tooltip'
+import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
 import BracketLeft from '../icons/BracketLeft.vue'
 import BracketRight from '../icons/BracketRight.vue'
 import VitePlusCore from '../icons/VitePlusCore.vue'
@@ -68,9 +69,7 @@ function onPointerDown(e: PointerEvent) {
   draggingOffset.y = e.clientY - top - height / 2
 }
 
-const isRpcTrusted = ref(context.rpc.isTrusted)
-context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
-  isRpcTrusted.value = isTrusted
+const isRpcTrusted = useIsRpcTrusted(context, (isTrusted) => {
   if (isTrusted && context.docks.selected?.id === BUILTIN_ENTRY_CLIENT_AUTH_NOTICE.id) {
     context.docks.switchEntry(null)
   }

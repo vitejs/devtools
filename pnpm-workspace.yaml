@@ -19,6 +19,7 @@ packages:
   - examples/*
   - docs
   - e2e
+  - storybook
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
@@ -160,6 +161,10 @@ catalogs:
     '@jridgewell/sourcemap-codec': 1.5.0
     langium: ^4.3.1
     semver: ^7.8.5
+  storybook:
+    '@storybook/addon-docs': ^9.1.10
+    '@storybook/vue3-vite': ^9.1.10
+    storybook: ^9.1.10
   testing:
     playwright-core: ^1.61.1
     tsnapi: ^1.0.0

@@ -263,18 +263,20 @@ const contentClass = computed(() => {
         :selected-id="selectedEntry?.id ?? null"
       />
       <div class="relative flex-1 min-w-0 h-full">
-        <ViewEntry
-          v-if="hasPanelContent && panes && selectedEntry"
-          :key="selectedEntry.id"
-          :context
-          :entry="selectedEntry"
-          :panes="panes"
-        />
-        <div
-          id="vite-devtools-views-container"
-          ref="viewsContainer"
-          class="absolute inset-0 pointer-events-none"
-        />
+        <slot name="view" :entry="selectedEntry">
+          <ViewEntry
+            v-if="hasPanelContent && panes && selectedEntry"
+            :key="selectedEntry.id"
+            :context
+            :entry="selectedEntry"
+            :panes="panes"
+          />
+          <div
+            id="vite-devtools-views-container"
+            ref="viewsContainer"
+            class="absolute inset-0 pointer-events-none"
+          />
+        </slot>
       </div>
     </div>
   </div>

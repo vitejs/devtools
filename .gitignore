@@ -19,6 +19,7 @@ packages/kit/skills
 *.tsbuildinfo
 **/.vitepress/cache
 .turbo
+storybook-static
 .context
 .ghfs
 

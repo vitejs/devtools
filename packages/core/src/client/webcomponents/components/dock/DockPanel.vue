@@ -197,22 +197,24 @@ onMounted(() => {
         :selected-id="selected?.id ?? null"
       />
       <div class="relative flex-1 min-w-0 h-full">
-        <ViewEntry
-          v-if="selected && panes"
-          :key="selected.id"
-          :context
-          :entry="selected"
-          :panes="panes"
-          :iframe-style="{
-            border: 'none',
-            borderRadius: '0.5rem',
-          }"
-        />
-        <div
-          id="vite-devtools-views-container"
-          ref="viewsContainer"
-          class="absolute inset-0 pointer-events-none"
-        />
+        <slot name="view" :entry="selected">
+          <ViewEntry
+            v-if="selected && panes"
+            :key="selected.id"
+            :context
+            :entry="selected"
+            :panes="panes"
+            :iframe-style="{
+              border: 'none',
+              borderRadius: '0.5rem',
+            }"
+          />
+          <div
+            id="vite-devtools-views-container"
+            ref="viewsContainer"
+            class="absolute inset-0 pointer-events-none"
+          />
+        </slot>
       </div>
     </div>
   </div>

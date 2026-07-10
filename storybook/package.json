@@ -1,0 +1,30 @@
+{
+  "name": "@vitejs/devtools-storybook",
+  "type": "module",
+  "version": "0.3.4",
+  "private": true,
+  "description": "Storybook for Vite DevTools client components",
+  "scripts": {
+    "dev": "storybook dev -p 6006 --host 0.0.0.0",
+    "build": "storybook build",
+    "docs:overview": "tsx scripts/gen-overview.mts"
+  },
+  "devDependencies": {
+    "@iconify-json/carbon": "catalog:icons",
+    "@iconify-json/fluent-emoji-flat": "catalog:icons",
+    "@iconify-json/logos": "catalog:icons",
+    "@iconify-json/ph": "catalog:icons",
+    "@storybook/addon-docs": "catalog:storybook",
+    "@storybook/vue3-vite": "catalog:storybook",
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-ui": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:build",
+    "devframe": "catalog:deps",
+    "storybook": "catalog:storybook",
+    "tsx": "catalog:build",
+    "unocss": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:deps"
+  }
+}

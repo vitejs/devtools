@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "types": ["vite/client"],
+    "noEmit": true
+  },
+  "include": [
+    ".storybook/**/*.ts",
+    "uno.config.ts",
+    "stories/**/*.ts",
+    "scripts/**/*.mts",
+    "../packages/core/src/client/webcomponents/**/*.stories.ts",
+    "../packages/core/src/client/webcomponents/stories/**/*.ts"
+  ]
+}
