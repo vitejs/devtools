@@ -75,6 +75,7 @@ export interface ViteInspectPluginCallInfo {
   plugin_id: number
   plugin_name: string
   module: string
+  graphModuleId?: string
   timestamp_start: number
   timestamp_end: number
   unchanged?: boolean

@@ -41,7 +41,6 @@ const moduleTypeNameMap = computed(() => {
 
   return map
 })
-
 const filterModuleTypes = ref<string[]>(settings.value.pluginDetailsModuleTypes ?? searchFilterTypes.value.map(item => item.name))
 const selectedModuleTypes = computed(() => new Set(filterModuleTypes.value))
 const { state: durationSortType, next } = useCycleList(['', 'desc', 'asc'], {
@@ -96,6 +95,12 @@ function toggleModuleType(rule: FilterMatchRule) {
 function toggleDurationSortType() {
   next()
   settings.value.pluginDetailsDurationSortType = durationSortType.value
+}
+
+function getModuleGraphLink(moduleId: string | undefined): string | false {
+  return moduleId
+    ? `/graph?module=${encodeURIComponent(moduleId)}`
+    : false
 }
 </script>
 
@@ -181,7 +186,7 @@ function toggleDurationSortType() {
             :id="item.module"
             w-full border-none ws-nowrap
             :cwd="root"
-            :link="`/graph?module=${encodeURIComponent(item.module)}`"
+            :link="getModuleGraphLink(item.graphModuleId)"
             hover="bg-active"
             border="~ base rounded" block px2 py1
           />

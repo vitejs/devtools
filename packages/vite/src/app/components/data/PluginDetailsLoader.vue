@@ -91,6 +91,12 @@ const parsedPaths = computed(() => props.modules.map((mod) => {
 }))
 const moduleTypes = computed(() => ModuleTypeRules.filter(rule => parsedPaths.value.some(mod => rule.match.test(mod.mod.id))))
 
+function getModuleGraphLink(moduleId: string | undefined): string | false {
+  return moduleId
+    ? `/graph?module=${encodeURIComponent(moduleId)}`
+    : false
+}
+
 const _tree = computed(() => {
   const map = new Map<string, TreeNodeInput<PluginChartInfo | undefined>>()
   const maxDepth = 3
@@ -338,7 +344,7 @@ watch(() => settings.value.pluginDetailsViewType, () => {
             :id="child.text!"
             w-full border-none ws-nowrap
             :cwd="root"
-            :link="`/graph?module=${encodeURIComponent(child.text!)}`"
+            :link="getModuleGraphLink(child.meta?.graphModuleId)"
             hover="bg-active"
             border="~ base rounded" block px2 py1
           />

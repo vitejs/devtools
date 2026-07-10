@@ -1,5 +1,9 @@
 import type { Plugin } from 'vite'
 import type { ViteInspectContext } from './context'
+import {
+  isTransformRequestStale,
+  trackTransformRequestId,
+} from './server'
 import { parseError, stringifyError } from './utils'
 
 type PluginWithOrder = Plugin & {
@@ -53,6 +57,8 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
   hijackHook(plugin, 'transform', async (fn, context, args, order) => {
     const code = args[0] as string
     const id = args[1] as string
+    const transformRequest = trackTransformRequestId(id)
+    const envContext = ctx.filter(id) ? ctx.getEnvContext(context?.environment) : undefined
     let resultValue: any
     let error: unknown
     const start = Date.now()
@@ -71,9 +77,9 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
         ? resultValue
         : resultValue?.code?.toString()
 
-    if (ctx.filter(id)) {
+    if (envContext && !isTransformRequestStale(transformRequest)) {
       const sourcemaps = typeof resultValue === 'string' ? null : resultValue?.map
-      ctx.getEnvContext(context?.environment)?.recordTransform(id, {
+      envContext.recordTransform(id, {
         name: plugin.name,
         result,
         start,
@@ -91,6 +97,8 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
 
   hijackHook(plugin, 'load', async (fn, context, args) => {
     const id = args[0] as string
+    const transformRequest = trackTransformRequestId(id)
+    const envContext = ctx.getEnvContext(context?.environment)
     let resultValue: any
     let error: unknown
     const start = Date.now()
@@ -119,14 +127,14 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
       error: error ? parseError(error) : undefined,
     }
 
-    if (result != null) {
-      ctx.getEnvContext(context?.environment)?.recordLoad(id, {
+    if (result != null && envContext && !isTransformRequestStale(transformRequest)) {
+      envContext.recordLoad(id, {
         ...info,
         result,
       }, plugin)
     }
-    else {
-      ctx.getEnvContext(context?.environment)?.recordLoadCall(id, {
+    else if (envContext && !isTransformRequestStale(transformRequest)) {
+      envContext.recordLoadCall(id, {
         name: plugin.name,
         start,
         end,
@@ -141,6 +149,8 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
 
   hijackHook(plugin, 'resolveId', async (fn, context, args) => {
     const id = args[0] as string
+    const transformRequest = trackTransformRequestId(id)
+    const envContext = ctx.filter(id) ? ctx.getEnvContext(context?.environment) : undefined
     let resultValue: any
     let error: unknown
     const start = Date.now()
@@ -153,7 +163,13 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
     }
 
     const end = Date.now()
-    if (!ctx.filter(id)) {
+    if (!envContext) {
+      if (error)
+        throw error
+      return resultValue
+    }
+
+    if (isTransformRequestStale(transformRequest)) {
       if (error)
         throw error
       return resultValue
@@ -166,7 +182,7 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
         : resultValue
 
     if (result && result !== id) {
-      ctx.getEnvContext(context?.environment)?.recordResolveId(id, {
+      envContext.recordResolveId(id, {
         name: plugin.name,
         result,
         start,
@@ -175,7 +191,7 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
       }, plugin)
     }
     else {
-      ctx.getEnvContext(context?.environment)?.recordResolveIdCall(id, {
+      envContext.recordResolveIdCall(id, {
         name: plugin.name,
         result,
         start,

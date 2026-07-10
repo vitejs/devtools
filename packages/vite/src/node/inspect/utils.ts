@@ -59,14 +59,12 @@ export function parseError(error: unknown) {
       stack: typeof error.stack === 'string'
         ? error.stack.split('\n').map(line => line.trim()).filter(Boolean)
         : [],
-      raw: error,
     }
   }
 
   return {
     message: String(error),
     stack: [],
-    raw: error,
   }
 }
 
@@ -89,7 +87,7 @@ export function getAllQueryEnvs(ctx: ViteInspectContext): ViteInspectQuery[] {
   return result
 }
 
-export function getAllModuleIds(ctx: ViteInspectContext): [ViteInspectQuery, string][] {
+export async function getAllModuleIds(ctx: ViteInspectContext): Promise<[ViteInspectQuery, string][]> {
   const result: [ViteInspectQuery, string][] = []
   for (const vite of ctx.idToInstances.values()) {
     for (const [envName, env] of vite.environments) {
@@ -97,7 +95,7 @@ export function getAllModuleIds(ctx: ViteInspectContext): [ViteInspectQuery, str
         vite: vite.id,
         env: envName,
       }
-      for (const id of Object.keys(env.data.transform))
+      for (const id of await env.getModuleIds())
         result.push([query, id])
     }
   }

@@ -51,3 +51,4 @@ Emitted by `@vitejs/devtools-vite`.
 |------|-------|-------|
 | [VDT0001](./VDT0001) | error | Inspect Context Unavailable |
 | [VDT0002](./VDT0002) | error | Inspect Target Not Found |
+| [VDT0003](./VDT0003) | error | Inspect Storage Error |

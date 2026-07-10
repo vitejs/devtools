@@ -9,8 +9,9 @@ export const viteResolveId = defineRpcFunction({
   jsonSerializable: true,
   dump: async (devtoolsCtx) => {
     const ctx = getViteInspectContext(devtoolsCtx)
+    const moduleIds = await getAllModuleIds(ctx)
     return {
-      inputs: getAllModuleIds(ctx).map(([query, id]) => [query, id] satisfies [ViteInspectQuery, string]),
+      inputs: moduleIds.map(([query, id]) => [query, id] satisfies [ViteInspectQuery, string]),
     }
   },
   setup: (devtoolsCtx) => {
