@@ -1,7 +1,9 @@
+import type { KitNodeContext } from '@vitejs/devtools-kit/node'
 import type { Plugin } from 'vite'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
+import { DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { DevToolsBuild } from './build'
 import { DevToolsInjection } from './injection'
@@ -58,22 +60,79 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     // dock — rather than the `~viteplus` group (which collects integrations
     // like Rolldown). The hub's own `~terminals` / `~messages` docks are
     // suppressed via `builtinDocks` in `createDevToolsContext`.
-    plugins.push(createPluginFromDevframe(createTerminalsDevframe(), {
+    //
+    // The hub's built-in `~terminals` / `~messages` docks auto-hid themselves
+    // when empty; the plugin-mounted iframe docks that replaced them carry no
+    // such rule, so we restore it here — the dock is filtered out of the bar
+    // (`when: 'false'`) whenever there are no sessions / messages.
+    const terminalsDevframe = createTerminalsDevframe()
+    plugins.push(createPluginFromDevframe(terminalsDevframe, {
       dock: { category: '~builtin' },
+      setup(ctx) {
+        hideDockWhenEmpty(
+          ctx,
+          terminalsDevframe.id,
+          () => ctx.terminals.sessions.size === 0,
+          refresh => ctx.terminals.events.on('terminal:session:updated', refresh),
+        )
+      },
     }))
-    plugins.push(createPluginFromDevframe(createMessagesDevframe(), {
+    const messagesDevframe = createMessagesDevframe()
+    plugins.push(createPluginFromDevframe(messagesDevframe, {
       dock: { category: '~builtin' },
+      setup(ctx) {
+        hideDockWhenEmpty(
+          ctx,
+          messagesDevframe.id,
+          () => ctx.messages.entries.size === 0,
+          (refresh) => {
+            ctx.messages.events.on('message:added', refresh)
+            ctx.messages.events.on('message:updated', refresh)
+            ctx.messages.events.on('message:removed', refresh)
+            ctx.messages.events.on('message:cleared', refresh)
+          },
+        )
+      },
     }))
 
     // Meta-introspection ("DevTools for the DevTools"), provided by the
     // official devframe inspector plugin (replaces the former
-    // `@vitejs/devtools-self-inspect` package).
-    plugins.push(createPluginFromDevframe(createInspectDevframe(), {
+    // `@vitejs/devtools-self-inspect` package). Pinned to a stable id so the
+    // client can gate it behind the `showDevframeInspector` user setting;
+    // hidden by default (opt in via Settings → Advanced).
+    plugins.push(createPluginFromDevframe(createInspectDevframe({ id: DEVTOOLS_INSPECTOR_DOCK_ID }), {
       dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
     }))
   }
 
   return plugins
+}
+
+/**
+ * Keep a dock entry out of the dock bar while its backing collection is empty.
+ *
+ * Mirrors the hub's built-in `~terminals` / `~messages` auto-hide: sets the
+ * dock's `when` clause to `'false'` (unconditionally hidden) when `isEmpty()`
+ * and clears it otherwise, re-evaluating whenever the passed `subscribe`
+ * callback fires. Each `docks.update` re-broadcasts the dock shared state.
+ */
+function hideDockWhenEmpty(
+  ctx: KitNodeContext,
+  dockId: string,
+  isEmpty: () => boolean,
+  subscribe: (refresh: () => void) => void,
+): void {
+  const sync = (): void => {
+    const view = ctx.docks.views.get(dockId)
+    if (!view)
+      return
+    const when = isEmpty() ? 'false' : undefined
+    if (view.when === when)
+      return
+    ctx.docks.update({ ...view, when })
+  }
+  subscribe(sync)
+  sync()
 }
 
 export {

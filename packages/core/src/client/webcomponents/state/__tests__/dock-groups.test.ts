@@ -1,5 +1,5 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import { describe, expect, it } from 'vitest'
 import {
   docksGroupByCategories,
@@ -89,6 +89,33 @@ describe('dock groups', () => {
     expect(ids).not.toContain('nuxt')
     expect(ids).not.toContain('nuxt:overview')
     expect(ids).not.toContain('nuxt:pages')
+  })
+})
+
+describe('devframe inspector visibility (settings: showDevframeInspector)', () => {
+  const entries: DevToolsDockEntry[] = [
+    iframe('a'),
+    iframe(DEVTOOLS_INSPECTOR_DOCK_ID),
+  ]
+
+  it('hides the inspector from the dock bar by default', () => {
+    const grouped = docksGroupByCategories(entries, settings)
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).toContain('a')
+    expect(ids).not.toContain(DEVTOOLS_INSPECTOR_DOCK_ID)
+  })
+
+  it('reveals the inspector when showDevframeInspector is enabled', () => {
+    const enabled = { ...settings, showDevframeInspector: true }
+    const grouped = docksGroupByCategories(entries, enabled)
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).toContain(DEVTOOLS_INSPECTOR_DOCK_ID)
+  })
+
+  it('still lists the inspector in the settings management view (includeHidden)', () => {
+    const grouped = docksGroupByCategories(entries, settings, { includeHidden: true })
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).toContain(DEVTOOLS_INSPECTOR_DOCK_ID)
   })
 })
 

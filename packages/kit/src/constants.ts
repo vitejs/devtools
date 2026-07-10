@@ -40,6 +40,14 @@ export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
  */
 export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
 
+/**
+ * Dock id of the built-in Devframe Inspector (mounted from
+ * `@devframes/plugin-inspect`). Shared between the node side (which pins the
+ * mounted devframe to this id) and the client (which gates the dock behind the
+ * `showDevframeInspector` user setting).
+ */
+export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes-plugin-inspect'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   'default': 0,
   'app': 100,

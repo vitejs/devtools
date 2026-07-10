@@ -4,12 +4,14 @@ import type { SharedState } from 'devframe/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { useConfirm } from '../../state/confirm'
+import { sharedStateToRef } from '../../state/docks'
 
 const props = defineProps<{
   context: DocksContext
   settingsStore: SharedState<DevToolsDocksUserSettings>
 }>()
 
+const settings = sharedStateToRef(props.settingsStore)
 const confirm = useConfirm()
 
 async function resetAllSettings() {
@@ -64,6 +66,26 @@ async function deauthorize() {
 
 <template>
   <div class="flex flex-col gap-6">
+    <!-- Show Devframe Inspector toggle -->
+    <label class="flex items-center gap-3 cursor-pointer group">
+      <button
+        class="w-10 h-6 rounded-full transition-colors relative shrink-0"
+        :class="settings.showDevframeInspector ? 'bg-lime' : 'bg-gray/30'"
+        @click="settingsStore.mutate((s) => { s.showDevframeInspector = !s.showDevframeInspector })"
+      >
+        <div
+          class="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform"
+          :class="settings.showDevframeInspector ? 'translate-x-5' : 'translate-x-1'"
+        />
+      </button>
+      <div class="flex flex-col">
+        <span class="text-sm">Show Devframe Inspector</span>
+        <span class="text-xs op50">Reveal the experimental Devframe Inspector dock — the DevTools for the DevTools</span>
+      </div>
+    </label>
+
+    <div class="border-t border-base" />
+
     <!-- Reset Shortcuts -->
     <div class="flex items-start gap-4">
       <div class="flex-1">
