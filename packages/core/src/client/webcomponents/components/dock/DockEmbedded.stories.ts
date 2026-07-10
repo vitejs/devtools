@@ -20,6 +20,7 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
     docs: {
+      story: { inline: false, height: '540px' },
       description: {
         component: 'The full embedded shell as injected into a host app: the dock bar plus panel (float or edge), floating overlays, command palette, toasts and confirm dialog — switched by `panel.store.mode`.',
       },

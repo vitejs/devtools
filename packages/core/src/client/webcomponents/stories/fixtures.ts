@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
+import type { DevToolsDockEntry, DevToolsMessageEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
 
 type Extra = Partial<DevToolsDockEntry>
 
@@ -75,3 +75,24 @@ export const overflowEntries: DevToolsDockEntry[] = [
 
 /** The Nuxt group entry on its own (for group-component stories). */
 export const nuxtGroup = groupedEntries.find(e => e.id === 'nuxt') as DevToolsViewGroup
+
+/** A message/log entry for the messages panel and toasts. */
+export function message(extra: Partial<DevToolsMessageEntry> = {}): DevToolsMessageEntry {
+  return {
+    id: `msg-${Math.random().toString(36).slice(2, 8)}`,
+    message: 'Something happened',
+    level: 'info',
+    from: 'server',
+    timestamp: Date.now(),
+    ...extra,
+  } as DevToolsMessageEntry
+}
+
+/** One message per level, covering the common shapes. */
+export const sampleMessages: DevToolsMessageEntry[] = [
+  message({ level: 'error', message: 'Failed to resolve import "./missing"', description: 'in src/main.ts', category: 'runtime', labels: ['vite'] }),
+  message({ level: 'warn', message: 'Large chunk detected (612 kB)', category: 'build' }),
+  message({ level: 'success', message: 'HMR update applied', category: 'hmr' }),
+  message({ level: 'info', message: 'Server restarted', description: 'config change detected', category: 'server' }),
+  message({ level: 'warn', message: 'Checking accessibility…', status: 'loading', category: 'a11y' }),
+]

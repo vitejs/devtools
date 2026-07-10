@@ -20,6 +20,7 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
     docs: {
+      story: { inline: false, height: '520px' },
       description: {
         component: 'The edge-docked shell (edge mode): a toolbar pinned to one viewport edge with a resizable panel. The `#view` slot is stubbed here in place of the live view renderer.',
       },

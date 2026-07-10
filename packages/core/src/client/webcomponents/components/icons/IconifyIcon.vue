@@ -25,7 +25,14 @@ watchEffect(async () => {
     iconifyLoaded.value = undefined
     return
   }
-  iconifyLoaded.value = await getIconifySvg(iconifyParsed.value.collection, iconifyParsed.value.icon)
+  try {
+    iconifyLoaded.value = await getIconifySvg(iconifyParsed.value.collection, iconifyParsed.value.icon)
+  }
+  catch {
+    // A failed icon fetch (offline / flaky CDN) should degrade to a blank icon,
+    // not throw out of the async effect and crash the surrounding panel.
+    iconifyLoaded.value = undefined
+  }
 })
 </script>
 

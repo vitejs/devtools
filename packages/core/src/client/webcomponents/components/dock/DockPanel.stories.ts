@@ -20,6 +20,7 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
     docs: {
+      story: { inline: false, height: '540px' },
       description: {
         component: 'The floating panel shown above the dock bar in float mode. The `#view` slot is stubbed here in place of the live view renderer.',
       },

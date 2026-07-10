@@ -11,7 +11,10 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',
+    // The shell is `position: fixed` to the viewport, so it escapes the small
+    // inline docs preview block — render it in an iframe of a fixed height.
     docs: {
+      story: { inline: false, height: '520px' },
       description: {
         component: 'The floating dock bar (float mode). It anchors to an edge of the viewport and can be dragged around. These stories pin `inactiveTimeout: -1` so the bar stays expanded.',
       },
