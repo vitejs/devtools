@@ -48,14 +48,28 @@ function createMockRpc(
 
   let trusted = initialTrusted
 
+  // Minimal RPC surface used by the composed shells (messages/toasts, command
+  // palette). `call` returns empty-but-valid shapes for the methods those call.
+  const call = async (method: string) => {
+    if (method === 'devtoolskit:internal:messages:list')
+      return { removedIds: [], entries: [], version: null }
+    return undefined
+  }
+
   const rpc = {
     events,
     get isTrusted() {
       return trusted
     },
-    call: async () => undefined,
+    ensureTrusted: async () => trusted === true,
+    requestTrust: async () => trusted === true,
+    call,
     callEvent: async () => undefined,
     callOptional: async () => undefined,
+    client: {
+      // Register a client-side RPC handler; returns an unsubscribe.
+      register: () => () => {},
+    },
     sharedState: {
       get: async (key: string) => {
         if (key === 'devframe:docks')

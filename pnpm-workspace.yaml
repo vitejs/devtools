@@ -162,9 +162,9 @@ catalogs:
     langium: ^4.3.1
     semver: ^7.8.5
   storybook:
-    '@storybook/addon-docs': ^9.1.10
-    '@storybook/vue3-vite': ^9.1.10
-    storybook: ^9.1.10
+    '@storybook/addon-docs': ^10.4.6
+    '@storybook/vue3-vite': ^10.4.6
+    storybook: ^10.4.6
   testing:
     playwright-core: ^1.61.1
     tsnapi: ^1.0.0

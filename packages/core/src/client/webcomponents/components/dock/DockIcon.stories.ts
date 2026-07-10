@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { h } from 'vue'
 import DockIcon from './DockIcon.vue'
 
 const meta = {
   title: 'Dock/Icon',
   component: DockIcon,
   tags: ['autodocs'],
-  // Render at a legible size — DockIcon fills its box.
-  decorators: [() => ({ setup: (_: unknown, { slots }: any) => () => h('div', { class: 'w-8 h-8' }, slots.default()) })],
+  // Render at a legible size — DockIcon fills its box. Use the template-based
+  // `<story/>` decorator (the stable Storybook Vue API).
+  decorators: [() => ({ template: '<div class="w-8 h-8"><story /></div>' })],
   argTypes: {
     icon: { control: false },
   },

@@ -1,7 +1,6 @@
 import type { Preview } from '@storybook/vue3-vite'
 import { GLOBALS_UPDATED } from 'storybook/internal/core-events'
 import { addons } from 'storybook/preview-api'
-import { h } from 'vue'
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
 // The dock shells rely on the `#vite-devtools-*` id selectors shipped here.
@@ -32,10 +31,15 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (story, ctx) => {
-      document.documentElement.classList.toggle('dark', ctx.globals.theme === 'dark')
-      return () => h('div', { class: 'bg-base color-base font-sans min-h-screen' }, [h(story())])
-    },
+    // Use the template-based `<story/>` decorator (the stable Storybook Vue API)
+    // rather than `h(story())` — under the vue3-vite renderer `story()` no longer
+    // returns a component, so hand-wrapping it mounts an `undefined` vnode.
+    (_story, ctx) => ({
+      setup() {
+        document.documentElement.classList.toggle('dark', ctx.globals.theme === 'dark')
+      },
+      template: '<div class="bg-base color-base font-sans min-h-screen"><story /></div>',
+    }),
   ],
 }
 
