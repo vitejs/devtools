@@ -24,6 +24,7 @@ import { resolve } from 'node:path'
 import { createFilter } from 'vite'
 import { diagnostics } from '../diagnostics'
 import {
+  createGraphModuleIdResolver,
   getModulesList as getEnvironmentModulesList,
   getModuleTransformInfo as getEnvironmentModuleTransformInfo,
 } from './module'
@@ -164,6 +165,7 @@ export class ViteInspectViteContext {
 export class ViteInspectEnvironmentContext {
   readonly scope: string
   private pluginCallCount = 0
+  private graphModuleIdResolver?: ReturnType<typeof createGraphModuleIdResolver>
 
   constructor(
     readonly inspectContext: ViteInspectContext,
@@ -179,6 +181,7 @@ export class ViteInspectEnvironmentContext {
     preTransformCode: string,
     plugin?: Plugin,
   ): void {
+    this.invalidateGraphModuleIdResolver()
     id = this.normalizeId(id)
     const publicModuleId = this.getPublicModuleId(id)
     const pluginId = this.getPluginId(plugin, info.name)
@@ -203,6 +206,7 @@ export class ViteInspectEnvironmentContext {
     info: ViteInspectTransformInfo,
     plugin?: Plugin,
   ): void {
+    this.invalidateGraphModuleIdResolver()
     id = this.normalizeId(id)
     const publicModuleId = this.getPublicModuleId(id)
     const pluginId = this.getPluginId(plugin, info.name)
@@ -249,6 +253,7 @@ export class ViteInspectEnvironmentContext {
     info: ViteInspectResolveIdInfo,
     plugin?: Plugin,
   ): void {
+    this.invalidateGraphModuleIdResolver()
     id = this.normalizeId(id)
     const pluginId = this.getPluginId(plugin, info.name)
     const normalizedResult = this.normalizeId(info.result)
@@ -293,12 +298,14 @@ export class ViteInspectEnvironmentContext {
   }
 
   invalidate(id: string): void {
+    this.invalidateGraphModuleIdResolver()
     const normalizedId = this.normalizeId(id)
     const publicModuleId = this.getPublicModuleId(normalizedId)
     this.inspectContext.store.invalidate(this.scope, normalizedId, publicModuleId)
   }
 
   clearScope(): void {
+    this.invalidateGraphModuleIdResolver()
     this.inspectContext.store.clearScope(this.scope)
   }
 
@@ -364,7 +371,18 @@ export class ViteInspectEnvironmentContext {
   }
 
   async getModulesList(pluginCtx?: ModuleInfoProvider): Promise<ViteInspectModuleInfo[]> {
-    return getEnvironmentModulesList(this, pluginCtx)
+    const modules = await getEnvironmentModulesList(this, pluginCtx)
+    this.graphModuleIdResolver = createGraphModuleIdResolver(
+      modules.map(module => module.id),
+      this.env.getTopLevelConfig().resolve?.extensions ?? [],
+    )
+    return modules
+  }
+
+  async getGraphModuleIdResolver(): Promise<ReturnType<typeof createGraphModuleIdResolver>> {
+    if (!this.graphModuleIdResolver)
+      await this.getModulesList()
+    return this.graphModuleIdResolver!
   }
 
   async resolveId(id = ''): Promise<string> {
@@ -414,5 +432,9 @@ export class ViteInspectEnvironmentContext {
       moduleGraph?.invalidateModule(mod)
     else
       this.invalidate(id)
+  }
+
+  private invalidateGraphModuleIdResolver(): void {
+    this.graphModuleIdResolver = undefined
   }
 }

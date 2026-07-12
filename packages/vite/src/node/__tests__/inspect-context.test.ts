@@ -1,7 +1,7 @@
 import type { Environment, Plugin, ResolvedConfig } from 'vite'
 import type { ViteInspectStoreOptions } from '../inspect/store'
 import type { ViteInspectPluginCallInfo } from '../inspect/types'
-import { existsSync, mkdtempSync, rmSync, statSync } from 'node:fs'
+import { existsSync, mkdtempSync, rmSync, statSync, truncateSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -215,6 +215,57 @@ describe('vite inspect context', () => {
     })
   })
 
+  it('reuses the module graph resolver until inspect modules change', async () => {
+    const { ctx, envCtx, vite } = await createFixture()
+    const pluginA = vite.config.plugins[1]!
+    const getTransformList = vi.spyOn(ctx.store, 'getTransformList')
+
+    envCtx.recordTransform('/src/main.js', {
+      name: 'plugin-a',
+      result: 'export {}',
+      start: 0,
+      end: 1,
+    }, '', pluginA)
+    await envCtx.getModulesList()
+    expect(getTransformList).toHaveBeenCalledTimes(1)
+
+    await envCtx.getPluginDetails(1)
+    expect(getTransformList).toHaveBeenCalledTimes(1)
+
+    envCtx.recordTransform('/src/next.js', {
+      name: 'plugin-a',
+      result: 'export {}',
+      start: 2,
+      end: 3,
+    }, '', pluginA)
+    await envCtx.getPluginDetails(1)
+    expect(getTransformList).toHaveBeenCalledTimes(2)
+  })
+
+  it('serves concurrent detail queries while indexed calls are pending', async () => {
+    const { envCtx, vite } = await createFixture()
+    const pluginA = vite.config.plugins[1]!
+    const pluginB = vite.config.plugins[2]!
+
+    envCtx.recordLoadCall('/src/a.ts', {
+      name: 'plugin-a',
+      start: 0,
+      end: 1,
+    }, pluginA)
+    envCtx.recordLoadCall('/src/b.ts', {
+      name: 'plugin-b',
+      start: 2,
+      end: 3,
+    }, pluginB)
+
+    const [detailsA, detailsB] = await Promise.all([
+      envCtx.getPluginDetails(1),
+      envCtx.getPluginDetails(2),
+    ])
+    expect(detailsA.calls).toHaveLength(1)
+    expect(detailsB.calls).toHaveLength(1)
+  })
+
   it('clears module-related inspect data on invalidation', async () => {
     const { envCtx, vite } = await createFixture()
 
@@ -371,7 +422,7 @@ describe('vite inspect context', () => {
       ],
     })
     expect(existsSync(pluginCallsFilename)).toBe(true)
-    expect(statSync(pluginCallsFilename).size).toBe(48)
+    expect(statSync(pluginCallsFilename).size).toBe(72)
 
     await ctx.close()
 
@@ -441,7 +492,7 @@ describe('vite inspect context', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('reuses plugin call slots after invalidation and scope clearing', async () => {
+  it('keeps invalidated plugin calls out of indexed append-only segments', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-call-reuse-'))
     const filename = join(dir, 'payloads.bin')
     const pluginCallsFilename = join(dir, 'plugin-calls.bin')
@@ -465,7 +516,7 @@ describe('vite inspect context', () => {
 
     await recordCalls(0)
     const initialSize = statSync(pluginCallsFilename).size
-    expect(initialSize).toBe(64 * 48)
+    expect(initialSize).toBe(32 + 64 * 40)
     expect((await envCtx.getPluginDetails(1)).calls).toHaveLength(64)
 
     envCtx.invalidate('/src/reused.ts')
@@ -473,7 +524,7 @@ describe('vite inspect context', () => {
     expect((await envCtx.getPluginDetails(1)).calls).toEqual([])
 
     await recordCalls(100)
-    expect(statSync(pluginCallsFilename).size).toBe(initialSize)
+    expect(statSync(pluginCallsFilename).size).toBe(initialSize * 2)
     expect((await envCtx.getPluginDetails(1)).calls).toHaveLength(64)
 
     envCtx.clearScope()
@@ -481,7 +532,52 @@ describe('vite inspect context', () => {
     expect((await envCtx.getPluginDetails(1)).calls).toEqual([])
 
     await recordCalls(200)
-    expect(statSync(pluginCallsFilename).size).toBe(initialSize)
+    expect(statSync(pluginCallsFilename).size).toBe(initialSize * 3)
+    expect((await envCtx.getPluginDetails(1)).calls).toHaveLength(64)
+
+    await ctx.close()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('reads only the indexed segments for the selected plugin', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-call-index-'))
+    const filename = join(dir, 'payloads.bin')
+    const pluginCallsFilename = join(dir, 'plugin-calls.bin')
+    const { ctx, envCtx, vite } = await createFixture({
+      store: {
+        filename,
+      },
+    })
+    const pluginA = vite.config.plugins[1]!
+    const pluginB = vite.config.plugins[2]!
+
+    for (let index = 0; index < 64; index++) {
+      envCtx.recordLoadCall(`/src/a-${index}.ts`, {
+        name: 'plugin-a',
+        start: index,
+        end: index + 1,
+      }, pluginA)
+    }
+    await ctx.store.flush()
+    const pluginAArchiveSize = statSync(pluginCallsFilename).size
+
+    for (let index = 0; index < 64; index++) {
+      envCtx.recordLoadCall(`/src/b-${index}.ts`, {
+        name: 'plugin-b',
+        start: 100 + index,
+        end: 101 + index,
+      }, pluginB)
+    }
+    await ctx.store.flush()
+    expect(statSync(pluginCallsFilename).size).toBeGreaterThan(pluginAArchiveSize)
+
+    truncateSync(pluginCallsFilename, pluginAArchiveSize)
+
+    await expect(envCtx.getPluginDetails(1)).resolves.toMatchObject({
+      calls: expect.arrayContaining([
+        expect.objectContaining({ plugin_name: 'plugin-a' }),
+      ]),
+    })
     expect((await envCtx.getPluginDetails(1)).calls).toHaveLength(64)
 
     await ctx.close()

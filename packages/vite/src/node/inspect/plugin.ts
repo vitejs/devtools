@@ -65,7 +65,6 @@ export function DevToolsViteInspect(): PluginWithDevTools {
 
     closingInspectContext ??= (async () => {
       await ctx.close()
-      removeInspectStorage()
     })()
     await closingInspectContext
   }
@@ -165,6 +164,16 @@ export function DevToolsViteInspect(): PluginWithDevTools {
       if (!ctx)
         return
 
+      const closeServer = server.close.bind(server)
+      server.close = async () => {
+        try {
+          await closeServer()
+        }
+        finally {
+          await closeInspectContext()
+        }
+      }
+
       const vite = ctx.getViteContext(server.config)
       Object.values(server.environments).forEach(env => vite.getEnvContext(env))
       setupEnvironmentInvalidation(server, vite)
@@ -172,10 +181,6 @@ export function DevToolsViteInspect(): PluginWithDevTools {
       return () => {
         setupMiddlewarePerformance(vite, server.middlewares.stack)
       }
-    },
-
-    async closeBundle() {
-      await closeInspectContext()
     },
 
     hotUpdate({ modules }) {

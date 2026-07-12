@@ -13,6 +13,7 @@ import { A11yCheckerPlugin } from '../../../examples/plugin-a11y-checker/src/nod
 import { GitUIPlugin } from '../../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../core/src'
 import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
+import { hideDockWhenEmpty } from '../../core/src/node/plugins/auto-hide'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
@@ -35,12 +36,27 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
-    createPluginFromDevframe(createTerminalsDevframe(), {
-      dock: { category: '~builtin' },
-    }),
-    createPluginFromDevframe(createMessagesDevframe(), {
-      dock: { category: '~builtin' },
-    }),
+    ...(() => {
+      // Mirror the shipped `DevTools()` mounts (the playground runs with
+      // `builtinDevTools: false`, so it re-creates them by hand): terminals
+      // and messages auto-hide from the dock bar while empty.
+      const terminalsDevframe = createTerminalsDevframe()
+      const messagesDevframe = createMessagesDevframe()
+      return [
+        createPluginFromDevframe(terminalsDevframe, {
+          dock: { category: '~builtin' },
+          setup(ctx) {
+            hideDockWhenEmpty(ctx, terminalsDevframe.id, () => ctx.terminals.sessions.size === 0)
+          },
+        }),
+        createPluginFromDevframe(messagesDevframe, {
+          dock: { category: '~builtin' },
+          setup(ctx) {
+            hideDockWhenEmpty(ctx, messagesDevframe.id, () => ctx.messages.entries.size === 0)
+          },
+        }),
+      ]
+    })(),
     createPluginFromDevframe(createInspectDevframe(), {
       dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
     }),

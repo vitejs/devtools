@@ -7,9 +7,12 @@ import { Buffer } from 'node:buffer'
 import { open } from 'node:fs/promises'
 import { diagnostics } from '../../diagnostics'
 
-const RECORD_SIZE = 48
-const READ_RECORDS_PER_CHUNK = 4096
+const RECORD_SIZE = 40
+const RECORDS_PER_SEGMENT = 256
+const SEGMENT_HEADER_SIZE = 32
+const RECENT_SEGMENT_CACHE_SIZE = 64
 const SLOT_STATE_CHUNK_SIZE = 64 * 1024
+const NO_SEGMENT = 0xFFFF_FFFF_FFFF_FFFFn
 
 const TYPE_RESOLVE = 0
 const TYPE_LOAD = 1
@@ -18,15 +21,19 @@ const TYPE_TRANSFORM = 2
 const FLAG_HAS_UNCHANGED = 1 << 0
 const FLAG_UNCHANGED = 1 << 1
 
-const OFFSET_SCOPE_ID = 0
+const OFFSET_HEADER_SCOPE_ID = 0
+const OFFSET_HEADER_PLUGIN_ID = 4
+const OFFSET_HEADER_PLUGIN_NAME_ID = 8
+const OFFSET_HEADER_TYPE = 12
+const OFFSET_HEADER_RECORD_COUNT = 16
+const OFFSET_HEADER_PREVIOUS_SEGMENT = 24
+
+const OFFSET_SLOT = 0
 const OFFSET_MODULE_ID = 4
-const OFFSET_PLUGIN_ID = 8
-const OFFSET_PLUGIN_NAME_ID = 12
-const OFFSET_SEQUENCE = 16
-const OFFSET_START = 24
-const OFFSET_END = 32
-const OFFSET_TYPE = 40
-const OFFSET_FLAGS = 41
+const OFFSET_SEQUENCE = 8
+const OFFSET_START = 16
+const OFFSET_END = 24
+const OFFSET_FLAGS = 32
 
 export interface InspectPluginCallWrite {
   scope: string
@@ -38,7 +45,25 @@ export interface InspectPluginCallStore {
   read: (scope: string, pluginId: number) => Promise<ViteInspectPluginCallInfo[]>
   invalidate: (scope: string, modules: Set<string>) => void
   clearScope: (scope: string) => void
+  flush: () => Promise<void>
   close: () => Promise<void>
+}
+
+interface PluginTypeState {
+  pluginId: number
+  type: ViteInspectPluginCallType
+  headOffset?: number
+  pendingPluginNameId?: number
+  pendingRecords: Buffer
+  pendingCount: number
+  recentSegments: SegmentRef[]
+}
+
+interface SegmentRef {
+  offset: number
+  previousOffset?: number
+  pluginNameId: number
+  recordCount: number
 }
 
 interface ScopeState {
@@ -49,21 +74,20 @@ interface ScopeState {
   moduleHeads: number[]
   pluginNameIds: Map<string, number>
   pluginNames: string[]
+  pluginTypes: Map<string, PluginTypeState>
 }
 
-interface EncodedCall {
-  slot: number
-  sourceOffset: number
-}
-
-interface WriteChunk {
-  startSlot: number
-  buffer: Buffer
+interface PendingSegment {
+  scope: ScopeState
+  pluginType: PluginTypeState
+  pluginNameId: number
+  records: Buffer
+  recordCount: number
 }
 
 interface PluginCallStorage {
-  write: (chunks: WriteChunk[]) => Promise<void>
-  read: (startSlot: number, count: number) => Promise<Buffer>
+  write: (buffers: Buffer[], position: number) => Promise<void>
+  read: (position: number, length: number) => Promise<Buffer>
   close: () => Promise<void>
 }
 
@@ -78,36 +102,45 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
   private readonly scopes = new Map<string, ScopeState>()
   private readonly activeChunks: Uint8Array[] = []
   private readonly nextSlotChunks: Uint32Array[] = []
-  private freeHead = 0
   private nextScopeId = 0
-  private slotCount = 0
+  private nextSlot = 0
+  private nextFileOffset = 0
+  private writeGate: Promise<void> = Promise.resolve()
+  private lastWriteError?: Error
 
   constructor(private readonly storage: PluginCallStorage) {}
 
   async write(calls: InspectPluginCallWrite[]): Promise<void> {
+    this.throwWriteError()
     if (calls.length === 0)
       return
 
-    const buffer = Buffer.allocUnsafe(calls.length * RECORD_SIZE)
-    const encoded: EncodedCall[] = []
+    const completedSegments: PendingSegment[] = []
+    for (const call of calls) {
+      validateCall(call.info)
 
-    for (let index = 0; index < calls.length; index++) {
-      const call = calls[index]!
       const scope = this.getScope(call.scope)
       const moduleId = internString(scope.moduleIds, scope.moduleNames, call.info.module)
       const pluginNameId = internString(scope.pluginNameIds, scope.pluginNames, call.info.plugin_name)
-      const slot = this.allocateSlot()
-      const offset = index * RECORD_SIZE
+      const pluginType = this.getPluginType(scope, call.info.plugin_id, call.info.type)
+      if (pluginType.pendingCount > 0 && pluginType.pendingPluginNameId !== pluginNameId)
+        completedSegments.push(this.takePendingSegment(scope, pluginType))
 
+      const slot = this.allocateSlot()
+      const offset = pluginType.pendingCount * RECORD_SIZE
       this.setNextSlot(slot, scope.moduleHeads[moduleId] ?? 0)
       scope.moduleHeads[moduleId] = slot + 1
       scope.activeCalls += 1
       this.setActive(slot, true)
-      encodeCall(buffer, offset, scope.id, moduleId, pluginNameId, call.info)
-      encoded.push({ slot, sourceOffset: offset })
+      pluginType.pendingPluginNameId = pluginNameId
+      encodeCall(pluginType.pendingRecords, offset, slot, moduleId, call.info)
+      pluginType.pendingCount += 1
+
+      if (pluginType.pendingCount === RECORDS_PER_SEGMENT)
+        completedSegments.push(this.takePendingSegment(scope, pluginType))
     }
 
-    await this.storage.write(createWriteChunks(buffer, encoded))
+    await this.writeSegments(completedSegments)
   }
 
   async read(scopeName: string, pluginId: number): Promise<ViteInspectPluginCallInfo[]> {
@@ -116,42 +149,82 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
       return []
 
     const calls: ViteInspectPluginCallInfo[] = []
-    for (let startSlot = 0; startSlot < this.slotCount; startSlot += READ_RECORDS_PER_CHUNK) {
-      const count = Math.min(READ_RECORDS_PER_CHUNK, this.slotCount - startSlot)
-      const buffer = await this.storage.read(startSlot, count)
-      for (let index = 0; index < count; index++) {
-        const slot = startSlot + index
-        if (!this.isActive(slot))
-          continue
+    let processedRecords = 0
+    for (const pluginType of scope.pluginTypes.values()) {
+      if (pluginType.pluginId !== pluginId)
+        continue
 
-        const offset = index * RECORD_SIZE
-        if (buffer.readUInt32LE(offset + OFFSET_SCOPE_ID) !== scope.id)
-          continue
-        if (buffer.readUInt32LE(offset + OFFSET_PLUGIN_ID) !== pluginId)
-          continue
-
-        const moduleId = buffer.readUInt32LE(offset + OFFSET_MODULE_ID)
-        const pluginNameId = buffer.readUInt32LE(offset + OFFSET_PLUGIN_NAME_ID)
-        const type = decodeType(buffer.readUInt8(offset + OFFSET_TYPE))
-        const flags = buffer.readUInt8(offset + OFFSET_FLAGS)
-        const sequence = buffer.readDoubleLE(offset + OFFSET_SEQUENCE)
-        const start = buffer.readDoubleLE(offset + OFFSET_START)
-        const end = buffer.readDoubleLE(offset + OFFSET_END)
-        calls.push({
-          type,
-          id: `${type}:${pluginId}:${sequence}`,
-          duration: Math.max(0, end - start),
-          plugin_id: pluginId,
-          plugin_name: scope.pluginNames[pluginNameId]!,
-          module: scope.moduleNames[moduleId]!,
-          timestamp_start: start,
-          timestamp_end: end,
-          unchanged: flags & FLAG_HAS_UNCHANGED
-            ? Boolean(flags & FLAG_UNCHANGED)
-            : undefined,
-        })
+      let segmentOffset = pluginType.headOffset
+      const recentSegments: SegmentRef[] = []
+      for (let index = pluginType.recentSegments.length - 1; index >= 0; index--) {
+        const segment = pluginType.recentSegments[index]!
+        if (segment.offset !== segmentOffset)
+          break
+        recentSegments.push(segment)
+        segmentOffset = segment.previousOffset
       }
-      await yieldToEventLoop()
+      const recentRecords = await Promise.all(recentSegments.map(async (segment) => {
+        const records = await this.storage.read(
+          segment.offset + SEGMENT_HEADER_SIZE,
+          segment.recordCount * RECORD_SIZE,
+        )
+        if (records.length < segment.recordCount * RECORD_SIZE) {
+          throw diagnostics.VDT0003({
+            operation: 'reading the indexed inspect plugin call segment',
+          })
+        }
+        return { segment, records }
+      }))
+      for (const { segment, records } of recentRecords) {
+        this.decodeRecords(
+          calls,
+          records,
+          segment.recordCount,
+          pluginType.type,
+          pluginType.pluginId,
+          segment.pluginNameId,
+          scope,
+        )
+        processedRecords += segment.recordCount
+      }
+      if (processedRecords >= 4096) {
+        processedRecords = 0
+        await yieldToEventLoop()
+      }
+
+      while (segmentOffset != null) {
+        const segment = await this.storage.read(
+          segmentOffset,
+          SEGMENT_HEADER_SIZE + RECORDS_PER_SEGMENT * RECORD_SIZE,
+        )
+        const recordCount = segment.readUInt32LE(OFFSET_HEADER_RECORD_COUNT)
+        const requiredLength = SEGMENT_HEADER_SIZE + recordCount * RECORD_SIZE
+        if (segment.length < requiredLength) {
+          throw diagnostics.VDT0003({
+            operation: 'reading the inspect plugin call segment',
+          })
+        }
+        const type = decodeType(segment.readUInt8(OFFSET_HEADER_TYPE))
+        const storedPluginId = segment.readUInt32LE(OFFSET_HEADER_PLUGIN_ID)
+        const pluginNameId = segment.readUInt32LE(OFFSET_HEADER_PLUGIN_NAME_ID)
+        this.decodeRecords(
+          calls,
+          segment.subarray(SEGMENT_HEADER_SIZE, requiredLength),
+          recordCount,
+          type,
+          storedPluginId,
+          pluginNameId,
+          scope,
+        )
+
+        processedRecords += recordCount
+        if (processedRecords >= 4096) {
+          processedRecords = 0
+          await yieldToEventLoop()
+        }
+        const previousSegment = segment.readBigUInt64LE(OFFSET_HEADER_PREVIOUS_SEGMENT)
+        segmentOffset = previousSegment === NO_SEGMENT ? undefined : Number(previousSegment)
+      }
     }
     calls.sort((a, b) => callSequence(a.id) - callSequence(b.id))
     return calls
@@ -179,12 +252,41 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
     this.scopes.delete(scopeName)
   }
 
+  async flush(): Promise<void> {
+    this.throwWriteError()
+    const pendingSegments: PendingSegment[] = []
+    for (const scope of this.scopes.values()) {
+      for (const pluginType of scope.pluginTypes.values()) {
+        if (pluginType.pendingCount > 0)
+          pendingSegments.push(this.takePendingSegment(scope, pluginType))
+      }
+    }
+    if (pendingSegments.length > 0)
+      await this.writeSegments(pendingSegments)
+    else
+      await this.writeGate
+    this.throwWriteError()
+  }
+
   async close(): Promise<void> {
+    let thrownError: unknown
+    try {
+      await this.flush()
+    }
+    catch (error) {
+      thrownError = error
+    }
     this.scopes.clear()
     this.activeChunks.length = 0
     this.nextSlotChunks.length = 0
-    this.freeHead = 0
-    await this.storage.close()
+    try {
+      await this.storage.close()
+    }
+    catch (error) {
+      thrownError ??= error
+    }
+    if (thrownError)
+      throw thrownError
   }
 
   private getScope(scopeName: string): ScopeState {
@@ -204,21 +306,113 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
       moduleHeads: [],
       pluginNameIds: new Map(),
       pluginNames: [],
+      pluginTypes: new Map(),
     }
     this.scopes.set(scopeName, scope)
     return scope
   }
 
-  private allocateSlot(): number {
-    if (this.freeHead > 0) {
-      const slot = this.freeHead - 1
-      this.freeHead = this.getNextSlot(slot)
-      this.setNextSlot(slot, 0)
-      return slot
+  private getPluginType(
+    scope: ScopeState,
+    pluginId: number,
+    type: ViteInspectPluginCallType,
+  ): PluginTypeState {
+    const key = `${pluginId}:${type}`
+    let pluginType = scope.pluginTypes.get(key)
+    if (!pluginType) {
+      pluginType = {
+        pluginId,
+        type,
+        pendingRecords: Buffer.allocUnsafe(RECORDS_PER_SEGMENT * RECORD_SIZE),
+        pendingCount: 0,
+        recentSegments: [],
+      }
+      scope.pluginTypes.set(key, pluginType)
     }
-    const slot = this.slotCount++
+    return pluginType
+  }
+
+  private takePendingSegment(scope: ScopeState, pluginType: PluginTypeState): PendingSegment {
+    const recordCount = pluginType.pendingCount
+    const records = pluginType.pendingRecords.subarray(0, recordCount * RECORD_SIZE)
+    const pluginNameId = pluginType.pendingPluginNameId!
+    pluginType.pendingRecords = Buffer.allocUnsafe(RECORDS_PER_SEGMENT * RECORD_SIZE)
+    pluginType.pendingCount = 0
+    pluginType.pendingPluginNameId = undefined
+    return {
+      scope,
+      pluginType,
+      pluginNameId,
+      records,
+      recordCount,
+    }
+  }
+
+  private async writeSegments(segments: PendingSegment[]): Promise<void> {
+    if (segments.length === 0)
+      return
+
+    const buffers: Buffer[] = []
+    const startPosition = this.nextFileOffset
+    for (const segment of segments) {
+      const segmentOffset = this.nextFileOffset
+      const previousOffset = segment.pluginType.headOffset
+      const header = Buffer.alloc(SEGMENT_HEADER_SIZE)
+      header.writeUInt32LE(segment.scope.id, OFFSET_HEADER_SCOPE_ID)
+      header.writeUInt32LE(segment.pluginType.pluginId, OFFSET_HEADER_PLUGIN_ID)
+      header.writeUInt32LE(segment.pluginNameId, OFFSET_HEADER_PLUGIN_NAME_ID)
+      header.writeUInt8(encodeType(segment.pluginType.type), OFFSET_HEADER_TYPE)
+      header.writeUInt32LE(segment.recordCount, OFFSET_HEADER_RECORD_COUNT)
+      header.writeBigUInt64LE(
+        previousOffset == null ? NO_SEGMENT : BigInt(previousOffset),
+        OFFSET_HEADER_PREVIOUS_SEGMENT,
+      )
+      segment.pluginType.headOffset = segmentOffset
+      segment.pluginType.recentSegments.push({
+        offset: segmentOffset,
+        previousOffset,
+        pluginNameId: segment.pluginNameId,
+        recordCount: segment.recordCount,
+      })
+      if (segment.pluginType.recentSegments.length > RECENT_SEGMENT_CACHE_SIZE)
+        segment.pluginType.recentSegments.shift()
+      buffers.push(header, segment.records)
+      this.nextFileOffset += header.length + segment.records.length
+    }
+    const write = this.writeGate.then(() => this.storage.write(buffers, startPosition))
+    this.writeGate = write.catch((error) => {
+      this.lastWriteError = toError(error)
+    })
+    await write
+  }
+
+  private allocateSlot(): number {
+    if (this.nextSlot > 0xFFFF_FFFE) {
+      throw diagnostics.VDT0003({
+        operation: 'allocating an inspect plugin call slot',
+      })
+    }
+    const slot = this.nextSlot++
     this.ensureSlotState(slot)
     return slot
+  }
+
+  private decodeRecords(
+    calls: ViteInspectPluginCallInfo[],
+    records: Buffer,
+    recordCount: number,
+    type: ViteInspectPluginCallType,
+    pluginId: number,
+    pluginNameId: number,
+    scope: ScopeState,
+  ): void {
+    for (let index = 0; index < recordCount; index++) {
+      const offset = index * RECORD_SIZE
+      const slot = records.readUInt32LE(offset + OFFSET_SLOT)
+      if (!this.isActive(slot))
+        continue
+      calls.push(decodeCall(records, offset, type, pluginId, pluginNameId, scope))
+    }
   }
 
   private releaseModuleSlots(scope: ScopeState, moduleId: number): void {
@@ -229,8 +423,6 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
       const next = this.getNextSlot(slot)
       if (this.isActive(slot)) {
         this.setActive(slot, false)
-        this.setNextSlot(slot, this.freeHead)
-        this.freeHead = slot + 1
         scope.activeCalls -= 1
       }
       head = next
@@ -263,37 +455,46 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
     this.ensureSlotState(slot)
     this.nextSlotChunks[Math.floor(slot / SLOT_STATE_CHUNK_SIZE)]![slot % SLOT_STATE_CHUNK_SIZE] = next
   }
+
+  private throwWriteError(): void {
+    if (this.lastWriteError)
+      throw this.lastWriteError
+  }
 }
 
 class FilePluginCallStorage implements PluginCallStorage {
   constructor(private readonly file: FileHandle) {}
 
-  async write(chunks: WriteChunk[]): Promise<void> {
-    await Promise.all(chunks.map(chunk => writeBuffer(
-      this.file,
-      chunk.buffer,
-      chunk.startSlot * RECORD_SIZE,
-    )))
+  async write(input: Buffer[], startPosition: number): Promise<void> {
+    let buffers = input
+    let position = startPosition
+    while (buffers.length > 0) {
+      const { bytesWritten } = await this.file.writev(buffers, position)
+      if (bytesWritten === 0) {
+        throw diagnostics.VDT0003({
+          operation: 'writing the inspect plugin call archive',
+        })
+      }
+      buffers = consumeBuffers(buffers, bytesWritten)
+      position += bytesWritten
+    }
   }
 
-  async read(startSlot: number, count: number): Promise<Buffer> {
-    const buffer = Buffer.allocUnsafe(count * RECORD_SIZE)
+  async read(position: number, length: number): Promise<Buffer> {
+    const buffer = Buffer.allocUnsafe(length)
     let offset = 0
     while (offset < buffer.length) {
       const { bytesRead } = await this.file.read(
         buffer,
         offset,
         buffer.length - offset,
-        startSlot * RECORD_SIZE + offset,
+        position + offset,
       )
-      if (bytesRead === 0) {
-        throw diagnostics.VDT0003({
-          operation: 'reading the inspect plugin call archive',
-        })
-      }
+      if (bytesRead === 0)
+        break
       offset += bytesRead
     }
-    return buffer
+    return buffer.subarray(0, offset)
   }
 
   async close(): Promise<void> {
@@ -304,24 +505,23 @@ class FilePluginCallStorage implements PluginCallStorage {
 class MemoryPluginCallStorage implements PluginCallStorage {
   private buffer = Buffer.alloc(0)
 
-  async write(chunks: WriteChunk[]): Promise<void> {
-    const requiredBytes = chunks.reduce((size, chunk) => {
-      return Math.max(size, chunk.startSlot * RECORD_SIZE + chunk.buffer.length)
-    }, this.buffer.length)
+  async write(buffers: Buffer[], position: number): Promise<void> {
+    const length = buffers.reduce((total, buffer) => total + buffer.length, 0)
+    const requiredBytes = position + length
     if (requiredBytes > this.buffer.length) {
-      const next = Buffer.allocUnsafe(Math.max(requiredBytes, this.buffer.length * 2, RECORD_SIZE * 1024))
+      const next = Buffer.allocUnsafe(Math.max(requiredBytes, this.buffer.length * 2, 64 * 1024))
       this.buffer.copy(next)
       this.buffer = next
     }
-    for (const chunk of chunks)
-      chunk.buffer.copy(this.buffer, chunk.startSlot * RECORD_SIZE)
+    let offset = position
+    for (const buffer of buffers) {
+      buffer.copy(this.buffer, offset)
+      offset += buffer.length
+    }
   }
 
-  async read(startSlot: number, count: number): Promise<Buffer> {
-    return this.buffer.subarray(
-      startSlot * RECORD_SIZE,
-      (startSlot + count) * RECORD_SIZE,
-    )
+  async read(position: number, length: number): Promise<Buffer> {
+    return this.buffer.subarray(position, position + length)
   }
 
   async close(): Promise<void> {
@@ -329,28 +529,27 @@ class MemoryPluginCallStorage implements PluginCallStorage {
   }
 }
 
-function encodeCall(
-  buffer: Buffer,
-  offset: number,
-  scopeId: number,
-  moduleId: number,
-  pluginNameId: number,
-  info: ViteInspectPluginCallInfo,
-): void {
+function validateCall(info: ViteInspectPluginCallInfo): void {
   const sequence = callSequence(info.id)
   if (!Number.isSafeInteger(sequence) || sequence < 0 || info.plugin_id < 0 || info.plugin_id > 0xFFFF_FFFF) {
     throw diagnostics.VDT0003({
       operation: 'encoding an inspect plugin call',
     })
   }
-  buffer.writeUInt32LE(scopeId, offset + OFFSET_SCOPE_ID)
+}
+
+function encodeCall(
+  buffer: Buffer,
+  offset: number,
+  slot: number,
+  moduleId: number,
+  info: ViteInspectPluginCallInfo,
+): void {
+  buffer.writeUInt32LE(slot, offset + OFFSET_SLOT)
   buffer.writeUInt32LE(moduleId, offset + OFFSET_MODULE_ID)
-  buffer.writeUInt32LE(info.plugin_id, offset + OFFSET_PLUGIN_ID)
-  buffer.writeUInt32LE(pluginNameId, offset + OFFSET_PLUGIN_NAME_ID)
-  buffer.writeDoubleLE(sequence, offset + OFFSET_SEQUENCE)
+  buffer.writeDoubleLE(callSequence(info.id), offset + OFFSET_SEQUENCE)
   buffer.writeDoubleLE(info.timestamp_start, offset + OFFSET_START)
   buffer.writeDoubleLE(info.timestamp_end, offset + OFFSET_END)
-  buffer.writeUInt8(encodeType(info.type), offset + OFFSET_TYPE)
   buffer.writeUInt8(
     info.unchanged == null
       ? 0
@@ -360,65 +559,44 @@ function encodeCall(
   buffer.fill(0, offset + OFFSET_FLAGS + 1, offset + RECORD_SIZE)
 }
 
-function createWriteChunks(buffer: Buffer, calls: EncodedCall[]): WriteChunk[] {
-  const ordered = calls.toSorted((a, b) => a.slot - b.slot)
-  const chunks: WriteChunk[] = []
-  let start = 0
-  while (start < ordered.length) {
-    let end = start + 1
-    while (end < ordered.length && ordered[end]!.slot === ordered[end - 1]!.slot + 1)
-      end += 1
-
-    const firstSourceOffset = ordered[start]!.sourceOffset
-    const chunk = hasContiguousSources(ordered, start, end, firstSourceOffset)
-      ? buffer.subarray(firstSourceOffset, firstSourceOffset + (end - start) * RECORD_SIZE)
-      : copyEncodedCalls(buffer, ordered, start, end)
-    chunks.push({
-      startSlot: ordered[start]!.slot,
-      buffer: chunk,
-    })
-    start = end
+function decodeCall(
+  buffer: Buffer,
+  offset: number,
+  type: ViteInspectPluginCallType,
+  pluginId: number,
+  pluginNameId: number,
+  scope: ScopeState,
+): ViteInspectPluginCallInfo {
+  const moduleId = buffer.readUInt32LE(offset + OFFSET_MODULE_ID)
+  const flags = buffer.readUInt8(offset + OFFSET_FLAGS)
+  const sequence = buffer.readDoubleLE(offset + OFFSET_SEQUENCE)
+  const start = buffer.readDoubleLE(offset + OFFSET_START)
+  const end = buffer.readDoubleLE(offset + OFFSET_END)
+  return {
+    type,
+    id: `${type}:${pluginId}:${sequence}`,
+    duration: Math.max(0, end - start),
+    plugin_id: pluginId,
+    plugin_name: scope.pluginNames[pluginNameId]!,
+    module: scope.moduleNames[moduleId]!,
+    timestamp_start: start,
+    timestamp_end: end,
+    unchanged: flags & FLAG_HAS_UNCHANGED
+      ? Boolean(flags & FLAG_UNCHANGED)
+      : undefined,
   }
-  return chunks
 }
 
-function hasContiguousSources(calls: EncodedCall[], start: number, end: number, firstOffset: number): boolean {
-  for (let index = start; index < end; index++) {
-    if (calls[index]!.sourceOffset !== firstOffset + (index - start) * RECORD_SIZE)
-      return false
+function consumeBuffers(input: Buffer[], bytes: number): Buffer[] {
+  const buffers = input.slice()
+  let consumed = bytes
+  while (buffers.length > 0 && consumed >= buffers[0]!.length) {
+    consumed -= buffers[0]!.length
+    buffers.shift()
   }
-  return true
-}
-
-function copyEncodedCalls(buffer: Buffer, calls: EncodedCall[], start: number, end: number): Buffer {
-  const chunk = Buffer.allocUnsafe((end - start) * RECORD_SIZE)
-  for (let index = start; index < end; index++) {
-    buffer.copy(
-      chunk,
-      (index - start) * RECORD_SIZE,
-      calls[index]!.sourceOffset,
-      calls[index]!.sourceOffset + RECORD_SIZE,
-    )
-  }
-  return chunk
-}
-
-async function writeBuffer(file: FileHandle, buffer: Buffer, position: number): Promise<void> {
-  let offset = 0
-  while (offset < buffer.length) {
-    const { bytesWritten } = await file.write(
-      buffer,
-      offset,
-      buffer.length - offset,
-      position + offset,
-    )
-    if (bytesWritten === 0) {
-      throw diagnostics.VDT0003({
-        operation: 'writing the inspect plugin call archive',
-      })
-    }
-    offset += bytesWritten
-  }
+  if (buffers.length > 0 && consumed > 0)
+    buffers[0] = buffers[0]!.subarray(consumed)
+  return buffers
 }
 
 function internString(ids: Map<string, number>, values: string[], value: string): number {
@@ -462,4 +640,8 @@ function decodeType(type: number): ViteInspectPluginCallType {
 
 function yieldToEventLoop(): Promise<void> {
   return new Promise(resolve => setImmediate(resolve))
+}
+
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
 }

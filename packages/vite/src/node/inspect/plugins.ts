@@ -5,7 +5,6 @@ import type {
   ViteInspectPluginDetails,
   ViteInspectPluginMetric,
 } from './types'
-import { createGraphModuleIdResolver, getPublicGraphModuleIds } from './module'
 
 export async function getPluginMetrics(ctx: ViteInspectEnvironmentContext): Promise<ViteInspectPluginMetric[]> {
   const map: Record<string, ViteInspectPluginMetric> = {}
@@ -74,10 +73,7 @@ async function withGraphModuleIds(
   ctx: ViteInspectEnvironmentContext,
   calls: ViteInspectPluginCallInfo[],
 ): Promise<ViteInspectPluginCallInfo[]> {
-  const resolveGraphModuleId = createGraphModuleIdResolver(
-    await getPublicGraphModuleIds(ctx),
-    ctx.env.getTopLevelConfig().resolve?.extensions ?? [],
-  )
+  const resolveGraphModuleId = await ctx.getGraphModuleIdResolver()
 
   return calls.map(call => ({
     ...call,

@@ -314,6 +314,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       if (this.pumpPromise)
         await this.pumpPromise
     }
+    await this.pluginCalls.flush()
     this.throwWriteError()
   }
 
