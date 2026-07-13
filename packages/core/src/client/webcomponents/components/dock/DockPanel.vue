@@ -87,7 +87,7 @@ const panelStyle = computed(() => {
   mousePosition.x, mousePosition.y
 
   const dockThickness = props.dockEl?.clientHeight || 0
-  const halfHeight = dockThickness / 2
+  const halfHeight = dockThickness * (1 - layout.value.panelOverlapFactor)
 
   const frameMargin = {
     left: panelMargins.value.left + halfHeight,

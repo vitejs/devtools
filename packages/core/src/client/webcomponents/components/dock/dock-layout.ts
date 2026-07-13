@@ -77,14 +77,14 @@ export interface DockMargins {
 
 /** The built-in dock layout. Override individual fields via {@link resolveDockLayout}. */
 export const DEFAULT_DOCK_LAYOUT: DockLayout = Object.freeze({
-  barHeight: 40,
+  barHeight: 35,
   barMinWidth: 100,
   minimizedSize: 22,
   glowSize: 160,
   glowBlur: 60,
   maxVisibleItems: 5,
   viewportMargin: 2,
-  panelOverlapFactor: 0.5,
+  panelOverlapFactor: 0.2,
   edgeSnapPercent: 5,
   centerSnapPercent: 2,
   edgeZoneHeight: 70,
