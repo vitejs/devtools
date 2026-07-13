@@ -60,7 +60,7 @@ async function submit() {
   <div class="w-full h-full flex items-center justify-center p8 color-base overflow-auto">
     <div class="w-full max-w-108 flex flex-col items-center text-center">
       <!-- Brand -->
-      <div class="relative mb5 flex items-center justify-center">
+      <div class="relative flex items-center justify-center">
         <div class="absolute w-24 h-24 rounded-full bg-primary-500/20 blur-2xl" aria-hidden="true" />
         <VitePlus class="relative w-16 h-16" />
       </div>
@@ -74,11 +74,8 @@ async function submit() {
       </p>
 
       <!-- Card -->
-      <div class="mt7 w-full rounded-2xl border border-base bg-base/60 shadow-sm p6 flex flex-col items-center gap-4">
+      <div class="mt6 w-full rounded-lg border border-base bg-base/60 shadow-sm p6 flex flex-col items-center gap-4">
         <div class="flex flex-col items-center gap-1">
-          <div class="text-xs uppercase tracking-wider op-mute font-medium">
-            One-time code
-          </div>
           <p class="text-sm op-fade">
             Find the
             <span class="font-mono text-primary-600 dark:text-primary-300">6-digit code</span>
@@ -97,21 +94,6 @@ async function submit() {
             @complete="submit"
           />
 
-          <!-- Live region: reserves space so the layout doesn't jump. -->
-          <p
-            class="text-sm min-h-5 transition-colors"
-            :class="error ? 'text-red-500' : 'op-mute'"
-            role="alert"
-            aria-live="assertive"
-          >
-            <template v-if="error">
-              {{ error }}
-            </template>
-            <template v-else-if="verifying">
-              Authorizing...
-            </template>
-          </p>
-
           <Button
             type="submit"
             variant="primary"
@@ -125,11 +107,26 @@ async function submit() {
             </template>
             {{ verifying ? 'Authorizing' : 'Authorize' }}
           </Button>
+
+          <p
+            v-if="error || verifying"
+            class="text-sm min-h-5 transition-colors"
+            :class="error ? 'text-red-500' : 'op-mute'"
+            role="alert"
+            aria-live="assertive"
+          >
+            <template v-if="error">
+              {{ error }}
+            </template>
+            <template v-else-if="verifying">
+              Authorizing...
+            </template>
+          </p>
         </form>
       </div>
 
-      <p class="mt5 text-xs op-mute max-w-92 leading-relaxed">
-        You can also open the magic link printed in the terminal to authorize automatically.
+      <p class="mt4 text-xs op-mute max-w-92 leading-relaxed">
+        You can also use the magic link to authorize automatically.
       </p>
     </div>
   </div>
