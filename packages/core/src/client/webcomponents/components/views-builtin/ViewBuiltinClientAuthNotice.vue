@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { ref, useTemplateRef, watch } from 'vue'
+import Button from '../display/Button.vue'
 import OtpInput from '../display/OtpInput.vue'
 import VitePlus from '../icons/VitePlus.vue'
 
@@ -111,15 +112,19 @@ async function submit() {
             </template>
           </p>
 
-          <button
+          <Button
             type="submit"
-            class="w-full inline-flex items-center justify-center gap-2 px4 py2.5 rounded-xl bg-primary-600 text-white font-medium shadow-sm transition-all hover:bg-primary-700 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary-500/40 disabled:op40 disabled:pointer-events-none"
-            :disabled="code.length < CODE_LENGTH || verifying"
+            variant="primary"
+            size="lg"
+            block
+            :loading="verifying"
+            :disabled="code.length < CODE_LENGTH"
           >
-            <div v-if="verifying" class="i-ph-spinner-gap-duotone w-4.5 h-4.5 animate-spin" />
-            <div v-else class="i-ph-shield-check-duotone w-4.5 h-4.5" />
-            <span>{{ verifying ? 'Authorizing' : 'Authorize' }}</span>
-          </button>
+            <template #icon>
+              <div class="i-ph-shield-check-duotone w-4.5 h-4.5" />
+            </template>
+            {{ verifying ? 'Authorizing' : 'Authorize' }}
+          </Button>
         </form>
       </div>
 
