@@ -7,6 +7,7 @@ import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
+import { resolveDockAnchor } from './dock-layout'
 import { openDockContextMenu } from './DockContextMenu'
 import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
@@ -32,10 +33,6 @@ const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
 const panes = useIframePanes(viewsContainer, context.panel)
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
-
 function openContextMenu(e: MouseEvent) {
   if (!dockPanel.value)
     return
@@ -52,37 +49,18 @@ function openContextMenu(e: MouseEvent) {
 }
 
 const anchorPos = computed(() => {
-  const halfWidth = (props.dockEl?.clientWidth || 0) / 2
-  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
-
   const store = context.panel.store
 
-  const left = store.left * windowSize.width / 100
-  const top = store.top * windowSize.height / 100
-
-  switch (store.position) {
-    case 'top':
-      return {
-        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
-        top: panelMargins.value.top + halfHeight,
-      }
-    case 'right':
-      return {
-        left: windowSize.width - panelMargins.value.right - halfHeight,
-        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
-      }
-    case 'left':
-      return {
-        left: panelMargins.value.left + halfHeight,
-        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
-      }
-    case 'bottom':
-    default:
-      return {
-        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
-        top: windowSize.height - panelMargins.value.bottom - halfHeight,
-      }
-  }
+  return resolveDockAnchor({
+    edge: store.position,
+    leftPercent: store.left,
+    topPercent: store.top,
+    viewportWidth: windowSize.width,
+    viewportHeight: windowSize.height,
+    dockWidth: props.dockEl?.clientWidth || 0,
+    dockHeight: props.dockEl?.clientHeight || 0,
+    margins: panelMargins.value,
+  })
 })
 
 let _timer: ReturnType<typeof setTimeout> | null = null

@@ -8,7 +8,9 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock-container {
-  --uno: absolute left-0 top-0 h-[40px] min-w-[100px] w-max flex;
+  --uno: absolute left-0 top-0 w-max flex;
+  height: var(--vite-devtools-dock-height, 40px);
+  min-width: var(--vite-devtools-dock-min-width, 100px);
   transform: translate(-50%, -50%);
 }
 
@@ -18,14 +20,17 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock {
-  --uno: h-full rounded-full select-none touch-none ma h-[40px];
+  --uno: h-full rounded-full select-none touch-none ma;
   --uno: "shadow text-[#333] dark:text-white  bg-glass";
   --uno: transition-all duration-500;
+  height: var(--vite-devtools-dock-height, 40px);
   width: calc-size(max-content, size);
 }
 
 #vite-devtools-anchor.vite-devtools-minimized #vite-devtools-dock {
-  --uno: w-[22px] h-[22px] px-0 py-[2px];
+  --uno: px-0 py-[2px];
+  width: var(--vite-devtools-dock-minimized-size, 22px);
+  height: var(--vite-devtools-dock-minimized-size, 22px);
 }
 
 #vite-devtools-anchor.vite-devtools-minimized .vite-devtools-dock-bracket {
@@ -37,7 +42,10 @@
 }
 
 #vite-devtools-anchor #vite-devtools-glowing {
-  --uno: absolute left-0 top-0 w-[160px] h-[160px] opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full blur-[60px];
+  --uno: absolute left-0 top-0 opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full;
+  width: var(--vite-devtools-dock-glow-size, 160px);
+  height: var(--vite-devtools-dock-glow-size, 160px);
+  filter: blur(var(--vite-devtools-dock-glow-blur, 60px));
   transform: translate(-50%, -50%);
   background-image: linear-gradient(45deg, #61d9ff, #7a23a1, #715ebd);
 }

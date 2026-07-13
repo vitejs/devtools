@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { CSSProperties } from 'vue'
+import type { DockLayout } from './dock-layout'
 import { useEventListener, useScreenSafeArea, whenever } from '@vueuse/core'
-import { computed, onMounted, reactive, ref, useTemplateRef, watchEffect } from 'vue'
+import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import { BUILTIN_ENTRY_CLIENT_AUTH_NOTICE } from '../../constants'
 import { docksSplitGroupsWithCapacity } from '../../state/dock-settings'
 import { setDocksOverflowPanel } from '../../state/floating-tooltip'
@@ -9,25 +11,32 @@ import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
 import BracketLeft from '../icons/BracketLeft.vue'
 import BracketRight from '../icons/BracketRight.vue'
 import VitePlusCore from '../icons/VitePlusCore.vue'
+import {
+  dockLayoutCssVars,
+  resolveDockAnchor,
+  resolveDockEdge,
+  resolveDockLayout,
+  resolveViewportMargins,
+  snapDockPercent,
+} from './dock-layout'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 
 const props = defineProps<{
   context: DocksContext
+  /**
+   * Override individual dock layout tunables (bar height, item capacity,
+   * viewport margin, snapping, ...). Merged over `DEFAULT_DOCK_LAYOUT`.
+   */
+  layout?: Partial<DockLayout>
 }>()
 
 // Here we directly destructure is as we don't expect context to be changed
 const context = props.context
 
-const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
+const layout = computed(() => resolveDockLayout(props.layout))
 
-const PANEL_MARGIN = 2
-const panelMargins = reactive({
-  left: PANEL_MARGIN,
-  top: PANEL_MARGIN,
-  right: PANEL_MARGIN,
-  bottom: PANEL_MARGIN,
-})
+const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
 const safeArea = useScreenSafeArea()
 
@@ -38,14 +47,17 @@ function toNumber(value: string) {
   return num
 }
 
-watchEffect(() => {
-  panelMargins.left = toNumber(safeArea.left.value) + PANEL_MARGIN
-  panelMargins.top = toNumber(safeArea.top.value) + PANEL_MARGIN
-  panelMargins.right = toNumber(safeArea.right.value) + PANEL_MARGIN
-  panelMargins.bottom = toNumber(safeArea.bottom.value) + PANEL_MARGIN
-})
-
-const SNAP_THRESHOLD = 2
+// Effective spacing from the viewport edge: device safe-area insets plus the
+// configured viewport margin. Passed down to the panel so both stay in sync.
+const panelMargins = computed(() => resolveViewportMargins(
+  {
+    left: toNumber(safeArea.left.value),
+    top: toNumber(safeArea.top.value),
+    right: toNumber(safeArea.right.value),
+    bottom: toNumber(safeArea.bottom.value),
+  },
+  layout.value,
+))
 
 const dockEl = useTemplateRef<HTMLDivElement>('dockEl')
 const anchorEl = useTemplateRef<HTMLDivElement>('anchorEl')
@@ -83,7 +95,7 @@ const isRpcTrusted = useIsRpcTrusted(context, (isTrusted) => {
 const groupedEntries = computed(() => context.docks.groupedEntries)
 
 const splitEntries = computed(() => {
-  return docksSplitGroupsWithCapacity(groupedEntries.value, 5)
+  return docksSplitGroupsWithCapacity(groupedEntries.value, layout.value.maxVisibleItems)
 })
 
 const selectedEntry = computed(() => {
@@ -104,8 +116,6 @@ onMounted(async () => {
       return
 
     const store = context.panel.store
-    const centerX = window.innerWidth / 2
-    const centerY = window.innerHeight / 2
 
     const x = e.clientX - draggingOffset.x
     const y = e.clientY - draggingOffset.y
@@ -116,24 +126,16 @@ onMounted(async () => {
     mousePosition.x = x
     mousePosition.y = y
 
-    // Get position
-    const deg = Math.atan2(y - centerY, x - centerX)
-    const HORIZONTAL_MARGIN = 70
-    const TL = Math.atan2(0 - centerY + HORIZONTAL_MARGIN, 0 - centerX)
-    const TR = Math.atan2(0 - centerY + HORIZONTAL_MARGIN, window.innerWidth - centerX)
-    const BL = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, 0 - centerX)
-    const BR = Math.atan2(window.innerHeight - HORIZONTAL_MARGIN - centerY, window.innerWidth - centerX)
+    store.position = resolveDockEdge({
+      x,
+      y,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      layout: layout.value,
+    })
 
-    store.position = deg >= TL && deg <= TR
-      ? 'top'
-      : deg >= TR && deg <= BR
-        ? 'right'
-        : deg >= BR && deg <= BL
-          ? 'bottom'
-          : 'left'
-
-    store.left = snapToPoints(x / window.innerWidth * 100)
-    store.top = snapToPoints(y / window.innerHeight * 100)
+    store.left = snapDockPercent(x / window.innerWidth * 100, layout.value)
+    store.top = snapDockPercent(y / window.innerHeight * 100, layout.value)
   })
   useEventListener(window, 'pointerup', () => {
     context.panel.isDragging = false
@@ -143,55 +145,22 @@ onMounted(async () => {
   })
 })
 
-function snapToPoints(value: number) {
-  if (value < 5)
-    return 0
-  if (value > 95)
-    return 100
-  if (Math.abs(value - 50) < SNAP_THRESHOLD)
-    return 50
-  return value
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
-
 const anchorPos = computed(() => {
   // eslint-disable-next-line ts/no-unused-expressions
   recalculateCounter.value
 
   const store = context.panel.store
 
-  const halfWidth = (dockEl.value?.clientWidth || 0) / 2
-  const halfHeight = (dockEl.value?.clientHeight || 0) / 2
-
-  const left = store.left * windowSize.width / 100
-  const top = store.top * windowSize.height / 100
-
-  switch (store.position) {
-    case 'top':
-      return {
-        left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
-        top: panelMargins.top + halfHeight,
-      }
-    case 'right':
-      return {
-        left: windowSize.width - panelMargins.right - halfHeight,
-        top: clamp(top, halfWidth + panelMargins.top, windowSize.height - halfWidth - panelMargins.bottom),
-      }
-    case 'left':
-      return {
-        left: panelMargins.left + halfHeight,
-        top: clamp(top, halfWidth + panelMargins.top, windowSize.height - halfWidth - panelMargins.bottom),
-      }
-    case 'bottom':
-    default:
-      return {
-        left: clamp(left, halfWidth + panelMargins.left, windowSize.width - halfWidth - panelMargins.right),
-        top: windowSize.height - panelMargins.bottom - halfHeight,
-      }
-  }
+  return resolveDockAnchor({
+    edge: store.position,
+    leftPercent: store.left,
+    topPercent: store.top,
+    viewportWidth: windowSize.width,
+    viewportHeight: windowSize.height,
+    dockWidth: dockEl.value?.clientWidth || 0,
+    dockHeight: dockEl.value?.clientHeight || 0,
+    margins: panelMargins.value,
+  })
 })
 
 let _timer: ReturnType<typeof setTimeout> | null = null
@@ -222,12 +191,13 @@ const isMinimized = computed(() => {
     && context.panel.store.inactiveTimeout
 })
 
-const anchorStyle = computed(() => {
+const anchorStyle = computed<CSSProperties>(() => {
   return {
+    ...dockLayoutCssVars(layout.value),
     left: `${anchorPos.value.left}px`,
     top: `${anchorPos.value.top}px`,
     pointerEvents: isHidden.value ? 'none' : 'auto',
-  } as const
+  }
 })
 
 const panelStyle = computed(() => {
