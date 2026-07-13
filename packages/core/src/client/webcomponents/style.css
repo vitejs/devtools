@@ -63,3 +63,17 @@
 .vite-devtools-resize-handle:hover {
   --uno: bg-gray-400:10;
 }
+
+@keyframes vite-devtools-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+.vite-devtools-shake {
+  animation: vite-devtools-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vite-devtools-shake {
+    animation: none;
+  }
+}

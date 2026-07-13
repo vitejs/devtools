@@ -43,7 +43,7 @@ const buttonText = computed(() => {
     </h1>
     <p>{{ entry.launcher.description }}</p>
     <button
-      class="bg-lime6 px4 py1 rounded hover:bg-lime7 transition-all duration-300 flex gap-2 items-center disabled:bg-gray6! disabled:pointer-events-none"
+      class="bg-primary-600 text-white px4 py2 rounded-lg font-medium shadow-sm flex gap-2 items-center transition-all duration-300 hover:bg-primary-700 focus:outline-none focus-visible:ring-3 focus-visible:ring-primary-500/40 disabled:op50 disabled:pointer-events-none"
       :disabled="status !== 'idle'"
       @click="onLaunch"
     >
