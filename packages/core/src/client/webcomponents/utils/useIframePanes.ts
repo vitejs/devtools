@@ -25,7 +25,7 @@ export function useIframePanes(
     container,
     (el) => {
       if (el && !panes.value) {
-        panes.value = markRaw(createIframePanes({ container: el }))
+        panes.value = markRaw(createIframePanes({ container: el, document: el.ownerDocument }))
         stop()
       }
     },

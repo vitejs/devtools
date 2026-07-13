@@ -52,6 +52,9 @@ function createMockContext(
     docks: {
       switchEntry: vi.fn(),
     },
+    rpc: {
+      connectionMeta: { backend: 'ws' },
+    },
   } as unknown as DocksContext
 }
 
@@ -175,6 +178,8 @@ describe('dock popup state', () => {
     expect(appRoot).toBeTruthy()
     expect(appRoot.id).toBe('vite-devtools-popup-root')
     expect(appRoot.appended).toHaveLength(1)
+    expect((popup as unknown as { __DEVFRAME_CONNECTION_META__?: unknown }).__DEVFRAME_CONNECTION_META__)
+      .toBe(context.rpc.connectionMeta)
   })
 
   it('hides dock overflow panel when opening popup', async () => {
