@@ -29,6 +29,7 @@ const meta = {
     glowBlur: { control: { type: 'range', min: 0, max: 120, step: 1 }, description: 'Blur radius of the glow (px).' },
     maxVisibleItems: { control: { type: 'range', min: 1, max: 12, step: 1 }, description: 'Inline item capacity before overflow.' },
     viewportMargin: { control: { type: 'range', min: 0, max: 48, step: 1 }, description: 'Gap from the viewport edge (px).' },
+    panelOverlapFactor: { control: { type: 'range', min: 0, max: 1, step: 0.05 }, description: 'Dock↔panel overlap (fraction of bar thickness). Visible with the panel open — see the Embedded stories.' },
     edgeSnapPercent: { control: { type: 'range', min: 0, max: 20, step: 1 }, description: 'Snap-to-edge zone (viewport %).' },
     centerSnapPercent: { control: { type: 'range', min: 0, max: 20, step: 1 }, description: 'Snap-to-center zone (viewport %).' },
     edgeZoneHeight: { control: { type: 'range', min: 0, max: 200, step: 1 }, description: 'Top/bottom edge-detection zone height (px).' },

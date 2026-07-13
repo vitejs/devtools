@@ -251,6 +251,7 @@ onMounted(() => {
       :dock-el="dockEl"
       :selected="context.docks.selected"
       :panel-margins="panelMargins"
+      :layout="layout"
     />
     <div
       id="vite-devtools-dock-container"

@@ -38,6 +38,15 @@ export interface DockLayout {
   viewportMargin: number
 
   /**
+   * How much of the dock bar's thickness overlaps the panel/iframe, as a
+   * fraction of that thickness. `0.5` floats the dock's inner half over the
+   * panel (its outer half hangs past the panel edge); lower it toward `0` to
+   * slide the panel clear of the bar so the content underneath stays readable,
+   * or raise it toward `1` to tuck the panel further behind the bar.
+   */
+  panelOverlapFactor: number
+
+  /**
    * Snap-to-edge zone width, as a viewport percentage. While dragging, a
    * position within this distance of an edge snaps flush to `0` / `100`.
    */
@@ -75,6 +84,7 @@ export const DEFAULT_DOCK_LAYOUT: DockLayout = Object.freeze({
   glowBlur: 60,
   maxVisibleItems: 5,
   viewportMargin: 2,
+  panelOverlapFactor: 0.5,
   edgeSnapPercent: 5,
   centerSnapPercent: 2,
   edgeZoneHeight: 70,

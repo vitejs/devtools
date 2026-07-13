@@ -51,6 +51,20 @@ export const FloatOpen: Story = {
   }),
 }
 
+/**
+ * `panelOverlapFactor: 0.2` — the panel slides clear of the dock bar, leaving
+ * most of the bar hanging past the panel edge so the iframe underneath stays
+ * readable (compare with `FloatOpen`, which uses the default `0.5`).
+ */
+export const FloatReducedOverlap: Story = {
+  render: () => ({
+    setup: () => mountWithContext(
+      { entries: blankEntries, selectedId: 'overview', panel: { mode: 'float', position: 'bottom', left: 50, top: 100, inactiveTimeout: -1, width: 60, height: 60 } },
+      ctx => h(DockEmbedded, { context: ctx, layout: { panelOverlapFactor: 0.2 } }),
+    ),
+  }),
+}
+
 /** Edge mode, docked to the bottom with the panel open. */
 export const Edge: Story = {
   render: () => ({

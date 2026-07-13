@@ -2,12 +2,13 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
+import type { DockLayout } from './dock-layout'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
-import { resolveDockAnchor } from './dock-layout'
+import { DEFAULT_DOCK_LAYOUT, resolveDockAnchor } from './dock-layout'
 import { openDockContextMenu } from './DockContextMenu'
 import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
@@ -17,10 +18,14 @@ const props = defineProps<{
   selected: DevToolsDockEntry | null
   dockEl?: HTMLDivElement
   panelMargins: { left: number, top: number, right: number, bottom: number }
+  /** Resolved dock layout. Governs the panel↔dock overlap. */
+  layout?: DockLayout
 }>()
 
 const context = props.context
 const { selected, panelMargins } = toRefs(props)
+
+const layout = computed(() => props.layout ?? DEFAULT_DOCK_LAYOUT)
 
 // When the open entry belongs to a group, surface its siblings in a sidebar.
 const activeGroup = computed(() => getEntryGroup(context.docks.entries, selected.value))
@@ -81,7 +86,8 @@ const panelStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
   mousePosition.x, mousePosition.y
 
-  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
+  const dockThickness = props.dockEl?.clientHeight || 0
+  const halfHeight = dockThickness / 2
 
   const frameMargin = {
     left: panelMargins.value.left + halfHeight,
@@ -90,14 +96,21 @@ const panelStyle = computed(() => {
     bottom: panelMargins.value.bottom + halfHeight,
   }
 
-  const marginHorizontal = frameMargin.left + frameMargin.right
-  const marginVertical = frameMargin.top + frameMargin.bottom
+  const panel = context.panel
+  const store = panel.store
+
+  // The panel's docked edge is otherwise pinned to the dock's center (a 50%
+  // overlap). Shift it away from the edge so the dock only overlaps the panel
+  // by `panelOverlapFactor` of its thickness — `0.5` keeps the legacy overlap,
+  // lower values slide the panel clear of the bar.
+  const overlapOffset = dockThickness * (0.5 - layout.value.panelOverlapFactor)
+  const isVerticalDock = store.position === 'left' || store.position === 'right'
+
+  const marginHorizontal = frameMargin.left + frameMargin.right + (isVerticalDock ? overlapOffset : 0)
+  const marginVertical = frameMargin.top + frameMargin.bottom + (isVerticalDock ? 0 : overlapOffset)
 
   const maxWidth = windowSize.width - marginHorizontal
   const maxHeight = windowSize.height - marginVertical
-
-  const panel = context.panel
-  const store = panel.store
 
   const style: CSSProperties = {
     position: 'fixed',
@@ -136,17 +149,17 @@ const panelStyle = computed(() => {
 
   switch (store.position) {
     case 'top':
-      style.top = 0
+      style.top = `${overlapOffset}px`
       break
     case 'right':
-      style.right = 0
+      style.right = `${overlapOffset}px`
       break
     case 'left':
-      style.left = 0
+      style.left = `${overlapOffset}px`
       break
     case 'bottom':
     default:
-      style.bottom = 0
+      style.bottom = `${overlapOffset}px`
       break
   }
 

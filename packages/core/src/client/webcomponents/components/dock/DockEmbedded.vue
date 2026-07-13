@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DockLayout } from './dock-layout'
 import { useEventListener } from '@vueuse/core'
 import { onUnmounted } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
@@ -15,6 +16,8 @@ import DockPanel from './DockPanel.vue'
 
 const props = defineProps<{
   context: DocksContext
+  /** Override dock layout tunables (forwarded to the float-mode bar + panel). */
+  layout?: Partial<DockLayout>
 }>()
 
 const isDockPopupOpen = useIsDockPopupOpen()
@@ -54,13 +57,14 @@ onUnmounted(() => {
       <DockEdge :context />
     </template>
     <template v-else>
-      <Dock :context>
-        <template #default="{ dockEl, panelMargins, selected }">
+      <Dock :context :layout="props.layout">
+        <template #default="{ dockEl, panelMargins, selected, layout }">
           <DockPanel
             :context
             :selected
             :dock-el="dockEl!"
             :panel-margins="panelMargins"
+            :layout="layout"
           />
         </template>
       </Dock>
