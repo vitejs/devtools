@@ -26,7 +26,7 @@ self-contained — it does not assume you saw the audit or the other plans.
 | 012 | Split the Rolldown `get-session-summary` payload | P2 | M | — | TODO |
 | 013 | Triage the dependency-audit advisories in the Nuxt UI toolchain | P2 | M | — | TODO |
 | 014 | Characterization tests for `events-reader` + `log-cache` | P2 | M–L | 001 | TODO |
-| 015 | Consolidate triplicated `color`/`format`/`filepath` utils into `packages/ui` | P3 | S–M | 001 | TODO |
+| 015 | Consolidate triplicated `color`/`format`/`filepath` utils into `packages/ui` | P3 | S–M | 001 | DONE |
 | 016 | Break up the `RolldownEventsReader` god class | P3 | L | 014 | TODO |
 | 017 | Deduplicate the parallel Rolldown/Vite Nuxt apps into `packages/ui` | P3 | L | 015 | TODO |
 
