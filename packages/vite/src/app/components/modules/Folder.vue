@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ViteModuleDest, ViteModuleListItem } from '~/types/modules'
+import { toTree } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { toTree } from '~/utils/format'
 
 const props = defineProps<{
   root: string

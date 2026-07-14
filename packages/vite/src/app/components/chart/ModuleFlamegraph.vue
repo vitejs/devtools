@@ -2,9 +2,9 @@
 import type { TreeNodeInput } from 'nanovis'
 import type { ViteModuleListItem } from '~/types/modules'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import { normalizeTimestamp } from '@vitejs/devtools-ui/utils/format'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
 import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
-import { normalizeTimestamp } from '~/utils/format'
 
 interface FlowTransform {
   name: string

@@ -5,11 +5,11 @@ import type { FilterMatchRule } from '~/utils/icon'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import { normalizeTimestamp } from '@vitejs/devtools-ui/utils/format'
 import { useCycleList } from '@vueuse/core'
 import { Menu as VMenu } from 'floating-vue'
 import { computed, ref } from 'vue'
 import { settings } from '~/state/settings'
-import { normalizeTimestamp } from '~/utils/format'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
 
 const props = defineProps<{
