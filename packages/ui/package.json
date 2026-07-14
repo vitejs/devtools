@@ -63,5 +63,8 @@
     "unocss": "*",
     "vue": "*",
     "vue-virtual-scroller": "^3.0.0"
+  },
+  "dependencies": {
+    "pathe": "catalog:deps"
   }
 }
