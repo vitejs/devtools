@@ -83,7 +83,7 @@ async function submit() {
           </p>
         </div>
 
-        <form class="flex flex-col items-center gap-4 w-full" @submit.prevent="submit">
+        <form class="flex flex-col items-center gap-4 w-full" autocomplete="off" @submit.prevent="submit">
           <OtpInput
             ref="otp"
             v-model="code"

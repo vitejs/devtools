@@ -172,6 +172,10 @@ defineExpose({
       type="text"
       inputmode="numeric"
       autocomplete="one-time-code"
+      data-1p-ignore
+      data-lpignore="true"
+      data-bwignore="true"
+      data-form-type="other"
       :autofocus="autofocus && i === 0"
       :aria-label="`Digit ${i + 1} of ${length}`"
       :aria-invalid="invalid || undefined"
