@@ -17,6 +17,7 @@ import { hideDockWhenEmpty } from '../../core/src/node/plugins/auto-hide'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
+import { DevToolsViteUI } from '../../vite/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {
@@ -74,6 +75,7 @@ export default defineConfig({
       builtinDevTools: false,
     }),
     DevToolsRolldownUI(),
+    DevToolsViteUI(),
     UnoCSS(),
     Tracer({
       viteDevtools: true,
