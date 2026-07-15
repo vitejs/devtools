@@ -28,7 +28,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
       configFile: options.config,
       root: cwd,
       plugins: [
-        DevTools(),
+        DevTools({ cwd }),
       ],
     },
     command,

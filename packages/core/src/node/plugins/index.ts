@@ -6,6 +6,7 @@ import { createTerminalsDevframe } from '@devframes/plugin-terminals'
 import { DEVTOOLS_INSPECTOR_DOCK_ID, DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createInstallLauncher, createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { isPackageExists } from 'local-pkg'
+import { resolve } from 'pathe'
 import { version } from '../../../package.json'
 import { hideDockWhenEmpty } from './auto-hide'
 import { DevToolsBuild } from './build'
@@ -90,6 +91,8 @@ const BUILTIN_INTEGRATIONS: BuiltinIntegration[] = [
 ]
 
 export interface DevToolsOptions {
+  /** Directory to search for installed integrations. */
+  cwd?: string
   /**
    * Include the Vite builtin devtools UI.
    *
@@ -120,6 +123,7 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     builtinDevTools = true,
     build,
   } = options
+  const cwd = resolve(options.cwd ?? process.cwd())
 
   const plugins = [
     DevToolsInjection(),
@@ -137,7 +141,6 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     // package is installed, its real plugin is mounted; when absent, a
     // discovery launcher is shown that installs it on demand, then prompts a
     // restart so the next config resolution mounts the real plugin.
-    const cwd = process.cwd()
     for (const integration of BUILTIN_INTEGRATIONS) {
       if (isPackageExists(integration.pkg, { paths: [cwd] })) {
         plugins.push(...await integration.load())
