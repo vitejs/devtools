@@ -73,7 +73,7 @@ catalogs:
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
-    gunshi: ^0.29.5
+    gunshi: ^0.36.0
     h3: 2.0.1-rc.22
     local-pkg: ^1.2.1
     mlly: ^1.8.2
@@ -101,7 +101,7 @@ catalogs:
     chokidar: ^5.0.0
     eslint: ^10.7.0
     nano-staged: ^1.0.2
-    oxfmt: ^0.35.0
+    oxfmt: ^0.59.0
     oxlint: ^1.73.0
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
@@ -113,7 +113,7 @@ catalogs:
     vue-tsc: ^3.3.7
   docs:
     '@shikijs/vitepress-twoslash': ^4.3.1
-    '@voidzero-dev/vitepress-theme': ^4.8.4
+    '@voidzero-dev/vitepress-theme': ^5.0.2
     mermaid: ^11.16.0
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.18
@@ -123,8 +123,8 @@ catalogs:
     '@codemirror/lang-json': ^6.0.2
     '@floating-ui/dom': ^1.8.0
     '@humanwhocodes/momoa': ^3.3.10
-    '@json-render/core': ^0.13.0
-    '@json-render/vue': ^0.13.0
+    '@json-render/core': ^0.19.0
+    '@json-render/vue': ^0.19.0
     '@nuxt/ui': ^4.9.0
     '@shikijs/langs': ^4.3.1
     '@shikijs/themes': ^4.3.1
