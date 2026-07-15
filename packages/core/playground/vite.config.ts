@@ -18,6 +18,7 @@ import { hideDockWhenEmpty } from '../../core/src/node/plugins/auto-hide'
 // @ts-ignore ignore the type error
 import { DevToolsRolldownUI } from '../../rolldown/src/node'
 import { DevToolsViteUI } from '../../vite/src/node'
+import { DevToolsVitestUI } from '../../vitest/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {
@@ -76,6 +77,7 @@ export default defineConfig({
     }),
     DevToolsRolldownUI(),
     DevToolsViteUI(),
+    DevToolsVitestUI(),
     UnoCSS(),
     Tracer({
       viteDevtools: true,

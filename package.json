@@ -13,7 +13,7 @@
     "docs:build": "pnpm build && pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
     "storybook": "pnpm -C storybook run dev",
-    "play": "pnpm -C packages/core run play",
+    "play": "pnpm run build && pnpm -C packages/core run play",
     "play:debug": "pnpm -C packages/core run play:debug",
     "play:standalone": "pnpm -C packages/core run play:standalone",
     "example:plugin-file-explorer": "pnpm -C examples/plugin-file-explorer run play:dev",
