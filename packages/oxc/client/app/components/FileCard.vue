@@ -8,7 +8,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 获取文件图标
+// Get the file icon
 const fileIcon = computed(() => getFileIcon(props.file.filename))
 
 const rpc = useRpc()
@@ -32,7 +32,7 @@ function handleOpenInEditor() {
     </template>
 
     <div class="relative font-mono">
-      <!-- 问题列表 -->
+      <!-- Issue list -->
       <div v-if="file.lines.length > 0">
         <LineError
           v-for="lineData in file.lines"

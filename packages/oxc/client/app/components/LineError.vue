@@ -10,26 +10,26 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// 计算当前行的代码
+// Compute the code for the current line
 const currentLineCode = computed(() => {
   const lines = props.source.split('\n')
   return lines[props.lineData.line - 1] || ''
 })
 
-// 获取文件扩展名
+// Get the file extension
 const fileExt = computed(() => getFileExt(props.filename))
 
-// 计算错误标记高度
+// Compute the error marker height
 const errorHeight = computed(() => calculateErrorHeight(props.lineData.messages))
 
-// 获取排序后的标签
+// Get the sorted labels
 const sortedLabels = computed(() => {
   return props.lineData.messages
     .flatMap(m => m.labels || [])
     .sort((a, b) => a.span.column - b.span.column)
 })
 
-// 获取标签对应的消息
+// Get the message associated with a label
 function getMessageForLabel(column: number) {
   for (const message of props.lineData.messages) {
     if (message.labels) {
@@ -43,7 +43,7 @@ function getMessageForLabel(column: number) {
   return null
 }
 
-// 计算标签的垂直位置样式
+// Compute the label's vertical position style
 function getLabelVerticalStyle(labelIndex: number, baseLeft = 0) {
   const label = sortedLabels.value[labelIndex]
   if (!label) {
@@ -55,7 +55,7 @@ function getLabelVerticalStyle(labelIndex: number, baseLeft = 0) {
   }
 }
 
-// 生成标签指示器
+// Generate the label indicator
 function generateLabelIndicator(label: Label) {
   const preDashes = Math.floor((label.span.length - 1) / 2)
   const postDashes = Math.ceil((label.span.length - 1) / 2)
@@ -78,7 +78,7 @@ function severityClass(severity: string | undefined) {
 <template>
   <div class="overflow-auto">
     <div class="p-4">
-      <!-- 当前行代码 -->
+      <!-- Current line code -->
       <div class="flex gap-4 items-start">
         <span class="text-neutral-500 font-mono text-sm relative top-[3px]">{{
           lineData.line

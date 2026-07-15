@@ -12,10 +12,10 @@ const { state: session, isLoading } = useAsyncState(
   null,
 )
 
-// 判断是否显示空状态
+// Whether to show the empty state
 const showEmpty = computed(() => session.value?.logs.files.length === 0)
 
-// 计算问题总数
+// Compute the total number of issues
 const totalIssues = computed(() => {
   if (!session.value?.logs) {
     return 0
@@ -26,20 +26,20 @@ const totalIssues = computed(() => {
   )
 })
 
-// 判断是否显示摘要
+// Whether to show the summary
 const showSummary = computed(() => !!session.value?.meta.summary)
 
 const search = ref('')
 
-// 防抖的搜索值
+// Debounced search value
 const debouncedSearch = ref('')
 
-// 使用 VueUse 的 useDebounceFn 创建防抖函数
+// Create a debounce function with VueUse's useDebounceFn
 const debouncedUpdateSearch = useDebounceFn((value: string) => {
   debouncedSearch.value = value
 }, 300)
 
-// 监听搜索值变化
+// Watch for search value changes
 watch(
   search,
   newValue => {
@@ -55,23 +55,23 @@ const filteredFiles = computed(() => {
 
   const searchTerm = debouncedSearch.value.trim()
 
-  // 如果搜索词为空，返回所有文件
+  // Return all files when the search term is empty
   if (!searchTerm) {
     return session.value.logs.files
   }
 
-  // 尝试使用 picomatch 进行 glob 匹配
+  // Try glob matching with picomatch
   try {
     return session.value.logs.files.filter(file =>
       isMatch(file.filename, searchTerm, { contains: true }),
     )
   } catch {
-    // 如果 glob 模式无效，回退到简单的字符串包含匹配
+    // Fall back to simple substring matching when the glob pattern is invalid
     return session.value.logs.files.filter(file => file.filename.includes(searchTerm))
   }
 })
 
-// 判断是否显示文件列表
+// Whether to show the file list
 const showFiles = computed(() => !!filteredFiles.value && filteredFiles.value.length > 0)
 </script>
 
@@ -79,7 +79,7 @@ const showFiles = computed(() => !!filteredFiles.value && filteredFiles.value.le
   <VisualLoading v-if="isLoading" text="Loading session..." />
   <div v-else class="flex flex-col gap-4">
     <Back />
-    <!-- 摘要信息 -->
+    <!-- Summary info -->
     <SummaryCard
       v-if="showSummary && session?.meta.summary"
       :summary="session.meta.summary"

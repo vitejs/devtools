@@ -1,10 +1,10 @@
-// 获取文件扩展名
+// Get the file extension
 export function getFileExt(filename: string) {
   const ext = filename.split('.').pop()
   return ext ? `.${ext}` : ''
 }
 
-// 获取文件图标
+// Get the file icon
 export function getFileIcon(filename: string) {
   const ext = getFileExt(filename)
   switch (ext) {
@@ -35,27 +35,27 @@ export function getFileIcon(filename: string) {
   }
 }
 
-// 计算错误标记的高度
+// Compute the height of the error markers
 export function calculateErrorHeight(messages: any[]) {
   if (!messages || messages.length === 0) {
     return 0
   }
 
-  // 计算所有 labels 的最大数量
+  // Find the maximum number of labels across all messages
   const maxLabels = Math.max(...messages.map(msg => msg.labels?.length || 0))
 
-  // 每个 label 大约需要 2 行的高度（一行给指示器，一行给消息）
-  // 每行约 20px 高度，加上一些间距
+  // Each label needs roughly 2 lines of height (one for the indicator, one for the message),
+  // each line is about 20px tall, plus some spacing.
   return maxLabels > 0 ? maxLabels * 3 * 20 + 15 : 0
 }
 
-// 处理 v-html 输入，将单引号中间的内容替换为带背景色
+// Process v-html input, replacing quoted content with a background-highlighted span
 export function processLabelHtml(text: string) {
   if (!text) {
     return ''
   }
 
-  // 匹配单引号和反引号中间的内容，并替换为带背景色的 span
+  // Match content between single/back quotes and replace it with a background-highlighted span
   return text.replace(
     /['`]([^'`]+)['`]/g,
     '<span class="bg-neutral-100 dark:bg-neutral-800 px-1 py-0.5 rounded font-semibold">$1</span>',

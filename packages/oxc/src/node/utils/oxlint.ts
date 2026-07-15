@@ -16,7 +16,7 @@ export async function getOxlintVersion() {
 }
 
 export async function getOxlintConfig() {
-  // 读取当前目录下的 .oxlintrc.json 文件
+  // Read the .oxlintrc.json file in the current directory
   const configPath = resolve(cwd(), '.oxlintrc.json')
   try {
     const config = await readFile(configPath, 'utf-8')
@@ -48,13 +48,13 @@ export function execOxlintCommand(rawArgs: string[]) {
 
 export const clientDir = resolve(dirname(fileURLToPath(import.meta.url)), './client/public')
 
-// 按 filename 分组的函数
+// Group diagnostics by filename
 export async function groupByFilename(oxlintOutput: string) {
   try {
     const data = JSON.parse(oxlintOutput)
     const diagnostics = data.diagnostics || []
 
-    // 按 filename 分组
+    // Group by filename
     const grouped = diagnostics.reduce((acc: Record<string, any>, diagnostic: any) => {
       const filename = diagnostic.filename
       if (!acc[filename]) {
@@ -64,7 +64,7 @@ export async function groupByFilename(oxlintOutput: string) {
         }
       }
 
-      // 按 line 分组
+      // Group by line
       const line = diagnostic.labels?.[0]?.span?.line || 1
       if (!acc[filename].lines[line]) {
         acc[filename].lines[line] = []
@@ -74,7 +74,7 @@ export async function groupByFilename(oxlintOutput: string) {
       return acc
     }, {})
 
-    // 转换为数组格式，并将 lines 对象转换为数组，同时读取文件内容
+    // Convert to array format, turn the lines object into an array, and read each file's contents
     const result = await Promise.all(
       Object.values(grouped).map(async (file: any) => {
         let source = ''
@@ -93,7 +93,7 @@ export async function groupByFilename(oxlintOutput: string) {
               line: Number.parseInt(line),
               messages,
             }))
-            .sort((a, b) => a.line - b.line), // 按行号排序
+            .sort((a, b) => a.line - b.line), // Sort by line number
         }
       }),
     )

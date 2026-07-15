@@ -30,7 +30,7 @@ function handleOpenInEditor() {
 
 <template>
   <div class="space-y-3">
-    <!-- 标题区域 -->
+    <!-- Header area -->
     <div class="flex items-center gap-2 pb-2 border-b border-neutral-200 dark:border-neutral-800">
       <div
         class="flex items-center gap-2 px-2 py-1 rounded-md text-sm font-medium"
@@ -41,14 +41,14 @@ function handleOpenInEditor() {
       </div>
     </div>
 
-    <!-- 消息内容 -->
+    <!-- Message content -->
     <div
       v-if="message.message"
       class="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
       v-html="processLabelHtml(message.message)"
     />
 
-    <!-- 帮助信息 -->
+    <!-- Help text -->
     <div
       v-if="message.help"
       class="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded-md border border-blue-100/50 dark:border-blue-900/50"
@@ -62,9 +62,9 @@ function handleOpenInEditor() {
       </div>
     </div>
 
-    <!-- 操作按钮 -->
+    <!-- Action buttons -->
     <div class="flex items-center gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800">
-      <!-- 跳转到规则 URL -->
+      <!-- Jump to the rule URL -->
       <a
         v-if="message.url"
         :href="message.url"
@@ -75,7 +75,7 @@ function handleOpenInEditor() {
         <span>Rule details</span>
       </a>
 
-      <!-- 跳转到编辑器 -->
+      <!-- Open in editor -->
       <button
         class="flex items-center gap-1.5 cursor-pointer px-2 py-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-xs text-neutral-600 dark:text-neutral-400"
         @click="handleOpenInEditor"
