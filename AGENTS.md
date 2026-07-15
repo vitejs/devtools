@@ -18,12 +18,12 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/kit` | `@vitejs/devtools-kit` | Vite-flavored skin over `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. |
+| `packages/kit` | `@vitejs/devtools-kit` | Vite-flavored skin over `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. `createInstallLauncher` builds a discovery/install-launcher dock for an optional integration (detect via `local-pkg`, install missing packages via `nypm`, prompt a restart). |
 | `packages/core` | `@vitejs/devtools` | Vite plugin + CLI + standalone/webcomponents client for Vite DevTools itself. Calls kit's `createKitContext`, scans Vite plugins for `.devtools.setup`, and serves the dock UI. |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-rolldown/`. |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
-| `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Opt-in via `DevToolsOxc()` in the `~viteplus` category, plus a standalone CLI/client. A workspace member on the current devframe/hub APIs; its build is not wired into turbo yet (the `@nuxt/ui` client is pending a UI-stack decision), so it stays out of the build/typecheck/lint/export-snapshot gates. |
+| `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Advertised by core as a built-in install launcher in the `~viteplus` group (installed on demand), mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once present, plus a standalone CLI/client. A workspace member on the current devframe/hub APIs; its build is not wired into turbo yet (the `@nuxt/ui` client is pending a UI-stack decision), so it stays out of the build/typecheck/lint/export-snapshot gates. |
 | `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `~viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
 
@@ -62,6 +62,7 @@ flowchart TD
 - **WS server** (`packages/core/src/node/ws.ts`): RPC via `devframe/rpc/transports/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
 - **Hub-mounted Nuxt UI plugins** (rolldown, vite): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
 - **Built-in devframe plugins** (`@devframes/plugin-inspect` today; `@devframes/plugin-terminals` / `@devframes/plugin-messages`): official portable `DevframeDefinition`s mounted as built-ins by `DevTools()` via kit's `createPluginFromDevframe` (gated by `builtinDevTools`).
+- **Built-in install launchers** (`packages/core/src/node/plugins/index.ts` + kit's `createInstallLauncher`): keeps core dependency-light. For each optional integration (Rolldown / Vite / Vitest / Oxc) `DevTools()` mounts the real plugin when its package is installed, else registers a discovery launcher that installs it on demand (`nypm`) and prompts a restart. The `@vitejs/devtools-*` packages are declared as optional peer deps; their marks are vendored in `packages/core/assets` and served at `/__devtools-assets/` so a launcher icon renders before its package exists.
 
 ## Development
 
@@ -112,7 +113,7 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).
 
-`DTK` is shared between core and kit because they're sibling layers of Vite DevTools. Coordinate code numbers across both files: kit reserves `DTK0050+` for Vite-specific kit codes; core's existing codes top out below that. The hub-domain DTK codes (DTK0050–DTK0057) retired when their conditions moved upstream to `DF8100`–`DF8403`.
+`DTK` is shared between core and kit because they're sibling layers of Vite DevTools. Coordinate code numbers across both files: kit uses the `DTK0050+` range for kit-only codes (`DTK0050` = integration install failed); core's existing codes top out below that. The former hub-domain DTK codes (DTK0050–DTK0057) retired when their conditions moved upstream to `DF8100`–`DF8403`, freeing the range.
 
 Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Check the existing diagnostics file to find the next available number.
 

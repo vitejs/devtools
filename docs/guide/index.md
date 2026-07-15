@@ -10,7 +10,7 @@ Vite DevTools is a devtools framework for the Vite ecosystem. It provides shared
 
 ### Built-in integrations
 
-[DevTools for Rolldown](/rolldown/) ships in the box: build analysis, module graphs, chunks, assets, plugins, and performance insights.
+Vite DevTools stays dependency-light and advertises its built-in integrations — [Rolldown](/rolldown/) (build analysis: module graphs, chunks, assets, plugins), Vite (plugin inspector), Vitest (test UI), and [Oxc](https://github.com/vitejs/devtools/tree/main/packages/oxc) (oxlint/oxfmt) — as launchers in the dock. Click one to install its package on demand, then restart the dev server to activate it. Any integration already present in your project is mounted automatically.
 
 ### Ecosystem
 

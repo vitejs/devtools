@@ -31,6 +31,7 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0030](./DTK0030) | error | Dock Entry Not Found |
 | [DTK0031](./DTK0031) | error | Dock Entry Not a Launcher |
 | [DTK0032](./DTK0032) | error | Dock Launch Error |
+| [DTK0050](./DTK0050) | error | Integration Install Failed |
 
 Hub-side diagnostics for docks, terminals, messages, and commands live upstream in `@devframes/hub` under the `DF8xxx` range — see the [Devframe error reference](https://devfra.me/errors/).
 

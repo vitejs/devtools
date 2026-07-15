@@ -5,6 +5,7 @@ import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
+import { dirAssets } from '../dirs'
 import { getAuthHandler } from './auth-handler'
 import { diagnostics } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
@@ -89,6 +90,14 @@ export async function createDevToolsContext(
     icon: { light: 'builtin:vite-plus-core', dark: 'builtin:vite-plus-core' },
     defaultOrder: -1000,
   })
+
+  // Serve the vendored integration marks used by the built-in install
+  // launchers (`DevTools()`), so a launcher icon renders before its
+  // integration package — and that package's own served favicon — exists.
+  // Dev-mode static hosting needs a live server; skip it when the context is
+  // built without one (build mode serves statics without a server).
+  if (viteServer || mode === 'build')
+    context.views.hostStatic('/__devtools-assets/', dirAssets)
 
   // Scan Vite plugins for `devtools` setup hooks.
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
