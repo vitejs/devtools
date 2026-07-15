@@ -28,9 +28,6 @@ const outputSchema = {
 } as const
 
 export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
-  if (ctx.agent.getTool('rolldown:build-analysis'))
-    return
-
   let analysis: ReturnType<typeof createRolldownAnalysis> | undefined
   const getAnalysis = () => {
     analysis ??= createRolldownAnalysis(ctx)
@@ -40,7 +37,7 @@ export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
   ctx.agent.registerTool({
     id: 'rolldown:build-analysis',
     title: 'Rolldown build analysis',
-    description: 'Analyze a Rolldown build session and return a high-level explanation with notable insights across build time, bundle size, chunks, assets, and dependencies. Use this as the default entry point when the user asks what happened in a build or reports an unclear build problem.',
+    description: 'Analyze a Rolldown build and explain the most important findings across build time, bundle size, chunks, assets, and dependencies. Use this as the default tool for general build questions or when the cause of a build issue is unclear.',
     safety: 'read',
     tags: readOnlyTags,
     inputSchema: {
@@ -69,7 +66,7 @@ export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
   ctx.agent.registerTool({
     id: 'rolldown:build-time-analysis',
     title: 'Rolldown build time analysis',
-    description: 'Analyze where build time is spent in a Rolldown session. Returns hook breakdowns, top plugin costs, top module costs, and explanations for likely build-time bottlenecks.',
+    description: 'Show where a Rolldown build spends its time, with breakdowns by hook, plugin, and module. Use this to identify likely build-time bottlenecks.',
     safety: 'read',
     tags: [...readOnlyTags, 'performance'],
     inputSchema: {
@@ -93,7 +90,7 @@ export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
   ctx.agent.registerTool({
     id: 'rolldown:bundle-size-analysis',
     title: 'Rolldown bundle size analysis',
-    description: 'Analyze emitted asset size, initial JavaScript, large chunks, large packages, and duplicated packages in a Rolldown build session. Use this when the user asks why output is large or which dependencies contribute most to bundle size.',
+    description: 'Explain what contributes to a Rolldown build\'s output size, including initial JavaScript, large chunks, assets, packages, and duplicated dependencies. Use this to investigate unexpectedly large output or identify the biggest contributors.',
     safety: 'read',
     tags: [...readOnlyTags, 'bundle-size'],
     inputSchema: {
@@ -122,7 +119,7 @@ export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
   ctx.agent.registerTool({
     id: 'rolldown:dependency-trace',
     title: 'Rolldown dependency trace',
-    description: 'Trace why a dependency, module, package, or asset is present in a Rolldown build. Returns importer paths, matched modules, related chunks, and a concise explanation of the path that brought it into the output.',
+    description: 'Trace why a module, package, or asset appears in a Rolldown build. Follow its importer paths and related chunks to explain what brought it into the output.',
     safety: 'read',
     tags: [...readOnlyTags, 'trace'],
     inputSchema: {
@@ -174,7 +171,7 @@ export function registerRolldownAgentTools(ctx: ViteDevToolsNodeContext) {
   ctx.agent.registerTool({
     id: 'rolldown:build-comparison',
     title: 'Rolldown build comparison',
-    description: 'Compare two Rolldown build sessions and explain changes in build duration, emitted output size, assets, chunks, packages, and plugin costs. Use this when the user asks why a build got slower, larger, or changed after a commit or PR.',
+    description: 'Compare two Rolldown builds and explain meaningful changes in build time, output size, assets, chunks, packages, and plugin cost. Use this to investigate regressions or unexpected differences between builds.',
     safety: 'read',
     tags: [...readOnlyTags, 'comparison'],
     inputSchema: {

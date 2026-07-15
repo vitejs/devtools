@@ -3,5 +3,6 @@
  */
 // #region Functions
 export async function build(_) {}
+export async function mcp(_) {}
 export async function start(_) {}
 // #endregion

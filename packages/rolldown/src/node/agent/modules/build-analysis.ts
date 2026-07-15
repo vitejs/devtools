@@ -1,17 +1,22 @@
-import type { AgentAnalysisContext, AnalysisCategory, AnalysisInsight, AnalysisReport, BuildAnalysisInput } from '../context'
+import type { AgentAnalysisContext } from '../context'
+import type { AnalysisCategory, AnalysisInsight, AnalysisReport } from '../types'
 import { getPackageMeta } from '../../rpc/functions/rolldown-get-packages'
 import {
+  clampLimit,
   createSessionReport,
   createSessionStats,
   getAssetScope,
   getChunkSize,
-} from '../context'
-import {
-  clampLimit,
   percentage,
   sortByNumberDesc,
   sumBy,
 } from '../utils'
+
+export interface BuildAnalysisInput {
+  session?: string
+  issue?: 'general' | 'slow-build' | 'large-bundle' | 'unexpected-dependency' | 'chunking' | 'dependency-duplication'
+  limit?: number
+}
 
 function getIssueCategory(issue: BuildAnalysisInput['issue']): AnalysisCategory | undefined {
   if (issue === 'slow-build')

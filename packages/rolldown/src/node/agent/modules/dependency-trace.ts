@@ -1,8 +1,19 @@
 import type { PackageInfo, RolldownAssetInfo } from '../../../shared/types'
-import type { AgentAnalysisContext, AnalysisReport, DependencyTraceInput } from '../context'
+import type { AgentAnalysisContext } from '../context'
+import type { AnalysisReport } from '../types'
 import { getPackageMeta } from '../../rpc/functions/rolldown-get-packages'
-import { createSessionReport, getChunkSize } from '../context'
-import { clampDepth, clampLimit } from '../utils'
+import { clampDepth, clampLimit, createSessionReport, getChunkSize } from '../utils'
+
+export interface DependencyTraceInput {
+  session?: string
+  target: {
+    type: 'module' | 'package' | 'asset'
+    id: string
+  }
+  direction?: 'importers' | 'imports' | 'both'
+  maxDepth?: number
+  limit?: number
+}
 
 type ModuleGraph = Map<string, {
   imports?: Array<{ module_id: string }>

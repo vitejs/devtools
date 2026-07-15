@@ -1,15 +1,49 @@
-import type { AgentAnalysisContext, AnalysisInsight, AnalysisReport, BuildTimeAnalysisInput } from '../context'
-import {
-  createSessionReport,
-  createSessionStats,
-  getTopModuleCosts,
-} from '../context'
+import type { ModuleBuildMetrics } from '../../../shared/types'
+import type { AgentAnalysisContext } from '../context'
+import type { AnalysisInsight, AnalysisReport, AssetSessionReader } from '../types'
 import {
   clampLimit,
+  createSessionReport,
+  createSessionStats,
   percentage,
   sortByNumberDesc,
   sumBy,
 } from '../utils'
+
+export interface BuildTimeAnalysisInput {
+  session?: string
+  limit?: number
+}
+
+interface ModuleCost {
+  id: string
+  totalDuration: number
+  resolveDuration: number
+  loadDuration: number
+  transformDuration: number
+}
+
+function getModuleCost(id: string, metrics: ModuleBuildMetrics | undefined): ModuleCost {
+  const resolveDuration = sumBy(metrics?.resolve_ids ?? [], item => item.duration)
+  const loadDuration = sumBy(metrics?.loads ?? [], item => item.duration)
+  const transformDuration = sumBy(metrics?.transforms ?? [], item => item.duration)
+
+  return {
+    id,
+    totalDuration: resolveDuration + loadDuration + transformDuration,
+    resolveDuration,
+    loadDuration,
+    transformDuration,
+  }
+}
+
+function getTopModuleCosts(reader: AssetSessionReader, limit: number) {
+  return sortByNumberDesc(
+    Array.from(reader.manager.modules.entries())
+      .map(([id, module]) => getModuleCost(id, module.build_metrics)),
+    item => item.totalDuration,
+  ).slice(0, limit)
+}
 
 export function createBuildTimeAnalysis(context: AgentAnalysisContext) {
   const { manager, resolveSession } = context

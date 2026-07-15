@@ -8,6 +8,9 @@ export interface BuildOptions {
   outDir: string;
   base: string;
 }
+export interface McpOptions {
+  root?: string;
+}
 export interface StartOptions {
   root?: string;
   config?: string;
@@ -19,5 +22,6 @@ export interface StartOptions {
 
 // #region Functions
 export declare function build(_: BuildOptions): Promise<void>;
+export declare function mcp(_: McpOptions): Promise<void>;
 export declare function start(_: StartOptions): Promise<void>;
 // #endregion

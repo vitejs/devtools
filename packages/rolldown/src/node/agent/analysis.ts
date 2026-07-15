@@ -7,14 +7,24 @@ import { createBundleSizeAnalysis } from './modules/bundle-size-analysis'
 import { createDependencyTrace } from './modules/dependency-trace'
 
 export type {
+  BuildAnalysisInput,
+} from './modules/build-analysis'
+export type {
+  BuildComparisonInput,
+} from './modules/build-comparison'
+export type {
+  BuildTimeAnalysisInput,
+} from './modules/build-time-analysis'
+export type {
+  BundleSizeAnalysisInput,
+} from './modules/bundle-size-analysis'
+export type {
+  DependencyTraceInput,
+} from './modules/dependency-trace'
+export type {
   AnalysisInsight,
   AnalysisReport,
-  BuildAnalysisInput,
-  BuildComparisonInput,
-  BuildTimeAnalysisInput,
-  BundleSizeAnalysisInput,
-  DependencyTraceInput,
-} from './context'
+} from './types'
 
 export function createRolldownAnalysis(context: ViteDevToolsNodeContext) {
   const analysisContext = createAnalysisContext(context)

@@ -1,11 +1,13 @@
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import { registerRolldownAgentTools } from './tools'
 
-export const rolldownAgent = {
-  namespace: 'rolldown',
-  setup(ctx: ViteDevToolsNodeContext) {
-    registerRolldownAgentTools(ctx)
-  },
-} as const
+export function DevToolsRolldownAgent(): PluginWithDevTools {
+  return {
+    name: 'vite:devtools:rolldown-agent',
+    devtools: {
+      setup: registerRolldownAgentTools,
+    },
+  }
+}
 
 export { registerRolldownAgentTools } from './tools'

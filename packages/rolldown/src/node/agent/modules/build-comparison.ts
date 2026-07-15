@@ -1,7 +1,14 @@
-import type { AgentAnalysisContext, AnalysisInsight, AnalysisReport, BuildComparisonInput } from '../context'
+import type { AgentAnalysisContext } from '../context'
+import type { AnalysisInsight, AnalysisReport } from '../types'
 import { createSessionCompareDetails } from '../../rpc/functions/rolldown-get-session-compare-details'
-import { createEmptyReport, createSessionStats, SCHEMA_VERSION } from '../context'
-import { clampLimit } from '../utils'
+import { SCHEMA_VERSION } from '../types'
+import { clampLimit, createEmptyReport, createSessionStats } from '../utils'
+
+export interface BuildComparisonInput {
+  baseSession: string
+  currentSession: string
+  limit?: number
+}
 
 export function createBuildComparison(context: AgentAnalysisContext) {
   const { manager, listSessions } = context

@@ -99,16 +99,21 @@ function createViteDevToolsMcpDefinition(options: McpOptions) {
   return defineDevframe({
     id: 'vite-devtools',
     name: 'Vite DevTools',
+    packageName: packageJson.name,
     version: packageJson.version,
+    description: packageJson.description,
+    homepage: packageJson.homepage,
     async setup(ctx) {
+      const { DevToolsRolldownAgent } = await import('@vitejs/devtools-rolldown/node/agent')
       const { startStandaloneDevTools } = await import('./standalone')
-      const { registerBuiltinAgents } = await import('./agents')
 
       const { context } = await startStandaloneDevTools({
         cwd: options.root,
         builtinDevTools: false,
+        plugins: [
+          DevToolsRolldownAgent(),
+        ],
       })
-      await registerBuiltinAgents(context)
 
       mirrorAgentSurface(ctx, context)
     },

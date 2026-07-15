@@ -81,4 +81,29 @@ describe('createDevToolsContext capabilities gating', () => {
 
     expect(setup).toHaveBeenCalledTimes(1)
   })
+
+  it('registers agent tools contributed by configured plugins', async () => {
+    const plugin: Plugin = {
+      name: 'test-agent-provider',
+      devtools: {
+        setup(ctx) {
+          ctx.agent.registerTool({
+            id: 'test:agent-tool',
+            title: 'Test agent tool',
+            description: 'Agent tool contributed by a configured Vite plugin.',
+            safety: 'read',
+            inputSchema: {
+              type: 'object',
+              additionalProperties: false,
+            },
+            handler: async () => ({ result: 'ok' }),
+          })
+        },
+      },
+    }
+
+    const context = await createDevToolsContext(createConfig([plugin], 'build'))
+
+    expect(context.agent.getTool('test:agent-tool')).toBeDefined()
+  })
 })

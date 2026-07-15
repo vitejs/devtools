@@ -1,17 +1,22 @@
-import type { AgentAnalysisContext, AnalysisInsight, AnalysisReport, BundleSizeAnalysisInput } from '../context'
+import type { AgentAnalysisContext } from '../context'
+import type { AnalysisInsight, AnalysisReport } from '../types'
 import { getPackageMeta } from '../../rpc/functions/rolldown-get-packages'
 import {
+  clampLimit,
   createSessionReport,
   createSessionStats,
   getAssetScope,
   getChunkSize,
-} from '../context'
-import {
-  clampLimit,
   percentage,
   sortByNumberDesc,
   sumBy,
 } from '../utils'
+
+export interface BundleSizeAnalysisInput {
+  session?: string
+  scope?: 'all' | 'initial' | 'async' | 'assets'
+  limit?: number
+}
 
 export function createBundleSizeAnalysis(context: AgentAnalysisContext) {
   const { manager, resolveSession } = context
