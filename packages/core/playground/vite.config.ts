@@ -1,8 +1,5 @@
 import process from 'node:process'
-import { createInspectDevframe } from '@devframes/plugin-inspect'
-import { createMessagesDevframe } from '@devframes/plugin-messages'
-import { createTerminalsDevframe } from '@devframes/plugin-terminals'
-import { createPluginFromDevframe, createSimpleClientScript } from '@vitejs/devtools-kit/node'
+import { createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
@@ -13,7 +10,6 @@ import { A11yCheckerPlugin } from '../../../examples/plugin-a11y-checker/src/nod
 import { GitUIPlugin } from '../../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../core/src'
 import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
-import { hideDockWhenEmpty } from '../../core/src/node/plugins/auto-hide'
 import { DevToolsOxc } from '../../oxc/src/vite'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
@@ -39,30 +35,6 @@ export default defineConfig({
   plugins: [
     VueRouter(),
     Vue(),
-    ...(() => {
-      // Mirror the shipped `DevTools()` mounts (the playground runs with
-      // `builtinDevTools: false`, so it re-creates them by hand): terminals
-      // and messages auto-hide from the dock bar while empty.
-      const terminalsDevframe = createTerminalsDevframe()
-      const messagesDevframe = createMessagesDevframe()
-      return [
-        createPluginFromDevframe(terminalsDevframe, {
-          dock: { category: '~builtin' },
-          setup(ctx) {
-            hideDockWhenEmpty(ctx, terminalsDevframe.id, () => ctx.terminals.sessions.size === 0)
-          },
-        }),
-        createPluginFromDevframe(messagesDevframe, {
-          dock: { category: '~builtin' },
-          setup(ctx) {
-            hideDockWhenEmpty(ctx, messagesDevframe.id, () => ctx.messages.entries.size === 0)
-          },
-        }),
-      ]
-    })(),
-    createPluginFromDevframe(createInspectDevframe(), {
-      dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
-    }),
     {
       name: 'build-css',
       handleHotUpdate({ file }) {

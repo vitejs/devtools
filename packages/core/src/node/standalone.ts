@@ -23,21 +23,21 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
   } = options
 
   const { resolveConfig } = await import('vite')
+  const standalonePlugins = await DevTools()
   const resolved = await resolveConfig(
     {
       configFile: options.config,
       root: cwd,
-      plugins: [
-        DevTools(),
-      ],
+      plugins: standalonePlugins,
     },
     command,
     mode,
   )
 
+  const standalonePluginNames = new Set(standalonePlugins.map(plugin => plugin.name))
   dedupeVitePlugins(
     resolved.plugins as Plugin[],
-    plugin => plugin.name?.startsWith('vite:devtools'),
+    plugin => standalonePluginNames.has(plugin.name),
   )
 
   const context = await createDevToolsContext(resolved)
