@@ -62,6 +62,8 @@
     "@devframes/plugin-terminals": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-rolldown": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/devtools-vitest": "workspace:*",
     "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "devframe": "catalog:deps",
@@ -101,7 +103,7 @@
     "fast-string-width": "3.0.2",
     "fast-wrap-ansi": "0.2.0",
     "fuse.js": "7.3.0",
-    "get-port-please": "3.2.0",
+    "get-port-please": "catalog:deps",
     "iframe-pane": "1.1.0",
     "sisteransi": "1.0.5",
     "zod": "4.3.6"

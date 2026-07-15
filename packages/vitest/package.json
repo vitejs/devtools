@@ -1,0 +1,52 @@
+{
+  "name": "@vitejs/devtools-vitest",
+  "type": "module",
+  "version": "0.4.1",
+  "description": "DevTools for Vitest",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/vitest",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vitest",
+    "devtools"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./dirs": "./dist/dirs.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist",
+    "public"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "pnpm build"
+  },
+  "peerDependencies": {
+    "vitest": "*"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
+    "get-port-please": "catalog:deps",
+    "local-pkg": "catalog:deps",
+    "nostics": "catalog:deps",
+    "nypm": "catalog:deps"
+  },
+  "devDependencies": {
+    "tsdown": "catalog:build"
+  }
+}

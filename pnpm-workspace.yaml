@@ -68,10 +68,13 @@ catalogs:
     devframe: ^0.6.0
     diff: ^9.0.0
     envinfo: ^7.21.0
+    get-port-please: ^3.2.0
     h3: 2.0.1-rc.22
+    local-pkg: ^1.2.1
     mlly: ^1.8.2
     mrmime: ^2.0.1
     nostics: ^1.1.4
+    nypm: ^0.6.6
     obug: ^2.1.3
     p-limit: ^7.3.0
     pathe: ^2.0.3

@@ -55,6 +55,15 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     // @ts-ignore ignore the type error
     plugins.push(await import('@vitejs/devtools-rolldown').then(m => m.DevToolsRolldownUI()))
 
+    // Vite and Vitest join the same `~viteplus` dock group as Rolldown.
+    // Vitest is a slim launcher that only appears when the project uses Vitest.
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-ignore ignore the type error
+    plugins.push(...[await import('@vitejs/devtools-vite').then(m => m.DevToolsViteUI())].flat(Infinity))
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-ignore ignore the type error
+    plugins.push(await import('@vitejs/devtools-vitest').then(m => m.DevToolsVitestUI()))
+
     // Terminals, messages, and the inspector are first-party tooling, so they
     // live in the `~builtin` dock category — alongside the built-in Settings
     // dock — rather than the `~viteplus` group (which collects integrations

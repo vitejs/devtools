@@ -23,6 +23,7 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-rolldown/`. |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
+| `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `~viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
 
 Meta-introspection ("DevTools for the DevTools") is provided by the official upstream `@devframes/plugin-inspect`, mounted as a built-in via `createPluginFromDevframe` (replaces the former `packages/self-inspect`).
@@ -36,9 +37,10 @@ flowchart TD
   hub --> devframe
   kit --> hub
   core --> kit
-  core --> rolldown & vite
+  core --> rolldown & vite & vitest
   rolldown --> kit & ui
   vite --> kit & ui
+  vitest --> kit
   webext --> core
 ```
 
@@ -103,7 +105,8 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 |--------|-----------|-----------------|
 | `DTK` | `packages/kit` + `packages/core` (shared codespace, Vite-side) | `packages/kit/src/node/diagnostics.ts`, `packages/core/src/node/diagnostics.ts` |
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
-| `VDT` | `packages/vite` (reserved) | — |
+| `VDT` | `packages/vite` | `packages/vite/src/node/diagnostics.ts` |
+| `VTDT` | `packages/vitest` | `packages/vitest/src/node/diagnostics.ts` |
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).
 

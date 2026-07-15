@@ -39,6 +39,12 @@
         "dist/**"
       ]
     },
+    "@vitejs/devtools-vitest#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@vitejs/devtools-webext#build": {
       "outputLogs": "new-only",
       "outputs": [
