@@ -6,7 +6,7 @@ import { oxcDevframe, OXC_DEVTOOLS_BASE } from '../node/devframe'
 
 export const mainCommand = define({
   name: 'main',
-  description: 'Start devtools-oxc ui',
+  description: 'Start oxc-devtools ui',
   run: async () => {
     // Spin up the devframe-powered dev server (h3 + WebSocket RPC + the SPA).
     // We drive it directly from gunshi rather than devframe's `createCli` so the

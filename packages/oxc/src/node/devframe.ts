@@ -28,7 +28,7 @@ export const oxcDevframe = defineDevframe({
   icon: `${OXC_DEVTOOLS_BASE}favicon.svg`,
   basePath: OXC_DEVTOOLS_BASE,
   cli: {
-    command: 'devtools-oxc',
+    command: 'oxc-devtools',
     // Serve the prebuilt Nuxt SPA when it exists (packaged builds); in client
     // dev mode the Nuxt dev server owns the UI, so leave it unset.
     distDir: existsSync(clientPublicDir) ? clientPublicDir : undefined,

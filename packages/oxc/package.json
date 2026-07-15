@@ -26,7 +26,7 @@
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
   "bin": {
-    "devtools-oxc": "./bin/devtools-oxc.mjs"
+    "oxc-devtools": "./bin/oxc-devtools.mjs"
   },
   "files": [
     "bin",
