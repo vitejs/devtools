@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
+import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
+import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRpc } from '#imports'
+
+const ENABLE_DEVTOOLS_SNIPPET = `export default defineConfig({
+  build: {
+    rolldownOptions: {
+      devtools: {}
+    }
+  }
+})`
+
+const { copy, copied } = useClipboard({ source: ENABLE_DEVTOOLS_SNIPPET })
 
 const sessionMode = ref<'list' | 'compare'>('list')
 
@@ -50,9 +62,26 @@ function selectSession(session: BuildInfo) {
     <p v-if="sessions.length" op50>
       {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
     </p>
-    <p v-else op50>
-      No sessions yet, run a build to get started.
-    </p>
+    <div v-else flex="~ col gap-3" items-center max-w-140>
+      <p m0 op50 text-center>
+        No sessions yet.
+        <br>
+        Enable devtools output in your Rolldown config, then run a build:
+      </p>
+      <div relative w-full>
+        <pre m0 p3 pr10 rounded-lg border="~ base" bg-code font-mono text-sm of-auto text-left><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
+        <DisplayIconButton
+          absolute top2 right2
+          title="Copy snippet"
+          class-icon="i-ph-copy-duotone"
+          :active="copied"
+          @click="copy()"
+        />
+      </div>
+      <p m0 op40 text-sm text-center>
+        See <a href="https://github.com/vitejs/devtools/blob/main/docs/errors/RDDT0001.md" target="_blank" rel="noopener" hover="op100 underline">RDDT0001</a> for details.
+      </p>
+    </div>
     <div relative flex="~ col gap3 items-center">
       <PanelSessionSelector
         :session-mode="sessionMode"

@@ -29,6 +29,7 @@
     "devtools-oxc": "./bin/devtools-oxc.mjs"
   },
   "files": [
+    "bin",
     "dist"
   ],
   "scripts": {

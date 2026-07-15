@@ -51,6 +51,7 @@
     "@json-render/vue": "catalog:frontend",
     "@nuxt/devtools": "catalog:devtools",
     "@nuxt/eslint": "catalog:devtools",
+    "@nuxt/icon": "catalog:build",
     "@types/chrome": "catalog:types",
     "@types/connect": "catalog:types",
     "@types/d3": "catalog:types",
