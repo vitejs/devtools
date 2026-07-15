@@ -2,6 +2,7 @@
 import type { DevToolsViewLauncher, DevToolsViewLauncherStatus } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed } from 'vue'
+import Button from '../display/Button.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
 const props = defineProps<{
@@ -42,13 +43,16 @@ const buttonText = computed(() => {
       {{ entry.launcher.title }}
     </h1>
     <p>{{ entry.launcher.description }}</p>
-    <button
-      class="bg-lime6 px4 py1 rounded hover:bg-lime7 transition-all duration-300 flex gap-2 items-center disabled:bg-gray6! disabled:pointer-events-none"
+    <Button
+      variant="primary"
+      :loading="status === 'loading'"
       :disabled="status !== 'idle'"
       @click="onLaunch"
     >
-      <div :class="iconsMap[status]" />
-      <div>{{ buttonText }}</div>
-    </button>
+      <template #icon>
+        <div class="w-4.5 h-4.5" :class="iconsMap[status]" />
+      </template>
+      {{ buttonText }}
+    </Button>
   </div>
 </template>

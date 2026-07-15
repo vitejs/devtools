@@ -2,29 +2,15 @@
 import type { SideNavItem } from '../composables/nav'
 import { computed } from 'vue'
 import { NuxtLink } from '#components'
-import { toggleDark } from '../composables/dark'
 import { sideNavItems } from '../composables/nav'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   items?: SideNavItem[]
-  showDarkModeToggle?: boolean
-}>(), {
-  showDarkModeToggle: true,
-})
+}>()
 
 const items = computed<SideNavItem[]>(() => {
   const navItems = props.items ?? sideNavItems.value
-  if (!props.showDarkModeToggle) {
-    return navItems
-  }
-  return [
-    ...navItems,
-    {
-      title: 'Toggle dark mode',
-      icon: 'i-ph-sun-duotone dark:i-ph-moon-duotone',
-      action: toggleDark,
-    },
-  ]
+  return navItems
 })
 </script>
 

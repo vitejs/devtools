@@ -13,16 +13,19 @@ import config from '../uno.config'
 
 const SRC_DIR = fileURLToPath(new URL('..', import.meta.url))
 const GLOBS = ['components/**/*.{ts,vue}']
+// Exclude Storybook stories: their story-only utility classes must not leak
+// into the shipped shadow-DOM stylesheet.
+const IGNORE = ['**/*.stories.*']
 const USER_STYLE = join(SRC_DIR, 'style.css')
 const GENERATED_CSS = join(SRC_DIR, '.generated/css.ts')
 const MINIFY = true
 
 export async function buildCSS() {
   const reset = await fs.readFile(resolveModulePath('@unocss/reset/tailwind.css'), 'utf-8')
-  const xtermCss = await fs.readFile(resolveModulePath('@xterm/xterm/css/xterm.css'), 'utf-8')
   const files = await glob(GLOBS, {
     cwd: SRC_DIR,
     absolute: true,
+    ignore: IGNORE,
   })
 
   const generator = await createGenerator(config)
@@ -46,7 +49,6 @@ export async function buildCSS() {
   const unoResult = await generator.generate(tokens)
   const input = [
     reset,
-    xtermCss,
     userStyle.toString(),
     unoResult.css,
   ].join('\n')

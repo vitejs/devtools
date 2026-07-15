@@ -5,8 +5,8 @@ import type {
   SessionCompareDetails,
   SessionCompareMetricValue,
 } from '~~/shared/types'
+import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed, ref, watch } from 'vue'
-import { bytesToHumanSize } from '~/utils/format'
 
 type CompareTab = 'overview' | 'plugins' | 'chunks' | 'assets' | 'packages'
 type DiffMode = 'changed' | 'added' | 'removed'

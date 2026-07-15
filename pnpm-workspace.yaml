@@ -19,6 +19,7 @@ packages:
   - examples/*
   - docs
   - e2e
+  - storybook
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
@@ -37,35 +38,37 @@ overrides:
   vite: 'catalog:build'
 catalogs:
   build:
-    '@antfu/ni': ^30.1.0
+    '@antfu/ni': ^30.2.0
     '@nuxt/kit': ^4.4.8
     '@nuxt/vite-builder': ^4.4.8
-    '@unocss/nuxt': ^66.7.2
+    '@unocss/nuxt': ^66.7.5
     '@vitejs/plugin-vue': ^6.0.7
     '@vueuse/nuxt': ^14.3.0
     esbuild: ^0.28.1
     magic-string: ^0.30.21
     nitropack: ^2.13.4
     nuxt: ^4.4.8
-    rolldown: ^1.1.3
-    tsdown: ^0.22.3
-    tsx: ^4.22.4
-    turbo: ^2.10.0
-    unocss: ^66.7.2
+    rolldown: ^1.1.5
+    tsdown: ^0.22.4
+    tsx: ^4.23.0
+    turbo: ^2.10.4
+    unocss: ^66.7.5
     unplugin-vue: ^7.2.0
     unrun: ^0.3.1
-    vite: ^8.1.0
+    vite: ^8.1.3
   deps:
-    '@devframes/hub': ^0.5.4
+    '@devframes/hub': ^0.6.0
+    '@devframes/plugin-inspect': ^0.6.0
+    '@devframes/plugin-messages': ^0.6.0
+    '@devframes/plugin-terminals': ^0.6.0
     '@modelcontextprotocol/sdk': ^1.29.0
-    '@rolldown/debug': ^1.1.3
+    '@rolldown/debug': ^1.1.5
     actionspack: ^0.1.5
     birpc: ^4.0.0
     cac: ^7.0.0
-    devframe: ^0.5.4
+    devframe: ^0.6.0
     diff: ^9.0.0
     envinfo: ^7.21.0
-    get-port-please: ^3.2.0
     h3: 2.0.1-rc.22
     mlly: ^1.8.2
     mrmime: ^2.0.1
@@ -74,53 +77,46 @@ catalogs:
     p-limit: ^7.3.0
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
-    publint: ^0.3.21
-    structured-clone-es: ^2.0.0
     tinyexec: ^1.2.4
     tinyglobby: ^0.2.17
-    unconfig: ^7.5.0
     unstorage: ^1.17.5
-    vue: ^3.5.38
+    vue: ^3.5.39
     webext-bridge: ^6.0.1
-    ws: ^8.21.0
   devtools:
     '@antfu/eslint-config': ^9.1.0
     '@nuxt/devtools': ^3.2.4
     '@nuxt/eslint': ^1.16.0
-    '@typescript-eslint/utils': ^8.62.0
-    '@unocss/eslint-config': ^66.7.2
-    '@unocss/preset-web-fonts': ^66.7.2
+    '@typescript-eslint/utils': ^8.63.0
+    '@unocss/eslint-config': ^66.7.5
+    '@unocss/preset-web-fonts': ^66.7.5
     axe-core: ^4.12.1
     bumpp: ^11.1.0
     chokidar: ^5.0.0
-    eslint: ^10.5.0
+    eslint: ^10.6.0
     nano-staged: ^1.0.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.2.0
-    solid-js: ^1.9.13
+    solid-js: ^1.9.14
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.0-beta.3
     vite-plugin-solid: ^2.11.12
-    vue-tsc: ^3.3.5
+    vue-tsc: ^3.3.7
   docs:
-    '@shikijs/vitepress-twoslash': ^4.2.0
+    '@shikijs/vitepress-twoslash': ^4.3.1
     '@voidzero-dev/vitepress-theme': ^4.8.4
-    mermaid: ^11.15.0
+    mermaid: ^11.16.0
     twoslash: ^0.3.9
-    vitepress: ^2.0.0-alpha.17
+    vitepress: ^2.0.0-alpha.18
     vitepress-plugin-group-icons: ^1.7.5
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.7.6
     '@json-render/core': 0.13.0
     '@json-render/vue': 0.13.0
-    '@visual-json/vue': ^0.4.0
     '@vueuse/components': ^14.3.0
     '@vueuse/core': ^14.3.0
     '@vueuse/router': ^14.3.0
-    '@xterm/addon-fit': ^0.11.0
-    '@xterm/xterm': ^6.0.0
     comlink: ^4.4.2
     d3: ^7.9.0
     d3-hierarchy: ^3.1.2
@@ -129,7 +125,8 @@ catalogs:
     dompurify: ^3.4.11
     floating-vue: ^5.2.2
     fuse.js: ^7.4.2
-    idb-keyval: ^6.2.5
+    idb-keyval: ^6.3.0
+    iframe-pane: ^1.1.0
     modern-monaco: ^0.4.2
     nanovis: ^1.0.0
     react: ^19.2.7
@@ -140,37 +137,41 @@ catalogs:
     vite-hot-client: ^2.2.0
     vue-virtual-scroller: ^3.0.4
   icons:
-    '@iconify-json/carbon': ^1.2.23
+    '@iconify-json/carbon': ^1.2.24
     '@iconify-json/catppuccin': ^1.2.17
     '@iconify-json/codicon': ^1.2.63
-    '@iconify-json/fluent': ^1.2.51
+    '@iconify-json/fluent': ^1.2.52
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.11
-    '@iconify-json/material-icon-theme': ^1.2.68
-    '@iconify-json/octicon': ^1.2.28
+    '@iconify-json/material-icon-theme': ^1.2.69
+    '@iconify-json/octicon': ^1.2.29
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.87
+    '@iconify-json/simple-icons': ^1.2.89
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.35
   inlined:
     '@antfu/utils': ^9.3.0
-    '@clack/prompts': ^1.6.0
+    '@clack/prompts': ^1.7.0
     human-id: ^4.2.0
   playground:
     vite-plugin-vue-tracer: ^1.4.0
     vue-router: ^5.1.0
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
-    langium: ^4.3.0
+    langium: ^4.3.1
     semver: ^7.8.5
+  storybook:
+    '@storybook/addon-docs': ^10.4.6
+    '@storybook/vue3-vite': ^10.4.6
+    storybook: ^10.4.6
   testing:
     playwright-core: ^1.61.1
-    tsnapi: ^0.3.3
-    vitest: ^4.1.9
+    tsnapi: ^1.0.0
+    vitest: ^4.1.10
   types:
-    '@types/chrome': ^0.2.0
+    '@types/chrome': ^0.2.2
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import { computed, h, markRaw, useTemplateRef } from 'vue'
+import { computed, h, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockGroupSidebar from './DockGroupSidebar.vue'
@@ -18,7 +18,7 @@ const context = props.context
 const store = context.panel.store
 
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
+const panes = useIframePanes(viewsContainer, context.panel)
 
 const isVertical = computed(() => store.position === 'left' || store.position === 'right')
 
@@ -44,6 +44,12 @@ const positionLabels: Record<string, string> = {
   right: 'Right',
   bottom: 'Bottom',
   left: 'Left',
+}
+const positionDropdownPlacement: Record<string, 'top' | 'bottom' | 'left' | 'right'> = {
+  top: 'bottom',
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
 }
 
 function switchPosition(pos: 'top' | 'right' | 'bottom' | 'left') {
@@ -74,6 +80,7 @@ function togglePositionDropdown() {
   setEdgePositionDropdown({
     el: positionButton.value,
     gap: 6,
+    placement: positionDropdownPlacement[store.position],
     content: () => h('div', { class: 'flex flex-col gap-0.5 min-w-28' }, positions.map(pos =>
       h('button', {
         class: [
@@ -263,18 +270,20 @@ const contentClass = computed(() => {
         :selected-id="selectedEntry?.id ?? null"
       />
       <div class="relative flex-1 min-w-0 h-full">
-        <ViewEntry
-          v-if="hasPanelContent && viewsContainer && selectedEntry"
-          :key="selectedEntry.id"
-          :context
-          :entry="selectedEntry"
-          :persisted-doms="persistedDoms"
-        />
-        <div
-          id="vite-devtools-views-container"
-          ref="viewsContainer"
-          class="absolute inset-0 pointer-events-none"
-        />
+        <slot name="view" :entry="selectedEntry">
+          <ViewEntry
+            v-if="hasPanelContent && panes && selectedEntry"
+            :key="selectedEntry.id"
+            :context
+            :entry="selectedEntry"
+            :panes="panes"
+          />
+          <div
+            id="vite-devtools-views-container"
+            ref="viewsContainer"
+            class="absolute inset-0 pointer-events-none"
+          />
+        </slot>
       </div>
     </div>
   </div>

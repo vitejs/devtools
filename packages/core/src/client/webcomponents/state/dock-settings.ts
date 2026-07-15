@@ -1,6 +1,7 @@
 import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { Immutable } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
+import { DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import { evaluateWhen } from 'devframe/utils/when'
 import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 
@@ -103,6 +104,11 @@ export function docksGroupByCategories(
     if (entry.when && whenContext && !evaluateWhen(entry.when, whenContext) && !includeHidden)
       continue
     if (entry.when && !whenContext && entry.when === 'false' && !includeHidden)
+      continue
+    // The Devframe Inspector is hidden by default; it only joins the dock bar
+    // once opted into via Settings → Advanced. The settings management view
+    // (`includeHidden`) still lists it so users can discover the toggle.
+    if (!includeHidden && entry.id === DEVTOOLS_INSPECTOR_DOCK_ID && !settings.showDevframeInspector)
       continue
     if (!includeHidden && docksHidden.includes(entry.id))
       continue

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DockLayout } from './dock-layout'
 import { useEventListener } from '@vueuse/core'
-import { onUnmounted, ref } from 'vue'
+import { onUnmounted } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { closeDockPopup, useIsDockPopupOpen } from '../../state/popup'
+import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
 import CommandPalette from '../command-palette/CommandPalette.vue'
 import Confirm from '../display/Confirm.vue'
 import ToastOverlay from '../display/ToastOverlay.vue'
@@ -14,16 +16,15 @@ import DockPanel from './DockPanel.vue'
 
 const props = defineProps<{
   context: DocksContext
+  /** Override dock layout tunables (forwarded to the float-mode bar + panel). */
+  layout?: Partial<DockLayout>
 }>()
 
 const isDockPopupOpen = useIsDockPopupOpen()
 const settings = sharedStateToRef(props.context.docks.settings)
 
 // Force float mode when unauthorized, regardless of store setting
-const isRpcTrusted = ref(props.context.rpc.isTrusted)
-props.context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
-  isRpcTrusted.value = isTrusted
-})
+const isRpcTrusted = useIsRpcTrusted(props.context)
 
 // Close the dock when clicking outside of it
 useEventListener(window, 'mousedown', (e: MouseEvent) => {
@@ -56,13 +57,14 @@ onUnmounted(() => {
       <DockEdge :context />
     </template>
     <template v-else>
-      <Dock :context>
-        <template #default="{ dockEl, panelMargins, selected }">
+      <Dock :context :layout="props.layout">
+        <template #default="{ dockEl, panelMargins, selected, layout }">
           <DockPanel
             :context
             :selected
             :dock-el="dockEl!"
             :panel-margins="panelMargins"
+            :layout="layout"
           />
         </template>
       </Dock>

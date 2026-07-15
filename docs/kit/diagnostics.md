@@ -75,7 +75,7 @@ Prefixes used by the in-tree packages:
 | `DF` | `devframe` |
 | `DTK` | `@vitejs/devtools` |
 | `RDDT` | `@vitejs/devtools-rolldown` |
-| `VDT` | `@vitejs/devtools-vite` (reserved) |
+| `VDT` | `@vitejs/devtools-vite` |
 
 Each definition supports `why` (string or function returning a string) and an optional `fix` (string or function). A `docsBase` on the definition group auto-attaches a per-code URL to every emitted diagnostic.
 

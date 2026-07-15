@@ -1,6 +1,4 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import type { SharedStatePatch } from 'devframe/utils/shared-state'
-import { anonymousAuth } from './anonymous/auth'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -10,8 +8,6 @@ import { messagesList } from './internal/messages-list'
 import { messagesRemove } from './internal/messages-remove'
 import { messagesUpdate } from './internal/messages-update'
 import { rpcServerList } from './internal/rpc-server-list'
-import { terminalsList } from './internal/terminals-list'
-import { terminalsRead } from './internal/terminals-read'
 import { openInEditor } from './public/open-in-editor'
 import { openInFinder } from './public/open-in-finder'
 
@@ -21,9 +17,9 @@ export const builtinPublicRpcDeclarations = [
   openInFinder,
 ] as const
 
-export const builtinAnonymousRpcDeclarations = [
-  anonymousAuth,
-] as const
+// The interactive OTP auth handshake (`anonymous:devframe:auth*`) and
+// `devframe:auth:revoke` are registered at runtime from devframe's
+// `createInteractiveAuth` recipe — see `node/auth-handler.ts`.
 
 // @keep-sorted
 export const builtinInternalRpcDeclarations = [
@@ -36,13 +32,10 @@ export const builtinInternalRpcDeclarations = [
   messagesRemove,
   messagesUpdate,
   rpcServerList,
-  terminalsList,
-  terminalsRead,
 ] as const
 
 export const builtinRpcDeclarations = [
   ...builtinPublicRpcDeclarations,
-  ...builtinAnonymousRpcDeclarations,
   ...builtinInternalRpcDeclarations,
 ] as const
 
@@ -60,14 +53,10 @@ declare module '@vitejs/devtools-kit' {
   export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
 
   // @keep-sorted
-  export interface DevToolsRpcClientFunctions {
-    'devframe:auth:revoked': () => Promise<void>
-    'devframe:messages:updated': () => Promise<void>
-    'devframe:rpc:client-state:patch': (key: string, patches: SharedStatePatch[], syncId: string) => Promise<void>
-    'devframe:rpc:client-state:updated': (key: string, fullState: any, syncId: string) => Promise<void>
-
-    'devframe:terminals:updated': () => Promise<void>
-  }
+  // `devframe:auth:revoked` and `devframe:rpc:client-state:*` are declared
+  // upstream by devframe; `devframe:messages:updated` / `devframe:terminals:updated`
+  // by `@devframes/hub`. We only declare what is Vite-DevTools-specific here.
+  export interface DevToolsRpcClientFunctions {}
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {

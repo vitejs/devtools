@@ -101,13 +101,13 @@ Open your app in the browser; the DevTools panel appears in the corner.
 
 #### Projects without an HTML entry
 
-The embedded client is normally injected through Vite's `transformIndexHtml` hook. For apps that start from a JS entry instead, import the client injector from a browser entry (`main.ts`, `entry.client.ts`) and skip server-only or shared SSR files:
+For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead:
 
 ```ts twoslash
 import '@vitejs/devtools/client/inject'
 ```
 
-Use this only when there's no HTML entry — combining it with HTML injection mounts the client twice.
+See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.
 
 #### Building with the app
 

@@ -6,10 +6,10 @@ const theme = computed(() => isDark.value ? 'white' : 'black')
 </script>
 
 <template>
-  <div class="flex gap-2 group" w140 p4 relative>
+  <div class="flex gap-2 group" h-15 p4 relative>
     <div op10 group-hover="op100" transition duration-800 class="absolute -bottom-[10px] -left-[20px] w-[80px] h-[80px] bg-linear-to-b from-[#61d9ff] to-transparent blur-[30px]" />
     <div op10 group-hover="op100" transition duration-800 class="absolute -top-[10px] left-300px w-[80px] h-[80px] bg-[linear-gradient(270deg,_#7a23a1,_#715ebde6_60%,_#715ebde6,_#bd34fe00)] blur-[30px]" />
-    <svg width="979" height="89" viewBox="0 0 979 89" fill="none" xmlns="http://www.w3.org/2000/svg" pointer-events-none>
+    <svg viewBox="0 0 979 89" fill="none" xmlns="http://www.w3.org/2000/svg" pointer-events-none>
       <path d="M328.999 86.823C327.739 88.427 325.161 87.535 325.161 85.4973V65.9264C325.161 63.5532 323.238 61.63 320.865 61.63H299.256C297.509 61.63 296.49 59.6537 297.509 58.2339L311.715 38.3438C313.749 35.5001 311.715 31.5474 308.217 31.5474H282.067C280.319 31.5474 279.3 29.5711 280.319 28.1512L298.736 2.36497C299.141 1.80031 299.792 1.46478 300.484 1.46478H355.366C357.113 1.46478 358.132 3.4411 357.114 4.86094L342.907 24.751C340.873 27.5948 342.907 31.5474 346.405 31.5474H368.014C369.806 31.5474 370.813 33.6137 369.704 35.0254L329.003 86.8271L328.999 86.823Z" fill="#9135FF" />
       <mask id="mask0_logo" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="279" y="1" width="91" height="87">
         <path d="M328.801 86.8227C327.541 88.4266 324.963 87.5346 324.963 85.4969V65.9261C324.963 63.5528 323.04 61.6297 320.666 61.6297H299.058C297.311 61.6297 296.292 59.6534 297.311 58.2335L311.517 38.3435C313.551 35.4997 311.517 31.5471 308.019 31.5471H281.868C280.121 31.5471 279.102 29.5708 280.121 28.1509L298.538 2.36463C298.943 1.79997 299.594 1.46445 300.285 1.46445H355.168C356.915 1.46445 357.934 3.44077 356.915 4.86061L342.709 24.7507C340.675 27.5944 342.709 31.5471 346.207 31.5471H367.816C369.608 31.5471 370.615 33.6134 369.506 35.0251L328.805 86.8268L328.801 86.8227Z" fill="black" />

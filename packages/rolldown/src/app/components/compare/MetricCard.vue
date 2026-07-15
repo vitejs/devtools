@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { bytesToHumanSize } from '~/utils/format'
 
 const props = defineProps<{
   name: string

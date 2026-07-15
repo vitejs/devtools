@@ -18,6 +18,7 @@ const PANEL_MAX_SIZE = 100
 const POPUP_MIN_WIDTH = 320
 const POPUP_MIN_HEIGHT = 240
 const MAIN_FRAME_ACTION_HANDLER_KEY = '__VITE_DEVTOOLS_TRIGGER_DOCK_ACTION__'
+const DEVFRAME_CONNECTION_META_KEY = '__DEVFRAME_CONNECTION_META__'
 
 const popupWindow = shallowRef<Window | null>(null)
 const isPopupOpen = shallowRef(false)
@@ -178,6 +179,8 @@ async function mountStandaloneApp(context: DocksContext, popup: Window) {
   popup.document.title = 'Vite DevTools'
   popup.document.head?.appendChild(baseStyle)
   popup.document.body.textContent = ''
+
+  ;(popup as Window & { [DEVFRAME_CONNECTION_META_KEY]?: unknown })[DEVFRAME_CONNECTION_META_KEY] = context.rpc.connectionMeta
 
   const appRoot = popup.document.createElement('div')
   appRoot.id = 'vite-devtools-popup-root'

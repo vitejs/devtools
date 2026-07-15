@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleDest, ModuleListItem, SessionContext } from '~~/shared/types'
+import { toTree } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { toTree } from '../../utils/format'
 import DisplayVirtualTree from '../display/VirtualTree.vue'
 
 const props = defineProps<{

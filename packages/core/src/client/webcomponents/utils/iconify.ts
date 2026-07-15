@@ -14,6 +14,11 @@ export async function getIconifySvg(collection: string, icon: string) {
       getIconifySvgMap.set(id, svg)
       return svg
     })
+    .catch((err) => {
+      // Don't cache failures — drop the entry so a later render can retry.
+      getIconifySvgMap.delete(id)
+      throw err
+    })
   getIconifySvgMap.set(id, promise)
   return promise
 

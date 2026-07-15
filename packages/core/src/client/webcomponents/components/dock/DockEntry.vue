@@ -80,7 +80,7 @@ useEventListener('pointerdown', () => {
       :class="[
         isVertical ? 'rotate-270' : '',
         isDimmed ? 'op50 saturate-0' : '',
-        isSelected ? 'scale-120 text-purple' : '',
+        isSelected ? 'scale-120 text-primary' : '',
         isAction ? 'bg-[#8881] hover:bg-[#8882] rounded-full' : 'rounded-xl',
       ]"
       class="flex items-center justify-center p1.5 hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative outline-none"

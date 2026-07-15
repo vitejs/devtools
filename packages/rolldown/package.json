@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rolldown",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "description": "DevTools for Rolldown",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -38,23 +38,11 @@
     "@floating-ui/dom": "catalog:frontend",
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
-    "birpc": "catalog:deps",
-    "cac": "catalog:deps",
     "d3-shape": "catalog:frontend",
     "diff": "catalog:deps",
-    "get-port-please": "catalog:deps",
-    "h3": "catalog:deps",
-    "mlly": "catalog:deps",
-    "mrmime": "catalog:deps",
     "nostics": "catalog:deps",
-    "p-limit": "catalog:deps",
     "pathe": "catalog:deps",
-    "publint": "catalog:deps",
-    "tinyglobby": "catalog:deps",
-    "unconfig": "catalog:deps",
-    "unstorage": "catalog:deps",
-    "vue-virtual-scroller": "catalog:frontend",
-    "ws": "catalog:deps"
+    "vue-virtual-scroller": "catalog:frontend"
   },
   "devDependencies": {
     "@types/splitpanes": "catalog:types",

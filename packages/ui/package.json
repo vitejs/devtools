@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-ui",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "private": true,
   "description": "DevTools UI for Vite",
   "author": "VoidZero Inc.",
@@ -54,9 +54,17 @@
   "module": "./src/index.ts",
   "peerDependencies": {
     "@vueuse/core": "*",
+    "d3-hierarchy": "*",
+    "d3-shape": "*",
+    "floating-vue": "*",
+    "fuse.js": "*",
+    "nanovis": "*",
     "nuxt": "*",
     "unocss": "*",
     "vue": "*",
     "vue-virtual-scroller": "^3.0.0"
+  },
+  "dependencies": {
+    "pathe": "catalog:deps"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.4.1",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -45,18 +45,17 @@
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
-    "birpc": "catalog:deps",
     "devframe": "catalog:deps",
     "mlly": "catalog:deps",
-    "nostics": "catalog:deps",
-    "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "tinyexec": "catalog:deps"
+    "nostics": "catalog:deps"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
+  },
+  "inlinedDependencies": {
+    "human-id": "4.2.0"
   }
 }

@@ -41,7 +41,7 @@ export function createClientMessagesClient(rpc: DevToolsRpcClient): DevToolsMess
       flush()
   })
 
-  return {
+  const client: DevToolsMessagesClient = {
     add(input: DevToolsMessageEntryInput): Promise<DevToolsMessageHandle> {
       return enqueue(async () => {
         let entry = await rpc.call('devtoolskit:internal:messages:add', input)
@@ -66,5 +66,12 @@ export function createClientMessagesClient(rpc: DevToolsRpcClient): DevToolsMess
     clear(): Promise<void> {
       return enqueue(() => rpc.call('devtoolskit:internal:messages:clear'))
     },
+    // Level shortcuts — `messages.info('...')` is `add({ message, level: 'info', ...extra })`.
+    info: (message, extra) => client.add({ ...extra, message, level: 'info' }),
+    warn: (message, extra) => client.add({ ...extra, message, level: 'warn' }),
+    error: (message, extra) => client.add({ ...extra, message, level: 'error' }),
+    success: (message, extra) => client.add({ ...extra, message, level: 'success' }),
+    debug: (message, extra) => client.add({ ...extra, message, level: 'debug' }),
   }
+  return client
 }

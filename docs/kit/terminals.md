@@ -4,7 +4,7 @@ outline: deep
 
 # Terminals & Subprocesses
 
-DevTools Kit's terminal host lets a plugin spawn and manage child processes. Output streams in real time to an xterm.js panel inside DevTools.
+DevTools Kit's terminal host lets a plugin spawn and manage child processes. Sessions are aggregated by the hub and surfaced in the Terminals panel (the official [`@devframes/plugin-terminals`](https://devfra.me), mounted as a built-in), which streams their output in real time.
 
 ## Starting a child process
 
@@ -158,4 +158,4 @@ for (const session of ctx.terminals.sessions.values()) {
 }
 ```
 
-`ctx.terminals.sessions` is a live `Map<string, DevToolsTerminalSession>` — useful for diagnostics, testing, and custom terminal UIs that mirror the built-in panel.
+`ctx.terminals.sessions` is a live `Map<string, DevToolsTerminalSession>` — useful for diagnostics, testing, and custom terminal UIs that mirror the Terminals panel.

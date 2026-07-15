@@ -5,6 +5,7 @@ import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
+import { getAuthHandler } from './auth-handler'
 import { diagnostics } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 
@@ -38,6 +39,11 @@ export async function createDevToolsContext(
     mode,
     host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
     builtinRpcDeclarations,
+    // The terminals + messages panels are provided by the official
+    // `@devframes/plugin-terminals` / `@devframes/plugin-messages` devframes
+    // (mounted in `DevTools()`), so suppress the hub's built-in `~terminals` /
+    // `~messages` docks to avoid duplicates. The `~settings` built-in stays.
+    builtinDocks: { terminals: false, messages: false },
     viteConfig,
     viteServer,
   })) as ViteDevToolsNodeContext
@@ -46,8 +52,16 @@ export async function createDevToolsContext(
   // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
   context.diagnostics.register(diagnostics)
 
-  // Vite-specific built-in server commands.
   const rpcHost = context.rpc as RpcFunctionsHost
+
+  // Interactive OTP auth, provided by devframe's `createInteractiveAuth`
+  // recipe: registers the `anonymous:devframe:auth` / `:exchange` handshake
+  // and the `devframe:auth:revoke` self-revoke. The resolver gate and the
+  // one-time-code banner are wired up in `createWsServer` (same handler).
+  for (const fn of getAuthHandler(context).rpcFunctions)
+    rpcHost.register(fn)
+
+  // Vite-specific built-in server commands.
   context.commands.register({
     id: 'vite:open-in-editor',
     title: 'Open in Editor',

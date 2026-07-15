@@ -1,6 +1,6 @@
 import type { PropType, VNode } from 'vue'
 import type { FloatingPopoverProps } from '../../state/floating-tooltip'
-import { onClickOutside, useDebounceFn } from '@vueuse/core'
+import { onClickOutside, useDebounceFn, useEventListener } from '@vueuse/core'
 import { defineComponent, h, ref, useTemplateRef, watch } from 'vue'
 
 // @unocss-include
@@ -25,6 +25,11 @@ const FloatingPopoverComponent = defineComponent({
     const panel = useTemplateRef<HTMLDivElement>('panel')
     const el = ref(props.item?.el)
     const renderCounter = ref(0)
+
+    useEventListener(window, 'resize', () => {
+      if (el.value)
+        renderCounter.value++
+    })
 
     const clearThrottled = useDebounceFn(() => {
       if (props.item?.el == null)
@@ -87,7 +92,9 @@ const FloatingPopoverComponent = defineComponent({
 
       const vw = window.innerWidth
       const vh = window.innerHeight
-      if (rect.left < DETECT_MARGIN)
+      if (props.item?.placement)
+        align = props.item.placement
+      else if (rect.left < DETECT_MARGIN)
         align = 'right'
       else if (rect.left + rect.width > vw - DETECT_MARGIN)
         align = 'left'

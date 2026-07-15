@@ -2,11 +2,13 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
+import type { DockLayout } from './dock-layout'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
-import { computed, markRaw, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
+import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
+import { DEFAULT_DOCK_LAYOUT, resolveDockAnchor } from './dock-layout'
 import { openDockContextMenu } from './DockContextMenu'
 import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
@@ -16,10 +18,14 @@ const props = defineProps<{
   selected: DevToolsDockEntry | null
   dockEl?: HTMLDivElement
   panelMargins: { left: number, top: number, right: number, bottom: number }
+  /** Resolved dock layout. Governs the panel↔dock overlap. */
+  layout?: DockLayout
 }>()
 
 const context = props.context
 const { selected, panelMargins } = toRefs(props)
+
+const layout = computed(() => props.layout ?? DEFAULT_DOCK_LAYOUT)
 
 // When the open entry belongs to a group, surface its siblings in a sidebar.
 const activeGroup = computed(() => getEntryGroup(context.docks.entries, selected.value))
@@ -30,11 +36,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max)
-}
+const panes = useIframePanes(viewsContainer, context.panel)
 
 function openContextMenu(e: MouseEvent) {
   if (!dockPanel.value)
@@ -52,37 +54,18 @@ function openContextMenu(e: MouseEvent) {
 }
 
 const anchorPos = computed(() => {
-  const halfWidth = (props.dockEl?.clientWidth || 0) / 2
-  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
-
   const store = context.panel.store
 
-  const left = store.left * windowSize.width / 100
-  const top = store.top * windowSize.height / 100
-
-  switch (store.position) {
-    case 'top':
-      return {
-        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
-        top: panelMargins.value.top + halfHeight,
-      }
-    case 'right':
-      return {
-        left: windowSize.width - panelMargins.value.right - halfHeight,
-        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
-      }
-    case 'left':
-      return {
-        left: panelMargins.value.left + halfHeight,
-        top: clamp(top, halfWidth + panelMargins.value.top, windowSize.height - halfWidth - panelMargins.value.bottom),
-      }
-    case 'bottom':
-    default:
-      return {
-        left: clamp(left, halfWidth + panelMargins.value.left, windowSize.width - halfWidth - panelMargins.value.right),
-        top: windowSize.height - panelMargins.value.bottom - halfHeight,
-      }
-  }
+  return resolveDockAnchor({
+    edge: store.position,
+    leftPercent: store.left,
+    topPercent: store.top,
+    viewportWidth: windowSize.width,
+    viewportHeight: windowSize.height,
+    dockWidth: props.dockEl?.clientWidth || 0,
+    dockHeight: props.dockEl?.clientHeight || 0,
+    margins: panelMargins.value,
+  })
 })
 
 let _timer: ReturnType<typeof setTimeout> | null = null
@@ -103,7 +86,8 @@ const panelStyle = computed(() => {
   // eslint-disable-next-line no-sequences, ts/no-unused-expressions
   mousePosition.x, mousePosition.y
 
-  const halfHeight = (props.dockEl?.clientHeight || 0) / 2
+  const dockThickness = props.dockEl?.clientHeight || 0
+  const halfHeight = dockThickness * (1 - layout.value.panelOverlapFactor)
 
   const frameMargin = {
     left: panelMargins.value.left + halfHeight,
@@ -112,14 +96,21 @@ const panelStyle = computed(() => {
     bottom: panelMargins.value.bottom + halfHeight,
   }
 
-  const marginHorizontal = frameMargin.left + frameMargin.right
-  const marginVertical = frameMargin.top + frameMargin.bottom
+  const panel = context.panel
+  const store = panel.store
+
+  // The panel's docked edge is otherwise pinned to the dock's center (a 50%
+  // overlap). Shift it away from the edge so the dock only overlaps the panel
+  // by `panelOverlapFactor` of its thickness — `0.5` keeps the legacy overlap,
+  // lower values slide the panel clear of the bar.
+  const overlapOffset = dockThickness * (0.5 - layout.value.panelOverlapFactor)
+  const isVerticalDock = store.position === 'left' || store.position === 'right'
+
+  const marginHorizontal = frameMargin.left + frameMargin.right + (isVerticalDock ? overlapOffset : 0)
+  const marginVertical = frameMargin.top + frameMargin.bottom + (isVerticalDock ? 0 : overlapOffset)
 
   const maxWidth = windowSize.width - marginHorizontal
   const maxHeight = windowSize.height - marginVertical
-
-  const panel = context.panel
-  const store = panel.store
 
   const style: CSSProperties = {
     position: 'fixed',
@@ -158,17 +149,17 @@ const panelStyle = computed(() => {
 
   switch (store.position) {
     case 'top':
-      style.top = 0
+      style.top = `${overlapOffset}px`
       break
     case 'right':
-      style.right = 0
+      style.right = `${overlapOffset}px`
       break
     case 'left':
-      style.left = 0
+      style.left = `${overlapOffset}px`
       break
     case 'bottom':
     default:
-      style.bottom = 0
+      style.bottom = `${overlapOffset}px`
       break
   }
 
@@ -197,22 +188,24 @@ onMounted(() => {
         :selected-id="selected?.id ?? null"
       />
       <div class="relative flex-1 min-w-0 h-full">
-        <ViewEntry
-          v-if="selected && viewsContainer"
-          :key="selected.id"
-          :context
-          :entry="selected"
-          :persisted-doms="persistedDoms"
-          :iframe-style="{
-            border: 'none',
-            borderRadius: '0.5rem',
-          }"
-        />
-        <div
-          id="vite-devtools-views-container"
-          ref="viewsContainer"
-          class="absolute inset-0 pointer-events-none"
-        />
+        <slot name="view" :entry="selected">
+          <ViewEntry
+            v-if="selected && panes"
+            :key="selected.id"
+            :context
+            :entry="selected"
+            :panes="panes"
+            :iframe-style="{
+              border: 'none',
+              borderRadius: '0.5rem',
+            }"
+          />
+          <div
+            id="vite-devtools-views-container"
+            ref="viewsContainer"
+            class="absolute inset-0 pointer-events-none"
+          />
+        </slot>
       </div>
     </div>
   </div>

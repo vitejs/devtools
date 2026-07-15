@@ -8,9 +8,9 @@ import type {
   SessionContext,
 } from '~~/shared/types'
 import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
+import { normalizeTimestamp } from '@vitejs/devtools-ui/utils/format'
 import { Flamegraph, normalizeTreeNode } from 'nanovis'
 import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
-import { normalizeTimestamp } from '~/utils/format'
 
 const props = defineProps<{
   info: ModuleInfo

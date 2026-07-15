@@ -45,14 +45,14 @@ function hideTooltip() {
     >
       <DockIcon :icon="group.icon" class="w-5 h-5 flex-none" />
     </div>
-    <div class="w-5 h-px bg-base my0.5" />
+    <div class="w-8 h-px border-t border-base my0.5" />
 
     <!-- Member icons -->
     <button
       v-for="member of members"
       :key="member.id"
       class="relative flex items-center justify-center w-8 h-8 rounded-lg transition"
-      :class="selectedId === member.id ? 'text-purple bg-active' : 'op60 hover:op100 hover:bg-active'"
+      :class="selectedId === member.id ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
       @pointerenter="showTooltip($event, member.title)"
       @pointerleave="hideTooltip"
       @pointerdown="hideTooltip"

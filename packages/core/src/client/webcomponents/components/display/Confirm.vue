@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useTemplateRef, watchPostEffect } from 'vue'
 import { ConfirmPromise } from '../../state/confirm'
+import Button from './Button.vue'
 
-const confirmButton = useTemplateRef<HTMLButtonElement>('confirmButton')
+const confirmButton = useTemplateRef<InstanceType<typeof Button>>('confirmButton')
 
 watchPostEffect(() => {
   confirmButton.value?.focus({ preventScroll: true })
@@ -42,21 +43,12 @@ function resolveConfirm(resolve: (value: boolean) => void, value: boolean) {
         </p>
 
         <div class="flex items-center justify-end gap-2 mt-6">
-          <button
-            type="button"
-            class="px-3 py-1.5 rounded text-xs op60 hover:op100 hover:bg-gray/10 transition-colors"
-            @click="resolveConfirm(resolve, false)"
-          >
+          <Button variant="ghost" size="sm" @click="resolveConfirm(resolve, false)">
             {{ options.cancelText ?? 'Cancel' }}
-          </button>
-          <button
-            ref="confirmButton"
-            type="button"
-            class="px-3 py-1.5 rounded text-xs transition-colors bg-primary/15 text-primary hover:bg-primary/25"
-            @click="resolveConfirm(resolve, true)"
-          >
+          </Button>
+          <Button ref="confirmButton" variant="soft" size="sm" @click="resolveConfirm(resolve, true)">
             {{ options.confirmText ?? 'OK' }}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

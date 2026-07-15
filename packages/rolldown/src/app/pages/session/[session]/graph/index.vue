@@ -2,11 +2,13 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import { clearUndefined, toArray } from '@antfu/utils'
+import DataPathSelector from '@vitejs/devtools-ui/components/DataPathSelector.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/DataSearchPanel.vue'
+import { useGraphPathManager } from '@vitejs/devtools-ui/composables/graph-path-selector'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from '#app/composables/router'
-import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
@@ -138,7 +140,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
-          <DataPathSelector :session="session" :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
+          <DataPathSelector :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
             <template #list="{ select, data }">
               <ModulesFlatList
                 v-if="data?.length"

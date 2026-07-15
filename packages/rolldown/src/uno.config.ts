@@ -26,7 +26,7 @@ export default defineConfig({
       },
       webFonts: {
         processors: createLocalFontProcessor({
-          fontAssetsDir: fileURLToPath(new URL('./app/public/fonts', import.meta.url)),
+          fontAssetsDir: fileURLToPath(new URL('./public/fonts', import.meta.url)),
           fontServeBaseUrl: './fonts',
         }),
       },

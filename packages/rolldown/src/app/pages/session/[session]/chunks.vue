@@ -2,8 +2,12 @@
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { ChunkChartInfo, ChunkChartNode } from '~/types/chart'
+import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/ChartNavBreadcrumb.vue'
+import DataPathSelector from '@vitejs/devtools-ui/components/DataPathSelector.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/DataSearchPanel.vue'
 import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import { useGraphPathManager } from '@vitejs/devtools-ui/composables/graph-path-selector'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Flamegraph, Sunburst, Treemap } from 'nanovis'
@@ -11,7 +15,6 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useRpc } from '#imports'
 import ChartTreemap from '~/components/chart/Treemap.vue'
 import { useChartGraph } from '~/composables/chart'
-import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 
 const props = defineProps<{
@@ -209,7 +212,7 @@ watch(() => settings.value.chunkViewType, () => {
     <div sticky left-4 right-4 top-4 z-panel-nav p-4>
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
-          <DataPathSelector :session="session" :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
+          <DataPathSelector :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
             <template #list="{ select, data }">
               <ChunksFlatList
                 :session="session"

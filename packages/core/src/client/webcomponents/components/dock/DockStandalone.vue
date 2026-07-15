@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { computed, markRaw, ref, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef, watch } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
+import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
 import CommandPalette from '../command-palette/CommandPalette.vue'
 import Confirm from '../display/Confirm.vue'
 import ToastOverlay from '../display/ToastOverlay.vue'
@@ -19,11 +20,9 @@ const props = defineProps<{
 
 const context = props.context
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
+const panes = useIframePanes(viewsContainer, context.panel)
 
-const isRpcTrusted = ref(context.rpc.isTrusted)
-context.rpc.events.on('rpc:is-trusted:updated', (isTrusted) => {
-  isRpcTrusted.value = isTrusted
+const isRpcTrusted = useIsRpcTrusted(context, (isTrusted) => {
   if (!isTrusted) {
     context.docks.switchEntry(null)
   }
@@ -80,11 +79,11 @@ function switchEntry(id: string | undefined) {
       <div class="relative flex-1 min-w-0 min-h-0">
         <div id="vite-devtools-views-container" ref="viewsContainer" class="pointer-events-auto" />
         <ViewEntry
-          v-if="context.docks.selected && viewsContainer"
+          v-if="context.docks.selected && panes"
           :key="context.docks.selected.id"
           :entry="context.docks.selected"
           :context
-          :persisted-doms="persistedDoms"
+          :panes="panes"
         />
       </div>
     </div>

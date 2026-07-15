@@ -6,7 +6,7 @@ const props = defineProps<{
   list: T[]
 }>()
 
-const count = defineModel('count', {
+const count = defineModel<number>('count', {
   default: 20,
 })
 

@@ -149,7 +149,7 @@ ctx.docks.register({
 
 ### Client script
 
-The action script runs in the user's browser:
+The action script runs in the user's browser. It receives the [client context](/kit/client-context), extended with the dock-scoped `current` (entry state and events) and `messages`:
 
 ```ts
 // src/devtools-action.ts

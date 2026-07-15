@@ -8,7 +8,8 @@ export const border = 'var(--jr-border, rgba(128,128,128,0.2))'
 export const borderSubtle = 'var(--jr-border, rgba(128,128,128,0.1))'
 export const borderMuted = 'var(--jr-border, rgba(128,128,128,0.08))'
 export const borderInput = 'var(--jr-border, rgba(128,128,128,0.3))'
-export const primary = 'var(--jr-primary, #3b82f6)'
+// Keep in sync with the DevTools theme primary (packages/ui/src/unocss/theme.ts).
+export const primary = 'var(--jr-primary, #6b84fd)'
 export const bg = 'var(--jr-bg, inherit)'
 
 // --- Semantic palette ---

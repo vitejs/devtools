@@ -5,6 +5,7 @@ export interface FloatingPopoverProps {
   el: HTMLElement
   content: string | (() => VNode | undefined)
   gap?: number
+  placement?: 'top' | 'bottom' | 'left' | 'right'
 }
 
 const tooltip = shallowRef<FloatingPopoverProps | null>(null)

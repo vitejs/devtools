@@ -29,7 +29,7 @@ const environmentMetadata = computed(() => state.value?.envInfo)
 const metadata = computed(() => [
   {
     id: 'project',
-    icon: 'i-material-icon-theme:vite',
+    icon: 'i-ph-briefcase-duotone',
     rows: [
       {
         id: 'root',
@@ -39,7 +39,7 @@ const metadata = computed(() => [
       },
       {
         id: 'base',
-        icon: 'i-ph-folder-duotone',
+        icon: 'i-ph-folder-simple-user-duotone',
         label: 'Base',
         value: projectMetadata.value?.base,
       },
@@ -53,23 +53,23 @@ const metadata = computed(() => [
   },
   {
     id: 'system',
-    icon: 'i-ph:desktop',
+    icon: 'i-ph-desktop-tower-duotone',
     rows: [
       {
         id: 'os',
-        icon: 'i-ph-folder-duotone',
+        icon: 'i-ph-app-window-duotone',
         label: 'OS',
         value: environmentMetadata.value?.os,
       },
       {
         id: 'cpu',
-        icon: 'i-ph:cpu',
+        icon: 'i-ph:cpu-duotone',
         label: 'CPU',
         value: environmentMetadata.value?.cpu,
       },
       {
         id: 'memory',
-        icon: 'i-ph:memory',
+        icon: 'i-ph:memory-duotone',
         label: 'Memory',
         value: environmentMetadata.value?.memory,
       },
@@ -77,35 +77,35 @@ const metadata = computed(() => [
   },
   {
     id: 'runtime',
-    icon: 'i-system-uicons:version',
+    icon: 'i-ph-stack-duotone',
     rows: [
       {
         id: 'node',
-        icon: 'i-ri:nodejs-fill',
+        icon: 'i-catppuccin-package-json icon-catppuccin',
         label: 'Node',
         value: environmentMetadata.value?.node,
       },
       {
         id: 'bun',
-        icon: 'i-catppuccin:bun',
+        icon: 'i-catppuccin:bun icon-catppuccin',
         label: 'Bun',
         value: environmentMetadata.value?.bun,
       },
       {
         id: 'npm',
-        icon: 'i-ri:npmjs-fill',
+        icon: 'i-catppuccin:npm icon-catppuccin',
         label: 'NPM',
         value: environmentMetadata.value?.npm,
       },
       {
         id: 'pnpm',
-        icon: 'i-catppuccin:pnpm',
+        icon: 'i-catppuccin:pnpm icon-catppuccin',
         label: 'PNPM',
         value: environmentMetadata.value?.pnpm,
       },
       {
         id: 'yarn',
-        icon: 'i-catppuccin:yarn',
+        icon: 'i-catppuccin:yarn icon-catppuccin',
         label: 'Yarn',
         value: environmentMetadata.value?.yarn,
       },
