@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { EditorView, basicSetup } from 'codemirror'
-import { Compartment, EditorState } from '@codemirror/state'
-import { json } from '@codemirror/lang-json'
+import type * as Monaco from 'modern-monaco/editor-core'
 import { parse, iterator } from '@humanwhocodes/momoa'
 import type { MemberNode, ObjectNode, StringNode } from '@humanwhocodes/momoa'
-import { vitesseLight, vitesseDark } from 'codemirror-theme-vitesse'
 import { useAsyncState } from '@vueuse/core'
+import { applyMonacoTheme, createReadOnlyMonacoEditor, getMonaco } from '~/composables/monaco'
 
 const rpc = useRpc()
 
@@ -42,8 +40,10 @@ const isDark = computed(
 const editorRef = ref<HTMLDivElement | null>(null)
 const currentDocUrl = ref(DEFAULT_DOC_URL)
 const iframeLoading = ref(true)
-const themeCompartment = new Compartment()
-let view: InstanceType<typeof EditorView> | null = null
+let monaco: typeof Monaco | null = null
+let editor: Monaco.editor.IStandaloneCodeEditor | null = null
+let model: Monaco.editor.ITextModel | null = null
+let cursorDisposable: Monaco.IDisposable | null = null
 
 interface RuleRange {
   key: string
@@ -190,9 +190,12 @@ function getDocUrlAtCursor(pos: number, content: string): string {
   return DEFAULT_DOC_URL
 }
 
-function updateDocUrlFromCursor(editorView: InstanceType<typeof EditorView>) {
-  const content = editorView.state.doc.toString()
-  const pos = editorView.state.selection.main.head
+function updateDocUrlFromCursor() {
+  if (!editor || !model) return
+  const position = editor.getPosition()
+  if (!position) return
+  const content = model.getValue()
+  const pos = model.getOffsetAt(position)
   const url = getDocUrlAtCursor(pos, content)
   if (currentDocUrl.value !== url) {
     currentDocUrl.value = url
@@ -202,47 +205,43 @@ function updateDocUrlFromCursor(editorView: InstanceType<typeof EditorView>) {
 
 const initialized = ref(false)
 
-function initEditor() {
+async function initEditor() {
   if (!editorRef.value || initialized.value || !isReady.value) return
 
   const content = configData.value ?? '{}'
   initConfigRanges(content)
 
-  view = new EditorView({
-    parent: editorRef.value,
-    doc: content,
-    extensions: [
-      basicSetup,
-      json(),
-      EditorState.readOnly.of(true),
-      EditorView.editable.of(false),
-      themeCompartment.of(isDark.value ? vitesseDark : vitesseLight),
-      EditorView.updateListener.of(update => {
-        if (update.selectionSet) {
-          updateDocUrlFromCursor(update.view)
-        }
-      }),
-      EditorView.domEventHandlers({
-        click: (_event, editorView) => {
-          updateDocUrlFromCursor(editorView)
-        },
-      }),
-    ],
-  })
-
-  updateDocUrlFromCursor(view)
+  // Claim the slot synchronously so the reactive watcher can't kick off a
+  // second init while `getMonaco` is awaited.
   initialized.value = true
+
+  monaco = await getMonaco(isDark.value)
+
+  if (!editorRef.value) return
+
+  model = monaco.editor.createModel(content, 'json')
+  editor = createReadOnlyMonacoEditor(monaco, editorRef.value)
+  editor.setModel(model)
+
+  applyMonacoTheme(monaco, isDark.value)
+
+  cursorDisposable = editor.onDidChangeCursorPosition(() => updateDocUrlFromCursor())
+
+  updateDocUrlFromCursor()
 }
 
 watch([editorRef, isReady], () => initEditor(), { immediate: true })
 
 watch(isDark, dark => {
-  view?.dispatch({ effects: themeCompartment.reconfigure(dark ? vitesseDark : vitesseLight) })
+  if (monaco) applyMonacoTheme(monaco, dark)
 })
 
 onBeforeUnmount(() => {
-  view?.destroy()
-  view = null
+  cursorDisposable?.dispose()
+  editor?.dispose()
+  model?.dispose()
+  editor = null
+  model = null
 })
 </script>
 
@@ -255,7 +254,7 @@ onBeforeUnmount(() => {
       <div
         class="flex-1 min-h-0 min-w-0 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-700"
       >
-        <div ref="editorRef" class="h-full min-h-[200px] lg:min-h-0 overflow-auto" />
+        <div ref="editorRef" class="h-full min-h-[200px] lg:min-h-0" />
       </div>
       <div class="flex-1 min-h-[200px] lg:min-h-0 min-w-0 relative">
         <iframe
@@ -289,7 +288,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-.cm-editor {
-  height: 100%;
+.monaco-editor,
+.monaco-editor .overflow-guard {
+  width: 100% !important;
+  height: 100% !important;
 }
 </style>

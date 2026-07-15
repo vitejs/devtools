@@ -54,7 +54,6 @@
     "tinyexec": "catalog:deps"
   },
   "devDependencies": {
-    "@codemirror/lang-json": "catalog:frontend",
     "@humanwhocodes/momoa": "catalog:frontend",
     "@nuxt/kit": "catalog:build",
     "@nuxt/ui": "catalog:frontend",
@@ -64,9 +63,8 @@
     "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
-    "codemirror": "catalog:frontend",
-    "codemirror-theme-vitesse": "catalog:frontend",
     "devframe": "catalog:deps",
+    "modern-monaco": "catalog:frontend",
     "nuxt": "catalog:build",
     "oxfmt": "catalog:devtools",
     "oxlint": "catalog:devtools",

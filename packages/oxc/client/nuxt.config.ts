@@ -73,5 +73,8 @@ export default defineNuxtConfig({
   },
   vite: {
     base: BASE,
+    optimizeDeps: {
+      include: ['modern-monaco'],
+    },
   },
 })
