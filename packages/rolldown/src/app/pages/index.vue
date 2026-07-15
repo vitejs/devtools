@@ -8,7 +8,7 @@ import { useRpc } from '#imports'
 const ENABLE_DEVTOOLS_SNIPPET = `export default defineConfig({
   build: {
     rolldownOptions: {
-      devtools: true
+      devtools: {}
     }
   }
 })`
@@ -64,7 +64,9 @@ function selectSession(session: BuildInfo) {
     </p>
     <div v-else flex="~ col gap-3" items-center max-w-140>
       <p m0 op50 text-center>
-        No sessions yet. Enable devtools output in your Rolldown config, then run a build:
+        No sessions yet.
+        <br>
+        Enable devtools output in your Rolldown config, then run a build:
       </p>
       <div relative w-full>
         <pre m0 p3 pr10 rounded-lg border="~ base" bg-code font-mono text-sm of-auto text-left><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
