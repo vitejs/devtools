@@ -46,6 +46,7 @@
   "devDependencies": {
     "@types/splitpanes": "catalog:types",
     "@unocss/nuxt": "catalog:build",
+    "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/components": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",

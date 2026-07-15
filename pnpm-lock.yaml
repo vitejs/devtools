@@ -864,6 +864,9 @@ importers:
       '@vitejs/devtools-rolldown':
         specifier: workspace:*
         version: link:../rolldown
+      '@vitejs/devtools-ui':
+        specifier: workspace:*
+        version: link:../ui
       '@vitejs/devtools-vite':
         specifier: workspace:*
         version: link:../vite
@@ -1077,6 +1080,9 @@ importers:
       '@unocss/nuxt':
         specifier: catalog:build
         version: 66.7.5(esbuild@0.28.1)(magicast@0.5.2)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools-ui':
+        specifier: workspace:*
+        version: link:../ui
       '@vueuse/components':
         specifier: catalog:frontend
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
@@ -1207,6 +1213,9 @@ importers:
       '@unocss/nuxt':
         specifier: catalog:build
         version: 66.7.5(esbuild@0.28.1)(magicast@0.5.2)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools-ui':
+        specifier: workspace:*
+        version: link:../ui
       '@vueuse/components':
         specifier: catalog:frontend
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))
