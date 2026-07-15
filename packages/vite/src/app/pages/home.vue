@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BannerViteDevTools from '@vitejs/devtools-ui/components/banners/BannerViteDevTools.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRpc } from '#imports'
@@ -120,7 +121,7 @@ const metadata = computed(() => [
     text="Connecting..."
   />
   <div v-else p4 flex="~ col gap-4" items-center justify-center relative>
-    <VisualLogoBanner />
+    <BannerViteDevTools />
 
     <div border="~ base rounded" p2 flex="~ col gap-4 justify-center">
       <div

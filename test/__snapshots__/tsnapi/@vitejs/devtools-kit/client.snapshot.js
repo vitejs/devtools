@@ -3,6 +3,7 @@
  */
 // #region Functions
 export function getDevToolsClientContext() {}
+export async function getDevToolsRpcClient(_) {}
 // #endregion
 
 // #region Variables
@@ -11,6 +12,5 @@ export var CLIENT_CONTEXT_KEY /* const */
 
 // #region Other
 export { connectRemoteDevTools }
-export { getDevToolsRpcClient }
 export { parseRemoteConnection }
 // #endregion

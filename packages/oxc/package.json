@@ -63,6 +63,7 @@
     "@types/picomatch": "catalog:types",
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
     "codemirror": "catalog:frontend",

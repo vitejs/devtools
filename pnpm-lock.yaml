@@ -992,6 +992,9 @@ importers:
       '@vitejs/devtools':
         specifier: workspace:*
         version: link:../core
+      '@vitejs/devtools-ui':
+        specifier: workspace:*
+        version: link:../ui
       '@vueuse/core':
         specifier: catalog:frontend
         version: 14.3.0(vue@3.5.39(typescript@6.0.3))

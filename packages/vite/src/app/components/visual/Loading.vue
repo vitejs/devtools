@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VisualLogoBanner from './LogoBanner.vue'
+import BannerViteDevTools from '@vitejs/devtools-ui/components/banners/BannerViteDevTools.vue'
 
 const props = defineProps<{
   text?: string
@@ -8,8 +8,8 @@ const props = defineProps<{
 
 <template>
   <div p10 h-full flex="~ col" items-center justify-center>
-    <VisualLogoBanner />
-    <div flex="~ gap-2" animate-pulse mt--4 items-center justify-center>
+    <BannerViteDevTools />
+    <div flex="~ gap-2" animate-pulse items-center justify-center>
       <div i-svg-spinners-8-dots-rotate />
       <span>{{ props.text ?? 'Loading...' }}</span>
     </div>

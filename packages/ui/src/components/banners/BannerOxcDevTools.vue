@@ -1,0 +1,156 @@
+<script setup lang="ts">
+// Color-mode-aware wordmark banner for Oxc DevTools.
+// Wordmark paths use `currentColor` so they flip with the theme; the accent
+// mark and its baked-in glow keep their brand colors in both modes.
+</script>
+
+<template>
+  <svg viewBox="0 0 1026 86" fill="none" xmlns="http://www.w3.org/2000/svg" class="banner-devtools">
+    <g clip-path="url(#clip0_4_23)">
+      <path d="M45.477 77.116C18.042 77.116 3.72 65.584 3.72 43.45C3.72 21.316 18.042 9.784 45.477 9.784C72.912 9.784 87.327 21.316 87.327 43.45C87.327 65.584 72.912 77.116 45.477 77.116ZM45.477 61.027C58.404 61.027 64.449 55.54 64.449 43.45C64.449 31.267 58.404 25.78 45.477 25.78C32.55 25.78 26.505 31.267 26.505 43.45C26.505 55.54 32.55 61.027 45.477 61.027ZM87.194 76L111.374 42.52L87.938 10.9H113.792L128.021 30.709L141.971 10.9H166.523L143.18 42.706L167.36 76H141.785L126.626 54.703L111.746 76H87.194ZM208.391 77.116C181.421 77.116 167.378 65.491 167.378 43.45C167.378 21.409 181.421 9.784 208.391 9.784C232.943 9.784 247.823 19.456 247.823 37.963V38.149H224.201V37.963C224.201 29.965 219.272 25.78 208.391 25.78C196.022 25.78 190.163 31.36 190.163 43.45C190.163 55.447 196.022 61.027 208.391 61.027C219.272 61.027 224.201 56.842 224.201 48.937V48.844H247.823V48.937C247.823 67.258 233.408 77.116 208.391 77.116Z" fill="currentColor" />
+      <path d="M267.792 9.89331C254.775 28.5257 254.698 57.4071 267.792 76.1065H276.586C263.496 57.4071 263.572 28.5257 276.586 9.89331H267.792Z" fill="currentColor" />
+      <path d="M356.128 9.89315H347.333C360.35 28.5255 360.426 57.4069 347.333 76.1064H356.128C369.218 57.4069 369.142 28.5255 356.128 9.89315Z" fill="currentColor" />
+      <path d="M379.719 77V11.9H420.639C443.238 11.9 456.165 22.223 456.165 44.45C456.165 66.77 443.145 77 420.546 77H379.719ZM433.287 44.45C433.287 32.267 428.079 27.71 417.477 27.71H402.039V61.19H417.477C428.079 61.19 433.287 56.633 433.287 44.45ZM467.542 77V11.9H531.805V27.71H489.862V36.452H531.154V51.797H489.862V61.19H533.014V77H467.542ZM561.198 11.9L578.403 58.772L595.329 11.9H618.486L592.818 77H563.058L537.39 11.9H561.198ZM646.624 77V27.896H621.607V11.9H693.961V27.896H668.944V77H646.624ZM737.891 78.116C710.456 78.116 696.134 66.584 696.134 44.45C696.134 22.316 710.456 10.784 737.891 10.784C765.326 10.784 779.741 22.316 779.741 44.45C779.741 66.584 765.326 78.116 737.891 78.116ZM737.891 62.027C750.818 62.027 756.863 56.54 756.863 44.45C756.863 32.267 750.818 26.78 737.891 26.78C724.964 26.78 718.919 32.267 718.919 44.45C718.919 56.54 724.964 62.027 737.891 62.027ZM828.802 78.116C801.367 78.116 787.045 66.584 787.045 44.45C787.045 22.316 801.367 10.784 828.802 10.784C856.237 10.784 870.652 22.316 870.652 44.45C870.652 66.584 856.237 78.116 828.802 78.116ZM828.802 62.027C841.729 62.027 847.774 56.54 847.774 44.45C847.774 32.267 841.729 26.78 828.802 26.78C815.875 26.78 809.83 32.267 809.83 44.45C809.83 56.54 815.875 62.027 828.802 62.027ZM881.955 77V11.9H904.275V60.725H943.242V77H881.955ZM984.9 78.116C958.302 78.116 947.049 71.234 947.049 55.238V55.145H969.648V55.238C969.648 60.632 973.275 63.515 984.9 63.515C996.897 63.515 999.687 61.283 999.687 57.842C999.687 54.773 997.641 53.378 993.177 53.006L974.205 51.518C954.117 49.937 947.979 43.799 947.979 32.081C947.979 17.945 960.255 10.784 985.272 10.784C1010.85 10.784 1021.17 17.387 1021.17 32.639V32.825H998.943V32.639C998.943 27.245 995.595 25.199 984.9 25.199C973.647 25.199 970.206 27.245 970.206 30.872C970.206 34.034 972.717 35.243 978.576 35.708L997.362 37.103C1015.03 38.405 1022.29 44.078 1022.29 56.261C1022.29 70.304 1011.78 78.116 984.9 78.116Z" fill="currentColor" />
+      <path d="M321.52 21.2975C321.52 23.0087 322.907 24.3953 324.618 24.3953H336.372C337.753 24.3953 338.443 26.0652 337.467 27.0388L322.426 42.0792C321.845 42.6605 321.517 43.4481 321.517 44.2714V49.4137C321.517 51.5525 323.639 53.0366 325.515 52.0157C327.427 50.9773 329.206 49.7205 330.814 48.2808C331.451 47.7113 332.43 47.7054 333.035 48.3132L343.99 59.2676C344.594 59.8724 344.597 60.8547 343.972 61.439C335.664 69.2129 324.497 73.9746 312.221 73.9746C299.945 73.9746 288.778 69.2129 280.47 61.439C279.845 60.8547 279.848 59.8724 280.453 59.2676L291.407 48.3132C292.012 47.7084 292.991 47.7113 293.628 48.2808C295.236 49.7205 297.015 50.9773 298.927 52.0157C300.806 53.0366 302.925 51.5525 302.925 49.4137V44.2714C302.925 43.4481 302.597 42.6605 302.016 42.0792L286.976 27.0388C285.999 26.0622 286.689 24.3953 288.07 24.3953H299.824C301.535 24.3953 302.922 23.0087 302.922 21.2975V13.5501C302.922 12.6945 303.615 12.0012 304.471 12.0012H319.963C320.818 12.0012 321.512 12.6945 321.512 13.5501V21.2975H321.52Z" fill="#00F7F1" />
+      <mask id="mask0_4_23" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="280" y="12" width="65" height="62">
+        <path d="M321.52 21.2963C321.52 23.0075 322.907 24.3941 324.618 24.3941H336.372C337.753 24.3941 338.443 26.0639 337.467 27.0376L322.426 42.078C321.845 42.6592 321.517 43.447 321.517 44.2701V49.4124C321.517 51.5514 323.639 53.0353 325.515 52.0146C327.427 50.976 329.206 49.7192 330.814 48.2795C331.451 47.71 332.43 47.7042 333.035 48.312L343.99 59.2663C344.594 59.8711 344.597 60.8536 343.972 61.4377C335.664 69.2117 324.497 73.9734 312.221 73.9734C299.945 73.9734 288.778 69.2117 280.47 61.4377C279.845 60.8536 279.848 59.8711 280.453 59.2663L291.407 48.312C292.012 47.7072 292.991 47.71 293.628 48.2795C295.236 49.7192 297.015 50.976 298.927 52.0146C300.806 53.0353 302.925 51.5514 302.925 49.4124V44.2701C302.925 43.447 302.597 42.6592 302.016 42.078L286.976 27.0376C285.999 26.0611 286.689 24.3941 288.07 24.3941H299.824C301.535 24.3941 302.922 23.0075 302.922 21.2963V13.5489C302.922 12.6933 303.615 12 304.471 12H319.963C320.818 12 321.512 12.6933 321.512 13.5489V21.2963H321.52Z" fill="#D9D9D9" />
+      </mask>
+      <g mask="url(#mask0_4_23)">
+        <g filter="url(#filter0_f_4_23)">
+          <path d="M282.598 74.967C282.598 71.4742 295.782 68.6426 312.045 68.6426C328.308 68.6426 341.491 71.4742 341.491 74.967C341.491 78.4599 328.308 81.2914 312.045 81.2914C295.782 81.2914 282.598 78.4599 282.598 74.967Z" fill="#93FFFC" />
+        </g>
+        <g filter="url(#filter1_f_4_23)">
+          <path d="M309.583 83.1453C308.294 79.8991 319.502 72.4014 334.616 66.3988C349.731 60.3962 363.029 58.1617 364.318 61.4079C365.607 64.6542 354.4 72.1519 339.285 78.1545C324.17 84.1571 310.872 86.3916 309.583 83.1453Z" fill="#00FF79" />
+        </g>
+        <g filter="url(#filter2_f_4_23)">
+          <path d="M314.491 83.1455C315.78 79.8992 304.572 72.4015 289.458 66.3989C274.343 60.3963 261.045 58.1618 259.756 61.4081C258.467 64.6543 269.674 72.152 284.789 78.1546C299.904 84.1572 313.202 86.3917 314.491 83.1455Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter3_f_4_23)">
+          <path d="M329.776 45.4783C327.782 43.4981 323.458 44.62 320.117 47.984C316.776 51.3481 315.684 55.6804 317.677 57.6606C319.671 59.6408 323.996 58.519 327.337 55.155C330.678 51.7909 331.77 47.4585 329.776 45.4783Z" fill="#93FFFC" />
+        </g>
+        <g filter="url(#filter4_f_4_23)">
+          <path d="M332.399 40.758C330.405 38.7778 326.08 39.8997 322.739 43.2637C319.398 46.6278 318.306 50.9601 320.3 52.9403C322.294 54.9205 326.619 53.7987 329.96 50.4347C333.301 47.0706 334.393 42.7382 332.399 40.758Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter5_f_4_23)">
+          <path d="M331.874 14.5331C329.88 12.5529 325.555 13.6747 322.214 17.0388C318.873 20.4028 317.781 24.7352 319.775 26.7154C321.769 28.6956 326.094 27.5738 329.435 24.2097C332.776 20.8457 333.868 16.5133 331.874 14.5331Z" fill="#93FFFC" />
+        </g>
+        <g filter="url(#filter6_f_4_23)">
+          <path d="M333.448 12.4355C331.454 10.4553 327.129 11.5771 323.788 14.9412C320.447 18.3052 319.355 22.6376 321.349 24.6178C323.343 26.598 327.667 25.4762 331.008 22.1121C334.349 18.7481 335.441 14.4157 333.448 12.4355Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter7_f_4_23)">
+          <path d="M295.124 46.5273C297.118 44.5471 301.443 45.6689 304.784 49.0329C308.125 52.397 309.217 56.7294 307.223 58.7096C305.229 60.6898 300.905 59.5679 297.564 56.2039C294.223 52.8399 293.13 48.5075 295.124 46.5273Z" fill="#93FFFC" />
+        </g>
+        <g filter="url(#filter8_f_4_23)">
+          <path d="M291.452 41.8071C293.446 39.8268 297.771 40.9487 301.112 44.3127C304.453 47.6768 305.545 52.0091 303.551 53.9893C301.557 55.9695 297.233 54.8477 293.892 51.4837C290.551 48.1196 289.459 43.7873 291.452 41.8071Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter9_f_4_23)">
+          <path d="M291.452 14.533C293.446 12.5528 297.771 13.6746 301.112 17.0387C304.453 20.4027 305.545 24.7351 303.551 26.7153C301.557 28.6955 297.233 27.5737 293.892 24.2096C290.551 20.8456 289.459 16.5132 291.452 14.533Z" fill="#93FFFC" />
+        </g>
+        <g filter="url(#filter10_f_4_23)">
+          <path d="M290.929 11.3863C292.923 9.4061 297.247 10.5279 300.588 13.892C303.929 17.256 305.021 21.5884 303.027 23.5686C301.034 25.5488 296.709 24.427 293.368 21.0629C290.027 17.6989 288.935 13.3665 290.929 11.3863Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter11_f_4_23)">
+          <path d="M281.012 24.4723C283.006 22.4921 289.786 26.0855 296.154 32.4983C302.523 38.9111 306.07 45.715 304.076 47.6952C302.082 49.6754 295.303 46.0821 288.934 39.6693C282.565 33.2564 279.018 26.4525 281.012 24.4723Z" fill="#0060FF" />
+        </g>
+        <g filter="url(#filter12_f_4_23)">
+          <path d="M344.938 20.2763C342.944 18.2961 336.164 21.8894 329.795 28.3023C323.427 34.7151 319.88 41.519 321.874 43.4992C323.868 45.4794 330.647 41.8861 337.016 35.4732C343.385 29.0604 346.931 22.2565 344.938 20.2763Z" fill="#00FF79" />
+        </g>
+        <g filter="url(#filter13_f_4_23)">
+          <path d="M282.598 77.5894C282.598 74.0965 295.782 71.265 312.045 71.265C328.308 71.265 341.491 74.0965 341.491 77.5894C341.491 81.0823 328.308 83.9138 312.045 83.9138C295.782 83.9138 282.598 81.0823 282.598 77.5894Z" fill="#0060FF" />
+        </g>
+      </g>
+    </g>
+    <defs>
+      <filter id="filter0_f_4_23" x="270.01" y="56.0548" width="84.0692" height="37.8245" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter1_f_4_23" x="296.894" y="47.3301" width="80.1127" height="49.893" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter2_f_4_23" x="247.067" y="47.3303" width="80.1127" height="49.893" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter3_f_4_23" x="304.093" y="31.9124" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter4_f_4_23" x="306.716" y="27.1921" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter5_f_4_23" x="306.191" y="0.967186" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter6_f_4_23" x="307.764" y="-1.13037" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter7_f_4_23" x="281.54" y="32.9614" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter8_f_4_23" x="277.868" y="28.2412" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter9_f_4_23" x="277.868" y="0.967129" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter10_f_4_23" x="277.344" y="-2.17958" width="39.2674" height="39.3141" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter11_f_4_23" x="267.869" y="11.3403" width="49.3498" height="49.487" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter12_f_4_23" x="308.731" y="7.14423" width="49.3498" height="49.487" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <filter id="filter13_f_4_23" x="270.01" y="58.6772" width="84.0692" height="37.8245" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="6.29392" result="effect1_foregroundBlur_4_23" />
+      </filter>
+      <clipPath id="clip0_4_23">
+        <rect width="1026" height="86" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+</template>
+
+<style scoped>
+/* Self-contained so the banner renders identically under any host CSS engine
+   (UnoCSS in the Vite/Rolldown clients, Tailwind in the Oxc client) without
+   relying on the host to scan these classes. `currentColor` drives the
+   wordmark, flipping via the `.dark` ancestor toggled by the color scheme. */
+.banner-devtools {
+  display: block;
+  width: auto;
+  height: 2.75rem;
+  color: #08060e;
+  pointer-events: none;
+}
+:global(.dark) .banner-devtools {
+  color: #fff;
+}
+</style>

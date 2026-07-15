@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
+import BannerRolldownDevTools from '@vitejs/devtools-ui/components/banners/BannerRolldownDevTools.vue'
 import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -58,7 +59,7 @@ function selectSession(session: BuildInfo) {
 
 <template>
   <div p4 flex="~ col gap-4" items-center justify-center relative>
-    <VisualLogoBanner />
+    <BannerRolldownDevTools />
     <p v-if="sessions.length" op50>
       {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
     </p>

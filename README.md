@@ -1,5 +1,5 @@
-![Vite DevTools](./docs/public/logo-dark.svg#gh-light-mode-only)
-![Vite DevTools](./docs/public/logo-light.svg#gh-dark-mode-only)
+![Vite DevTools](./docs/public/all-dark.svg#gh-light-mode-only)
+![Vite DevTools](./docs/public/all-light.svg#gh-dark-mode-only)
 
 # Vite DevTools
 

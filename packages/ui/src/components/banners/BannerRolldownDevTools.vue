@@ -1,0 +1,124 @@
+<script setup lang="ts">
+// Color-mode-aware wordmark banner for Rolldown DevTools.
+// Wordmark paths use `currentColor` so they flip with the theme; the accent
+// mark and its baked-in glow keep their brand colors in both modes.
+</script>
+
+<template>
+  <svg viewBox="0 0 1463 86" fill="none" xmlns="http://www.w3.org/2000/svg" class="banner-devtools">
+    <g clip-path="url(#clip0_1_43)">
+      <path d="M7.719 76V10.9H58.59C73.47 10.9 81.933 18.619 81.933 32.197C81.933 40.009 78.213 45.775 72.447 49.123L82.212 76H58.497L51.708 54.889H30.039V76H7.719ZM59.055 32.848C59.055 28.57 56.823 26.245 52.266 26.245H30.039V39.544H52.266C56.823 39.544 59.055 37.219 59.055 32.848ZM131.393 77.116C103.958 77.116 89.636 65.584 89.636 43.45C89.636 21.316 103.958 9.784 131.393 9.784C158.828 9.784 173.243 21.316 173.243 43.45C173.243 65.584 158.828 77.116 131.393 77.116ZM131.393 61.027C144.32 61.027 150.365 55.54 150.365 43.45C150.365 31.267 144.32 25.78 131.393 25.78C118.466 25.78 112.421 31.267 112.421 43.45C112.421 55.54 118.466 61.027 131.393 61.027ZM184.546 76V10.9H206.866V59.725H245.833V76H184.546ZM253.57 76V10.9H275.89V59.725H314.857V76H253.57ZM322.593 76V10.9H363.513C386.112 10.9 399.039 21.223 399.039 43.45C399.039 65.77 386.019 76 363.42 76H322.593ZM376.161 43.45C376.161 31.267 370.953 26.71 360.351 26.71H344.913V60.19H360.351C370.953 60.19 376.161 55.633 376.161 43.45ZM448.174 77.116C420.739 77.116 406.417 65.584 406.417 43.45C406.417 21.316 420.739 9.784 448.174 9.784C475.609 9.784 490.024 21.316 490.024 43.45C490.024 65.584 475.609 77.116 448.174 77.116ZM448.174 61.027C461.101 61.027 467.146 55.54 467.146 43.45C467.146 31.267 461.101 25.78 448.174 25.78C435.247 25.78 429.202 31.267 429.202 43.45C429.202 55.54 435.247 61.027 448.174 61.027ZM508.668 76L495.276 10.9H517.41L525.594 55.633L535.08 22.525H560.097L570.141 56.935L578.046 10.9H599.808L586.416 76H558.237L547.449 39.172L536.94 76H508.668ZM608.949 76V10.9H635.919L662.796 53.215H662.982V10.9H684.186V76H657.402L630.339 33.499H630.06V76H608.949Z" fill="currentColor" />
+      <path d="M704.792 9.89331C691.775 28.5257 691.698 57.4071 704.792 76.1065H713.586C700.496 57.4071 700.572 28.5257 713.586 9.89331H704.792Z" fill="currentColor" />
+      <path d="M793.128 9.89314H784.333C797.35 28.5255 797.426 57.4069 784.333 76.1064H793.128C806.218 57.4069 806.142 28.5255 793.128 9.89314Z" fill="currentColor" />
+      <path d="M816.719 77V11.9H857.639C880.238 11.9 893.165 22.223 893.165 44.45C893.165 66.77 880.145 77 857.546 77H816.719ZM870.287 44.45C870.287 32.267 865.079 27.71 854.477 27.71H839.039V61.19H854.477C865.079 61.19 870.287 56.633 870.287 44.45ZM904.542 77V11.9H968.805V27.71H926.862V36.452H968.154V51.797H926.862V61.19H970.014V77H904.542ZM998.198 11.9L1015.4 58.772L1032.33 11.9H1055.49L1029.82 77H1000.06L974.39 11.9H998.198ZM1083.62 77V27.896H1058.61V11.9H1130.96V27.896H1105.94V77H1083.62ZM1174.89 78.116C1147.46 78.116 1133.13 66.584 1133.13 44.45C1133.13 22.316 1147.46 10.784 1174.89 10.784C1202.33 10.784 1216.74 22.316 1216.74 44.45C1216.74 66.584 1202.33 78.116 1174.89 78.116ZM1174.89 62.027C1187.82 62.027 1193.86 56.54 1193.86 44.45C1193.86 32.267 1187.82 26.78 1174.89 26.78C1161.96 26.78 1155.92 32.267 1155.92 44.45C1155.92 56.54 1161.96 62.027 1174.89 62.027ZM1265.8 78.116C1238.37 78.116 1224.05 66.584 1224.05 44.45C1224.05 22.316 1238.37 10.784 1265.8 10.784C1293.24 10.784 1307.65 22.316 1307.65 44.45C1307.65 66.584 1293.24 78.116 1265.8 78.116ZM1265.8 62.027C1278.73 62.027 1284.77 56.54 1284.77 44.45C1284.77 32.267 1278.73 26.78 1265.8 26.78C1252.88 26.78 1246.83 32.267 1246.83 44.45C1246.83 56.54 1252.88 62.027 1265.8 62.027ZM1318.96 77V11.9H1341.28V60.725H1380.24V77H1318.96ZM1421.9 78.116C1395.3 78.116 1384.05 71.234 1384.05 55.238V55.145H1406.65V55.238C1406.65 60.632 1410.27 63.515 1421.9 63.515C1433.9 63.515 1436.69 61.283 1436.69 57.842C1436.69 54.773 1434.64 53.378 1430.18 53.006L1411.2 51.518C1391.12 49.937 1384.98 43.799 1384.98 32.081C1384.98 17.945 1397.25 10.784 1422.27 10.784C1447.85 10.784 1458.17 17.387 1458.17 32.639V32.825H1435.94V32.639C1435.94 27.245 1432.59 25.199 1421.9 25.199C1410.65 25.199 1407.21 27.245 1407.21 30.872C1407.21 34.034 1409.72 35.243 1415.58 35.708L1434.36 37.103C1452.03 38.405 1459.29 44.078 1459.29 56.261C1459.29 70.304 1448.78 78.116 1421.9 78.116Z" fill="currentColor" />
+      <path d="M774.002 11C775.344 11 776.077 12.5652 775.217 13.5966L760.597 31.1428C758.878 33.2055 760.343 36.339 763.03 36.339H777.172C778.514 36.339 779.247 37.9042 778.387 38.9357L750.096 72.888C749.462 73.6479 748.295 73.6479 747.662 72.888L719.37 38.9357C718.511 37.9042 719.244 36.339 720.586 36.339H734.724C737.408 36.339 738.877 33.2055 737.158 31.1428L722.537 13.5966C721.677 12.5652 722.41 11 723.752 11H774.002Z" fill="#FF4100" />
+      <mask id="mask0_1_43" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="719" y="11" width="60" height="63">
+        <path d="M774.002 11C775.344 11 776.077 12.5652 775.217 13.5966L760.597 31.1427C758.878 33.2056 760.343 36.339 763.03 36.339H777.172C778.514 36.339 779.247 37.9042 778.387 38.9357L750.096 72.8879C749.462 73.6479 748.295 73.6479 747.662 72.8879L719.37 38.9357C718.511 37.9042 719.244 36.339 720.586 36.339H734.724C737.408 36.339 738.877 33.2056 737.158 31.1427L722.537 13.5966C721.677 12.5652 722.41 11 723.752 11H774.002Z" fill="black" />
+      </mask>
+      <g mask="url(#mask0_1_43)">
+        <g filter="url(#filter0_f_1_43)">
+          <path d="M762.693 39.7389C759.089 37.6365 763.614 23.164 772.801 7.41351C781.987 -8.33695 792.356 -19.401 795.961 -17.2986C799.565 -15.1963 795.04 -0.723735 785.853 15.0267C776.667 30.7772 766.298 41.8412 762.693 39.7389Z" fill="#FFE6E4" />
+        </g>
+        <g filter="url(#filter1_f_1_43)">
+          <path d="M761.085 71.9066C757.481 69.8043 762.006 55.3317 771.193 39.5813C780.379 23.8308 790.749 12.7668 794.353 14.8691C797.958 16.9715 793.432 31.444 784.246 47.1945C775.059 62.945 764.69 74.009 761.085 71.9066Z" fill="#FFE6E4" />
+        </g>
+        <g filter="url(#filter2_f_1_43)">
+          <path d="M737.946 36.6395C740.27 34.9453 734.093 22.5148 724.149 8.8751C714.206 -4.76457 704.261 -14.4483 701.937 -12.7541C699.613 -11.06 705.79 1.37057 715.734 15.0102C725.678 28.6499 735.622 38.3337 737.946 36.6395Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter3_f_1_43)">
+          <path d="M745.988 82.3608C748.312 80.6666 742.135 68.2361 732.191 54.5964C722.248 40.9567 712.303 31.273 709.979 32.9671C707.655 34.6613 713.832 47.0919 723.776 60.7315C733.719 74.3712 743.664 84.0549 745.988 82.3608Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter4_f_1_43)">
+          <path d="M759.842 36.6395C757.518 34.9453 763.695 22.5148 773.638 8.87512C783.582 -4.76456 793.527 -14.4483 795.851 -12.7541C798.175 -11.06 791.998 1.37058 782.054 15.0102C772.11 28.6499 762.165 38.3337 759.842 36.6395Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter5_f_1_43)">
+          <path d="M750.191 82.3609C747.868 80.6667 754.045 68.2362 763.988 54.5965C773.932 40.9568 783.877 31.2731 786.201 32.9672C788.524 34.6614 782.347 47.0919 772.404 60.7316C762.46 74.3713 752.515 84.055 750.191 82.3609Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter6_f_1_43)">
+          <path d="M755.017 36.6395C752.693 34.9453 758.87 22.5148 768.814 8.87512C778.757 -4.76456 788.702 -14.4483 791.026 -12.7541C793.35 -11.06 787.173 1.37058 777.229 15.0102C767.285 28.6499 757.341 38.3337 755.017 36.6395Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter7_f_1_43)">
+          <path d="M746.974 82.3609C744.65 80.6667 750.827 68.2362 760.771 54.5965C770.715 40.9568 780.66 31.2731 782.983 32.9672C785.307 34.6614 779.13 47.0919 769.187 60.7316C759.243 74.3713 749.298 84.055 746.974 82.3609Z" fill="#FF00B3" />
+        </g>
+        <g filter="url(#filter8_f_1_43)">
+          <path d="M744.536 39.105C747.689 36.3723 740.566 22.9862 728.625 9.2063C716.684 -4.57364 704.448 -13.5292 701.294 -10.7966C698.141 -8.06397 705.264 5.32212 717.205 19.1021C729.146 32.882 741.382 41.8376 744.536 39.105Z" fill="#E23D14" />
+        </g>
+        <g filter="url(#filter9_f_1_43)">
+          <path d="M747.409 76.5696C750.789 74.1235 744.865 60.1652 734.176 45.3928C723.487 30.6205 712.082 20.6281 708.701 23.0742C705.321 25.5203 711.245 39.4786 721.934 54.2509C732.622 69.0232 744.028 79.0156 747.409 76.5696Z" fill="#E23D14" />
+        </g>
+      </g>
+    </g>
+    <defs>
+      <filter id="filter0_f_1_43" x="751.803" y="-27.2056" width="55.0477" height="76.8514" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter1_f_1_43" x="750.195" y="4.96221" width="55.0477" height="76.8514" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter2_f_1_43" x="691.797" y="-22.5972" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter3_f_1_43" x="699.839" y="23.1241" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter4_f_1_43" x="749.702" y="-22.5972" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter5_f_1_43" x="740.051" y="23.1242" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter6_f_1_43" x="744.877" y="-22.5972" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter7_f_1_43" x="736.834" y="23.1242" width="56.289" height="69.0797" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter8_f_1_43" x="690.897" y="-20.938" width="64.0367" height="70.1844" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <filter id="filter9_f_1_43" x="698.1" y="13.0551" width="59.9095" height="73.5335" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+        <feGaussianBlur stdDeviation="4.82534" result="effect1_foregroundBlur_1_43" />
+      </filter>
+      <clipPath id="clip0_1_43">
+        <rect width="1463" height="86" fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+</template>
+
+<style scoped>
+/* Self-contained so the banner renders identically under any host CSS engine
+   (UnoCSS in the Vite/Rolldown clients, Tailwind in the Oxc client) without
+   relying on the host to scan these classes. `currentColor` drives the
+   wordmark, flipping via the `.dark` ancestor toggled by the color scheme. */
+.banner-devtools {
+  display: block;
+  width: auto;
+  height: 2.75rem;
+  color: #08060e;
+  pointer-events: none;
+}
+:global(.dark) .banner-devtools {
+  color: #fff;
+}
+</style>

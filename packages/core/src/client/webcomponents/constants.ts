@@ -2,6 +2,7 @@ import type { DevToolsDockEntryCategory, DevToolsViewBuiltin } from '@vitejs/dev
 
 export const BUILTIN_ENTRY_CLIENT_AUTH_NOTICE: DevToolsViewBuiltin = Object.freeze({
   type: '~builtin',
+  category: '~builtin',
   id: '~client-auth-notice',
   title: 'Unauthorized',
   icon: 'i-fluent-emoji-flat-warning',
