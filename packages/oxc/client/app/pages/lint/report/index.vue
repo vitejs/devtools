@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import { useAsyncState, useLocalStorage } from '@vueuse/core'
+import { computed } from 'vue'
 import { useRpc } from '#imports'
 
 const rpc = useRpc()
 
-const { data: sessionMetaList, refresh: reloadSessions } = useAsyncData(
-  'sessionMetaList',
-  async () => {
-    return await rpc.value.call('devtools-oxc:list-lint-session')
-  },
+const { state: sessionMetaList, execute: reloadSessions } = useAsyncState(
+  () => rpc.value.call('devtools-oxc:list-lint-session'),
+  [],
 )
 
 const hidePassed = useLocalStorage('hidePassed', false)

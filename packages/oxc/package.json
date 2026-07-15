@@ -47,9 +47,6 @@
     "@vitejs/devtools-kit": "workspace:*",
     "ansis": "catalog:deps",
     "devframe": "catalog:deps",
-    "get-port-please": "catalog:deps",
-    "gunshi": "catalog:deps",
-    "h3": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"

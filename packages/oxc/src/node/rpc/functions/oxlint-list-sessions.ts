@@ -1,9 +1,10 @@
-import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { defineOxcRpc } from '../_define'
 import { getLogsManager } from '../utils'
 
-export const oxlintListSessions = defineRpcFunction({
+export const oxlintListSessions = defineOxcRpc({
   name: 'devtools-oxc:list-lint-session',
   type: 'query',
+  jsonSerializable: true,
   setup: context => {
     return {
       handler: async () => {

@@ -1,4 +1,4 @@
-import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { defineOxcRpc } from '../_define'
 import { x } from 'tinyexec'
 
 type Package = {
@@ -8,9 +8,10 @@ type Package = {
   npmxLink: string | undefined
 }
 
-export const overview = defineRpcFunction({
+export const overview = defineOxcRpc({
   name: 'devtools-oxc:overview',
   type: 'query',
+  jsonSerializable: true,
   setup: () => {
     return {
       handler: async () => {

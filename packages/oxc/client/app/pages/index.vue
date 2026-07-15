@@ -1,26 +1,23 @@
 <script setup lang="ts">
+import { useAsyncState } from '@vueuse/core'
+import { useRpc } from '#imports'
+
 const rpc = useRpc()
 
-const { data: overview } = useAsyncData(
-  'overview',
-  () => rpc.value.call('devtools-oxc:overview'),
-  {
-    default: () => ({
-      oxlint: {
-        installed: false,
-        version: undefined,
-        latest: true,
-        npmxLink: undefined,
-      },
-      oxfmt: {
-        installed: false,
-        version: undefined,
-        latest: true,
-        npmxLink: undefined,
-      },
-    }),
+const { state: overview } = useAsyncState(() => rpc.value.call('devtools-oxc:overview'), {
+  oxlint: {
+    installed: false,
+    version: undefined,
+    latest: true,
+    npmxLink: undefined,
   },
-)
+  oxfmt: {
+    installed: false,
+    version: undefined,
+    latest: true,
+    npmxLink: undefined,
+  },
+})
 
 const cardUi = {
   body: 'p-4 flex flex-col items-center justify-center',

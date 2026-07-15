@@ -1,23 +1,19 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevframeNodeContext } from 'devframe/types'
 import { join } from 'pathe'
 import { OxlintLogsManager } from '../utils/logs-manager'
 
-const weakMap = new WeakMap<DevToolsNodeContext, OxlintLogsManager>()
+const weakMap = new WeakMap<DevframeNodeContext, OxlintLogsManager>()
 
-export function getLogsManager(context: DevToolsNodeContext): OxlintLogsManager {
+export function getLogsManager(context: DevframeNodeContext): OxlintLogsManager {
   let manager = weakMap.get(context)!
   if (!manager) {
-    const dir = join(process.cwd(), '.devtools-oxc', 'lint')
-    if (!dir) {
-      console.warn(
-        '[Oxc Inspector] Oxc Inspector logs directory `.devtools-oxc` not found, you might want to run build with `npx @vitejs/devtools-oxc` to generate it first. Read more: https://github.com/yuyinws/oxc-inspector',
-      )
-    }
+    const dir = join(context.cwd ?? process.cwd(), '.devtools-oxc', 'lint')
     manager = new OxlintLogsManager(dir)
+    weakMap.set(context, manager)
   }
   return manager
 }
 
-export function setLogsManager(context: DevToolsNodeContext, manager: OxlintLogsManager) {
+export function setLogsManager(context: DevframeNodeContext, manager: OxlintLogsManager) {
   weakMap.set(context, manager)
 }

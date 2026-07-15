@@ -1,30 +1,18 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
-import { rpcFunctions } from './node/rpc'
-import { clientPublicDir } from './dirs'  
+import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+import { oxcDevframe } from './node/devframe'
 
-const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
-const OXC_DEVTOOLS_BASE = '/__devtools-oxc/'
-
+/**
+ * Mount the Oxc DevTools inside Vite DevTools. Delegates to kit's
+ * `createPluginFromDevframe`, which serves the SPA, synthesizes the iframe dock
+ * entry from the definition metadata, and runs `oxcDevframe.setup(ctx)`.
+ */
 export function DevToolsOxc(): PluginWithDevTools {
-  return {
+  return createPluginFromDevframe(oxcDevframe, {
     name: 'devtools-oxc',
-    devtools: {
-      setup(ctx) {
-        for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn as any)
-        }
-
-        ctx.views.hostStatic(OXC_DEVTOOLS_BASE, clientPublicDir)
-
-        ctx.docks.register({
-          id: 'oxc',
-          title: 'Oxc',
-          icon: OXC_DEVTOOLS_BASE + 'favicon.svg',
-          type: 'iframe',
-          url: OXC_DEVTOOLS_BASE,
-          groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
-        })
-      },
+    dock: {
+      groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
     },
-  }
+  })
 }

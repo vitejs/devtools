@@ -5,16 +5,15 @@ import { json } from '@codemirror/lang-json'
 import { parse, iterator } from '@humanwhocodes/momoa'
 import type { MemberNode, ObjectNode, StringNode } from '@humanwhocodes/momoa'
 import { vitesseLight, vitesseDark } from 'codemirror-theme-vitesse'
+import { useAsyncState } from '@vueuse/core'
 
 const rpc = useRpc()
 
-const { data: configData } = await useAsyncData(
-  'fmt-config',
+const { state: configData, isReady } = useAsyncState(
   () => rpc.value.call('devtools-oxc:get-fmt-config-file'),
-  { default: () => null },
+  null,
 )
 
-const configContent = configData.value ?? '{}'
 const CONFIG_REF_BASE = 'https://oxc.rs/docs/guide/usage/formatter/config-file-reference.html'
 const DEFAULT_DOC_URL = 'https://oxc.rs/docs/guide/usage/formatter.html'
 
@@ -143,9 +142,9 @@ function updateDocUrlFromCursor(editorView: InstanceType<typeof EditorView>) {
 const initialized = ref(false)
 
 function initEditor() {
-  if (!editorRef.value || initialized.value) return
+  if (!editorRef.value || initialized.value || !isReady.value) return
 
-  const content = configContent
+  const content = configData.value ?? '{}'
   initConfigRanges(content)
 
   view = new EditorView({
@@ -174,7 +173,7 @@ function initEditor() {
   initialized.value = true
 }
 
-watch(editorRef, () => initEditor(), { immediate: true })
+watch([editorRef, isReady], () => initEditor(), { immediate: true })
 
 watch(isDark, dark => {
   view?.dispatch({ effects: themeCompartment.reconfigure(dark ? vitesseDark : vitesseLight) })

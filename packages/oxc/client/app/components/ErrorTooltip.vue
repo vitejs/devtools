@@ -24,7 +24,7 @@ const severityIcon = computed(() => {
 const rpc = useRpc()
 
 function handleOpenInEditor() {
-  rpc.value.call('vite:core:open-in-editor', `${props.filename}:${props.line}:${props.column}`)
+  rpc.value.call('devtools-oxc:open-in-editor', `${props.filename}:${props.line}:${props.column}`)
 }
 </script>
 

@@ -1,9 +1,10 @@
-import type { ServerFunctions } from '../../../src/node/rpc'
-import { useRuntimeConfig } from '#app/nuxt'
+import type {} from '@vitejs/devtools'
+import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import type {} from '../../../src/node/rpc'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
-import { createRpcClient } from 'devframe/rpc/client'
-import { createWsRpcChannel } from 'devframe/rpc/transports/ws-client'
+import { useRuntimeConfig } from '#app/nuxt'
 
 export const connectionState = reactive<{
   connected: boolean
@@ -13,78 +14,53 @@ export const connectionState = reactive<{
   error: null,
 })
 
-/** Unified RPC client type, compatible with two sources: h3 WebSocket and DevTools */
-export type RpcClient = {
-  /** Typed call with full inference: method name, params and return value from ServerFunctions */
-  call<K extends keyof ServerFunctions>(
-    method: K,
-    ...args: Parameters<ServerFunctions[K]>
-  ): Promise<Awaited<ReturnType<ServerFunctions[K]>>>
-  /** Fallback for built-in DevTools methods (e.g. vite:core:open-in-editor) */
-  call(method: string, params?: unknown): Promise<unknown>
-}
-
-/** Adapt a birpc client (methods called by name) to the unified RpcClient interface */
-function asRpcClient(client: Record<string, (...args: unknown[]) => Promise<unknown>>): RpcClient {
-  return {
-    call: (name: string, ...args: unknown[]) => client[name](...args),
-  } as RpcClient
-}
-
-const rpc = shallowRef<RpcClient>(undefined!)
+const rpc = shallowRef<DevToolsRpcClient>(undefined!)
 
 export async function connect() {
   const runtimeConfig = useRuntimeConfig()
   try {
-    let rawRpcClient: RpcClient
+    rpc.value = await getDevToolsRpcClient({
+      // Embedded in Vite DevTools the connection meta is injected via
+      // `runtimeConfig.app.connection`; standalone (devframe CLI) it is fetched
+      // from `<base>__connection.json`, so both mount paths are candidates.
+      baseURL: [DEVTOOLS_MOUNT_PATH, runtimeConfig.app.baseURL],
+      cacheOptions: true,
+      connectionMeta: runtimeConfig.app.connection,
+      wsOptions: {
+        onConnected: () => {
+          connectionState.connected = true
+        },
+        onError: e => {
+          connectionState.error = e
+        },
+        onDisconnected: () => {
+          connectionState.connected = false
+        },
+      },
+      rpcOptions: {
+        onGeneralError: (e, name) => {
+          connectionState.error = e
+          console.error(`[devtools-oxc] RPC error on executing "${name}":`)
+        },
+        onFunctionError: (e, name) => {
+          connectionState.error = e
+          console.error(`[devtools-oxc] RPC error on executing "${name}":`)
+        },
+      },
+    })
 
-    const connection = await $fetch<{ backend?: string; port: number }>(
-      '/.devtools.vdt-connection.json',
-    )
-
-    if (connection?.backend === 'h3') {
-      const wsClient = createRpcClient<ServerFunctions>(
-        {},
-        {
-          channel: createWsRpcChannel({
-            url: `ws://localhost:${connection.port}`,
-          }),
-        },
-      )
-      rawRpcClient = asRpcClient(
-        wsClient as unknown as Record<string, (...args: unknown[]) => Promise<unknown>>,
-      )
-    } else {
-      const rpcClient = await getDevToolsRpcClient({
-        baseURL: ['/.devtools/', runtimeConfig.app.baseURL],
-        connectionMeta: runtimeConfig.app.connection,
-        wsOptions: {
-          onConnected: () => {
-            connectionState.connected = true
-          },
-          onError: e => {
-            connectionState.error = e
-          },
-          onDisconnected: () => {
-            connectionState.connected = false
-          },
-        },
-        rpcOptions: {
-          onGeneralError: (e, name) => {
-            connectionState.error = e
-            console.error(`[devtools-oxc] RPC error on executing "${name}":`)
-          },
-          onFunctionError: (e, name) => {
-            connectionState.error = e
-            console.error(`[devtools-oxc] RPC error on executing "${name}":`)
-          },
-        },
+    // Cache auto-discovery. Only available when embedded in Vite DevTools (core
+    // registers `devtoolskit:internal:rpc:server:list`); standalone devframe
+    // has no such function, so skip caching gracefully rather than fail the
+    // whole connection.
+    try {
+      const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+      const cacheableFunctions = Object.keys(functions).filter(name => functions[name]?.cacheable)
+      rpc.value.cacheManager.updateOptions({
+        functions: [...cacheableFunctions],
       })
+    } catch {}
 
-      rawRpcClient = rpcClient as RpcClient
-    }
-
-    rpc.value = rawRpcClient
     connectionState.connected = true
   } catch (e) {
     connectionState.error = e as Error
