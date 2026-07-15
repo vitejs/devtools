@@ -3,6 +3,7 @@ import c from 'ansis'
 import { log } from '@clack/prompts'
 import { oxcDevframe, OXC_DEVTOOLS_BASE } from '../node/devframe'
 import { runLint } from './lint'
+import { version } from '../../package.json'
 
 /**
  * Build the standalone Oxc DevTools CLI. Wraps the portable {@link oxcDevframe}
@@ -11,7 +12,7 @@ import { runLint } from './lint'
  * UI reads.
  */
 export function createOxcCli() {
-  return createCli(oxcDevframe, {
+  const handle = createCli(oxcDevframe, {
     onReady: ({ origin }) => {
       log.info(`Oxc Inspector UI is running on ${c.cyan(`${origin}${OXC_DEVTOOLS_BASE}`)}`)
     },
@@ -24,4 +25,10 @@ export function createOxcCli() {
         })
     },
   })
+
+  // `createCli` registers a placeholder `0.0.0`; override it with the real
+  // package version so `devtools-oxc --version` reports correctly.
+  handle.cli.version(version)
+
+  return handle
 }
