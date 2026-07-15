@@ -104,7 +104,11 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             {
               id: SESSION_ID,
               title: 'Vitest UI',
-              icon,
+              // The Terminals panel maps session icons to a UnoCSS icon class
+              // (`toIconClass`) and can only render icons its SPA statically
+              // built. A served URL (like the dock favicon) or an unlisted
+              // icon renders blank, so use a terminal icon the SPA ships.
+              icon: 'ph:terminal-window-duotone',
             },
           )
 
