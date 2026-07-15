@@ -57,6 +57,7 @@ export async function createDevToolsContext(
   context.docks.register({
     type: '~builtin',
     id: '~settings',
+    category: '~builtin',
     title: 'Settings',
     icon: 'ph:gear-duotone',
   })
