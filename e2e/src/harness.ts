@@ -77,6 +77,18 @@ export async function launchBrowser(): Promise<Browser> {
   return chromium.launch({ headless: true })
 }
 
+/**
+ * Opens a page that ignores HTTPS certificate errors.
+ *
+ * Sandboxed CI/dev environments route egress through a MITM proxy, so any
+ * runtime `https://` fetch a page makes (e.g. the Iconify API fallback) fails
+ * with `net::ERR_CERT_AUTHORITY_INVALID` unless certificate errors are
+ * ignored for that browsing context.
+ */
+export async function newPage(browser: Browser): ReturnType<Browser['newPage']> {
+  return browser.newPage({ ignoreHTTPSErrors: true })
+}
+
 export interface PageErrors {
   errors: string[]
 }

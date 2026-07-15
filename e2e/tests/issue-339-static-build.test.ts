@@ -7,6 +7,7 @@ import {
   buildPluginFixture,
   collectPageErrors,
   launchBrowser,
+  newPage,
   serveStatic,
   waitForDockReady,
 } from '../src/harness'
@@ -29,7 +30,7 @@ describe('issue #339: static devtools build', () => {
     const outDir = await buildPluginFixture(fixtureDir)
     const server = await serveStatic(outDir)
     try {
-      const page = await browser.newPage()
+      const page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/__devtools/`, { waitUntil: 'domcontentloaded' })
@@ -55,7 +56,7 @@ describe('issue #339: static devtools build', () => {
     const outDir = await buildCliFixture(fixtureDir)
     const server = await serveStatic(outDir)
     try {
-      const page = await browser.newPage()
+      const page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/`, { waitUntil: 'domcontentloaded' })
