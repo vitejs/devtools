@@ -79,9 +79,6 @@ catalogs:
     get-port-please:
       specifier: ^3.2.0
       version: 3.2.0
-    gunshi:
-      specifier: ^0.29.5
-      version: 0.29.5
     h3:
       specifier: 2.0.1-rc.22
       version: 2.0.1-rc.22
@@ -943,15 +940,6 @@ importers:
       devframe:
         specifier: catalog:deps
         version: 0.6.0(srvx@0.11.15)(typescript@6.0.3)
-      get-port-please:
-        specifier: catalog:deps
-        version: 3.2.0
-      gunshi:
-        specifier: catalog:deps
-        version: 0.29.5
-      h3:
-        specifier: catalog:deps
-        version: 2.0.1-rc.22(crossws@0.4.9(srvx@0.11.15))
       nostics:
         specifier: catalog:deps
         version: 1.1.4
@@ -7237,10 +7225,6 @@ packages:
   gray-matter@4.0.3:
     resolution: {integrity: sha512-5v6yZd4JK3eMI3FqqCouswVqwugaA9r4dNZB1wwcmrD02QkV5H0y7XBQW8QwQqEaZY1pM9aqORSORhJRdNK44Q==}
     engines: {node: '>=6.0'}
-
-  gunshi@0.29.5:
-    resolution: {integrity: sha512-enk4QxCVyAKWZDYg3ui4at1s+1cvOWluPLtWPgFzv2NDBJ/GVZYbQdFfgM7RFyQJZnoKH27t3bKKcRtUbdFA6Q==}
-    engines: {node: '>= 20'}
 
   gzip-size@6.0.0:
     resolution: {integrity: sha512-ax7ZYomf6jqPTQ4+XCpUGyXKHk5WweS+e05MBO4/y3WJ5RkmPXNKvX+bx1behVILVwr6JSQvZAku021CHPXG3Q==}
@@ -16806,8 +16790,6 @@ snapshots:
       kind-of: 6.0.3
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
-
-  gunshi@0.29.5: {}
 
   gzip-size@6.0.0:
     dependencies:
