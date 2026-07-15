@@ -1,3 +1,4 @@
+import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
@@ -17,6 +18,12 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
   const h3 = new H3()
 
   const { rpc, getConnectionMeta } = await createWsServer(options)
+
+  // Hand the host the live connection-meta getter so each mounted devframe's
+  // `mountConnectionMeta` middleware can serve it at the devframe's own base
+  // (the getter didn't exist yet when the host was created, before the WS
+  // server allocated its endpoint).
+  ;(options.context.host as ViteDevToolsHost).provideConnectionMeta?.(getConnectionMeta)
 
   h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
     event.res.headers.set('Content-Type', 'application/json')
