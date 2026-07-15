@@ -68,13 +68,12 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   // Terminals, messages, and the inspector are first-party tooling, so they
   // live in the `~builtin` dock category — alongside the built-in Settings
   // dock — rather than the `~viteplus` group (which collects integrations
-  // like Rolldown). The hub's own `~terminals` / `~messages` docks are
-  // suppressed via `builtinDocks` in `createDevToolsContext`.
+  // like Rolldown). The hub synthesizes no docks of its own; these
+  // plugin-mounted iframe docks are the terminals / messages tabs.
   //
-  // The hub's built-in `~messages` docks auto-hid themselves
-  // when empty; the plugin-mounted iframe docks that replaced them carry no
-  // such rule, so we restore it here — the dock is filtered out of the bar
-  // (`when: 'false'`) whenever there are no sessions / messages.
+  // An empty messages feed should hide its tab, so we attach that rule here —
+  // the dock is filtered out of the bar (`when: 'false'`) whenever there are
+  // no messages.
   const terminalsDevframe = createTerminalsDevframe()
   const messagesDevframe = createMessagesDevframe()
   const inspectDevframe = createInspectDevframe({ id: DEVTOOLS_INSPECTOR_DOCK_ID })

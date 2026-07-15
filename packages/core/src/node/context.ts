@@ -39,11 +39,6 @@ export async function createDevToolsContext(
     mode,
     host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
     builtinRpcDeclarations,
-    // The terminals + messages panels are provided by the official
-    // `@devframes/plugin-terminals` / `@devframes/plugin-messages` devframes
-    // (mounted in `DevTools()`), so suppress the hub's built-in `~terminals` /
-    // `~messages` docks to avoid duplicates. The `~settings` built-in stays.
-    builtinDocks: { terminals: false, messages: false },
     viteConfig,
     viteServer,
   })) as ViteDevToolsNodeContext
@@ -51,6 +46,19 @@ export async function createDevToolsContext(
   // Fold the core (Vite) diagnostics into the shared host logger so plugin
   // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
   context.diagnostics.register(diagnostics)
+
+  // The hub no longer synthesizes built-in docks — Vite DevTools, as the
+  // high-level integration, registers the viewer's native views it wants. The
+  // terminals + messages panels come from the official `@devframes/plugin-terminals`
+  // / `@devframes/plugin-messages` devframes (mounted in `DevTools()`), so only the
+  // Settings tab is registered here. A `~builtin` view defaults its category to
+  // `~builtin`, so this Settings tab sorts last on its own.
+  context.docks.register({
+    type: '~builtin',
+    id: '~settings',
+    title: 'Settings',
+    icon: 'ph:gear-duotone',
+  })
 
   const rpcHost = context.rpc as RpcFunctionsHost
 
