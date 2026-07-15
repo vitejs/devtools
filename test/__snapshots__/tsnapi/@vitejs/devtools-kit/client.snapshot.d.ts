@@ -3,6 +3,7 @@
  */
 // #region Functions
 export declare function getDevToolsClientContext(): DevToolsClientContext | undefined;
+export declare function getDevToolsRpcClient(_?: DevframeRpcClientOptions): Promise<DevframeRpcClient>;
 // #endregion
 
 // #region Variables
@@ -30,7 +31,6 @@ export { DockPanelStorage }
 export { DocksContext }
 export { DocksEntriesContext }
 export { DocksPanelContext }
-export { getDevToolsRpcClient }
 export { parseRemoteConnection }
 export { RpcClientEvents }
 export { RpcStreamingClientHost }

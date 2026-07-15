@@ -1,4 +1,5 @@
 export * from './client-script'
+export * from './connection'
 export * from './context'
 export * from './docks'
 export * from './remote'
@@ -12,7 +13,6 @@ export {
   type DevframeRpcClientMode as DevToolsRpcClientMode,
   type DevframeRpcClientOptions as DevToolsRpcClientOptions,
   type DevframeRpcContext as DevToolsRpcContext,
-  getDevframeRpcClient as getDevToolsRpcClient,
   type RpcStreamingClientHost,
   type StreamingSubscribeOptions,
 } from '@devframes/hub/client'

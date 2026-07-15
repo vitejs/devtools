@@ -180,7 +180,11 @@ async function mountStandaloneApp(context: DocksContext, popup: Window) {
   popup.document.head?.appendChild(baseStyle)
   popup.document.body.textContent = ''
 
-  ;(popup as Window & { [DEVFRAME_CONNECTION_META_KEY]?: unknown })[DEVFRAME_CONNECTION_META_KEY] = context.rpc.connectionMeta
+  // Prefer the base-independent meta the main window publishes (absolute ws
+  // path) so devframe iframes mounted at other bases inside the popup inherit a
+  // dialable endpoint; fall back to the raw client meta.
+  ;(popup as Window & { [DEVFRAME_CONNECTION_META_KEY]?: unknown })[DEVFRAME_CONNECTION_META_KEY]
+    = (globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY] ?? context.rpc.connectionMeta
 
   const appRoot = popup.document.createElement('div')
   appRoot.id = 'vite-devtools-popup-root'
