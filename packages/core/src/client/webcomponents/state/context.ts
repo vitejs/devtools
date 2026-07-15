@@ -274,6 +274,15 @@ export async function createDocksContext(
         return getWhenContext()
       },
     },
+    connection: {
+      get status() {
+        return rpc.status
+      },
+      get error() {
+        return rpc.connectionError
+      },
+      events: rpc.events,
+    },
     rpc: markRaw(rpc),
     clientType,
   })
