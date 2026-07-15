@@ -7,7 +7,7 @@ allowBuilds:
   vue-demi: true
 ignoreWorkspaceRootCheck: true
 minimumReleaseAge: 0
-verifyDepsBeforeRun: false
+verifyDepsBeforeRun: true
 shamefullyHoist: true
 shellEmulator: true
 strictPeerDependencies: false
