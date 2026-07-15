@@ -46,8 +46,10 @@
   "dependencies": {
     "@devframes/hub": "catalog:deps",
     "devframe": "catalog:deps",
+    "local-pkg": "catalog:deps",
     "mlly": "catalog:deps",
-    "nostics": "catalog:deps"
+    "nostics": "catalog:deps",
+    "nypm": "catalog:deps"
   },
   "devDependencies": {
     "human-id": "catalog:inlined",

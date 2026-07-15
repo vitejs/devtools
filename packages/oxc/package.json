@@ -29,6 +29,7 @@
     "devtools-oxc": "./bin/devtools-oxc.mjs"
   },
   "files": [
+    "bin",
     "dist"
   ],
   "scripts": {
@@ -47,6 +48,7 @@
     "@vitejs/devtools-kit": "workspace:*",
     "ansis": "catalog:deps",
     "devframe": "catalog:deps",
+    "gunshi": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"

@@ -21,6 +21,16 @@ export interface CreateViteDevToolsHostOptions {
   viteServer?: ViteDevServer;
   workspaceRoot?: string;
 }
+export interface InstallLauncherOptions {
+  id: string;
+  title: string;
+  icon: DevframeDockEntryIcon;
+  groupId?: string;
+  label?: string;
+  name?: string;
+  install: string[];
+  dev?: boolean;
+}
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
@@ -28,6 +38,7 @@ export interface KitNodeContext extends DevframeHubContext {
 // #endregion
 
 // #region Functions
+export declare function createInstallLauncher(_: InstallLauncherOptions): PluginWithDevTools;
 export declare function createKitContext(_: CreateKitContextOptions): Promise<KitNodeContext>;
 export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;

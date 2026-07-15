@@ -1,34 +1,20 @@
-import { createCli } from 'devframe/adapters/cli'
+import { define } from 'gunshi'
+import { createDevServer } from 'devframe/adapters/dev'
 import c from 'ansis'
 import { log } from '@clack/prompts'
 import { oxcDevframe, OXC_DEVTOOLS_BASE } from '../node/devframe'
-import { runLint } from './lint'
-import { version } from '../../package.json'
 
-/**
- * Build the standalone Oxc DevTools CLI. Wraps the portable {@link oxcDevframe}
- * definition with devframe's `dev` / `build` / `spa` / `mcp` command shell and
- * layers on the oxc-specific `lint` command that generates the session logs the
- * UI reads.
- */
-export function createOxcCli() {
-  const handle = createCli(oxcDevframe, {
-    onReady: ({ origin }) => {
-      log.info(`Oxc Inspector UI is running on ${c.cyan(`${origin}${OXC_DEVTOOLS_BASE}`)}`)
-    },
-    configureCli(cli) {
-      cli
-        .command('lint [...args]', 'Run oxlint and generate a session for the UI')
-        .allowUnknownOptions()
-        .action(async (args: string[] = []) => {
-          await runLint(args)
-        })
-    },
-  })
-
-  // `createCli` registers a placeholder `0.0.0`; override it with the real
-  // package version so `devtools-oxc --version` reports correctly.
-  handle.cli.version(version)
-
-  return handle
-}
+export const mainCommand = define({
+  name: 'main',
+  description: 'Start devtools-oxc ui',
+  run: async () => {
+    // Spin up the devframe-powered dev server (h3 + WebSocket RPC + the SPA).
+    // We drive it directly from gunshi rather than devframe's `createCli` so the
+    // CLI shell stays framework-agnostic.
+    await createDevServer(oxcDevframe, {
+      onReady: ({ origin }) => {
+        log.info(`Oxc Inspector UI is running on ${c.cyan(`${origin}${OXC_DEVTOOLS_BASE}`)}`)
+      },
+    })
+  },
+})

@@ -9,7 +9,7 @@ export default defineConfig({
       webFonts: {
         processors: createLocalFontProcessor({
           fontAssetsDir: fileURLToPath(new URL('./public/fonts', import.meta.url)),
-          fontServeBaseUrl: './fonts',
+          fontServeBaseUrl: '../fonts',
         }),
       },
     }),

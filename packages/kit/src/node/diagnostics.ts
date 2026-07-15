@@ -1,11 +1,16 @@
 import { createConsoleReporter, defineDiagnostics } from 'nostics'
 
-// Kit-side diagnostics. The hub-domain codes (DTK0050-DTK0057) have
+// Kit-side diagnostics. The former hub-domain codes (DTK0050-DTK0057)
 // moved upstream into `@devframes/hub` as DF8100-DF8403 since hub now
-// owns the docks/terminals/commands hosts. Kit-only codes can be added
-// here in the DTK0050+ range as needed.
+// owns the docks/terminals/commands hosts, so the DTK0050+ range is free
+// again for kit-only codes.
 export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
   reporters: [createConsoleReporter()],
-  codes: {},
+  codes: {
+    DTK0050: {
+      why: (p: { packages: string }) => `Failed to install ${p.packages}.`,
+      fix: 'Install the package(s) manually with your package manager, then restart the dev server.',
+    },
+  },
 })
