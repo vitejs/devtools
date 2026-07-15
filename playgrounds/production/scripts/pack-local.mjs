@@ -16,6 +16,7 @@
 import { execSync } from 'node:child_process'
 import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
@@ -36,6 +37,7 @@ const PACKAGES = [
   { name: '@vitejs/devtools-rolldown', dir: 'packages/rolldown', out: 'vitejs-devtools-rolldown.tgz' },
   { name: '@vitejs/devtools-vite', dir: 'packages/vite', out: 'vitejs-devtools-vite.tgz' },
   { name: '@vitejs/devtools-vitest', dir: 'packages/vitest', out: 'vitejs-devtools-vitest.tgz' },
+  { name: '@vitejs/devtools-oxc', dir: 'packages/oxc', out: 'vitejs-devtools-oxc.tgz' },
 ]
 
 const skipBuild = process.argv.includes('--no-build')
@@ -56,6 +58,7 @@ mkdirSync(tarballDir, { recursive: true })
 // Pack each package. `--ignore-scripts` skips the `prepack` rebuild since the
 // monorepo build above already produced fresh dist output.
 for (const { name, dir } of PACKAGES) {
+  console.log(`\nPacking ${name}...`)
   run(`pnpm pack --config.ignore-scripts=true --pack-destination "${tarballDir}"`, join(repoRoot, dir))
 }
 
