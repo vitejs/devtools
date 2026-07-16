@@ -101,7 +101,7 @@ function severityClass(severity: string | undefined) {
               group
               :style="{ left: `calc(${label.span.column - 1}ch)` }"
             >
-              <VTooltip :delay="{ show: 100, hide: 0 }">
+              <VTooltip :delay="{ show: 100, hide: 200 }" :popper-triggers="['hover']">
                 <div>
                   <div>
                     <span v-for="i in generateLabelIndicator(label).preDashes" :key="`pre-${i}`"
