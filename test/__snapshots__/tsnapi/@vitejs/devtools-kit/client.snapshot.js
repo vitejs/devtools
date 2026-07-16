@@ -3,7 +3,7 @@
  */
 // #region Functions
 export function getDevToolsClientContext() {}
-export async function getDevToolsRpcClient(_) {}
+export function getDevToolsRpcClient(_) {}
 // #endregion
 
 // #region Variables

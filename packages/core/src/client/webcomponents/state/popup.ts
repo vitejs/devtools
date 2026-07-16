@@ -180,9 +180,10 @@ async function mountStandaloneApp(context: DocksContext, popup: Window) {
   popup.document.head?.appendChild(baseStyle)
   popup.document.body.textContent = ''
 
-  // Prefer the base-independent meta the main window publishes (absolute ws
-  // path) so devframe iframes mounted at other bases inside the popup inherit a
-  // dialable endpoint; fall back to the raw client meta.
+  // Prefer the meta devframe's client already published on the main window
+  // (annotated with the absolute `baseUrl` it was resolved from) so devframe
+  // iframes mounted at other bases inside the popup inherit a dialable
+  // endpoint; fall back to the raw client meta.
   ;(popup as Window & { [DEVFRAME_CONNECTION_META_KEY]?: unknown })[DEVFRAME_CONNECTION_META_KEY]
     = (globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY] ?? context.rpc.connectionMeta
 
