@@ -1,7 +1,7 @@
 import type { TextmateTheme } from 'modern-monaco'
 import type * as Monaco from 'modern-monaco/editor-core'
-import { isDark } from './dark'
 import { init } from 'modern-monaco'
+import { isDark } from './dark'
 
 const lightTheme: TextmateTheme = {
   type: 'light',

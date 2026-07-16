@@ -19,8 +19,7 @@ export const Default: Story = {}
 
 export const Types: Story = {
   render: () => ({
-    setup: () => () => h('div', { class: 'flex items-center gap-3 p6 text-2xl' },
-      ['App.vue', 'main.ts', 'index.js', 'style.css', 'data.json', 'readme.md', 'logo.svg', 'app.svelte']
-        .map(filename => h(DisplayFileIcon, { key: filename, filename }))),
+    setup: () => () => h('div', { class: 'flex items-center gap-3 p6 text-2xl' }, ['App.vue', 'main.ts', 'index.js', 'style.css', 'data.json', 'readme.md', 'logo.svg', 'app.svelte']
+      .map(filename => h(DisplayFileIcon, { key: filename, filename }))),
   }),
 }

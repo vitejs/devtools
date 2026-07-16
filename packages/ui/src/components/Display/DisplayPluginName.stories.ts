@@ -20,8 +20,7 @@ export const Compact: Story = { args: { name: 'vite:css-post', compact: true } }
 
 export const List: Story = {
   render: () => ({
-    setup: () => () => h('div', { class: 'flex flex-col gap-1 p6' },
-      ['vite:import-analysis', 'unocss:transformer', 'nuxt:pages', 'rollup:commonjs', 'my-custom-plugin']
-        .map(name => h(DisplayPluginName, { key: name, name }))),
+    setup: () => () => h('div', { class: 'flex flex-col gap-1 p6' }, ['vite:import-analysis', 'unocss:transformer', 'nuxt:pages', 'rollup:commonjs', 'my-custom-plugin']
+      .map(name => h(DisplayPluginName, { key: name, name }))),
   }),
 }

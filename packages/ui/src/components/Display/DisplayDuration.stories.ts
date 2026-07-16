@@ -23,7 +23,6 @@ export const Default: Story = {}
 /** Colour scales with magnitude when `color` is enabled. */
 export const Scale: Story = {
   render: () => ({
-    setup: () => () => h('div', { class: 'flex items-center gap-4 p6' },
-      [0.5, 12, 120, 850, 4200].map(duration => h(DisplayDuration, { key: duration, duration }))),
+    setup: () => () => h('div', { class: 'flex items-center gap-4 p6' }, [0.5, 12, 120, 850, 4200].map(duration => h(DisplayDuration, { key: duration, duration }))),
   }),
 }

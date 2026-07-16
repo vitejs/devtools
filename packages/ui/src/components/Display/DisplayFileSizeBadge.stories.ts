@@ -21,7 +21,6 @@ export const WithPercent: Story = { args: { bytes: 512_000, total: 2_000_000 } }
 /** Colour scales with size. */
 export const Scale: Story = {
   render: () => ({
-    setup: () => () => h('div', { class: 'flex items-center gap-2 p6' },
-      [20_000, 300_000, 900_000, 5_000_000, 15_000_000].map(bytes => h(DisplayFileSizeBadge, { key: bytes, bytes }))),
+    setup: () => () => h('div', { class: 'flex items-center gap-2 p6' }, [20_000, 300_000, 900_000, 5_000_000, 15_000_000].map(bytes => h(DisplayFileSizeBadge, { key: bytes, bytes }))),
   }),
 }

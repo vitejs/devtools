@@ -2,8 +2,8 @@
 import type { GraphPathSelector } from '../../composables/graph-path-selector'
 import { computed, watch } from 'vue'
 import { useGraphPathSelector } from '../../composables/graph-path-selector'
-import DataPathSelectorItem from './DataPathSelectorItem.vue'
 import DisplayCloseButton from '../Display/DisplayCloseButton.vue'
+import DataPathSelectorItem from './DataPathSelectorItem.vue'
 
 const props = defineProps<{
   data: T[]
