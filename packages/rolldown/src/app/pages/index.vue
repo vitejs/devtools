@@ -49,23 +49,33 @@ const sessions = ref<BuildInfo[]>(await rpc.value.call('vite:rolldown:list-sessi
 
 const building = ref(false)
 const buildError = ref<string | null>(null)
+const buildSessionId = ref<string | null>(null)
 
 async function refreshSessions() {
   sessions.value = await rpc.value.call('vite:rolldown:list-sessions')
 }
 
-async function runBuild() {
-  if (building.value)
+async function navigateToBuildTerminal() {
+  if (!buildSessionId.value)
     return
+  await rpc.value.call('devtoolskit:internal:navigate', {
+    dockId: 'devframes-plugin-terminals',
+    sessionId: buildSessionId.value,
+  })
+}
+
+async function runBuild() {
+  // While a build is running, clicking opens its Terminals session to watch it
+  // stream, rather than starting another build.
+  if (building.value) {
+    await navigateToBuildTerminal()
+    return
+  }
   building.value = true
   buildError.value = null
   try {
     const { sessionId } = await rpc.value.call('vite:rolldown:run-build')
-    // Jump to the Terminals dock so the running build streams into view.
-    await rpc.value.call('devtoolskit:internal:navigate', {
-      dockId: 'devframes-plugin-terminals',
-      sessionId,
-    })
+    buildSessionId.value = sessionId
     const { exitCode } = await rpc.value.call('vite:rolldown:wait-for-build')
     if (exitCode != null && exitCode !== 0)
       buildError.value = `Build exited with code ${exitCode}.`
@@ -104,11 +114,11 @@ function selectSession(session: BuildInfo) {
       </p>
       <button
         btn-action rounded-8 text-3 flex="~ gap2 items-center justify-center" h9 px4
-        :disabled="building"
+        :title="building ? 'View this build in the Terminals tab' : 'Run a build with devtools output'"
         @click="runBuild()"
       >
         <span :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" text-sm />
-        {{ building ? 'Building…' : 'Run build with devtools' }}
+        {{ building ? 'Building… (view terminal)' : 'Run build with devtools' }}
       </button>
       <p v-if="buildError" m0 text-sm text-center text-red>
         {{ buildError }}
@@ -147,8 +157,7 @@ function selectSession(session: BuildInfo) {
       </div>
       <button
         btn-action rounded-8 text-3 flex="~ gap2 items-center justify-center" h8 px3
-        :title="building ? 'Building…' : 'Run a build with devtools output'"
-        :disabled="building"
+        :title="building ? 'View this build in the Terminals tab' : 'Run a build with devtools output'"
         @click="runBuild()"
       >
         <span :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" text-sm />
