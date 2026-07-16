@@ -25,6 +25,11 @@ export async function buildPluginFixture(fixtureDir: string): Promise<string> {
 export async function buildCliFixture(fixtureDir: string, outDir = '.vite-devtools'): Promise<string> {
   const result = await x('node', [cliBin, 'build', '--root', fixtureDir, '--outDir', outDir], {
     throwOnError: true,
+    // The CLI process should exit as soon as the build finishes. Without a
+    // bound here, a hang in the child process (e.g. an open handle that
+    // prevents the event loop from draining) silently burns the whole test
+    // timeout with no indication of where it got stuck.
+    timeout: 60_000,
   })
   if (result.exitCode !== 0)
     throw new Error(`vite-devtools build failed:\n${result.stderr}`)

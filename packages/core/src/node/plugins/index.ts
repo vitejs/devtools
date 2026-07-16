@@ -49,6 +49,7 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
 
   plugins.unshift(
     ...await DevToolsBuiltin({
+      cwd: options.cwd,
       vitePlusLaunchers: builtinDevTools,
     }),
   )

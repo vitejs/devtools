@@ -17,7 +17,13 @@ cli
   // Action
   .action(async (options) => {
     const { build } = await import('./cli-commands')
-    return await build(options)
+    await build(options)
+    // A static build has no long-lived work left once it returns. Exiting
+    // explicitly makes termination independent of whatever a `devtools.setup()`
+    // hook (ours or a third-party plugin's) may have left open — a stray timer,
+    // socket, or watcher would otherwise hang the process indefinitely instead
+    // of a build that should just finish and exit.
+    process.exit(0)
   })
 
 cli
