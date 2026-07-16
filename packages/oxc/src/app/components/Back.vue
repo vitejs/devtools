@@ -14,13 +14,8 @@ function goBack() {
 </script>
 
 <template>
-  <u-button
-    icon="ph:arrow-bend-up-left-duotone"
-    color="neutral"
-    variant="outline"
-    class="cursor-pointer mb-2 w-fit"
-    @click="goBack"
-  >
+  <button btn-action-sm mb2 w-fit cursor-pointer @click="goBack">
+    <div i-ph-arrow-bend-up-left-duotone />
     Back
-  </u-button>
+  </button>
 </template>

@@ -14,9 +14,10 @@ export default antfu({
     // dependency specifiers rather than the repo catalog and stays out of the
     // repo-wide ESLint run.
     'playgrounds/production',
-    // `packages/oxc` (donated from yuyinws/oxc-inspector) carries its own
-    // oxlint/oxfmt style and is linted by its own toolchain, so it stays out of
-    // the repo-wide ESLint run.
+    // `packages/oxc` is DevTools for the Oxc toolchain and dogfoods its own
+    // oxlint/oxfmt on itself, whose formatting (e.g. `arrowParens: "avoid"`)
+    // conflicts with this shared antfu config, so it is linted by its own
+    // toolchain (`pnpm -C packages/oxc lint`) rather than the repo-wide run.
     'packages/oxc',
     '!packages/oxc/package.json',
   ],

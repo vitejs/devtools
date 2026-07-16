@@ -51,7 +51,6 @@ catalogs:
     nitropack: ^2.13.4
     nuxt: ^4.4.8
     rolldown: ^1.1.5
-    tailwindcss: ^4.3.2
     tsdown: ^0.22.7
     tsx: ^4.23.1
     turbo: ^2.10.5
@@ -124,7 +123,6 @@ catalogs:
     '@humanwhocodes/momoa': ^3.3.10
     '@json-render/core': ^0.19.0
     '@json-render/vue': ^0.19.0
-    '@nuxt/ui': ^4.9.0
     '@vueuse/components': ^14.3.0
     '@vueuse/core': ^14.3.0
     '@vueuse/router': ^14.3.0

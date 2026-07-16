@@ -14,6 +14,8 @@ packages/vite/runtime
 packages/rolldown/src/public/fonts
 packages/rolldown/src/app/public/fonts
 packages/rolldown/runtime
+packages/oxc/src/public/fonts
+packages/oxc/src/app/public/fonts
 packages/kit/skills
 .rolldown
 .devtools-oxc

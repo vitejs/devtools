@@ -1,38 +1,9 @@
+// @unocss-include
+
 // Get the file extension
 export function getFileExt(filename: string) {
   const ext = filename.split('.').pop()
   return ext ? `.${ext}` : ''
-}
-
-// Get the file icon
-export function getFileIcon(filename: string) {
-  const ext = getFileExt(filename)
-  switch (ext) {
-    case '.ts':
-    case '.tsx':
-    case '.mts':
-    case '.cts':
-      return 'vscode-icons:file-type-typescript'
-    case '.js':
-    case '.jsx':
-    case '.mjs':
-    case '.cjs':
-      return 'vscode-icons:file-type-js'
-    case '.vue':
-      return 'vscode-icons:file-type-vue'
-    case '.css':
-      return 'vscode-icons:file-type-css'
-    case '.json':
-      return 'vscode-icons:file-type-json'
-    case '.md':
-      return 'vscode-icons:file-type-markdown'
-    case '.svelte':
-      return 'vscode-icons:file-type-svelte'
-    case '.astro':
-      return 'vscode-icons:file-type-astro'
-    default:
-      return 'vscode-icons:file-type-text'
-  }
 }
 
 // Compute the height of the error markers
@@ -58,6 +29,6 @@ export function processLabelHtml(text: string) {
   // Match content between single/back quotes and replace it with a background-highlighted span
   return text.replace(
     /['`]([^'`]+)['`]/g,
-    '<span class="bg-neutral-100 dark:bg-neutral-800 px-1 py-0.5 rounded font-semibold">$1</span>',
+    '<span class="bg-active px-1 py-0.5 rounded font-semibold">$1</span>',
   )
 }

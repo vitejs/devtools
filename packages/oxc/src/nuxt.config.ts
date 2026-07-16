@@ -1,10 +1,12 @@
+import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
+import { alias } from '../../../alias'
 
 const BASE = '/__devtools-oxc/'
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   ssr: false,
   srcDir: 'app',
   nitro: {
@@ -24,25 +26,17 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        // headers,
       },
     },
   },
-  modules: ['@nuxt/ui', '@vueuse/nuxt'],
-  css: ['~/assets/css/main.css'],
-  icon: {
-    clientBundle: {
-      scan: {
-        globInclude: ['app/**/*'],
-      },
-    },
-    customCollections: [
-      {
-        prefix: 'custom',
-        dir: './app/assets/icons',
-      },
-    ],
+  modules: ['@unocss/nuxt', '@vueuse/nuxt'],
+
+  alias,
+
+  unocss: {
+    configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
   },
+
   devServer: {
     port: 4448,
   },
@@ -69,13 +63,10 @@ export default defineNuxtConfig({
       },
     },
   },
-  ui: {
-    fonts: false,
-  },
   vite: {
     base: BASE,
     optimizeDeps: {
-      include: ['modern-monaco'],
+      include: ['modern-monaco', 'floating-vue'],
     },
   },
 })

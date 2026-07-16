@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Label, LineData } from '../../../src/types'
+import { Tooltip as VTooltip } from 'floating-vue'
 import { calculateErrorHeight, getFileExt, processLabelHtml } from '~/composables/useFileUtils'
 
 interface Props {
@@ -76,39 +77,31 @@ function severityClass(severity: string | undefined) {
 </script>
 
 <template>
-  <div class="overflow-auto">
-    <div class="p-4">
+  <div overflow-auto>
+    <div p4>
       <!-- Current line code -->
-      <div class="flex gap-4 items-start">
-        <span class="text-neutral-500 font-mono text-sm relative top-[3px]">{{
-          lineData.line
-        }}</span>
-        <div class="flex-1">
+      <div flex gap-4 items-start>
+        <span op-fade font-mono text-sm relative top-3px>{{ lineData.line }}</span>
+        <div flex-1>
           <Shiki :code="currentLineCode" :ext="fileExt" />
 
-          <div class="flex relative" :style="{ minHeight: `${errorHeight}px`, top: '-10px' }">
+          <div flex relative :style="{ minHeight: `${errorHeight}px`, top: '-10px' }">
             <a
               v-for="(label, labelIndex) in sortedLabels"
               :key="labelIndex"
               target="_blank"
               :href="getMessageForLabel(label.span.column)?.url"
-              class="absolute whitespace-pre text-neutral-300 dark:text-neutral-600 hover:text-neutral-800 dark:hover:text-neutral-200 cursor-pointer group"
+              absolute
+              whitespace-pre
+              text-neutral-300
+              dark:text-neutral-600
+              hover:text-neutral-800
+              dark:hover:text-neutral-200
+              cursor-pointer
+              group
               :style="{ left: `calc(${label.span.column - 1}ch)` }"
             >
-              <UTooltip
-                :delay-duration="100"
-                :disable-hoverable-content="false"
-                :ui="{ content: 'py-4 px-5 h-auto max-w-sm' }"
-              >
-                <template #content>
-                  <ErrorTooltip
-                    v-if="getMessageForLabel(label.span.column)"
-                    :message="getMessageForLabel(label.span.column)!"
-                    :filename="filename"
-                    :line="lineData.line"
-                    :column="label.span.column"
-                  />
-                </template>
+              <VTooltip :delay="{ show: 100, hide: 200 }" :popper-triggers="['hover']">
                 <div>
                   <div>
                     <span v-for="i in generateLabelIndicator(label).preDashes" :key="`pre-${i}`"
@@ -122,27 +115,38 @@ function severityClass(severity: string | undefined) {
                   <div
                     v-for="i in (sortedLabels.length - labelIndex - 1) * 2"
                     :key="`bar-${i}`"
-                    class="relative"
+                    relative
                     :style="getLabelVerticalStyle(labelIndex, -1)"
                   >
                     │
                   </div>
-                  <div class="relative flex" :style="getLabelVerticalStyle(labelIndex)">
+                  <div relative flex :style="getLabelVerticalStyle(labelIndex)">
                     <div>╰─</div>
                     <div
                       v-if="(label as any).label"
-                      class="ml-1"
+                      ml1
                       v-html="`${processLabelHtml((label as any).label)}.`"
                     />
                     <div
-                      class="ml-1"
+                      ml1
                       :class="severityClass(getMessageForLabel(label.span.column)?.severity)"
                     >
                       {{ getMessageForLabel(label.span.column)?.code }}
                     </div>
                   </div>
                 </div>
-              </UTooltip>
+                <template #popper>
+                  <div max-w-sm>
+                    <ErrorTooltip
+                      v-if="getMessageForLabel(label.span.column)"
+                      :message="getMessageForLabel(label.span.column)!"
+                      :filename="filename"
+                      :line="lineData.line"
+                      :column="label.span.column"
+                    />
+                  </div>
+                </template>
+              </VTooltip>
             </a>
           </div>
         </div>

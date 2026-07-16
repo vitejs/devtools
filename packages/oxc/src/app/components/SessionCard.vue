@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
 import type { Meta } from '../../../src/types'
 
 const { meta } = defineProps<{
@@ -11,54 +12,87 @@ const failed = computed(() => {
 </script>
 
 <template>
-  <NuxtLink class="w-full" :to="`/lint/report/${meta.timestamp}`">
-    <UCard class="w-full p-4 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer">
-      <div class="flex justify-between gap-2 font-mono opacity-50">
-        <div class="flex items-center gap-1">
-          <u-icon name="ph:hash-duotone" class="w-4 h-4" />
-          <span class="text-sm">{{ meta.timestamp }} </span>
+  <NuxtLink w-full :to="`/lint/report/${meta.timestamp}`">
+    <ContainerCard p4 cursor-pointer hover:bg-active>
+      <div flex justify-between gap-2 font-mono op-fade>
+        <div flex items-center gap-1>
+          <div i-ph-hash-duotone />
+          <span text-sm>{{ meta.timestamp }}</span>
         </div>
 
         {{ useTimeAgo(meta.timestamp) }}
       </div>
 
-      <div class="flex justify-between mt-4">
-        <UBadge color="neutral" variant="outline" icon="ph:file-duotone">
+      <div flex justify-between items-center mt4>
+        <span
+          badge-color-gray
+          inline-flex
+          items-center
+          gap-1
+          px2
+          py0.5
+          rounded
+          border
+          text-sm
+          font-mono
+        >
+          <div i-ph-file-duotone />
           {{ meta.summary.number_of_files }}
-        </UBadge>
+        </span>
 
-        <div v-if="failed" class="flex items-center gap-2 text-red-600 dark:text-red-400">
-          <UBadge
+        <div v-if="failed" flex items-center gap-2>
+          <span
             v-if="meta.summary.error_count > 0"
-            class="w-fit"
-            color="error"
-            variant="outline"
-            icon="ph:x-circle-duotone"
+            badge-color-red
+            inline-flex
+            items-center
+            gap-1
+            px2
+            py0.5
+            rounded
+            border
+            text-sm
+            font-mono
           >
+            <div i-ph-x-circle-duotone />
             {{ meta.summary.error_count }}
-          </UBadge>
+          </span>
 
-          <UBadge
+          <span
             v-if="meta.summary.warning_count > 0"
-            class="w-fit"
-            color="warning"
-            variant="outline"
-            icon="ph:warning-circle-duotone"
+            badge-color-amber
+            inline-flex
+            items-center
+            gap-1
+            px2
+            py0.5
+            rounded
+            border
+            text-sm
+            font-mono
           >
+            <div i-ph-warning-circle-duotone />
             {{ meta.summary.warning_count }}
-          </UBadge>
+          </span>
         </div>
 
-        <UBadge
+        <span
           v-else
-          class="w-fit"
-          color="success"
-          variant="outline"
-          icon="ph:check-circle-duotone"
+          badge-color-green
+          inline-flex
+          items-center
+          gap-1
+          px2
+          py0.5
+          rounded
+          border
+          text-sm
+          font-mono
         >
+          <div i-ph-check-circle-duotone />
           Passed
-        </UBadge>
+        </span>
       </div>
-    </UCard>
+    </ContainerCard>
   </NuxtLink>
 </template>

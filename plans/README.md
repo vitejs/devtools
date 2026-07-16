@@ -29,7 +29,7 @@ self-contained — it does not assume you saw the audit or the other plans.
 | 015 | Consolidate triplicated `color`/`format`/`filepath` utils into `packages/ui` | P3 | S–M | 001 | DONE |
 | 016 | Break up the `RolldownEventsReader` god class | P3 | L | 014 | TODO |
 | 017 | Deduplicate the parallel Rolldown/Vite Nuxt apps into `packages/ui` | P3 | L | 015 | DONE (shared surface promoted; ~18 analyzer-data-model-coupled components left app-local per STOP condition) |
-| 018 | Migrate the oxc DevTools UI onto `@vitejs/devtools-ui` + UnoCSS | P3 | L | — | IN PROGRESS (PR A landed: `src/app` restructure) |
+| 018 | Migrate the oxc DevTools UI onto `@vitejs/devtools-ui` + UnoCSS | P3 | L | — | DONE (PR B: `Card`/`Modal`/`Checkbox`/`EmptyState` upstreamed; PR C: `@nuxt/ui`→UnoCSS swap, oxc-cyan primary, build+typecheck+export-snapshot gates wired; lint kept on oxc's own oxlint/oxfmt per STOP — antfu ESLint conflicts with dogfooded oxfmt) |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 

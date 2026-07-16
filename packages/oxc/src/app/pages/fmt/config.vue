@@ -3,6 +3,7 @@ import type * as Monaco from 'modern-monaco/editor-core'
 import { parse, iterator } from '@humanwhocodes/momoa'
 import type { MemberNode, ObjectNode, StringNode } from '@humanwhocodes/momoa'
 import { useAsyncState } from '@vueuse/core'
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { applyMonacoTheme, createReadOnlyMonacoEditor, getMonaco } from '~/composables/monaco'
 
 const rpc = useRpc()
@@ -44,14 +45,6 @@ const KNOWN_OPTIONS = new Set([
   'experimentalSortPackageJson',
 ])
 
-const colorMode = useColorMode()
-const isDark = computed(
-  () =>
-    colorMode.value === 'dark' ||
-    (colorMode.value === 'system' &&
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches),
-)
 const editorRef = ref<HTMLDivElement | null>(null)
 const currentDocUrl = ref(DEFAULT_DOC_URL)
 const iframeLoading = ref(true)
@@ -154,7 +147,7 @@ async function initEditor() {
   // second init while `getMonaco` is awaited.
   initialized.value = true
 
-  monaco = await getMonaco(isDark.value)
+  monaco = await getMonaco()
 
   if (!editorRef.value) return
 
@@ -162,7 +155,7 @@ async function initEditor() {
   editor = createReadOnlyMonacoEditor(monaco, editorRef.value)
   editor.setModel(model)
 
-  applyMonacoTheme(monaco, isDark.value)
+  applyMonacoTheme(monaco)
 
   cursorDisposable = editor.onDidChangeCursorPosition(() => updateDocUrlFromCursor())
 
@@ -171,8 +164,8 @@ async function initEditor() {
 
 watch([editorRef, isReady], () => initEditor(), { immediate: true })
 
-watch(isDark, dark => {
-  if (monaco) applyMonacoTheme(monaco, dark)
+watch(isDark, () => {
+  if (monaco) applyMonacoTheme(monaco)
 })
 
 onBeforeUnmount(() => {
@@ -185,38 +178,45 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="h-[calc(100vh-4rem)] max-w-7xl p-4 mx-auto">
+  <div h="[calc(100vh-4rem)]" max-w-7xl p4 mx-auto>
     <Back to="/" />
-    <div
-      class="flex flex-col h-full lg:flex-row border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden bg-white dark:bg-neutral-950"
-    >
-      <div
-        class="flex-1 min-h-0 min-w-0 border-b lg:border-b-0 lg:border-r border-neutral-200 dark:border-neutral-700"
-      >
-        <div ref="editorRef" class="h-full min-h-[200px] lg:min-h-0" />
+    <div flex="~ col lg:row" h-full border="~ base rounded-lg" of-hidden bg-base>
+      <div flex-1 min-h-0 min-w-0 border="b base lg:b-0 lg:r">
+        <div ref="editorRef" h-full min-h="200px lg:0" />
       </div>
-      <div class="flex-1 min-h-[200px] lg:min-h-0 min-w-0 relative">
+      <div flex-1 min-h="200px lg:0" min-w-0 relative>
         <iframe
           :src="currentDocUrl"
-          class="w-full h-full border-0"
+          w-full
+          h-full
+          border-0
           sandbox="allow-same-origin allow-scripts"
           title="Formatter configuration documentation"
           @load="iframeLoading = false"
         />
         <Transition
           enter-active-class="transition-opacity duration-150"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
+          enter-from-class="op0"
           leave-active-class="transition-opacity duration-150"
-          leave-from-class="opacity-100"
-          leave-to-class="opacity-0"
+          leave-to-class="op0"
         >
           <div
             v-show="iframeLoading"
-            class="absolute inset-0 flex items-center justify-center bg-neutral-50 dark:bg-neutral-900 pointer-events-none"
+            absolute
+            inset-0
+            flex
+            items-center
+            justify-center
+            bg-base
+            pointer-events-none
           >
             <span
-              class="size-8 animate-spin rounded-full border-2 border-neutral-300 border-t-primary-500 dark:border-neutral-600 dark:border-t-primary-400"
+              size-8
+              animate-spin
+              rounded-full
+              border-2
+              border-base
+              border-t-primary-500
               aria-hidden="true"
             />
           </div>

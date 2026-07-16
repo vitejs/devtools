@@ -1,51 +1,67 @@
-@import 'tailwindcss';
-@import '@nuxt/ui';
-@custom-variant dark (&:where(.dark, .dark *));
+@import '@vitejs/devtools-ui/styles/global.css';
 
-body {
-  background-color: unset;
-  @apply text-neutral-800 dark:text-neutral-300;
+/* Floating Vue tooltips / dropdowns — align to the shared semantic tokens. */
+.v-popper--theme-dropdown .v-popper__inner,
+.v-popper--theme-tooltip .v-popper__inner {
+  --uno: bg-tooltip color-base font-sans rounded border border-base shadow dark: shadow-2xl;
+  box-shadow: 0 6px 30px #0000001a;
 }
 
-.bg-dots {
-  background-image: url('/dot-grid-light.png');
-  background-size: 50px;
-  background-repeat: repeat;
+.v-popper--theme-dropdown .v-popper__inner {
+  max-width: 50vw;
+  max-height: 50vh;
+  overflow: auto;
 }
 
-.dark .bg-dots,
-.bg-dots.dark {
-  color-scheme: dark;
-  background-color: black;
-  background-image: url('/dot-grid-dark.png');
+.v-popper--theme-tooltip .v-popper__arrow-inner,
+.v-popper--theme-dropdown .v-popper__arrow-inner {
+  visibility: visible;
+  --uno: border-solid border-white dark: border-#111;
 }
 
+.v-popper--theme-tooltip .v-popper__arrow-outer,
+.v-popper--theme-dropdown .v-popper__arrow-outer {
+  --uno: border-solid border-base;
+}
+
+/* Shiki code blocks: drop Shiki's baked-in theme background (an inline style,
+   so `!important` is required) and let the host surface show through. Light
+   mode keeps Shiki's inline light colors; dark mode swaps to the dual-theme
+   `--shiki-dark` values, again overriding the inline color. */
 .shiki,
 .shiki span {
+  background-color: transparent !important;
+}
+
+.dark .shiki,
+.dark .shiki span {
   color: var(--shiki-dark) !important;
-  background-color: var(--ui-bg) !important;
 }
 
-.summary-card {
-  @apply border gap-1 border-neutral-200 dark:border-neutral-700 rounded-sm px-2 py-1 flex items-center;
+/* Monaco */
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor .view-lines,
+.monaco-editor .view-line,
+.monaco-editor .line-numbers {
+  font-family: 'Input Mono', 'FiraCode', monospace !important;
+  font-size: 13px !important;
 }
 
-.color-scale-neutral {
-  @apply text-gray-700/75 dark:text-gray-300/75;
+.monaco-editor,
+.monaco-editor .monaco-editor-background,
+.monaco-editor .overflow-guard,
+.monaco-editor .margin {
+  background-color: transparent !important;
 }
 
-.color-scale-low {
-  @apply text-lime-700/75 dark:text-lime-300/75 dark:saturate-50;
+.monaco-scrollable-element > .scrollbar > .slider {
+  background-color: var(--app-scrollbar-thumb) !important;
+  border-radius: var(--app-scrollbar-radius) !important;
+  transition: background 0.2s ease;
 }
 
-.color-scale-medium {
-  @apply text-amber-700/85 dark:text-amber-300/85 dark:saturate-80;
-}
-
-.color-scale-high {
-  @apply text-orange-700/95 dark:text-orange-300/95;
-}
-
-.color-scale-critical {
-  @apply text-red-700/95 dark:text-red-300/95;
+.monaco-scrollable-element > .scrollbar > .slider.active,
+.monaco-scrollable-element > .scrollbar > .slider:hover {
+  background-color: var(--app-scrollbar-thumb-hover) !important;
 }
