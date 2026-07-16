@@ -1,4 +1,4 @@
-import { sharedShortcuts } from '@vitejs/devtools-ui/unocss/shared-shortcuts'
+import { shortcuts } from '@vitejs/devtools-ui/unocss/shortcuts'
 import { theme } from '@vitejs/devtools-ui/unocss/theme'
 import {
   defineConfig,
@@ -19,7 +19,7 @@ import {
  */
 export default defineConfig({
   shortcuts: [
-    ...sharedShortcuts,
+    ...shortcuts,
     {
       // webcomponent-specific z-index (kept in sync with the runtime config)
       'z-viewframe': 'z-20',
@@ -48,6 +48,8 @@ export default defineConfig({
         'ph': () => import('@iconify-json/ph').then(i => i.icons),
         'fluent-emoji-flat': () => import('@iconify-json/fluent-emoji-flat').then(i => i.icons),
         'carbon': () => import('@iconify-json/carbon').then(i => i.icons),
+        'catppuccin': () => import('@iconify-json/catppuccin').then(i => i.icons),
+        'svg-spinners': () => import('@iconify-json/svg-spinners').then(i => i.icons),
       },
     }),
   ],

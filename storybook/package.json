@@ -11,9 +11,11 @@
   },
   "devDependencies": {
     "@iconify-json/carbon": "catalog:icons",
+    "@iconify-json/catppuccin": "catalog:icons",
     "@iconify-json/fluent-emoji-flat": "catalog:icons",
     "@iconify-json/logos": "catalog:icons",
     "@iconify-json/ph": "catalog:icons",
+    "@iconify-json/svg-spinners": "catalog:icons",
     "@storybook/addon-docs": "catalog:storybook",
     "@storybook/vue3-vite": "catalog:storybook",
     "@vitejs/devtools": "workspace:*",

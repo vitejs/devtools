@@ -36,6 +36,10 @@
       "types": "./src/unocss/shared-shortcuts.ts",
       "import": "./src/unocss/shared-shortcuts.ts"
     },
+    "./unocss/shortcuts": {
+      "types": "./src/unocss/shortcuts.ts",
+      "import": "./src/unocss/shortcuts.ts"
+    },
     "./styles/global.css": "./src/styles/global.css",
     "./components/*": {
       "types": "./src/components/*.vue",

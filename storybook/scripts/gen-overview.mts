@@ -11,7 +11,10 @@ import { glob } from 'tinyglobby'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = fileURLToPath(new URL('../..', import.meta.url))
-const storiesDir = `${root}/packages/core/src/client/webcomponents`
+const storiesDirs = [
+  `${root}/packages/core/src/client/webcomponents`,
+  `${root}/packages/ui/src/components`,
+]
 const outFile = `${here}/../stories/Overview.mdx`
 
 interface Entry {
@@ -33,7 +36,9 @@ function toImportName(title: string): string {
   return `S${pascal}`
 }
 
-const files = (await glob('**/*.stories.ts', { cwd: storiesDir, absolute: true })).sort()
+const files = (await Promise.all(
+  storiesDirs.map(dir => glob('**/*.stories.ts', { cwd: dir, absolute: true })),
+)).flat().sort()
 
 const entries: Entry[] = []
 for (const file of files) {
