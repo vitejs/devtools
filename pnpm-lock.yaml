@@ -58,9 +58,6 @@ catalogs:
     actionspack:
       specifier: ^0.1.5
       version: 0.1.5
-    ansis:
-      specifier: ^4.3.1
-      version: 4.3.1
     birpc:
       specifier: ^4.0.0
       version: 4.0.0
@@ -505,7 +502,7 @@ importers:
         version: 3.2.4(@vitejs/devtools@0.3.4)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))
       '@nuxt/eslint':
         specifier: catalog:devtools
-        version: 1.16.0(@typescript-eslint/utils@8.64.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.39)(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(magicast@0.5.2)(oxc-parser@0.133.0)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+        version: 1.16.0(@typescript-eslint/utils@8.64.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.39)(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(magicast@0.5.2)(oxc-parser@0.133.0)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       '@nuxt/icon':
         specifier: catalog:build
         version: 2.3.1(magicast@0.5.2)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))
@@ -925,15 +922,9 @@ importers:
 
   packages/oxc:
     dependencies:
-      '@clack/prompts':
-        specifier: catalog:inlined
-        version: 1.7.0
       '@vitejs/devtools-kit':
         specifier: workspace:*
         version: link:../kit
-      ansis:
-        specifier: catalog:deps
-        version: 4.3.1
       devframe:
         specifier: catalog:deps
         version: 0.7.2(cac@7.0.0)(srvx@0.11.15)(typescript@6.0.3)
@@ -10090,10 +10081,10 @@ snapshots:
 
   '@colordx/core@5.4.3': {}
 
-  '@devframes/hub@0.5.4(devframe@0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
+  '@devframes/hub@0.5.4(devframe@0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
       birpc: 4.0.0
-      devframe: 0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      devframe: 0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       nostics: 0.2.0(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       pathe: 2.0.3
       perfect-debounce: 2.1.0
@@ -10405,12 +10396,12 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
 
-  '@eslint/config-inspector@3.0.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
+  '@eslint/config-inspector@3.0.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
       ansis: 4.3.1
       cac: 7.0.0
       chokidar: 5.0.0
-      devframe: 0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      devframe: 0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       eslint: 10.7.0(jiti@2.7.0)
       jiti: 2.7.0
       tinyglobby: 0.2.17
@@ -10829,7 +10820,7 @@ snapshots:
       which: 6.0.1
       ws: 8.21.0
     optionalDependencies:
-      '@vitejs/devtools': 0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools': 0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -10919,9 +10910,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@nuxt/eslint@1.16.0(@typescript-eslint/utils@8.64.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.39)(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(magicast@0.5.2)(oxc-parser@0.133.0)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
+  '@nuxt/eslint@1.16.0(@typescript-eslint/utils@8.64.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.39)(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(magicast@0.5.2)(oxc-parser@0.133.0)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
-      '@eslint/config-inspector': 3.0.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@eslint/config-inspector': 3.0.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(eslint@10.7.0(jiti@2.7.0))(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       '@nuxt/devtools-kit': 3.2.4(magicast@0.5.2)(vite@8.1.4)
       '@nuxt/eslint-config': 1.16.0(@typescript-eslint/utils@8.64.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3))(@vue/compiler-sfc@3.5.39)(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3)
       '@nuxt/eslint-plugin': 1.16.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3)
@@ -13362,11 +13353,11 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vitejs/devtools-kit@0.3.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
+  '@vitejs/devtools-kit@0.3.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
-      '@devframes/hub': 0.5.4(devframe@0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@devframes/hub': 0.5.4(devframe@0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       birpc: 4.0.0
-      devframe: 0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      devframe: 0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       mlly: 1.8.2
       nostics: 1.1.4
       pathe: 2.0.3
@@ -13401,18 +13392,18 @@ snapshots:
       - srvx
       - typescript
 
-  '@vitejs/devtools-rolldown@0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))(webpack@5.104.1(esbuild@0.28.1))':
+  '@vitejs/devtools-rolldown@0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
       '@floating-ui/dom': 1.8.0
       '@rolldown/debug': 1.1.5
-      '@vitejs/devtools-kit': 0.3.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools-kit': 0.3.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       birpc: 4.0.0
       cac: 7.0.0
       d3-shape: 3.2.0
-      devframe: 0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      devframe: 0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       diff: 9.0.0
       get-port-please: 3.2.0
-      h3: 2.0.1-rc.22(crossws@0.4.9(srvx@0.11.15))
+      h3: 2.0.1-rc.22(crossws@0.4.10(srvx@0.11.15))
       mlly: 1.8.2
       mrmime: 2.0.1
       nostics: 1.1.4
@@ -13479,15 +13470,15 @@ snapshots:
       - vue
     optional: true
 
-  '@vitejs/devtools@0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
+  '@vitejs/devtools@0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))':
     dependencies:
-      '@devframes/hub': 0.5.4(devframe@0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
-      '@vitejs/devtools-kit': 0.3.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
-      '@vitejs/devtools-rolldown': 0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))(webpack@5.104.1(esbuild@0.28.1))
+      '@devframes/hub': 0.5.4(devframe@0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools-kit': 0.3.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools-rolldown': 0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(vue@3.5.39(typescript@6.0.3))(webpack@5.104.1(esbuild@0.28.1))
       birpc: 4.0.0
       cac: 7.0.0
-      devframe: 0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
-      h3: 2.0.1-rc.22(crossws@0.4.9(srvx@0.11.15))
+      devframe: 0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      h3: 2.0.1-rc.22(crossws@0.4.10(srvx@0.11.15))
       mlly: 1.8.2
       nostics: 1.1.4
       obug: 2.1.3
@@ -14900,12 +14891,12 @@ snapshots:
 
   devalue@5.8.1: {}
 
-  devframe@0.5.4(crossws@0.4.9(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)):
+  devframe@0.5.4(crossws@0.4.10(srvx@0.11.15))(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1)):
     dependencies:
       '@valibot/to-json-schema': 1.7.1(valibot@1.4.2(typescript@6.0.3))
       birpc: 4.0.0
       cac: 7.0.0
-      h3: 2.0.1-rc.22(crossws@0.4.9(srvx@0.11.15))
+      h3: 2.0.1-rc.22(crossws@0.4.10(srvx@0.11.15))
       mrmime: 2.0.1
       nostics: 0.2.0(esbuild@0.28.1)(rolldown@1.1.5)(rollup@4.60.2)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       pathe: 2.0.3
@@ -15736,13 +15727,6 @@ snapshots:
       srvx: 0.11.15
     optionalDependencies:
       crossws: 0.4.10(srvx@0.11.15)
-
-  h3@2.0.1-rc.22(crossws@0.4.9(srvx@0.11.15)):
-    dependencies:
-      rou3: 0.8.1
-      srvx: 0.11.15
-    optionalDependencies:
-      crossws: 0.4.9(srvx@0.11.15)
 
   hachure-fill@0.5.2: {}
 
@@ -18770,7 +18754,7 @@ snapshots:
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
     optionalDependencies:
-      '@vitejs/devtools': 0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools': 0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       publint: 0.3.21
       tsx: 4.23.1
       typescript: 6.0.3
@@ -19456,7 +19440,7 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 25.0.3
-      '@vitejs/devtools': 0.3.4(crossws@0.4.9(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
+      '@vitejs/devtools': 0.3.4(crossws@0.4.10(srvx@0.11.15))(db0@0.3.4)(esbuild@0.28.1)(idb-keyval@6.3.0)(ioredis@5.10.1)(rolldown@1.1.5)(rollup@4.60.2)(typescript@6.0.3)(vite@8.1.4)(webpack@5.104.1(esbuild@0.28.1))
       esbuild: 0.28.1
       fsevents: 2.3.3
       jiti: 2.7.0

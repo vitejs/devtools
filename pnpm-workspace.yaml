@@ -65,7 +65,6 @@ catalogs:
     '@devframes/plugin-terminals': ^0.7.2
     '@rolldown/debug': ^1.1.5
     actionspack: ^0.1.5
-    ansis: ^4.3.1
     birpc: ^4.0.0
     cac: ^7.0.0
     devframe: ^0.7.2

@@ -43,9 +43,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@clack/prompts": "catalog:inlined",
     "@vitejs/devtools-kit": "workspace:*",
-    "ansis": "catalog:deps",
     "devframe": "catalog:deps",
     "gunshi": "catalog:deps",
     "nostics": "catalog:deps",

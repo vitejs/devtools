@@ -45,27 +45,9 @@ const filteredSessionMetaList = computed(() => {
     <VisualEmptyState v-else w-full mt4 title="No sessions found" icon="i-ph-folder-simple-duotone">
       <template #description>
         <div text-sm op-fade leading-7>
-          <span>Oxc Inspector logs directory</span><code>.devtools-oxc</code> not found.
-          <br />
-          Run <code>npx @vitejs/devtools-oxc lint</code> to generate it first.
-          <br />
-          Read more:
-          <NuxtLink
-            to="https://github.com/yuyinws/oxc-inspector"
-            external
-            target="_blank"
-            color-active
-          >
-            https://github.com/yuyinws/oxc-inspector
-          </NuxtLink>
+          Lint sessions will appear here when lint data is available.
         </div>
       </template>
     </VisualEmptyState>
   </div>
 </template>
-
-<style scoped>
-code {
-  --uno: bg-active rounded-sm px1 py0.5;
-}
-</style>

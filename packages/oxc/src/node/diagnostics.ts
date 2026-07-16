@@ -9,10 +9,5 @@ import { createConsoleReporter, defineDiagnostics } from 'nostics'
 export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
   reporters: [createConsoleReporter()],
-  codes: {
-    OXDT0001: {
-      why: 'Oxc logs directory `.devtools-oxc` not found, you might want to run build with `npx @vitejs/devtools-oxc` to generate it first.',
-      fix: 'Run `npx @vitejs/devtools-oxc lint` to generate lint logs before launching the UI.',
-    },
-  },
+  codes: {},
 })

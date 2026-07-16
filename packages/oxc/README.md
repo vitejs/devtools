@@ -40,12 +40,6 @@ yarn add -D @vitejs/devtools-oxc
 bun add -D @vitejs/devtools-oxc
 ```
 
-### Generate lint logs
-
-```sh
-npx @vitejs/devtools-oxc lint
-```
-
 ### Launch UI
 
 ```sh
