@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { connect, connectionState } from './composables/rpc'
 import 'floating-vue/dist/style.css'
+import './assets/css/main.css'
 import '@vitejs/devtools-ui/composables/dark'
 
 connect()

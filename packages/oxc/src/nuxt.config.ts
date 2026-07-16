@@ -30,7 +30,6 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@unocss/nuxt', '@vueuse/nuxt'],
-  css: ['~/assets/css/main.css'],
 
   alias,
 
