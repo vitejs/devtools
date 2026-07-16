@@ -1,6 +1,6 @@
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import { DevTools } from '@vitejs/devtools'
-import { DevToolsOxc } from '../../src/vite'
+import { DevToolsOxc } from '../vite'
 
 export default defineNuxtModule({
   meta: {
@@ -10,7 +10,7 @@ export default defineNuxtModule({
   async setup() {
     addVitePlugin(DevToolsOxc())
 
-    const devtools = await DevTools()
+    const devtools = await DevTools({ builtinDevTools: false })
     addVitePlugin(devtools)
   },
 })

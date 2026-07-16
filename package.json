@@ -9,6 +9,7 @@
     "watch": "pnpm -r run watch",
     "dev:rolldown": "pnpm -C packages/rolldown run dev",
     "dev:vite": "pnpm -C packages/vite run dev",
+    "dev:oxc": "pnpm -C packages/oxc run dev",
     "docs": "pnpm -C docs run docs",
     "docs:build": "pnpm build && pnpm -C docs run docs:build",
     "docs:serve": "pnpm -C docs run docs:serve",
