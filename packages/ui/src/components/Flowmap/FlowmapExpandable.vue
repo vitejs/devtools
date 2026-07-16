@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import FlowmapNode from './FlowmapNode.vue'
+
 withDefaults(defineProps<{
   expandable?: boolean
   classRootNode?: string

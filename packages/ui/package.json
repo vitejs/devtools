@@ -45,6 +45,18 @@
       "types": "./src/composables/*.ts",
       "import": "./src/composables/*.ts"
     },
+    "./state/*": {
+      "types": "./src/state/*.ts",
+      "import": "./src/state/*.ts"
+    },
+    "./worker/*": {
+      "types": "./src/worker/*.ts",
+      "import": "./src/worker/*.ts"
+    },
+    "./plugins/*": {
+      "types": "./src/plugins/*.ts",
+      "import": "./src/plugins/*.ts"
+    },
     "./utils/*": {
       "types": "./src/utils/*.ts",
       "import": "./src/utils/*.ts"
