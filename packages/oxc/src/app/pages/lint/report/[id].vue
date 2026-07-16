@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import { useAsyncState, useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { isMatch } from 'picomatch'
@@ -91,19 +92,18 @@ const showFiles = computed(() => !!filteredFiles.value && filteredFiles.value.le
 
     <Search v-model="search" />
 
-    <UEmpty
+    <VisualEmptyState
       v-if="showEmpty"
-      icon="twemoji:partying-face"
-      size="xl"
+      icon="i-twemoji:partying-face"
       description="Congratulations! There is no oxlint issues."
     />
 
     <template v-else>
-      <div v-if="showFiles" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div v-if="showFiles" grid="~ cols-1 lg:cols-2" gap-4>
         <FileCard v-for="file in filteredFiles" :key="file.filename" :file="file" />
       </div>
 
-      <UEmpty v-else icon="ph:file-duotone" size="xl" description="No files found." />
+      <VisualEmptyState v-else icon="i-ph-file-duotone" description="No files found." />
     </template>
   </div>
 </template>

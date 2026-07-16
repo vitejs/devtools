@@ -21,21 +21,18 @@ function clearSearch() {
 </script>
 
 <template>
-  <div class="w-full">
-    <u-input v-model="search" size="lg" class="w-full" placeholder="Search file names">
-      <template v-if="search?.length" #trailing>
-        <UButton
-          color="neutral"
-          variant="link"
-          size="sm"
-          icon="i-lucide-circle-x"
-          aria-label="Clear input"
-          @click="clearSearch"
-        />
-      </template>
-      <template #leading>
-        <UIcon name="i-lucide-search" />
-      </template>
-    </u-input>
+  <div w-full flex items-center gap-2 border="~ base rounded-lg" bg-base px3 py2>
+    <div i-lucide-search op-fade flex-none />
+    <input v-model="search" w-full bg-transparent outline-none placeholder="Search file names" />
+    <button
+      v-if="search?.length"
+      i-lucide-circle-x
+      op50
+      flex-none
+      cursor-pointer
+      hover:op100
+      aria-label="Clear input"
+      @click="clearSearch"
+    />
   </div>
 </template>

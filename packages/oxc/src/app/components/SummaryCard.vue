@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
 import type { Summary } from '../../../src/types'
 
 interface Props {
@@ -11,143 +14,142 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const durationData = computed(() => {
-  const value = Math.round(props.summary.start_time * 1000)
-
-  if (value < 100) {
-    return {
-      value,
-      color: 'color-scale-low',
-    }
-  }
-
-  if (value < 500) {
-    return {
-      value,
-      color: 'color-scale-medium',
-    }
-  }
-
-  if (value < 1000) {
-    return {
-      value,
-      color: 'color-scale-high',
-    }
-  }
-
-  return {
-    value,
-    color: 'color-scale-critical',
-  }
-})
+const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <UCard class="p-4">
-      <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
-        <UIcon name="ph:anchor" class="w-5 h-5" />
+  <div flex="~ col" gap-2>
+    <ContainerCard p4>
+      <div grid="~ cols-[max-content_160px_2fr]" gap-2 items-center>
+        <div i-ph-anchor text-lg />
 
-        <div class="font-medium">Oxlint Version</div>
+        <div font-medium>Oxlint Version</div>
 
         <NuxtLink
           :to="`https://github.com/oxc-project/oxc/releases/tag/oxlint_v${version}`"
           external
           target="_blank"
-          class="hover:text-primary hover:font-semibold"
+          w-fit
         >
-          <UBadge
-            class="hover:text-primary hover:font-semibold"
-            variant="outline"
-            color="neutral"
-            size="lg"
-            trailing-icon="ph:arrow-up-right"
+          <span
+            badge-color-gray
+            inline-flex
+            items-center
+            gap-1
+            px2
+            py1
+            rounded
+            border
+            font-mono
+            hover:color-active
           >
-            <span class="font-mono ml-1">v{{ version }}</span>
-          </UBadge>
+            <span ml1>v{{ version }}</span>
+            <div i-ph-arrow-up-right />
+          </span>
         </NuxtLink>
 
-        <UIcon name="ph:gear" class="w-5 h-5" />
+        <div i-ph-gear text-lg />
 
-        <div class="font-medium">Oxlint Config</div>
+        <div font-medium>Oxlint Config</div>
 
-        <UModal :ui="{ content: 'max-w-2xl' }">
+        <OverlayModal>
+          <template #trigger="{ open }">
+            <span
+              badge-color-gray
+              inline-flex
+              w-fit
+              items-center
+              gap-1
+              px2
+              py1
+              rounded
+              border
+              font-mono
+              cursor-pointer
+              hover:color-active
+              @click="open"
+            >
+              <span ml1>.oxlintrc.json</span>
+              <div i-ph-arrow-up-right />
+            </span>
+          </template>
           <template #title>
-            <div class="flex items-center gap-1">
-              <u-icon class="flex-shrink-0" name="vscode-icons:file-type-oxlint" />
+            <div flex items-center gap-1>
+              <div i-vscode-icons:file-type-oxlint flex-none />
               <div>.oxlintrc.json</div>
             </div>
           </template>
+          <div v-if="config" w-150 max-w-full font-mono>
+            <Shiki :code="JSON.stringify(config, null, 2)" ext=".json" />
+          </div>
+          <div v-else>
+            <p text-sm op-fade>No config found</p>
+          </div>
+        </OverlayModal>
 
-          <UBadge
-            class="hover:text-primary hover:font-semibold w-fit cursor-pointer"
-            variant="outline"
-            color="neutral"
-            size="lg"
-            trailing-icon="ph:arrow-up-right"
-          >
-            <span class="font-mono ml-1">.oxlintrc.json</span>
-          </UBadge>
-          <template #body>
-            <div v-if="config" class="w-200">
-              <Shiki :code="JSON.stringify(config, null, 2)" ext=".json" />
-            </div>
-            <div v-else>
-              <p class="text-sm text-gray-500">No config found</p>
-            </div>
-          </template>
-        </UModal>
+        <div i-ph-clock-duotone text-lg />
 
-        <UIcon name="ph:clock-duotone" class="w-5 h-5" />
+        <div font-medium>Created At</div>
 
-        <div class="font-medium">Created At</div>
-
-        <UBadge class="w-fit font-mono" size="lg" variant="outline" color="neutral">
+        <span badge-color-gray inline-flex w-fit items-center px2 py1 rounded border font-mono>
           {{ new Date(timestamp).toLocaleString() }}
-        </UBadge>
+        </span>
 
-        <UIcon name="ph:timer-duotone" class="w-5 h-5" />
+        <div i-ph-timer-duotone text-lg />
 
-        <div class="font-medium">Lint Duration</div>
+        <div font-medium>Lint Duration</div>
 
-        <UBadge
-          class="w-fit font-mono"
-          size="lg"
-          variant="outline"
-          color="neutral"
-          :class="durationData.color"
+        <span badge-color-gray inline-flex w-fit items-center px2 py1 rounded border font-mono>
+          <DisplayDuration :duration="durationMs" />
+        </span>
+
+        <div i-ph-file-duotone text-lg />
+
+        <div font-medium>Checked Files</div>
+
+        <span
+          badge-color-gray
+          inline-flex
+          w-fit
+          items-center
+          gap-1
+          px2
+          py1
+          rounded
+          border
+          font-mono
         >
-          <span> {{ durationData.value }}</span>
-          <span class="text-xs opacity-[75]">ms</span>
-        </UBadge>
-
-        <UIcon name="ph:file-duotone" class="w-5 h-5" />
-
-        <div class="font-medium">Checked Files</div>
-
-        <UBadge class="w-fit font-mono" size="lg" variant="outline" color="neutral">
           {{ summary.number_of_files }} files.
-          <span class="text-red-600 dark:text-red-400 font-semibold"
+          <span text-red-600 dark:text-red-400 font-semibold
             >{{ summary.files_with_issues }} with issues</span
           >
-        </UBadge>
+        </span>
 
-        <UIcon name="ph:warning-octagon-duotone" class="w-5 h-5" />
+        <div i-ph-warning-octagon-duotone text-lg />
 
-        <div class="font-medium">Issues</div>
+        <div font-medium>Issues</div>
 
-        <UBadge class="w-fit font-mono" size="lg" variant="outline" color="neutral">
+        <span
+          badge-color-gray
+          inline-flex
+          w-fit
+          items-center
+          gap-1
+          px2
+          py1
+          rounded
+          border
+          font-mono
+        >
           {{ totalIssues }} issues.
-          <span v-if="summary.error_count > 0" class="text-red-600 dark:text-red-400 font-semibold"
+          <span v-if="summary.error_count > 0" text-red-600 dark:text-red-400 font-semibold
             >{{ summary.error_count }} errors</span
           >
-          <span
-            v-if="summary.warning_count > 0"
-            class="text-yellow-600 dark:text-yellow-400 font-semibold"
+          <span v-if="summary.warning_count > 0" text-yellow-600 dark:text-yellow-400 font-semibold
             >{{ summary.warning_count }} warnings</span
           >
-        </UBadge>
+        </span>
       </div>
-    </UCard>
+    </ContainerCard>
   </div>
 </template>

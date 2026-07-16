@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools'
+import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools.vue'
 
 const props = defineProps<{
   text?: string

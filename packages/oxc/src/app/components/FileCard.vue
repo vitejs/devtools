@@ -1,15 +1,11 @@
 <script setup lang="ts">
+import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
+import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
 import type { FileData } from '../../../src/types'
-import { getFileIcon } from '~/composables/useFileUtils'
 
-interface Props {
+const props = defineProps<{
   file: FileData
-}
-
-const props = defineProps<Props>()
-
-// Get the file icon
-const fileIcon = computed(() => getFileIcon(props.file.filename))
+}>()
 
 const rpc = useRpc()
 
@@ -19,20 +15,17 @@ function handleOpenInEditor() {
 </script>
 
 <template>
-  <UCard>
+  <ContainerCard>
     <template #header>
-      <div class="flex items-center gap-2" @click="handleOpenInEditor">
-        <u-icon class="flex-shrink-0" :name="fileIcon" />
-        <span
-          class="truncate dark:text-neutral-300 text-neutral-700 cursor-pointer hover:underline font-mono"
-        >
+      <div flex items-center gap-2 cursor-pointer @click="handleOpenInEditor">
+        <DisplayFileIcon flex-none :filename="file.filename" />
+        <span truncate color-base hover:underline font-mono>
           {{ file.filename }}
         </span>
       </div>
     </template>
 
-    <div class="relative font-mono">
-      <!-- Issue list -->
+    <div relative font-mono>
       <div v-if="file.lines.length > 0">
         <LineError
           v-for="lineData in file.lines"
@@ -43,5 +36,5 @@ function handleOpenInEditor() {
         />
       </div>
     </div>
-  </UCard>
+  </ContainerCard>
 </template>

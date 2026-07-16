@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import FormCheckbox from '@vitejs/devtools-ui/components/Form/FormCheckbox.vue'
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import { useAsyncState, useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRpc } from '#imports'
@@ -22,32 +24,27 @@ const filteredSessionMetaList = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div flex="~ col" gap-4>
     <Back />
-    <div class="flex justify-between items-center w-full">
-      <div class="flex items-center gap-2">
-        <UButton
-          size="sm"
-          class="cursor-pointer"
-          icon="lucide:refresh-cw"
-          color="neutral"
-          variant="outline"
-          @click="reloadSessions()"
-        />
+    <div flex justify-between items-center w-full>
+      <div flex items-center gap-2>
+        <button btn-action-sm cursor-pointer aria-label="Reload sessions" @click="reloadSessions()">
+          <div i-lucide-refresh-cw />
+        </button>
 
-        <p class="opacity-50">Select a lint session to get started:</p>
+        <p op-fade>Select a lint session to get started:</p>
       </div>
 
-      <UCheckbox v-model="hidePassed" color="success" label="Hide Passed" />
+      <FormCheckbox v-model="hidePassed" label="Hide Passed" />
     </div>
 
     <template v-if="filteredSessionMetaList?.length > 0">
       <SessionCard v-for="meta in filteredSessionMetaList" :key="meta.timestamp" :meta="meta" />
     </template>
 
-    <UEmpty v-else class="w-full mt-4" title="No sessions found" icon="i-ph-folder-simple-duotone">
+    <VisualEmptyState v-else w-full mt4 title="No sessions found" icon="i-ph-folder-simple-duotone">
       <template #description>
-        <div class="text-sm text-neutral-500 leading-7">
+        <div text-sm op-fade leading-7>
           <span>Oxc Inspector logs directory</span><code>.devtools-oxc</code> not found.
           <br />
           Run <code>npx @vitejs/devtools-oxc lint</code> to generate it first.
@@ -57,20 +54,18 @@ const filteredSessionMetaList = computed(() => {
             to="https://github.com/yuyinws/oxc-inspector"
             external
             target="_blank"
-            class="text-primary-500"
+            color-active
           >
             https://github.com/yuyinws/oxc-inspector
           </NuxtLink>
         </div>
       </template>
-    </UEmpty>
+    </VisualEmptyState>
   </div>
 </template>
 
 <style scoped>
-@reference '~/assets/css/main.css';
-
 code {
-  @apply bg-neutral-100 dark:bg-neutral-800 rounded-sm px-1 py-0.5;
+  --uno: bg-active rounded-sm px1 py0.5;
 }
 </style>
