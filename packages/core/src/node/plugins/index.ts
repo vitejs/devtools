@@ -2,7 +2,6 @@ import type { Plugin } from 'vite'
 import { DevToolsBuild } from './build'
 import { DevToolsBuiltin } from './builtin'
 import { DevToolsInjection } from './injection'
-import { DevToolsRolldownBuildFlag } from './rolldown-build-flag'
 import { DevToolsServer } from './server'
 
 export interface DevToolsOptions {
@@ -42,9 +41,6 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   const plugins = [
     DevToolsInjection(),
     DevToolsServer(),
-    // No-op unless a build is spawned by the Rolldown "Run build" button
-    // (gated on the `VITE_DEVTOOLS_ROLLDOWN` env var).
-    DevToolsRolldownBuildFlag(),
   ]
 
   if (build?.withApp) {
@@ -64,6 +60,5 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
 export {
   DevToolsBuild,
   DevToolsInjection,
-  DevToolsRolldownBuildFlag,
   DevToolsServer,
 }

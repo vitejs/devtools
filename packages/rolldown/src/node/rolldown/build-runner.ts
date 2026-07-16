@@ -5,10 +5,10 @@ import { diagnostics } from '../diagnostics'
 /** Fixed terminal-session id so repeat clicks reuse one session. */
 export const BUILD_SESSION_ID = 'vite:rolldown:build'
 /**
- * Env var read by core's `DevToolsRolldownBuildFlag` plugin to force
- * `rolldownOptions.devtools` on for the spawned build.
+ * Env var the spawned build carries so the Rolldown DevTools plugin forces
+ * `rolldownOptions.devtools` on for that build (see `plugin.ts`).
  */
-const ROLLDOWN_DEVTOOLS_ENV = 'VITE_DEVTOOLS_ROLLDOWN'
+export const ROLLDOWN_DEVTOOLS_ENV = 'VITE_DEVTOOLS_ROLLDOWN'
 
 type BuildSession = Awaited<ReturnType<ViteDevToolsNodeContext['terminals']['startChildProcess']>>
 
