@@ -44,8 +44,8 @@
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
+    "cac": "catalog:deps",
     "devframe": "catalog:deps",
-    "gunshi": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"

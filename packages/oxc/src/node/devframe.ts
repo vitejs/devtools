@@ -13,7 +13,7 @@ export const OXC_DEVTOOLS_BASE = '/__devtools-oxc/'
  *
  * - **embedded** in Vite DevTools via kit's `createPluginFromDevframe`
  *   (see `../vite.ts`), and
- * - **standalone** via devframe's `createDevServer` (see `../commands/main.ts`).
+ * - **standalone** via devframe's `createDevServer` (see `../../index.ts`).
  *
  * `setup(ctx)` only registers RPC functions — the SPA hosting and dock entry
  * are derived from this metadata by the respective adapter.
