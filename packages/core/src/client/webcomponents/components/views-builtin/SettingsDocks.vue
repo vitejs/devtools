@@ -283,7 +283,7 @@ function resetCustomOrderForContainer(container: string) {
           <button
             class="w-5 h-5 flex items-center justify-center rounded transition-colors"
             :class="[
-              category === '~builtin' ? 'bg-gray/20 cursor-not-allowed op50' : settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-lime/20 text-lime',
+              category === '~builtin' ? 'bg-gray/20 cursor-not-allowed op50' : settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-primary/20 text-primary',
             ]"
             :disabled="category === '~builtin'"
             @click="toggleCategory(category)"
@@ -338,7 +338,7 @@ function resetCustomOrderForContainer(container: string) {
               >
                 <div
                   class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                  :class="dock.id === '~settings' ? 'bg-gray/30' : settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                  :class="dock.id === '~settings' ? 'bg-gray/30' : settings.docksHidden.includes(dock.id) ? 'bg-gray/30' : 'bg-primary/20 text-primary'"
                 >
                   <div
                     v-if="!settings.docksHidden.includes(dock.id)"
@@ -448,7 +448,7 @@ function resetCustomOrderForContainer(container: string) {
                 >
                   <div
                     class="w-4 h-4 rounded flex items-center justify-center transition-colors"
-                    :class="settings.docksHidden.includes(member.id) ? 'bg-gray/30' : 'bg-lime/20 text-lime'"
+                    :class="settings.docksHidden.includes(member.id) ? 'bg-gray/30' : 'bg-primary/20 text-primary'"
                   >
                     <div
                       v-if="!settings.docksHidden.includes(member.id)"

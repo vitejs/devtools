@@ -70,7 +70,7 @@ async function deauthorize() {
     <label class="flex items-center gap-3 cursor-pointer group">
       <button
         class="w-10 h-6 rounded-full transition-colors relative shrink-0"
-        :class="settings.showDevframeInspector ? 'bg-lime' : 'bg-gray/30'"
+        :class="settings.showDevframeInspector ? 'bg-primary' : 'bg-gray/30'"
         @click="settingsStore.mutate((s) => { s.showDevframeInspector = !s.showDevframeInspector })"
       >
         <div
