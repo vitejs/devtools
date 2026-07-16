@@ -33,10 +33,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm build:cli && pnpm build:client",
-    "build:cli": "tsdown",
-    "build:client": "pnpm -C client run build",
-    "dev": "pnpm -C client dev",
+    "build": "pnpm dev:prepare && nuxi build src && tsdown",
+    "dev": "nuxi dev src",
+    "dev:prepare": "nuxi prepare src",
     "lint": "oxlint && oxfmt --check",
     "lint:fix": "oxlint --fix && oxfmt",
     "play": "pnpm -C playground dev",

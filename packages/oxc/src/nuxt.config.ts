@@ -6,10 +6,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   ssr: false,
+  srcDir: 'app',
   nitro: {
     preset: 'static',
     output: {
-      dir: '../dist/client',
+      dir: '../dist',
     },
     routeRules: {
       '/': {
