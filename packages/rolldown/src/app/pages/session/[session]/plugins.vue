@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
 import { clearUndefined, toArray } from '@antfu/utils'
-import DataSearchPanel from '@vitejs/devtools-ui/components/DataSearchPanel.vue'
-import PluginsFlatList from '@vitejs/devtools-ui/components/PluginsFlatList.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import PluginsFlatList from '@vitejs/devtools-ui/components/Plugins/PluginsFlatList.vue'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { computedAsync } from '@vueuse/core'
 import { nextTick, ref, watchEffect } from 'vue'
 import { settings } from '~~/app/state/settings'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModuleListItem, RolldownChunkImport, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRoute } from '#app/composables/router'

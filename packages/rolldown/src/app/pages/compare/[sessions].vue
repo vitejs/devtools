@@ -3,7 +3,7 @@ import type {
   SessionCompareContext,
   SessionCompareDetails,
 } from '~~/shared/types'
-import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
+import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from '#app/composables/router'

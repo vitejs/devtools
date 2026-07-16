@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BannerOxcDevTools from '@vitejs/devtools-ui/components/banners/BannerOxcDevTools'
+import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools'
 import { useAsyncState } from '@vueuse/core'
 import { useRpc } from '#imports'
 

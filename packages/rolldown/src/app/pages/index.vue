@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
-import BannerRolldownDevTools from '@vitejs/devtools-ui/components/banners/BannerRolldownDevTools.vue'
-import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
+import BannerRolldownDevTools from '@vitejs/devtools-ui/components/Banner/BannerRolldownDevTools.vue'
+import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRpc } from '#imports'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ViteModuleDest, ViteModuleTreeNode } from '~/types/modules'
-import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
 import { computed, reactive } from 'vue'
 import { useRoute } from '#app/composables/router'
 import { NuxtLink } from '#components'

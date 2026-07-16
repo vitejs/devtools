@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BannerRolldownDevTools from '@vitejs/devtools-ui/components/banners/BannerRolldownDevTools.vue'
+import BannerRolldownDevTools from '@vitejs/devtools-ui/components/Banner/BannerRolldownDevTools.vue'
 
 const props = defineProps<{
   text?: string

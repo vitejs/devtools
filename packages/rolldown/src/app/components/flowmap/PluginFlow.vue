@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { ClientSettings } from '~~/app/state/settings'
 import type { RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types/data'
-import DataSearchPanel from '@vitejs/devtools-ui/components/DataSearchPanel.vue'
-import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
-import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { useCycleList, useToggle } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { settings } from '~~/app/state/settings'

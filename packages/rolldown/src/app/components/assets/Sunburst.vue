@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { GraphBase, GraphBaseOptions } from 'nanovis'
 import type { AssetChartInfo, AssetChartNode } from '~/types/chart'
-import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/ChartNavBreadcrumb.vue'
+import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/Chart/ChartNavBreadcrumb.vue'
 import { colorToCssBackground } from 'nanovis'
 import { useTemplateRef, watchEffect } from 'vue'
 

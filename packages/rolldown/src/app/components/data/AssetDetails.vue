@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
-import DisplayIconButton from '@vitejs/devtools-ui/components/DisplayIconButton.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
+import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { settings } from '~~/app/state/settings'

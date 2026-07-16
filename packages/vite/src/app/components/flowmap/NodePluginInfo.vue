@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
-import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { formatDuration } from '@vitejs/devtools-ui/utils/format'
 
 defineProps<{

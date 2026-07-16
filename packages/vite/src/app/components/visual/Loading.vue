@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BannerViteDevTools from '@vitejs/devtools-ui/components/banners/BannerViteDevTools.vue'
+import BannerViteDevTools from '@vitejs/devtools-ui/components/Banner/BannerViteDevTools.vue'
 
 const props = defineProps<{
   text?: string

@@ -2,7 +2,7 @@
 import type { DevToolsMessageLevel } from '@vitejs/devtools-kit'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { onMounted, ref, shallowRef } from 'vue'
 
 const client = shallowRef<Awaited<ReturnType<typeof getDevToolsRpcClient>> | null>(null)

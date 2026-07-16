@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { useAsyncState } from '@vueuse/core'
 import { useRpc } from '#imports'
 

@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends { id: string, imports: unknown[] }">
-import type { GraphPathSelector } from '../composables/graph-path-selector'
+import type { GraphPathSelector } from '../../composables/graph-path-selector'
 import { computed, watch } from 'vue'
-import { useGraphPathSelector } from '../composables/graph-path-selector'
+import { useGraphPathSelector } from '../../composables/graph-path-selector'
 import DataPathSelectorItem from './DataPathSelectorItem.vue'
-import DisplayCloseButton from './DisplayCloseButton.vue'
+import DisplayCloseButton from '../Display/DisplayCloseButton.vue'
 
 const props = defineProps<{
   data: T[]

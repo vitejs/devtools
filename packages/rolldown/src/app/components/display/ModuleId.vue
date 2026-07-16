@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleImport } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { Tooltip } from 'floating-vue'
 import { relative } from 'pathe'
 import { computed } from 'vue'

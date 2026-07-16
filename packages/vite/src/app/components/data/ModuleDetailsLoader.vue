@@ -2,7 +2,7 @@
 import type { DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { InspectModuleUpdatedPayload } from '~/composables/rpc'
 import type { ViteModuleListItem } from '~/types/modules'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useRpc } from '#imports'

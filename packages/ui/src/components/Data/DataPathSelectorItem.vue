@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="T extends { id: string, imports: unknown[] }">
-import type { GraphPathSelector } from '../composables/graph-path-selector'
+import type { GraphPathSelector } from '../../composables/graph-path-selector'
 import { hideAllPoppers, Menu as VMenu } from 'floating-vue'
 
 withDefaults(

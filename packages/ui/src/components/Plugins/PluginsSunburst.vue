@@ -2,8 +2,8 @@
 import type { GraphBase, GraphBaseOptions } from 'nanovis'
 import { colorToCssBackground } from 'nanovis'
 import { useTemplateRef, watchEffect } from 'vue'
-import ChartNavBreadcrumb from './ChartNavBreadcrumb.vue'
-import DisplayDuration from './DisplayDuration.vue'
+import ChartNavBreadcrumb from '../Chart/ChartNavBreadcrumb.vue'
+import DisplayDuration from '../Display/DisplayDuration.vue'
 
 const props = defineProps<{
   graph: GraphBase<any, GraphBaseOptions<any>>

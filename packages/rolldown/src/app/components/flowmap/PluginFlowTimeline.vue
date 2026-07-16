@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
 import type { PluginBuildInfo, RolldownPluginBuildMetrics } from '~~/shared/types/data'
-import DisplayPluginName from '@vitejs/devtools-ui/components/DisplayPluginName.vue'
+import DisplayPluginName from '@vitejs/devtools-ui/components/Display/DisplayPluginName.vue'
 import { computed } from 'vue'
 import { settings } from '~/state/settings'
 

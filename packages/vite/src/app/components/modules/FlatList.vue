@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ViteModuleListItem } from '~/types/modules'
-import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
 
 withDefaults(defineProps<{
   root: string

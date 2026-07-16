@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
-import DisplayTimestamp from '@vitejs/devtools-ui/components/DisplayTimestamp.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
 import { computed, reactive } from 'vue'
 import { NuxtLink } from '#components'
 import { groupByDate } from '~/utils/date-groups'

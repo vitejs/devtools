@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import HelloWorld from '../components/HelloWorld.vue'
 </script>
 

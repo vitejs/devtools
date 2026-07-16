@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
-import DisplayModuleGraph from '@vitejs/devtools-ui/components/DisplayModuleGraph.vue'
+import DisplayModuleGraph from '@vitejs/devtools-ui/components/Display/DisplayModuleGraph.vue'
 import { createModuleGraph, getModuleGraphSize } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, nextTick, unref } from 'vue'
 

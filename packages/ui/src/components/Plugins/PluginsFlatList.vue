@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T extends { plugin_id: string | number, name: string }">
 import { useRoute } from '#app/composables/router'
 import { NuxtLink } from '#components'
-import DataVirtualList from './DataVirtualList.vue'
-import DisplayPluginName from './DisplayPluginName.vue'
+import DataVirtualList from '../Data/DataVirtualList.vue'
+import DisplayPluginName from '../Display/DisplayPluginName.vue'
 
 withDefaults(defineProps<{
   plugins: T[]

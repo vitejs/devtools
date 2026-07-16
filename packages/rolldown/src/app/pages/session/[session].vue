@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
-import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
+import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { onKeyDown } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, shallowRef } from 'vue'

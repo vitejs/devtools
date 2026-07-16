@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VitePluginBuildInfo, VitePluginDetails } from '~/types/plugins'
-import DisplayPluginName from '@vitejs/devtools-ui/components/DisplayPluginName.vue'
+import DisplayPluginName from '@vitejs/devtools-ui/components/Display/DisplayPluginName.vue'
 import { computed } from 'vue'
 import { settings } from '~/state/settings'
 

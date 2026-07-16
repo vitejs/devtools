@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
+import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { useSeoMeta } from '#app/composables/head'
 import { connect, rpcConnectionState } from './composables/rpc'

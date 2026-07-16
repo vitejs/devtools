@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 
 defineProps<{
   item: RolldownChunkInfo

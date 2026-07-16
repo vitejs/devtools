@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { SideNavItem } from '../composables/nav'
+import type { SideNavItem } from '../../composables/nav'
 import { computed } from 'vue'
 import { NuxtLink } from '#components'
-import { sideNavItems } from '../composables/nav'
+import { sideNavItems } from '../../composables/nav'
 
 const props = defineProps<{
   items?: SideNavItem[]

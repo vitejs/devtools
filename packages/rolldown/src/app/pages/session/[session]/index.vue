@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
-import DisplayDuration from '@vitejs/devtools-ui/components/DisplayDuration.vue'
-import DisplayNumberBadge from '@vitejs/devtools-ui/components/DisplayNumberBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { sideNavItems } from '@vitejs/devtools-ui/composables/nav'
 import { computed } from 'vue'
 

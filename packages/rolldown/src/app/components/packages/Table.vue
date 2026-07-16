@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PackageInfo, SessionContext } from '~~/shared/types'
-import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { useCycleList } from '@vueuse/core'
 import { Tooltip, Menu as VMenu } from 'floating-vue'
 import { settings } from '~~/app/state/settings'

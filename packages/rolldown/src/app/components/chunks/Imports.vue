@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { RolldownChunkImport } from '~~/shared/types/data'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 
 defineProps<{
   imports: RolldownChunkImport[]
