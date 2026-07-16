@@ -85,6 +85,7 @@ pnpm -C docs run docs                 # docs dev server
 - Shared state via `devframe/utils/shared-state`; keep values serializable.
 - Nuxt UI base paths: `/__devtools-rolldown/`, `/__devtools-vite/`.
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
+- `packages/ui` components live in PascalCase category folders with folder-prefixed filenames (`Display/DisplayBadge.vue`, `Flowmap/FlowmapNode.vue`), mirroring [`antfu/design`](https://github.com/antfu/design). Add a component shared by both analyzers to `packages/ui` directly (imported explicitly, or via a `.ts` re-export shim in each app to keep the Nuxt auto-import tag) rather than copying it per app. Give presentational primitives a colocated `*.stories.ts` in the `storybook/` workspace.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 
 Devframe's internal design principles (single-integration scope, headless-by-default, mount-path / SPA-basePath conventions, CLI flag composition) live in its own AGENTS.md upstream. Read them at [github.com/devframes/devframe/blob/main/AGENTS.md](https://github.com/devframes/devframe/blob/main/AGENTS.md) before contributing patches.

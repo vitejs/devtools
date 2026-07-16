@@ -9,6 +9,45 @@
 > **Prerequisite gate**: plan 015 (shared utils) should be landed first so the utility
 > layer is already unified before you move components on top of it.
 
+## Outcome (executed)
+
+Beyond promoting the byte-identical surface, this pass also:
+
+- **Reorganized `packages/ui/src/components` into PascalCase category folders**
+  (`Display/`, `Data/`, `Chart/`, `Panel/`, `Plugins/`, `Banner/`, plus the new
+  `Code/`, `Flowmap/`, `Visual/`) with folder-prefixed filenames, mirroring
+  [`antfu/design`](https://github.com/antfu/design).
+- **Finished the util layer 015 left open**: promoted `cache` (rolldown's canonical
+  `TupleMap` impl) and reconciled `icon` into `packages/ui`; both apps' copies are
+  re-export shims and their tests folded into ui.
+- **Promoted the 12 byte-identical files**: `Flowmap/{FlowmapNode,FlowmapExpandable,
+  FlowmapNodePluginInfo}`, `Display/{DisplayFileIcon,DisplayGraphHoverView}`,
+  `Code/CodeDiffEditor`, `composables/monaco`, `state/flowmap`,
+  `worker/diff(+diff.worker)`, `plugins/floating-vue`. Apps consume via `.ts`
+  re-export shims (auto-import tags preserved). `CodeDiffEditor` was decoupled from
+  the app-specific settings store via a `line-wrap` prop + `diff-panel-size` model
+  bound by a thin per-app wrapper; `floating-vue` is exposed as a Vue-level
+  `installFloatingVue()` wrapped by each app's Nuxt plugin.
+- **Reconciled the cleanly-mergeable drifted pairs**: `DisplayFileSizeBadge`
+  (whitespace), `DisplayHighlightedPath` (style-only), `VisualLoading` (banner-only,
+  now a `#banner` slot).
+- **Added Storybook stories** for the shared presentational primitives (see the
+  `storybook/` workspace).
+
+### Left app-local (STOP condition: analyzer-specific data model)
+
+These drifted pairs are written against each analyzer's distinct domain model
+(rolldown `SessionContext`/`Rolldown*` from `~~/shared/types` + `session.meta.cwd`
+vs vite `Vite*` from `~/types/{modules,plugins,chart}` + `root`), so they cannot be
+parameterized without a shared module/plugin abstraction that does not yet exist.
+They remain per-app: `flowmap/{NodeModuleInfo,ModuleFlow,ModuleFlowDetails,
+ModuleFlowTimeline,PluginFlow,PluginFlowTimeline}`, `chart/ModuleFlamegraph`,
+`modules/{Graph,FlatList,DetailedList,Folder,BuildMetrics}`,
+`data/{ModuleDetailsLoader,PluginDetailsLoader,PluginDetailsTable,
+ModuleImportRelationships}`, `display/{VirtualTree,ModuleId}`. Genuinely app-specific
+by nature: `app.vue`, `pages/index.vue`, `composables/{rpc,chart}`, `types/chart`,
+`state/settings`. Unifying these is gated on a future shared analyzer data model.
+
 ## Status
 
 - **Priority**: P3
