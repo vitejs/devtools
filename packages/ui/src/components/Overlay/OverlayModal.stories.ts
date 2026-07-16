@@ -7,7 +7,7 @@ const meta = {
   component: OverlayModal,
   tags: ['autodocs'],
   parameters: {
-    docs: { description: { component: 'Teleported dialog with a frosted `bg-glass` panel. Backdrop click and Escape close it; the `#trigger` slot receives an `open()` callback.' } },
+    docs: { description: { component: 'Teleported dialog with a solid `bg-base` panel over a dimmed backdrop. Backdrop click and Escape close it; the `#trigger` slot receives an `open()` callback.' } },
   },
 } satisfies Meta<typeof OverlayModal>
 

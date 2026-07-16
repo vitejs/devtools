@@ -24,18 +24,18 @@
   --uno: border-solid border-base;
 }
 
-/* Shiki inline code blocks: follow the color scheme via the dual-theme CSS
-   variables, and stay transparent so the card / page background shows through
-   instead of Shiki's baked-in theme background. */
+/* Shiki code blocks: drop Shiki's baked-in theme background (an inline style,
+   so `!important` is required) and let the host surface show through. Light
+   mode keeps Shiki's inline light colors; dark mode swaps to the dual-theme
+   `--shiki-dark` values, again overriding the inline color. */
 .shiki,
 .shiki span {
-  color: var(--shiki-light);
-  --uno: bg-transparent;
+  background-color: transparent !important;
 }
 
 .dark .shiki,
 .dark .shiki span {
-  color: var(--shiki-dark);
+  color: var(--shiki-dark) !important;
 }
 
 /* Monaco */

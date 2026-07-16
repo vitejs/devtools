@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, watch } from 'vue'
 
-// Teleported overlay dialog with a frosted `bg-glass` panel. The `open` state
+// Teleported overlay dialog with a solid `bg-base` panel over a dimmed
+// backdrop. The `open` state
 // is a two-way model so hosts can drive it however they like; the optional
 // `#trigger` slot receives an `open()` callback for the common
 // click-to-open case. Backdrop click and the Escape key both close it.
@@ -47,7 +48,7 @@ onBeforeUnmount(() => {
       >
         <div absolute inset-0 bg-black:50 @click="close" />
         <div
-          relative max-h="85vh" of-auto bg-glass border="~ base rounded-lg" shadow-xl
+          relative max-h="85vh" of-auto bg-base border="~ base rounded-lg" shadow-xl
           flex="~ col"
         >
           <div v-if="$slots.title" flex="~ items-center justify-between gap-4" px4 py3 border="b base">
