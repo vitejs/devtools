@@ -34,6 +34,9 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
         throw new Error(`Unexpected shared state key: ${key}`)
       },
     },
+    client: {
+      register: () => {},
+    },
   } as unknown as DevToolsRpcClient
 }
 

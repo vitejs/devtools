@@ -12,6 +12,8 @@ import { rolldownGetSessionCompareDetails } from './functions/rolldown-get-sessi
 import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
 import { rolldownListSessions } from './functions/rolldown-list-sessions'
+import { rolldownRunBuild } from './functions/rolldown-run-build'
+import { rolldownWaitForBuild } from './functions/rolldown-wait-for-build'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
@@ -28,6 +30,8 @@ export const rpcFunctions = [
   rolldownGetChunkInfo,
   rolldownGetPackages,
   rolldownGetPackageDetails,
+  rolldownRunBuild,
+  rolldownWaitForBuild,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>

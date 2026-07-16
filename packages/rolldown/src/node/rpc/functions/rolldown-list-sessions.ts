@@ -4,7 +4,8 @@ import { getLogsManager } from '../utils'
 
 export const rolldownListSessions = defineRpcFunction({
   name: 'vite:rolldown:list-sessions',
-  cacheable: true,
+  // Not client-cached: the "Run build" button re-fetches this to surface the
+  // session a fresh build just produced, so the list must stay live.
   type: 'static',
   jsonSerializable: true,
   setup: (context) => {

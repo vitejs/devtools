@@ -44,6 +44,7 @@ Emitted by `@vitejs/devtools-rolldown`.
 |------|-------|-------|
 | [RDDT0001](./RDDT0001) | warn | Rolldown Logs Directory Not Found |
 | [RDDT0002](./RDDT0002) | warn | Rolldown Log Reader Bad Line |
+| [RDDT0003](./RDDT0003) | error | Rolldown Build Process Failed to Start |
 
 ## Vite DevTools (VDT)
 

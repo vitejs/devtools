@@ -294,6 +294,18 @@ export async function createDocksContext(
     return switchEntry(entry.id)
   })
 
+  // Interim dock-activation bridge: a mounted plugin iframe can ask the shell
+  // to switch to another dock via the `devtoolskit:internal:navigate` server
+  // RPC, which broadcasts this client function. Focusing a specific terminal
+  // session (`options.sessionId`) awaits an upstream `@devframes/*` capability.
+  rpc.client.register({
+    name: 'vite:devtools:activate-dock',
+    type: 'action',
+    handler: (options: { dockId: string, sessionId?: string }) => {
+      switchEntry(options.dockId)
+    },
+  })
+
   docksContextByRpc.set(rpc, docksContext)
   return docksContext
 }

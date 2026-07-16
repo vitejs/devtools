@@ -7,6 +7,7 @@ import { messagesClear } from './internal/messages-clear'
 import { messagesList } from './internal/messages-list'
 import { messagesRemove } from './internal/messages-remove'
 import { messagesUpdate } from './internal/messages-update'
+import { navigate } from './internal/navigate'
 import { rpcServerList } from './internal/rpc-server-list'
 import { openInEditor } from './public/open-in-editor'
 import { openInFinder } from './public/open-in-finder'
@@ -31,6 +32,7 @@ export const builtinInternalRpcDeclarations = [
   messagesList,
   messagesRemove,
   messagesUpdate,
+  navigate,
   rpcServerList,
 ] as const
 
@@ -56,7 +58,14 @@ declare module '@vitejs/devtools-kit' {
   // `devframe:auth:revoked` and `devframe:rpc:client-state:*` are declared
   // upstream by devframe; `devframe:messages:updated` / `devframe:terminals:updated`
   // by `@devframes/hub`. We only declare what is Vite-DevTools-specific here.
-  export interface DevToolsRpcClientFunctions {}
+  export interface DevToolsRpcClientFunctions {
+    /**
+     * Ask the host shell to activate a dock by id (interim dock-activation
+     * bridge — see `rpc/internal/navigate.ts`). `sessionId` is reserved for a
+     * future upstream terminal-session-focus capability.
+     */
+    'vite:devtools:activate-dock': (options: { dockId: string, sessionId?: string }) => void
+  }
 
   // @keep-sorted
   export interface DevToolsRpcSharedStates {

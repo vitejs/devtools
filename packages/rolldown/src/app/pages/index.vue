@@ -45,7 +45,40 @@ const normalizedSelectedSessions = computed(() => {
 })
 
 const rpc = useRpc()
-const sessions = await rpc.value.call('vite:rolldown:list-sessions')
+const sessions = ref<BuildInfo[]>(await rpc.value.call('vite:rolldown:list-sessions'))
+
+const building = ref(false)
+const buildError = ref<string | null>(null)
+
+async function refreshSessions() {
+  sessions.value = await rpc.value.call('vite:rolldown:list-sessions')
+}
+
+async function runBuild() {
+  if (building.value)
+    return
+  building.value = true
+  buildError.value = null
+  try {
+    const { sessionId } = await rpc.value.call('vite:rolldown:run-build')
+    // Jump to the Terminals dock so the running build streams into view.
+    await rpc.value.call('devtoolskit:internal:navigate', {
+      dockId: 'devframes-plugin-terminals',
+      sessionId,
+    })
+    const { exitCode } = await rpc.value.call('vite:rolldown:wait-for-build')
+    if (exitCode != null && exitCode !== 0)
+      buildError.value = `Build exited with code ${exitCode}.`
+    // Refresh regardless — a failed build may still have emitted partial data.
+    await refreshSessions()
+  }
+  catch (error) {
+    buildError.value = error instanceof Error ? error.message : String(error)
+  }
+  finally {
+    building.value = false
+  }
+}
 
 function selectSession(session: BuildInfo) {
   if (selectedSessionIds.value.includes(session.id)) {
@@ -67,7 +100,21 @@ function selectSession(session: BuildInfo) {
       <p m0 op50 text-center>
         No sessions yet.
         <br>
-        Enable devtools output in your Rolldown config, then run a build:
+        Run a build with devtools output enabled to get started:
+      </p>
+      <button
+        btn-action rounded-8 text-3 flex="~ gap2 items-center justify-center" h9 px4
+        :disabled="building"
+        @click="runBuild()"
+      >
+        <span :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" text-sm />
+        {{ building ? 'Building…' : 'Run build with devtools' }}
+      </button>
+      <p v-if="buildError" m0 text-sm text-center text-red>
+        {{ buildError }}
+      </p>
+      <p m0 op40 text-sm text-center>
+        Or enable it manually in your Rolldown config:
       </p>
       <div relative w-full>
         <pre m0 p3 pr10 rounded-lg border="~ base" bg-code font-mono text-sm of-auto text-left><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
@@ -92,12 +139,24 @@ function selectSession(session: BuildInfo) {
         @select="selectSession"
       />
     </div>
-    <div v-if="sessions.length" fixed top-5 right-5 flex="~ col gap2">
+    <div v-if="sessions.length" fixed top-5 right-5 flex="~ col gap2 items-end">
       <div flex="~ row justify-around" w20 h8 border="~ base rounded-8" of-hidden>
         <button v-for="mode in modeList" :key="mode.value" :title="mode.label" flex-1 op50 flex="~ items-center justify-center" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" hover="bg-active text-base op100!" @click="sessionMode = mode.value">
           <span :class="mode.icon" class="text-sm" />
         </button>
       </div>
+      <button
+        btn-action rounded-8 text-3 flex="~ gap2 items-center justify-center" h8 px3
+        :title="building ? 'Building…' : 'Run a build with devtools output'"
+        :disabled="building"
+        @click="runBuild()"
+      >
+        <span :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" text-sm />
+        {{ building ? 'Building…' : 'Run build' }}
+      </button>
+      <p v-if="buildError" m0 text-xs text-right text-red max-w-60>
+        {{ buildError }}
+      </p>
     </div>
     <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" fixed bottom-5 right-5 border="~ base rounded-2" w100 max-lg:w85 bg-glass z-panel-content>
       <CompareSessionMeta :sessions="normalizedSelectedSessions" class="flex-col gap0 [&>div]:border-none! [&>first-child]:border-b!" />
