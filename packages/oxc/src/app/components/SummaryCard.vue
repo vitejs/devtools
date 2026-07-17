@@ -31,19 +31,8 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
           target="_blank"
           w-fit
         >
-          <span
-            badge-color-gray
-            inline-flex
-            items-center
-            gap-1
-            px2
-            py1
-            rounded
-            border
-            font-mono
-            hover:color-active
-          >
-            <span ml1>v{{ version }}</span>
+          <span inline-flex items-center gap-1 font-mono hover:color-active>
+            <span>v{{ version }}</span>
             <div i-ph-arrow-up-right />
           </span>
         </NuxtLink>
@@ -55,21 +44,16 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
         <OverlayModal>
           <template #trigger="{ open }">
             <span
-              badge-color-gray
               inline-flex
               w-fit
               items-center
               gap-1
-              px2
-              py1
-              rounded
-              border
               font-mono
               cursor-pointer
               hover:color-active
               @click="open"
             >
-              <span ml1>.oxlintrc.json</span>
+              <span>.oxlintrc.json</span>
               <div i-ph-arrow-up-right />
             </span>
           </template>
@@ -91,7 +75,7 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 
         <div font-medium>Created At</div>
 
-        <span badge-color-gray inline-flex w-fit items-center px2 py1 rounded border font-mono>
+        <span inline-flex w-fit items-center font-mono>
           {{ new Date(timestamp).toLocaleString() }}
         </span>
 
@@ -99,7 +83,7 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 
         <div font-medium>Lint Duration</div>
 
-        <span badge-color-gray inline-flex w-fit items-center px2 py1 rounded border font-mono>
+        <span inline-flex w-fit items-center font-mono>
           <DisplayDuration :duration="durationMs" />
         </span>
 
@@ -107,18 +91,7 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 
         <div font-medium>Checked Files</div>
 
-        <span
-          badge-color-gray
-          inline-flex
-          w-fit
-          items-center
-          gap-1
-          px2
-          py1
-          rounded
-          border
-          font-mono
-        >
+        <span inline-flex w-fit items-center gap-1 font-mono>
           {{ summary.number_of_files }} files.
           <span text-red-600 dark:text-red-400 font-semibold
             >{{ summary.files_with_issues }} with issues</span
@@ -129,18 +102,7 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 
         <div font-medium>Issues</div>
 
-        <span
-          badge-color-gray
-          inline-flex
-          w-fit
-          items-center
-          gap-1
-          px2
-          py1
-          rounded
-          border
-          font-mono
-        >
+        <span inline-flex w-fit items-center gap-1 font-mono>
           {{ totalIssues }} issues.
           <span v-if="summary.error_count > 0" text-red-600 dark:text-red-400 font-semibold
             >{{ summary.error_count }} errors</span

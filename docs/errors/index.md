@@ -63,3 +63,13 @@ Emitted by `@vitejs/devtools-vitest`.
 |------|-------|-------|
 | [VTDT0001](./VTDT0001) | error | Vitest UI Install Failed |
 | [VTDT0002](./VTDT0002) | error | Vitest UI Server Unreachable |
+
+## Oxc DevTools (OXDT)
+
+Emitted by `@vitejs/devtools-oxc`.
+
+| Code | Level | Title |
+|------|-------|-------|
+| [OXDT0001](./OXDT0001) | error | Failed to Create Lint Result |
+| [OXDT0002](./OXDT0002) | error | Invalid Lint Result ID |
+| [OXDT0003](./OXDT0003) | error | Failed to Delete Lint Result |

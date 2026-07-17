@@ -1,53 +1,51 @@
 <script setup lang="ts">
-import FormCheckbox from '@vitejs/devtools-ui/components/Form/FormCheckbox.vue'
-import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
-import { useAsyncState, useLocalStorage } from '@vueuse/core'
+import { onKeyDown } from '@vueuse/core'
 import { computed } from 'vue'
-import { useRpc } from '#imports'
+import { useRoute, useRouter } from '#app/composables/router'
 
-const rpc = useRpc()
+const route = useRoute()
+const router = useRouter()
 
-const { state: sessionMetaList, execute: reloadSessions } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:list-lint-session'),
-  [],
+const resultId = computed(() =>
+  typeof route.query.result === 'string' ? route.query.result : undefined,
 )
 
-const hidePassed = useLocalStorage('hidePassed', false)
+function closeResultPanel() {
+  if (resultId.value) router.replace({ query: { ...route.query, result: undefined } })
+}
 
-const filteredSessionMetaList = computed(() => {
-  return (
-    sessionMetaList.value?.filter(
-      meta => !hidePassed.value || meta.summary.files_with_issues > 0,
-    ) || []
-  )
+onKeyDown('Escape', event => {
+  if (!resultId.value || !event.isTrusted || event.repeat) return
+
+  event.preventDefault()
+  closeResultPanel()
 })
 </script>
 
 <template>
-  <div flex="~ col" gap-4>
-    <Back />
-    <div flex justify-between items-center w-full>
-      <div flex items-center gap-2>
-        <button btn-action-sm cursor-pointer aria-label="Reload sessions" @click="reloadSessions()">
-          <div i-lucide-refresh-cw />
-        </button>
+  <NuxtPage />
 
-        <p op-fade>Select a lint session to get started:</p>
-      </div>
-
-      <FormCheckbox v-model="hidePassed" label="Hide Passed" />
+  <div
+    v-if="resultId"
+    fixed
+    inset-0
+    z-panel-content
+    backdrop-blur-8
+    backdrop-brightness-95
+    @click.self="closeResultPanel"
+  >
+    <div
+      :key="resultId"
+      fixed
+      right-0
+      bottom-0
+      top-20
+      left-20
+      z-panel-content
+      bg-glass
+      border="l t base rounded-tl-xl"
+    >
+      <LintResultDetailsLoader :result-id @close="closeResultPanel" />
     </div>
-
-    <template v-if="filteredSessionMetaList?.length > 0">
-      <SessionCard v-for="meta in filteredSessionMetaList" :key="meta.timestamp" :meta="meta" />
-    </template>
-
-    <VisualEmptyState v-else w-full mt4 title="No sessions found" icon="i-ph-folder-simple-duotone">
-      <template #description>
-        <div text-sm op-fade leading-7>
-          Lint sessions will appear here when lint data is available.
-        </div>
-      </template>
-    </VisualEmptyState>
   </div>
 </template>

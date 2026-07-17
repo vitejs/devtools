@@ -1,26 +1,46 @@
 <script setup lang="ts">
 import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
-import type { Meta } from '../../../src/types'
+import type { LintResultMeta } from '../../../src/types'
 
-const { meta } = defineProps<{
-  meta: Meta
+const { result } = defineProps<{
+  result: LintResultMeta
 }>()
 
-const failed = computed(() => {
-  return meta.summary.files_with_issues > 0
-})
+const emit = defineEmits<{
+  delete: [resultId: string]
+}>()
+
+const failed = computed(() => result.summary.files_with_issues > 0)
 </script>
 
 <template>
-  <NuxtLink w-full :to="`/oxlint/lint/${meta.timestamp}`">
-    <ContainerCard p4 cursor-pointer hover:bg-active>
+  <ContainerCard relative p4 hover:bg-active>
+    <NuxtLink
+      absolute
+      inset-0
+      :to="{ path: '/oxlint/lint', query: { result: String(result.timestamp) } }"
+      :aria-label="`Open lint result ${result.timestamp}`"
+    />
+
+    <div relative pointer-events-none>
       <div flex justify-between gap-2 font-mono op-fade>
         <div flex items-center gap-1>
           <div i-ph-hash-duotone />
-          <span text-sm>{{ meta.timestamp }}</span>
+          <span text-sm>{{ result.timestamp }}</span>
         </div>
 
-        {{ useTimeAgo(meta.timestamp) }}
+        <div flex items-center gap-2>
+          {{ useTimeAgo(result.timestamp) }}
+          <button
+            type="button"
+            pointer-events-auto
+            hover:text-red
+            :aria-label="`Delete lint result ${result.timestamp}`"
+            @click="emit('delete', String(result.timestamp))"
+          >
+            <div i-ph-trash-duotone />
+          </button>
+        </div>
       </div>
 
       <div flex justify-between items-center mt4>
@@ -37,12 +57,12 @@ const failed = computed(() => {
           font-mono
         >
           <div i-ph-file-duotone />
-          {{ meta.summary.number_of_files }}
+          {{ result.summary.number_of_files }}
         </span>
 
         <div v-if="failed" flex items-center gap-2>
           <span
-            v-if="meta.summary.error_count > 0"
+            v-if="result.summary.error_count > 0"
             badge-color-red
             inline-flex
             items-center
@@ -55,11 +75,11 @@ const failed = computed(() => {
             font-mono
           >
             <div i-ph-x-circle-duotone />
-            {{ meta.summary.error_count }}
+            {{ result.summary.error_count }}
           </span>
 
           <span
-            v-if="meta.summary.warning_count > 0"
+            v-if="result.summary.warning_count > 0"
             badge-color-amber
             inline-flex
             items-center
@@ -72,7 +92,7 @@ const failed = computed(() => {
             font-mono
           >
             <div i-ph-warning-circle-duotone />
-            {{ meta.summary.warning_count }}
+            {{ result.summary.warning_count }}
           </span>
         </div>
 
@@ -93,6 +113,6 @@ const failed = computed(() => {
           Passed
         </span>
       </div>
-    </ContainerCard>
-  </NuxtLink>
+    </div>
+  </ContainerCard>
 </template>
