@@ -56,7 +56,11 @@ function launcherStory(
 export const Idle: Story = launcherStory('idle')
 export const Loading: Story = launcherStory('loading')
 export const Success: Story = launcherStory('success')
-export const Error: Story = launcherStory('error')
+
+// A failed launch surfaces the reason and offers a clickable Retry.
+export const Error: Story = launcherStory('error', {
+  error: 'No test files found, exiting with code 1',
+})
 
 // A launcher tracking a terminal session: it streams a one-line digest and
 // offers to jump to that session in the Terminals dock.

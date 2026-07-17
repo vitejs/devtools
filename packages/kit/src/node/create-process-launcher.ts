@@ -5,6 +5,7 @@ import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSe
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import { tailSessionDigest } from './create-line-digest'
+import { diagnostics } from './diagnostics'
 
 type Awaitable<T> = T | Promise<T>
 
@@ -140,7 +141,11 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
         // Re-render the whole launcher entry — the hub sync replaces it
         // wholesale — with the current status and (once running) the tracked
         // session + digest.
-        function entry(status: DevToolsViewLauncher['launcher']['status'], tracking: boolean): DevToolsViewLauncher {
+        function entry(
+          status: DevToolsViewLauncher['launcher']['status'],
+          tracking: boolean,
+          error?: string,
+        ): DevToolsViewLauncher {
           return {
             id,
             title,
@@ -154,6 +159,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               buttonStart,
               buttonLoading,
               status,
+              error,
               command: commandId,
               onLaunch: async () => {
                 await ctx.commands.execute(commandId)
@@ -187,48 +193,79 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
             return
           }
 
-          await prepare?.()
+          try {
+            await prepare?.()
 
-          if (session)
-            await session.terminate().catch(() => {})
-          stopDigest?.()
-          digest = undefined
-
-          const execute = typeof executeOptions === 'function' ? await executeOptions() : executeOptions
-          session = await ctx.terminals.startChildProcess(execute, {
-            id: sessionId,
-            title: options.session?.title ?? label,
-            icon: options.session?.icon ?? 'ph:terminal-window-duotone',
-          })
-
-          // While a server boots the launcher is still 'loading'; a plain
-          // terminal launcher is 'success' (running) once spawned.
-          const runningStatus = serve ? 'loading' : 'success'
-          stopDigest = tailSessionDigest(session, (line) => {
-            digest = line
-            ctx.docks.update(entry(runningStatus, true))
-          })
-          ctx.docks.update(entry(runningStatus, true))
-
-          if (serve) {
-            // Wait for the server, then replace the card with its iframe.
-            const url = await serve.onReady(session)
+            if (session)
+              await session.terminate().catch(() => {})
             stopDigest?.()
-            servedUrl = url
-            swapToIframe(url)
-            return
-          }
+            digest = undefined
 
-          // Terminal launcher: reflect the process's outcome once it exits and
-          // stop tailing, keeping the session link so its output stays openable.
-          // `getResult()` is a bare PromiseLike, so handle rejection inline.
-          void session.getResult().then(
-            (result) => {
+            const execute = typeof executeOptions === 'function' ? await executeOptions() : executeOptions
+            session = await ctx.terminals.startChildProcess(execute, {
+              id: sessionId,
+              title: options.session?.title ?? label,
+              icon: options.session?.icon ?? 'ph:terminal-window-duotone',
+            })
+
+            // While a server boots the launcher is still 'loading'; a plain
+            // terminal launcher is 'success' (running) once spawned.
+            const runningStatus = serve ? 'loading' : 'success'
+            stopDigest = tailSessionDigest(session, (line) => {
+              digest = line
+              ctx.docks.update(entry(runningStatus, true))
+            })
+            ctx.docks.update(entry(runningStatus, true))
+
+            if (serve) {
+              // Wait for the server — but fail fast if the process exits first
+              // (e.g. a build error), instead of blocking on a readiness probe
+              // that will never succeed.
+              const activeSession = session
+              const readyPromise = (async () => serve.onReady(activeSession))()
+              const exitPromise = (async () => {
+                const result = await activeSession.getResult()
+                throw diagnostics.DTK0052({ id, exitCode: result.exitCode })
+              })()
+              // Whichever promise loses the race keeps running (a readiness
+              // probe polling on, or a watch process staying up); swallow its
+              // late settlement so it never becomes an unhandled rejection.
+              readyPromise.catch(() => {})
+              exitPromise.catch(() => {})
+
+              const url = await Promise.race([readyPromise, exitPromise])
               stopDigest?.()
-              ctx.docks.update(entry(result.exitCode === 0 ? 'success' : 'error', true))
-            },
-            () => {},
-          )
+              servedUrl = url
+              swapToIframe(url)
+              return
+            }
+
+            // Terminal launcher: reflect the process's outcome once it exits and
+            // stop tailing, keeping the session link so its output stays
+            // openable. `getResult()` is a bare PromiseLike, so handle rejection
+            // inline.
+            const trackedSession = session
+            void trackedSession.getResult().then(
+              (result) => {
+                stopDigest?.()
+                ctx.docks.update(
+                  result.exitCode === 0
+                    ? entry('success', true)
+                    : entry('error', true, `Process exited with code ${result.exitCode ?? 'null'}.`),
+                )
+              },
+              () => {},
+            )
+          }
+          catch (error) {
+            // Surface the failure on the card (covers palette/keybinding launches
+            // too, which don't pass through the on-launch bridge) and re-throw so
+            // the button path's bridge reflects it as well. The card stays a
+            // launcher, so its button becomes Retry.
+            stopDigest?.()
+            ctx.docks.update(entry('error', true, error instanceof Error ? error.message : String(error)))
+            throw error
+          }
         }
       },
     },

@@ -32,11 +32,13 @@ function viewInTerminal() {
 }
 
 const iconsMap: Record<DevToolsViewLauncherStatus, string> = {
-  error: 'i-ph-warning-duotone',
+  error: 'i-ph-arrow-clockwise-duotone',
   idle: 'i-ph-rocket-launch-duotone',
   loading: 'i-svg-spinners-8-dots-rotate',
   success: 'i-ph-check-duotone',
 }
+
+const error = computed(() => props.entry.launcher.error)
 
 const buttonText = computed(() => {
   if (status.value === 'idle')
@@ -44,12 +46,15 @@ const buttonText = computed(() => {
   else if (status.value === 'loading')
     return props.entry.launcher.buttonLoading || 'Loading...'
   else if (status.value === 'error')
-    return 'ERROR'
+    return 'Retry'
   else if (status.value === 'success')
     return 'Success'
   else
     return `UNKNOWN STATUS: ${status.value}`
 })
+
+// Idle and error are actionable (error = Retry); loading and success are not.
+const canLaunch = computed(() => status.value === 'idle' || status.value === 'error')
 </script>
 
 <template>
@@ -59,10 +64,14 @@ const buttonText = computed(() => {
       {{ entry.launcher.title }}
     </h1>
     <p>{{ entry.launcher.description }}</p>
+    <!-- Failure reason, shown above the Retry button. -->
+    <p v-if="status === 'error' && error" class="max-w-full text-sm text-red-600 dark:text-red-400 text-center text-balance">
+      {{ error }}
+    </p>
     <Button
-      variant="primary"
+      :variant="status === 'error' ? 'danger' : 'primary'"
       :loading="status === 'loading'"
-      :disabled="status !== 'idle'"
+      :disabled="!canLaunch"
       @click="onLaunch"
     >
       <template #icon>

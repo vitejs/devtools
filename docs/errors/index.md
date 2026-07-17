@@ -33,6 +33,7 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0032](./DTK0032) | error | Dock Launch Error |
 | [DTK0050](./DTK0050) | error | Integration Install Failed |
 | [DTK0051](./DTK0051) | warn | Connection Meta Serve Failed |
+| [DTK0052](./DTK0052) | error | Launcher Process Exited Before Ready |
 
 Hub-side diagnostics for docks, terminals, messages, and commands live upstream in `@devframes/hub` under the `DF8xxx` range — see the [Devframe error reference](https://devfra.me/errors/).
 

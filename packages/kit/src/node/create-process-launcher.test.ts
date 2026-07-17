@@ -131,6 +131,24 @@ describe('createProcessLauncher', () => {
     expect((dock as any).url).toBe('http://localhost:5173/')
   })
 
+  it('fails fast to an error when a server launcher exits before it is ready', async () => {
+    const { ctx, registered, resolveExit } = fakeCtx()
+    await mount(ctx, {
+      ...baseOptions,
+      // A readiness probe that would otherwise hang forever.
+      serve: { onReady: () => new Promise<string>(() => {}) },
+    })
+
+    const launch = ctx.commands.execute('my-app:launch')
+    resolveExit(1)
+    await (launch as Promise<unknown>).catch(() => {})
+
+    const dock = registered.get('my-app')!
+    expect(dock.type).toBe('launcher')
+    expect(dock.launcher.status).toBe('error')
+    expect(dock.launcher.error).toContain('exited with code 1')
+  })
+
   it('re-shows the iframe when a running server launcher is invoked again', async () => {
     const { ctx, registered } = fakeCtx()
     await mount(ctx, {
