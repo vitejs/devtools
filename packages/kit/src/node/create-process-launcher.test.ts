@@ -83,7 +83,7 @@ describe('createProcessLauncher', () => {
     const dock = registered.get('my-app')!
     expect(dock.launcher.status).toBe('success')
     expect(dock.launcher.terminalSessionId).toBe('my-app')
-    expect(dock.launcher.progress).toBe('Running')
+    expect(dock.launcher.digest).toBe('Running')
   })
 
   it('is idempotent while the session is running', async () => {

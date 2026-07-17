@@ -5,7 +5,7 @@ export const docksOnLaunch = defineRpcFunction({
   name: 'devtoolskit:internal:docks:on-launch',
   type: 'action',
   setup: (context) => {
-    const launchMap = new Map<string, Promise<void>>()
+    const launchMap = new Map<string, Promise<unknown>>()
     return {
       handler: async (entryId: string) => {
         // De-dupe concurrent launches of the same entry, but only while one is
@@ -33,8 +33,16 @@ export const docksOnLaunch = defineRpcFunction({
                 error: undefined,
               },
             })
-            const result = await entry.launcher.onLaunch()
-            // `onLaunch` may have replaced the entry (e.g. swapped to an
+            // devframe ≥0.7.4 made `onLaunch` optional in favour of a bound
+            // `command` (the serializable launch path). Prefer the in-process
+            // handler; fall back to executing the command.
+            const { onLaunch, command } = entry.launcher
+            const result = onLaunch
+              ? await onLaunch()
+              : command
+                ? await context.commands.execute(command)
+                : undefined
+            // The launch may have replaced the entry (e.g. swapped to an
             // iframe); only stamp success while it is still a launcher.
             const newEntry = context.docks.values().find(entry => entry.id === entryId) || entry
             if (newEntry.type === 'launcher') {

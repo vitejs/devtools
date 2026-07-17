@@ -67,5 +67,5 @@ export const Error: Story = launcherStory('error', {
 export const WithProgress: Story = launcherStory('loading', {
   buttonLoading: 'Starting…',
   terminalSessionId: 'my-app:dev',
-  progress: 'Waiting for the server…',
+  digest: 'Waiting for the server…',
 })

@@ -16,7 +16,8 @@ function onLaunch() {
 }
 
 const status = computed(() => props.entry.launcher.status || 'idle')
-const progress = computed(() => props.entry.launcher.progress)
+// Hub's author-set `digest` — a short line of progress/status.
+const progress = computed(() => props.entry.launcher.digest)
 const terminalSessionId = computed(() => props.entry.launcher.terminalSessionId)
 
 // Ask the host shell to switch to the Terminals dock focused on this

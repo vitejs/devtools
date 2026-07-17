@@ -156,12 +156,13 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               buttonLoading,
               status,
               error: extras.error,
+              // The bound command is the launch action (button, palette, and
+              // keybinding resolve to it); the on-launch bridge falls back to
+              // it, so no in-process `onLaunch` is needed.
               command: commandId,
-              onLaunch: async () => {
-                await ctx.commands.execute(commandId)
-              },
               ...(extras.tracking ? { terminalSessionId: sessionId } : {}),
-              ...(extras.progress ? { progress: extras.progress } : {}),
+              // Hub's author-set `digest` — a short line of progress/status.
+              ...(extras.progress ? { digest: extras.progress } : {}),
             },
           }
         }

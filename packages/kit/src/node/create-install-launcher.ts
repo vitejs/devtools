@@ -98,10 +98,9 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
             buttonStart: `Install ${label}`,
             buttonLoading: 'Installing…',
             status: 'idle',
+            // The bound command is the launch action; the on-launch bridge
+            // falls back to it, so no in-process `onLaunch` is needed.
             command: commandId,
-            onLaunch: async () => {
-              await ctx.commands.execute(commandId)
-            },
           },
         })
 
@@ -137,9 +136,9 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
               status: 'success',
               description: `${label} installed. ${restartHint}`,
               buttonStart: 'Installed',
-              // Re-click is idempotent: the packages are present now, so
-              // `launch` installs nothing and just re-affirms the message.
-              onLaunch: launch,
+              // Re-click is idempotent: the packages are present now, so the
+              // command installs nothing and just re-affirms the message.
+              command: commandId,
             },
           })
         }
