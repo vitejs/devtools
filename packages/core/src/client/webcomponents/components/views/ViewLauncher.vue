@@ -16,7 +16,7 @@ function onLaunch() {
 }
 
 const status = computed(() => props.entry.launcher.status || 'idle')
-const digest = computed(() => props.entry.launcher.digest)
+const progress = computed(() => props.entry.launcher.progress)
 const terminalSessionId = computed(() => props.entry.launcher.terminalSessionId)
 
 // Ask the host shell to switch to the Terminals dock focused on this
@@ -80,19 +80,11 @@ const canLaunch = computed(() => status.value === 'idle' || status.value === 'er
       {{ buttonText }}
     </Button>
 
-    <!-- Live line of progress from the bound terminal session. Click to jump
-         to that session in the Terminals dock. -->
-    <button
-      v-if="digest"
-      type="button"
-      :disabled="!terminalSessionId"
-      class="max-w-full inline-flex items-center gap-2 px3 py1.5 rounded-md bg-secondary font-mono text-xs color-base transition-colors outline-none enabled:hover:bg-[#8883] enabled:cursor-pointer disabled:cursor-default focus-visible:ring-3 focus-visible:ring-primary-500/30"
-      :title="terminalSessionId ? 'View in Terminal' : undefined"
-      @click="viewInTerminal"
-    >
-      <div class="i-ph-terminal-window-duotone flex-none op70" />
-      <span class="truncate">{{ digest }}</span>
-    </button>
+    <!-- Short progress/status of the process (not its raw output). -->
+    <div v-if="status !== 'error' && progress" class="inline-flex items-center gap-2 text-sm color-base op70">
+      <div v-if="status === 'loading'" class="i-svg-spinners-3-dots-fade flex-none" />
+      <span>{{ progress }}</span>
+    </div>
 
     <Button
       v-if="terminalSessionId"

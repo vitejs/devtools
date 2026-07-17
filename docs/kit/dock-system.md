@@ -93,8 +93,8 @@ interface DockEntry {
     command?: string
     /** Terminal session this launcher tracks (enables "View in Terminal") */
     terminalSessionId?: string
-    /** Latest line of progress from that session, shown inline on the card */
-    digest?: string
+    /** Short human progress/status of the process, shown inline on the card */
+    progress?: string
   }
   /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
   ui?: JsonRenderer
@@ -332,35 +332,31 @@ ctx.docks.register({
 
 ### Tracking a terminal session
 
-When the launch spawns a process, tie the launcher to its terminal session. Set `terminalSessionId` to surface a **View in Terminal** action (which opens the Terminals dock focused on that session), and stream the newest output line into `digest` with `tailSessionDigest` (or the lower-level `createLineDigest`):
+When the launch spawns a process, tie the launcher to its terminal session. Set `terminalSessionId` to surface a **View in Terminal** action (which opens the Terminals dock focused on that session), and set `progress` to a short status of the process — its progress, not its raw output:
 
 ```ts
-import { tailSessionDigest } from '@vitejs/devtools-kit/node'
-
 const session = await ctx.terminals.startChildProcess(
   { command: 'vite', args: ['dev'], cwd },
   { id: 'my-app:dev', title: 'Dev Server' },
 )
 
-tailSessionDigest(session, (line) => {
-  ctx.docks.update({
-    id: 'my-launcher',
-    title: 'My App',
-    icon: 'ph:rocket-launch-duotone',
-    type: 'launcher',
-    launcher: {
-      title: 'Start My App',
-      status: 'loading',
-      terminalSessionId: 'my-app:dev',
-      digest: line,
-    },
-  })
+ctx.docks.update({
+  id: 'my-launcher',
+  title: 'My App',
+  icon: 'ph:rocket-launch-duotone',
+  type: 'launcher',
+  launcher: {
+    title: 'Start My App',
+    status: 'loading',
+    terminalSessionId: 'my-app:dev',
+    progress: 'Waiting for the server…',
+  },
 })
 ```
 
-The **View in Terminal** action calls the hub's `hub:docks:activate` RPC (devframe 0.7.3+), which switches the host shell to the Terminals dock and focuses the tracked session.
+The **View in Terminal** action calls the hub's `hub:docks:activate` RPC (devframe 0.7.3+), which switches the host shell to the Terminals dock and focuses the tracked session — where the full output lives.
 
-`createProcessLauncher` composes all of the above (register + command binding + `prepare` + spawn + digest + session navigation) in one call. A plain **terminal launcher** stays a launcher while a long-running process runs:
+`createProcessLauncher` composes all of the above (register + command binding + `prepare` + spawn + progress + session navigation) in one call. A plain **terminal launcher** stays a launcher while a long-running process runs:
 
 ```ts
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
@@ -373,7 +369,7 @@ createProcessLauncher({
 })
 ```
 
-Pass `serve.onReady` for the common **server launcher** shape — run some commands, start a server, then replace the card with an iframe embedding it. The digest streams startup logs until `onReady` resolves the URL, then the dock swaps to the iframe:
+Pass `serve.onReady` for the common **server launcher** shape — run some commands, start a server, then replace the card with an iframe embedding it. The card shows a status while `onReady` resolves the URL, then the dock swaps to the iframe:
 
 ```ts
 let url: string

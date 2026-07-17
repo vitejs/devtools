@@ -37,9 +37,9 @@ export type {
  *   action fires from the launch button, the command palette, and any
  *   keybinding.
  * - {@link terminalSessionId} ties the launcher to a terminal session, powering
- *   the "View in Terminal" navigation (via `hub:docks:activate`) and the digest.
- * - {@link digest} is the latest line of progress from that session, surfaced
- *   inline on the card.
+ *   the "View in Terminal" navigation (via `hub:docks:activate`).
+ * - {@link progress} is a short human status of the process (e.g. "Waiting for
+ *   the server…", "Running"), surfaced inline on the card.
  *
  * All three are optional and serializable, so they ride the existing
  * `devframe:docks` shared-state sync to the client untouched.
@@ -59,10 +59,10 @@ export interface DevToolsLauncherExtras {
    */
   terminalSessionId?: string
   /**
-   * Latest line of progress from the tracked terminal session. Push updates via
-   * `ctx.docks.update(...)`; {@link createLineDigest} extracts it from output.
+   * Short human status of the process — its progress, not its raw output (e.g.
+   * "Waiting for the server…", "Running"). Push updates via `ctx.docks.update(...)`.
    */
-  digest?: string
+  progress?: string
 }
 
 /**

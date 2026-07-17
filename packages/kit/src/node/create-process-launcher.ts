@@ -4,7 +4,6 @@ import type { DevToolsViewIframe, DevToolsViewLauncher } from '../types/docks'
 import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession } from '../types/terminals'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
-import { tailSessionDigest } from './create-line-digest'
 import { diagnostics } from './diagnostics'
 
 type Awaitable<T> = T | Promise<T>
@@ -71,8 +70,8 @@ export interface ProcessLauncherOptions {
  * Build a launcher dock for a child process — the composed form of the launcher
  * primitives. It registers the launcher, binds a command to the launch action,
  * runs an optional `prepare` step, spawns the process into a terminal session,
- * streams the session's newest output line onto the card as a digest, and
- * exposes the session so the card's "View in Terminal" action can jump to it.
+ * reflects the process's progress/status on the card, and exposes the session
+ * so the card's "View in Terminal" action can jump to its full output.
  *
  * Two shapes, one call:
  *
@@ -132,19 +131,16 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
     devtools: {
       setup(ctx: ViteDevToolsNodeContext) {
         let session: DevToolsChildProcessTerminalSession | undefined
-        let stopDigest: (() => void) | undefined
-        let digest: string | undefined
         // Remembered once a server launcher has swapped to its iframe, so a
         // re-invocation while it is still running re-shows the embed.
         let servedUrl: string | undefined
 
         // Re-render the whole launcher entry — the hub sync replaces it
         // wholesale — with the current status and (once running) the tracked
-        // session + digest.
+        // session + a short progress line.
         function entry(
           status: DevToolsViewLauncher['launcher']['status'],
-          tracking: boolean,
-          error?: string,
+          extras: { tracking?: boolean, progress?: string, error?: string } = {},
         ): DevToolsViewLauncher {
           return {
             id,
@@ -159,12 +155,13 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               buttonStart,
               buttonLoading,
               status,
-              error,
+              error: extras.error,
               command: commandId,
               onLaunch: async () => {
                 await ctx.commands.execute(commandId)
               },
-              ...(tracking ? { terminalSessionId: sessionId, digest } : {}),
+              ...(extras.tracking ? { terminalSessionId: sessionId } : {}),
+              ...(extras.progress ? { progress: extras.progress } : {}),
             },
           }
         }
@@ -182,7 +179,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
           handler: launch,
         })
 
-        ctx.docks.register<DevToolsViewLauncher>(entry('idle', false))
+        ctx.docks.register<DevToolsViewLauncher>(entry('idle'))
 
         async function launch(): Promise<void> {
           // A live session is left running: re-show the embed for a server
@@ -198,8 +195,6 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
 
             if (session)
               await session.terminate().catch(() => {})
-            stopDigest?.()
-            digest = undefined
 
             const execute = typeof executeOptions === 'function' ? await executeOptions() : executeOptions
             session = await ctx.terminals.startChildProcess(execute, {
@@ -208,16 +203,10 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               icon: options.session?.icon ?? 'ph:terminal-window-duotone',
             })
 
-            // While a server boots the launcher is still 'loading'; a plain
-            // terminal launcher is 'success' (running) once spawned.
-            const runningStatus = serve ? 'loading' : 'success'
-            stopDigest = tailSessionDigest(session, (line) => {
-              digest = line
-              ctx.docks.update(entry(runningStatus, true))
-            })
-            ctx.docks.update(entry(runningStatus, true))
-
             if (serve) {
+              // Booting: still 'loading', with a status line while we wait.
+              ctx.docks.update(entry('loading', { tracking: true, progress: 'Waiting for the server…' }))
+
               // Wait for the server — but fail fast if the process exits first
               // (e.g. a build error), instead of blocking on a readiness probe
               // that will never succeed.
@@ -234,24 +223,22 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               exitPromise.catch(() => {})
 
               const url = await Promise.race([readyPromise, exitPromise])
-              stopDigest?.()
               servedUrl = url
               swapToIframe(url)
               return
             }
 
-            // Terminal launcher: reflect the process's outcome once it exits and
-            // stop tailing, keeping the session link so its output stays
-            // openable. `getResult()` is a bare PromiseLike, so handle rejection
-            // inline.
+            // Terminal launcher: it's now running. Reflect its outcome once it
+            // exits, keeping the session link so its output stays openable.
+            // `getResult()` is a bare PromiseLike, so handle rejection inline.
+            ctx.docks.update(entry('success', { tracking: true, progress: 'Running' }))
             const trackedSession = session
             void trackedSession.getResult().then(
               (result) => {
-                stopDigest?.()
                 ctx.docks.update(
                   result.exitCode === 0
-                    ? entry('success', true)
-                    : entry('error', true, `Process exited with code ${result.exitCode ?? 'null'}.`),
+                    ? entry('success', { tracking: true, progress: 'Finished' })
+                    : entry('error', { tracking: true, error: `Process exited with code ${result.exitCode ?? 'null'}.` }),
                 )
               },
               () => {},
@@ -262,8 +249,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
             // too, which don't pass through the on-launch bridge) and re-throw so
             // the button path's bridge reflects it as well. The card stays a
             // launcher, so its button becomes Retry.
-            stopDigest?.()
-            ctx.docks.update(entry('error', true, error instanceof Error ? error.message : String(error)))
+            ctx.docks.update(entry('error', { tracking: true, error: error instanceof Error ? error.message : String(error) }))
             throw error
           }
         }

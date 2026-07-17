@@ -62,10 +62,10 @@ export const Error: Story = launcherStory('error', {
   error: 'No test files found, exiting with code 1',
 })
 
-// A launcher tracking a terminal session: it streams a one-line digest and
+// A launcher tracking a terminal session: it shows the process's progress and
 // offers to jump to that session in the Terminals dock.
-export const WithTerminalDigest: Story = launcherStory('loading', {
+export const WithProgress: Story = launcherStory('loading', {
   buttonLoading: 'Starting…',
   terminalSessionId: 'my-app:dev',
-  digest: 'VITE v8.1.4  ready in 312 ms  ➜  Local: http://localhost:5173/',
+  progress: 'Waiting for the server…',
 })

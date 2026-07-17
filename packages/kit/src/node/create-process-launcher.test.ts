@@ -1,5 +1,4 @@
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
-import { EventEmitter } from 'node:events'
 import { describe, expect, it, vi } from 'vitest'
 import { createProcessLauncher } from './create-process-launcher'
 
@@ -10,13 +9,11 @@ function fakeCtx(): {
   registered: Map<string, FakeDock>
   commands: Map<string, (...a: any[]) => any>
   sessions: Map<string, { status: string }>
-  stdout: EventEmitter
   resolveExit: (code: number) => void
 } {
   const registered = new Map<string, FakeDock>()
   const commands = new Map<string, (...a: any[]) => any>()
   const sessions = new Map<string, { status: string }>()
-  const stdout = new EventEmitter()
   let resolveExit!: (code: number) => void
   const result = new Promise<{ exitCode: number }>((resolve) => {
     resolveExit = (exitCode: number) => resolve({ exitCode })
@@ -40,7 +37,6 @@ function fakeCtx(): {
       startChildProcess: vi.fn(async (_exec, meta: { id: string }) => {
         sessions.set(meta.id, { status: 'running' })
         return {
-          getChildProcess: () => ({ stdout, stderr: new EventEmitter() }),
           getResult: () => result,
           terminate: async () => {},
         }
@@ -48,7 +44,7 @@ function fakeCtx(): {
     },
   } as unknown as ViteDevToolsNodeContext
 
-  return { ctx, registered, commands, sessions, stdout, resolveExit }
+  return { ctx, registered, commands, sessions, resolveExit }
 }
 
 const baseOptions = {
@@ -76,21 +72,18 @@ describe('createProcessLauncher', () => {
     expect(commands.has('my-app:launch')).toBe(true)
   })
 
-  it('spawns the process, tracks its session, and streams a digest', async () => {
-    const { ctx, registered, stdout } = fakeCtx()
+  it('spawns the process, tracks its session, and shows running progress', async () => {
+    const { ctx, registered } = fakeCtx()
     await mount(ctx, baseOptions)
 
     // Launch via the bound command (what the palette / button both do).
     await ctx.commands.execute('my-app:launch')
 
     expect((ctx.terminals as any).startChildProcess).toHaveBeenCalledOnce()
-    let dock = registered.get('my-app')!
+    const dock = registered.get('my-app')!
     expect(dock.launcher.status).toBe('success')
     expect(dock.launcher.terminalSessionId).toBe('my-app')
-
-    stdout.emit('data', 'VITE ready in 312 ms\n')
-    dock = registered.get('my-app')!
-    expect(dock.launcher.digest).toBe('VITE ready in 312 ms')
+    expect(dock.launcher.progress).toBe('Running')
   })
 
   it('is idempotent while the session is running', async () => {

@@ -9,7 +9,7 @@ export interface CreateKitContextOptions extends CreateHubContextOptions {
 export interface DevToolsLauncherExtras {
   command?: string;
   terminalSessionId?: string;
-  digest?: string;
+  progress?: string;
 }
 export interface DevToolsPluginOptions {
   capabilities?: {
