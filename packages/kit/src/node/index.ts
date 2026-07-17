@@ -2,6 +2,7 @@ export * from './context'
 export * from './create-install-launcher'
 export * from './create-line-digest'
 export * from './create-plugin-from-devframe'
+export * from './create-process-launcher'
 export * from './utils'
 export * from './vite-host'
 

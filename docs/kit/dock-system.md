@@ -360,6 +360,19 @@ tailSessionDigest(session, (line) => {
 
 The **View in Terminal** action calls the hub's `hub:docks:activate` RPC (devframe 0.7.3+), which switches the host shell to the Terminals dock and focuses the tracked session.
 
+For the common case — a launcher that spawns a long-running process and *stays* a launcher while it runs — `createProcessLauncher` composes all of the above (register + command binding + spawn + digest + session navigation) in one call:
+
+```ts
+import { createProcessLauncher } from '@vitejs/devtools-kit/node'
+
+createProcessLauncher({
+  id: 'my-app',
+  title: 'My App',
+  icon: 'ph:rocket-launch-duotone',
+  process: { command: 'vite', args: ['dev'], cwd: process.cwd() },
+})
+```
+
 ## JSON render panels
 
 JSON render panels describe a UI as a JSON spec on the server — the client renders it from a built-in component library. This is the shortest path to a DevTools panel: server-side TypeScript only.

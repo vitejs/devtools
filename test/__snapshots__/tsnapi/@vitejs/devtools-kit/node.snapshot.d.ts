@@ -39,6 +39,29 @@ export interface LineDigest {
   readonly latest: string;
   push: (_: string) => string | undefined;
 }
+export interface ProcessLauncherOptions {
+  id: string;
+  title: string;
+  icon: DevframeDockEntryIcon;
+  groupId?: string;
+  label?: string;
+  description?: string;
+  buttonStart?: string;
+  buttonLoading?: string;
+  process: DevToolsChildProcessExecuteOptions;
+  command?: {
+    id?: string;
+    title?: string;
+    icon?: DevframeDockEntryIcon;
+    keybindings?: DevToolsCommandKeybinding[];
+  };
+  session?: {
+    id?: string;
+    title?: string;
+    icon?: DevframeDockEntryIcon;
+  };
+  name?: string;
+}
 export interface ViteDevToolsHost extends DevframeHost {
   provideConnectionMeta: (_: () => ConnectionMeta | Promise<ConnectionMeta>) => void;
 }
@@ -49,6 +72,7 @@ export declare function createInstallLauncher(_: InstallLauncherOptions): Plugin
 export declare function createKitContext(_: CreateKitContextOptions): Promise<KitNodeContext>;
 export declare function createLineDigest(): LineDigest;
 export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
+export declare function createProcessLauncher(_: ProcessLauncherOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): ViteDevToolsHost;
 export declare function tailSessionDigest(_: DevToolsChildProcessTerminalSession, _: (_: string) => void): () => void;
