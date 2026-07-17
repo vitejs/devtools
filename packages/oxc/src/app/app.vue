@@ -12,7 +12,5 @@ connect()
     {{ connectionState.error }}
   </div>
   <VisualLoading v-else-if="!connectionState.connected" text="Connecting..." />
-  <main v-else container mx-auto p4>
-    <NuxtPage />
-  </main>
+  <NuxtPage v-else />
 </template>

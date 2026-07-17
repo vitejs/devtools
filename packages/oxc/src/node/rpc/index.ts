@@ -5,6 +5,7 @@ import { overview } from './functions/overview'
 import { oxlintGetConfigFile } from './functions/oxlint-get-config-file'
 import { oxfmtGetConfigFile } from './functions/oxfmt-get-config-file'
 import { openInEditor } from './functions/open-in-editor'
+import { getConfigFiles } from './functions/get-config-files'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
@@ -13,6 +14,7 @@ export const rpcFunctions = [
   overview,
   oxlintGetConfigFile,
   oxfmtGetConfigFile,
+  getConfigFiles,
   openInEditor,
 ] as const
 

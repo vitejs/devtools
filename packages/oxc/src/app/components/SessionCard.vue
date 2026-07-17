@@ -12,7 +12,7 @@ const failed = computed(() => {
 </script>
 
 <template>
-  <NuxtLink w-full :to="`/lint/report/${meta.timestamp}`">
+  <NuxtLink w-full :to="`/oxlint/lint/${meta.timestamp}`">
     <ContainerCard p4 cursor-pointer hover:bg-active>
       <div flex justify-between gap-2 font-mono op-fade>
         <div flex items-center gap-1>

@@ -42,20 +42,17 @@ export default defineNuxtConfig({
   },
   app: {
     baseURL: BASE,
-    head: {
-      title: 'Oxc Inspector',
+   head: {
+      title: 'Oxc DevTools',
+      charset: 'utf-8',
+      viewport: 'width=device-width,initial-scale=1',
       meta: [
-        {
-          name: 'description',
-          content: 'Inspect and understand the Oxc toolchain with ease.',
-        },
+        { name: 'description', content: 'DevTools for Oxc' },
+        { property: 'og:title', content: 'Oxc DevTools' },
+        { property: 'og:description', content: 'DevTools for Oxc' },
       ],
       link: [
-        {
-          rel: 'icon',
-          type: 'image/svg+xml',
-          href: '/favicon.svg',
-        },
+        { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg` },
       ],
       htmlAttrs: {
         lang: 'en',
