@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { formatKeybinding, isKeybindingOverrideDifferentFromDefault, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
 import KeybindingBadge from '../command-palette/KeybindingBadge.vue'
@@ -218,20 +218,24 @@ function saveEditor() {
 }
 
 // Close editor on Escape
-watch(editorOpen, (v) => {
+const editorModal = ref<HTMLElement | null>(null)
+watch(editorOpen, async (v) => {
   if (!v)
     return
+  await nextTick()
+  const doc = editorModal.value?.ownerDocument ?? document
+  const win = doc.defaultView ?? window
   const handler = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       // Only close if not captured by the key input
-      const active = document.activeElement
+      const active = doc.activeElement
       if (!active || !active.classList.contains('shortcut-key-input')) {
         closeEditor()
-        window.removeEventListener('keydown', handler)
+        win.removeEventListener('keydown', handler)
       }
     }
   }
-  window.addEventListener('keydown', handler)
+  win.addEventListener('keydown', handler)
 })
 </script>
 
@@ -331,6 +335,7 @@ watch(editorOpen, (v) => {
   <!-- Shortcut Editor Popup -->
   <div
     v-if="editorOpen"
+    ref="editorModal"
     class="fixed inset-0 z-command-palette flex items-center justify-center"
   >
     <div class="absolute inset-0 bg-black/30" @click="closeEditor" />

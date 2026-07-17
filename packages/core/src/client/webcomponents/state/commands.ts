@@ -4,9 +4,10 @@ import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { ShallowRef } from 'vue'
 import { evaluateWhen } from 'devframe/utils/when'
-import { computed, markRaw, reactive, ref } from 'vue'
+import { computed, markRaw, reactive, ref, watch } from 'vue'
 import { sharedStateToRef } from './docks'
 import { collectAllKeybindings, normalizeKeyEvent } from './keybindings'
+import { useDockPopupWindow } from './popup'
 
 export { formatKeybinding, isMac, normalizeKeyEvent } from './keybindings'
 
@@ -179,6 +180,14 @@ function setupShortcutListener(
     }
   }
 
-  // Attach to window — works for both embedded (shadow DOM) and standalone
+  // Attach to the host window. This covers embedded (shadow DOM) mode and the
+  // host page while a popup is open.
   window.addEventListener('keydown', handler, { capture: true })
+
+  watch(useDockPopupWindow(), (popup, prev) => {
+    if (prev)
+      prev.removeEventListener('keydown', handler, { capture: true })
+    if (popup)
+      popup.addEventListener('keydown', handler, { capture: true })
+  })
 }
