@@ -43,28 +43,27 @@ onBeforeUnmount(() => {
     >
       <div
         v-if="open"
-        fixed inset-0 z-100 flex items-center justify-center p4
+        class="fixed inset-0 z-100 flex items-center justify-center p4"
         @click.self="close"
       >
-        <div absolute inset-0 bg-black:50 @click="close" />
+        <div class="absolute inset-0 bg-black:50" @click="close" />
         <div
-          relative max-h="85vh" of-auto bg-base border="~ base rounded-lg" shadow-xl
-          flex="~ col"
+          class="relative max-h-85vh of-auto bg-base border border-base rounded-lg shadow-xl flex flex-col"
         >
-          <div v-if="$slots.title" flex="~ items-center justify-between gap-4" px4 py3 border="b base">
-            <div font-medium>
+          <div v-if="$slots.title" class="flex items-center justify-between gap-4 px4 py3 border-b border-base">
+            <div class="font-medium">
               <slot name="title" />
             </div>
             <button
               type="button"
-              w-7 h-7 rounded-full flex items-center justify-center op50 hover="bg-active op100"
+              class="w-7 h-7 rounded-full flex items-center justify-center op50 hover:bg-active hover:op100"
               aria-label="Close"
               @click="close"
             >
-              <div i-ph-x />
+              <div class="i-ph-x" />
             </button>
           </div>
-          <div p4 of-auto>
+          <div class="p4 of-auto">
             <slot />
           </div>
         </div>

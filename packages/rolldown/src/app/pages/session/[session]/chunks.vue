@@ -208,8 +208,8 @@ watch(() => settings.value.chunkViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative :class="{ 'max-h-screen of-hidden': settings.chunkViewType === 'graph' }">
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else class="relative" :class="{ 'max-h-screen of-hidden': settings.chunkViewType === 'graph' }">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
@@ -230,22 +230,21 @@ watch(() => settings.value.chunkViewType, () => {
         <template #search-end>
           <div
             v-if="settings.chunkViewType === 'graph'"
-            h10 mr2 flex="~ items-center"
+            class="h10 mr2 flex items-center"
           >
             <button
-              w-8 h-8 rounded-full flex items-center justify-center
-              hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
+              class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-active hover:op100 op50" title="Graph Path Selector" @click="togglePathSelector(true)"
             >
-              <i i-ri:route-line flex />
+              <i class="i-ri:route-line flex" />
             </button>
           </div>
         </template>
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of chunkViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.chunkViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -257,7 +256,7 @@ watch(() => settings.value.chunkViewType, () => {
     </div>
     <div
       v-if="settings.chunkViewType === 'list'"
-      class="px5 pt-4" flex="~ col gap-4"
+      class="px5 pt-4 flex flex-col gap-4"
     >
       <ChunksFlatList
         :session="session"
@@ -267,7 +266,7 @@ watch(() => settings.value.chunkViewType, () => {
     </div>
     <div
       v-else-if="settings.chunkViewType === 'detailed-list'"
-      class="px5 pt-4" flex="~ col gap-4"
+      class="px5 pt-4 flex flex-col gap-4"
     >
       <DataVirtualList
         :items="searched"
@@ -276,10 +275,9 @@ watch(() => settings.value.chunkViewType, () => {
         :min-item-size="220"
       >
         <template #default="{ item }">
-          <div pb4>
+          <div class="pb4">
             <DataChunkDetails
-              border="~ base rounded-lg"
-              p3
+              class="border border-base rounded-lg p3"
               :chunk="item"
               :chunks="searched"
               :session="session"
@@ -297,7 +295,7 @@ watch(() => settings.value.chunkViewType, () => {
     />
     <div
       v-else-if="settings.chunkViewType === 'treemap'"
-      flex="~ col gap-2"
+      class="flex flex-col gap-2"
     >
       <ChartTreemap
         v-if="graph"
@@ -307,7 +305,7 @@ watch(() => settings.value.chunkViewType, () => {
       >
         <template #default="{ selected, options, onSelect }">
           <ChartNavBreadcrumb
-            border="b base" py2 min-h-10
+            class="border-b border-base py2 min-h-10"
             :selected="selected"
             :options="options"
             @select="onSelect"
@@ -317,7 +315,7 @@ watch(() => settings.value.chunkViewType, () => {
     </div>
     <div
       v-else-if="settings.chunkViewType === 'sunburst'"
-      flex="~ col gap-2" pt-4
+      class="flex flex-col gap-2 pt-4"
     >
       <ChunksSunburst
         v-if="graph"
@@ -328,7 +326,7 @@ watch(() => settings.value.chunkViewType, () => {
     </div>
     <div
       v-else-if="settings.chunkViewType === 'flamegraph'"
-      flex="~ col gap-2" pt-4
+      class="flex flex-col gap-2 pt-4"
     >
       <ChunksFlamegraph
         v-if="graph" :graph="graph"
@@ -338,24 +336,21 @@ watch(() => settings.value.chunkViewType, () => {
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
-        border="~ base rounded-lg" bg-base p2
-        flex="~ col gap-2"
-        min-w-50
-        shadow-lg
+        class="border border-base rounded-lg bg-base p2 flex flex-col gap-2 min-w-50 shadow-lg"
       >
-        <div flex="~ gap-2 items-center">
-          <i i-ph-shapes-duotone flex-none />
-          <span truncate>{{ nodeHover.meta.name || '[unnamed]' }}</span>
+        <div class="flex gap-2 items-center">
+          <i class="i-ph-shapes-duotone flex-none" />
+          <span class="truncate">{{ nodeHover.meta.name || '[unnamed]' }}</span>
         </div>
-        <div flex="~ gap-2 items-center">
-          <span op50 text-xs>Size:</span>
-          <DisplayFileSizeBadge :bytes="nodeHover.meta.size" text-xs />
+        <div class="flex gap-2 items-center">
+          <span class="op50 text-xs">Size:</span>
+          <DisplayFileSizeBadge :bytes="nodeHover.meta.size" class="text-xs" />
         </div>
-        <div v-if="nodeHover.meta.modules?.length" flex="~ gap-2 items-center">
-          <span op50 text-xs>Modules:</span>
-          <span text-xs>{{ nodeHover.meta.modules?.length }}</span>
+        <div v-if="nodeHover.meta.modules?.length" class="flex gap-2 items-center">
+          <span class="op50 text-xs">Modules:</span>
+          <span class="text-xs">{{ nodeHover.meta.modules?.length }}</span>
         </div>
-        <div v-if="nodeHover.meta.is_initial" flex="~ gap-2 items-center">
+        <div v-if="nodeHover.meta.is_initial" class="flex gap-2 items-center">
           <DisplayBadge text="initial" />
         </div>
       </div>

@@ -239,18 +239,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div h="[calc(100vh-4rem)]" max-w-7xl p4 mx-auto>
+  <div class="h-[calc(100vh-4rem)] max-w-7xl p4 mx-auto">
     <Back to="/" />
-    <div flex="~ col lg:row" h-full border="~ base rounded-lg" of-hidden bg-base>
-      <div flex-1 min-h-0 min-w-0 border="b base lg:b-0 lg:r">
-        <div ref="editorRef" h-full min-h="200px lg:0" />
+    <div class="flex flex-col lg:flex-row h-full border border-base rounded-lg of-hidden bg-base">
+      <div class="flex-1 min-h-0 min-w-0 border-b border-base lg:border-b-0 lg:border-r">
+        <div ref="editorRef" class="h-full min-h-200px lg:min-h-0" />
       </div>
-      <div flex-1 min-h="200px lg:0" min-w-0 relative>
+      <div class="flex-1 min-h-200px lg:min-h-0 min-w-0 relative">
         <iframe
           :src="currentDocUrl"
-          w-full
-          h-full
-          border-0
+          class="w-full h-full border-0"
           sandbox="allow-same-origin allow-scripts"
           title="Rule documentation"
           @load="iframeLoading = false"
@@ -263,21 +261,10 @@ onBeforeUnmount(() => {
         >
           <div
             v-show="iframeLoading"
-            absolute
-            inset-0
-            flex
-            items-center
-            justify-center
-            bg-base
-            pointer-events-none
+            class="absolute inset-0 flex items-center justify-center bg-base pointer-events-none"
           >
             <span
-              size-8
-              animate-spin
-              rounded-full
-              border-2
-              border-base
-              border-t-primary-500
+              class="size-8 animate-spin rounded-full border-2 border-base border-t-primary-500"
               aria-hidden="true"
             />
           </div>

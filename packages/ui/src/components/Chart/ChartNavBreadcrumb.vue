@@ -22,11 +22,11 @@ const parentStack = computed(() => {
 </script>
 
 <template>
-  <div flex="~ gap-1 items-center wrap">
+  <div class="flex gap-1 items-center flex-wrap">
     <template v-for="node, idx of parentStack" :key="node.id">
-      <div v-if="idx > 0" i-ph-arrow-right-bold text-sm op-fade />
+      <div v-if="idx > 0" class="i-ph-arrow-right-bold text-sm op-fade" />
       <button
-        hover="bg-active" rounded px1
+        class="hover:bg-active rounded px1"
         @click="emit('select', node)"
       >
         <span>{{ node.text || node.id }}</span>

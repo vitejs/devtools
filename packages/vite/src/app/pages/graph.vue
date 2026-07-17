@@ -240,18 +240,18 @@ onKeyDown('Escape', (e) => {
     v-if="loading"
     text="Loading modules..."
   />
-  <div v-else-if="error" h-full flex="~ col gap-3 items-center justify-center" p8 text-center>
-    <div i-ph-warning-duotone text-4xl text-amber />
-    <div font-mono text-sm max-w-180 ws-pre-wrap>
+  <div v-else-if="error" class="h-full flex flex-col gap-3 items-center justify-center p8 text-center">
+    <div class="i-ph-warning-duotone text-4xl text-amber" />
+    <div class="font-mono text-sm max-w-180 ws-pre-wrap">
       {{ error.message }}
     </div>
-    <button btn-action @click="load()">
-      <span i-ph-arrow-clockwise-duotone />
+    <button class="btn-action" @click="load()">
+      <span class="i-ph-arrow-clockwise-duotone" />
       Retry
     </button>
   </div>
-  <div v-else relative :class="{ 'max-h-screen of-hidden': settings.moduleGraphViewType === 'graph' }">
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else class="relative" :class="{ 'max-h-screen of-hidden': settings.moduleGraphViewType === 'graph' }">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
@@ -269,7 +269,7 @@ onKeyDown('Escape', (e) => {
               <DisplayModuleId
                 :id="id"
                 :cwd="root"
-                block text-nowrap
+                class="block text-nowrap"
                 :link="false"
                 :disable-tooltip="true"
               />
@@ -277,21 +277,20 @@ onKeyDown('Escape', (e) => {
           </DataPathSelector>
         </template>
         <template #search-end>
-          <div v-if="settings.moduleGraphViewType === 'graph'" h10 mr2 flex="~ items-center">
+          <div v-if="settings.moduleGraphViewType === 'graph'" class="h10 mr2 flex items-center">
             <button
-              w-8 h-8 rounded-full flex items-center justify-center
-              hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
+              class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-active hover:op100 op50" title="Graph Path Selector" @click="togglePathSelector(true)"
             >
-              <i i-ri:route-line flex />
+              <i class="i-ri:route-line flex" />
             </button>
           </div>
         </template>
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of moduleViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.moduleGraphViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -325,20 +324,18 @@ onKeyDown('Escape', (e) => {
     />
     <div
       v-if="settings.moduleGraphViewType === 'list' || settings.moduleGraphViewType === 'detailed-list'"
-      fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
     >
-      <span op50>{{ searched.length }} of {{ modules.length }}</span>
+      <span class="op50">{{ searched.length }} of {{ modules.length }}</span>
     </div>
 
     <div
-      v-if="selectedModuleQuery && query" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      v-if="selectedModuleQuery && query" class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
       @click.self="closeCurrentPanel"
     >
       <div
         :key="selectedModuleQuery"
-        fixed right-0 bottom-0 top-20 left-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
+        class="fixed right-0 bottom-0 top-20 left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataModuleDetailsLoader
           :module="selectedModuleQuery"

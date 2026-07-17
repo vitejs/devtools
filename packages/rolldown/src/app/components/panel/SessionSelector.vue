@@ -60,48 +60,45 @@ function select(session: BuildInfo) {
 </script>
 
 <template>
-  <div flex="~ col gap-3">
+  <div class="flex flex-col gap-3">
     <details
       v-for="group of sessionGroups"
       :key="group.key"
       :open="isGroupOpen(group)"
       @toggle="e => toggleGroup(group, (e.target as HTMLDetailsElement)?.open)"
     >
-      <summary cursor-default select-none flex="~ gap-1 items-center" px1 py1 rounded hover="bg-active">
+      <summary class="cursor-default select-none flex gap-1 items-center px1 py1 rounded hover:bg-active">
         <div class="i-ph-caret-right-duotone transition op50" :class="isGroupOpen(group) ? 'rotate-90' : ''" />
-        <span op70 text-sm>{{ group.label }}</span>
-        <span op40 text-xs font-mono>{{ group.items.length }}</span>
+        <span class="op70 text-sm">{{ group.label }}</span>
+        <span class="op40 text-xs font-mono">{{ group.items.length }}</span>
       </summary>
 
-      <div flex="~ col gap-2" pt2>
-        <div v-for="{ session, primaryInput, additionalInputCount } of group.items" :key="session.id" flex="~ row gap-2" relative>
+      <div class="flex flex-col gap-2 pt2">
+        <div v-for="{ session, primaryInput, additionalInputCount } of group.items" :key="session.id" class="flex flex-row gap-2 relative">
           <component
             :is="sessionMode === 'list' ? NuxtLink : 'button'"
             :to="`/session/${session.id}`"
             v-bind="sessionMode !== 'list' ? { type: 'button' } : {}"
             :aria-label="`Session ${session.id}`"
-            border="~ rounded-md"
+            class="border rounded-md appearance-none bg-transparent color-base text-left flex flex-col gap-1 px4 py3 w-full"
             :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
-            appearance-none bg-transparent color-base text-left
-            flex="~ col gap-1"
-            px4 py3 w-full
             @click="select(session)"
           >
-            <div flex="~ gap-1 items-center" font-mono op50 text-sm>
-              <div i-ph-hash-duotone />
+            <div class="flex gap-1 items-center font-mono op50 text-sm">
+              <div class="i-ph-hash-duotone" />
               {{ session.id }}
             </div>
-            <div font-mono font-sm>
+            <div class="font-mono" font-sm>
               {{ session.meta.cwd }}
             </div>
-            <div v-if="primaryInput" flex="~ gap-1 items-center">
+            <div v-if="primaryInput" class="flex gap-1 items-center">
               <DisplayModuleId :id="primaryInput.filename" :cwd="session.meta.cwd" />
               <DisplayBadge :text="primaryInput.name || 'entry'" />
-              <span v-if="additionalInputCount > 0" op50 text-xs border="~ base rounded-md" px1 font-mono>
+              <span v-if="additionalInputCount > 0" class="op50 text-xs border border-base rounded-md px1 font-mono">
                 +{{ additionalInputCount }}
               </span>
             </div>
-            <DisplayTimestamp :timestamp="session.timestamp" pt2 text-sm op50 />
+            <DisplayTimestamp :timestamp="session.timestamp" class="pt2 text-sm op50" />
           </component>
         </div>
       </div>

@@ -51,16 +51,16 @@ const endTime = computed(() => {
 </script>
 
 <template>
-  <div flex="~ col w-full">
+  <div class="flex flex-col">
     <slot name="header" />
-    <div select-none h-full of-auto ws-nowrap w-auto of-visible p4 flex="~ col">
-      <div flex="~">
+    <div class="select-none h-full of-auto ws-nowrap w-auto of-visible p4 flex flex-col">
+      <div class="flex">
         <FlowmapNode
           :active="false"
           class-node-inner="w60"
         >
           <template #content>
-            <div p2 w-full text-center @click="settings.pluginDetailSelectedHook = ''">
+            <div class="p2 w-full text-center" @click="settings.pluginDetailSelectedHook = ''">
               <DisplayPluginName
                 :name="buildMetrics.plugin_name"
                 class="font-mono text-sm ws-nowrap text-ellipsis line-clamp-1"
@@ -69,19 +69,15 @@ const endTime = computed(() => {
           </template>
         </FlowmapNode>
       </div>
-      <div flex="~ items-center justify-center" relative w-60 h14>
+      <div class="flex items-center justify-center relative w-60 h14">
         <div
-          class="border-flow-line left-50% translate-x--1/2"
-          absolute top-0 border="r" z-flowmap-line
-          h4
+          class="border-flow-line left-50% translate-x--1/2 absolute top-0 border-r z-flowmap-line h4"
         />
         <div
-          class="border-flow-line left-50% translate-x--1/2"
-          absolute top-10 border="r" z-flowmap-line
-          h4
+          class="border-flow-line left-50% translate-x--1/2 absolute top-10 border-r z-flowmap-line h4"
         />
-        <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
-          <i i-ph-airplane-takeoff-thin text-4 inline-flex />
+        <span class="op50 text-xs flex items-center justify-center gap-1 h6">
+          <i class="i-ph-airplane-takeoff-thin text-4 inline-flex" />
           <time v-if="startTime" :datetime="new Date(startTime).toISOString()">{{ new Date(startTime).toLocaleString() }}</time>
         </span>
       </div>
@@ -89,14 +85,14 @@ const endTime = computed(() => {
         class-node-inner="w60"
         :class-node-outer="`${!resolveIdMetricsInfo.modules && !resolveIdMetricsInfo.calls ? `b-dashed!` : ''}`"
         class-line-bottom="left-50%! translate-x--1/2"
-        pb4 w60
+        class="pb4 w60"
         :lines="{ bottom: true }"
         :active="settings.pluginDetailSelectedHook === 'resolve'"
       >
         <template #content>
-          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'resolve'">
-            <span flex="~ items-center justify-center gap-1">
-              <i i-ph-magnifying-glass-duotone /> Resolve Id
+          <div class="flex flex-col gap1 w-full" @click="settings.pluginDetailSelectedHook = 'resolve'">
+            <span class="flex items-center justify-center gap-1">
+              <i class="i-ph-magnifying-glass-duotone" /> Resolve Id
             </span>
             <div>
               <FlowmapNodePluginInfo
@@ -114,13 +110,13 @@ const endTime = computed(() => {
         class-node-inner="w60"
         :class-node-outer="`${!loadMetricsInfo.modules && !loadMetricsInfo.calls ? `b-dashed!` : ''}`"
         class-line-bottom="left-50%! translate-x--1/2"
-        pb4 w60
+        class="pb4 w60"
         :lines="{ bottom: true }"
       >
         <template #content>
-          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'load'">
-            <span flex="~ items-center justify-center gap-1">
-              <i i-ph-upload-simple-duotone /> Load
+          <div class="flex flex-col gap1 w-full" @click="settings.pluginDetailSelectedHook = 'load'">
+            <span class="flex items-center justify-center gap-1">
+              <i class="i-ph-upload-simple-duotone" /> Load
             </span>
             <div>
               <FlowmapNodePluginInfo
@@ -139,9 +135,9 @@ const endTime = computed(() => {
         :class-node-outer="`${!transformMetricsInfo.modules && !transformMetricsInfo.calls ? `b-dashed!` : ''}`"
       >
         <template #content>
-          <div flex="~ col gap1" w-full @click="settings.pluginDetailSelectedHook = 'transform'">
-            <span flex="~ items-center justify-center gap-1">
-              <i i-ph-magic-wand-duotone /> Transform
+          <div class="flex flex-col gap1 w-full" @click="settings.pluginDetailSelectedHook = 'transform'">
+            <span class="flex items-center justify-center gap-1">
+              <i class="i-ph-magic-wand-duotone" /> Transform
             </span>
             <div>
               <FlowmapNodePluginInfo
@@ -153,23 +149,18 @@ const endTime = computed(() => {
           </div>
         </template>
       </FlowmapNode>
-      <div flex="~ items-center justify-center" relative w-60 h14>
+      <div class="flex items-center justify-center relative w-60 h14">
         <div
-          class="border-flow-line left-50% translate-x--1/2"
-          absolute top-0 border="r" z-flowmap-line
-          h4
+          class="border-flow-line left-50% translate-x--1/2 absolute top-0 border-r z-flowmap-line h4"
         />
         <div
-          class="border-flow-line left-50% translate-x--1/2"
-          absolute top-10 border="r" z-flowmap-line
-          h4
+          class="border-flow-line left-50% translate-x--1/2 absolute top-10 border-r z-flowmap-line h4"
         />
         <div
-          class="border-flow-line left-50% translate-x--1/2"
-          absolute top-14 w-2 h-2 border="4" rounded-full
+          class="border-flow-line left-50% translate-x--1/2 absolute top-14 w-2 h-2 border-4 rounded-full"
         />
-        <span op50 text-xs flex="~ items-center justify-center gap-1" h6>
-          <i i-ph-airplane-landing-thin text-4 inline-flex />
+        <span class="op50 text-xs flex items-center justify-center gap-1 h6">
+          <i class="i-ph-airplane-landing-thin text-4 inline-flex" />
           <time v-if="endTime" :datetime="new Date(endTime).toISOString()">{{ new Date(endTime).toLocaleString() }}</time>
         </span>
       </div>

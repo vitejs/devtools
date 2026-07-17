@@ -58,32 +58,32 @@ function selectSession(session: BuildInfo) {
 </script>
 
 <template>
-  <div p4 flex="~ col gap-4" items-center justify-center relative>
+  <div class="p4 flex flex-col gap-4 items-center justify-center relative">
     <BannerRolldownDevTools />
-    <p v-if="sessions.length" op50>
+    <p v-if="sessions.length" class="op50">
       {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
     </p>
-    <div v-else flex="~ col gap-3" items-center max-w-140>
-      <p m0 op50 text-center>
+    <div v-else class="flex flex-col gap-3 items-center max-w-140">
+      <p class="m0 op50 text-center">
         No sessions yet.
         <br>
         Enable devtools output in your Rolldown config, then run a build:
       </p>
-      <div relative w-full>
-        <pre m0 p3 pr10 rounded-lg border="~ base" bg-code font-mono text-sm of-auto text-left><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
+      <div class="relative w-full">
+        <pre class="m0 p3 pr10 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left"><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
         <DisplayIconButton
-          absolute top2 right2
+          class="absolute" top2 right2
           title="Copy snippet"
           class-icon="i-ph-copy-duotone"
           :active="copied"
           @click="copy()"
         />
       </div>
-      <p m0 op40 text-sm text-center>
-        See <a href="https://github.com/vitejs/devtools/blob/main/docs/errors/RDDT0001.md" target="_blank" rel="noopener" hover="op100 underline">RDDT0001</a> for details.
+      <p class="m0 op40 text-sm text-center">
+        See <a href="https://github.com/vitejs/devtools/blob/main/docs/errors/RDDT0001.md" target="_blank" rel="noopener" class="hover:op100 hover:underline">RDDT0001</a> for details.
       </p>
     </div>
-    <div relative flex="~ col gap3 items-center">
+    <div class="relative flex flex-col gap3 items-center">
       <PanelSessionSelector
         :session-mode="sessionMode"
         :sessions="sessions"
@@ -92,20 +92,20 @@ function selectSession(session: BuildInfo) {
         @select="selectSession"
       />
     </div>
-    <div v-if="sessions.length" fixed top-5 right-5 flex="~ col gap2">
-      <div flex="~ row justify-around" w20 h8 border="~ base rounded-8" of-hidden>
-        <button v-for="mode in modeList" :key="mode.value" :title="mode.label" flex-1 op50 flex="~ items-center justify-center" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" hover="bg-active text-base op100!" @click="sessionMode = mode.value">
+    <div v-if="sessions.length" class="fixed top-5 right-5 flex flex-col gap2">
+      <div class="flex flex-row justify-around w20 h8 border border-base rounded-8 of-hidden">
+        <button v-for="mode in modeList" :key="mode.value" :title="mode.label" class="flex-1 op50 flex items-center justify-center hover:bg-active hover:text-base hover:op100!" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" @click="sessionMode = mode.value">
           <span :class="mode.icon" class="text-sm" />
         </button>
       </div>
     </div>
-    <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" fixed bottom-5 right-5 border="~ base rounded-2" w100 max-lg:w85 bg-glass z-panel-content>
+    <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" class="fixed bottom-5 right-5 border border-base rounded-2 w100 max-lg:w85 bg-glass z-panel-content">
       <CompareSessionMeta :sessions="normalizedSelectedSessions" class="flex-col gap0 [&>div]:border-none! [&>first-child]:border-b!" />
-      <div flex="~ justify-center" p2>
-        <NuxtLink v-if="selectedSessions.length === 2" tag="button" :to="`/compare/${selectedSessionIds.join(',')}`" btn-action rounded-8 text-3 flex="~ justify-center" w30 h8>
+      <div class="flex justify-center p2">
+        <NuxtLink v-if="selectedSessions.length === 2" tag="button" :to="`/compare/${selectedSessionIds.join(',')}`" class="btn-action rounded-8 text-3 flex justify-center w30 h8">
           Compare
         </NuxtLink>
-        <div v-else op80 text-sm>
+        <div v-else class="op80 text-sm">
           Select one more session to compare.
         </div>
       </div>

@@ -6,12 +6,12 @@
 </script>
 
 <template>
-  <div bg-base border="~ base rounded-lg" of-hidden>
-    <div v-if="$slots.header" px4 py2 border="b base">
+  <div class="bg-base border border-base rounded-lg of-hidden">
+    <div v-if="$slots.header" class="px4 py2 border-b border-base">
       <slot name="header" />
     </div>
     <slot />
-    <div v-if="$slots.footer" px6 py4 border="t base">
+    <div v-if="$slots.footer" class="px6 py4 border-t border-base">
       <slot name="footer" />
     </div>
   </div>

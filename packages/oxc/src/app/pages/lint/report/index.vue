@@ -24,15 +24,19 @@ const filteredSessionMetaList = computed(() => {
 </script>
 
 <template>
-  <div flex="~ col" gap-4>
+  <div class="flex flex-col gap-4">
     <Back />
-    <div flex justify-between items-center w-full>
-      <div flex items-center gap-2>
-        <button btn-action-sm cursor-pointer aria-label="Reload sessions" @click="reloadSessions()">
-          <div i-lucide-refresh-cw />
+    <div class="flex justify-between items-center w-full">
+      <div class="flex items-center gap-2">
+        <button
+          class="btn-action-sm cursor-pointer"
+          aria-label="Reload sessions"
+          @click="reloadSessions()"
+        >
+          <div class="i-lucide-refresh-cw" />
         </button>
 
-        <p op-fade>Select a lint session to get started:</p>
+        <p class="op-fade">Select a lint session to get started:</p>
       </div>
 
       <FormCheckbox v-model="hidePassed" label="Hide Passed" />
@@ -42,9 +46,14 @@ const filteredSessionMetaList = computed(() => {
       <SessionCard v-for="meta in filteredSessionMetaList" :key="meta.timestamp" :meta="meta" />
     </template>
 
-    <VisualEmptyState v-else w-full mt4 title="No sessions found" icon="i-ph-folder-simple-duotone">
+    <VisualEmptyState
+      v-else
+      class="w-full mt4"
+      title="No sessions found"
+      icon="i-ph-folder-simple-duotone"
+    >
       <template #description>
-        <div text-sm op-fade leading-7>
+        <div class="text-sm op-fade leading-7">
           <span>Oxc Inspector logs directory</span><code>.devtools-oxc</code> not found.
           <br />
           Run <code>npx @vitejs/devtools-oxc lint</code> to generate it first.
@@ -54,7 +63,7 @@ const filteredSessionMetaList = computed(() => {
             to="https://github.com/yuyinws/oxc-inspector"
             external
             target="_blank"
-            color-active
+            class="color-active"
           >
             https://github.com/yuyinws/oxc-inspector
           </NuxtLink>

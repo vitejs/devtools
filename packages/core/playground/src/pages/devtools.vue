@@ -151,87 +151,87 @@ function incrementCounter() {
 </script>
 
 <template>
-  <div max-w-180 mx-auto p6 text-left>
-    <h1 text-xl font-bold mb4>
+  <div class="max-w-180 mx-auto p6 text-left">
+    <h1 class="text-xl font-bold mb4">
       DevTools Debug Dashboard
     </h1>
 
     <!-- Status bar -->
-    <div flex gap-2 items-center mb6 px3 py2 bg-secondary rounded-lg text-sm>
+    <div class="flex gap-2 items-center mb6 px3 py2 bg-secondary rounded-lg text-sm">
       <DisplayBadge :text="isTrusted === null ? 'connecting' : isTrusted ? 'trusted' : 'untrusted'" />
-      <span op30>|</span>
-      <span font-mono>counter: {{ counterState?.count ?? '-' }}</span>
-      <button btn-action-sm ml-auto @click="incrementCounter">
+      <span class="op30">|</span>
+      <span class="font-mono">counter: {{ counterState?.count ?? '-' }}</span>
+      <button class="btn-action-sm ml-auto" @click="incrementCounter">
         ++
       </button>
     </div>
 
     <!-- Quick Actions -->
-    <section mb6>
-      <h2 text-sm font-semibold mb2>
+    <section class="mb6">
+      <h2 class="text-sm font-semibold mb2">
         Quick Actions
       </h2>
-      <div flex="~ wrap gap-2">
-        <button btn-action-sm @click="addNotification('URL copied!', 'success')">
-          <div i-ph-check-circle-duotone text-green />
+      <div class="flex flex-wrap gap-2">
+        <button class="btn-action-sm" @click="addNotification('URL copied!', 'success')">
+          <div class="i-ph-check-circle-duotone text-green" />
           Toast: Success
         </button>
-        <button btn-action-sm @click="addNotification('Something went wrong', 'error')">
-          <div i-ph-x-circle-duotone text-red />
+        <button class="btn-action-sm" @click="addNotification('Something went wrong', 'error')">
+          <div class="i-ph-x-circle-duotone text-red" />
           Toast: Error
         </button>
-        <button btn-action-sm @click="addNotification('Check this out', 'warn')">
-          <div i-ph-warning-duotone text-amber />
+        <button class="btn-action-sm" @click="addNotification('Check this out', 'warn')">
+          <div class="i-ph-warning-duotone text-amber" />
           Toast: Warning
         </button>
-        <button btn-action-sm @click="addLoadingThenResolve()">
-          <div i-ph-spinner-gap-duotone />
+        <button class="btn-action-sm" @click="addLoadingThenResolve()">
+          <div class="i-ph-spinner-gap-duotone" />
           Loading -> Resolve
         </button>
-        <button btn-action-sm @click="addBatchMessages()">
-          <div i-ph-list-plus-duotone />
+        <button class="btn-action-sm" @click="addBatchMessages()">
+          <div class="i-ph-list-plus-duotone" />
           Add All Levels
         </button>
-        <button btn-action-sm text-red @click="clearMessages()">
-          <div i-ph-trash-duotone />
+        <button class="btn-action-sm text-red" @click="clearMessages()">
+          <div class="i-ph-trash-duotone" />
           Clear All
         </button>
       </div>
     </section>
 
     <!-- Add Message -->
-    <section mb6 border="~ base" rounded-lg p3>
-      <h2 text-sm font-semibold mb2>
+    <section class="mb6 border border-base rounded-lg p3">
+      <h2 class="text-sm font-semibold mb2">
         Add Message
       </h2>
-      <div grid="~ cols-2 gap-2" text-sm>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Message</span>
-          <input v-model="messageMessage" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Message</span>
+          <input v-model="messageMessage" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Level</span>
-          <select v-model="messageLevel" border="~ base" rounded px2 py1 text-sm bg-transparent>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Level</span>
+          <select v-model="messageLevel" class="border border-base rounded px2 py1 text-sm bg-transparent">
             <option v-for="l of levels" :key="l" :value="l">
               {{ l }}
             </option>
           </select>
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Category</span>
-          <input v-model="messageCategory" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Category</span>
+          <input v-model="messageCategory" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Labels (comma-separated)</span>
-          <input v-model="messageLabels" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Labels (comma-separated)</span>
+          <input v-model="messageLabels" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>ID (for dedup)</span>
-          <input v-model="messageId" placeholder="auto" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">ID (for dedup)</span>
+          <input v-model="messageId" placeholder="auto" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Status</span>
-          <select v-model="messageStatus" border="~ base" rounded px2 py1 text-sm bg-transparent>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Status</span>
+          <select v-model="messageStatus" class="border border-base rounded px2 py1 text-sm bg-transparent">
             <option value="idle">
               idle
             </option>
@@ -240,72 +240,72 @@ function incrementCounter() {
             </option>
           </select>
         </label>
-        <label flex="~ col gap-1" col-span-2>
-          <span op50 text-xs>Description</span>
-          <textarea v-model="messageDescription" rows="2" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y />
+        <label class="flex flex-col gap-1 col-span-2">
+          <span class="op50 text-xs">Description</span>
+          <textarea v-model="messageDescription" rows="2" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none resize-y" />
         </label>
-        <label flex="~ col gap-1" col-span-2>
-          <span op50 text-xs>Stacktrace</span>
-          <textarea v-model="messageStacktrace" rows="3" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono />
+        <label class="flex flex-col gap-1 col-span-2">
+          <span class="op50 text-xs">Stacktrace</span>
+          <textarea v-model="messageStacktrace" rows="3" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none resize-y font-mono" />
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Auto Dismiss</span>
-          <input v-model="messageAutoDismiss" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Auto Dismiss</span>
+          <input v-model="messageAutoDismiss" type="number" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Auto Delete</span>
-          <input v-model="messageAutoDelete" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Auto Delete</span>
+          <input v-model="messageAutoDelete" type="number" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1" col-span-2>
-          <span op50 text-xs>File Position - Path</span>
-          <input v-model="messageFilePositionFile" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1 col-span-2">
+          <span class="op50 text-xs">File Position - Path</span>
+          <input v-model="messageFilePositionFile" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>File Position - Line</span>
-          <input v-model="messageFilePositionLine" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">File Position - Line</span>
+          <input v-model="messageFilePositionLine" type="number" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>File Position - Column</span>
-          <input v-model="messageFilePositionColumn" type="number" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">File Position - Column</span>
+          <input v-model="messageFilePositionColumn" type="number" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
       </div>
-      <div flex items-center gap-3 mt2>
-        <label flex items-center gap-1 text-xs>
+      <div class="flex items-center gap-3 mt2">
+        <label class="flex items-center gap-1 text-xs">
           <input v-model="messageNotify" type="checkbox">
           Notify (toast)
         </label>
-        <button btn-action-sm ml-auto @click="addMessage">
-          <div i-ph-paper-plane-tilt-duotone />
+        <button class="btn-action-sm ml-auto" @click="addMessage">
+          <div class="i-ph-paper-plane-tilt-duotone" />
           Add Message
         </button>
       </div>
     </section>
 
     <!-- Update Message -->
-    <section mb6 border="~ base" rounded-lg p3>
-      <h2 text-sm font-semibold mb2>
+    <section class="mb6 border border-base rounded-lg p3">
+      <h2 class="text-sm font-semibold mb2">
         Update Message by ID
       </h2>
-      <div grid="~ cols-2 gap-2" text-sm>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Entry ID</span>
-          <input v-model="updateId" placeholder="entry id" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Entry ID</span>
+          <input v-model="updateId" placeholder="entry id" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>New Message</span>
-          <input v-model="updateMessage" border="~ base" rounded px2 py1 text-sm bg-transparent outline-none>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">New Message</span>
+          <input v-model="updateMessage" class="border border-base rounded px2 py1 text-sm bg-transparent outline-none">
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Level</span>
-          <select v-model="updateLevel" border="~ base" rounded px2 py1 text-sm bg-transparent>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Level</span>
+          <select v-model="updateLevel" class="border border-base rounded px2 py1 text-sm bg-transparent">
             <option v-for="l of levels" :key="l" :value="l">
               {{ l }}
             </option>
           </select>
         </label>
-        <label flex="~ col gap-1">
-          <span op50 text-xs>Status</span>
-          <select v-model="updateStatus" border="~ base" rounded px2 py1 text-sm bg-transparent>
+        <label class="flex flex-col gap-1">
+          <span class="op50 text-xs">Status</span>
+          <select v-model="updateStatus" class="border border-base rounded px2 py1 text-sm bg-transparent">
             <option value="idle">
               idle
             </option>
@@ -315,23 +315,23 @@ function incrementCounter() {
           </select>
         </label>
       </div>
-      <div flex justify-end mt2>
-        <button btn-action-sm @click="updateMessageEntry">
-          <div i-ph-pencil-simple-duotone />
+      <div class="flex justify-end mt2">
+        <button class="btn-action-sm" @click="updateMessageEntry">
+          <div class="i-ph-pencil-simple-duotone" />
           Update
         </button>
       </div>
     </section>
 
     <!-- Shared State -->
-    <section border="~ base" rounded-lg p3>
-      <h2 text-sm font-semibold mb2>
+    <section class="border border-base rounded-lg p3">
+      <h2 class="text-sm font-semibold mb2">
         Shared State: counter
       </h2>
-      <pre text-xs bg-secondary rounded p2 of-auto font-mono>{{ counterState }}</pre>
-      <div flex gap-2 mt2>
-        <button btn-action-sm @click="incrementCounter">
-          <div i-ph-plus-duotone />
+      <pre class="text-xs bg-secondary rounded p2 of-auto font-mono">{{ counterState }}</pre>
+      <div class="flex gap-2 mt2">
+        <button class="btn-action-sm" @click="incrementCounter">
+          <div class="i-ph-plus-duotone" />
           Increment
         </button>
       </div>

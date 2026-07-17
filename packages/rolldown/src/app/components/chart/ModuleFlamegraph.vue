@@ -135,41 +135,38 @@ watch(() => props.flowNodeSelected, async () => {
 </script>
 
 <template>
-  <div relative border="t base" pb10 py1 mt4>
+  <div class="relative border-t border-base pb10 py1 mt4">
     <DisplayGraphHoverView :hover-x="hoverX" :hover-y="hoverY">
       <div
         v-if="hoverNode"
-        border="~ base" rounded-lg shadow-lg px3 py2
-        bg-glass pointer-events-none text-sm max-w-80
+        class="border border-base rounded-lg shadow-lg px3 py2 bg-glass pointer-events-none text-sm max-w-80"
       >
-        <div font-semibold font-mono text-base mb2>
+        <div class="font-semibold font-mono text-base mb2">
           {{ hoverNode.plugin_name }}
         </div>
-        <div v-if="hoverNode.meta" border="t base" pt2 flex="~ col gap-1.5" min-w-48>
-          <div flex="~ justify-between items-center" py1>
-            <label text-xs opacity-70>Start Time</label>
+        <div v-if="hoverNode.meta" class="border-t border-base pt2 flex flex-col gap-1.5 min-w-48">
+          <div class="flex justify-between items-center py1">
+            <label class="text-xs opacity-70">Start Time</label>
             <time
               :datetime="new Date(hoverNode.meta.timestamp_start).toISOString()"
-              font-mono text="xs"
+              class="font-mono text-xs px1.5 py0.5 rounded"
               bg="base/10"
-              px1.5 py0.5 rounded
             >
               {{ normalizeTimestamp(hoverNode.meta.timestamp_start) }}
             </time>
           </div>
-          <div flex="~ justify-between items-center" py1>
-            <label text-xs opacity-70>End Time</label>
+          <div class="flex justify-between items-center py1">
+            <label class="text-xs opacity-70">End Time</label>
             <time
               :datetime="new Date(hoverNode.meta.timestamp_end).toISOString()"
-              font-mono text="xs"
+              class="font-mono text-xs px1.5 py0.5 rounded"
               bg="base/10"
-              px1.5 py0.5 rounded
             >
               {{ normalizeTimestamp(hoverNode.meta.timestamp_end) }}
             </time>
           </div>
-          <div flex="~ justify-between items-center" py1 border="t base dashed" pt2>
-            <label text="xs" op70>Duration</label>
+          <div class="flex justify-between items-center py1 border-t border-base border-dashed pt2">
+            <label class="text-xs op70">Duration</label>
             <DisplayDuration :duration="hoverNode.duration" />
           </div>
         </div>
@@ -178,6 +175,6 @@ watch(() => props.flowNodeSelected, async () => {
         </div>
       </div>
     </DisplayGraphHoverView>
-    <div ref="el" min-h-30 />
+    <div ref="el" class="min-h-30" />
   </div>
 </template>
