@@ -89,6 +89,12 @@ interface DockEntry {
     description?: string
     buttonStart?: string
     buttonLoading?: string
+    /** Bound command id — the launch button, palette, and keybinding share it */
+    command?: string
+    /** Terminal session this launcher tracks (enables "View in Terminal") */
+    terminalSessionId?: string
+    /** Latest line of progress from that session, shown inline on the card */
+    digest?: string
   }
   /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
   ui?: JsonRenderer
@@ -300,6 +306,59 @@ ctx.docks.register({
   },
 })
 ```
+
+### Binding a command
+
+Point `launcher.command` at a registered command and route `onLaunch` through it, so the launch button, the command palette, and any keybinding all run one handler:
+
+```ts
+const COMMAND_ID = 'my-plugin:start'
+ctx.commands.register({ id: COMMAND_ID, title: 'Start My App', handler: start })
+
+ctx.docks.register({
+  id: 'my-launcher',
+  title: 'My App',
+  icon: 'ph:rocket-launch-duotone',
+  type: 'launcher',
+  launcher: {
+    title: 'Start My App',
+    command: COMMAND_ID,
+    onLaunch: async () => {
+      await ctx.commands.execute(COMMAND_ID)
+    },
+  },
+})
+```
+
+### Tracking a terminal session
+
+When the launch spawns a process, tie the launcher to its terminal session. Set `terminalSessionId` to surface a **View in Terminal** action (which opens the Terminals dock focused on that session), and stream the newest output line into `digest` with `tailSessionDigest` (or the lower-level `createLineDigest`):
+
+```ts
+import { tailSessionDigest } from '@vitejs/devtools-kit/node'
+
+const session = await ctx.terminals.startChildProcess(
+  { command: 'vite', args: ['dev'], cwd },
+  { id: 'my-app:dev', title: 'Dev Server' },
+)
+
+tailSessionDigest(session, (line) => {
+  ctx.docks.update({
+    id: 'my-launcher',
+    title: 'My App',
+    icon: 'ph:rocket-launch-duotone',
+    type: 'launcher',
+    launcher: {
+      title: 'Start My App',
+      status: 'loading',
+      terminalSessionId: 'my-app:dev',
+      digest: line,
+    },
+  })
+})
+```
+
+The **View in Terminal** action calls the hub's `hub:docks:activate` RPC (devframe 0.7.3+), which switches the host shell to the Terminals dock and focuses the tracked session.
 
 ## JSON render panels
 

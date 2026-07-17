@@ -35,6 +35,10 @@ export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
 }
+export interface LineDigest {
+  readonly latest: string;
+  push: (_: string) => string | undefined;
+}
 export interface ViteDevToolsHost extends DevframeHost {
   provideConnectionMeta: (_: () => ConnectionMeta | Promise<ConnectionMeta>) => void;
 }
@@ -43,9 +47,11 @@ export interface ViteDevToolsHost extends DevframeHost {
 // #region Functions
 export declare function createInstallLauncher(_: InstallLauncherOptions): PluginWithDevTools;
 export declare function createKitContext(_: CreateKitContextOptions): Promise<KitNodeContext>;
+export declare function createLineDigest(): LineDigest;
 export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): ViteDevToolsHost;
+export declare function tailSessionDigest(_: DevToolsChildProcessTerminalSession, _: (_: string) => void): () => void;
 // #endregion
 
 // #region Other

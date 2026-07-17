@@ -4,7 +4,10 @@ import { h } from 'vue'
 import { mountWithContext } from '../../stories/story-helpers'
 import ViewLauncher from './ViewLauncher.vue'
 
-function launcher(status: 'idle' | 'loading' | 'error' | 'success'): DevToolsViewLauncher {
+function launcher(
+  status: 'idle' | 'loading' | 'error' | 'success',
+  extras: Partial<DevToolsViewLauncher['launcher']> = {},
+): DevToolsViewLauncher {
   return {
     id: 'launcher',
     type: 'launcher',
@@ -14,6 +17,7 @@ function launcher(status: 'idle' | 'loading' | 'error' | 'success'): DevToolsVie
       title: 'Launch My Cool App',
       description: 'Start the dev server and open it here.',
       status,
+      ...extras,
     },
   } as DevToolsViewLauncher
 }
@@ -38,10 +42,13 @@ const meta = {
 export default meta
 type Story = StoryObj
 
-function launcherStory(status: 'idle' | 'loading' | 'error' | 'success'): Story {
+function launcherStory(
+  status: 'idle' | 'loading' | 'error' | 'success',
+  extras: Partial<DevToolsViewLauncher['launcher']> = {},
+): Story {
   return {
     render: () => ({
-      setup: () => mountWithContext({}, ctx => stage(h(ViewLauncher, { context: ctx, entry: launcher(status) }))),
+      setup: () => mountWithContext({}, ctx => stage(h(ViewLauncher, { context: ctx, entry: launcher(status, extras) }))),
     }),
   }
 }
@@ -50,3 +57,11 @@ export const Idle: Story = launcherStory('idle')
 export const Loading: Story = launcherStory('loading')
 export const Success: Story = launcherStory('success')
 export const Error: Story = launcherStory('error')
+
+// A launcher tracking a terminal session: it streams a one-line digest and
+// offers to jump to that session in the Terminals dock.
+export const WithTerminalDigest: Story = launcherStory('loading', {
+  buttonLoading: 'Starting…',
+  terminalSessionId: 'my-app:dev',
+  digest: 'VITE v8.1.4  ready in 312 ms  ➜  Local: http://localhost:5173/',
+})

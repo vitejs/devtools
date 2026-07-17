@@ -23,6 +23,9 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
   })
 
   return {
+    client: {
+      register: () => () => {},
+    },
     sharedState: {
       get: async (key: string) => {
         if (key === 'devframe:docks')

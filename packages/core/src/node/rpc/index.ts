@@ -50,7 +50,16 @@ export type BuiltinServerFunctionsDump = {
 }
 
 declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
+  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {
+    /**
+     * Hub built-in (devframe ≥0.7.3): ask the active viewer to switch its
+     * focused dock, optionally focusing a terminal session via
+     * `params.sessionId`. Declared here because the hub ships the node handler
+     * but does not augment the client-callable surface — the launcher's "View
+     * in Terminal" action calls it from the client.
+     */
+    'hub:docks:activate': (input: { dockId: string, params?: Record<string, unknown> }) => Promise<void>
+  }
 
   // @keep-sorted
   // `devframe:auth:revoked` and `devframe:rpc:client-state:*` are declared

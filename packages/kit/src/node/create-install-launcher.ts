@@ -1,4 +1,5 @@
 import type { DevframeDockEntryIcon } from '@devframes/hub/types'
+import type { DevToolsViewLauncher } from '../types/docks'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import process from 'node:process'
@@ -74,7 +75,17 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
       setup(ctx: ViteDevToolsNodeContext) {
         const cwd = ctx.cwd ?? process.cwd()
 
-        ctx.docks.register({
+        // Bind the install action to a command so it fires from the launch
+        // button, the command palette, and any keybinding — one handler.
+        const commandId = `vite:devtools:install:${id}`
+        ctx.commands.register({
+          id: commandId,
+          title: `Install ${label}`,
+          icon,
+          handler: launch,
+        })
+
+        ctx.docks.register<DevToolsViewLauncher>({
           id,
           title,
           groupId,
@@ -87,7 +98,10 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
             buttonStart: `Install ${label}`,
             buttonLoading: 'Installing…',
             status: 'idle',
-            onLaunch: launch,
+            command: commandId,
+            onLaunch: async () => {
+              await ctx.commands.execute(commandId)
+            },
           },
         })
 

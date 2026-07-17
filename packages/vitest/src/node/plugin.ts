@@ -1,6 +1,7 @@
-import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { DevToolsViewLauncher, PluginWithDevTools } from '@vitejs/devtools-kit'
 import process from 'node:process'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+import { tailSessionDigest } from '@vitejs/devtools-kit/node'
 import { getPort } from 'get-port-please'
 import { isPackageExists } from 'local-pkg'
 import { addDependency } from 'nypm'
@@ -39,6 +40,9 @@ export function DevToolsVitestUI(): PluginWithDevTools {
 
         const icon = `${VITEST_DEVTOOLS_BASE}favicon.svg`
         const hasUi = isPackageExists('@vitest/ui', { paths: [cwd] })
+        // Bound command id — the launch action is one registered command, so
+        // it fires from the launch button, the palette, and any keybinding.
+        const COMMAND_ID = 'vite:devtools:vitest:start-ui'
 
         // Remembered once the UI server is up, so a second launch reuses it.
         let uiUrl: string | undefined
@@ -46,24 +50,41 @@ export function DevToolsVitestUI(): PluginWithDevTools {
         // sessions map only exposes the base session shape.
         let uiSession: Awaited<ReturnType<typeof ctx.terminals.startChildProcess>> | undefined
 
-        ctx.docks.register({
-          id: DOCK_ID,
-          title: 'Vitest',
-          groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
-          icon,
-          type: 'launcher',
-          launcher: {
-            title: 'Vitest UI',
-            description: hasUi
-              ? 'Start the Vitest UI and view it inside DevTools.'
-              : 'Install `@vitest/ui` (as a devDependency) and view it inside DevTools.',
+        // Build the launcher entry, folding in per-phase overrides (status,
+        // live digest, tracked session) while keeping the identity fields and
+        // command binding constant.
+        function launcherEntry(launcher: Partial<DevToolsViewLauncher['launcher']> = {}): DevToolsViewLauncher {
+          return {
+            id: DOCK_ID,
+            title: 'Vitest',
+            groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
             icon,
-            buttonStart: hasUi ? 'Start Vitest UI' : 'Install @vitest/ui & start',
-            buttonLoading: 'Starting Vitest UI…',
-            status: 'idle',
-            onLaunch: () => launch(),
-          },
+            type: 'launcher',
+            launcher: {
+              title: 'Vitest UI',
+              description: hasUi
+                ? 'Start the Vitest UI and view it inside DevTools.'
+                : 'Install `@vitest/ui` (as a devDependency) and view it inside DevTools.',
+              icon,
+              buttonStart: hasUi ? 'Start Vitest UI' : 'Install @vitest/ui & start',
+              buttonLoading: 'Starting Vitest UI…',
+              command: COMMAND_ID,
+              onLaunch: async () => {
+                await ctx.commands.execute(COMMAND_ID)
+              },
+              ...launcher,
+            },
+          }
+        }
+
+        ctx.commands.register({
+          id: COMMAND_ID,
+          title: 'Start Vitest UI',
+          icon,
+          handler: () => launch(),
         })
+
+        ctx.docks.register<DevToolsViewLauncher>(launcherEntry({ status: 'idle' }))
 
         async function launch(): Promise<void> {
           // Idempotent: reuse a still-running server instead of re-spawning.
@@ -112,8 +133,25 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             },
           )
 
-          if (!(await waitForServer(url, READY_TIMEOUT)))
-            throw diagnostics.VTDT0002({ url, timeout: READY_TIMEOUT })
+          // Surface Vitest's startup output as a one-line digest on the card,
+          // and expose the session so the user can jump straight to it in the
+          // Terminals dock while the server boots.
+          const stopDigest = tailSessionDigest(uiSession, (line) => {
+            ctx.docks.update(launcherEntry({
+              status: 'loading',
+              terminalSessionId: SESSION_ID,
+              digest: line,
+            }))
+          })
+
+          try {
+            if (!(await waitForServer(url, READY_TIMEOUT)))
+              throw diagnostics.VTDT0002({ url, timeout: READY_TIMEOUT })
+          }
+          finally {
+            // Stop patching the launcher before it is replaced by the iframe.
+            stopDigest()
+          }
 
           uiUrl = url
           swapToIframe(url)

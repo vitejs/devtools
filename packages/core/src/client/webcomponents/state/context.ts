@@ -1,4 +1,4 @@
-import type { DevToolsClientCommand, DevToolsDockEntry } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
@@ -112,6 +112,22 @@ export async function createDocksContext(
       return switchEntry(null)
     return switchEntry(id)
   }
+
+  // Honor cross-iframe dock-activation requests (devframe 0.7.3). A mounted
+  // plugin — or our own launcher's "View in Terminal" action — calls the
+  // `hub:docks:activate` RPC; the hub broadcasts `devframe:docks:activate` to
+  // every client. Our shell runs its own dock machinery rather than hub's
+  // client host, so we handle the broadcast here and switch the active dock
+  // ourselves. The target dock (e.g. Terminals) reads `activation.params` to
+  // focus a specific session.
+  rpc.client.register({
+    name: 'devframe:docks:activate' satisfies keyof DevToolsRpcClientFunctions,
+    type: 'action',
+    handler: (activation: { dockId: string, params?: Record<string, unknown> }) => {
+      if (activation?.dockId)
+        switchEntry(activation.dockId)
+    },
+  })
 
   let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
   const getSettingsStore = async () => {

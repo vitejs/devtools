@@ -48,6 +48,14 @@ export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
  */
 export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes-plugin-inspect'
 
+/**
+ * Dock id of the built-in Terminals feed (from `@devframes/plugin-terminals`).
+ * A launcher tracking a terminal session targets this dock via
+ * `hub:docks:activate({ dockId, params: { sessionId } })` to jump the user
+ * straight to that session's output.
+ */
+export const DEVTOOLS_TERMINALS_DOCK_ID = 'devframes-plugin-terminals'
+
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   'default': 0,
   'app': 100,

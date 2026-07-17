@@ -6,12 +6,20 @@ export interface CreateKitContextOptions extends CreateHubContextOptions {
   viteConfig?: ResolvedConfig;
   viteServer?: ViteDevServer;
 }
+export interface DevToolsLauncherExtras {
+  command?: string;
+  terminalSessionId?: string;
+  digest?: string;
+}
 export interface DevToolsPluginOptions {
   capabilities?: {
     dev?: DevframeCapabilities | boolean;
     build?: DevframeCapabilities | boolean;
   };
   setup: (_: ViteDevToolsNodeContext) => void | Promise<void>;
+}
+export interface DevToolsViewLauncher extends Omit<DevframeViewLauncher, 'launcher'> {
+  launcher: DevframeViewLauncher['launcher'] & DevToolsLauncherExtras;
 }
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
@@ -27,7 +35,9 @@ export interface ViteDevToolsNodeContext extends KitNodeContext {
 // #endregion
 
 // #region Types
+export type DevToolsDockEntry = DevToolsDockUserEntry;
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory;
+export type DevToolsDockUserEntry = DevframeViewIframe | DevframeViewAction | DevframeViewCustomRender | DevToolsViewLauncher | DevframeViewJsonRender | DevframeViewGroup | DevframeViewBuiltin;
 // #endregion
 
 // #region Variables
@@ -54,13 +64,13 @@ export { DevToolsCommandsHostEvents }
 export { DevToolsDiagnosticsDefinition }
 export { DevToolsDiagnosticsHost }
 export { DevToolsDiagnosticsLogger }
+export { DevToolsDockActivation }
 export { DevToolsDockEntriesGrouped }
-export { DevToolsDockEntry }
 export { DevToolsDockEntryBase }
 export { DevToolsDockEntryIcon }
 export { DevToolsDockHost }
+export { DevToolsDocksActiveState }
 export { DevToolsDocksUserSettings }
-export { DevToolsDockUserEntry }
 export { DevToolsHost }
 export { DevToolsMessageElementPosition }
 export { DevToolsMessageEntry }
@@ -89,7 +99,6 @@ export { DevToolsViewGroup }
 export { DevToolsViewHost }
 export { DevToolsViewIframe }
 export { DevToolsViewJsonRender }
-export { DevToolsViewLauncher }
 export { DevToolsViewLauncherStatus }
 export { EntriesToObject }
 export { EventEmitter }
