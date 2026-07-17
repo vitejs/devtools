@@ -1,10 +1,12 @@
 import type { DevframeDockEntryIcon } from '@devframes/hub/types'
 import type { DevToolsCommandKeybinding } from '../types/commands'
-import type { DevToolsViewLauncher } from '../types/docks'
-import type { DevToolsChildProcessExecuteOptions } from '../types/terminals'
+import type { DevToolsViewIframe, DevToolsViewLauncher } from '../types/docks'
+import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession } from '../types/terminals'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import { tailSessionDigest } from './create-line-digest'
+
+type Awaitable<T> = T | Promise<T>
 
 export interface ProcessLauncherOptions {
   /** Dock id. Also the default terminal-session id and command-id base. */
@@ -22,8 +24,27 @@ export interface ProcessLauncherOptions {
   /** Launch button copy. */
   buttonStart?: string
   buttonLoading?: string
-  /** The child process spawned when the launcher is invoked. */
-  process: DevToolsChildProcessExecuteOptions
+  /**
+   * The child process spawned when the launcher is invoked. Pass a function to
+   * resolve it lazily on each launch — e.g. to pick a free port and build args.
+   */
+  process: DevToolsChildProcessExecuteOptions | (() => Awaitable<DevToolsChildProcessExecuteOptions>)
+  /**
+   * Runs once per launch, before the process is spawned. Use it for on-demand
+   * setup such as installing an optional dependency. Throwing here surfaces on
+   * the launcher as an error (and rejects the bound command).
+   */
+  prepare?: () => Awaitable<void>
+  /**
+   * Turn the launcher into an embedded server view. After the process spawns,
+   * `onReady` runs (do your own readiness probing there) and resolves the URL
+   * to embed; the dock then swaps from a launcher to an iframe at that URL. The
+   * card streams the startup digest while `onReady` is pending. Omit to keep a
+   * plain terminal-tailing launcher.
+   */
+  serve?: {
+    onReady: (session: DevToolsChildProcessTerminalSession) => Awaitable<string>
+  }
   /**
    * Command binding. The launch action is registered as a command so it fires
    * from the launch button, the palette, and any keybinding. Defaults the
@@ -46,28 +67,43 @@ export interface ProcessLauncherOptions {
 }
 
 /**
- * Build a launcher dock for a long-running child process — the composed form
- * of the launcher primitives: it registers the launcher, binds a command to the
- * launch action, spawns the process into a terminal session, streams the
- * session's newest output line onto the card as a digest, and exposes the
- * session so the card's "View in Terminal" action can jump straight to it.
+ * Build a launcher dock for a child process — the composed form of the launcher
+ * primitives. It registers the launcher, binds a command to the launch action,
+ * runs an optional `prepare` step, spawns the process into a terminal session,
+ * streams the session's newest output line onto the card as a digest, and
+ * exposes the session so the card's "View in Terminal" action can jump to it.
  *
- * Suits integrations whose launcher *stays* a launcher while a process runs
- * (dev servers, watchers, builds). Integrations that ultimately replace the
- * launcher with another view — e.g. swapping to an iframe once a UI server is
- * up — should compose the primitives (`tailSessionDigest`, `ctx.docks.update`,
- * a bound command) directly instead.
+ * Two shapes, one call:
+ *
+ * - **Terminal launcher** (no `serve`): the launcher *stays* a launcher while a
+ *   long-running process runs (dev servers, watchers, builds), tailing its
+ *   output as a digest.
+ * - **Server launcher** (`serve.onReady`): run some commands, start a server,
+ *   then replace the card with an iframe embedding the server — the digest
+ *   streams startup logs until `onReady` resolves the URL, then the dock swaps
+ *   to the iframe.
  *
  * ```ts
- * DevTools({
- *   plugins: [
- *     createProcessLauncher({
- *       id: 'my-app',
- *       title: 'My App',
- *       icon: 'ph:rocket-launch-duotone',
- *       process: { command: 'vite', args: ['dev'], cwd: process.cwd() },
- *     }),
- *   ],
+ * // Terminal launcher
+ * createProcessLauncher({
+ *   id: 'my-app',
+ *   title: 'My App',
+ *   icon: 'ph:rocket-launch-duotone',
+ *   process: { command: 'vite', args: ['dev'], cwd: process.cwd() },
+ * })
+ *
+ * // Server launcher (spawn → wait → embed)
+ * let url: string
+ * createProcessLauncher({
+ *   id: 'my-ui',
+ *   title: 'My UI',
+ *   icon: 'ph:browser-duotone',
+ *   process: async () => {
+ *     const port = await getPort()
+ *     url = `http://localhost:${port}/`
+ *     return { command: 'my-ui', args: ['--port', String(port)], cwd: process.cwd() }
+ *   },
+ *   serve: { onReady: async () => { await waitForServer(url); return url } },
  * })
  * ```
  */
@@ -82,6 +118,8 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
     buttonStart,
     buttonLoading,
     process: executeOptions,
+    prepare,
+    serve,
     name,
   } = options
 
@@ -92,13 +130,16 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
     name: name ?? `vite:devtools:process-launcher:${id}`,
     devtools: {
       setup(ctx: ViteDevToolsNodeContext) {
-        let session: Awaited<ReturnType<typeof ctx.terminals.startChildProcess>> | undefined
+        let session: DevToolsChildProcessTerminalSession | undefined
         let stopDigest: (() => void) | undefined
         let digest: string | undefined
+        // Remembered once a server launcher has swapped to its iframe, so a
+        // re-invocation while it is still running re-shows the embed.
+        let servedUrl: string | undefined
 
-        // Re-render the whole launcher entry — the hub sync replaces it wholesale
-        // — with the current status and (once running) the tracked session +
-        // digest.
+        // Re-render the whole launcher entry — the hub sync replaces it
+        // wholesale — with the current status and (once running) the tracked
+        // session + digest.
         function entry(status: DevToolsViewLauncher['launcher']['status'], tracking: boolean): DevToolsViewLauncher {
           return {
             id,
@@ -122,6 +163,11 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
           }
         }
 
+        function swapToIframe(url: string): void {
+          const iframe: DevToolsViewIframe = { id, title, groupId, icon, type: 'iframe', url }
+          ctx.docks.update(iframe)
+        }
+
         ctx.commands.register({
           id: commandId,
           title: options.command?.title ?? label,
@@ -133,30 +179,48 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
         ctx.docks.register<DevToolsViewLauncher>(entry('idle', false))
 
         async function launch(): Promise<void> {
-          // Idempotent: a still-running session is left as-is (the card already
-          // reflects it); otherwise a stale one is replaced.
-          if (ctx.terminals.sessions.get(sessionId)?.status === 'running')
+          // A live session is left running: re-show the embed for a server
+          // launcher, otherwise no-op (don't disturb an in-flight launch).
+          if (ctx.terminals.sessions.get(sessionId)?.status === 'running') {
+            if (serve && servedUrl)
+              swapToIframe(servedUrl)
             return
+          }
+
+          await prepare?.()
 
           if (session)
             await session.terminate().catch(() => {})
           stopDigest?.()
           digest = undefined
 
-          session = await ctx.terminals.startChildProcess(executeOptions, {
+          const execute = typeof executeOptions === 'function' ? await executeOptions() : executeOptions
+          session = await ctx.terminals.startChildProcess(execute, {
             id: sessionId,
             title: options.session?.title ?? label,
             icon: options.session?.icon ?? 'ph:terminal-window-duotone',
           })
 
+          // While a server boots the launcher is still 'loading'; a plain
+          // terminal launcher is 'success' (running) once spawned.
+          const runningStatus = serve ? 'loading' : 'success'
           stopDigest = tailSessionDigest(session, (line) => {
             digest = line
-            ctx.docks.update(entry('success', true))
+            ctx.docks.update(entry(runningStatus, true))
           })
-          ctx.docks.update(entry('success', true))
+          ctx.docks.update(entry(runningStatus, true))
 
-          // Reflect the process's outcome once it exits and stop tailing, while
-          // keeping the session link so the user can still open its output.
+          if (serve) {
+            // Wait for the server, then replace the card with its iframe.
+            const url = await serve.onReady(session)
+            stopDigest?.()
+            servedUrl = url
+            swapToIframe(url)
+            return
+          }
+
+          // Terminal launcher: reflect the process's outcome once it exits and
+          // stop tailing, keeping the session link so its output stays openable.
           // `getResult()` is a bare PromiseLike, so handle rejection inline.
           void session.getResult().then(
             (result) => {

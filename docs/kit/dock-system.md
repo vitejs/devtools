@@ -360,7 +360,7 @@ tailSessionDigest(session, (line) => {
 
 The **View in Terminal** action calls the hub's `hub:docks:activate` RPC (devframe 0.7.3+), which switches the host shell to the Terminals dock and focuses the tracked session.
 
-For the common case — a launcher that spawns a long-running process and *stays* a launcher while it runs — `createProcessLauncher` composes all of the above (register + command binding + spawn + digest + session navigation) in one call:
+`createProcessLauncher` composes all of the above (register + command binding + `prepare` + spawn + digest + session navigation) in one call. A plain **terminal launcher** stays a launcher while a long-running process runs:
 
 ```ts
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
@@ -370,6 +370,33 @@ createProcessLauncher({
   title: 'My App',
   icon: 'ph:rocket-launch-duotone',
   process: { command: 'vite', args: ['dev'], cwd: process.cwd() },
+})
+```
+
+Pass `serve.onReady` for the common **server launcher** shape — run some commands, start a server, then replace the card with an iframe embedding it. The digest streams startup logs until `onReady` resolves the URL, then the dock swaps to the iframe:
+
+```ts
+let url: string
+
+createProcessLauncher({
+  id: 'my-ui',
+  title: 'My UI',
+  icon: 'ph:browser-duotone',
+  // Optional: run setup (e.g. install an optional dep) before spawning.
+  prepare: async () => {
+    /* install-on-demand */
+  },
+  process: async () => {
+    const port = await getPort()
+    url = `http://localhost:${port}/`
+    return { command: 'my-ui', args: ['--port', String(port)], cwd: process.cwd() }
+  },
+  serve: {
+    onReady: async () => {
+      await waitForServer(url)
+      return url
+    },
+  },
 })
 ```
 

@@ -114,4 +114,35 @@ describe('createProcessLauncher', () => {
 
     expect(registered.get('my-app')!.launcher.status).toBe('error')
   })
+
+  it('swaps the launcher to an iframe once a server launcher is ready', async () => {
+    const { ctx, registered } = fakeCtx()
+    await mount(ctx, {
+      ...baseOptions,
+      serve: {
+        onReady: async () => 'http://localhost:5173/',
+      },
+    })
+
+    await ctx.commands.execute('my-app:launch')
+
+    const dock = registered.get('my-app')!
+    expect(dock.type).toBe('iframe')
+    expect((dock as any).url).toBe('http://localhost:5173/')
+  })
+
+  it('re-shows the iframe when a running server launcher is invoked again', async () => {
+    const { ctx, registered } = fakeCtx()
+    await mount(ctx, {
+      ...baseOptions,
+      serve: { onReady: async () => 'http://localhost:5173/' },
+    })
+
+    await ctx.commands.execute('my-app:launch')
+    // Session stays running; a second invoke re-swaps without respawning.
+    await ctx.commands.execute('my-app:launch')
+
+    expect((ctx.terminals as any).startChildProcess).toHaveBeenCalledOnce()
+    expect(registered.get('my-app')!.type).toBe('iframe')
+  })
 })
