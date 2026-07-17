@@ -99,7 +99,7 @@ const showFiles = computed(() => !!filteredFiles.value && filteredFiles.value.le
     />
 
     <template v-else>
-      <div v-if="showFiles" grid="~ cols-1 lg:cols-2" gap-4>
+      <div v-if="showFiles" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <FileCard v-for="file in filteredFiles" :key="file.filename" :file="file" />
       </div>
 

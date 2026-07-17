@@ -10,12 +10,12 @@ defineProps<{
 </script>
 
 <template>
-  <div flex="~ col" items-center justify-center gap-3 py12 text-center>
-    <div v-if="icon" :class="icon" text-4xl op-fade />
-    <div v-if="title" text-lg font-medium>
+  <div class="flex flex-col items-center justify-center gap-3 py12 text-center">
+    <div v-if="icon" :class="icon" class="text-4xl op-fade" />
+    <div v-if="title" class="text-lg font-medium">
       {{ title }}
     </div>
-    <p v-if="description" text-sm op-fade>
+    <p v-if="description" class="text-sm op-fade">
       {{ description }}
     </p>
     <slot name="description" />

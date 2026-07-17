@@ -170,23 +170,23 @@ watch(() => settings.value.packageViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else-if="!isSupported" h-full flex="~ col gap-2 items-center justify-center" p4 text-center>
-    <p m0 op50>
+  <div v-else-if="!isSupported" class="h-full flex flex-col gap-2 items-center justify-center p4 text-center">
+    <p class="m0 op50">
       Package graph is not available for this build
     </p>
-    <p m0 op40 text-sm>
+    <p class="m0 op40 text-sm">
       Rebuild with Rolldown 1.0.2 or later to generate it.
     </p>
   </div>
-  <div v-else relative h-full min-h-0 flex="~ col">
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else class="relative h-full min-h-0 flex flex-col">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="packageTypeRules">
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of packageViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.packageViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -197,16 +197,15 @@ watch(() => settings.value.packageViewType, () => {
       </DataSearchPanel>
     </div>
     <div
-      flex="~ col gap-2"
-      flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto
+      class="flex flex-col gap-2 flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto"
       :class="settings.packageViewType === 'table' ? 'overflow-y-hidden' : 'overflow-y-auto'"
     >
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div
-          fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+          class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
         >
-          <span op50>{{ normalizedPackages.length }} of {{ packages.length }}</span>
+          <span class="op50">{{ normalizedPackages.length }} of {{ packages.length }}</span>
         </div>
       </template>
       <template v-else-if="settings.packageViewType === 'treemap'">
@@ -218,14 +217,14 @@ watch(() => settings.value.packageViewType, () => {
         >
           <template #default="{ selected, options, onSelect }">
             <ChartNavBreadcrumb
-              border="b base" py2 min-h-10
+              class="border-b border-base py2 min-h-10"
               :selected="selected"
               :options="options"
               @select="onSelect"
             />
           </template>
         </ChartTreemap>
-        <span v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+        <span v-else class="w-full h-48 flex items-center justify-center op50 italic">
           No Data
         </span>
       </template>
@@ -236,13 +235,12 @@ watch(() => settings.value.packageViewType, () => {
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
-        bg-glass border="~ base rounded" p2 text-sm
-        flex="~ col gap-2"
+        class="bg-glass border border-base rounded p2 text-sm flex flex-col gap-2"
       >
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           {{ nodeHover.text }}
         </div>
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
         </div>
       </div>

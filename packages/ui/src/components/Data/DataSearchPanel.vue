@@ -77,60 +77,51 @@ function unselectToggle() {
 </script>
 
 <template>
-  <div flex="col gap-2" min-w-30vw border="~ base rounded-xl" bg-glass>
+  <div class="flex-col gap-2 min-w-30vw border border-base rounded-xl bg-glass">
     <slot name="search">
       <div v-if="modelValue.search !== false" class="flex items-center">
         <input
           v-model="model.search"
-          p2 px4
-          w-full
+          class="p2 px4 w-full"
           style="outline: none"
           placeholder="Search"
         >
         <slot name="search-end" />
       </div>
     </slot>
-    <div v-if="rules.length" :class="selectedContainerClass" flex="~ gap-2 wrap" p2 border="t base">
+    <div v-if="rules.length" :class="selectedContainerClass" class="flex gap-2 flex-wrap p2 border-t border-base">
       <label
         v-for="rule of rules"
         :key="rule.name"
-        border="~ base rounded-md" px2 py1
-        flex="~ items-center gap-1"
-        select-none
+        class="border border-base rounded-md px2 py1 flex items-center gap-1 select-none"
         :title="rule.description"
         :class="isRuleSelected(rule) ? 'bg-active' : 'grayscale op50'"
       >
         <input
           type="checkbox"
-          mr1
+          class="mr1"
           :checked="isRuleSelected(rule)"
           @change="toggleRule(rule)"
         >
-        <div :class="rule.icon" icon-catppuccin />
-        <div text-sm>
+        <div :class="rule.icon" class="icon-catppuccin" />
+        <div class="text-sm">
           {{ rule.description || rule.name }}
         </div>
       </label>
       <button
-        rounded-md p1
-        flex="~ items-center gap-1"
-        select-none
-        hover="bg-active"
+        class="rounded-md p1 flex items-center gap-1 select-none hover:bg-active"
         title="Reverse Selection"
         @click="reverseSelect"
       >
-        <div op75 i-ph-selection-background-duotone />
+        <div class="op75 i-ph-selection-background-duotone" />
       </button>
       <button
-        rounded-md p1
-        flex="~ items-center gap-1"
-        select-none
-        hover="bg-active"
+        class="rounded-md p1 flex items-center gap-1 select-none hover:bg-active"
         :title="model.selected?.length === 0 ? 'Select All' : 'Unselect All'"
         @click="unselectToggle"
       >
-        <div v-if="model.selected?.length === 0" op75 i-ph-selection-slash-duotone />
-        <div v-else op75 i-ph-selection-plus-duotone />
+        <div v-if="model.selected?.length === 0" class="op75 i-ph-selection-slash-duotone" />
+        <div v-else class="op75 i-ph-selection-plus-duotone" />
       </button>
     </div>
     <slot />

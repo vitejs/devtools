@@ -101,7 +101,7 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full h-screen of-scroll relative select-none
+    class="w-full h-screen of-scroll relative select-none"
     :class="isGrabbing ? 'cursor-grabbing' : ''"
   >
     <div
@@ -111,18 +111,17 @@ onMounted(() => {
       }"
     >
       <div
-        flex="~ items-center justify-center"
+        class="flex items-center justify-center"
         :style="{ transform: `scale(${scale})`, transformOrigin: '0 0' }"
       >
         <div
-          absolute left-0 top-0
           :style="{
             width: `${width}px`,
             height: `${height}px`,
           }"
-          class="bg-dots"
+          class="bg-dots absolute left-0 top-0"
         />
-        <svg pointer-events-none absolute left-0 top-0 z-graph-link :width="width" :height="height">
+        <svg class="pointer-events-none absolute left-0 top-0 z-graph-link" :width="width" :height="height">
           <g>
             <template v-for="link of links" :key="link.id">
               <slot v-if="link.target" name="link" :link="link" :d="generateModuleGraphLink<T, I>(link, spacing)!" :link-class="getModuleGraphLinkColor<T, I>(link)">
@@ -142,8 +141,7 @@ onMounted(() => {
         >
           <template v-if="node.data.module.id !== '~root'">
             <div
-              absolute
-              class="group z-graph-node flex gap-1 items-center"
+              class="group z-graph-node flex gap-1 items-center absolute"
               :style="{
                 left: `${node.x}px`,
                 top: `${node.y}px`,
@@ -151,10 +149,7 @@ onMounted(() => {
               }"
             >
               <div
-                flex="~ items-center gap-1"
-                bg-glass
-                border="~ base rounded"
-                class="group-hover:bg-active block px2 p1"
+                class="group-hover:bg-active block px2 p1 flex items-center gap-1 bg-glass border border-base rounded"
                 :style="{
                   minWidth: `${unref(spacing.width)}px`,
                   maxWidth: `${unref(spacing.width)}px`,
@@ -170,24 +165,17 @@ onMounted(() => {
               <div class="w-4">
                 <button
                   v-if="node.data.hasChildren"
-                  w-4
-                  h-4
-                  rounded-full
-                  flex="items-center justify-center"
-                  text-xs
-                  border="~ active"
-                  class="flex cursor-pointer z-graph-node-active bg-base"
+                  class="flex cursor-pointer z-graph-node-active bg-base w-4 h-4 rounded-full items-center justify-center text-xs border border-active"
                   :disabled="isGraphNodeToggling"
                   :class="{ 'cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
                   :title="node.data.expanded ? 'Collapse' : 'Expand'"
                   @click.stop="toggleNode(node.data.module.id)"
                 >
                   <div
-                    class="text-primary h-4"
+                    class="text-primary h-4 transition-transform transition-duration-200"
                     :class="[
                       node.data.expanded ? 'i-ph-minus' : 'i-ph-plus',
                     ]"
-                    transition="transform duration-200"
                   />
                 </button>
               </div>
@@ -197,18 +185,17 @@ onMounted(() => {
       </div>
     </div>
     <div
-      fixed right-6 bottom-6 z-panel-nav flex="~ col gap-2 items-center"
+      class="fixed right-6 bottom-6 z-panel-nav flex flex-col gap-2 items-center"
     >
-      <div w-10 flex="~ items-center justify-center">
+      <div class="w-10 flex items-center justify-center">
         <DisplayTimeoutView :content="`${Math.round(scale * 100)}%`" class="text-sm" />
       </div>
 
-      <div bg-glass rounded-full border border-base shadow flex="~ col gap-1 p1">
+      <div class="bg-glass rounded-full border border-base shadow flex flex-col gap-1">
         <template v-if="expandControls">
           <button
             v-tooltip.left="'Expand All'"
-            w-10 h-10 rounded-full hover:bg-active op-fade
-            hover:op100 flex="~ items-center justify-center"
+            class="w-10 h-10 rounded-full hover:bg-active op-fade hover:op100 flex items-center justify-center"
             :disabled="isGraphNodeToggling"
             :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
             title="Expand All"
@@ -218,8 +205,7 @@ onMounted(() => {
           </button>
           <button
             v-tooltip.left="'Collapse All'"
-            w-10 h-10 rounded-full hover:bg-active op-fade
-            hover:op100 flex="~ items-center justify-center"
+            class="w-10 h-10 rounded-full hover:bg-active op-fade hover:op100 flex items-center justify-center"
             :disabled="isGraphNodeToggling"
             :class="{ 'op50 cursor-not-allowed': isGraphNodeToggling, 'hover:bg-active': !isGraphNodeToggling }"
             title="Collapse All"
@@ -228,31 +214,26 @@ onMounted(() => {
             <div class="i-ph-arrows-in-simple-duotone" />
           </button>
 
-          <div border="t base" my1 />
+          <div class="border-t border-base my1" />
         </template>
 
         <button
           v-tooltip.left="'Zoom In (Ctrl + =)'"
           :disabled="scale >= ZOOM_MAX"
-          w-10 h-10 rounded-full hover:bg-active op-fade
-          hover:op100 disabled:op20 disabled:bg-none
-          disabled:cursor-not-allowed
-          flex="~ items-center justify-center"
+          class="w-10 h-10 rounded-full hover:bg-active op-fade hover:op100 disabled:op20 disabled:bg-none disabled:cursor-not-allowed flex items-center justify-center"
           title="Zoom In (Ctrl + =)"
           @click="zoomIn()"
         >
-          <div i-ph-magnifying-glass-plus-duotone />
+          <div class="i-ph-magnifying-glass-plus-duotone" />
         </button>
         <button
           v-tooltip.left="'Zoom Out (Ctrl + -)'"
           :disabled="scale <= ZOOM_MIN"
-          w-10 h-10 rounded-full hover:bg-active op-fade hover:op100
-          disabled:op20 disabled:bg-none disabled:cursor-not-allowed
-          flex="~ items-center justify-center"
+          class="w-10 h-10 rounded-full hover:bg-active op-fade hover:op100 disabled:op20 disabled:bg-none disabled:cursor-not-allowed flex items-center justify-center"
           title="Zoom Out (Ctrl + -)"
           @click="zoomOut()"
         >
-          <div i-ph-magnifying-glass-minus-duotone />
+          <div class="i-ph-magnifying-glass-minus-duotone" />
         </button>
       </div>
     </div>

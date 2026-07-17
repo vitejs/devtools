@@ -119,29 +119,28 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
 </script>
 
 <template>
-  <div select-none h-full of-auto ws-nowrap w-100vh of-visible>
+  <div class="select-none h-full of-auto ws-nowrap w-100vh of-visible">
     <!-- Importers section -->
-    <div v-if="info.importers?.length" text-sm>
-      <div flex>
+    <div v-if="info.importers?.length" class="text-sm">
+      <div class="flex">
         <VMenu>
           <FlowmapNode class-node-outer="border-dashed">
             <template #inner>
-              <div flex="~ items-center gap-1" text-sm text-blue px3 py1>
-                <div i-ph-arrows-merge-duotone rotate-270 />
+              <div class="flex items-center gap-1 text-sm text-blue px3 py1">
+                <div class="i-ph-arrows-merge-duotone rotate-270" />
                 {{ info.importers?.length }} importers
               </div>
             </template>
           </FlowmapNode>
           <template #popper="{ hide }">
-            <div p2 flex="~ col gap-1">
+            <div class="p2 flex flex-col gap-1">
               <DisplayModuleId
                 v-for="importer of info.importers"
                 :id="importer"
                 :key="importer"
                 :session="session"
                 :link="true"
-                class="hover:bg-active"
-                px2 py1 rounded
+                class="hover:bg-active px2 py1 rounded"
                 @click="hide"
               />
             </div>
@@ -149,19 +148,18 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
         </VMenu>
       </div>
       <div
-        pl-10 border="r" h-4 w-1px z-flowmap-line
-        class="border-flow-line border-dashed"
+        class="border-flow-line border-dashed pl-10 border-r h-4 w-1px z-flowmap-line"
       />
     </div>
 
     <!-- Main module node -->
-    <div flex="~">
+    <div class="flex">
       <FlowmapNode
         :lines="{ bottom: true }"
         :active="selected != null"
       >
         <template #content>
-          <div p2>
+          <div class="p2">
             <DisplayModuleId
               :id="info.id"
               :session="session"
@@ -170,18 +168,18 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
         </template>
       </FlowmapNode>
       <template v-if="info.imports?.length">
-        <div w-10 border="t base dashed" mya />
-        <VMenu mya>
+        <div class="w-10 border-t border-base border-dashed mya" />
+        <VMenu class="mya">
           <FlowmapNode class-node-outer="border-dashed">
             <template #inner>
-              <div flex="~ items-center gap-1" text-sm text-orange px3 py1>
-                <div i-ph-arrows-split-duotone rotate-270 />
+              <div class="flex items-center gap-1 text-sm text-orange px3 py1">
+                <div class="i-ph-arrows-split-duotone rotate-270" />
                 {{ info.imports?.length }} imports
               </div>
             </template>
           </FlowmapNode>
           <template #popper="{ hide }">
-            <div p2 flex="~ col gap-1">
+            <div class="p2 flex flex-col gap-1">
               <DisplayModuleId
                 v-for="imp of info.imports"
                 :id="imp.module_id"
@@ -189,8 +187,7 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
                 :kind="imp.kind"
                 :session="session"
                 :link="true"
-                class="hover:bg-active"
-                px2 py1 rounded
+                class="hover:bg-active px2 py1 rounded"
                 @click="hide"
               />
             </div>
@@ -208,8 +205,8 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
       :active-end="isSelectedAncestor(loads[0])"
     >
       <template #node>
-        <div i-ph-magnifying-glass-duotone /> Resolve Id
-        <span op50 text-xs>({{ info.resolve_ids.length }})</span>
+        <div class="i-ph-magnifying-glass-duotone" /> Resolve Id
+        <span class="op50 text-xs">({{ info.resolve_ids.length }})</span>
       </template>
       <template #container>
         <div>
@@ -234,8 +231,8 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
       :active-end="isSelectedAncestor(transforms[0])"
     >
       <template #node>
-        <div i-ph-upload-simple-duotone /> Load
-        <span op50 text-xs>({{ info.loads.length }})</span>
+        <div class="i-ph-upload-simple-duotone" /> Load
+        <span class="op50 text-xs">({{ info.loads.length }})</span>
       </template>
       <template #container>
         <div>
@@ -261,9 +258,9 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
       :active-end="isSelectedAncestor(info.chunks[0] || transforms.at(-1))"
     >
       <template #node>
-        <div i-ph-magic-wand-duotone /> Transform
-        <span v-if="transformsLoading" i-ph-spinner animate-spin />
-        <span v-else op50 text-xs>({{ info.transforms.length }})</span>
+        <div class="i-ph-magic-wand-duotone" /> Transform
+        <span v-if="transformsLoading" class="i-ph-spinner animate-spin" />
+        <span v-else class="op50 text-xs">({{ info.transforms.length }})</span>
       </template>
       <template #container>
         <div>
@@ -288,11 +285,11 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
       :class-root-node="info.chunks.length === 0 ? 'border-dashed' : ''"
       :active-start="isSelectedAncestor(info.chunks[0])"
       :active-end="isSelectedAncestor(info.chunks.at(-1))"
-      pl6 pt4
+      class="pl6 pt4"
     >
       <template #node>
-        <div i-ph-shapes-duotone /> Chunk
-        <span op50 text-xs>({{ info.chunks.length }})</span>
+        <div class="i-ph-shapes-duotone" /> Chunk
+        <span class="op50 text-xs">({{ info.chunks.length }})</span>
       </template>
       <template #container>
         <FlowmapNodeChunkInfo
@@ -320,11 +317,11 @@ function handleSelect(value: RolldownModuleFlowNode | null) {
       :active-start="isSelectedAncestor(info.assets[0])"
       :active-end="isSelectedAncestor(info.assets.at(-1))"
       :show-tail="false"
-      pl6 pt4
+      class="pl6 pt4"
     >
       <template #node>
-        <div i-ph-package-duotone /> Assets
-        <span op50 text-xs>({{ info.assets.length }})</span>
+        <div class="i-ph-package-duotone" /> Assets
+        <span class="op50 text-xs">({{ info.assets.length }})</span>
       </template>
       <template #container>
         <FlowmapNodeAssetInfo

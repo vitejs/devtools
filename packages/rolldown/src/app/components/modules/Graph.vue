@@ -181,7 +181,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
         :link="true"
         :session="session"
         :minimal="true"
-        flex="1"
+        class="flex-1"
       />
     </template>
     <template #link="{ link, d, linkClass }">

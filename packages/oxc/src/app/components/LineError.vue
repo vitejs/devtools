@@ -77,27 +77,21 @@ function severityClass(severity: string | undefined) {
 </script>
 
 <template>
-  <div overflow-auto>
-    <div p4>
+  <div class="overflow-auto">
+    <div class="p4">
       <!-- Current line code -->
-      <div flex gap-4 items-start>
-        <span op-fade font-mono text-sm relative top-3px>{{ lineData.line }}</span>
-        <div flex-1>
+      <div class="flex gap-4 items-start">
+        <span class="op-fade font-mono text-sm relative top-3px">{{ lineData.line }}</span>
+        <div class="flex-1">
           <Shiki :code="currentLineCode" :ext="fileExt" />
 
-          <div flex relative :style="{ minHeight: `${errorHeight}px`, top: '-10px' }">
+          <div class="flex relative" :style="{ minHeight: `${errorHeight}px`, top: '-10px' }">
             <a
               v-for="(label, labelIndex) in sortedLabels"
               :key="labelIndex"
               target="_blank"
               :href="getMessageForLabel(label.span.column)?.url"
-              absolute
-              whitespace-pre
-              text-neutral-300
-              dark:text-neutral-600
-              hover:text-neutral-800
-              dark:hover:text-neutral-200
-              cursor-pointer
+              class="absolute whitespace-pre text-neutral-300 dark:text-neutral-600 hover:text-neutral-800 dark:hover:text-neutral-200 cursor-pointer"
               group
               :style="{ left: `calc(${label.span.column - 1}ch)` }"
             >
@@ -115,20 +109,20 @@ function severityClass(severity: string | undefined) {
                   <div
                     v-for="i in (sortedLabels.length - labelIndex - 1) * 2"
                     :key="`bar-${i}`"
-                    relative
+                    class="relative"
                     :style="getLabelVerticalStyle(labelIndex, -1)"
                   >
                     │
                   </div>
-                  <div relative flex :style="getLabelVerticalStyle(labelIndex)">
+                  <div class="relative flex" :style="getLabelVerticalStyle(labelIndex)">
                     <div>╰─</div>
                     <div
                       v-if="(label as any).label"
-                      ml1
+                      class="ml1"
                       v-html="`${processLabelHtml((label as any).label)}.`"
                     />
                     <div
-                      ml1
+                      class="ml1"
                       :class="severityClass(getMessageForLabel(label.span.column)?.severity)"
                     >
                       {{ getMessageForLabel(label.span.column)?.code }}
@@ -136,7 +130,7 @@ function severityClass(severity: string | undefined) {
                   </div>
                 </div>
                 <template #popper>
-                  <div max-w-sm>
+                  <div class="max-w-sm">
                     <ErrorTooltip
                       v-if="getMessageForLabel(label.span.column)"
                       :message="getMessageForLabel(label.span.column)!"

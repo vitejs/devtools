@@ -23,200 +23,149 @@ const { state: overview } = useAsyncState(() => rpc.value.call('devtools-oxc:ove
 </script>
 
 <template>
-  <div flex="~ col" items-center gap-8 font-mono translate-y-50>
+  <div class="flex flex-col items-center gap-8 font-mono translate-y-50">
     <BannerOxcDevTools />
 
-    <div flex="~ col md:row" items-center gap-4>
+    <div class="flex flex-col md:flex-row items-center gap-4">
       <ContainerCard
-        w-70
-        flex="~ col"
-        items-center
-        justify-center
-        gap-3
-        py5
-        px4
-        transition-all
-        duration-300
-        hover:shadow-lg
-        dark:hover:shadow="[0_0_20px_rgba(255,255,255,0.1)]"
+        class="w-70 flex flex-col items-center justify-center gap-3 py5 px4 transition-all duration-300 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
       >
-        <div i-ph-check-circle text-4xl op-fade />
-        <p text-xl mt2 font-medium color-base>oxlint</p>
+        <div class="i-ph-check-circle text-4xl op-fade" />
+        <p class="text-xl mt2 font-medium color-base">oxlint</p>
 
-        <div v-if="overview?.oxlint.installed" flex="~ col" items-center>
+        <div v-if="overview?.oxlint.installed" class="flex flex-col items-center">
           <a
             :href="overview?.oxlint.npmxLink"
             target="_blank"
-            op-fade
-            text-base
-            cursor-pointer
-            hover:color-active
+            class="op-fade text-base cursor-pointer hover:color-active"
           >
             v{{ overview?.oxlint.version }}
           </a>
           <span
             v-if="overview?.oxlint.latest"
-            badge-color-green
-            px2
-            py0.5
-            rounded
-            border
-            font-bold
-            text-sm
+            class="badge-color-green px2 py0.5 rounded border font-bold text-sm"
             >Latest</span
           >
           <NuxtLink
             v-else
             to="https://npmx.dev/package/oxlint/v/latest"
             target="_blank"
-            cursor-pointer
+            class="cursor-pointer"
           >
-            <span badge-color-amber px2 py0.5 rounded border font-bold text-sm
+            <span class="badge-color-amber px2 py0.5 rounded border font-bold text-sm"
               >Update Available</span
             >
           </NuxtLink>
         </div>
 
-        <span v-else op-fade mt4 text-base> Not installed </span>
+        <span v-else class="op-fade mt4 text-base"> Not installed </span>
 
-        <div v-if="overview?.oxlint.installed" flex items-center gap-3 mt2>
-          <NuxtLink to="/lint/report" flex items-center gap-1 op-fade text-sm hover:color-active>
-            <div i-carbon-report />
+        <div v-if="overview?.oxlint.installed" class="flex items-center gap-3 mt2">
+          <NuxtLink
+            to="/lint/report"
+            class="flex items-center gap-1 op-fade text-sm hover:color-active"
+          >
+            <div class="i-carbon-report" />
             Reports
           </NuxtLink>
 
-          <NuxtLink to="/lint/config" flex items-center gap-1 op-fade text-sm hover:color-active>
-            <div i-carbon-settings />
+          <NuxtLink
+            to="/lint/config"
+            class="flex items-center gap-1 op-fade text-sm hover:color-active"
+          >
+            <div class="i-carbon-settings" />
             Config
           </NuxtLink>
 
           <a
             href="https://oxc.rs/docs/guide/usage/linter.html"
             target="_blank"
-            flex
-            items-center
-            gap-1
-            op-fade
-            text-sm
-            hover:color-active
+            class="flex items-center gap-1 op-fade text-sm hover:color-active"
           >
-            <div i-carbon-document />
+            <div class="i-carbon-document" />
             Docs
           </a>
         </div>
       </ContainerCard>
 
       <ContainerCard
-        w-70
-        flex="~ col"
-        items-center
-        justify-center
-        gap-3
-        py5
-        px4
-        transition-all
-        duration-300
-        hover:shadow-lg
-        dark:hover:shadow="[0_0_20px_rgba(255,255,255,0.1)]"
+        class="w-70 flex flex-col items-center justify-center gap-3 py5 px4 transition-all duration-300 hover:shadow-lg dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
       >
-        <div i-ph-code text-4xl op-fade />
-        <p text-xl mt2 font-medium color-base>oxfmt</p>
+        <div class="i-ph-code text-4xl op-fade" />
+        <p class="text-xl mt2 font-medium color-base">oxfmt</p>
 
         <a
           v-if="overview?.oxfmt.installed"
           :href="overview?.oxfmt.npmxLink"
           target="_blank"
-          op-fade
-          text-base
-          cursor-pointer
-          hover:color-active
+          class="op-fade text-base cursor-pointer hover:color-active"
         >
           v{{ overview?.oxfmt.version }}
         </a>
         <div v-if="overview?.oxfmt.installed">
           <span
             v-if="overview?.oxfmt.latest"
-            badge-color-green
-            px2
-            py0.5
-            rounded
-            border
-            font-bold
-            text-sm
+            class="badge-color-green px2 py0.5 rounded border font-bold text-sm"
             >Latest</span
           >
           <NuxtLink
             v-else
             to="https://npmx.dev/package/oxfmt/v/latest"
             target="_blank"
-            cursor-pointer
+            class="cursor-pointer"
           >
-            <span badge-color-amber px2 py0.5 rounded border font-bold text-sm
+            <span class="badge-color-amber px2 py0.5 rounded border font-bold text-sm"
               >Update Available</span
             >
           </NuxtLink>
         </div>
-        <span v-else op-fade mt4 text-base> Not installed </span>
+        <span v-else class="op-fade mt4 text-base"> Not installed </span>
 
-        <div v-if="overview?.oxfmt.installed" flex items-center gap-3 mt2>
-          <NuxtLink to="/fmt/config" flex items-center gap-1 op-fade text-sm hover:color-active>
-            <div i-carbon-settings />
+        <div v-if="overview?.oxfmt.installed" class="flex items-center gap-3 mt2">
+          <NuxtLink
+            to="/fmt/config"
+            class="flex items-center gap-1 op-fade text-sm hover:color-active"
+          >
+            <div class="i-carbon-settings" />
             Config
           </NuxtLink>
 
           <a
             href="https://oxc.rs/docs/guide/usage/formatter.html"
             target="_blank"
-            flex
-            items-center
-            gap-1
-            op-fade
-            text-sm
-            hover:color-active
+            class="flex items-center gap-1 op-fade text-sm hover:color-active"
           >
-            <div i-carbon-document />
+            <div class="i-carbon-document" />
             Docs
           </a>
         </div>
       </ContainerCard>
     </div>
 
-    <div flex="~ col md:row" items-center gap-6>
+    <div class="flex flex-col md:flex-row items-center gap-6">
       <a
         href="https://github.com/yuyinws/oxc-inspector"
         target="_blank"
-        flex
-        items-center
-        gap-1
-        op-fade
-        hover:color-active
+        class="flex items-center gap-1 op-fade hover:color-active"
       >
-        <div i-lucide-star />
+        <div class="i-lucide-star" />
         Star on GitHub
       </a>
       <a
         href="https://github.com/yuyinws/oxc-inspector/discussions/4"
         target="_blank"
-        flex
-        items-center
-        gap-1
-        op-fade
-        hover:color-active
+        class="flex items-center gap-1 op-fade hover:color-active"
       >
-        <div i-lucide-lightbulb />
+        <div class="i-lucide-lightbulb" />
         Ideas &amp; Suggestions
       </a>
 
       <a
         href="https://github.com/yuyinws/oxc-inspector/issues"
         target="_blank"
-        flex
-        items-center
-        gap-1
-        op-fade
-        hover:color-active
+        class="flex items-center gap-1 op-fade hover:color-active"
       >
-        <div i-lucide-bug />
+        <div class="i-lucide-bug" />
         Bug Reports
       </a>
     </div>

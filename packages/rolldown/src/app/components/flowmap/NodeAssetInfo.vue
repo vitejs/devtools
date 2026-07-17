@@ -18,16 +18,16 @@ const emit = defineEmits<{
     :lines="{ top: true }"
     :active="active"
     class-node-inline="gap-2 items-center"
-    pl6
+    class="pl6"
   >
     <template #inner>
       <button
-        px3 py1 hover="bg-active" flex="~ inline gap-2 items-center"
+        class="px3 py1 hover:bg-active flex flex-inline gap-2 items-center"
         @click="emit('select', item)"
       >
         <slot name="button">
-          <div flex="~ col gap-1 items-start" p1>
-            <div flex="~ gap-2 items-center">
+          <div class="flex flex-col gap-1 items-start p1">
+            <div class="flex gap-2 items-center">
               <DisplayModuleId :id="item.filename" :session />
             </div>
           </div>
@@ -35,7 +35,7 @@ const emit = defineEmits<{
       </button>
     </template>
     <template #inline-after>
-      <DisplayFileSizeBadge :bytes="item.size" text-sm />
+      <DisplayFileSizeBadge :bytes="item.size" class="text-sm" />
       <DisplayBadge :text="item.type" />
     </template>
   </FlowmapNode>

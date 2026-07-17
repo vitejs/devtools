@@ -40,7 +40,7 @@ const sizeClasses = computed(() => {
 </script>
 
 <template>
-  <component :is="as || 'span'" ws-nowrap rounded :class="sizeClasses" :style>
+  <component :is="as || 'span'" class="ws-nowrap rounded" :class="sizeClasses" :style>
     <slot>
       <span v-text="props.text" />
     </slot>

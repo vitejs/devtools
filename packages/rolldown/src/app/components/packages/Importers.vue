@@ -19,20 +19,20 @@ const importers = computed(() => {
 </script>
 
 <template>
-  <div flex="~ row gap-1" of-hidden>
-    <div v-if="importers[0]" flex="~ row gap-1" ws-nowrap>
+  <div class="flex flex-row gap-1 of-hidden">
+    <div v-if="importers[0]" class="flex flex-row gap-1 ws-nowrap">
       <DisplayModuleId :id="importers[0].path" :session="session" link />
       <DisplayBadge v-if="importers[0].version && showVersion" :text="importers[0].version" as="span" />
     </div>
     <span v-else>
       -
     </span>
-    <VMenu v-if="importers.length > 1" :delay="{ show: 200, hide: 0 }" flex-none>
+    <VMenu v-if="importers.length > 1" :delay="{ show: 200, hide: 0 }" class="flex-none">
       <DisplayBadge :text="`+${importers.length}`" :color="100" class="text-xs rounded px1" />
       <template #popper>
-        <div p2 flex="~ col gap-1">
-          <div v-for="importer of importers" :key="importer.path" flex="~ row gap-1 items-center nowrap" w-max>
-            <DisplayModuleId :id="importer.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+        <div class="p2 flex flex-col gap-1">
+          <div v-for="importer of importers" :key="importer.path" class="flex flex-row gap-1 items-center flex-nowrap w-max">
+            <DisplayModuleId :id="importer.path" :session="session" class="ws-nowrap flex-1" disable-tooltip link />
             <DisplayBadge v-if="importer.version && showVersion" :text="`v${importer.version}`" as="span" />
           </div>
         </div>

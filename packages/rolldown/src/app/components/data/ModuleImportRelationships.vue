@@ -140,15 +140,15 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full relative select-none mt4
+    class="w-full relative select-none mt4"
   >
     <template v-if="importers?.length || module.imports?.length">
       <!-- nodes -->
-      <div flex px2>
+      <div class="flex px2">
         <!-- importers -->
         <div
           v-if="importers?.length"
-          py1
+          class="py1"
           :style="{
             width: `${SPACING.width}px`,
             marginTop: `${importersVerticalOffset}px`,
@@ -157,9 +157,7 @@ onMounted(() => {
           <template v-for="(importer, i) of importers" :key="importer.id">
             <DisplayModuleId
               :id="importer.id"
-              hover="bg-active" block px2 p1 bg-base ws-nowrap
-              z-graph-node
-              border="~ base rounded"
+              class="hover:bg-active block px2 p1 bg-base ws-nowrap z-graph-node border border-base rounded"
               :link="true"
               :session="session"
               :minimal="true"
@@ -174,7 +172,7 @@ onMounted(() => {
         </div>
         <!-- dot: current module -->
         <div
-          bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
+          class="bg-base rounded-full border-3 font-mono border-active flex-shrink-0" :style="{
             margin: dotNodeMargin,
             width: `${SPACING.dot}px`,
             height: `${SPACING.dot}px`,
@@ -183,7 +181,7 @@ onMounted(() => {
         <!-- imports -->
         <div
           v-if="module.imports?.length"
-          py1
+          class="py1"
           :style="{
             width: `${SPACING.width}px`,
             marginTop: `${importsVerticalOffset}px`,
@@ -192,9 +190,7 @@ onMounted(() => {
           <template v-for="(_import, i) of module.imports" :key="_import.module_id">
             <DisplayModuleId
               :id="_import!.module_id"
-              hover="bg-active" block px2 p1 bg-base ws-nowrap
-              z-graph-node
-              border="~ base rounded"
+              class="hover:bg-active block px2 p1 bg-base ws-nowrap z-graph-node border border-base rounded"
               :link="true"
               :session="session"
               :minimal="true"
@@ -211,7 +207,7 @@ onMounted(() => {
 
       <!-- links -->
       <svg
-        pointer-events-none absolute left-0 top-0 z-graph-link w-full
+        class="pointer-events-none absolute left-0 top-0 z-graph-link w-full"
         :style="{
           height: `${nodesHeight}px`,
         }"
@@ -228,7 +224,7 @@ onMounted(() => {
         </g>
       </svg>
     </template>
-    <div v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+    <div v-else class="w-full h-48 flex items-center justify-center op50 italic">
       <p>
         No data
       </p>

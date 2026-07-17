@@ -16,13 +16,13 @@ watchEffect(() => el.value?.append(props.graph.el))
 </script>
 
 <template>
-  <div class="px4" flex="~ col gap2">
+  <div class="px4 flex flex-col gap2">
     <slot
       :selected="selected"
       :options="graph.options"
       @select="(node: N | null) => emit('select', node)"
     >
-      <div border="b base" py2 min-h-10 />
+      <div class="border-b border-base py2 min-h-10" />
     </slot>
     <div ref="el" />
   </div>

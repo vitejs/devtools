@@ -21,7 +21,7 @@ const comparisonColorClass = computed(() => isNotChanged.value ? 'text-gray-500'
 
 <template>
   <span
-    text-4 mt-1 font-mono
+    class="text-4 mt-1 font-mono"
     :class="comparisonColorClass"
   >
     {{ trendSymbol }}{{ normalizedPercent }}%

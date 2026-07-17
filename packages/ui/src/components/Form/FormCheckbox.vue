@@ -10,13 +10,13 @@ const model = defineModel<boolean>({ default: false })
 </script>
 
 <template>
-  <label inline-flex items-center gap-2 cursor-pointer select-none>
+  <label class="inline-flex items-center gap-2 cursor-pointer select-none">
     <input
       v-model="model"
       type="checkbox"
-      w-4 h-4 accent-primary-500 cursor-pointer
+      class="w-4 h-4 accent-primary-500 cursor-pointer"
     >
-    <span v-if="label" text-sm>{{ label }}</span>
+    <span v-if="label" class="text-sm">{{ label }}</span>
     <slot />
   </label>
 </template>

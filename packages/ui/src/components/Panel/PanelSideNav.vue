@@ -15,10 +15,10 @@ const items = computed<SideNavItem[]>(() => {
 </script>
 
 <template>
-  <div w12 flex-none>
+  <div class="w12 flex-none">
     <Teleport to="body">
       <div
-        border="r y base rounded-r-xl" flex="~ col gap-1" p1 of-y-auto max-h-96vh bg-glass
+        class="border-r border-y border-base rounded-r-xl flex flex-col gap-1 p1 of-y-auto max-h-96vh bg-glass"
         style="position: fixed; left: 0; top: 50%; transform: translateY(-50%); z-index: 64"
       >
         <template v-for="item in items" :key="item.title">
@@ -28,13 +28,11 @@ const items = computed<SideNavItem[]>(() => {
             v-tooltip="{ placement: 'right', content: item.title }"
             :title="item.title"
             :aria-label="item.title"
-            rounded-full
-            p2 hover:bg-active op-fade hover:op100
-            flex="~ items-center justify-center"
+            class="rounded-full p2 hover:bg-active op-fade hover:op100 flex items-center justify-center"
             exact-active-class="text-primary op100!"
             @click="item.action?.()"
           >
-            <div :class="item.icon" text-lg />
+            <div :class="item.icon" class="text-lg" />
           </component>
         </template>
       </div>

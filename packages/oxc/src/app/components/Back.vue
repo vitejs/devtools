@@ -14,8 +14,8 @@ function goBack() {
 </script>
 
 <template>
-  <button btn-action-sm mb2 w-fit cursor-pointer @click="goBack">
-    <div i-ph-arrow-bend-up-left-duotone />
+  <button class="btn-action-sm mb2 w-fit cursor-pointer" @click="goBack">
+    <div class="i-ph-arrow-bend-up-left-duotone" />
     Back
   </button>
 </template>

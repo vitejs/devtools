@@ -73,17 +73,17 @@ function openInEditor() {
 </script>
 
 <template>
-  <div flex="~ col gap-3">
-    <div flex="~ gap-4 items-center wrap">
+  <div class="flex flex-col gap-3">
+    <div class="flex gap-4 items-center flex-wrap">
       <AssetsBaseInfo :asset="asset" />
-      <div flex-auto />
-      <div flex="~ gap-2">
-        <button btn-action @click="openInEditor">
-          <div i-ph-arrow-square-out-duotone />
+      <div class="flex-auto" />
+      <div class="flex gap-2">
+        <button class="btn-action" @click="openInEditor">
+          <div class="i-ph-arrow-square-out-duotone" />
           Open in editor
         </button>
-        <button btn-action @click="showSource = true">
-          <div i-ph-file-text />
+        <button class="btn-action" @click="showSource = true">
+          <div class="i-ph-file-text" />
           View source
         </button>
         <slot />
@@ -91,11 +91,11 @@ function openInEditor() {
     </div>
 
     <template v-if="showSource">
-      <div flex="~ gap-2 items-center">
-        <div op50>
+      <div class="flex gap-2 items-center">
+        <div class="op50">
           Source
         </div>
-        <span flex-auto />
+        <span class="flex-auto" />
         <DisplayIconButton
           title="Line Wrapping"
           class-icon="i-ph-arrow-u-down-left-duotone"
@@ -104,20 +104,20 @@ function openInEditor() {
         />
         <DisplayCloseButton @click="showSource = false" />
       </div>
-      <div class="w-full of-auto px2 py1" border="~ base rounded-lg">
+      <div class="w-full of-auto px2 py1 border border-base rounded-lg">
         <CodeViewer
           :code="asset.content!"
         />
       </div>
     </template>
 
-    <div v-if="assetChunks && assetChunks.length > 0" flex="~ col gap-4">
-      <div flex="~ col gap-2">
-        <div op50>
+    <div v-if="assetChunks && assetChunks.length > 0" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="op50">
           Chunks
         </div>
         <NuxtLink
-          v-for="chunk of assetChunks" :key="chunk.chunk_id" border="~ base rounded-lg" px2 py1 min-w-fit
+          v-for="chunk of assetChunks" :key="chunk.chunk_id" class="border border-base rounded-lg px2 py1 min-w-fit"
           :to="{ path: route.path, query: { chunk: chunk.chunk_id } }"
         >
           <DataChunkDetails
@@ -128,8 +128,8 @@ function openInEditor() {
         </NuxtLink>
       </div>
       <template v-if="_importers?.length || _imports?.length">
-        <div flex="~ col gap-2">
-          <div op50>
+        <div class="flex flex-col gap-2">
+          <div class="op50">
             Asset Relationships
           </div>
           <DataAssetRelationships
@@ -139,13 +139,13 @@ function openInEditor() {
         </div>
       </template>
     </div>
-    <div v-else flex="~ col gap-1">
+    <div v-else class="flex flex-col gap-1">
       <!-- For other situation -->
-      <div op50>
+      <div class="op50">
         [Non-Module Asset]
       </div>
-      <div v-if="asset.filename.endsWith('.map')" flex="~ items-center gap-2">
-        <span op50>Source Map for</span> <DisplayBadge :text="JSON.parse(asset.content!).file" />
+      <div v-if="asset.filename.endsWith('.map')" class="flex items-center gap-2">
+        <span class="op50">Source Map for</span> <DisplayBadge :text="JSON.parse(asset.content!).file" />
       </div>
     </div>
   </div>

@@ -22,27 +22,27 @@ const normalizedModules = computed(() => Array.isArray(props.chunk.modules) ? pr
   <component
     :is="link ? NuxtLink : 'div'"
     :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { chunk: chunk.chunk_id } }) : undefined"
-    flex="~ gap-3 items-center"
+    class="flex gap-3 items-center"
   >
-    <div flex="~ gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
+    <div class="flex gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
       <slot name="icon">
-        <div i-ph-shapes-duotone />
+        <div class="i-ph-shapes-duotone" />
       </slot>
       <div>{{ chunk.name || '[unnamed]' }}</div>
       <DisplayBadge :text="chunk.reason" />
       <slot name="left-after" />
     </div>
 
-    <div flex-auto />
+    <div class="flex-auto" />
 
-    <div v-if="!basic" flex="~ items-center gap-2">
-      <span op50 font-mono>#{{ chunk.chunk_id }}</span>
-      <div flex="~ gap-1 items-center" :title="`${normalizedImports} imports`">
-        <div i-ph-file-arrow-up-duotone />
+    <div v-if="!basic" class="flex items-center gap-2">
+      <span class="op50 font-mono">#{{ chunk.chunk_id }}</span>
+      <div class="flex gap-1 items-center" :title="`${normalizedImports} imports`">
+        <div class="i-ph-file-arrow-up-duotone" />
         {{ normalizedImports }}
       </div>
-      <div flex="~ gap-1 items-center" :title="`${normalizedModules} modules`">
-        <div i-ph-package-duotone />
+      <div class="flex gap-1 items-center" :title="`${normalizedModules} modules`">
+        <div class="i-ph-package-duotone" />
         {{ normalizedModules }}
       </div>
     </div>

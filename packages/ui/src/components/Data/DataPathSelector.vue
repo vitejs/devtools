@@ -102,8 +102,8 @@ function close() {
 </script>
 
 <template>
-  <div h10 px4 p1 relative flex="~ gap2 items-center">
-    <div flex="~ items-center gap2" class="flex-1 h-full" min-w-0>
+  <div class="h10 px4 p1 relative flex gap2 items-center">
+    <div class="flex-1 h-full flex items-center gap2 min-w-0">
       <DataPathSelectorItem
         v-model:search="startSelector.state.value.search"
         placeholder="Start"
@@ -118,7 +118,7 @@ function close() {
           <slot :id="startSelector.state.value.selected!" name="item" />
         </template>
       </DataPathSelectorItem>
-      <div class="i-carbon-arrow-right op50" flex-shrink-0 />
+      <div class="i-carbon-arrow-right op50 flex-shrink-0" />
 
       <DataPathSelectorItem
         v-model:search="endSelector.state.value.search"
@@ -134,8 +134,8 @@ function close() {
           <slot :id="endSelector.state.value.selected!" name="item" />
         </template>
         <template #empty>
-          <div flex="~ items-center justify-center" w-full h-20>
-            <span italic op50>
+          <div class="flex items-center justify-center w-full h-20">
+            <span class="italic op50">
               {{ startSelector.state.value.selected ? 'No modules' : 'Select a start module to get end modules' }}
             </span>
           </div>

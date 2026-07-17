@@ -17,15 +17,15 @@ function handleOpenInEditor() {
 <template>
   <ContainerCard>
     <template #header>
-      <div flex items-center gap-2 cursor-pointer @click="handleOpenInEditor">
-        <DisplayFileIcon flex-none :filename="file.filename" />
-        <span truncate color-base hover:underline font-mono>
+      <div class="flex items-center gap-2 cursor-pointer" @click="handleOpenInEditor">
+        <DisplayFileIcon class="flex-none" :filename="file.filename" />
+        <span class="truncate color-base hover:underline font-mono">
           {{ file.filename }}
         </span>
       </div>
     </template>
 
-    <div relative font-mono>
+    <div class="relative font-mono">
       <div v-if="file.lines.length > 0">
         <LineError
           v-for="lineData in file.lines"

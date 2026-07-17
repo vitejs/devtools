@@ -17,14 +17,14 @@ const groupedDuplicatePackages = computed(() =>
 </script>
 
 <template>
-  <div v-if="duplicatePackages.length" min-w-max flex="~ col gap-3">
+  <div v-if="duplicatePackages.length" class="min-w-max flex flex-col gap-3">
     <div v-for="(p, i) of groupedDuplicatePackages" :key="i">
       <PackagesTable :packages="p" :session="session" group-view disable-size-sort show-used-badge />
     </div>
   </div>
   <template v-else>
-    <div p4>
-      <div w-full h-48 flex="~ items-center justify-center" op50 italic>
+    <div class="p4">
+      <div class="w-full h-48 flex items-center justify-center op50 italic">
         No duplicate packages
       </div>
     </div>
