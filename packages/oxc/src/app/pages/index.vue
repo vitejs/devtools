@@ -138,11 +138,7 @@ const tools = computed(() => {
                 </div>
               </template>
             </VDropdown>
-            <DisplayNumberBadge
-              v-else
-              :number="0"
-              class="py1 font-mono rounded-full inline-block text-sm"
-            />
+            <span v-else class="op-fade text-sm">Not found</span>
           </div>
 
           <div class="flex gap-2">

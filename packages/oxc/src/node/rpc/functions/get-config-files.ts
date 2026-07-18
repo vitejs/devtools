@@ -7,6 +7,6 @@ export const getConfigFiles = defineOxcRpc({
   jsonSerializable: true,
   cacheable: true,
   setup: ctx => ({
-    handler: () => getOxcConfigFiles(ctx.workspaceRoot),
+    handler: () => getOxcConfigFiles(ctx.cwd),
   }),
 })
