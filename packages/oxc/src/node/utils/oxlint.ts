@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve } from 'pathe'
 
 export async function getOxlintConfig(root = cwd()) {
-  // Read the .oxlintrc.json file in the current directory
-  const configPath = resolve(root, '.oxlintrc.json')
+  const configPath = resolve(root, 'oxlint.config.ts')
   try {
     const config = await readFile(configPath, 'utf-8')
 
@@ -52,9 +51,11 @@ export async function parseOxlintOutput(rawOutput: string, root: string) {
   if (
     !data ||
     !Array.isArray(data.diagnostics) ||
-    summaryFields.some(field => field === 'number_of_rules'
-      ? data[field] !== null && typeof data[field] !== 'number'
-      : typeof data[field] !== 'number') ||
+    summaryFields.some(field =>
+      field === 'number_of_rules'
+        ? data[field] !== null && typeof data[field] !== 'number'
+        : typeof data[field] !== 'number',
+    ) ||
     data.diagnostics.some(
       diagnostic =>
         !diagnostic ||

@@ -36,8 +36,8 @@
     "build": "pnpm dev:prepare && nuxi build src && tsdown",
     "dev": "nuxi dev src",
     "dev:prepare": "nuxi prepare src",
-    "lint": "oxlint && oxfmt --check",
-    "lint:fix": "oxlint --fix && oxfmt",
+    "lint": "oxlint --ignore-pattern 'src/app/fixtures/**' && oxfmt --check . '!src/app/fixtures/**'",
+    "lint:fix": "oxlint --fix --ignore-pattern 'src/app/fixtures/**' && oxfmt . '!src/app/fixtures/**'",
     "play": "pnpm -C playground dev",
     "prepack": "pnpm build",
     "typecheck": "vue-tsc --noEmit"
