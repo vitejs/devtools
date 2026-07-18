@@ -70,16 +70,21 @@ function requestDelete(resultId: string) {
 </script>
 
 <template>
-  <div flex="~ col" gap-4 max-w-180 mx-auto p6>
-    <div flex justify-between items-start w-full>
+  <div class="flex flex-col gap-4 max-w-180 mx-auto p6">
+    <div class="flex justify-between items-start w-full">
       <Back to="/" />
-      <div v-if="lintResults.length > 0" flex items-center gap-3>
-        <button v-if="capabilities.canRun" btn-action-sm :disabled="isRunning" @click="runLint()">
+      <div v-if="lintResults.length > 0" class="flex items-center gap-3">
+        <button
+          v-if="capabilities.canRun"
+          class="btn-action-sm"
+          :disabled="isRunning"
+          @click="runLint()"
+        >
           <div :class="isRunning ? 'i-svg-spinners-ring-resize' : 'i-ph-play-duotone'" />
           {{ isRunning ? 'Running…' : 'Run Lint' }}
         </button>
-        <button btn-action-sm cursor-pointer @click="reloadResults()">
-          <div i-lucide-refresh-cw />
+        <button class="btn-action-sm cursor-pointer" @click="reloadResults()">
+          <div class="i-lucide-refresh-cw" />
           Refresh
         </button>
       </div>
@@ -94,23 +99,17 @@ function requestDelete(resultId: string) {
         @toggle="e => toggleGroup(group, (e.target as HTMLDetailsElement).open)"
       >
         <summary
-          cursor-default
-          select-none
-          flex="~ gap-1 items-center"
-          px1
-          py1
-          rounded
-          hover="bg-active"
+          class="cursor-default select-none flex gap-1 items-center px1 py1 rounded hover:bg-active"
         >
           <div
             class="i-ph-caret-right-duotone transition op50"
             :class="isGroupOpen(group) ? 'rotate-90' : ''"
           />
-          <span op70 text-sm>{{ group.label }}</span>
-          <span op40 text-xs font-mono>{{ group.items.length }}</span>
+          <span class="op70 text-sm">{{ group.label }}</span>
+          <span class="op40 text-xs font-mono">{{ group.items.length }}</span>
         </summary>
 
-        <div flex="~ col gap-2" pt2>
+        <div class="flex flex-col gap-2 pt2">
           <LintResultCard
             v-for="result in group.items"
             :key="result.timestamp"
@@ -123,18 +122,16 @@ function requestDelete(resultId: string) {
 
     <VisualEmptyState
       v-else
-      w-full
-      mt4
-      border="~ base rounded-lg dashed"
+      class="w-full mt4 border border-base rounded-lg border-dashed"
       title="No lint results found"
       icon="i-ph-folder-simple-duotone"
     >
       <template #description>
-        <div text-sm op-fade leading-7>Lint results will appear here after lint runs.</div>
+        <div class="text-sm op-fade leading-7">Lint results will appear here after lint runs.</div>
       </template>
       <button
         v-if="capabilities.canRun && lintResults.length === 0"
-        btn-action
+        class="btn-action"
         :disabled="isRunning"
         @click="runLint()"
       >
@@ -145,11 +142,13 @@ function requestDelete(resultId: string) {
 
     <OverlayModal v-model:open="deleteOpen">
       <template #title> Delete lint result </template>
-      <div flex="~ col" gap-4 min-w-80>
+      <div class="flex flex-col gap-4 min-w-80">
         <p>Delete lint result {{ selectedResultId }}?</p>
-        <div flex justify-end gap-2>
-          <button btn-action :disabled="isDeleting" @click="deleteOpen = false">Cancel</button>
-          <button btn-action text-red :disabled="isDeleting" @click="deleteResult()">
+        <div class="flex justify-end gap-2">
+          <button class="btn-action" :disabled="isDeleting" @click="deleteOpen = false">
+            Cancel
+          </button>
+          <button class="btn-action text-red" :disabled="isDeleting" @click="deleteResult()">
             {{ isDeleting ? 'Deleting…' : 'Delete' }}
           </button>
         </div>

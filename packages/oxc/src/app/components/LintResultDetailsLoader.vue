@@ -64,11 +64,14 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
 </script>
 
 <template>
-  <div relative h-full w-full>
-    <DisplayCloseButton absolute right-1 top-1.5 z-panel-content bg-glass @click="emit('close')" />
+  <div class="relative h-full w-full">
+    <DisplayCloseButton
+      class="absolute right-1 top-1.5 z-panel-content bg-glass"
+      @click="emit('close')"
+    />
 
     <VisualLoading v-if="isLoading" text="Loading lint result..." />
-    <div v-else h-full of-auto flex="~ col" gap-4 p6 pr-10>
+    <div v-else class="h-full of-auto flex flex-col gap-4 p6 pr-10">
       <SummaryCard
         v-if="showSummary && lintResult?.meta.summary"
         :summary="lintResult.meta.summary"
@@ -87,7 +90,7 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
       />
 
       <template v-else>
-        <div v-if="showFiles" grid="~ cols-1 lg:cols-2" gap-4>
+        <div v-if="showFiles" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <FileCard v-for="file in filteredFiles" :key="file.filename" :file="file" />
         </div>
 
@@ -95,9 +98,9 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
           v-else
           icon="i-ph-file-minus-light"
           description="No files found."
-          border="~ base rounded-lg dashed"
+          class="border border-base rounded-lg border-dashed"
         >
-          <button btn-action @click="resetSearch">Reset search</button>
+          <button class="btn-action" @click="resetSearch">Reset search</button>
         </VisualEmptyState>
       </template>
     </div>

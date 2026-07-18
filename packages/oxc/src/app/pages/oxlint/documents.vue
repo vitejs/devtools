@@ -2,9 +2,6 @@
   <iframe
     src="https://oxc.rs/docs/guide/usage/linter.html"
     title="Oxlint Documentation"
-    border-0
-    block
-    w-full
-    h-full
+    class="border-0 block w-full h-full"
   />
 </template>

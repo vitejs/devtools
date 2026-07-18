@@ -22,9 +22,11 @@ useSideNav(() => [
 </script>
 
 <template>
-  <div grid="~ cols-[max-content_1fr]" h-screen w-screen max-w-screen max-h-screen of-hidden>
+  <div
+    class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden"
+  >
     <PanelSideNav />
-    <div of-auto h-screen max-h-screen relative>
+    <div class="of-auto h-screen max-h-screen relative">
       <NuxtPage />
     </div>
   </div>

@@ -27,23 +27,12 @@ onKeyDown('Escape', event => {
 
   <div
     v-if="resultId"
-    fixed
-    inset-0
-    z-panel-content
-    backdrop-blur-8
-    backdrop-brightness-95
+    class="fixed inset-0 z-panel-content backdrop-blur-8 backdrop-brightness-95"
     @click.self="closeResultPanel"
   >
     <div
       :key="resultId"
-      fixed
-      right-0
-      bottom-0
-      top-20
-      left-20
-      z-panel-content
-      bg-glass
-      border="l t base rounded-tl-xl"
+      class="fixed right-0 bottom-0 top-20 left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
     >
       <LintResultDetailsLoader :result-id @close="closeResultPanel" />
     </div>
