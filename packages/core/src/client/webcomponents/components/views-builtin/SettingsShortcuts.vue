@@ -54,6 +54,10 @@ function getEffectiveKeybindings(id: string): DevToolsCommandKeybinding[] {
   return commandsCtx.getKeybindings(id)
 }
 
+function isExecutable(command: DevToolsCommandEntry): boolean {
+  return command.source === 'server' || !!command.action
+}
+
 function isOverridden(id: string): boolean {
   return isKeybindingOverrideDifferentFromDefault(shortcutOverrides.value[id], getDefaultKeybindings(id))
 }
@@ -278,7 +282,7 @@ watch(editorOpen, (v) => {
       </div>
 
       <!-- Keybinding display -->
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div v-if="isExecutable(row.command)" class="flex items-center gap-1.5 shrink-0">
         <template v-if="getEffectiveKeybindings(row.command.id).length > 0">
           <button
             v-for="(kb, ki) of getEffectiveKeybindings(row.command.id)"
