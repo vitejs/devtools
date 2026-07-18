@@ -111,6 +111,12 @@ export const ModuleTypeRules: FilterMatchRule[] = [
     description: 'SVG',
     icon: 'i-catppuccin-svg',
   },
+  {
+    match: /^@?[\w-]+\/?/,
+    name: 'package',
+    description: 'Package',
+    icon: 'i-catppuccin-java-class-abstract',
+  },
 ]
 
 // @unocss-include
@@ -144,12 +150,6 @@ export const PluginTypeRules: FilterMatchRule[] = [
     name: 'builtin',
     description: 'Builtin',
     icon: 'i-catppuccin-folder-prisma',
-  },
-  {
-    match: /^@?[\w-]+\/?/,
-    name: 'package',
-    description: 'Package',
-    icon: 'i-catppuccin-java-class-abstract',
   },
 ]
 
