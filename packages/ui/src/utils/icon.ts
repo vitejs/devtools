@@ -22,12 +22,6 @@ export const ModuleTypeRules: FilterMatchRule[] = [
     icon: 'i-catppuccin-symlink',
   },
   {
-    match: /^@?[\w-]+\/?/,
-    name: 'package',
-    description: 'Package',
-    icon: 'i-catppuccin-java-class-abstract',
-  },
-  {
     match: /\.vue(?:$|\?)/i,
     name: 'vue',
     description: 'Vue',
@@ -150,6 +144,12 @@ export const PluginTypeRules: FilterMatchRule[] = [
     name: 'builtin',
     description: 'Builtin',
     icon: 'i-catppuccin-folder-prisma',
+  },
+  {
+    match: /^@?[\w-]+\/?/,
+    name: 'package',
+    description: 'Package',
+    icon: 'i-catppuccin-java-class-abstract',
   },
 ]
 

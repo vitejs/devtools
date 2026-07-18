@@ -21,6 +21,37 @@ afterEach(async () => {
 })
 
 describe('getOxcConfigFiles', () => {
+  it('finds every Oxlint config format', async () => {
+    const cwd = await createFixture()
+    const configs = [
+      { format: 'json', name: '.oxlintrc.json' },
+      { format: 'jsonc', name: '.oxlintrc.jsonc' },
+      { format: 'js', name: 'oxlint.config.js' },
+      { format: 'mjs', name: 'oxlint.config.mjs' },
+      { format: 'cjs', name: 'oxlint.config.cjs' },
+      { format: 'ts', name: 'oxlint.config.ts' },
+      { format: 'mts', name: 'oxlint.config.mts' },
+      { format: 'cts', name: 'oxlint.config.cts' },
+    ]
+    await Promise.all(
+      configs.map(async ({ format, name }) => {
+        const dir = join(cwd, format)
+        await mkdir(dir)
+        await writeFile(join(dir, name), format)
+      }),
+    )
+
+    const files = (await getOxcConfigFiles(cwd)).filter(file => file.tool === 'oxlint')
+    expect(files).toHaveLength(configs.length)
+    expect(files).toEqual(
+      expect.arrayContaining(
+        configs.map(({ format, name }) =>
+          expect.objectContaining({ path: `${format}/${name}`, format, content: format }),
+        ),
+      ),
+    )
+  })
+
   it('finds nested Oxlint and Oxfmt config files', async () => {
     const cwd = await createFixture()
     await mkdir(join(cwd, 'packages', 'app'), { recursive: true })
@@ -31,7 +62,13 @@ describe('getOxcConfigFiles', () => {
     ])
 
     await expect(getOxcConfigFiles(cwd)).resolves.toEqual([
-      expect.objectContaining({ path: '.oxlintrc.json', tool: 'oxlint', source: 'oxc' }),
+      expect.objectContaining({
+        path: '.oxlintrc.json',
+        tool: 'oxlint',
+        format: 'json',
+        content: '{}',
+        source: 'oxc',
+      }),
       expect.objectContaining({
         path: 'packages/app/.oxfmtrc.jsonc',
         tool: 'oxfmt',
@@ -40,6 +77,8 @@ describe('getOxcConfigFiles', () => {
       expect.objectContaining({
         path: 'packages/app/oxlint.config.mts',
         tool: 'oxlint',
+        format: 'mts',
+        content: 'export default {}',
         source: 'oxc',
       }),
     ])

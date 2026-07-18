@@ -1,20 +1,34 @@
 <script setup lang="ts">
 import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
+import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
 import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
 import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
-import type { Summary } from '../../../src/types'
+import type { OxcConfigFile, Summary } from '../../../src/types'
 
 interface Props {
   summary: Summary
   totalIssues: number
   version: string
-  config: object | null
+  config: OxcConfigFile[] | Record<string, unknown> | null
   timestamp: number
 }
 
 const props = defineProps<Props>()
 
 const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
+const configFiles = computed<OxcConfigFile[]>(() => {
+  if (Array.isArray(props.config)) return props.config
+  if (!props.config) return []
+  return [
+    {
+      tool: 'oxlint',
+      format: 'json',
+      path: '.oxlintrc.json',
+      content: JSON.stringify(props.config, null, 2),
+      source: 'oxc',
+    },
+  ]
+})
 </script>
 
 <template>
@@ -41,35 +55,41 @@ const durationMs = computed(() => Math.round(props.summary.start_time * 1000))
 
         <div font-medium>Oxlint Config</div>
 
-        <OverlayModal>
-          <template #trigger="{ open }">
-            <span
-              inline-flex
-              w-fit
-              items-center
-              gap-1
-              font-mono
-              cursor-pointer
-              hover:color-active
-              @click="open"
-            >
-              <span>.oxlintrc.json</span>
-              <div i-ph-arrow-up-right />
-            </span>
-          </template>
-          <template #title>
-            <div flex items-center gap-1>
-              <div i-vscode-icons:file-type-oxlint flex-none />
-              <div>.oxlintrc.json</div>
+        <div v-if="configFiles.length" flex="~ wrap" items-center gap-1>
+          <OverlayModal v-for="configFile in configFiles" :key="configFile.path">
+            <template #trigger="{ open }">
+              <button
+                type="button"
+                inline-flex
+                max-w-full
+                items-center
+                gap-1
+                border="~ base rounded"
+                px2
+                py1
+                text-sm
+                font-mono
+                hover:bg-active
+                :title="`Open ${configFile.path}`"
+                @click="open"
+              >
+                <DisplayFileIcon flex-none :filename="configFile.path" />
+                <span truncate>{{ configFile.path }}</span>
+                <div i-ph-arrow-up-right flex-none op-fade />
+              </button>
+            </template>
+            <template #title>
+              <div flex items-center gap-1>
+                <DisplayFileIcon flex-none :filename="configFile.path" />
+                <div>{{ configFile.path }}</div>
+              </div>
+            </template>
+            <div w-150 max-w-full font-mono>
+              <Shiki :code="configFile.content" :ext="`.${configFile.format}`" />
             </div>
-          </template>
-          <div v-if="config" w-150 max-w-full font-mono>
-            <Shiki :code="JSON.stringify(config, null, 2)" ext=".json" />
-          </div>
-          <div v-else>
-            <p text-sm op-fade>No config found</p>
-          </div>
-        </OverlayModal>
+          </OverlayModal>
+        </div>
+        <p v-else text-sm op-fade>No config found</p>
 
         <div i-ph-clock-duotone text-lg />
 

@@ -65,10 +65,10 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
 
 <template>
   <div relative h-full w-full>
-    <DisplayCloseButton absolute right-1 top-1 z-panel-content bg-glass @click="emit('close')" />
+    <DisplayCloseButton absolute right-1 top-1.5 z-panel-content bg-glass @click="emit('close')" />
 
     <VisualLoading v-if="isLoading" text="Loading lint result..." />
-    <div v-else h-full of-auto flex="~ col" gap-4 p7>
+    <div v-else h-full of-auto flex="~ col" gap-4 p6 pr-10>
       <SummaryCard
         v-if="showSummary && lintResult?.meta.summary"
         :summary="lintResult.meta.summary"

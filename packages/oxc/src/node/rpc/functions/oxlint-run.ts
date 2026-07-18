@@ -2,7 +2,8 @@ import { defineRpcFunction, type KitNodeContext } from '@vitejs/devtools-kit'
 import { Diagnostic } from 'nostics'
 import { x } from 'tinyexec'
 import { diagnostics } from '../../diagnostics'
-import { ensureOxcGitignored, getOxlintConfig, parseOxlintOutput } from '../../utils/oxlint'
+import { getOxcConfigFiles } from '../../utils/config-files'
+import { ensureOxcGitignored, parseOxlintOutput } from '../../utils/oxlint'
 import { getLintResultsManager } from '../utils'
 
 export const oxlintRun = defineRpcFunction({
@@ -64,10 +65,10 @@ async function runLint(context: KitNodeContext) {
     }
     if (!output) throw diagnostics.OXDT0001({ reason: 'Oxlint returned an invalid JSON result' })
 
-    const config = await getOxlintConfig(root)
+    const config = (await getOxcConfigFiles(root)).filter(file => file.tool === 'oxlint')
     await getLintResultsManager(context).create(
       { version, timestamp, summary: output.summary },
-      { files: output.files, config: config ? JSON.parse(config) : null },
+      { files: output.files, config },
     )
     terminals.update({ ...terminal, status: 'stopped' })
     return timestamp

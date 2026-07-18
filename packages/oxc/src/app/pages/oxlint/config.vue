@@ -80,7 +80,13 @@ function getMemberRange(member: MemberNode, content: string): { from: number; to
 }
 
 function initConfigRanges(content: string) {
-  const ast = parse(content, { ranges: true, mode: 'json5' })
+  let ast: ReturnType<typeof parse>
+  try {
+    ast = parse(content, { ranges: true, mode: 'json5' })
+  } catch {
+    configRanges = null
+    return
+  }
   const root = ast.body
   if (root.type !== 'Object') return
 

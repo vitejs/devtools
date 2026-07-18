@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
 import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
@@ -136,7 +137,7 @@ const tools = computed(() => {
                     items-center
                     gap-2
                   >
-                    <div i-ph-file-duotone op-fade />
+                    <DisplayFileIcon flex-none :filename="config.path" />
                     <span>{{ config.path }}</span>
                   </div>
                 </div>

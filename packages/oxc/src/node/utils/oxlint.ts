@@ -52,7 +52,9 @@ export async function parseOxlintOutput(rawOutput: string, root: string) {
   if (
     !data ||
     !Array.isArray(data.diagnostics) ||
-    summaryFields.some(field => typeof data[field] !== 'number') ||
+    summaryFields.some(field => field === 'number_of_rules'
+      ? data[field] !== null && typeof data[field] !== 'number'
+      : typeof data[field] !== 'number') ||
     data.diagnostics.some(
       diagnostic =>
         !diagnostic ||

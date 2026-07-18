@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
 import type { LintResultMeta } from '../../../src/types'
 
 const { result } = defineProps<{
@@ -14,7 +16,7 @@ const failed = computed(() => result.summary.files_with_issues > 0)
 </script>
 
 <template>
-  <ContainerCard relative p4 hover:bg-active>
+  <ContainerCard relative px4 py3 cursor-pointer hover:bg-active>
     <NuxtLink
       absolute
       inset-0
@@ -22,96 +24,66 @@ const failed = computed(() => result.summary.files_with_issues > 0)
       :aria-label="`Open lint result ${result.timestamp}`"
     />
 
-    <div relative pointer-events-none>
-      <div flex justify-between gap-2 font-mono op-fade>
-        <div flex items-center gap-1>
+    <div relative pointer-events-none flex="~ col gap-1">
+      <div flex items-center justify-between gap-2>
+        <div flex="~ gap-1 items-center" font-mono op50 text-sm>
           <div i-ph-hash-duotone />
-          <span text-sm>{{ result.timestamp }}</span>
+          {{ result.timestamp }}
         </div>
 
-        <div flex items-center gap-2>
-          {{ useTimeAgo(result.timestamp) }}
-          <button
-            type="button"
-            pointer-events-auto
-            hover:text-red
-            :aria-label="`Delete lint result ${result.timestamp}`"
-            @click="emit('delete', String(result.timestamp))"
-          >
-            <div i-ph-trash-duotone />
-          </button>
+        <div flex="~ gap-1 items-center">
+          <template v-if="failed">
+            <DisplayBadge
+              v-if="result.summary.error_count > 0"
+              :color="false"
+              badge-color-red
+              inline-flex
+              items-center
+              gap-1
+            >
+              <div i-ph-x-circle-duotone />
+              {{ result.summary.error_count }}
+            </DisplayBadge>
+
+            <DisplayBadge
+              v-if="result.summary.warning_count > 0"
+              :color="false"
+              badge-color-amber
+              inline-flex
+              items-center
+              gap-1
+            >
+              <div i-ph-warning-circle-duotone />
+              {{ result.summary.warning_count }}
+            </DisplayBadge>
+          </template>
+
+          <DisplayBadge v-else :color="false" badge-color-green inline-flex items-center gap-1>
+            <div i-ph-check-circle-duotone />
+            <span>Passed</span>
+          </DisplayBadge>
         </div>
       </div>
 
-      <div flex justify-between items-center mt4>
-        <span
-          badge-color-gray
-          inline-flex
+      <div flex items-center justify-between pt2 text-sm op50>
+        <DisplayTimestamp :timestamp="result.timestamp" />
+        <button
+          type="button"
+          pointer-events-auto
+          flex
           items-center
           gap-1
           px2
-          py0.5
+          py1
           rounded
-          border
-          text-sm
-          font-mono
+          hover:text-red
+          hover:bg-active
+          :aria-label="`Delete lint result ${result.timestamp}`"
+          @click="emit('delete', String(result.timestamp))"
         >
-          <div i-ph-file-duotone />
-          {{ result.summary.number_of_files }}
-        </span>
-
-        <div v-if="failed" flex items-center gap-2>
-          <span
-            v-if="result.summary.error_count > 0"
-            badge-color-red
-            inline-flex
-            items-center
-            gap-1
-            px2
-            py0.5
-            rounded
-            border
-            text-sm
-            font-mono
-          >
-            <div i-ph-x-circle-duotone />
-            {{ result.summary.error_count }}
-          </span>
-
-          <span
-            v-if="result.summary.warning_count > 0"
-            badge-color-amber
-            inline-flex
-            items-center
-            gap-1
-            px2
-            py0.5
-            rounded
-            border
-            text-sm
-            font-mono
-          >
-            <div i-ph-warning-circle-duotone />
-            {{ result.summary.warning_count }}
-          </span>
-        </div>
-
-        <span
-          v-else
-          badge-color-green
-          inline-flex
-          items-center
-          gap-1
-          px2
-          py0.5
-          rounded
-          border
-          text-sm
-          font-mono
-        >
-          <div i-ph-check-circle-duotone />
-          Passed
-        </span>
+          <div i-ph-trash-duotone />
+          <span>Delete</span>
+        </button>
       </div>
     </div>
   </ContainerCard>

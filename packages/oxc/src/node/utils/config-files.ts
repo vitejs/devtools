@@ -1,3 +1,4 @@
+import type { OxcConfigFile } from '../../types'
 import { execFile as execFileCallback } from 'node:child_process'
 import { readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'pathe'
@@ -8,8 +9,12 @@ const execFile = promisify(execFileCallback)
 const CONFIG_FILES = {
   '.oxlintrc.json': { tool: 'oxlint', format: 'json' },
   '.oxlintrc.jsonc': { tool: 'oxlint', format: 'jsonc' },
+  'oxlint.config.js': { tool: 'oxlint', format: 'js' },
+  'oxlint.config.mjs': { tool: 'oxlint', format: 'mjs' },
+  'oxlint.config.cjs': { tool: 'oxlint', format: 'cjs' },
   'oxlint.config.ts': { tool: 'oxlint', format: 'ts' },
   'oxlint.config.mts': { tool: 'oxlint', format: 'mts' },
+  'oxlint.config.cts': { tool: 'oxlint', format: 'cts' },
   '.oxfmtrc.json': { tool: 'oxfmt', format: 'json' },
   '.oxfmtrc.jsonc': { tool: 'oxfmt', format: 'jsonc' },
   'oxfmt.config.ts': { tool: 'oxfmt', format: 'ts' },
@@ -40,13 +45,7 @@ async function getIgnoredDirectories(cwd: string) {
 }
 
 export async function getOxcConfigFiles(cwd: string) {
-  const files: Array<{
-    tool: 'oxlint' | 'oxfmt'
-    format: 'json' | 'jsonc' | 'ts' | 'mts' | 'js'
-    path: string
-    content: string
-    source: 'oxc' | 'vite-plus'
-  }> = []
+  const files: OxcConfigFile[] = []
   const ignoredDirectories = await getIgnoredDirectories(cwd)
 
   async function visit(dir: string): Promise<void> {

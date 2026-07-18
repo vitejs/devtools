@@ -2,8 +2,9 @@
 import FormCheckbox from '@vitejs/devtools-ui/components/Form/FormCheckbox.vue'
 import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
 import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
+import { groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
 import { useAsyncState, useLocalStorage } from '@vueuse/core'
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from '#app/composables/router'
 import { useRpc } from '#imports'
 
@@ -50,6 +51,17 @@ const filteredLintResults = computed(() => {
     lintResults.value?.filter(meta => !hidePassed.value || meta.summary.files_with_issues > 0) || []
   )
 })
+const lintResultGroups = computed(() =>
+  groupByDate(filteredLintResults.value, result => result.timestamp),
+)
+
+const openOverrides = reactive<Record<string, boolean>>({})
+function isGroupOpen(group: { key: string; defaultOpen: boolean }) {
+  return openOverrides[group.key] ?? group.defaultOpen
+}
+function toggleGroup(group: { key: string }, open: boolean) {
+  openOverrides[group.key] = open
+}
 
 function requestDelete(resultId: string) {
   selectedResultId.value = resultId
@@ -59,37 +71,54 @@ function requestDelete(resultId: string) {
 
 <template>
   <div flex="~ col" gap-4 max-w-180 mx-auto p6>
-    <Back />
-    <div v-if="lintResults.length > 0" flex justify-between items-center w-full>
-      <div flex items-center gap-2>
-        <button
-          btn-action-sm
-          cursor-pointer
-          aria-label="Reload lint results"
-          @click="reloadResults()"
-        >
-          <div i-lucide-refresh-cw />
-        </button>
-
-        <p op-fade>Select a lint result to inspect:</p>
-      </div>
-
-      <div flex items-center gap-3>
-        <FormCheckbox v-model="hidePassed" label="Hide Passed" />
-        <button v-if="capabilities.canRun" btn-action :disabled="isRunning" @click="runLint()">
+    <div flex justify-between items-start w-full>
+      <Back to="/" />
+      <div v-if="lintResults.length > 0" flex items-center gap-3>
+        <button v-if="capabilities.canRun" btn-action-sm :disabled="isRunning" @click="runLint()">
           <div :class="isRunning ? 'i-svg-spinners-ring-resize' : 'i-ph-play-duotone'" />
           {{ isRunning ? 'Running…' : 'Run Lint' }}
         </button>
+        <button btn-action-sm cursor-pointer @click="reloadResults()">
+          <div i-lucide-refresh-cw />
+          Refresh
+        </button>
       </div>
     </div>
+    <FormCheckbox v-if="lintResults.length > 0" v-model="hidePassed" label="Hide Passed" />
 
-    <template v-if="filteredLintResults.length > 0">
-      <LintResultCard
-        v-for="result in filteredLintResults"
-        :key="result.timestamp"
-        :result="result"
-        @delete="requestDelete"
-      />
+    <template v-if="lintResultGroups.length > 0">
+      <details
+        v-for="group of lintResultGroups"
+        :key="group.key"
+        :open="isGroupOpen(group)"
+        @toggle="e => toggleGroup(group, (e.target as HTMLDetailsElement).open)"
+      >
+        <summary
+          cursor-default
+          select-none
+          flex="~ gap-1 items-center"
+          px1
+          py1
+          rounded
+          hover="bg-active"
+        >
+          <div
+            class="i-ph-caret-right-duotone transition op50"
+            :class="isGroupOpen(group) ? 'rotate-90' : ''"
+          />
+          <span op70 text-sm>{{ group.label }}</span>
+          <span op40 text-xs font-mono>{{ group.items.length }}</span>
+        </summary>
+
+        <div flex="~ col gap-2" pt2>
+          <LintResultCard
+            v-for="result in group.items"
+            :key="result.timestamp"
+            :result="result"
+            @delete="requestDelete"
+          />
+        </div>
+      </details>
     </template>
 
     <VisualEmptyState

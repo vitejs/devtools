@@ -1,3 +1,4 @@
+import type { LintResultLogs } from '../../types'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -38,7 +39,25 @@ it('parses and persists lint results', async () => {
   )
   const manager = new LintResultsManager(join(root, '.devtools-oxc', 'lint'))
   const meta = { version: '1.0.0', timestamp: 123, summary: output.summary }
-  const logs = { files: output.files, config: null }
+  const logs: LintResultLogs = {
+    files: output.files,
+    config: [
+      {
+        tool: 'oxlint',
+        format: 'json',
+        path: '.oxlintrc.json',
+        content: '{}',
+        source: 'oxc',
+      },
+      {
+        tool: 'oxlint',
+        format: 'ts',
+        path: 'packages/app/oxlint.config.ts',
+        content: 'export default {}',
+        source: 'oxc',
+      },
+    ],
+  }
 
   await manager.create(meta, logs)
 
@@ -70,4 +89,15 @@ it('does not create a missing .gitignore', async () => {
 it('rejects JSON that is not an oxlint result', async () => {
   const root = await createFixture()
   await expect(parseOxlintOutput('{}', root)).resolves.toBeNull()
+})
+
+it('accepts the null rule count emitted by recent oxlint versions', async () => {
+  const root = await createFixture()
+  await expect(parseOxlintOutput(JSON.stringify({
+    diagnostics: [],
+    number_of_files: 1,
+    number_of_rules: null,
+    threads_count: 1,
+    start_time: 0.01,
+  }), root)).resolves.toMatchObject({ summary: { number_of_rules: null } })
 })
