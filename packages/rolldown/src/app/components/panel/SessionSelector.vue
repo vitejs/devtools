@@ -2,9 +2,9 @@
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
+import { groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
 import { computed, reactive } from 'vue'
 import { NuxtLink } from '#components'
-import { groupByDate } from '~/utils/date-groups'
 import { parseReadablePath } from '~/utils/filepath'
 
 const props = defineProps<{

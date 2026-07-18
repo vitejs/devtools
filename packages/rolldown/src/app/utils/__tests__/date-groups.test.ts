@@ -1,5 +1,5 @@
+import { DATE_GROUPS, getDateGroupKey, groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
 import { describe, expect, it } from 'vitest'
-import { DATE_GROUPS, getDateGroupKey, groupByDate } from '../date-groups'
 
 // Wednesday, 2024-06-12 12:00:00 local time
 const NOW = new Date(2024, 5, 12, 12, 0, 0)
