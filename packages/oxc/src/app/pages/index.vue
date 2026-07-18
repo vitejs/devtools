@@ -74,37 +74,40 @@ const tools = computed(() => {
 
 <template>
   <VisualLoading v-if="isLoading" text="Connecting..." />
-  <div v-else h-full p4 flex="~ col gap-4" items-center justify-center relative>
-    <BannerOxcDevTools mx-auto />
+  <div v-else class="h-full p4 flex flex-col gap-4 items-center justify-center relative">
+    <BannerOxcDevTools class="mx-auto" />
 
-    <div flex="~ col lg:row gap-4" mx-auto mt-4>
-      <div v-for="tool in tools" :key="tool.id" border="~ base rounded" p2 flex-1 min-w-max>
-        <div p4 flex="~ col gap-4" h-full>
-          <div text-2xl font-semibold>
+    <div class="flex flex-col lg:flex-row gap-4 mx-auto mt-4">
+      <div
+        v-for="tool in tools"
+        :key="tool.id"
+        class="border border-base rounded p2 flex-1 min-w-max"
+      >
+        <div class="p4 flex flex-col gap-4 h-full">
+          <div class="text-2xl font-semibold">
             {{ tool.name }}
           </div>
 
-          <div grid="~ cols-[max-content_160px_2fr] gap-2 items-center">
-            <div i-ph-tag-duotone op-fade />
-            <span op-fade>Version</span>
-            <div flex items-center gap-2 w-full>
+          <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
+            <div class="i-ph-tag-duotone op-fade" />
+            <span class="op-fade">Version</span>
+            <div class="flex items-center gap-2 w-full">
               <a
                 v-if="tool.info.installed"
                 :href="tool.info.npmxLink"
                 target="_blank"
-                hover:color-active
-                font-mono
+                class="hover:color-active font-mono"
               >
                 v{{ tool.info.version }}
               </a>
-              <span v-else op-fade>Not installed</span>
+              <span v-else class="op-fade">Not installed</span>
               <a
                 v-if="tool.info.installed"
                 :href="
                   tool.info.latest ? undefined : `https://npmx.dev/package/${tool.id}/v/latest`
                 "
                 :target="tool.info.latest ? undefined : '_blank'"
-                hover:color-active
+                class="hover:color-active"
               >
                 <DisplayBadge
                   :text="tool.info.latest ? 'Latest' : 'Update Available'"
@@ -114,30 +117,22 @@ const tools = computed(() => {
               </a>
             </div>
 
-            <div i-ph-files-duotone op-fade />
-            <span op-fade>Configs</span>
+            <div class="i-ph-files-duotone op-fade" />
+            <span class="op-fade">Configs</span>
             <VDropdown v-if="tool.configs.length" placement="bottom-start" :triggers="['hover']">
               <DisplayNumberBadge
                 :number="tool.configs.length"
-                py1
-                rounded-full
-                font-mono
-                inline-block
-                text-sm
-                cursor-pointer
-                hover:color-active
+                class="py1 rounded-full font-mono inline-block text-sm cursor-pointer hover:color-active"
               />
 
               <template #popper>
-                <div p3 min-w-60 flex="~ col gap-2" font-mono text-sm>
+                <div class="p3 min-w-60 flex flex-col gap-2 font-mono text-sm">
                   <div
                     v-for="config in tool.configs"
                     :key="`${config.tool}:${config.path}`"
-                    flex
-                    items-center
-                    gap-2
+                    class="flex items-center gap-2"
                   >
-                    <DisplayFileIcon flex-none :filename="config.path" />
+                    <DisplayFileIcon class="flex-none" :filename="config.path" />
                     <span>{{ config.path }}</span>
                   </div>
                 </div>
@@ -146,28 +141,18 @@ const tools = computed(() => {
             <DisplayNumberBadge
               v-else
               :number="0"
-              py1
-              font-mono
-              rounded-full
-              inline-block
-              text-sm
+              class="py1 font-mono rounded-full inline-block text-sm"
             />
           </div>
 
-          <div flex="~ gap-2">
+          <div class="flex gap-2">
             <NuxtLink
               v-for="view in tool.views"
               :key="view.title"
-              btn-action
               :to="view.to"
-              flex="~ col"
-              flex-1
-              min-w-max
-              p4
-              px4!
-              whitespace-nowrap
+              class="btn-action flex flex-col flex-1 min-w-max p4 !px4 whitespace-nowrap"
             >
-              <div :class="view.icon" text-2xl />
+              <div :class="[view.icon, 'text-2xl']" />
               {{ view.title }}
             </NuxtLink>
           </div>

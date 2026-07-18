@@ -43,37 +43,37 @@ const transformedCodeSize = computed(() => {
 </script>
 
 <template>
-  <div text-xs font-mono flex="~ items-center gap-3" ml2>
+  <div class="text-xs font-mono flex items-center gap-3 ml2">
     <DisplayDuration
-      :duration="durations.resolveIds" flex="~ gap-1 items-center"
+      :duration="durations.resolveIds" class="flex gap-1 items-center"
       :title="`Resolve Id hooks cost: ${formatDuration(durations.resolveIds, true)}`"
     >
-      <span i-ph-magnifying-glass-duotone inline-block />
+      <span class="i-ph-magnifying-glass-duotone inline-block" />
     </DisplayDuration>
     <DisplayDuration
-      :duration="durations.loads" flex="~ gap-1 items-center"
+      :duration="durations.loads" class="flex gap-1 items-center"
       :title="`Load hooks cost: ${formatDuration(durations.loads, true)}`"
     >
-      <span i-ph-upload-simple-duotone inline-block />
+      <span class="i-ph-upload-simple-duotone inline-block" />
     </DisplayDuration>
     <DisplayDuration
-      :duration="durations.transforms" flex="~ gap-1 items-center"
+      :duration="durations.transforms" class="flex gap-1 items-center"
       :title="`Transform hooks cost: ${formatDuration(durations.transforms, true)}`"
     >
-      <span i-ph-magic-wand-duotone inline-block />
+      <span class="i-ph-magic-wand-duotone inline-block" />
     </DisplayDuration>
-    <span op40>|</span>
+    <span class="op40">|</span>
     <DisplayDuration
-      :duration="durations.total" flex="~ gap-1 items-center"
+      :duration="durations.total" class="flex gap-1 items-center"
       :title="`Total build cost: ${formatDuration(durations.total, true)}`"
     >
-      <span i-ph-clock-duotone inline-block />
+      <span class="i-ph-clock-duotone inline-block" />
     </DisplayDuration>
     <template v-if="sourceCodeSize && transformedCodeSize">
-      <span op40>|</span>
-      <div flex="~ gap-1 items-center">
+      <span class="op40">|</span>
+      <div class="flex gap-1 items-center">
         <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
-        <span i-ph-arrow-right-duotone op50 />
+        <span class="i-ph-arrow-right-duotone op50" />
         <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
       </div>
     </template>

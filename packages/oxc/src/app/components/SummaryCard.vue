@@ -32,102 +32,95 @@ const configFiles = computed<OxcConfigFile[]>(() => {
 </script>
 
 <template>
-  <div flex="~ col" gap-2>
-    <ContainerCard p4>
-      <div grid="~ cols-[max-content_160px_2fr]" gap-2 items-center>
-        <div i-ph-anchor text-lg />
+  <div class="flex flex-col gap-2">
+    <ContainerCard class="p4">
+      <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
+        <div class="i-ph-anchor text-lg" />
 
-        <div font-medium>Oxlint Version</div>
+        <div class="font-medium">Oxlint Version</div>
 
         <NuxtLink
           :to="`https://github.com/oxc-project/oxc/releases/tag/oxlint_v${version}`"
           external
           target="_blank"
-          w-fit
+          class="w-fit"
         >
-          <span inline-flex items-center gap-1 font-mono hover:color-active>
+          <span class="inline-flex items-center gap-1 font-mono hover:color-active">
             <span>v{{ version }}</span>
-            <div i-ph-arrow-up-right />
+            <div class="i-ph-arrow-up-right" />
           </span>
         </NuxtLink>
 
-        <div i-ph-gear text-lg />
+        <div class="i-ph-gear text-lg" />
 
-        <div font-medium>Oxlint Config</div>
+        <div class="font-medium">Oxlint Config</div>
 
-        <div v-if="configFiles.length" flex="~ wrap" items-center gap-1>
+        <div v-if="configFiles.length" class="flex flex-wrap items-center gap-1">
           <OverlayModal v-for="configFile in configFiles" :key="configFile.path">
             <template #trigger="{ open }">
               <button
                 type="button"
-                inline-flex
-                max-w-full
-                items-center
-                gap-1
-                border="~ base rounded"
-                px2
-                py1
-                text-sm
-                font-mono
-                hover:bg-active
+                class="inline-flex max-w-full items-center gap-1 border border-base rounded px2 py1 text-sm font-mono hover:bg-active"
                 :title="`Open ${configFile.path}`"
                 @click="open"
               >
-                <DisplayFileIcon flex-none :filename="configFile.path" />
-                <span truncate>{{ configFile.path }}</span>
-                <div i-ph-arrow-up-right flex-none op-fade />
+                <DisplayFileIcon class="flex-none" :filename="configFile.path" />
+                <span class="truncate">{{ configFile.path }}</span>
+                <div class="i-ph-arrow-up-right flex-none op-fade" />
               </button>
             </template>
             <template #title>
-              <div flex items-center gap-1>
-                <DisplayFileIcon flex-none :filename="configFile.path" />
+              <div class="flex items-center gap-1">
+                <DisplayFileIcon class="flex-none" :filename="configFile.path" />
                 <div>{{ configFile.path }}</div>
               </div>
             </template>
-            <div w-150 max-w-full font-mono>
+            <div class="w-150 max-w-full font-mono">
               <Shiki :code="configFile.content" :ext="`.${configFile.format}`" />
             </div>
           </OverlayModal>
         </div>
-        <p v-else text-sm op-fade>No config found</p>
+        <p v-else class="text-sm op-fade">No config found</p>
 
-        <div i-ph-clock-duotone text-lg />
+        <div class="i-ph-clock-duotone text-lg" />
 
-        <div font-medium>Created At</div>
+        <div class="font-medium">Created At</div>
 
-        <span inline-flex w-fit items-center font-mono>
+        <span class="inline-flex w-fit items-center font-mono">
           {{ new Date(timestamp).toLocaleString() }}
         </span>
 
-        <div i-ph-timer-duotone text-lg />
+        <div class="i-ph-timer-duotone text-lg" />
 
-        <div font-medium>Lint Duration</div>
+        <div class="font-medium">Lint Duration</div>
 
-        <span inline-flex w-fit items-center font-mono>
+        <span class="inline-flex w-fit items-center font-mono">
           <DisplayDuration :duration="durationMs" />
         </span>
 
-        <div i-ph-file-duotone text-lg />
+        <div class="i-ph-file-duotone text-lg" />
 
-        <div font-medium>Checked Files</div>
+        <div class="font-medium">Checked Files</div>
 
-        <span inline-flex w-fit items-center gap-1 font-mono>
+        <span class="inline-flex w-fit items-center gap-1 font-mono">
           {{ summary.number_of_files }} files.
-          <span text-red-600 dark:text-red-400 font-semibold
+          <span class="text-red-600 dark:text-red-400 font-semibold"
             >{{ summary.files_with_issues }} with issues</span
           >
         </span>
 
-        <div i-ph-warning-octagon-duotone text-lg />
+        <div class="i-ph-warning-octagon-duotone text-lg" />
 
-        <div font-medium>Issues</div>
+        <div class="font-medium">Issues</div>
 
-        <span inline-flex w-fit items-center gap-1 font-mono>
+        <span class="inline-flex w-fit items-center gap-1 font-mono">
           {{ totalIssues }} issues.
-          <span v-if="summary.error_count > 0" text-red-600 dark:text-red-400 font-semibold
+          <span v-if="summary.error_count > 0" class="text-red-600 dark:text-red-400 font-semibold"
             >{{ summary.error_count }} errors</span
           >
-          <span v-if="summary.warning_count > 0" text-yellow-600 dark:text-yellow-400 font-semibold
+          <span
+            v-if="summary.warning_count > 0"
+            class="text-yellow-600 dark:text-yellow-400 font-semibold"
             >{{ summary.warning_count }} warnings</span
           >
         </span>

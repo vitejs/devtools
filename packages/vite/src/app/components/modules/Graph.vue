@@ -184,7 +184,7 @@ createModuleGraph<ViteModuleListItem, ViteModuleImport>({
         :link="true"
         :cwd="root"
         :minimal="true"
-        flex="1"
+        class="flex-1"
       />
     </template>
     <template #link="{ link, d, linkClass }">

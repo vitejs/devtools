@@ -47,18 +47,18 @@ function openInNpm() {
 <template>
   <VisualLoading v-if="isLoading" />
 
-  <div v-if="state" p4 relative h-full w-full of-auto z-panel-content>
-    <div flex="~ col gap-3">
-      <div flex="~ gap-3 items-center" :title="package">
-        <div flex="~ items-center gap-1">
+  <div v-if="state" class="p4 relative h-full w-full of-auto z-panel-content">
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-3 items-center" :title="package">
+        <div class="flex items-center gap-1">
           <div>
             <DisplayHighlightedPackageName :name="packageName" />
           </div>
           <DisplayFileSizeBadge :bytes="state.transformedCodeSize" />
         </div>
-        <div flex-auto />
-        <button btn-action flex="~ items-center" @click="openInNpm">
-          <div i-ph-arrow-square-out-duotone />
+        <div class="flex-auto" />
+        <button class="btn-action flex items-center" @click="openInNpm">
+          <div class="i-ph-arrow-square-out-duotone" />
           Open in npm
         </button>
         <DisplayCloseButton
@@ -67,15 +67,15 @@ function openInNpm() {
       </div>
 
       <details open="true">
-        <summary op50>
+        <summary class="op50">
           <span>Bundled Files ({{ normalizedBundledFiles.length }})</span>
         </summary>
-        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="normalizedBundledFiles">
+        <DisplayExpandableContainer class="flex flex-col gap-1 mt2 ws-nowrap" :list="normalizedBundledFiles">
           <template #default="{ items }">
-            <div v-for="file of items" :key="file.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
-              <DisplayModuleId :id="file.path" :session="session" ws-nowrap flex-1 disable-tooltip link :cwd="state.dir" />
-              <span inline-flex>
-                <DisplayFileSizeBadge :bytes="file.transformedCodeSize" text-xs />
+            <div v-for="file of items" :key="file.path" class="flex flex-row gap-1 items-center flex-nowrap hover:bg-active border border-base rounded px2 py1 w-full">
+              <DisplayModuleId :id="file.path" :session="session" class="ws-nowrap flex-1" disable-tooltip link :cwd="state.dir" />
+              <span class="inline-flex">
+                <DisplayFileSizeBadge :bytes="file.transformedCodeSize" class="text-xs" />
               </span>
             </div>
           </template>
@@ -83,13 +83,13 @@ function openInNpm() {
       </details>
 
       <details open="true">
-        <summary op50>
+        <summary class="op50">
           <span>Importers ({{ importers.length }})</span>
         </summary>
-        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="importers">
+        <DisplayExpandableContainer class="flex flex-col gap-1 mt2 ws-nowrap" :list="importers">
           <template #default="{ items }">
-            <div v-for="importer of items" :key="importer.path" flex="~ row gap-1 items-center nowrap" hover="bg-active" border="~ base rounded" px2 py1 w-full>
-              <DisplayModuleId :id="importer.path" :session="session" ws-nowrap flex-1 disable-tooltip link />
+            <div v-for="importer of items" :key="importer.path" class="flex flex-row gap-1 items-center flex-nowrap hover:bg-active border border-base rounded px2 py1 w-full">
+              <DisplayModuleId :id="importer.path" :session="session" class="ws-nowrap flex-1" disable-tooltip link />
               <DisplayBadge v-if="importer.version" :text="`v${importer.version}`" as="span" />
             </div>
           </template>

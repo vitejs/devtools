@@ -186,36 +186,34 @@ onKeyDown('Escape', (event) => {
     v-if="loading"
     text="Loading plugins..."
   />
-  <div v-else-if="error" h-full flex="~ col gap-3 items-center justify-center" p8 text-center>
-    <div i-ph-warning-duotone text-4xl text-amber />
-    <div font-mono text-sm max-w-180 ws-pre-wrap>
+  <div v-else-if="error" class="h-full flex flex-col gap-3 items-center justify-center p8 text-center">
+    <div class="i-ph-warning-duotone text-4xl text-amber" />
+    <div class="font-mono text-sm max-w-180 ws-pre-wrap">
       {{ error.message }}
     </div>
-    <button btn-action @click="load()">
-      <span i-ph-arrow-clockwise-duotone />
+    <button class="btn-action" @click="load()">
+      <span class="i-ph-arrow-clockwise-duotone" />
       Retry
     </button>
   </div>
-  <div v-else relative min-h-screen>
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else class="relative min-h-screen">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes" />
     </div>
     <PluginsFlatList :plugins="searched ?? []" scroller="window" />
     <div
-      fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
     >
-      <span op50>{{ searched.length }} of {{ plugins.length || 0 }}</span>
+      <span class="op50">{{ searched.length }} of {{ plugins.length || 0 }}</span>
     </div>
 
     <div
-      v-if="selectedPluginQuery && query" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      v-if="selectedPluginQuery && query" class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
       @click.self="closeCurrentPanel"
     >
       <div
         :key="selectedPluginQuery"
-        fixed right-0 bottom-0 top-20 left-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
+        class="fixed right-0 bottom-0 top-20 left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataPluginDetailsLoader
           :plugin="selectedPluginQuery"

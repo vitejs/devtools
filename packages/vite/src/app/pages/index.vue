@@ -5,5 +5,5 @@ navigateTo('/home')
 </script>
 
 <template>
-  <div p10 flex="~ col" items-center justify-center />
+  <div class="p10 flex flex-col items-center justify-center" />
 </template>

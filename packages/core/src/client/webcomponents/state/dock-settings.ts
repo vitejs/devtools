@@ -74,7 +74,8 @@ export function getGroupMembers(
   if (!settings)
     return members
   // Reuse the category grouping (sorting + visibility) then flatten back out.
-  const grouped = docksGroupByCategories(members, settings, options)
+  const group = entries.find(e => e.id === groupId)
+  const grouped = docksGroupByCategories(members, settings, { ...options, groupCategory: group?.category })
   return grouped.flatMap(([, items]) => items)
 }
 
@@ -85,10 +86,10 @@ export function getGroupMembers(
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, groupCategory?: string },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false, whenContext, collapseGroups = false } = options ?? {}
+  const { includeHidden = false, whenContext, collapseGroups = false, groupCategory } = options ?? {}
 
   // When collapsing, members whose `groupId` resolves to a registered group are
   // folded under that group's button; the group entry itself stays on the bar.
@@ -113,7 +114,7 @@ export function docksGroupByCategories(
     if (!includeHidden && docksHidden.includes(entry.id))
       continue
 
-    const category = entry.category ?? 'default'
+    const category = entry.category ?? groupCategory ?? 'default'
     // Skip if category is hidden
     if (!includeHidden && docksCategoriesHidden.includes(category))
       continue

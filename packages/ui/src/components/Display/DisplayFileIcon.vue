@@ -11,7 +11,7 @@ const info = computed(() => getFileTypeFromModuleId(props.filename))
 
 <template>
   <div
-    flex-none icon-catppuccin
+    class="flex-none icon-catppuccin"
     :title="info.description || info.name"
     :class="[info.icon]"
   />

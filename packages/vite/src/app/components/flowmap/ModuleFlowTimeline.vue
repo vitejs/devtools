@@ -226,29 +226,28 @@ function countLineDiff(from?: string | null, to?: string | null) {
 </script>
 
 <template>
-  <div select-none h-full of-auto ws-nowrap w-100vh of-visible>
+  <div class="select-none h-full of-auto ws-nowrap w-100vh of-visible">
     <!-- Importers section -->
-    <div v-if="module.importers?.length" text-sm>
-      <div flex>
+    <div v-if="module.importers?.length" class="text-sm">
+      <div class="flex">
         <VMenu>
           <FlowmapNode class-node-outer="border-dashed">
             <template #inner>
-              <div flex="~ items-center gap-1" text-sm text-blue px3 py1>
-                <div i-ph-arrows-merge-duotone rotate-270 />
+              <div class="flex items-center gap-1 text-sm text-blue px3 py1">
+                <div class="i-ph-arrows-merge-duotone rotate-270" />
                 {{ module.importers?.length }} importers
               </div>
             </template>
           </FlowmapNode>
           <template #popper="{ hide }">
-            <div p2 flex="~ col gap-1">
+            <div class="p2 flex flex-col gap-1">
               <DisplayModuleId
                 v-for="importer of module.importers"
                 :id="importer"
                 :key="importer"
                 :cwd="root"
                 :link="modulesMap.has(importer)"
-                class="hover:bg-active"
-                px2 py1 rounded
+                class="hover:bg-active px2 py1 rounded"
                 @click="hide"
               />
             </div>
@@ -256,19 +255,18 @@ function countLineDiff(from?: string | null, to?: string | null) {
         </VMenu>
       </div>
       <div
-        pl-10 border="r" h-4 w-1px z-flowmap-line
-        class="border-flow-line border-dashed"
+        class="border-flow-line border-dashed pl-10 border-r h-4 w-1px z-flowmap-line"
       />
     </div>
 
     <!-- Main module node -->
-    <div flex="~">
+    <div class="flex">
       <FlowmapNode
         :lines="{ bottom: true }"
         :active="selected != null"
       >
         <template #content>
-          <div p2>
+          <div class="p2">
             <DisplayModuleId
               :id="module.id"
               :cwd="root"
@@ -277,18 +275,18 @@ function countLineDiff(from?: string | null, to?: string | null) {
         </template>
       </FlowmapNode>
       <template v-if="module.imports?.length">
-        <div w-10 border="t base dashed" mya />
-        <VMenu mya>
+        <div class="w-10 border-t border-base border-dashed mya" />
+        <VMenu class="mya">
           <FlowmapNode class-node-outer="border-dashed">
             <template #inner>
-              <div flex="~ items-center gap-1" text-sm text-orange px3 py1>
-                <div i-ph-arrows-split-duotone rotate-270 />
+              <div class="flex items-center gap-1 text-sm text-orange px3 py1">
+                <div class="i-ph-arrows-split-duotone rotate-270" />
                 {{ module.imports?.length }} imports
               </div>
             </template>
           </FlowmapNode>
           <template #popper="{ hide }">
-            <div p2 flex="~ col gap-1">
+            <div class="p2 flex flex-col gap-1">
               <DisplayModuleId
                 v-for="imp of module.imports"
                 :id="imp.module_id"
@@ -296,8 +294,7 @@ function countLineDiff(from?: string | null, to?: string | null) {
                 :kind="imp.kind"
                 :cwd="root"
                 :link="modulesMap.has(imp.module_id)"
-                class="hover:bg-active"
-                px2 py1 rounded
+                class="hover:bg-active px2 py1 rounded"
                 @click="hide"
               />
             </div>
@@ -315,8 +312,8 @@ function countLineDiff(from?: string | null, to?: string | null) {
       :active-end="isSelectedAncestor(loads[0])"
     >
       <template #node>
-        <div i-ph-magnifying-glass-duotone /> Resolve Id
-        <span op50 text-xs>({{ resolveIds.length }})</span>
+        <div class="i-ph-magnifying-glass-duotone" /> Resolve Id
+        <span class="op50 text-xs">({{ resolveIds.length }})</span>
       </template>
       <template #container>
         <div>
@@ -342,8 +339,8 @@ function countLineDiff(from?: string | null, to?: string | null) {
       :active-end="isSelectedAncestor(transforms[0])"
     >
       <template #node>
-        <div i-ph-upload-simple-duotone /> Load
-        <span op50 text-xs>({{ loadNodes.length }})</span>
+        <div class="i-ph-upload-simple-duotone" /> Load
+        <span class="op50 text-xs">({{ loadNodes.length }})</span>
       </template>
       <template #container>
         <div>
@@ -370,9 +367,9 @@ function countLineDiff(from?: string | null, to?: string | null) {
       :active-end="isSelectedAncestor(transforms.at(-1))"
     >
       <template #node>
-        <div i-ph-magic-wand-duotone /> Transform
-        <span v-if="transformsLoading" i-ph-spinner animate-spin />
-        <span v-else op50 text-xs>({{ transformNodes.length }})</span>
+        <div class="i-ph-magic-wand-duotone" /> Transform
+        <span v-if="transformsLoading" class="i-ph-spinner animate-spin" />
+        <span v-else class="op50 text-xs">({{ transformNodes.length }})</span>
       </template>
       <template #container>
         <div>

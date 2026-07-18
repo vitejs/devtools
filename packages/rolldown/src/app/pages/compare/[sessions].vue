@@ -88,12 +88,12 @@ onMounted(async () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else grid="~ cols-[max-content_1fr]" h-screen w-screen max-w-screen max-h-screen of-hidden>
+  <div v-else class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden">
     <PanelSideNav />
-    <div of-auto h-screen max-h-screen relative p6 flex="~ col gap-4">
-      <div flex="~ gap-2 items-center">
-        <NuxtLink btn-action :to="{ path: `/` }">
-          <div i-ph-arrow-bend-up-left-duotone />
+    <div class="of-auto h-screen max-h-screen relative p6 flex flex-col gap-4">
+      <div class="flex gap-2 items-center">
+        <NuxtLink class="btn-action" :to="{ path: `/` }">
+          <div class="i-ph-arrow-bend-up-left-duotone" />
           Re-select Session
         </NuxtLink>
       </div>

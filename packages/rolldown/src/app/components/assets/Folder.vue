@@ -39,7 +39,7 @@ const assetTreeRoots = computed(() => [
     link-query-key="asset"
   >
     <template #extra="{ node }">
-      <span op50>
+      <span class="op50">
         ({{ assetsMap.get(node.full)?.chunk?.name?.replace(/[\[\]]/g, '') }})
       </span>
     </template>

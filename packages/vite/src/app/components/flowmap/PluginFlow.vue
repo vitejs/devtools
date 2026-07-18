@@ -100,46 +100,45 @@ function toggleShowType() {
 </script>
 
 <template>
-  <div p2 h-full w-full>
-    <div flex="~" border="~ base" rounded-2 h-full relative of-hidden>
-      <div v-if="expanded" of-hidden border="r base">
+  <div class="p2 h-full w-full">
+    <div class="flex border border-base rounded-2 h-full relative of-hidden">
+      <div v-if="expanded" class="of-hidden border-r border-base">
         <FlowmapPluginFlowTimeline
           :build-metrics="buildMetrics"
         >
           <template #header>
-            <div px2 h10 border="b base" bg-base rounded-t-2 flex="~ items-center justify-end">
-              <button w8 h8 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(false)">
-                <i i-ph-sidebar-simple-duotone inline-flex op50 />
+            <div class="px2 h10 border-b border-base bg-base rounded-t-2 flex items-center justify-end">
+              <button class="w8 h8 rounded-full cursor-pointer hover:bg-active flex items-center justify-center" @click="toggleExpanded(false)">
+                <i class="i-ph-sidebar-simple-duotone inline-flex op50" />
               </button>
             </div>
           </template>
         </FlowmapPluginFlowTimeline>
       </div>
-      <div flex-1 h-full min-h-0 flex="~ col">
-        <div flex="~ items-center justify-between" border="b base" px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap>
-          <div flex="~ items-center" h-full>
-            <button v-if="!expanded" w8 h8 rounded-full cursor-pointer mr1 hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(true)">
-              <i i-ph-sidebar-duotone inline-flex op50 />
+      <div class="flex-1 h-full min-h-0 flex flex-col">
+        <div class="flex items-center justify-between border-b border-base px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap">
+          <div class="flex items-center h-full">
+            <button v-if="!expanded" class="w8 h8 rounded-full cursor-pointer mr1 hover:bg-active flex items-center justify-center" @click="toggleExpanded(true)">
+              <i class="i-ph-sidebar-duotone inline-flex op50" />
             </button>
             <DataSearchPanel
-              v-model="searchValue"
-              h-full border-none selected-container-class="px0! py1 border-none bg-none flex-nowrap! h-full"
+              v-model="searchValue" selected-container-class="px0! py1 border-none bg-none flex-nowrap! h-full"
               :rules="tableFieldFilterRules"
-              class="[&_[icon-catppuccin]]:(filter-none!)"
+              class="[&_[icon-catppuccin]]:(filter-none!) h-full border-none"
             />
           </div>
-          <div v-if="showUnchangedInfo" flex="~ items-center justify-center gap1" h-full text-xs py1>
-            <p class="op50" flex="~ items-center gap-1">
+          <div v-if="showUnchangedInfo" class="flex items-center justify-center gap1 h-full text-xs py1">
+            <p class="op50 flex items-center gap-1">
               <DisplayNumberBadge :number="unchangedInfo.count" /> module unchanged, but cost <DisplayDuration :duration="unchangedInfo.duration" />
             </p>
-            <button rounded-md px2 py1 select-none h-full border="~ base rounded-lg" hover="bg-active" :title="showTypeText" @click="toggleShowType">
+            <button class="rounded-md px2 py1 select-none h-full border border-base rounded-lg hover:bg-active" :title="showTypeText" @click="toggleShowType">
               <div class="text-xs op50">
                 {{ showTypeText }}
               </div>
             </button>
           </div>
         </div>
-        <div flex-1 min-h-0 overscroll-contain>
+        <div class="flex-1 min-h-0 overscroll-contain">
           <DataPluginDetailsTable
             :modules="modules"
             :build-metrics="buildMetrics"

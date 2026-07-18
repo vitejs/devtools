@@ -130,14 +130,14 @@ onMounted(() => {
   <div
     v-if="importers?.length || imports?.length"
     ref="container"
-    w-full relative select-none
+    class="w-full relative select-none"
   >
     <!-- nodes -->
-    <div flex px2>
+    <div class="flex px2">
       <!-- importers -->
       <div
         v-if="importers?.length"
-        py1
+        class="py1"
         :style="{
           width: `${SPACING.width}px`,
           marginTop: `${importersVerticalOffset}px`,
@@ -146,10 +146,7 @@ onMounted(() => {
         <template v-for="(importer, i) of importers" :key="importer.filename">
           <NuxtLink
             :to="{ query: { asset: importer.filename } }"
-            hover="bg-active" block px2 p1 bg-base
-            z-graph-node
-            border="~ base rounded"
-            font-mono text-sm
+            class="hover:bg-active block px2 p1 bg-base z-graph-node border border-base rounded font-mono text-sm"
             :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
@@ -161,7 +158,7 @@ onMounted(() => {
             }"
           >
             <DisplayFileIcon :filename="importer.filename" />
-            <span overflow-hidden text-ellipsis>
+            <span class="overflow-hidden text-ellipsis">
               {{ importer.filename }}
             </span>
           </NuxtLink>
@@ -170,7 +167,7 @@ onMounted(() => {
 
       <!-- dot: current asset -->
       <div
-        bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
+        class="bg-base rounded-full border-3 font-mono border-active flex-shrink-0" :style="{
           margin: dotNodeMargin,
           width: `${SPACING.dot}px`,
           height: `${SPACING.dot}px`,
@@ -180,7 +177,7 @@ onMounted(() => {
       <!-- imports -->
       <div
         v-if="imports?.length"
-        py1
+        class="py1"
         :style="{
           width: `${SPACING.width}px`,
           marginTop: `${importsVerticalOffset}px`,
@@ -189,10 +186,7 @@ onMounted(() => {
         <template v-for="(_import, i) of imports" :key="_import.filename">
           <NuxtLink
             :to="{ query: { asset: _import.filename } }"
-            hover="bg-active" block px2 p1 bg-base
-            z-graph-node
-            border="~ base rounded"
-            font-mono text-sm
+            class="hover:bg-active block px2 p1 bg-base z-graph-node border border-base rounded font-mono text-sm"
             :style="{
               width: `${SPACING.width}px`,
               height: `${SPACING.height}px`,
@@ -204,7 +198,7 @@ onMounted(() => {
             }"
           >
             <DisplayFileIcon :filename="_import.filename" />
-            <span overflow-hidden text-ellipsis>
+            <span class="overflow-hidden text-ellipsis">
               {{ _import.filename }}
             </span>
           </NuxtLink>
@@ -214,7 +208,7 @@ onMounted(() => {
 
     <!-- links -->
     <svg
-      pointer-events-none absolute left-0 top-0 z-graph-link w-full
+      class="pointer-events-none absolute left-0 top-0 z-graph-link w-full"
       :style="{
         height: `${nodesHeight}px`,
       }"

@@ -21,16 +21,16 @@ function clearSearch() {
 </script>
 
 <template>
-  <div w-full flex items-center gap-2 border="~ base rounded-lg" bg-base px3 py2>
-    <div i-lucide-search op-fade flex-none />
-    <input v-model="search" w-full bg-transparent outline-none placeholder="Search file names" />
+  <div class="w-full flex items-center gap-2 border border-base rounded-lg bg-base px3 py2">
+    <div class="i-lucide-search op-fade flex-none" />
+    <input
+      v-model="search"
+      class="w-full bg-transparent outline-none"
+      placeholder="Search file names"
+    />
     <button
       v-if="search?.length"
-      i-lucide-circle-x
-      op50
-      flex-none
-      cursor-pointer
-      hover:op100
+      class="i-lucide-circle-x op50 flex-none cursor-pointer hover:op100"
       aria-label="Clear input"
       @click="clearSearch"
     />
