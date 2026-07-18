@@ -15,10 +15,6 @@ const { state: lintResults, execute: reloadResults } = useAsyncState(
   () => rpc.value.call('devtools-oxc:list-lint-results'),
   [],
 )
-const { state: capabilities } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:lint-capabilities'),
-  { canRun: false },
-)
 const { isLoading: isRunning, execute: runLint } = useAsyncState(
   async () => {
     const resultId = await rpc.value.call('devtools-oxc:run-lint')
@@ -74,12 +70,7 @@ function requestDelete(resultId: string) {
     <div class="flex justify-between items-start w-full">
       <Back to="/" />
       <div v-if="lintResults.length > 0" class="flex items-center gap-3">
-        <button
-          v-if="capabilities.canRun"
-          class="btn-action-sm"
-          :disabled="isRunning"
-          @click="runLint()"
-        >
+        <button class="btn-action-sm" :disabled="isRunning" @click="runLint()">
           <div :class="isRunning ? 'i-svg-spinners-ring-resize' : 'i-ph-play-duotone'" />
           {{ isRunning ? 'Running…' : 'Run Lint' }}
         </button>
@@ -130,7 +121,7 @@ function requestDelete(resultId: string) {
         <div class="text-sm op-fade leading-7">Lint results will appear here after lint runs.</div>
       </template>
       <button
-        v-if="capabilities.canRun && lintResults.length === 0"
+        v-if="lintResults.length === 0"
         class="btn-action"
         :disabled="isRunning"
         @click="runLint()"

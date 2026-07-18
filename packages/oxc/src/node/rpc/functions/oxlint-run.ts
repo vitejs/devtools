@@ -1,12 +1,12 @@
-import { defineRpcFunction, type KitNodeContext } from '@vitejs/devtools-kit'
 import { Diagnostic } from 'nostics'
 import { x } from 'tinyexec'
+import { defineOxcRpc } from '../_define'
 import { diagnostics } from '../../diagnostics'
 import { getOxcConfigFiles } from '../../utils/config-files'
 import { ensureOxcGitignored, parseOxlintOutput } from '../../utils/oxlint'
 import { getLintResultsManager } from '../utils'
 
-export const oxlintRun = defineRpcFunction({
+export const oxlintRun = defineOxcRpc({
   name: 'devtools-oxc:run-lint',
   type: 'action',
   setup: context => {
@@ -22,11 +22,9 @@ export const oxlintRun = defineRpcFunction({
   },
 })
 
-async function runLint(context: KitNodeContext) {
-  const { terminals } = context
+async function runLint(context: Parameters<typeof getLintResultsManager>[0]) {
   const root = context.cwd
   const timestamp = Date.now()
-  let terminal: Awaited<ReturnType<typeof terminals.startChildProcess>> | undefined
 
   try {
     await ensureOxcGitignored(root)
@@ -37,22 +35,12 @@ async function runLint(context: KitNodeContext) {
         reason: versionResult.stderr.trim() || 'Unable to read the oxlint version',
       })
 
-    terminal = await terminals.startChildProcess(
-      {
-        command: 'oxlint',
-        args: ['-f', 'json'],
+    const { stdout, stderr } = await x('oxlint', ['-f', 'json'], {
+      nodeOptions: {
         cwd: root,
         env: { FORCE_COLOR: '0', NO_COLOR: '1' },
       },
-      {
-        id: `devtools-oxc:lint:${timestamp}`,
-        title: 'Oxlint',
-        icon: 'ph:terminal-window-duotone',
-      },
-    )
-    const { stdout, stderr, exitCode } = await terminal.getResult()
-    if (exitCode === undefined)
-      throw diagnostics.OXDT0001({ reason: 'Oxlint was terminated before it completed' })
+    })
 
     let output
     try {
@@ -70,10 +58,8 @@ async function runLint(context: KitNodeContext) {
       { version, timestamp, summary: output.summary },
       { files: output.files, config },
     )
-    terminals.update({ ...terminal, status: 'stopped' })
     return timestamp
   } catch (error) {
-    if (terminal) terminals.update({ ...terminal, status: 'error' })
     if (error instanceof Diagnostic) throw error
     throw diagnostics.OXDT0001({
       reason: error instanceof Error ? error.message : String(error),

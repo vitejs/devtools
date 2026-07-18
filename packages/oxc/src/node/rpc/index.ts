@@ -1,5 +1,4 @@
 import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { oxlintCapabilities } from './functions/oxlint-capabilities'
 import { oxlintDeleteResult } from './functions/oxlint-delete-result'
 import { oxlintGetResult } from './functions/oxlint-get-result'
 import { oxlintListResults } from './functions/oxlint-list-results'
@@ -12,7 +11,7 @@ import { getConfigFiles } from './functions/get-config-files'
 import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
-  oxlintCapabilities,
+  oxlintRun,
   oxlintListResults,
   oxlintGetResult,
   oxlintDeleteResult,
@@ -23,11 +22,7 @@ export const rpcFunctions = [
   openInEditor,
 ] as const
 
-export const viteRpcFunctions = [oxlintRun] as const
-
-export type ServerFunctions = RpcDefinitionsToFunctions<
-  readonly [...typeof rpcFunctions, ...typeof viteRpcFunctions]
->
+export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
 declare module '@vitejs/devtools-kit' {
   export interface DevToolsRpcServerFunctions extends ServerFunctions {}
