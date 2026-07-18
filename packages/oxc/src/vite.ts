@@ -18,7 +18,7 @@ export function DevToolsOxc(): PluginWithDevTools {
     },
     setup(ctx) {
       enableOxlintRun(ctx)
-      for (const fn of viteRpcFunctions) ctx.rpc.register(fn)
+      for (const fn of viteRpcFunctions) ctx.rpc.register(fn as any)
     },
   })
 }
