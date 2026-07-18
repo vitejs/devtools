@@ -140,8 +140,8 @@ function initConfigRanges(content: string) {
             m.name.type === 'String'
               ? (m.name as StringNode).value
               : (m.name as { name: string }).name
-          const { from, to } = getMemberRange(m, content)
-          return { key, from, to }
+          const range = getMemberRange(m, content)
+          return { key, from: range.from, to: range.to }
         })
         result.rules = {
           from,

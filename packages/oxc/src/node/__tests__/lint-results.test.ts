@@ -93,11 +93,16 @@ it('rejects JSON that is not an oxlint result', async () => {
 
 it('accepts the null rule count emitted by recent oxlint versions', async () => {
   const root = await createFixture()
-  await expect(parseOxlintOutput(JSON.stringify({
-    diagnostics: [],
-    number_of_files: 1,
-    number_of_rules: null,
-    threads_count: 1,
-    start_time: 0.01,
-  }), root)).resolves.toMatchObject({ summary: { number_of_rules: null } })
+  await expect(
+    parseOxlintOutput(
+      JSON.stringify({
+        diagnostics: [],
+        number_of_files: 1,
+        number_of_rules: null,
+        threads_count: 1,
+        start_time: 0.01,
+      }),
+      root,
+    ),
+  ).resolves.toMatchObject({ summary: { number_of_rules: null } })
 })
