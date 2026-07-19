@@ -71,11 +71,13 @@ function togglePanel() {
 }
 
 // Delay syncing internal visibility from the store so it doesn't race the
-// "click outside" dismissal (same pattern as the overflow button).
+// "click outside" dismissal (same pattern as the overflow button). Compare by
+// element because `docksGroupPanel` is a single shared ref across every group
+// button — a sibling group's popover must not light up this one.
 watchDebounced(
   () => docksGroupPanel.value,
   (value) => {
-    isPanelVisible.value = !!value
+    isPanelVisible.value = value?.el === groupButton.value
   },
   { debounce: 1000 },
 )
