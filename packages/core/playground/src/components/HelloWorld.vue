@@ -4,9 +4,6 @@ import { ref } from 'vue'
 defineProps<{ msg: string }>()
 
 const count = ref(0)
-
-// eslint-disable-next-line no-console
-console.log('hello world')
 </script>
 
 <template>
