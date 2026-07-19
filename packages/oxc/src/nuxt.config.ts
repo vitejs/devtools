@@ -36,10 +36,6 @@ export default defineNuxtConfig({
   unocss: {
     configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
   },
-
-  devServer: {
-    port: 4448,
-  },
   app: {
     baseURL: BASE,
     head: {
