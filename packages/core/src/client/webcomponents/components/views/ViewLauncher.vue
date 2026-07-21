@@ -65,11 +65,8 @@ const canLaunch = computed(() => status.value === 'idle' || status.value === 'er
       {{ entry.launcher.title }}
     </h1>
     <p>{{ entry.launcher.description }}</p>
-    <!-- Failure reason, shown above the Retry button. -->
-    <p v-if="status === 'error' && error" class="max-w-full text-sm text-red-600 dark:text-red-400 text-center text-balance">
-      {{ error }}
-    </p>
     <Button
+      class="min-w-40"
       :variant="status === 'error' ? 'danger' : 'primary'"
       :loading="status === 'loading'"
       :disabled="!canLaunch"
@@ -81,22 +78,29 @@ const canLaunch = computed(() => status.value === 'idle' || status.value === 'er
       {{ buttonText }}
     </Button>
 
-    <!-- Short progress/status of the process (not its raw output). -->
-    <div v-if="status !== 'error' && progress" class="inline-flex items-center gap-2 text-sm color-base op70">
-      <div v-if="status === 'loading'" class="i-svg-spinners-3-dots-fade flex-none" />
-      <span>{{ progress }}</span>
-    </div>
+    <!-- Fixed-height action zone: reserves space so the card doesn't shift as
+         the status line / navigation toggle across idle → loading → done. -->
+    <div class="min-h-16 max-w-full flex flex-col gap-2 items-center">
+      <!-- Failure reason, or a short line of progress/status (never both). -->
+      <p v-if="status === 'error' && error" class="max-w-full text-sm text-red-600 dark:text-red-400 text-center text-balance">
+        {{ error }}
+      </p>
+      <div v-else-if="progress" class="inline-flex items-center gap-2 text-sm color-base op70">
+        <div v-if="status === 'loading'" class="i-svg-spinners-3-dots-fade flex-none" />
+        <span class="truncate">{{ progress }}</span>
+      </div>
 
-    <Button
-      v-if="terminalSessionId"
-      variant="ghost"
-      size="sm"
-      @click="viewInTerminal"
-    >
-      <template #icon>
-        <div class="w-3.5 h-3.5 i-ph-arrow-square-out-duotone" />
-      </template>
-      View in Terminal
-    </Button>
+      <Button
+        v-if="terminalSessionId"
+        variant="ghost"
+        size="sm"
+        @click="viewInTerminal"
+      >
+        <template #icon>
+          <div class="w-3.5 h-3.5 i-ph-arrow-square-out-duotone" />
+        </template>
+        View in Terminal
+      </Button>
+    </div>
   </div>
 </template>
