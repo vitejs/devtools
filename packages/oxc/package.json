@@ -38,9 +38,7 @@
     "dev:prepare": "nuxi prepare src",
     "lint": "oxlint --ignore-pattern 'src/app/fixtures/**' && oxfmt --check . '!src/app/fixtures/**'",
     "lint:fix": "oxlint --fix --ignore-pattern 'src/app/fixtures/**' && oxfmt . '!src/app/fixtures/**'",
-    "play": "pnpm -C playground dev",
-    "prepack": "pnpm build",
-    "typecheck": "vue-tsc --noEmit"
+    "prepack": "pnpm build"
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",

@@ -19,7 +19,7 @@
     "play:standalone": "pnpm -C packages/core run play:standalone",
     "example:plugin-file-explorer": "pnpm -C examples/plugin-file-explorer run play:dev",
     "postinstall": "npx simple-git-hooks && pnpm -C packages/rolldown run dev:prepare && skills-npm",
-    "lint": "eslint --cache",
+    "lint": "eslint --cache && pnpm -C packages/oxc run lint",
     "test": "vitest",
     "test:e2e": "pnpm -C e2e run test",
     "release": "bumpp -r",
