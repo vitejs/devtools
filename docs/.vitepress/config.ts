@@ -118,7 +118,6 @@ export default extendConfig(withMermaid(defineConfig({
           text: 'Builtin DevTools',
           items: [
             { text: 'DevTools for Rolldown', link: '/rolldown/' },
-            { text: 'Rolldown Features', link: '/rolldown/features' },
             { text: 'DevTools for Vite', link: '/vite/' },
             { text: 'DevTools for Vitest', link: '/vitest/' },
             { text: 'DevTools for Oxc', link: '/oxc/' },
