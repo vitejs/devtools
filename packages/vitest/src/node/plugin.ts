@@ -117,9 +117,11 @@ export function DevToolsVitestUI(): PluginWithDevTools {
 }
 
 /**
- * Build the list of launch roots the user can run Vitest from: the project root
- * and the workspace root, plus every directory holding a Vitest/Vite config in
- * the workspace. Deduped by absolute path, first label wins.
+ * Build the list of launch roots the user can run Vitest from: every directory
+ * holding a Vitest/Vite config in the workspace, with the project and workspace
+ * roots relabelled for clarity. The project root is only offered when it
+ * actually holds a config — running Vitest from a config-less directory isn't
+ * meaningful. Deduped by absolute path, first label wins.
  */
 async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToolsLaunchRoot[]> {
   const roots = new Map<string, DevToolsLaunchRoot>()
@@ -129,10 +131,7 @@ async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToo
       roots.set(abs, { value: abs, label, description: abs })
   }
 
-  add(cwd, 'Project root')
-  if (resolve(workspaceRoot) !== resolve(cwd))
-    add(workspaceRoot, 'Workspace root')
-
+  let configDirs: string[] = []
   try {
     const matches = await glob(
       ['**/vitest.config.*', '**/vitest.workspace.*', '**/vite.config.*'],
@@ -142,14 +141,21 @@ async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToo
         ignore: ['**/node_modules/**', '**/dist/**'],
       },
     )
-    for (const file of matches.sort((a, b) => a.localeCompare(b))) {
-      const dir = dirname(file)
-      const rel = relative(workspaceRoot, dir)
-      add(dir, rel === '' ? 'Workspace root' : rel)
-    }
+    configDirs = matches.map(file => resolve(dirname(file)))
   }
   catch {
-    // A failed scan just means fewer roots to pick from — keep the known ones.
+    // A failed scan just means fewer roots to pick from.
+  }
+
+  // Only offer the project root when it holds a config of its own.
+  if (configDirs.includes(resolve(cwd)))
+    add(cwd, 'Project root')
+  if (resolve(workspaceRoot) !== resolve(cwd))
+    add(workspaceRoot, 'Workspace root')
+
+  for (const dir of [...configDirs].sort((a, b) => a.localeCompare(b))) {
+    const rel = relative(workspaceRoot, dir)
+    add(dir, rel === '' ? 'Workspace root' : rel)
   }
 
   return [...roots.values()]
