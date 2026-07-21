@@ -95,7 +95,9 @@ const tools = computed(() => {
           <span class="color-#6254FE dark:color-#A89FFF font-semibold">Via</span>
           <img :src="vitePlusDarkLogo" alt="" class="h-3 w-20 dark:hidden" />
           <img :src="vitePlusLightLogo" alt="" class="hidden h-3 w-20 dark:block" />
-          <span class="color-#6254FE dark:color-#A89FFF font-semibold">v{{ overview.vitePlus }}</span>
+          <span class="color-#6254FE dark:color-#A89FFF font-semibold"
+            >v{{ overview.vitePlus }}</span
+          >
         </DisplayBadge>
       </a>
     </div>
