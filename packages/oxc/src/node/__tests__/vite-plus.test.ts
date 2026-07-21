@@ -1,24 +1,40 @@
-import { describe, expect, it } from 'vitest'
-import { parseVitePlusVersions } from '../utils/vite-plus'
+import { x } from 'tinyexec'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { getVitePlusVersions } from '../utils/vite-plus'
 
-describe('parseVitePlusVersions', () => {
-  it('reads the bundled Oxc tool versions from vp -V output', () => {
-    const output = `VITE+ - The Unified Toolchain for the Web\r
-\r
-Tools:\r
-  vite     v8.1.3\r
-  oxfmt    v0.57.0\r
-  oxlint   v1.72.0\r
-  tsdown   v0.22.3\r
-\r
-Environment:\r
-  oxfmt    v9.0.0\r
-  oxlint   v9.0.0\r
-`
+vi.mock('tinyexec', () => ({ x: vi.fn<typeof x>() }))
 
-    expect(parseVitePlusVersions(output)).toEqual({
-      oxfmt: '0.57.0',
-      oxlint: '1.72.0',
+describe('getVitePlusVersions', () => {
+  beforeEach(() => {
+    vi.mocked(x).mockResolvedValue({
+      exitCode: 0,
+      stdout: `vp v0.2.4
+
+Local vite-plus:
+  vite-plus  v0.2.4
+
+Tools:
+  vite     v8.1.3
+  oxfmt    v0.57.0
+  oxlint   v1.72.0
+
+Environment:
+  oxfmt    v9.0.0
+  oxlint   v9.0.0
+  Node.js  v24.18.0
+`,
+      stderr: '',
     })
+  })
+
+  it('loads all Vite+ versions with one command', async () => {
+    await expect(getVitePlusVersions('/project')).resolves.toEqual({
+      vitePlus: '0.2.4',
+      oxlint: '1.72.0',
+      oxfmt: '0.57.0',
+    })
+
+    expect(x).toHaveBeenCalledOnce()
+    expect(x).toHaveBeenCalledWith('vp', ['-V'], expect.anything())
   })
 })

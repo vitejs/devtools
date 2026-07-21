@@ -70,7 +70,7 @@ export const overview = defineOxcRpc({
         return {
           oxlint,
           oxfmt,
-          vitePlus,
+          vitePlus: vitePlusVersions?.vitePlus,
         }
       },
     }

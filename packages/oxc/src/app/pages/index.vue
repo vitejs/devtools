@@ -26,7 +26,7 @@ const { state: overview, isLoading } = useAsyncState(
       latest: true,
       npmxLink: undefined,
     },
-    vitePlus: false,
+    vitePlus: undefined,
   },
 )
 
@@ -77,35 +77,37 @@ const tools = computed(() => {
 
 <template>
   <VisualLoading v-if="isLoading" text="Connecting..." />
-  <div v-else class="h-full p4 flex flex-col gap-4 items-center justify-center relative">
-    <BannerOxcDevTools class="mx-auto" />
+  <div v-else class="h-full p4 flex flex-col gap-5 items-center justify-center relative">
+    <div class="w-fit mx-auto flex flex-col items-center gap-3">
+      <BannerOxcDevTools />
+      <a
+        v-if="overview.vitePlus"
+        href="https://viteplus.dev/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Powered by Vite+"
+      >
+        <DisplayBadge
+          :color="false"
+          size="lg"
+          class="border border-#6254FE/30 bg-#6254FE/10 dark:border-#8B7FFF/40 dark:bg-#6254FE/20 px-2 py-1 flex items-center gap-1 text-xs font-normal"
+        >
+          <span class="color-#6254FE dark:color-#A89FFF font-semibold">Via</span>
+          <img :src="vitePlusDarkLogo" alt="" class="h-3 w-20 dark:hidden" />
+          <img :src="vitePlusLightLogo" alt="" class="hidden h-3 w-20 dark:block" />
+          <span class="color-#6254FE dark:color-#A89FFF font-semibold">v{{ overview.vitePlus }}</span>
+        </DisplayBadge>
+      </a>
+    </div>
 
-    <div class="flex flex-col lg:flex-row gap-4 mx-auto mt-4">
+    <div class="flex flex-col lg:flex-row gap-4 mx-auto">
       <div
         v-for="tool in tools"
         :key="tool.id"
         class="border border-base rounded p2 flex-1 min-w-max"
       >
         <div class="p4 flex flex-col gap-4 h-full">
-          <div class="flex items-center gap-3 text-2xl font-semibold">
-            <span>{{ tool.name }}</span>
-            <a
-              v-if="overview.vitePlus"
-              href="https://viteplus.dev/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Powered by Vite+"
-            >
-              <DisplayBadge
-                :color="false"
-                class="border border-#6254FE/30 bg-#6254FE/10 dark:border-#8B7FFF/40 dark:bg-#6254FE/20 flex items-center gap-1 font-normal"
-              >
-                <span class="color-#6254FE dark:color-#A89FFF">Powered by</span>
-                <img :src="vitePlusDarkLogo" alt="" class="h-2.5 w-17 dark:hidden" />
-                <img :src="vitePlusLightLogo" alt="" class="hidden h-2.5 w-17 dark:block" />
-              </DisplayBadge>
-            </a>
-          </div>
+          <div class="text-2xl font-semibold">{{ tool.name }}</div>
 
           <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
             <div class="i-ph-tag-duotone op-fade" />
