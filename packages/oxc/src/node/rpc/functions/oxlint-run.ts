@@ -4,6 +4,7 @@ import { defineOxcRpc } from '../_define'
 import { diagnostics } from '../../diagnostics'
 import { getOxcConfigFiles } from '../../utils/config-files'
 import { ensureOxcGitignored, parseOxlintOutput } from '../../utils/oxlint'
+import { getVitePlusVersions, isVitePlusInstalled } from '../../utils/vite-plus'
 import { getLintResultsManager } from '../utils'
 
 export const oxlintRun = defineOxcRpc({
@@ -28,19 +29,27 @@ async function runLint(context: Parameters<typeof getLintResultsManager>[0]) {
 
   try {
     await ensureOxcGitignored(root)
-    const versionResult = await x('oxlint', ['--version'], { nodeOptions: { cwd: root } })
-    const version = versionResult.stdout.trim().split(/\s+/).at(-1)
-    if (versionResult.exitCode !== 0 || !version)
-      throw diagnostics.OXDT0001({
-        reason: versionResult.stderr.trim() || 'Unable to read the oxlint version',
-      })
+    const vitePlus = isVitePlusInstalled(root)
+    let version = vitePlus ? (await getVitePlusVersions(root))?.oxlint : undefined
+    if (!version) {
+      const versionResult = await x('oxlint', ['--version'], { nodeOptions: { cwd: root } })
+      version = versionResult.stdout.trim().split(/\s+/).at(-1)
+      if (versionResult.exitCode !== 0 || !version)
+        throw diagnostics.OXDT0001({
+          reason: versionResult.stderr.trim() || 'Unable to read the oxlint version',
+        })
+    }
 
-    const { stdout, stderr } = await x('oxlint', ['-f', 'json'], {
-      nodeOptions: {
-        cwd: root,
-        env: { FORCE_COLOR: '0', NO_COLOR: '1' },
+    const { stdout, stderr } = await x(
+      vitePlus ? 'vp' : 'oxlint',
+      vitePlus ? ['lint', '-f', 'json'] : ['-f', 'json'],
+      {
+        nodeOptions: {
+          cwd: root,
+          env: { FORCE_COLOR: '0', NO_COLOR: '1' },
+        },
       },
-    })
+    )
 
     let output
     try {

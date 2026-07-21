@@ -928,6 +928,9 @@ importers:
       devframe:
         specifier: catalog:deps
         version: 0.7.2(cac@7.0.0)(srvx@0.11.15)(typescript@6.0.3)
+      local-pkg:
+        specifier: catalog:deps
+        version: 1.2.1
       nostics:
         specifier: catalog:deps
         version: 1.1.4

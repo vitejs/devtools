@@ -8,6 +8,8 @@ import { computed } from 'vue'
 import { useRpc } from '#imports'
 
 const rpc = useRpc()
+const vitePlusDarkLogo = '/__devtools-oxc/viteplus-dark.svg'
+const vitePlusLightLogo = '/__devtools-oxc/viteplus-light.svg'
 
 const { state: overview, isLoading } = useAsyncState(
   () => rpc.value.call('devtools-oxc:overview'),
@@ -24,6 +26,7 @@ const { state: overview, isLoading } = useAsyncState(
       latest: true,
       npmxLink: undefined,
     },
+    vitePlus: false,
   },
 )
 
@@ -84,8 +87,24 @@ const tools = computed(() => {
         class="border border-base rounded p2 flex-1 min-w-max"
       >
         <div class="p4 flex flex-col gap-4 h-full">
-          <div class="text-2xl font-semibold">
-            {{ tool.name }}
+          <div class="flex items-center gap-3 text-2xl font-semibold">
+            <span>{{ tool.name }}</span>
+            <a
+              v-if="overview.vitePlus"
+              href="https://viteplus.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Powered by Vite+"
+            >
+              <DisplayBadge
+                :color="false"
+                class="border border-#6254FE/30 bg-#6254FE/10 dark:border-#8B7FFF/40 dark:bg-#6254FE/20 flex items-center gap-1 font-normal"
+              >
+                <span class="color-#6254FE dark:color-#A89FFF">Powered by</span>
+                <img :src="vitePlusDarkLogo" alt="" class="h-2.5 w-17 dark:hidden" />
+                <img :src="vitePlusLightLogo" alt="" class="hidden h-2.5 w-17 dark:block" />
+              </DisplayBadge>
+            </a>
           </div>
 
           <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
