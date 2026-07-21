@@ -6,5 +6,5 @@ defineProps<{
 </script>
 
 <template>
-  <span v-if="version" font-mono>{{ prefix || '' }}{{ version?.includes(':') ? version : `${prefix ? '' : 'v'}${version}` }}</span>
+  <span v-if="version" class="font-mono">{{ prefix || '' }}{{ version?.includes(':') ? version : `${prefix ? '' : 'v'}${version}` }}</span>
 </template>

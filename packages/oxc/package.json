@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@vitejs/devtools-oxc",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "DevTools for the Oxc toolchain",
   "author": "Leo (https://github.com/yuyinws)",
   "license": "MIT",
@@ -36,18 +36,15 @@
     "build": "pnpm dev:prepare && nuxi build src && tsdown",
     "dev": "nuxi dev src",
     "dev:prepare": "nuxi prepare src",
-    "lint": "oxlint && oxfmt --check",
-    "lint:fix": "oxlint --fix && oxfmt",
-    "play": "pnpm -C playground dev",
-    "prepack": "pnpm build",
-    "typecheck": "vue-tsc --noEmit"
+    "lint": "oxlint --ignore-pattern 'src/app/fixtures/**' && oxfmt --check . '!src/app/fixtures/**'",
+    "lint:fix": "oxlint --fix --ignore-pattern 'src/app/fixtures/**' && oxfmt . '!src/app/fixtures/**'",
+    "prepack": "pnpm build"
   },
   "dependencies": {
-    "@clack/prompts": "catalog:inlined",
     "@vitejs/devtools-kit": "workspace:*",
-    "ansis": "catalog:deps",
+    "cac": "catalog:deps",
     "devframe": "catalog:deps",
-    "gunshi": "catalog:deps",
+    "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"

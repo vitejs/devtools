@@ -1,10 +1,9 @@
 <template>
   <button
     type="button"
-    w-8 h-8 rounded-full flex items-center justify-center
-    hover="bg-active op100" op50 title="Close"
+    class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-active hover:op100 op50" title="Close"
     aria-label="Close"
   >
-    <div i-ph-x />
+    <div class="i-ph-x" />
   </button>
 </template>

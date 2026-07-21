@@ -37,16 +37,16 @@ useSideNav(() => {
 </script>
 
 <template>
-  <div v-if="rpcConnectionState.error" text-red>
+  <div v-if="rpcConnectionState.error" class="text-red">
     {{ rpcConnectionState.error }}
   </div>
   <VisualLoading
     v-else-if="!rpcConnectionState.connected"
     text="Connecting..."
   />
-  <div v-else grid="~ cols-[max-content_1fr]" h-screen w-screen max-w-screen max-h-screen of-hidden>
+  <div v-else class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden">
     <PanelSideNav />
-    <div of-auto h-screen max-h-screen relative>
+    <div class="of-auto h-screen max-h-screen relative">
       <NuxtPage />
     </div>
   </div>

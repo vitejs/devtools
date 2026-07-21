@@ -175,7 +175,7 @@ function select(node: ModuleDest) {
 </script>
 
 <template>
-  <div p4>
+  <div class="p4">
     <DataVirtualList
       :items="rows"
       key-prop="key"
@@ -184,18 +184,14 @@ function select(node: ModuleDest) {
       :scroller="scroller"
     >
       <template #default="{ item: row }">
-        <div v-if="row.type === 'divider'" h-7 flex items-center>
-          <div w-full border="t base" />
+        <div v-if="row.type === 'divider'" class="h-7 flex items-center">
+          <div class="w-full border-t border-base" />
         </div>
 
         <button
           v-else-if="row.type === 'folder'"
           type="button"
-          h-7 w-full min-w-0
-          cursor-default select-none text-sm truncate
-          flex="~ gap-1 items-center"
-          px2 rounded bg-transparent text-left
-          hover="bg-active"
+          class="h-7 w-full min-w-0 cursor-default select-none text-sm truncate flex gap-1 items-center px2 rounded bg-transparent text-left hover:bg-active"
           :aria-expanded="isFolderOpen(row)"
           :style="{ paddingLeft: `${row.depth + 0.5}rem` }"
           @click="toggleFolder(row)"
@@ -204,8 +200,8 @@ function select(node: ModuleDest) {
             class="i-ph-caret-right-duotone transition op50 shrink-0"
             :class="isFolderOpen(row) ? 'rotate-90' : ''"
           />
-          <div :class="isFolderOpen(row) ? row.iconOpen || row.icon : row.icon" inline-block vertical-text-bottom shrink-0 />
-          <div font-mono truncate>
+          <div :class="isFolderOpen(row) ? row.iconOpen || row.icon : row.icon" class="inline-block vertical-text-bottom shrink-0" />
+          <div class="font-mono truncate">
             <DisplayHighlightedPath :path="row.node.name || ''" />
           </div>
         </button>
@@ -214,16 +210,12 @@ function select(node: ModuleDest) {
           :is="link ? NuxtLink : 'div'"
           v-else
           :to="link ? getItemLink(row.item) : undefined"
-          h-7 min-w-0
-          text-sm ws-nowrap
-          flex="~ gap-1 items-center"
-          px2 rounded
-          hover="bg-active"
+          class="h-7 min-w-0 text-sm ws-nowrap flex gap-1 items-center px2 rounded hover:bg-active"
           :style="{ paddingLeft: `${row.depth + 2.7}rem` }"
           @click="select(row.item)"
         >
-          <DisplayFileIcon :filename="row.item.full" shrink-0 />
-          <div font-mono min-w-0 truncate>
+          <DisplayFileIcon :filename="row.item.full" class="shrink-0" />
+          <div class="font-mono min-w-0 truncate">
             <DisplayHighlightedPath :path="getItemName(row.item)" />
             <slot name="extra" :node="row.item" />
           </div>

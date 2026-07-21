@@ -38,7 +38,7 @@ function hasBuildMetrics(metrics: ViteModuleBuildMetrics | undefined): metrics i
 </script>
 
 <template>
-  <div flex="~ col gap-2" p4>
+  <div class="flex flex-col gap-2 p4">
     <DataVirtualList
       :items="modules"
       key-prop="id"
@@ -48,30 +48,29 @@ function hasBuildMetrics(metrics: ViteModuleBuildMetrics | undefined): metrics i
       :scroller="scroller"
     >
       <template #default="{ item }">
-        <div flex pb2>
+        <div class="flex pb2">
           <DisplayModuleId
             :id="item.id"
             :cwd="root"
-            hover="bg-active" block px2 p1 w-full
-            border="~ base rounded"
+            class="hover:bg-active block px2 p1 w-full border border-base rounded"
             :link="true"
           >
             <template #detail>
-              <div flex="~ gap-1 wrap" text-xs>
-                <ul flex="~ auto text-xs wrap">
+              <div class="flex gap-1 flex-wrap text-xs">
+                <ul class="flex flex-auto flex-wrap">
                   <template v-for="(p, i) of getFilteredTransforms(item)" :key="i">
-                    <li flex="~ items-center">
+                    <li class="flex items-center">
                       <DisplayPluginName
                         :name="p.plugin_name"
                         class="font-mono ws-nowrap op-50"
                       />
-                      <span v-if="!isLastFilteredTransform(item, i)" op20>|</span>
+                      <span v-if="!isLastFilteredTransform(item, i)" class="op20">|</span>
                     </li>
                   </template>
                 </ul>
 
-                <div flex="~ auto gap-1" of-hidden />
-                <div flex="~ none gap-1 wrap justify-end">
+                <div class="flex flex-auto gap-1 of-hidden" />
+                <div class="flex flex-none gap-1 flex-wrap justify-end">
                   <span>
                     <ModulesBuildMetrics v-if="hasBuildMetrics(item.buildMetrics)" :metrics="item.buildMetrics" />
                   </span>

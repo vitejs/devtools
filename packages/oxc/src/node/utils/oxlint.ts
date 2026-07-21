@@ -1,23 +1,12 @@
-import { execSync } from 'node:child_process'
-import { readFile } from 'node:fs/promises'
+import type { FileData, Message, Summary } from '../../types'
+import { appendFile, readFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
-import { cwd, exit } from 'node:process'
+import { cwd } from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'pathe'
 
-export async function getOxlintVersion() {
-  try {
-    const version = execSync('npx oxlint --version', { encoding: 'utf-8' })
-    return version.split(' ')[1]?.replaceAll('\n', '') ?? undefined
-  } catch {
-    console.error('Oxlint is not installed, please install it first')
-    exit(1)
-  }
-}
-
-export async function getOxlintConfig() {
-  // Read the .oxlintrc.json file in the current directory
-  const configPath = resolve(cwd(), '.oxlintrc.json')
+export async function getOxlintConfig(root = cwd()) {
+  const configPath = resolve(root, 'oxlint.config.ts')
   try {
     const config = await readFile(configPath, 'utf-8')
 
@@ -27,91 +16,85 @@ export async function getOxlintConfig() {
   }
 }
 
-function wrapOxlintCommand(rawArgs: string[]) {
-  const args = rawArgs.slice(1)
-  const commandArgs = ['npx', '--yes', 'oxlint', '-f', 'json', ...args]
-  return commandArgs.join(' ')
-}
-
-export function execOxlintCommand(rawArgs: string[]) {
+export async function ensureOxcGitignored(root: string) {
+  const gitignorePath = resolve(root, '.gitignore')
+  let content = ''
   try {
-    const oxlintCommand = wrapOxlintCommand(rawArgs)
-    const output = execSync(oxlintCommand, { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] })
-    return output
+    content = await readFile(gitignorePath, 'utf-8')
   } catch (error) {
-    if (error instanceof Error && 'stdout' in error) {
-      return error.stdout as string
-    }
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return
     throw error
   }
+
+  if (
+    content.split('\n').some(line => {
+      const entry = line.trim()
+      return entry && !entry.startsWith('#') && entry.includes('.devtools-oxc')
+    })
+  )
+    return
+
+  await appendFile(
+    gitignorePath,
+    `${content && !content.endsWith('\n') ? '\n' : ''}.devtools-oxc\n`,
+  )
+}
+
+export async function parseOxlintOutput(rawOutput: string, root: string) {
+  const data = JSON.parse(rawOutput) as Record<string, unknown>
+  const summaryFields = [
+    'number_of_files',
+    'number_of_rules',
+    'threads_count',
+    'start_time',
+  ] as const
+  if (
+    !data ||
+    !Array.isArray(data.diagnostics) ||
+    summaryFields.some(field =>
+      field === 'number_of_rules'
+        ? data[field] !== null && typeof data[field] !== 'number'
+        : typeof data[field] !== 'number',
+    ) ||
+    data.diagnostics.some(
+      diagnostic =>
+        !diagnostic ||
+        typeof diagnostic !== 'object' ||
+        typeof diagnostic.filename !== 'string' ||
+        typeof diagnostic.severity !== 'string' ||
+        !Array.isArray(diagnostic.labels),
+    )
+  )
+    return null
+
+  const diagnostics = data.diagnostics as Message[]
+  const grouped = new Map<string, Map<number, Message[]>>()
+
+  for (const diagnostic of diagnostics) {
+    const lines = grouped.get(diagnostic.filename) ?? new Map<number, Message[]>()
+    const line = diagnostic.labels?.[0]?.span?.line ?? 1
+    lines.set(line, [...(lines.get(line) ?? []), diagnostic])
+    grouped.set(diagnostic.filename, lines)
+  }
+
+  const files: FileData[] = await Promise.all(
+    [...grouped].map(async ([filename, lines]) => ({
+      filename,
+      source: await readFile(resolve(root, filename), 'utf-8').catch(() => ''),
+      lines: [...lines].sort(([a], [b]) => a - b).map(([line, messages]) => ({ line, messages })),
+    })),
+  )
+  const summary: Summary = {
+    number_of_files: data.number_of_files as number,
+    number_of_rules: data.number_of_rules as number,
+    threads_count: data.threads_count as number,
+    start_time: data.start_time as number,
+    files_with_issues: files.length,
+    error_count: diagnostics.filter(diagnostic => diagnostic.severity === 'error').length,
+    warning_count: diagnostics.filter(diagnostic => diagnostic.severity === 'warning').length,
+  }
+
+  return { files, summary }
 }
 
 export const clientDir = resolve(dirname(fileURLToPath(import.meta.url)), './client/public')
-
-// Group diagnostics by filename
-export async function groupByFilename(oxlintOutput: string) {
-  try {
-    const data = JSON.parse(oxlintOutput)
-    const diagnostics = data.diagnostics || []
-
-    // Group by filename
-    const grouped = diagnostics.reduce((acc: Record<string, any>, diagnostic: any) => {
-      const filename = diagnostic.filename
-      if (!acc[filename]) {
-        acc[filename] = {
-          filename,
-          lines: {},
-        }
-      }
-
-      // Group by line
-      const line = diagnostic.labels?.[0]?.span?.line || 1
-      if (!acc[filename].lines[line]) {
-        acc[filename].lines[line] = []
-      }
-      acc[filename].lines[line].push(diagnostic)
-
-      return acc
-    }, {})
-
-    // Convert to array format, turn the lines object into an array, and read each file's contents
-    const result = await Promise.all(
-      Object.values(grouped).map(async (file: any) => {
-        let source = ''
-        try {
-          source = await readFile(file.filename, 'utf-8')
-        } catch (error) {
-          console.warn(`Can not read file ${file.filename}:`, error)
-          source = ''
-        }
-
-        return {
-          filename: file.filename,
-          source,
-          lines: Object.entries(file.lines)
-            .map(([line, messages]: [string, any]) => ({
-              line: Number.parseInt(line),
-              messages,
-            }))
-            .sort((a, b) => a.line - b.line), // Sort by line number
-        }
-      }),
-    )
-
-    return {
-      files: result,
-      summary: {
-        number_of_files: data.number_of_files,
-        number_of_rules: data.number_of_rules,
-        threads_count: data.threads_count,
-        start_time: data.start_time,
-        files_with_issues: result.length,
-        error_count: diagnostics.filter((d: any) => d.severity === 'error').length,
-        warning_count: diagnostics.filter((d: any) => d.severity === 'warning').length,
-      },
-    }
-  } catch (error) {
-    console.error('Failed to parse oxlint output:', error)
-    return { files: [], summary: {} }
-  }
-}

@@ -3,7 +3,6 @@ import type { Theme } from '@unocss/preset-wind4'
 import {
   definePreset,
   mergeDeep,
-  presetAttributify,
   presetIcons,
   presetTypography,
   presetWebFonts,
@@ -28,7 +27,6 @@ export const presetDevToolsUI = definePreset<PresetDevToolsUIOptions, Theme>((op
     },
     presets: [
       presetWind4(),
-      presetAttributify(),
       presetIcons({
         scale: 1.2,
       }),

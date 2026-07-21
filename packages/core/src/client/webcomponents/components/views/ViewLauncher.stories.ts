@@ -4,7 +4,10 @@ import { h } from 'vue'
 import { mountWithContext } from '../../stories/story-helpers'
 import ViewLauncher from './ViewLauncher.vue'
 
-function launcher(status: 'idle' | 'loading' | 'error' | 'success'): DevToolsViewLauncher {
+function launcher(
+  status: 'idle' | 'loading' | 'error' | 'success',
+  extras: Partial<DevToolsViewLauncher['launcher']> = {},
+): DevToolsViewLauncher {
   return {
     id: 'launcher',
     type: 'launcher',
@@ -14,6 +17,7 @@ function launcher(status: 'idle' | 'loading' | 'error' | 'success'): DevToolsVie
       title: 'Launch My Cool App',
       description: 'Start the dev server and open it here.',
       status,
+      ...extras,
     },
   } as DevToolsViewLauncher
 }
@@ -38,10 +42,13 @@ const meta = {
 export default meta
 type Story = StoryObj
 
-function launcherStory(status: 'idle' | 'loading' | 'error' | 'success'): Story {
+function launcherStory(
+  status: 'idle' | 'loading' | 'error' | 'success',
+  extras: Partial<DevToolsViewLauncher['launcher']> = {},
+): Story {
   return {
     render: () => ({
-      setup: () => mountWithContext({}, ctx => stage(h(ViewLauncher, { context: ctx, entry: launcher(status) }))),
+      setup: () => mountWithContext({}, ctx => stage(h(ViewLauncher, { context: ctx, entry: launcher(status, extras) }))),
     }),
   }
 }
@@ -49,4 +56,16 @@ function launcherStory(status: 'idle' | 'loading' | 'error' | 'success'): Story 
 export const Idle: Story = launcherStory('idle')
 export const Loading: Story = launcherStory('loading')
 export const Success: Story = launcherStory('success')
-export const Error: Story = launcherStory('error')
+
+// A failed launch surfaces the reason and offers a clickable Retry.
+export const Error: Story = launcherStory('error', {
+  error: 'No test files found, exiting with code 1',
+})
+
+// A launcher tracking a terminal session: it shows the process's progress and
+// offers to jump to that session in the Terminals dock.
+export const WithProgress: Story = launcherStory('loading', {
+  buttonLoading: 'Starting…',
+  terminalSessionId: 'my-app:dev',
+  digest: 'Waiting for the server…',
+})

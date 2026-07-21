@@ -248,10 +248,10 @@ onBeforeUnmount(() => {
 <template>
   <Splitpanes @resize="onUpdate">
     <Pane v-show="!oneColumn" min-size="10" :size="leftPanelSize">
-      <div ref="fromEl" h-inherit />
+      <div ref="fromEl" class="h-inherit" />
     </Pane>
     <Pane min-size="10" :size="100 - leftPanelSize">
-      <div ref="toEl" h-inherit />
+      <div ref="toEl" class="h-inherit" />
     </Pane>
   </Splitpanes>
 </template>

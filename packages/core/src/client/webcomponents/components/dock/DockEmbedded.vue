@@ -71,7 +71,7 @@ onUnmounted(() => {
     </template>
     <FloatingElements />
   </template>
-  <CommandPalette :context />
+  <CommandPalette v-if="!isDockPopupOpen" :context />
   <ToastOverlay :context />
   <Confirm v-if="!isDockPopupOpen" />
 </template>

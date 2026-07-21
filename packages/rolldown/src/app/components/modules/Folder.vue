@@ -87,7 +87,7 @@ const moduleTreeRoots = computed(() => {
 
 <template>
   <DisplayVirtualTree
-    relative
+    class="relative"
     :roots="moduleTreeRoots"
     :link="true"
   />

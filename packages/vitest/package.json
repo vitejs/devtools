@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-vitest",
   "type": "module",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "DevTools for Vitest",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -44,7 +44,8 @@
     "get-port-please": "catalog:deps",
     "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
-    "nypm": "catalog:deps"
+    "nypm": "catalog:deps",
+    "tinyglobby": "catalog:deps"
   },
   "devDependencies": {
     "tsdown": "catalog:build"

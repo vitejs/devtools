@@ -102,22 +102,20 @@ onMounted(async () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else grid="~ cols-[max-content_1fr]" h-screen w-screen max-w-screen max-h-screen of-hidden>
+  <div v-else class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden">
     <PanelSideNav />
-    <div of-auto h-screen max-h-screen relative>
+    <div class="of-auto h-screen max-h-screen relative">
       <NuxtPage :session="session" />
     </div>
 
     <div
-      v-if="currentPanelType" fixed inset-0
-      backdrop-blur-8 backdrop-brightness-95 z-panel-content
+      v-if="currentPanelType" class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
       @click.self="closeCurrentPanel"
     >
       <div
         v-if="currentPanelType === 'module'"
         :key="(route.query.module as string)"
-        fixed right-0 bottom-0 top-20 left-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
+        class="fixed right-0 bottom-0 top-20 left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataModuleDetailsLoader
           :module="(route.query.module as string)"
@@ -128,9 +126,7 @@ onMounted(async () => {
       <div
         v-if="currentPanelType === 'asset'"
         :key="(route.query.asset as string)"
-        fixed right-0 bottom-0 top-30 z-panel-content of-hidden
-        bg-glass border="l t base rounded-tl-xl"
-        class="left-20 xl:left-100 2xl:left-150"
+        class="left-20 xl:left-100 2xl:left-150 fixed right-0 bottom-0 top-30 z-panel-content of-hidden bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataAssetDetailsLoader
           :asset="(route.query.asset as string)"
@@ -141,8 +137,7 @@ onMounted(async () => {
       <div
         v-if="currentPanelType === 'plugin'"
         :key="(route.query.plugin as string)"
-        fixed right-0 bottom-0 top-20 left-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
+        class="fixed right-0 bottom-0 top-20 left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataPluginDetailsLoader
           :plugin="(route.query.plugin as string)"
@@ -153,9 +148,7 @@ onMounted(async () => {
       <div
         v-if="currentPanelType === 'chunk'"
         :key="(route.query.chunk as string)"
-        fixed right-0 bottom-0 top-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
-        class="left-20 xl:left-100 2xl:left-150"
+        class="left-20 xl:left-100 2xl:left-150 fixed right-0 bottom-0 top-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataChunkDetailsLoader
           :chunk="(Number(route.query.chunk))"
@@ -166,9 +159,7 @@ onMounted(async () => {
       <div
         v-if="currentPanelType === 'package'"
         :key="(route.query.package as string)"
-        fixed right-0 bottom-0 top-20 z-panel-content
-        bg-glass border="l t base rounded-tl-xl"
-        class="left-20 xl:left-100 2xl:left-150"
+        class="left-20 xl:left-100 2xl:left-150 fixed right-0 bottom-0 top-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl"
       >
         <DataPackageDetailsLoader
           :package="(route.query.package as string)"

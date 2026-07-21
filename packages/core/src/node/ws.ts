@@ -3,6 +3,7 @@ import type { ConnectionMeta, DevToolsNodeRpcSession, DevToolsRpcClientFunctions
 import type { Peer } from 'crossws'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { WsRpcTransportOptions } from 'devframe/rpc/transports/ws-server'
+import type { DevframeNodeRpcSessionMeta } from 'devframe/types'
 import type { Server as NodeHttpServer } from 'node:http'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
@@ -41,8 +42,19 @@ function buildWsUrl({ host, port, https }: { host: string, port: number, https: 
   return `${protocol}://${reachableHost}:${port}`
 }
 
+/**
+ * devframe keeps these wiring members `@internal`, off the public
+ * {@link RpcFunctionsHost} type (devframe ≥0.7.5). This custom WS transport
+ * sets them directly, so we reach them through a narrow local shape.
+ */
+interface RpcFunctionsHostInternals {
+  _rpcGroup: unknown
+  _asyncStorage: unknown
+  _emitSessionDisconnected: (meta: DevframeNodeRpcSessionMeta) => void
+}
+
 export async function createWsServer(options: CreateWsServerOptions) {
-  const rpcHost = options.context.rpc as unknown as RpcFunctionsHost
+  const rpcHost = options.context.rpc as unknown as RpcFunctionsHost & RpcFunctionsHostInternals
   const host = options.websocket.host
   const https = await resolveHttpsConfig(options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https))
 

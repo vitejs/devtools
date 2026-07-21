@@ -25,4 +25,4 @@ export default defineConfig({
 })
 ```
 
-It also runs standalone from the CLI — generate lint logs with `npx @vitejs/devtools-oxc lint`, then launch the UI with `npx @vitejs/devtools-oxc`.
+It also runs standalone from the CLI with `npx @vitejs/devtools-oxc`.

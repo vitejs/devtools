@@ -13,15 +13,8 @@
   overflow: auto;
 }
 
-.v-popper--theme-tooltip .v-popper__arrow-inner,
-.v-popper--theme-dropdown .v-popper__arrow-inner {
-  visibility: visible;
-  --uno: border-solid border-white dark: border-#111;
-}
-
-.v-popper--theme-tooltip .v-popper__arrow-outer,
-.v-popper--theme-dropdown .v-popper__arrow-outer {
-  --uno: border-solid border-base;
+.v-popper__arrow-container {
+  display: none;
 }
 
 /* Shiki code blocks: drop Shiki's baked-in theme background (an inline style,

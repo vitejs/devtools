@@ -5,6 +5,7 @@
 export function createInstallLauncher(_) {}
 export async function createKitContext(_) {}
 export function createPluginFromDevframe(_, _) {}
+export function createProcessLauncher(_) {}
 export function createSimpleClientScript(_) {}
 export function createViteDevToolsHost(_) {}
 // #endregion

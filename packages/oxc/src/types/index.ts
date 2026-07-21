@@ -1,5 +1,6 @@
 export interface Summary {
   number_of_files: number
+  number_of_rules: number | null
   threads_count: number
   start_time: number
   warning_count: number
@@ -7,7 +8,7 @@ export interface Summary {
   files_with_issues: number
 }
 
-export interface Meta {
+export interface LintResultMeta {
   version: string
   timestamp: number
   summary: Summary
@@ -46,7 +47,15 @@ export interface FileData {
   lines: LineData[]
 }
 
-export interface Logs {
+export interface OxcConfigFile {
+  tool: 'oxlint' | 'oxfmt'
+  format: 'json' | 'jsonc' | 'js' | 'mjs' | 'cjs' | 'ts' | 'mts' | 'cts'
+  path: string
+  content: string
+  source: 'oxc' | 'vite-plus'
+}
+
+export interface LintResultLogs {
   files: FileData[]
-  config: object | null
+  config: OxcConfigFile[] | Record<string, unknown> | null
 }

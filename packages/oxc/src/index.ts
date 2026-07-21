@@ -1,14 +1,13 @@
 import { argv } from 'node:process'
-import { cli } from 'gunshi'
-import { mainCommand } from './commands/main'
-import { lint } from './commands/lint'
+import { createCac } from 'devframe/adapters/cac'
 import { version } from '../package.json'
+import { oxcDevframe, OXC_DEVTOOLS_BASE } from './node/devframe'
 
-cli(argv.slice(2), mainCommand, {
-  name: 'oxc-devtools',
-  version,
-  renderHeader: () => Promise.resolve(''),
-  subCommands: {
-    lint,
+const cli = createCac(oxcDevframe, {
+  onReady: ({ origin }) => {
+    console.log(`Oxc Devtools UI is running on ${origin}${OXC_DEVTOOLS_BASE}`)
   },
 })
+
+cli.cli.version(version)
+await cli.parse(argv)

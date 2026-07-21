@@ -568,50 +568,46 @@ function sumDelta(rows: SplitDiffRow[]) {
 </script>
 
 <template>
-  <div flex="~ col" border="~ base rounded-lg" p3 min-h-0 flex-1>
-    <div py3 px2 flex="~ items-center gap-2">
+  <div class="flex flex-col border border-base rounded-lg p3 min-h-0 flex-1">
+    <div class="py3 px2 flex items-center gap-2">
       <div :class="activeTabMeta?.icon" />
       {{ activeTabMeta?.label }}
     </div>
     <CompareSessionMeta :sessions="props.sessions" :summaries="sessionSummaries" />
 
-    <div flex-1 min-h-0 of-auto pt3>
+    <div class="flex-1 min-h-0 of-auto pt3">
       <template v-if="props.tab === 'overview'">
-        <div grid="~ cols-6 gap5" w-full>
-          <div v-for="(item, index) of comparisonMetrics" :key="item.name" :class="index < 2 ? 'col-span-3' : 'col-span-2'" border="~ base rounded" p4 flex="~ col" gap2>
+        <div class="grid grid-cols-6 gap5 w-full">
+          <div v-for="(item, index) of comparisonMetrics" :key="item.name" :class="index < 2 ? 'col-span-3' : 'col-span-2'" class="border border-base rounded p4 flex flex-col gap2">
             <CompareMetricCard v-bind="item" />
           </div>
         </div>
       </template>
 
       <template v-else>
-        <div flex="~ col gap-4">
-          <div grid="~ cols-3 gap-3">
+        <div class="flex flex-col gap-4">
+          <div class="grid grid-cols-3 gap-3">
             <button
               v-for="item of diffModeOptions"
               :key="item.id"
               type="button"
-              border="~ rounded"
-              p4
-              text-left
-              flex="~ col gap-3"
-              transition
+              class="border rounded p4 text-left flex flex-col gap-3 transition"
               :title="item.description"
               :class="activeDiffMode === item.id ? 'border-active bg-active' : 'border-base hover:bg-active'"
               @click="activeDiffMode = item.id"
             >
-              <div flex="~ items-center gap-2" text-sm>
-                <span :class="item.icon" op60 />
-                <span font-600>{{ item.label }}</span>
+              <div class="flex items-center gap-2 text-sm">
+                <span :class="item.icon" class="op60" />
+                <span class="font-600">{{ item.label }}</span>
               </div>
-              <div flex="~ items-end gap-2">
-                <span text-3xl font-mono font-600>{{ item.count }}</span>
+              <div class="flex items-end gap-2">
+                <span class="text-3xl font-mono font-600">{{ item.count }}</span>
                 <CompareDeltaValue v-if="item.delta" :value="item.delta" :format="activeDiffFormat" signed />
               </div>
             </button>
           </div>
 
-          <section v-if="activeDiffOption" flex="~ col gap-2">
+          <section v-if="activeDiffOption" class="flex flex-col gap-2">
             <template v-if="activeDiffMode === 'changed'">
               <CompareSplitRow
                 v-for="row of activeDiffOption.rows"
@@ -635,7 +631,7 @@ function sumDelta(rows: SplitDiffRow[]) {
             </template>
 
             <template v-else-if="activeDiffMode === 'added'">
-              <div grid="~ cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-3">
                 <CompareSingleSideRow
                   v-for="row of activeDiffOption.rows"
                   :key="row.key"
@@ -652,7 +648,7 @@ function sumDelta(rows: SplitDiffRow[]) {
             </template>
 
             <template v-else>
-              <div grid="~ cols-2 gap-3">
+              <div class="grid grid-cols-2 gap-3">
                 <CompareSingleSideRow
                   v-for="row of activeDiffOption.rows"
                   :key="row.key"
@@ -669,7 +665,7 @@ function sumDelta(rows: SplitDiffRow[]) {
             </template>
           </section>
 
-          <div v-if="!activeDiffRows.length" h40 flex="~ items-center justify-center" op50 italic>
+          <div v-if="!activeDiffRows.length" class="h40 flex items-center justify-center op50 italic">
             {{ activeDiffEmptyText }}
           </div>
         </div>

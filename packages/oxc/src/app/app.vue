@@ -8,11 +8,9 @@ connect()
 </script>
 
 <template>
-  <div v-if="connectionState.error" text-red>
+  <div v-if="connectionState.error" class="text-red">
     {{ connectionState.error }}
   </div>
   <VisualLoading v-else-if="!connectionState.connected" text="Connecting..." />
-  <main v-else container mx-auto p4>
-    <NuxtPage />
-  </main>
+  <NuxtPage v-else />
 </template>

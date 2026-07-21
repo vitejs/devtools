@@ -7,7 +7,6 @@ import { messagesClear } from './internal/messages-clear'
 import { messagesList } from './internal/messages-list'
 import { messagesRemove } from './internal/messages-remove'
 import { messagesUpdate } from './internal/messages-update'
-import { navigate } from './internal/navigate'
 import { rpcServerList } from './internal/rpc-server-list'
 import { openInEditor } from './public/open-in-editor'
 import { openInFinder } from './public/open-in-finder'
@@ -32,7 +31,6 @@ export const builtinInternalRpcDeclarations = [
   messagesList,
   messagesRemove,
   messagesUpdate,
-  navigate,
   rpcServerList,
 ] as const
 
@@ -51,24 +49,22 @@ export type BuiltinServerFunctionsDump = {
   [K in keyof BuiltinServerFunctionsStatic]: Awaited<ReturnType<BuiltinServerFunctionsStatic[K]>>
 }
 
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
+// devframe ≥0.7.4 declares its RPC name maps inside a bundled chunk that the
+// public entrypoints re-export, so augmentation must target `devframe/types`
+// directly — a renamed re-export (the kit's `DevTools*` alias) no longer
+// merges. `@devframes/hub` augments the same module. `hub:docks:activate` is
+// now declared by the hub itself, so we no longer declare it here.
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends BuiltinServerFunctions {}
 
   // @keep-sorted
   // `devframe:auth:revoked` and `devframe:rpc:client-state:*` are declared
   // upstream by devframe; `devframe:messages:updated` / `devframe:terminals:updated`
   // by `@devframes/hub`. We only declare what is Vite-DevTools-specific here.
-  export interface DevToolsRpcClientFunctions {
-    /**
-     * Ask the host shell to activate a dock by id (interim dock-activation
-     * bridge — see `rpc/internal/navigate.ts`). `sessionId` is reserved for a
-     * future upstream terminal-session-focus capability.
-     */
-    'vite:devtools:activate-dock': (options: { dockId: string, sessionId?: string }) => void
-  }
+  interface DevframeRpcClientFunctions {}
 
   // @keep-sorted
-  export interface DevToolsRpcSharedStates {
+  interface DevframeRpcSharedStates {
     'devframe:commands': DevToolsServerCommandEntry[]
     'devframe:docks': DevToolsDockEntry[]
     'devframe:user-settings': DevToolsDocksUserSettings

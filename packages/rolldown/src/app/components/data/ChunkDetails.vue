@@ -138,12 +138,12 @@ const importers = computed((): RolldownChunkImport[] => {
 </script>
 
 <template>
-  <div flex="~ col gap-3">
+  <div class="flex flex-col gap-3">
     <ChunksBaseInfo :chunk="chunk">
       <template #left-after>
         <DisplayBadge v-if="chunk.is_initial" text="initial" />
-        <DisplayFileSizeBadge :bytes="chunkSize" text-sm title="Chunk size" />
-        <div v-if="imports.length" text-sm op50 flex="~ items-center" title="Total size of imports">
+        <DisplayFileSizeBadge :bytes="chunkSize" class="text-sm" title="Chunk size" />
+        <div v-if="imports.length" class="text-sm op50 flex items-center" title="Total size of imports">
           (<DisplayFileSizeBadge :bytes="imports.reduce((total, i) => total + i.size, 0) " />)
         </div>
       </template>
@@ -152,11 +152,11 @@ const importers = computed((): RolldownChunkImport[] => {
 
     <template v-if="showDetails">
       <details open="true">
-        <summary op50>
+        <summary class="op50">
           Assets
         </summary>
         <NuxtLink
-          border="~ base rounded-lg" px2 mt2 py1 min-w-fit flex="~"
+          class="border border-base rounded-lg px2 mt2 py1 min-w-fit flex"
           :to="{ path: route.path, query: { asset: chunk.asset?.filename } }"
         >
           <AssetsBaseInfo :asset="{ ...chunk.asset!, type: 'asset' }" />
@@ -164,10 +164,10 @@ const importers = computed((): RolldownChunkImport[] => {
       </details>
 
       <details open="true">
-        <summary op50>
+        <summary class="op50">
           <span>Modules ({{ chunk.modules.length }})</span>
         </summary>
-        <DisplayExpandableContainer flex="~ col gap-1" mt2 ws-nowrap :list="chunk.modules">
+        <DisplayExpandableContainer class="flex flex-col gap-1 mt2 ws-nowrap" :list="chunk.modules">
           <template #default="{ items }">
             <DisplayModuleId
               v-for="module of items"
@@ -176,8 +176,7 @@ const importers = computed((): RolldownChunkImport[] => {
               :session
               :link="true"
               :minimal="true"
-              hover="bg-active"
-              border="~ base rounded" px2 py1 w-full
+              class="hover:bg-active border border-base rounded px2 py1 w-full"
             />
           </template>
         </DisplayExpandableContainer>
@@ -187,14 +186,14 @@ const importers = computed((): RolldownChunkImport[] => {
 
       <template v-else>
         <details v-if="chunk.imports.length" open="true">
-          <summary op50>
+          <summary class="op50">
             <span>Imports ({{ chunk.imports.length }})</span>
           </summary>
           <ChunksImports :imports="imports" />
         </details>
 
         <details v-if="importers.length" open="true">
-          <summary op50>
+          <summary class="op50">
             <span>Importers ({{ importers.length }})</span>
           </summary>
           <ChunksImports :imports="importers" />

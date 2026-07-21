@@ -1,4 +1,4 @@
-import type { Browser } from 'playwright-core'
+import type { Browser, Page } from 'playwright-core'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'pathe'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -29,8 +29,9 @@ describe('issue #339: static devtools build', () => {
   it('plugin path (`vite build`) emits a working static SPA', async () => {
     const outDir = await buildPluginFixture(fixtureDir)
     const server = await serveStatic(outDir)
+    let page: Page | undefined
     try {
-      const page = await newPage(browser)
+      page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/__devtools/`, { waitUntil: 'domcontentloaded' })
@@ -48,6 +49,7 @@ describe('issue #339: static devtools build', () => {
       expect(ready, 'DevTools SPA did not render').toBe(true)
     }
     finally {
+      await page?.close()
       await server.close()
     }
   })
@@ -55,8 +57,9 @@ describe('issue #339: static devtools build', () => {
   it('cli path (`vite-devtools build`) emits a working static SPA', async () => {
     const outDir = await buildCliFixture(fixtureDir)
     const server = await serveStatic(outDir)
+    let page: Page | undefined
     try {
-      const page = await newPage(browser)
+      page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/`, { waitUntil: 'domcontentloaded' })
@@ -66,6 +69,7 @@ describe('issue #339: static devtools build', () => {
       expect(ready, 'DevTools SPA did not render').toBe(true)
     }
     finally {
+      await page?.close()
       await server.close()
     }
   })

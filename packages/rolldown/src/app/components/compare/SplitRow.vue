@@ -43,73 +43,73 @@ const ratioClass = computed(() => {
 </script>
 
 <template>
-  <div border="~ base rounded" of-hidden hover="bg-active">
-    <div border="b base" bg-base p3 flex="~ items-center justify-end">
-      <div flex="~ items-center gap-2 wrap justify-end">
+  <div class="border border-base rounded of-hidden hover:bg-active">
+    <div class="border-b border-base bg-base p3 flex items-center justify-end">
+      <div class="flex items-center gap-2 flex-wrap justify-end">
         <CompareDeltaValue :value="delta" :format="format" signed />
-        <span v-if="ratioText" rounded bg-active px2 py0.5 font-mono text-xs :class="ratioClass">
+        <span v-if="ratioText" class="rounded bg-active px2 py0.5 font-mono text-xs" :class="ratioClass">
           {{ ratioText }}
         </span>
       </div>
     </div>
 
-    <div grid="~ cols-2" min-h-30>
-      <div p4 min-w-0 flex="~ col gap-3 justify-between" :class="{ op35: !previousTitle }">
+    <div class="grid grid-cols-2 min-h-30">
+      <div class="p4 min-w-0 flex flex-col gap-3 justify-between" :class="{ op35: !previousTitle }">
         <template v-if="previousTitle">
-          <div min-w-0>
-            <div flex="~ items-center gap-2" text-xs op50 mb2>
-              <span i-ph-clock-counter-clockwise-duotone />
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 text-xs op50 mb2">
+              <span class="i-ph-clock-counter-clockwise-duotone" />
               Session A
             </div>
-            <div flex="~ items-baseline gap-2" min-w-0 font-mono font-600 :title="previousTitleMeta ? `${previousTitle} (${previousTitleMeta})` : previousTitle">
-              <span truncate>{{ previousTitle }}</span>
-              <span v-if="previousTitleMeta" flex-none font-400 op50>({{ previousTitleMeta }})</span>
+            <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="previousTitleMeta ? `${previousTitle} (${previousTitleMeta})` : previousTitle">
+              <span class="truncate">{{ previousTitle }}</span>
+              <span v-if="previousTitleMeta" class="flex-none font-400 op50">({{ previousTitleMeta }})</span>
             </div>
-            <div v-if="previousSubtitle" truncate text-xs op50 mt1 :title="previousSubtitle">
+            <div v-if="previousSubtitle" class="truncate text-xs op50 mt1" :title="previousSubtitle">
               {{ previousSubtitle }}
             </div>
           </div>
-          <div flex="~ items-end gap-3 justify-between">
-            <div min-w-0 flex="~ items-center gap-2 wrap">
+          <div class="flex items-end gap-3 justify-between">
+            <div class="min-w-0 flex items-center gap-2 flex-wrap">
               <DisplayBadge v-for="badge of previousBadges" :key="badge" :text="badge" />
               <CompareStatsStrip :stats="previousStats" />
             </div>
-            <span text-lg font-600>
+            <span class="text-lg font-600">
               <CompareDeltaValue :value="previous" :format="format" />
             </span>
           </div>
         </template>
-        <div v-else h-full min-h-16 flex="~ items-center justify-center" text-sm italic op60>
+        <div v-else class="h-full min-h-16 flex items-center justify-center text-sm italic op60">
           Not present
         </div>
       </div>
 
-      <div border="l base" p4 min-w-0 flex="~ col gap-3 justify-between" :class="{ op35: !currentTitle }">
+      <div class="border-l border-base p4 min-w-0 flex flex-col gap-3 justify-between" :class="{ op35: !currentTitle }">
         <template v-if="currentTitle">
-          <div min-w-0>
-            <div flex="~ items-center gap-2" text-xs op50 mb2>
-              <span i-ph-clock-duotone />
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 text-xs op50 mb2">
+              <span class="i-ph-clock-duotone" />
               Session B
             </div>
-            <div flex="~ items-baseline gap-2" min-w-0 font-mono font-600 :title="currentTitleMeta ? `${currentTitle} (${currentTitleMeta})` : currentTitle">
-              <span truncate>{{ currentTitle }}</span>
-              <span v-if="currentTitleMeta" flex-none font-400 op50>({{ currentTitleMeta }})</span>
+            <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="currentTitleMeta ? `${currentTitle} (${currentTitleMeta})` : currentTitle">
+              <span class="truncate">{{ currentTitle }}</span>
+              <span v-if="currentTitleMeta" class="flex-none font-400 op50">({{ currentTitleMeta }})</span>
             </div>
-            <div v-if="currentSubtitle" truncate text-xs op50 mt1 :title="currentSubtitle">
+            <div v-if="currentSubtitle" class="truncate text-xs op50 mt1" :title="currentSubtitle">
               {{ currentSubtitle }}
             </div>
           </div>
-          <div flex="~ items-end gap-3 justify-between">
-            <div min-w-0 flex="~ items-center gap-2 wrap">
+          <div class="flex items-end gap-3 justify-between">
+            <div class="min-w-0 flex items-center gap-2 flex-wrap">
               <DisplayBadge v-for="badge of currentBadges" :key="badge" :text="badge" />
               <CompareStatsStrip :stats="currentStats" />
             </div>
-            <span text-lg font-600>
+            <span class="text-lg font-600">
               <CompareDeltaValue :value="current" :format="format" />
             </span>
           </div>
         </template>
-        <div v-else h-full min-h-16 flex="~ items-center justify-center" text-sm italic op60>
+        <div v-else class="h-full min-h-16 flex items-center justify-center text-sm italic op60">
           Not present
         </div>
       </div>

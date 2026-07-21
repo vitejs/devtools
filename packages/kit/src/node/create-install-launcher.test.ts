@@ -17,12 +17,20 @@ function fakeCtx(opts: { viteServer?: boolean } = {}): {
   registered: Map<string, FakeDock>
 } {
   const registered = new Map<string, FakeDock>()
+  const commandHandlers = new Map<string, (...args: any[]) => any>()
   const ctx = {
     cwd: '/project',
     viteServer: opts.viteServer ? {} : undefined,
     docks: {
       register: (e: FakeDock) => registered.set(e.id, e),
       update: (e: FakeDock) => registered.set(e.id, e),
+    },
+    commands: {
+      register: (c: { id: string, handler?: (...args: any[]) => any }) => {
+        if (c.handler)
+          commandHandlers.set(c.id, c.handler)
+      },
+      execute: (id: string, ...args: any[]) => commandHandlers.get(id)?.(...args),
     },
   } as unknown as ViteDevToolsNodeContext
   return { ctx, registered }
@@ -57,11 +65,27 @@ describe('createInstallLauncher', () => {
     expect(dock.groupId).toBe('~viteplus')
     expect(dock.launcher.status).toBe('idle')
     expect(dock.launcher.buttonStart).toBe('Install Rolldown DevTools')
-    expect(typeof dock.launcher.onLaunch).toBe('function')
+    // The launch action is the bound command (the serializable path); no
+    // in-process onLaunch is set.
+    expect(dock.launcher.command).toBe('vite:devtools:install:rolldown')
+    expect(dock.launcher.onLaunch).toBeUndefined()
+  })
+
+  it('binds the install action to a command that drives the launch', async () => {
+    const { ctx, registered } = fakeCtx({ viteServer: true })
+    isPackageExists.mockReturnValue(true)
+
+    await mount(ctx, baseOptions)
+
+    // The launcher advertises its bound command id…
+    expect(registered.get('rolldown')!.launcher.command).toBe('vite:devtools:install:rolldown')
+    // …and executing that command runs the install handler.
+    await ctx.commands.execute('vite:devtools:install:rolldown')
+    expect(isPackageExists).toHaveBeenCalled()
   })
 
   it('installs only the missing packages in a single dev-dependency call', async () => {
-    const { ctx, registered } = fakeCtx({ viteServer: true })
+    const { ctx } = fakeCtx({ viteServer: true })
     // `vitest` already present; the two devtools packages are missing.
     isPackageExists.mockImplementation((name: string) => name === 'vitest')
 
@@ -73,7 +97,7 @@ describe('createInstallLauncher', () => {
       install: ['vitest', '@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'],
     })
 
-    await registered.get('vitest')!.launcher.onLaunch()
+    await ctx.commands.execute('vite:devtools:install:vitest')
 
     expect(addDependency).toHaveBeenCalledTimes(1)
     expect(addDependency).toHaveBeenCalledWith(
@@ -83,11 +107,11 @@ describe('createInstallLauncher', () => {
   })
 
   it('skips install entirely when nothing is missing', async () => {
-    const { ctx, registered } = fakeCtx({ viteServer: true })
+    const { ctx } = fakeCtx({ viteServer: true })
     isPackageExists.mockReturnValue(true)
 
     await mount(ctx, baseOptions)
-    await registered.get('rolldown')!.launcher.onLaunch()
+    await ctx.commands.execute('vite:devtools:install:rolldown')
 
     expect(addDependency).not.toHaveBeenCalled()
   })
@@ -98,7 +122,7 @@ describe('createInstallLauncher', () => {
     addDependency.mockResolvedValue(undefined)
 
     await mount(ctx, baseOptions)
-    await registered.get('rolldown')!.launcher.onLaunch()
+    await ctx.commands.execute('vite:devtools:install:rolldown')
 
     const dock = registered.get('rolldown')!
     expect(dock.launcher.status).toBe('success')
@@ -111,18 +135,18 @@ describe('createInstallLauncher', () => {
     addDependency.mockResolvedValue(undefined)
 
     await mount(ctx, baseOptions)
-    await registered.get('rolldown')!.launcher.onLaunch()
+    await ctx.commands.execute('vite:devtools:install:rolldown')
 
     expect(registered.get('rolldown')!.launcher.description).toContain('vite-devtools')
   })
 
   it('throws DTK0050 when the install fails', async () => {
-    const { ctx, registered } = fakeCtx({ viteServer: true })
+    const { ctx } = fakeCtx({ viteServer: true })
     isPackageExists.mockReturnValue(false)
     addDependency.mockRejectedValue(new Error('network down'))
 
     await mount(ctx, baseOptions)
 
-    await expect(registered.get('rolldown')!.launcher.onLaunch()).rejects.toThrow(/Failed to install/)
+    await expect(ctx.commands.execute('vite:devtools:install:rolldown')).rejects.toThrow(/Failed to install/)
   })
 })

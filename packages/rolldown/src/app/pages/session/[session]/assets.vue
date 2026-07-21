@@ -138,15 +138,15 @@ watch(() => settings.value.assetViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative>
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else class="relative">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="[]">
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of assetViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.assetViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -159,9 +159,9 @@ watch(() => settings.value.assetViewType, () => {
     <template v-if="settings.assetViewType === 'list'">
       <AssetsList v-if="searched?.length" :assets="searched" :session="session" />
       <div
-        fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+        class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
       >
-        <span op50>{{ searched.length }} of {{ assets?.length || 0 }}</span>
+        <span class="op50">{{ searched.length }} of {{ assets?.length || 0 }}</span>
       </div>
     </template>
     <template v-else-if="settings.assetViewType === 'folder'">
@@ -175,7 +175,7 @@ watch(() => settings.value.assetViewType, () => {
       >
         <template #default="{ selected, options, onSelect }">
           <ChartNavBreadcrumb
-            border="b base" py2 min-h-10
+            class="border-b border-base py2 min-h-10"
             :selected="selected"
             :options="options"
             @select="onSelect"
@@ -198,13 +198,12 @@ watch(() => settings.value.assetViewType, () => {
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
-        bg-glass border="~ base rounded" p2 text-sm
-        flex="~ col gap-2"
+        class="bg-glass border border-base rounded p2 text-sm flex flex-col gap-2"
       >
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           {{ nodeHover.text }}
         </div>
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
         </div>
       </div>

@@ -120,28 +120,27 @@ const metadata = computed(() => [
     v-if="isLoading"
     text="Connecting..."
   />
-  <div v-else p4 flex="~ col gap-4" items-center justify-center relative>
+  <div v-else class="p4 flex flex-col gap-4 items-center justify-center relative">
     <BannerViteDevTools />
 
-    <div border="~ base rounded" p2 flex="~ col gap-4 justify-center">
+    <div class="border border-base rounded p2 flex flex-col gap-4 justify-center">
       <div
         v-for="section in metadata"
         :key="section.id"
-        p4
-        flex="~ gap-14 items-center"
+        class="p4 flex gap-14 items-center"
       >
         <div class="text-3xl flex ml3" :class="section.icon" />
         <div>
           <div
             v-for="row in section.rows"
             :key="row.id"
-            grid="~ cols-[max-content_80px_2fr] gap-2 items-center"
+            class="grid grid-cols-[max-content_80px_2fr] gap-2 items-center"
           >
             <div :class="row.icon" />
             <div>
               {{ row.label }}
             </div>
-            <div font-mono truncate>
+            <div class="font-mono truncate">
               {{ row.value }}
             </div>
           </div>

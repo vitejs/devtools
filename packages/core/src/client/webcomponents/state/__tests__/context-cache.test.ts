@@ -23,6 +23,9 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
   })
 
   return {
+    client: {
+      register: () => () => {},
+    },
     sharedState: {
       get: async (key: string) => {
         if (key === 'devframe:docks')
@@ -33,9 +36,6 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
           return commandsState as any
         throw new Error(`Unexpected shared state key: ${key}`)
       },
-    },
-    client: {
-      register: () => {},
     },
   } as unknown as DevToolsRpcClient
 }

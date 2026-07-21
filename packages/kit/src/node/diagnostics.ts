@@ -16,5 +16,10 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { base: string }) => `Failed to serve the RPC connection meta at "${p.base}".`,
       fix: 'The devframe SPA mounted at this base cannot discover the RPC endpoint. Check the dev server logs for the underlying cause and reload.',
     },
+    DTK0052: {
+      why: (p: { id: string, exitCode: number | undefined }) =>
+        `The "${p.id}" launcher process exited with code ${p.exitCode ?? 'null'} before its server was ready.`,
+      fix: 'Check the launcher\'s terminal session output for the failure, then use Retry.',
+    },
   },
 })

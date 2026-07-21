@@ -36,27 +36,18 @@ export default defineNuxtConfig({
   unocss: {
     configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
   },
-
-  devServer: {
-    port: 4448,
-  },
   app: {
     baseURL: BASE,
     head: {
-      title: 'Oxc Inspector',
+      title: 'Oxc DevTools',
+      charset: 'utf-8',
+      viewport: 'width=device-width,initial-scale=1',
       meta: [
-        {
-          name: 'description',
-          content: 'Inspect and understand the Oxc toolchain with ease.',
-        },
+        { name: 'description', content: 'DevTools for Oxc' },
+        { property: 'og:title', content: 'Oxc DevTools' },
+        { property: 'og:description', content: 'DevTools for Oxc' },
       ],
-      link: [
-        {
-          rel: 'icon',
-          type: 'image/svg+xml',
-          href: '/favicon.svg',
-        },
-      ],
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg` }],
       htmlAttrs: {
         lang: 'en',
         class: 'bg-dots',

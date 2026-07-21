@@ -45,17 +45,16 @@ function handleClose() {
 
 <template>
   <div
-    bg-glass w-full h-full
+    class="bg-glass w-full h-full border border-base rounded-lg of-hidden flex flex-col"
     :class="codeDisplay?.from && codeDisplay?.to ? '' : 'border-dashed'"
-    border="~ base rounded-lg" of-hidden flex="~ col"
   >
     <template v-if="codeDisplay?.from && codeDisplay?.to">
-      <div pl4 p2 font-mono border="b base" flex="~ items-center gap-2">
+      <div class="pl4 p2 font-mono border-b border-base flex items-center gap-2">
         <PluginName :name="codeDisplay?.plugin_name ?? ''" />
-        <span v-if="codeDisplay?.type" op50 text-xs>
+        <span v-if="codeDisplay?.type" class="op50 text-xs">
           {{ codeDisplay?.type === 'load' ? 'Load' : 'Transform' }}
         </span>
-        <div flex-auto />
+        <div class="flex-auto" />
         <DisplayIconButton
           title="Line Wrapping"
           class-icon="i-ph-arrow-u-down-left-duotone"
@@ -72,7 +71,7 @@ function handleClose() {
       />
     </template>
     <!-- TODO: show more info with selected node -->
-    <span v-else op50 italic ma>
+    <span v-else class="op50 italic ma">
       No data
     </span>
   </div>
