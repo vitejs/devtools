@@ -89,10 +89,13 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             url = `http://localhost:${port}/${VITEST_UI_PATH}`
             return {
               command: 'vitest',
-              // `--ui` runs in watch mode (needed for a persistent server);
-              // `--no-open` keeps Vitest from opening a separate browser tab
-              // since we embed it in the DevTools iframe instead.
-              args: ['--ui', '--no-open', '--api.port', String(port)],
+              // `--watch` keeps the server (and its WebSocket API the UI needs)
+              // alive after the first run — a spawned child process has no TTY,
+              // so Vitest would otherwise default to a single run and exit,
+              // leaving the embedded UI unable to connect. `--no-open` keeps
+              // Vitest from opening a separate browser tab since we embed it in
+              // the DevTools iframe instead.
+              args: ['--ui', '--no-open', '--watch', '--api.port', String(port)],
               // Run in the user-selected launch root (falls back to the project
               // root when no picker choice is present).
               cwd: root ?? cwd,
@@ -139,7 +142,7 @@ async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToo
         ignore: ['**/node_modules/**', '**/dist/**'],
       },
     )
-    for (const file of matches) {
+    for (const file of matches.sort((a, b) => a.localeCompare(b))) {
       const dir = dirname(file)
       const rel = relative(workspaceRoot, dir)
       add(dir, rel === '' ? 'Workspace root' : rel)
