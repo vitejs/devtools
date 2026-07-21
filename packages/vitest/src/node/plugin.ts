@@ -1,6 +1,7 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import process from 'node:process'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+import { createProcessLauncher } from '@vitejs/devtools-kit/node'
 import { getPort } from 'get-port-please'
 import { isPackageExists } from 'local-pkg'
 import { addDependency } from 'nypm'
@@ -20,15 +21,18 @@ const READY_TIMEOUT = 30_000
  * A slim launcher for the Vitest UI, surfaced in the "Vite+" dock group.
  *
  * The dock only appears when the project depends on `vitest`. Clicking it
- * installs `@vitest/ui` on demand (as a devDependency), spawns
- * `vitest --ui` on a free port, waits for the server, then swaps the dock
- * entry to an iframe embedding Vitest's own UI.
+ * installs `@vitest/ui` on demand (as a devDependency), spawns `vitest --ui`
+ * on a free port, streams the startup output as a digest, then swaps the dock
+ * entry to an iframe embedding Vitest's own UI once the server is ready.
+ *
+ * This is the canonical "run commands, start a server, then embed it" launcher
+ * built on the kit's `createProcessLauncher`.
  */
 export function DevToolsVitestUI(): PluginWithDevTools {
   return {
     name: 'vite:devtools:vitest-ui',
     devtools: {
-      setup(ctx) {
+      async setup(ctx) {
         const cwd = ctx.cwd ?? process.cwd()
 
         // Hide the dock entirely when the project has no Vitest.
@@ -40,95 +44,63 @@ export function DevToolsVitestUI(): PluginWithDevTools {
         const icon = `${VITEST_DEVTOOLS_BASE}favicon.svg`
         const hasUi = isPackageExists('@vitest/ui', { paths: [cwd] })
 
-        // Remembered once the UI server is up, so a second launch reuses it.
-        let uiUrl: string | undefined
-        // The spawned child-process session (carries `terminate()`); the
-        // sessions map only exposes the base session shape.
-        let uiSession: Awaited<ReturnType<typeof ctx.terminals.startChildProcess>> | undefined
+        // The chosen URL, shared between the spawn spec and the readiness probe.
+        let url: string
 
-        ctx.docks.register({
+        const launcher = createProcessLauncher({
           id: DOCK_ID,
           title: 'Vitest',
           groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
           icon,
-          type: 'launcher',
-          launcher: {
+          label: 'Vitest UI',
+          description: hasUi
+            ? 'Start the Vitest UI and view it inside DevTools.'
+            : 'Install `@vitest/ui` (as a devDependency) and view it inside DevTools.',
+          buttonStart: hasUi ? 'Start Vitest UI' : 'Install @vitest/ui & start',
+          buttonLoading: 'Starting Vitest UI…',
+          command: { id: 'vite:devtools:vitest:start-ui', title: 'Start Vitest UI', icon },
+          session: {
+            id: SESSION_ID,
             title: 'Vitest UI',
-            description: hasUi
-              ? 'Start the Vitest UI and view it inside DevTools.'
-              : 'Install `@vitest/ui` (as a devDependency) and view it inside DevTools.',
-            icon,
-            buttonStart: hasUi ? 'Start Vitest UI' : 'Install @vitest/ui & start',
-            buttonLoading: 'Starting Vitest UI…',
-            status: 'idle',
-            onLaunch: () => launch(),
+            // The Terminals panel maps session icons to a UnoCSS icon class
+            // (`toIconClass`) and can only render icons its SPA statically
+            // built. A served URL (like the dock favicon) or an unlisted icon
+            // renders blank, so use a terminal icon the SPA ships.
+            icon: 'ph:terminal-window-duotone',
           },
-        })
-
-        async function launch(): Promise<void> {
-          // Idempotent: reuse a still-running server instead of re-spawning.
-          // The sessions map reflects live status; `uiSession` holds the
-          // child-process handle we terminate before a fresh spawn.
-          const existing = ctx.terminals.sessions.get(SESSION_ID)
-          if (existing?.status === 'running' && uiUrl) {
-            swapToIframe(uiUrl)
-            return
-          }
-
           // Install `@vitest/ui` on demand (devDependency) when missing.
-          if (!isPackageExists('@vitest/ui', { paths: [cwd] })) {
-            try {
-              await addDependency('@vitest/ui', { cwd, dev: true })
+          prepare: async () => {
+            if (!isPackageExists('@vitest/ui', { paths: [cwd] })) {
+              try {
+                await addDependency('@vitest/ui', { cwd, dev: true })
+              }
+              catch (error) {
+                throw diagnostics.VTDT0001({ error: error instanceof Error ? error.message : String(error) })
+              }
             }
-            catch (error) {
-              throw diagnostics.VTDT0001({ error: error instanceof Error ? error.message : String(error) })
-            }
-          }
-
-          const port = await getPort({ port: PREFERRED_PORT, portRange: [PREFERRED_PORT, PREFERRED_PORT + 500] })
-          const url = `http://localhost:${port}/${VITEST_UI_PATH}`
-
-          // A dead session may linger — terminate it before re-spawning.
-          if (uiSession)
-            await uiSession.terminate().catch(() => {})
-
-          uiSession = await ctx.terminals.startChildProcess(
-            {
+          },
+          process: async () => {
+            const port = await getPort({ port: PREFERRED_PORT, portRange: [PREFERRED_PORT, PREFERRED_PORT + 500] })
+            url = `http://localhost:${port}/${VITEST_UI_PATH}`
+            return {
               command: 'vitest',
               // `--ui` runs in watch mode (needed for a persistent server);
               // `--no-open` keeps Vitest from opening a separate browser tab
               // since we embed it in the DevTools iframe instead.
               args: ['--ui', '--no-open', '--api.port', String(port)],
               cwd,
+            }
+          },
+          serve: {
+            onReady: async () => {
+              if (!(await waitForServer(url, READY_TIMEOUT)))
+                throw diagnostics.VTDT0002({ url, timeout: READY_TIMEOUT })
+              return url
             },
-            {
-              id: SESSION_ID,
-              title: 'Vitest UI',
-              // The Terminals panel maps session icons to a UnoCSS icon class
-              // (`toIconClass`) and can only render icons its SPA statically
-              // built. A served URL (like the dock favicon) or an unlisted
-              // icon renders blank, so use a terminal icon the SPA ships.
-              icon: 'ph:terminal-window-duotone',
-            },
-          )
+          },
+        })
 
-          if (!(await waitForServer(url, READY_TIMEOUT)))
-            throw diagnostics.VTDT0002({ url, timeout: READY_TIMEOUT })
-
-          uiUrl = url
-          swapToIframe(url)
-        }
-
-        function swapToIframe(url: string): void {
-          ctx.docks.update({
-            id: DOCK_ID,
-            title: 'Vitest',
-            groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
-            icon,
-            type: 'iframe',
-            url,
-          })
-        }
+        await launcher.devtools!.setup!(ctx)
       },
     },
   }

@@ -99,20 +99,25 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
  */
 export async function DevToolsBuiltin(options: {
   cwd?: string
-  vitePlusLaunchers?: boolean
+  builtinDevTools?: boolean
 }): Promise<Plugin[]> {
   const plugins: (Plugin | Promise<Plugin[] | Plugin>)[] = []
 
+  // When the built-in DevTools UI is disabled, contribute nothing: the host
+  // mounts its own built-in docks (terminals / messages / inspector) and
+  // integrations by hand. Mounting them here too would double-register each
+  // devframe on the hub (DF8105) and its RPC functions (DF0021).
+  if (!options.builtinDevTools)
+    return []
+
   const cwd = resolve(options.cwd ?? process.cwd())
   const launchers: BuiltinLauncherIntegration[] = []
-  if (options.vitePlusLaunchers) {
-    for (const integration of BUILTIN_LAUNCHER_INTEGRATIONS) {
-      if (isPackageExists(integration.pkg, { paths: [cwd] })) {
-        plugins.push(integration.load())
-      }
-      else {
-        launchers.push(integration)
-      }
+  for (const integration of BUILTIN_LAUNCHER_INTEGRATIONS) {
+    if (isPackageExists(integration.pkg, { paths: [cwd] })) {
+      plugins.push(integration.load())
+    }
+    else {
+      launchers.push(integration)
     }
   }
 

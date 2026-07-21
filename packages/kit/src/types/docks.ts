@@ -2,11 +2,13 @@ import type { DevframeDockEntryCategory } from '@devframes/hub/types'
 
 export type {
   ClientScriptEntry,
+  DevframeDockActivation as DevToolsDockActivation,
   DevframeDockEntriesGrouped as DevToolsDockEntriesGrouped,
   DevframeDockEntry as DevToolsDockEntry,
   DevframeDockEntryBase as DevToolsDockEntryBase,
   DevframeDockEntryIcon as DevToolsDockEntryIcon,
   DevframeDocksHost as DevToolsDockHost,
+  DevframeDocksActiveState as DevToolsDocksActiveState,
   DevframeDockUserEntry as DevToolsDockUserEntry,
   DevframeViewAction as DevToolsViewAction,
   DevframeViewBuiltin as DevToolsViewBuiltin,

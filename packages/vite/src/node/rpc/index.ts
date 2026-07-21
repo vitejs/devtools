@@ -42,10 +42,12 @@ export const rpcFunctions = [
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+// devframe ≥0.7.4: augment the canonical `devframe/types` module directly
+// (renamed re-exports like the kit's `DevTools*` alias no longer merge).
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends ServerFunctions {}
 
-  export interface DevToolsRpcSharedStates {
+  interface DevframeRpcSharedStates {
     'vite:inspect:module-updated': ViteInspectModuleUpdatedState
   }
 }

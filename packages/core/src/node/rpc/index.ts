@@ -49,17 +49,22 @@ export type BuiltinServerFunctionsDump = {
   [K in keyof BuiltinServerFunctionsStatic]: Awaited<ReturnType<BuiltinServerFunctionsStatic[K]>>
 }
 
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends BuiltinServerFunctions {}
+// devframe ≥0.7.4 declares its RPC name maps inside a bundled chunk that the
+// public entrypoints re-export, so augmentation must target `devframe/types`
+// directly — a renamed re-export (the kit's `DevTools*` alias) no longer
+// merges. `@devframes/hub` augments the same module. `hub:docks:activate` is
+// now declared by the hub itself, so we no longer declare it here.
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends BuiltinServerFunctions {}
 
   // @keep-sorted
   // `devframe:auth:revoked` and `devframe:rpc:client-state:*` are declared
   // upstream by devframe; `devframe:messages:updated` / `devframe:terminals:updated`
   // by `@devframes/hub`. We only declare what is Vite-DevTools-specific here.
-  export interface DevToolsRpcClientFunctions {}
+  interface DevframeRpcClientFunctions {}
 
   // @keep-sorted
-  export interface DevToolsRpcSharedStates {
+  interface DevframeRpcSharedStates {
     'devframe:commands': DevToolsServerCommandEntry[]
     'devframe:docks': DevToolsDockEntry[]
     'devframe:user-settings': DevToolsDocksUserSettings

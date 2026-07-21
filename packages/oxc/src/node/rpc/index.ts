@@ -8,7 +8,6 @@ import { oxlintGetConfigFile } from './functions/oxlint-get-config-file'
 import { oxfmtGetConfigFile } from './functions/oxfmt-get-config-file'
 import { openInEditor } from './functions/open-in-editor'
 import { getConfigFiles } from './functions/get-config-files'
-import '@vitejs/devtools-kit'
 
 export const rpcFunctions = [
   oxlintRun,
@@ -24,6 +23,8 @@ export const rpcFunctions = [
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+// devframe ≥0.7.4: augment the canonical `devframe/types` module directly
+// (renamed re-exports like the kit's `DevTools*` alias no longer merge).
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends ServerFunctions {}
 }

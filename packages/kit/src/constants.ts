@@ -44,9 +44,17 @@ export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
  * Dock id of the built-in Devframe Inspector (mounted from
  * `@devframes/plugin-inspect`). Shared between the node side (which pins the
  * mounted devframe to this id) and the client (which gates the dock behind the
- * `showDevframeInspector` user setting).
+ * `showDevframeInspector` user setting). Mirrors the plugin's `PLUGIN_ID`.
  */
-export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes-plugin-inspect'
+export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes_plugin_inspect'
+
+/**
+ * Dock id of the built-in Terminals feed (from `@devframes/plugin-terminals`).
+ * A launcher tracking a terminal session targets this dock via
+ * `hub:docks:activate({ dockId, params: { sessionId } })` to jump the user
+ * straight to that session's output. Mirrors the plugin's `PLUGIN_ID`.
+ */
+export const DEVTOOLS_TERMINALS_DOCK_ID = 'devframes_plugin_terminals'
 
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
   'default': 0,

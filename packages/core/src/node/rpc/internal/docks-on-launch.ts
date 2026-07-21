@@ -5,9 +5,12 @@ export const docksOnLaunch = defineRpcFunction({
   name: 'devtoolskit:internal:docks:on-launch',
   type: 'action',
   setup: (context) => {
-    const launchMap = new Map<string, Promise<void>>()
+    const launchMap = new Map<string, Promise<unknown>>()
     return {
       handler: async (entryId: string) => {
+        // De-dupe concurrent launches of the same entry, but only while one is
+        // in flight — the entry is removed once it settles so a later click
+        // (e.g. Retry after a failure) starts a fresh launch.
         if (launchMap.has(entryId)) {
           return launchMap.get(entryId)!
         }
@@ -19,39 +22,62 @@ export const docksOnLaunch = defineRpcFunction({
         if (entry.type !== 'launcher') {
           throw diagnostics.DTK0031({ id: entryId })
         }
-        try {
-          context.docks.update({
-            ...entry,
-            launcher: {
-              ...entry.launcher,
-              status: 'loading',
-            },
-          })
-          const promise = entry.launcher.onLaunch()
-          launchMap.set(entryId, promise)
-          const result = await promise
-          const newEntry = context.docks.values().find(entry => entry.id === entryId) || entry
-          if (newEntry.type === 'launcher') {
+
+        const run = (async () => {
+          try {
             context.docks.update({
-              ...newEntry,
+              ...entry,
               launcher: {
-                ...newEntry.launcher,
-                status: 'success',
+                ...entry.launcher,
+                status: 'loading',
+                error: undefined,
               },
             })
+            // devframe ≥0.7.4 made `onLaunch` optional in favour of a bound
+            // `command` (the serializable launch path). Prefer the in-process
+            // handler; fall back to executing the command.
+            const { onLaunch, command } = entry.launcher
+            const result = onLaunch
+              ? await onLaunch()
+              : command
+                ? await context.commands.execute(command)
+                : undefined
+            // The launch may have replaced the entry (e.g. swapped to an
+            // iframe); only stamp success while it is still a launcher.
+            const newEntry = context.docks.values().find(entry => entry.id === entryId) || entry
+            if (newEntry.type === 'launcher') {
+              context.docks.update({
+                ...newEntry,
+                launcher: {
+                  ...newEntry.launcher,
+                  status: 'success',
+                },
+              })
+            }
+            return result
           }
-          return result
+          catch (error) {
+            diagnostics.DTK0032({ id: entryId, cause: error })
+            const newEntry = context.docks.values().find(entry => entry.id === entryId) || entry
+            if (newEntry.type === 'launcher') {
+              context.docks.update({
+                ...newEntry,
+                launcher: {
+                  ...newEntry.launcher,
+                  status: 'error',
+                  error: error instanceof Error ? error.message : String(error),
+                },
+              })
+            }
+          }
+        })()
+
+        launchMap.set(entryId, run)
+        try {
+          return await run
         }
-        catch (error) {
-          diagnostics.DTK0032({ id: entryId, cause: error })
-          context.docks.update({
-            ...entry,
-            launcher: {
-              ...entry.launcher,
-              status: 'error',
-              error: error instanceof Error ? error.message : String(error),
-            },
-          })
+        finally {
+          launchMap.delete(entryId)
         }
       },
     }

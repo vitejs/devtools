@@ -40,6 +40,8 @@ export type ServerFunctionsDump = {
   [K in keyof ServerFunctionsStatic]: Awaited<ReturnType<ServerFunctionsStatic[K]>>
 }
 
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+// devframe ≥0.7.4: augment the canonical `devframe/types` module directly
+// (renamed re-exports like the kit's `DevTools*` alias no longer merge).
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends ServerFunctions {}
 }

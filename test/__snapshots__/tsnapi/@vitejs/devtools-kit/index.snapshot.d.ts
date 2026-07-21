@@ -54,11 +54,13 @@ export { DevToolsCommandsHostEvents }
 export { DevToolsDiagnosticsDefinition }
 export { DevToolsDiagnosticsHost }
 export { DevToolsDiagnosticsLogger }
+export { DevToolsDockActivation }
 export { DevToolsDockEntriesGrouped }
 export { DevToolsDockEntry }
 export { DevToolsDockEntryBase }
 export { DevToolsDockEntryIcon }
 export { DevToolsDockHost }
+export { DevToolsDocksActiveState }
 export { DevToolsDocksUserSettings }
 export { DevToolsDockUserEntry }
 export { DevToolsHost }

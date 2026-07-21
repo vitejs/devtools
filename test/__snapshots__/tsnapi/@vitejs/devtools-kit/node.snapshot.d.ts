@@ -35,6 +35,33 @@ export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
 }
+export interface ProcessLauncherOptions {
+  id: string;
+  title: string;
+  icon: DevframeDockEntryIcon;
+  groupId?: string;
+  label?: string;
+  description?: string;
+  buttonStart?: string;
+  buttonLoading?: string;
+  process: DevToolsChildProcessExecuteOptions | (() => Awaitable<DevToolsChildProcessExecuteOptions>);
+  prepare?: () => Awaitable<void>;
+  serve?: {
+    onReady: (_: DevToolsChildProcessTerminalSession) => Awaitable<string>;
+  };
+  command?: {
+    id?: string;
+    title?: string;
+    icon?: DevframeDockEntryIcon;
+    keybindings?: DevToolsCommandKeybinding[];
+  };
+  session?: {
+    id?: string;
+    title?: string;
+    icon?: DevframeDockEntryIcon;
+  };
+  name?: string;
+}
 export interface ViteDevToolsHost extends DevframeHost {
   provideConnectionMeta: (_: () => ConnectionMeta | Promise<ConnectionMeta>) => void;
 }
@@ -44,6 +71,7 @@ export interface ViteDevToolsHost extends DevframeHost {
 export declare function createInstallLauncher(_: InstallLauncherOptions): PluginWithDevTools;
 export declare function createKitContext(_: CreateKitContextOptions): Promise<KitNodeContext>;
 export declare function createPluginFromDevframe(_: DevframeDefinition, _?: CreatePluginFromDevframeOptions): PluginWithDevTools;
+export declare function createProcessLauncher(_: ProcessLauncherOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): ViteDevToolsHost;
 // #endregion
