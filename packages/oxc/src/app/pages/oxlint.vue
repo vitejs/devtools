@@ -13,11 +13,11 @@ useSideNav(() => [
     icon: 'i-ph-magnifying-glass-duotone',
     to: '/oxlint/lint',
   },
-  {
-    title: 'Config Inspector',
-    icon: 'i-ph-gear-duotone',
-    to: '/oxlint/config',
-  },
+  // {
+  //   title: 'Config Inspector',
+  //   icon: 'i-ph-gear-duotone',
+  //   to: '/oxlint/config',
+  // },
   {
     title: 'Documents',
     icon: 'i-ph-book-open-duotone',
