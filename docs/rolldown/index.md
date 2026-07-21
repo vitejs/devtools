@@ -114,6 +114,6 @@ Click a package to see details including name, size, bundled files and more.
 
 ### Session Compare
 
-Compare and analyze the bundle changes, including bundle size, initial js size, number of modules, plugins, chunks, assets.
+Compare and analyze the bundle changes, including bundle size, initial JS size, number of modules, plugins, chunks, assets.
 
 ![session-compare](/features/session-compare.png)
