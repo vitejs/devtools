@@ -1,6 +1,6 @@
 import type { DevframeDockEntryIcon } from '@devframes/hub/types'
 import type { DevToolsCommandKeybinding } from '../types/commands'
-import type { DevToolsViewIframe, DevToolsViewLauncher } from '../types/docks'
+import type { DevToolsLaunchPayload, DevToolsLaunchRoot, DevToolsViewIframe, DevToolsViewLauncher } from '../types/docks'
 import type { DevToolsChildProcessExecuteOptions, DevToolsChildProcessTerminalSession } from '../types/terminals'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
@@ -27,8 +27,16 @@ export interface ProcessLauncherOptions {
   /**
    * The child process spawned when the launcher is invoked. Pass a function to
    * resolve it lazily on each launch — e.g. to pick a free port and build args.
+   * The function receives the launch payload, including the `root` the user
+   * picked from {@link ProcessLauncherOptions.roots} (use it as the spawn `cwd`).
    */
-  process: DevToolsChildProcessExecuteOptions | (() => Awaitable<DevToolsChildProcessExecuteOptions>)
+  process: DevToolsChildProcessExecuteOptions | ((payload: DevToolsLaunchPayload) => Awaitable<DevToolsChildProcessExecuteOptions>)
+  /**
+   * Selectable launch roots. When provided, the launcher card renders a picker
+   * above the launch button, and the chosen root's `value` is forwarded to
+   * {@link ProcessLauncherOptions.process} as `payload.root`.
+   */
+  roots?: DevToolsLaunchRoot[]
   /**
    * Runs once per launch, before the process is spawned. Use it for on-demand
    * setup such as installing an optional dependency. Throwing here surfaces on
@@ -120,6 +128,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
     process: executeOptions,
     prepare,
     serve,
+    roots,
     name,
   } = options
 
@@ -160,6 +169,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               // keybinding resolve to it); the on-launch bridge falls back to
               // it, so no in-process `onLaunch` is needed.
               command: commandId,
+              ...(roots ? { roots } : {}),
               ...(extras.tracking ? { terminalSessionId: sessionId } : {}),
               // Hub's author-set `digest` — a short line of progress/status.
               ...(extras.progress ? { digest: extras.progress } : {}),
@@ -182,7 +192,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
 
         ctx.docks.register<DevToolsViewLauncher>(entry('idle'))
 
-        async function launch(): Promise<void> {
+        async function launch(payload: DevToolsLaunchPayload = {}): Promise<void> {
           // A live session is left running: re-show the embed for a server
           // launcher, otherwise no-op (don't disturb an in-flight launch).
           if (ctx.terminals.sessions.get(sessionId)?.status === 'running') {
@@ -197,7 +207,7 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
             if (session)
               await session.terminate().catch(() => {})
 
-            const execute = typeof executeOptions === 'function' ? await executeOptions() : executeOptions
+            const execute = typeof executeOptions === 'function' ? await executeOptions(payload) : executeOptions
             session = await ctx.terminals.startChildProcess(execute, {
               id: sessionId,
               title: options.session?.title ?? label,

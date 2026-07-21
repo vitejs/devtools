@@ -44,7 +44,8 @@ export interface ProcessLauncherOptions {
   description?: string;
   buttonStart?: string;
   buttonLoading?: string;
-  process: DevToolsChildProcessExecuteOptions | (() => Awaitable<DevToolsChildProcessExecuteOptions>);
+  process: DevToolsChildProcessExecuteOptions | ((_: DevToolsLaunchPayload) => Awaitable<DevToolsChildProcessExecuteOptions>);
+  roots?: DevToolsLaunchRoot[];
   prepare?: () => Awaitable<void>;
   serve?: {
     onReady: (_: DevToolsChildProcessTerminalSession) => Awaitable<string>;

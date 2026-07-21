@@ -1,10 +1,12 @@
-import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { DevToolsLaunchRoot, PluginWithDevTools } from '@vitejs/devtools-kit'
+import { dirname, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
 import { getPort } from 'get-port-please'
 import { isPackageExists } from 'local-pkg'
 import { addDependency } from 'nypm'
+import { glob } from 'tinyglobby'
 import { clientPublicDir } from '../dirs'
 import { diagnostics } from './diagnostics'
 
@@ -44,6 +46,8 @@ export function DevToolsVitestUI(): PluginWithDevTools {
         const icon = `${VITEST_DEVTOOLS_BASE}favicon.svg`
         const hasUi = isPackageExists('@vitest/ui', { paths: [cwd] })
 
+        const roots = await discoverRoots(cwd, ctx.workspaceRoot ?? cwd)
+
         // The chosen URL, shared between the spawn spec and the readiness probe.
         let url: string
 
@@ -58,6 +62,7 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             : 'Install `@vitest/ui` (as a devDependency) and view it inside DevTools.',
           buttonStart: hasUi ? 'Start Vitest UI' : 'Install @vitest/ui & start',
           buttonLoading: 'Starting Vitest UI…',
+          roots,
           command: { id: 'vite:devtools:vitest:start-ui', title: 'Start Vitest UI', icon },
           session: {
             id: SESSION_ID,
@@ -79,7 +84,7 @@ export function DevToolsVitestUI(): PluginWithDevTools {
               }
             }
           },
-          process: async () => {
+          process: async ({ root }) => {
             const port = await getPort({ port: PREFERRED_PORT, portRange: [PREFERRED_PORT, PREFERRED_PORT + 500] })
             url = `http://localhost:${port}/${VITEST_UI_PATH}`
             return {
@@ -88,7 +93,9 @@ export function DevToolsVitestUI(): PluginWithDevTools {
               // `--no-open` keeps Vitest from opening a separate browser tab
               // since we embed it in the DevTools iframe instead.
               args: ['--ui', '--no-open', '--api.port', String(port)],
-              cwd,
+              // Run in the user-selected launch root (falls back to the project
+              // root when no picker choice is present).
+              cwd: root ?? cwd,
             }
           },
           serve: {
@@ -104,6 +111,45 @@ export function DevToolsVitestUI(): PluginWithDevTools {
       },
     },
   }
+}
+
+/**
+ * Build the list of launch roots the user can run Vitest from: the project root
+ * and the workspace root, plus every directory holding a Vitest/Vite config in
+ * the workspace. Deduped by absolute path, first label wins.
+ */
+async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToolsLaunchRoot[]> {
+  const roots = new Map<string, DevToolsLaunchRoot>()
+  const add = (path: string, label: string): void => {
+    const abs = resolve(path)
+    if (!roots.has(abs))
+      roots.set(abs, { value: abs, label, description: abs })
+  }
+
+  add(cwd, 'Project root')
+  if (resolve(workspaceRoot) !== resolve(cwd))
+    add(workspaceRoot, 'Workspace root')
+
+  try {
+    const matches = await glob(
+      ['**/vitest.config.*', '**/vitest.workspace.*', '**/vite.config.*'],
+      {
+        cwd: workspaceRoot,
+        absolute: true,
+        ignore: ['**/node_modules/**', '**/dist/**'],
+      },
+    )
+    for (const file of matches) {
+      const dir = dirname(file)
+      const rel = relative(workspaceRoot, dir)
+      add(dir, rel === '' ? 'Workspace root' : rel)
+    }
+  }
+  catch {
+    // A failed scan just means fewer roots to pick from — keep the known ones.
+  }
+
+  return [...roots.values()]
 }
 
 async function waitForServer(url: string, timeout: number): Promise<boolean> {

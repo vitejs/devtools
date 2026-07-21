@@ -2,7 +2,7 @@
 import type { DevToolsViewLauncher, DevToolsViewLauncherStatus } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import Button from '../display/Button.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
@@ -11,8 +11,29 @@ const props = defineProps<{
   entry: DevToolsViewLauncher
 }>()
 
+// Selectable launch roots the owner attached to the entry. When present a
+// picker is shown and the chosen root travels with the launch as `{ root }`.
+const roots = computed(() => props.entry.launcher.roots)
+const selectedRoot = ref<string | undefined>(roots.value?.[0]?.value)
+
+// Keep the selection valid as roots change: default to the first root, and
+// reset if the current pick disappears from the list.
+watch(roots, (next) => {
+  const first = next?.[0]
+  if (!first) {
+    selectedRoot.value = undefined
+    return
+  }
+  if (!next!.some(root => root.value === selectedRoot.value))
+    selectedRoot.value = first.value
+}, { immediate: true })
+
 function onLaunch() {
-  props.context.rpc.call('devtoolskit:internal:docks:on-launch', props.entry.id)
+  props.context.rpc.call(
+    'devtoolskit:internal:docks:on-launch',
+    props.entry.id,
+    roots.value?.length ? { root: selectedRoot.value } : undefined,
+  )
 }
 
 const status = computed(() => props.entry.launcher.status || 'idle')
@@ -65,6 +86,21 @@ const canLaunch = computed(() => status.value === 'idle' || status.value === 'er
       {{ entry.launcher.title }}
     </h1>
     <p>{{ entry.launcher.description }}</p>
+
+    <label v-if="roots?.length" class="flex flex-col gap-1 max-w-full w-64 items-start">
+      <span class="text-xs op60">Launch root</span>
+      <select
+        v-model="selectedRoot"
+        :disabled="status === 'loading'"
+        :title="roots.find(root => root.value === selectedRoot)?.description"
+        class="w-full px3 py2 text-sm rounded-lg bg-base color-base border border-base outline-none transition-all focus-visible:ring-3 focus-visible:ring-primary-500/30 disabled:op50 disabled:pointer-events-none"
+      >
+        <option v-for="root in roots" :key="root.value" :value="root.value">
+          {{ root.label }}
+        </option>
+      </select>
+    </label>
+
     <Button
       class="min-w-40"
       :variant="status === 'error' ? 'danger' : 'primary'"

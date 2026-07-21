@@ -44,7 +44,8 @@
     "get-port-please": "catalog:deps",
     "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
-    "nypm": "catalog:deps"
+    "nypm": "catalog:deps",
+    "tinyglobby": "catalog:deps"
   },
   "devDependencies": {
     "tsdown": "catalog:build"
