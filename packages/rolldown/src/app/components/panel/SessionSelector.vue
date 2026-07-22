@@ -15,6 +15,7 @@ const props = defineProps<{
   sessions: BuildInfo[]
   selectedSessionIds: string[]
   selectedSessions: BuildInfo[]
+  showSessionActions: boolean
 }>()
 const emit = defineEmits<{
   (e: 'select', session: BuildInfo): void
@@ -237,9 +238,6 @@ function sessionLabel(session: BuildInfo | null) {
                 <div class="i-ph-hash-duotone" />
                 {{ session.id }}
               </div>
-              <div class="font-mono" font-sm>
-                {{ session.meta.cwd }}
-              </div>
               <div v-if="primaryInput" class="flex gap-1 items-center">
                 <DisplayModuleId :id="primaryInput.filename" :cwd="session.meta.cwd" />
                 <DisplayBadge :text="primaryInput.name || 'entry'" />
@@ -247,12 +245,16 @@ function sessionLabel(session: BuildInfo | null) {
                   +{{ additionalInputCount }}
                 </span>
               </div>
+              <div class="font-mono text-sm op-fade">
+                {{ session.meta.cwd }}
+              </div>
+
               <DisplayTimestamp :timestamp="session.timestamp" class="pt2 text-sm op50" />
             </component>
 
             <!-- Per-session actions overlaid top-right (siblings of the card,
                  so they never nest inside the link/button). -->
-            <div class="absolute top-2 right-2 flex gap-1 op0 group-hover:op100 focus-within:op100 transition">
+            <div v-if="showSessionActions" class="absolute top-2 right-2 flex gap-1 op0 group-hover:op100 focus-within:op100 transition">
               <ActionIconButton
                 icon="i-ph-pencil-simple-duotone"
                 tooltip="Rename (set alias)"

@@ -21,7 +21,7 @@ const sessionMode = ref<'list' | 'compare'>('list')
 
 const modeList = [
   {
-    label: 'Session List',
+    label: 'Build Sessions',
     icon: 'i-ph-list-bullets-duotone',
     value: 'list',
   },
@@ -167,6 +167,7 @@ async function deleteSession(session: BuildInfo) {
       <PanelSessionSelector
         :session-mode="sessionMode"
         :sessions="sessions"
+        :show-session-actions="true"
         :selected-session-ids="selectedSessionIds"
         :selected-sessions="selectedSessions"
         @select="selectSession"
