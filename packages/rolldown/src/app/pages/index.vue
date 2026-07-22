@@ -73,11 +73,11 @@ function selectSession(session: BuildInfo) {
         Run a build with devtools output enabled to get started:
       </p>
       <button
-        class="btn-action rounded-8 text-3 flex gap2 items-center justify-center h9 px4"
+        class="btn-action btn-action-active"
         title="Run a build with devtools output"
         @click="runBuildOpen = true"
       >
-        <span class="i-ph-play-duotone text-sm" />
+        <span class="i-ph-play-duotone" />
         Run build with devtools
       </button>
       <p class="m0 op40 text-sm text-center">
@@ -113,11 +113,11 @@ function selectSession(session: BuildInfo) {
         </button>
       </div>
       <button
-        class="btn-action rounded-8 text-3 flex gap2 items-center justify-center h8 px3"
+        class="btn-action"
         title="Run a build with devtools output"
         @click="runBuildOpen = true"
       >
-        <span class="i-ph-play-duotone text-sm" />
+        <span class="i-ph-play-duotone" />
         Run build
       </button>
     </div>

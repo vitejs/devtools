@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
 import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
+import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
 import { ref, watch } from 'vue'
 import { NuxtLink } from '#components'
 import { useRpc } from '#imports'
@@ -11,6 +14,7 @@ import { useRpc } from '#imports'
 // whether the build finished with the modal open or dismissed to the background.
 const emit = defineEmits<{ refresh: [BuildInfo[]] }>()
 const open = defineModel<boolean>('open', { default: false })
+
 const rpc = useRpc()
 
 type Stage = 'confirm' | 'running' | 'success' | 'error'
@@ -80,10 +84,6 @@ async function viewInTerminal() {
   }
   open.value = false
 }
-
-function primaryInput(session: BuildInfo) {
-  return session.meta.inputs?.[0]?.name || session.meta.inputs?.[0]?.filename || 'entry'
-}
 </script>
 
 <template>
@@ -92,19 +92,21 @@ function primaryInput(session: BuildInfo) {
       Run build with devtools
     </template>
 
-    <div class="flex flex-col gap-4 w-140 max-w-full">
+    <!-- Fixed min-height keeps the panel from jumping as stages swap. -->
+    <div class="flex flex-col gap-4 w-140 max-w-full min-h-64">
       <!-- Confirm -->
       <template v-if="stage === 'confirm'">
         <p class="m0 op70 text-sm">
           This runs a production build with Rolldown's devtools output enabled, then adds the resulting session below.
         </p>
         <pre class="m0 p3 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left"><code>{{ commandLine }}</code></pre>
+        <div class="flex-auto" />
         <div class="flex justify-end gap-2">
-          <button class="border border-base rounded-8 text-3 px3 h8 hover:bg-active" @click="open = false">
+          <button class="btn-action" @click="open = false">
             Cancel
           </button>
-          <button class="btn-action rounded-8 text-3 flex gap2 items-center justify-center px3 h8" @click="confirmRun()">
-            <span class="i-ph-play-duotone text-sm" />
+          <button class="btn-action btn-action-active" @click="confirmRun()">
+            <span class="i-ph-play-duotone" />
             Run build
           </button>
         </div>
@@ -112,17 +114,13 @@ function primaryInput(session: BuildInfo) {
 
       <!-- Running -->
       <template v-else-if="stage === 'running'">
-        <div class="flex gap2 items-center op80">
-          <span class="i-ph-circle-notch-duotone animate-spin text-base" />
-          Build running…
-        </div>
-        <pre class="m0 p3 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left"><code>{{ commandLine }}</code></pre>
+        <VisualLoading class="flex-auto" text="Build running…" />
         <div class="flex justify-end gap-2">
-          <button class="border border-base rounded-8 text-3 px3 h8 hover:bg-active" @click="open = false">
+          <button class="btn-action" @click="open = false">
             Dismiss
           </button>
-          <button class="btn-action rounded-8 text-3 flex gap2 items-center justify-center px3 h8" @click="viewInTerminal()">
-            <span class="i-ph-terminal-window-duotone text-sm" />
+          <button class="btn-action btn-action-active" @click="viewInTerminal()">
+            <span class="i-ph-terminal-window-duotone" />
             View in terminals
           </button>
         </div>
@@ -130,15 +128,15 @@ function primaryInput(session: BuildInfo) {
 
       <!-- Success -->
       <template v-else-if="stage === 'success'">
-        <div class="flex gap2 items-center text-green">
-          <span class="i-ph-check-circle-duotone text-base" />
+        <div class="flex gap-2 items-center text-green">
+          <span class="i-ph-check-circle-duotone" />
           Build finished successfully.
         </div>
         <template v-if="newSessions.length">
           <p class="m0 op60 text-sm">
             New session{{ newSessions.length > 1 ? 's' : '' }} — open one to inspect it:
           </p>
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2 flex-auto of-auto">
             <NuxtLink
               v-for="session of newSessions"
               :key="session.id"
@@ -150,21 +148,25 @@ function primaryInput(session: BuildInfo) {
                 <div class="i-ph-hash-duotone" />
                 {{ session.id }}
               </div>
-              <div class="flex gap-2 items-center">
-                <span class="font-mono text-sm">{{ primaryInput(session) }}</span>
-                <DisplayTimestamp :timestamp="session.timestamp" class="text-xs op50" />
+              <div v-if="session.meta.inputs?.[0]" class="flex gap-1 items-center">
+                <DisplayModuleId :id="session.meta.inputs[0].filename" :cwd="session.meta.cwd" />
+                <DisplayBadge :text="session.meta.inputs[0].name || 'entry'" />
               </div>
+              <DisplayTimestamp :timestamp="session.timestamp" class="text-xs op50" />
             </NuxtLink>
           </div>
         </template>
-        <p v-else class="m0 op60 text-sm">
-          The build produced no new devtools session.
-        </p>
+        <VisualEmptyState
+          v-else
+          class="flex-auto"
+          icon="i-ph-package-duotone"
+          description="The build produced no new devtools session."
+        />
         <div class="flex justify-end gap-2">
-          <button class="border border-base rounded-8 text-3 px3 h8 hover:bg-active" @click="viewInTerminal()">
+          <button class="btn-action" @click="viewInTerminal()">
             View in terminals
           </button>
-          <button class="btn-action rounded-8 text-3 px3 h8" @click="open = false">
+          <button class="btn-action btn-action-active" @click="open = false">
             Close
           </button>
         </div>
@@ -172,19 +174,20 @@ function primaryInput(session: BuildInfo) {
 
       <!-- Error -->
       <template v-else>
-        <div class="flex gap2 items-center text-red">
-          <span class="i-ph-x-circle-duotone text-base" />
+        <div class="flex gap-2 items-center text-red">
+          <span class="i-ph-x-circle-duotone" />
           Build failed.
         </div>
         <p v-if="errorMessage" class="m0 op70 text-sm">
           {{ errorMessage }}
         </p>
+        <div class="flex-auto" />
         <div class="flex justify-end gap-2">
-          <button class="border border-base rounded-8 text-3 px3 h8 hover:bg-active" @click="open = false">
+          <button class="btn-action" @click="open = false">
             Close
           </button>
-          <button class="btn-action rounded-8 text-3 flex gap2 items-center justify-center px3 h8" @click="viewInTerminal()">
-            <span class="i-ph-terminal-window-duotone text-sm" />
+          <button class="btn-action btn-action-active" @click="viewInTerminal()">
+            <span class="i-ph-terminal-window-duotone" />
             View in terminals
           </button>
         </div>
