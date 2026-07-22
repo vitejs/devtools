@@ -47,6 +47,11 @@ const normalizedSelectedSessions = computed(() => {
 
 const rpc = useRpc()
 const sessions = ref<BuildInfo[]>(await rpc.value.call('vite:rolldown:list-sessions'))
+// The live project cwd; used to hide redundant per-session cwd labels.
+const currentCwd = ref('')
+rpc.value.call('vite:rolldown:get-project-info')
+  .then(info => (currentCwd.value = info.cwd))
+  .catch(() => {})
 
 // Drives the confirm → run → result modal (see RunBuildDialog).
 const runBuildOpen = ref(false)
@@ -170,6 +175,7 @@ async function deleteSession(session: BuildInfo) {
         :show-session-actions="true"
         :selected-session-ids="selectedSessionIds"
         :selected-sessions="selectedSessions"
+        :current-cwd="currentCwd"
         @select="selectSession"
         @rename="renameSession"
         @delete="deleteSession"

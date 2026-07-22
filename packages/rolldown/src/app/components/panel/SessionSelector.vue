@@ -2,20 +2,21 @@
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import ActionButton from '@vitejs/devtools-ui/components/Action/ActionButton.vue'
 import ActionIconButton from '@vitejs/devtools-ui/components/Action/ActionIconButton.vue'
-import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
-import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
 import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
 import { groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
 import { computed, nextTick, reactive, ref } from 'vue'
-import { NuxtLink } from '#components'
 import { parseReadablePath } from '~/utils/filepath'
+import SessionItem from './SessionItem.vue'
 
 const props = defineProps<{
   sessionMode: 'list' | 'compare'
   sessions: BuildInfo[]
   selectedSessionIds: string[]
   selectedSessions: BuildInfo[]
+  /** Whether to show per-session rename/delete actions on each item. */
   showSessionActions: boolean
+  /** The live project cwd, threaded down to hide matching session cwds. */
+  currentCwd?: string
 }>()
 const emit = defineEmits<{
   (e: 'select', session: BuildInfo): void
@@ -87,16 +88,7 @@ const isFiltering = computed(() => !!search.value.trim() || selectedEntries.valu
 
 // ---- Grouping -----------------------------------------------------------
 
-const sessionItems = computed(() => filteredSessions.value.map((session) => {
-  const inputs = session.meta.inputs ?? []
-  return {
-    session,
-    primaryInput: inputs[0],
-    additionalInputCount: Math.max(inputs.length - 1, 0),
-  }
-}))
-
-const sessionGroups = computed(() => groupByDate(sessionItems.value, item => item.session.timestamp))
+const sessionGroups = computed(() => groupByDate(filteredSessions.value, session => session.timestamp))
 
 // Keyed by group key; only tracks groups the user has explicitly toggled,
 // so newly-appearing groups still fall back to their `defaultOpen` value.
@@ -118,6 +110,13 @@ function select(session: BuildInfo) {
   if (props.sessionMode === 'compare' && !checkIsDifferentEntry(session)) {
     emit('select', session)
   }
+}
+
+function isDimmed(session: BuildInfo) {
+  if (props.sessionMode !== 'compare')
+    return false
+  return checkIsDifferentEntry(session)
+    || (props.selectedSessions.length === 2 && !props.selectedSessionIds.includes(session.id))
 }
 
 // ---- Rename / delete actions --------------------------------------------
@@ -220,56 +219,19 @@ function sessionLabel(session: BuildInfo | null) {
         </summary>
 
         <div class="flex flex-col gap-2 pt2">
-          <div v-for="{ session, primaryInput, additionalInputCount } of group.items" :key="session.id" class="flex flex-row gap-2 relative group">
-            <component
-              :is="sessionMode === 'list' ? NuxtLink : 'button'"
-              :to="`/session/${session.id}`"
-              v-bind="sessionMode !== 'list' ? { type: 'button' } : {}"
-              :aria-label="`Session ${sessionLabel(session)}`"
-              class="border rounded-md appearance-none bg-transparent color-base text-left flex flex-col gap-1 px4 py3 w-full"
-              :class="sessionMode === 'list' ? ['hover:bg-active', 'border-base'] : [selectedSessionIds.includes(session.id) ? 'border-active' : 'border-base', checkIsDifferentEntry(session) || (selectedSessions.length === 2 && !selectedSessionIds.includes(session.id)) ? 'op50' : 'hover:bg-active']"
-              @click="select(session)"
-            >
-              <div v-if="session.alias" class="flex gap-1 items-center font-medium pr16">
-                <div class="i-ph-bookmark-simple-duotone op60 flex-none" />
-                <span class="truncate">{{ session.alias }}</span>
-              </div>
-              <div class="flex gap-1 items-center font-mono op50 text-sm">
-                <div class="i-ph-hash-duotone" />
-                {{ session.id }}
-              </div>
-              <div v-if="primaryInput" class="flex gap-1 items-center">
-                <DisplayModuleId :id="primaryInput.filename" :cwd="session.meta.cwd" />
-                <DisplayBadge :text="primaryInput.name || 'entry'" />
-                <span v-if="additionalInputCount > 0" class="op50 text-xs border border-base rounded-md px1 font-mono">
-                  +{{ additionalInputCount }}
-                </span>
-              </div>
-              <div class="font-mono text-sm op-fade">
-                {{ session.meta.cwd }}
-              </div>
-
-              <DisplayTimestamp :timestamp="session.timestamp" class="pt2 text-sm op50" />
-            </component>
-
-            <!-- Per-session actions overlaid top-right (siblings of the card,
-                 so they never nest inside the link/button). -->
-            <div v-if="showSessionActions" class="absolute top-2 right-2 flex gap-1 op0 group-hover:op100 focus-within:op100 transition">
-              <ActionIconButton
-                icon="i-ph-pencil-simple-duotone"
-                tooltip="Rename (set alias)"
-                compact
-                @click="openRename(session)"
-              />
-              <ActionIconButton
-                icon="i-ph-trash-duotone"
-                tooltip="Delete session"
-                compact
-                active-class="text-red bg-active op100"
-                @click="openDelete(session)"
-              />
-            </div>
-          </div>
+          <SessionItem
+            v-for="session of group.items"
+            :key="session.id"
+            :session="session"
+            :session-mode="sessionMode"
+            :current-cwd="currentCwd"
+            :selected="selectedSessionIds.includes(session.id)"
+            :dimmed="isDimmed(session)"
+            :show-actions="showSessionActions"
+            @select="select"
+            @rename="openRename"
+            @delete="openDelete"
+          />
         </div>
       </details>
     </template>

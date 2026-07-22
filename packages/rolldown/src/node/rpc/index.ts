@@ -10,6 +10,7 @@ import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-tra
 import { rolldownGetPackageDetails } from './functions/rolldown-get-package-details'
 import { rolldownGetPackages } from './functions/rolldown-get-packages'
 import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
+import { rolldownGetProjectInfo } from './functions/rolldown-get-project-info'
 import { rolldownGetSessionCompareDetails } from './functions/rolldown-get-session-compare-details'
 import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
 import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
@@ -31,6 +32,7 @@ export const rpcFunctions = [
   rolldownGetSessionCompareSummary,
   rolldownGetSessionCompareDetails,
   rolldownGetChunkInfo,
+  rolldownGetProjectInfo,
   rolldownGetPackages,
   rolldownGetPackageDetails,
   rolldownGetBuildCommand,
