@@ -167,6 +167,7 @@ export async function DevToolsBuiltin(options: {
             groupId: integration.groupId ?? undefined,
             install: integration.install,
             label: integration.title,
+            pkg: integration.pkg,
           }))
         }
 

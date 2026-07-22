@@ -1,10 +1,11 @@
 import type { DevframeDockEntryIcon } from '@devframes/hub/types'
 import type { DevToolsViewLauncher } from '../types/docks'
+import type { DevToolsChildProcessTerminalSession } from '../types/terminals'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import process from 'node:process'
 import { isPackageExists } from 'local-pkg'
-import { addDependency } from 'nypm'
+import { addDependencyCommand, detectPackageManager } from 'nypm'
 import { diagnostics } from './diagnostics'
 
 export interface InstallLauncherOptions {
@@ -26,6 +27,13 @@ export interface InstallLauncherOptions {
   label?: string
   /** Vite plugin name. Defaults to `vite:devtools:install-launcher:${id}`. */
   name?: string
+  /**
+   * The canonical package this launcher installs, named in the button copy
+   * (e.g. `Install @vitejs/devtools-oxc`) — concrete and greppable, unlike the
+   * friendly {@link InstallLauncherOptions.label}. Defaults to the bare name
+   * of the first {@link InstallLauncherOptions.install} spec.
+   */
+  pkg?: string
   /**
    * npm specs to ensure are installed when the launcher is clicked, e.g.
    * `['@vitejs/devtools-rolldown@^0.4.1']`. Only the specs whose package is
@@ -51,11 +59,13 @@ function specToName(spec: string): string {
  * an optional integration that is not installed yet.
  *
  * The launcher renders in the dock rail (making the integration discoverable);
- * clicking it installs the missing package(s) on demand via `nypm`, then swaps
- * the dock to a "restart to activate" message. Because the integration's own
- * Vite plugin has to be present at config-resolution time to mount, activation
- * happens on the next dev-server restart (or `vite-devtools` re-run), when the
- * host re-detects the now-installed package and mounts the real dock.
+ * clicking it runs the install as a tracked terminal session — the card streams
+ * its progress and offers a "View in Terminal" link (the same primitives
+ * `createProcessLauncher` uses for e.g. the Vitest UI launcher) — then swaps to
+ * a "restart to activate" message. Because the integration's own Vite plugin
+ * has to be present at config-resolution time to mount, activation happens on
+ * the next dev-server restart (or `vite-devtools` re-run), when the host
+ * re-detects the now-installed package and mounts the real dock.
  */
 export function createInstallLauncher(options: InstallLauncherOptions): PluginWithDevTools {
   const {
@@ -66,55 +76,105 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
     label = title,
     name,
     install,
+    pkg = specToName(install[0] ?? title),
     dev = true,
   } = options
+
+  const sessionId = `${id}:install`
 
   return {
     name: name ?? `vite:devtools:install-launcher:${id}`,
     devtools: {
       setup(ctx: ViteDevToolsNodeContext) {
-        const cwd = ctx.cwd ?? process.cwd()
-
+        // Install at the workspace root, not the (possibly nested) project
+        // `cwd` — these are devtools for the whole workspace, and a monorepo's
+        // package manager expects devDependencies declared on the root
+        // `package.json`, not scattered across whichever sub-package happened
+        // to be running Vite.
+        const installRoot = ctx.workspaceRoot ?? ctx.cwd ?? process.cwd()
+        // The terminal session tracking the most recent install run, if any —
+        // kept so a retry can terminate/drop it before spawning a fresh one.
+        let session: DevToolsChildProcessTerminalSession | undefined
         // Bind the install action to a command so it fires from the launch
         // button, the command palette, and any keybinding — one handler.
         const commandId = `vite:devtools:install:${id}`
+
+        // Re-render the whole launcher entry — the hub sync replaces it
+        // wholesale — reflecting the current status and, once an install is
+        // running or has run, the tracked terminal session + a short digest.
+        function entry(
+          status: DevToolsViewLauncher['launcher']['status'],
+          extras: { description?: string, buttonStart?: string, tracking?: boolean, progress?: string, error?: string } = {},
+        ): DevToolsViewLauncher {
+          return {
+            id,
+            title,
+            groupId,
+            icon,
+            type: 'launcher',
+            launcher: {
+              icon,
+              title: label,
+              description: extras.description ?? `Install ${label} to view it inside DevTools.`,
+              buttonStart: extras.buttonStart ?? `Install ${pkg}`,
+              buttonLoading: 'Installing…',
+              status,
+              error: extras.error,
+              // The bound command is the launch action; the on-launch bridge
+              // falls back to it, so no in-process `onLaunch` is needed.
+              command: commandId,
+              ...(extras.tracking ? { terminalSessionId: sessionId } : {}),
+              // Hub's author-set `digest` — a short line of progress/status.
+              ...(extras.progress ? { digest: extras.progress } : {}),
+            },
+          }
+        }
+
         ctx.commands.register({
           id: commandId,
-          title: `Install ${label}`,
+          title: `Install ${pkg}`,
           icon,
           handler: launch,
         })
 
-        ctx.docks.register<DevToolsViewLauncher>({
-          id,
-          title,
-          groupId,
-          icon,
-          type: 'launcher',
-          launcher: {
-            icon,
-            title: label,
-            description: `Install ${label} to view it inside DevTools.`,
-            buttonStart: `Install ${label}`,
-            buttonLoading: 'Installing…',
-            status: 'idle',
-            // The bound command is the launch action; the on-launch bridge
-            // falls back to it, so no in-process `onLaunch` is needed.
-            command: commandId,
-          },
-        })
+        ctx.docks.register<DevToolsViewLauncher>(entry('idle'))
+
+        // Terminate and drop a prior install's session so a retry can reuse
+        // the terminal id without colliding with `startChildProcess`.
+        async function disposeSession(): Promise<void> {
+          if (session)
+            await session.terminate().catch(() => {})
+          session = undefined
+          ctx.terminals.sessions.delete(sessionId)
+        }
 
         async function launch(): Promise<void> {
-          const missing = install.filter(spec => !isPackageExists(specToName(spec), { paths: [cwd] }))
+          const missing = install.filter(spec => !isPackageExists(specToName(spec), { paths: [installRoot] }))
+
           if (missing.length) {
             try {
-              await addDependency(missing, { cwd, dev })
+              await disposeSession()
+
+              const packageManager = await detectPackageManager(installRoot)
+              const commandLine = addDependencyCommand(packageManager?.name ?? 'npm', missing, { dev })
+              const [command = packageManager?.command ?? 'npm', ...args] = commandLine.split(' ')
+
+              ctx.docks.update(entry('loading', { tracking: true, progress: 'Installing…' }))
+
+              session = await ctx.terminals.startChildProcess(
+                { command, args, cwd: installRoot },
+                { id: sessionId, title: `Install ${label}`, icon: 'ph:terminal-window-duotone' },
+              )
+
+              const result = await session.getResult()
+              if (result.exitCode !== 0) {
+                throw new Error(`\`${commandLine}\` exited with code ${result.exitCode ?? 'null'}.`)
+              }
             }
             catch (error) {
-              throw diagnostics.DTK0050({
-                packages: missing.join(', '),
-                cause: error instanceof Error ? error : new Error(String(error)),
-              })
+              const cause = error instanceof Error ? error : new Error(String(error))
+              ctx.docks.update(entry('error', { tracking: true, error: cause.message }))
+              throw diagnostics.DTK0050({ packages: missing.join(', '), cause })
             }
           }
 
@@ -124,23 +184,17 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
             ? 'Restart your dev server to activate it.'
             : 'Re-run `vite-devtools` to activate it.'
 
-          ctx.docks.update({
-            id,
-            title,
-            groupId,
-            icon,
-            type: 'launcher',
-            launcher: {
-              icon,
-              title: label,
-              status: 'success',
-              description: `${label} installed. ${restartHint}`,
-              buttonStart: 'Installed',
-              // Re-click is idempotent: the packages are present now, so the
-              // command installs nothing and just re-affirms the message.
-              command: commandId,
-            },
-          })
+          ctx.docks.update(entry('success', {
+            // Keep the session link once an install actually ran, so "View in
+            // Terminal" stays available; a no-op re-click (nothing missing)
+            // has no session to show.
+            tracking: Boolean(session),
+            progress: session ? 'Installed' : undefined,
+            description: `${label} installed. ${restartHint}`,
+            // Re-click is idempotent: the packages are present now, so the
+            // command installs nothing and just re-affirms the message.
+            buttonStart: 'Installed',
+          }))
         }
       },
     },
