@@ -14,7 +14,7 @@ import prompts from 'prompts'
  * standalone pnpm workspace (see its own `pnpm-workspace.yaml`) that needs a
  * manual `setup` step before it's runnable, so it stays out of the picker.
  */
-const WORKSPACE_PATTERNS = ['packages/*', 'examples/*', 'storybook', 'playgrounds/core']
+const WORKSPACE_PATTERNS = ['playgrounds/*', 'packages/*', 'examples/*', 'storybook']
 
 /**
  * Script names that make a workspace package runnable as a "play" — the
@@ -42,6 +42,7 @@ function expandPattern(pattern: string): string[] {
   return readdirSync(baseDir, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
     .map(entry => `${base}/${entry.name}`)
+    .sort((a, b) => a.localeCompare(b))
 }
 
 function findPlay(dir: string): Play | undefined {
@@ -65,7 +66,6 @@ async function main(): Promise<void> {
     .flatMap(expandPattern)
     .map(findPlay)
     .filter((play): play is Play => play !== undefined)
-    .sort((a, b) => a.dir.localeCompare(b.dir))
 
   if (plays.length === 0) {
     console.error(`No playgrounds found — none of ${WORKSPACE_PATTERNS.join(', ')} has a package.json with a ${RUN_SCRIPTS.join('/')} script.`)
