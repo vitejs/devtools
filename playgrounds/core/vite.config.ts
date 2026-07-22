@@ -8,18 +8,18 @@ import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import VueRouter from 'vue-router/vite'
-import { alias } from '../../../alias'
-import { A11yCheckerPlugin } from '../../../examples/plugin-a11y-checker/src/node'
-import { GitUIPlugin } from '../../../examples/plugin-git-ui/src/node'
-import { DevTools } from '../../core/src'
-import { buildCSS } from '../../core/src/client/webcomponents/scripts/build-css'
-import { hideDockWhenEmpty } from '../../core/src/node/plugins/auto-hide'
-import { DevToolsOxc } from '../../oxc/src/vite'
+import { alias } from '../../alias'
+import { A11yCheckerPlugin } from '../../examples/plugin-a11y-checker/src/node'
+import { GitUIPlugin } from '../../examples/plugin-git-ui/src/node'
+import { DevTools } from '../../packages/core/src'
+import { buildCSS } from '../../packages/core/src/client/webcomponents/scripts/build-css'
+import { hideDockWhenEmpty } from '../../packages/core/src/node/plugins/auto-hide'
+import { DevToolsOxc } from '../../packages/oxc/src/vite'
 // eslint-disable-next-line ts/ban-ts-comment
 // @ts-ignore ignore the type error
-import { DevToolsRolldownUI } from '../../rolldown/src/node'
-import { DevToolsViteUI } from '../../vite/src/node'
-import { DevToolsVitestUI } from '../../vitest/src/node'
+import { DevToolsRolldownUI } from '../../packages/rolldown/src/node'
+import { DevToolsViteUI } from '../../packages/vite/src/node'
+import { DevToolsVitestUI } from '../../packages/vitest/src/node'
 
 declare module '@vitejs/devtools-kit' {
   interface DevToolsRpcSharedStates {

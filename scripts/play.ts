@@ -9,9 +9,12 @@ import prompts from 'prompts'
 /**
  * Workspace globs, mirrored from `pnpm-workspace.yaml`'s `packages:` list: a
  * new package, example, or other playground shows up here for free, with no
- * change to this script.
+ * change to this script. `playgrounds/core` is listed explicitly rather than
+ * as a `playgrounds/*` glob because `playgrounds/production` is a separate,
+ * standalone pnpm workspace (see its own `pnpm-workspace.yaml`) that needs a
+ * manual `setup` step before it's runnable, so it stays out of the picker.
  */
-const WORKSPACE_PATTERNS = ['packages/*', 'examples/*', 'storybook']
+const WORKSPACE_PATTERNS = ['packages/*', 'examples/*', 'storybook', 'playgrounds/core']
 
 /**
  * Script names that make a workspace package runnable as a "play" — the
