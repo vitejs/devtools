@@ -100,6 +100,7 @@ catalogs:
     nano-staged: ^1.0.2
     oxfmt: ^0.59.0
     oxlint: ^1.74.0
+    prompts: ^2.4.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.2.0
@@ -190,6 +191,7 @@ catalogs:
     '@types/d3-hierarchy': ^3.1.7
     '@types/envinfo': ^7.8.4
     '@types/picomatch': ^4.0.3
+    '@types/prompts': ^2.4.9
     '@types/react': ^19.2.17
     '@types/react-dom': ^19.2.3
     '@types/splitpanes': ^2.2.6
