@@ -182,6 +182,21 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
           ctx.docks.update(iframe)
         }
 
+        // Terminate the tracked process and drop its session from the host so
+        // the next launch can spawn cleanly. `terminate()` only kills the
+        // process and marks the session `stopped` — it leaves the entry in
+        // `terminals.sessions`, and `startChildProcess` rejects when an id is
+        // still registered. Deleting it here keeps re-launches free of terminal
+        // id collisions (the fresh spawn re-registers the id and rebinds its
+        // stream).
+        async function disposeSession(): Promise<void> {
+          if (session)
+            await session.terminate().catch(() => {})
+          session = undefined
+          servedUrl = undefined
+          ctx.terminals.sessions.delete(sessionId)
+        }
+
         ctx.commands.register({
           id: commandId,
           title: options.command?.title ?? label,
@@ -204,8 +219,10 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
           try {
             await prepare?.()
 
-            if (session)
-              await session.terminate().catch(() => {})
+            // Clear any prior run before spawning: kill a live process and drop
+            // its (possibly already-`stopped`) session so the fresh spawn can
+            // reuse the id without colliding.
+            await disposeSession()
 
             const execute = typeof executeOptions === 'function' ? await executeOptions(payload) : executeOptions
             session = await ctx.terminals.startChildProcess(execute, {
@@ -222,9 +239,10 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               // (e.g. a build error), instead of blocking on a readiness probe
               // that will never succeed.
               const activeSession = session
+              const resultPromise = (async () => activeSession.getResult())()
               const readyPromise = (async () => serve.onReady(activeSession))()
               const exitPromise = (async () => {
-                const result = await activeSession.getResult()
+                const result = await resultPromise
                 throw diagnostics.DTK0052({ id, exitCode: result.exitCode })
               })()
               // Whichever promise loses the race keeps running (a readiness
@@ -236,6 +254,23 @@ export function createProcessLauncher(options: ProcessLauncherOptions): PluginWi
               const url = await Promise.race([readyPromise, exitPromise])
               servedUrl = url
               swapToIframe(url)
+
+              // The embedded server outlives this launch. When its process is
+              // terminated (killed, crashed, or exits on its own), the iframe
+              // points at a dead server — swap the dock back to an idle
+              // launcher so the user can start it again. The stopped session is
+              // left in place so its output stays inspectable; the next launch
+              // clears it via `disposeSession`. Guard on identity so a relaunch
+              // that supersedes this session doesn't clobber the new run.
+              void resultPromise.then(
+                () => {
+                  if (session !== activeSession)
+                    return
+                  servedUrl = undefined
+                  ctx.docks.update(entry('idle'))
+                },
+                () => {},
+              )
               return
             }
 

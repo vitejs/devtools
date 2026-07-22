@@ -393,6 +393,8 @@ createProcessLauncher({
 })
 ```
 
+The launcher tracks the spawned process for the life of the embed. When that process exits — you stop it, it crashes, or it ends on its own — the dock swaps the iframe back to an idle launcher so the embedded UI never points at a dead server. Relaunching clears the previous run's terminal session before spawning a fresh one, so the session id stays collision-free across restarts.
+
 ## JSON render panels
 
 JSON render panels describe a UI as a JSON spec on the server — the client renders it from a built-in component library. This is the shortest path to a DevTools panel: server-side TypeScript only.

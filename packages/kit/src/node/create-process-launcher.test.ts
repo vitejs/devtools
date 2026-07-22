@@ -9,15 +9,25 @@ function fakeCtx(): {
   registered: Map<string, FakeDock>
   commands: Map<string, (...a: any[]) => any>
   sessions: Map<string, { status: string }>
+  /** Resolve the most recently spawned session's process outcome. */
   resolveExit: (code: number) => void
 } {
   const registered = new Map<string, FakeDock>()
   const commands = new Map<string, (...a: any[]) => any>()
   const sessions = new Map<string, { status: string }>()
-  let resolveExit!: (code: number) => void
-  const result = new Promise<{ exitCode: number }>((resolve) => {
-    resolveExit = (exitCode: number) => resolve({ exitCode })
-  })
+
+  // A stable `resolveExit` that always targets the latest spawned run. If it is
+  // called before the (async) spawn completes, the code is buffered and applied
+  // as soon as the run exists — this lets a test resolve an exit right after
+  // kicking off a launch without awaiting it.
+  let currentResolve: ((code: number) => void) | undefined
+  let bufferedExit: number | undefined
+  const resolveExit = (code: number): void => {
+    if (currentResolve)
+      currentResolve(code)
+    else
+      bufferedExit = code
+  }
 
   const ctx = {
     cwd: '/project',
@@ -34,11 +44,32 @@ function fakeCtx(): {
     },
     terminals: {
       sessions,
+      // Mirror the real host: registering an id that is still present rejects
+      // (DF8200), so the launcher must drop a prior session before respawning.
       startChildProcess: vi.fn(async (_exec, meta: { id: string }) => {
-        sessions.set(meta.id, { status: 'running' })
+        if (sessions.has(meta.id))
+          throw new Error(`Terminal session with id "${meta.id}" already registered`)
+        const entry = { status: 'running' }
+        sessions.set(meta.id, entry)
+        const result = new Promise<{ exitCode: number }>((resolve) => {
+          currentResolve = (exitCode: number) => {
+            // The real host leaves the session in the map, only flipping status.
+            entry.status = exitCode === 0 ? 'stopped' : 'error'
+            resolve({ exitCode })
+          }
+        })
+        if (bufferedExit !== undefined) {
+          const code = bufferedExit
+          bufferedExit = undefined
+          currentResolve!(code)
+        }
         return {
           getResult: () => result,
-          terminate: async () => {},
+          // `terminate()` kills the process and marks it stopped but keeps the
+          // session registered — exactly what the real host does.
+          terminate: async () => {
+            entry.status = 'stopped'
+          },
         }
       }),
     },
@@ -154,6 +185,48 @@ describe('createProcessLauncher', () => {
     await ctx.commands.execute('my-app:launch')
 
     expect((ctx.terminals as any).startChildProcess).toHaveBeenCalledOnce()
+    expect(registered.get('my-app')!.type).toBe('iframe')
+  })
+
+  it('reverts the iframe back to an idle launcher when the served process exits', async () => {
+    const { ctx, registered, resolveExit } = fakeCtx()
+    await mount(ctx, {
+      ...baseOptions,
+      serve: { onReady: async () => 'http://localhost:5173/' },
+    })
+
+    await ctx.commands.execute('my-app:launch')
+    expect(registered.get('my-app')!.type).toBe('iframe')
+
+    // The embedded server's process is terminated.
+    resolveExit(0)
+    await new Promise(r => setTimeout(r))
+
+    const dock = registered.get('my-app')!
+    expect(dock.type).toBe('launcher')
+    expect(dock.launcher.status).toBe('idle')
+  })
+
+  it('drops the stale session and respawns when relaunched after an exit', async () => {
+    const { ctx, registered, resolveExit } = fakeCtx()
+    await mount(ctx, {
+      ...baseOptions,
+      serve: { onReady: async () => 'http://localhost:5173/' },
+    })
+
+    await ctx.commands.execute('my-app:launch')
+    // Process exits — dock reverts to a launcher, but the real host leaves the
+    // stopped session registered under its id.
+    resolveExit(1)
+    await new Promise(r => setTimeout(r))
+    expect(registered.get('my-app')!.type).toBe('launcher')
+    expect((ctx as any).terminals.sessions.has('my-app')).toBe(true)
+
+    // Relaunching must clear the lingering session first; otherwise the real
+    // host would reject the duplicate id. It respawns and re-embeds.
+    await ctx.commands.execute('my-app:launch')
+
+    expect((ctx.terminals as any).startChildProcess).toHaveBeenCalledTimes(2)
     expect(registered.get('my-app')!.type).toBe('iframe')
   })
 })
