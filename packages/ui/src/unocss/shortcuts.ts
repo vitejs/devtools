@@ -22,6 +22,11 @@ export const shortcuts: UserShortcuts<Theme> = [
     'btn-action-sm': 'btn-action text-sm',
     'btn-action-active': 'color-active border-active! bg-active op100!',
 
+    // Icon-only buttons. `ActionIconButton` overrides the fixed `w-*`/`h-*` with
+    // em-based padding so a font-size class resizes the whole control.
+    'btn-icon': 'w-8 h-8 rounded-full flex items-center justify-center op75 hover:op100 hover:bg-active transition disabled:pointer-events-none disabled:op30!',
+    'btn-icon-compact': 'w-6 h-6 rounded flex items-center justify-center op75 hover:op100 hover:bg-active transition disabled:pointer-events-none disabled:op30!',
+
     'icon-catppuccin': 'light:filter-invert-100 light:filter-hue-rotate-180 light:filter-brightness-80',
 
     'z-flowmap-line': 'z--1',

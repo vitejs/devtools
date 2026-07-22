@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
+import ActionButton from '@vitejs/devtools-ui/components/Action/ActionButton.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
 import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
@@ -102,13 +103,12 @@ async function viewInTerminal() {
         <pre class="m0 p3 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left"><code>{{ commandLine }}</code></pre>
         <div class="flex-auto" />
         <div class="flex justify-end gap-2">
-          <button class="btn-action" @click="open = false">
+          <ActionButton @click="open = false">
             Cancel
-          </button>
-          <button class="btn-action btn-action-active" @click="confirmRun()">
-            <span class="i-ph-play-duotone" />
+          </ActionButton>
+          <ActionButton variant="primary" icon="i-ph-play-duotone" @click="confirmRun()">
             Run build
-          </button>
+          </ActionButton>
         </div>
       </template>
 
@@ -116,13 +116,12 @@ async function viewInTerminal() {
       <template v-else-if="stage === 'running'">
         <VisualLoading class="flex-auto" text="Build running…" />
         <div class="flex justify-end gap-2">
-          <button class="btn-action" @click="open = false">
+          <ActionButton @click="open = false">
             Dismiss
-          </button>
-          <button class="btn-action btn-action-active" @click="viewInTerminal()">
-            <span class="i-ph-terminal-window-duotone" />
+          </ActionButton>
+          <ActionButton variant="primary" icon="i-ph-terminal-window-duotone" @click="viewInTerminal()">
             View in terminals
-          </button>
+          </ActionButton>
         </div>
       </template>
 
@@ -163,12 +162,12 @@ async function viewInTerminal() {
           description="The build produced no new devtools session."
         />
         <div class="flex justify-end gap-2">
-          <button class="btn-action" @click="viewInTerminal()">
+          <ActionButton @click="viewInTerminal()">
             View in terminals
-          </button>
-          <button class="btn-action btn-action-active" @click="open = false">
+          </ActionButton>
+          <ActionButton variant="primary" @click="open = false">
             Close
-          </button>
+          </ActionButton>
         </div>
       </template>
 
@@ -183,13 +182,12 @@ async function viewInTerminal() {
         </p>
         <div class="flex-auto" />
         <div class="flex justify-end gap-2">
-          <button class="btn-action" @click="open = false">
+          <ActionButton @click="open = false">
             Close
-          </button>
-          <button class="btn-action btn-action-active" @click="viewInTerminal()">
-            <span class="i-ph-terminal-window-duotone" />
+          </ActionButton>
+          <ActionButton variant="primary" icon="i-ph-terminal-window-duotone" @click="viewInTerminal()">
             View in terminals
-          </button>
+          </ActionButton>
         </div>
       </template>
     </div>

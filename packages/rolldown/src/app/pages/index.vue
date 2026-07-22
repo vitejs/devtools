@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
+import ActionButton from '@vitejs/devtools-ui/components/Action/ActionButton.vue'
+import ActionIconButton from '@vitejs/devtools-ui/components/Action/ActionIconButton.vue'
 import BannerRolldownDevTools from '@vitejs/devtools-ui/components/Banner/BannerRolldownDevTools.vue'
-import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRpc } from '#imports'
@@ -72,24 +73,25 @@ function selectSession(session: BuildInfo) {
         <br>
         Run a build with devtools output enabled to get started:
       </p>
-      <button
-        class="btn-action btn-action-active"
+      <ActionButton
+        variant="primary"
+        icon="i-ph-play-duotone"
         title="Run a build with devtools output"
         @click="runBuildOpen = true"
       >
-        <span class="i-ph-play-duotone" />
         Run build with devtools
-      </button>
+      </ActionButton>
       <p class="m0 op40 text-sm text-center">
         Or enable it manually in your Rolldown config:
       </p>
       <div class="relative w-full">
         <pre class="m0 p3 pr10 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left"><code>{{ ENABLE_DEVTOOLS_SNIPPET }}</code></pre>
-        <DisplayIconButton
-          class="absolute" top2 right2
-          title="Copy snippet"
-          class-icon="i-ph-copy-duotone"
+        <ActionIconButton
+          class="absolute top2 right2"
+          icon="i-ph-copy-duotone"
+          :tooltip="copied ? 'Copied!' : 'Copy snippet'"
           :active="copied"
+          active-class="text-green bg-active op100"
           @click="copy()"
         />
       </div>
@@ -112,14 +114,13 @@ function selectSession(session: BuildInfo) {
           <span :class="mode.icon" class="text-sm" />
         </button>
       </div>
-      <button
-        class="btn-action"
+      <ActionButton
+        icon="i-ph-play-duotone"
         title="Run a build with devtools output"
         @click="runBuildOpen = true"
       >
-        <span class="i-ph-play-duotone" />
         Run build
-      </button>
+      </ActionButton>
     </div>
     <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" class="fixed bottom-5 right-5 border border-base rounded-2 w100 max-lg:w85 bg-glass z-panel-content">
       <CompareSessionMeta :sessions="normalizedSelectedSessions" class="flex-col gap0 [&>div]:border-none! [&>first-child]:border-b!" />
