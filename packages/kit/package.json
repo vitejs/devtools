@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
+    "@devframes/json-render": "catalog:deps",
     "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
     "mlly": "catalog:deps",

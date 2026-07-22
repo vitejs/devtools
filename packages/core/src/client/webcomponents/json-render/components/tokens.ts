@@ -18,7 +18,7 @@ export const colors = {
   info: { bg: 'rgba(59,130,246,0.15)', fg: 'rgb(59,130,246)' },
   success: { bg: 'rgba(34,197,94,0.15)', fg: 'rgb(34,197,94)' },
   warning: { bg: 'rgba(234,179,8,0.15)', fg: 'rgb(234,179,8)' },
-  error: { bg: 'rgba(239,68,68,0.15)', fg: 'rgb(239,68,68)' },
+  danger: { bg: 'rgba(239,68,68,0.15)', fg: 'rgb(239,68,68)' },
   default: { bg: 'rgba(128,128,128,0.15)', fg: 'inherit' },
 } as const
 

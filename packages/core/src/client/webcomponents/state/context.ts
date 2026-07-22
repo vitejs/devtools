@@ -12,6 +12,7 @@ import { docksGroupByCategories, getGroupMembers, getRegisteredGroupIds, resolve
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
+import { createDockRenderers } from './renderers'
 import { executeSetupScript } from './setup-script'
 
 const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
@@ -299,6 +300,7 @@ export async function createDocksContext(
       },
       events: rpc.events,
     },
+    renderers: markRaw(createDockRenderers(() => docksContext)),
     rpc: markRaw(rpc),
     clientType,
   })

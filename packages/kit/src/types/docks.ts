@@ -1,4 +1,5 @@
-import type { DevframeDockEntryCategory, DevframeViewLauncher } from '@devframes/hub/types'
+import type { DevframeDockEntryBase, DevframeDockEntryCategory, DevframeViewLauncher } from '@devframes/hub/types'
+import type { JsonRenderer } from './json-render'
 
 export type {
   ClientScriptEntry,
@@ -15,11 +16,32 @@ export type {
   DevframeViewCustomRender as DevToolsViewCustomRender,
   DevframeViewGroup as DevToolsViewGroup,
   DevframeViewIframe as DevToolsViewIframe,
-  DevframeViewJsonRender as DevToolsViewJsonRender,
   DevframeViewLauncherStatus as DevToolsViewLauncherStatus,
   RemoteConnectionInfo,
   RemoteDockOptions,
 } from '@devframes/hub/types'
+
+/**
+ * A `json-render` dock entry. `@devframes/hub` ships no json-render variant of
+ * its own (json-render is the opt-in `@devframes/json-render` package), so the
+ * kit contributes this Vite-flavored entry to the hub's open dock union.
+ *
+ * It carries the {@link JsonRenderer} handle from `ctx.createJsonRenderer()` on
+ * `ui`; the handle's methods are non-enumerable, so only its serializable
+ * metadata survives dock projection into shared state, where the client reads
+ * `ui._stateKey` to subscribe to the live spec.
+ */
+export interface DevToolsViewJsonRender extends DevframeDockEntryBase {
+  type: 'json-render'
+  /** The renderer handle created by `ctx.createJsonRenderer()`. */
+  ui: JsonRenderer
+}
+
+declare module '@devframes/hub/types' {
+  interface DevframeDockEntryRegistry {
+    'json-render': DevToolsViewJsonRender
+  }
+}
 
 /**
  * A selectable launch root offered by a launcher dock entry.

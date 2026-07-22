@@ -9,6 +9,8 @@ export const Badge = defineComponent({
     return () => {
       const { text, variant = 'default', title, minWidth } = ctx.element.props
       const c = colors[variant as keyof typeof colors] || colors.default
+      // Base catalog `minWidth` is a number of pixels.
+      const minWidthCss = minWidth == null ? undefined : (typeof minWidth === 'number' ? `${minWidth}px` : minWidth)
       return h('span', {
         class: `jr-badge jr-badge-${variant}`,
         title,
@@ -21,7 +23,7 @@ export const Badge = defineComponent({
           textAlign: 'center' as const,
           backgroundColor: c.bg,
           color: c.fg,
-          minWidth: minWidth || undefined,
+          minWidth: minWidthCss,
         },
       }, text)
     }

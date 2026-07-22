@@ -407,20 +407,20 @@ const ui = ctx.createJsonRenderer({
   elements: {
     root: {
       type: 'Stack',
-      props: { direction: 'vertical', gap: 12 },
+      props: { direction: 'column', gap: 12 },
       children: ['heading', 'info'],
     },
     heading: {
       type: 'Text',
-      props: { content: 'Hello from JSON!', variant: 'heading' },
+      props: { text: 'Hello from JSON!', variant: 'heading' },
     },
     info: {
       type: 'KeyValueTable',
       props: {
-        entries: [
-          { key: 'Version', value: '1.0.0' },
-          { key: 'Status', value: 'Running' },
-        ],
+        data: {
+          Version: '1.0.0',
+          Status: 'Running',
+        },
       },
     },
   },
