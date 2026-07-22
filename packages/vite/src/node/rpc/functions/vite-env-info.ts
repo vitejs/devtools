@@ -4,6 +4,7 @@ export const viteEnvInfo = defineRpcFunction({
   name: 'vite:env-info',
   type: 'query',
   jsonSerializable: true,
+  cacheable: true,
   setup: () => {
     return {
       handler: async () => {

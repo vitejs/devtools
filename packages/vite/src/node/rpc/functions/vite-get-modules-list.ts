@@ -7,6 +7,7 @@ export const viteGetModulesList = defineRpcFunction({
   name: 'vite:inspect:get-modules-list',
   type: 'query',
   jsonSerializable: true,
+  cacheable: true,
   dump: async (devtoolsCtx) => {
     const ctx = getViteInspectContext(devtoolsCtx)
     return {

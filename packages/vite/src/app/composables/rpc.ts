@@ -34,13 +34,14 @@ async function subscribeInspectModuleUpdates(client: DevToolsRpcClient) {
 
   const state = await client.sharedState.get('vite:inspect:module-updated', {
     initialValue: {
-      version: 0,
       ids: null,
       updatedAt: 0,
     },
   })
 
   unsubscribeInspectModuleUpdates = state.on('updated', (value: ViteInspectModuleUpdatedState) => {
+    client.cacheManager.clear()
+
     triggerModuleUpdated({
       ids: value.ids ?? undefined,
     })
@@ -55,6 +56,7 @@ export async function connect() {
         DEVTOOLS_MOUNT_PATH,
         runtimeConfig.app.baseURL,
       ],
+      cacheOptions: true,
       connectionMeta: runtimeConfig.app.connection,
       wsOptions: {
         onConnected: () => {
@@ -79,6 +81,11 @@ export async function connect() {
       },
     })
     await subscribeInspectModuleUpdates(rpc.value)
+
+    const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+    rpc.value.cacheManager.updateOptions({
+      functions: Object.keys(functions).filter(name => functions[name]?.cacheable),
+    })
 
     rpcConnectionState.connected = true
   }

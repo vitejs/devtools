@@ -6,6 +6,7 @@ export const viteGetPluginDetails = defineRpcFunction({
   name: 'vite:inspect:get-plugin-details',
   type: 'query',
   jsonSerializable: true,
+  cacheable: true,
   setup: (devtoolsCtx) => {
     const ctx = getViteInspectContext(devtoolsCtx)
     return {

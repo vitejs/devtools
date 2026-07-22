@@ -1,12 +1,15 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
 import type { ResolvedConfig, ResolveFn } from 'vite'
-import type { ViteInspectModuleUpdatedState } from '../rpc'
+import type { ViteInspectModuleUpdatedSharedState } from '../rpc/inspect-module-updated'
 import { rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { debounce } from 'perfect-debounce'
 import { diagnostics } from '../diagnostics'
-import { inspectRpcFunctions, VITE_INSPECT_MODULE_UPDATED_STATE_KEY, viteRpcFunctions } from '../rpc'
+import { inspectRpcFunctions, viteRpcFunctions } from '../rpc'
+import {
+  getViteInspectModuleUpdatedState,
+  notifyViteInspectModuleUpdated,
+} from '../rpc/inspect-module-updated'
 import { setViteInspectContext, ViteInspectContext } from './context'
 import { hijackPlugin } from './hijack'
 import {
@@ -21,14 +24,11 @@ export function DevToolsViteInspect(): PluginWithDevTools {
   let inspectContextPromise: Promise<ViteInspectContext> | undefined
   let closingInspectContext: Promise<void> | undefined
   let inspectStorageDir: string | undefined
-  let inspectModuleUpdatedState: SharedState<ViteInspectModuleUpdatedState> | undefined
+  let inspectModuleUpdatedState: ViteInspectModuleUpdatedSharedState | undefined
 
   function notifyInspectModuleUpdated(ids: string[] | null = null) {
-    inspectModuleUpdatedState?.mutate((state) => {
-      state.version += 1
-      state.ids = ids
-      state.updatedAt = Date.now()
-    })
+    if (inspectModuleUpdatedState)
+      notifyViteInspectModuleUpdated(inspectModuleUpdatedState, ids)
   }
 
   async function createInspectContext(config: ResolvedConfig): Promise<ViteInspectContext> {
@@ -98,19 +98,14 @@ export function DevToolsViteInspect(): PluginWithDevTools {
           for (const fn of inspectRpcFunctions)
             ctx.rpc.register(fn as any)
 
-          inspectModuleUpdatedState = await ctx.rpc.sharedState.get(VITE_INSPECT_MODULE_UPDATED_STATE_KEY, {
-            initialValue: {
-              version: 0,
-              ids: null,
-              updatedAt: 0,
-            },
-          })
+          inspectModuleUpdatedState = await getViteInspectModuleUpdatedState(ctx)
 
           if (ctx.viteServer) {
             const debouncedNotify = debounce(() => {
               notifyInspectModuleUpdated()
             }, 100)
 
+            ctx.viteServer.watcher.on('all', debouncedNotify)
             ctx.viteServer.middlewares.use((_req: unknown, _res: unknown, next: () => void) => {
               debouncedNotify()
               next()

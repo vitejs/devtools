@@ -7,6 +7,7 @@ export const viteGetServerMetrics = defineRpcFunction({
   name: 'vite:inspect:get-server-metrics',
   type: 'query',
   jsonSerializable: true,
+  cacheable: true,
   dump: async (devtoolsCtx) => {
     const ctx = getViteInspectContext(devtoolsCtx)
     return {

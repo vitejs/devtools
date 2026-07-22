@@ -7,6 +7,7 @@ export const viteGetModuleTransformInfo = defineRpcFunction({
   name: 'vite:inspect:get-module-transform-info',
   type: 'query',
   jsonSerializable: true,
+  cacheable: true,
   dump: async (devtoolsCtx) => {
     const ctx = getViteInspectContext(devtoolsCtx)
     const moduleIds = await getAllModuleIds(ctx)
