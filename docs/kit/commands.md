@@ -108,7 +108,7 @@ ctx.commands.register({
     {
       id: 'git:commit',
       title: 'Commit',
-      icon: 'ph:check-duotone',
+      icon: 'ph:check',
       keybindings: [{ key: 'Mod+Shift+G' }],
       handler: async () => { /* ... */ },
     },

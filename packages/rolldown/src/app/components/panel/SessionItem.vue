@@ -13,8 +13,6 @@ const props = defineProps<{
   selected?: boolean
   /** Whether this card should read as unavailable/deemphasised. */
   dimmed?: boolean
-  /** The live project cwd; the session cwd is hidden when it matches. */
-  currentCwd?: string
   /** Whether to show the rename/delete actions. */
   showActions?: boolean
 }>()
@@ -25,61 +23,50 @@ const emit = defineEmits<{
   (e: 'delete', session: BuildInfo): void
 }>()
 
+const platformIcons: Record<string, string | undefined> = {
+  node: 'i-catppuccin-package-json icon-catppuccin',
+  browser: 'i-catppuccin-http icon-catppuccin',
+}
+
 const inputs = computed(() => props.session.meta.inputs ?? [])
 const primaryInput = computed(() => inputs.value[0])
 const additionalInputCount = computed(() => Math.max(inputs.value.length - 1, 0))
 
-function normalizeCwd(path?: string) {
-  return (path ?? '').replace(/[/\\]+$/, '')
-}
-
-// Hide the cwd line when the session was built in the current project — it's
-// just noise then. When the project cwd is unknown, keep showing it.
-const showCwd = computed(() => {
-  const cwd = props.session.meta.cwd
-  return !!cwd && normalizeCwd(cwd) !== normalizeCwd(props.currentCwd)
-})
-
 const platform = computed(() => props.session.meta.platform)
 const format = computed(() => props.session.meta.format)
 const pluginCount = computed(() => props.session.meta.plugins?.length ?? 0)
-
-const output = computed(() => props.session.meta.dir || props.session.meta.file || '')
-const outputLabel = computed(() => {
-  const value = output.value
-  if (!value)
-    return ''
-  const cwd = normalizeCwd(props.session.meta.cwd)
-  if (cwd && value.startsWith(cwd)) {
-    return value.slice(cwd.length).replace(/^[/\\]+/, '') || value
-  }
-  return value
-})
-const outputIsFile = computed(() => !props.session.meta.dir && !!props.session.meta.file)
-
 const label = computed(() => props.session.alias || props.session.id)
 </script>
 
 <template>
-  <div class="flex flex-row gap-2 relative group">
+  <div class="flex flex-row gap-2 relative pt-3 group">
     <component
       :is="sessionMode === 'list' ? NuxtLink : 'button'"
       :to="`/session/${session.id}`"
       v-bind="sessionMode !== 'list' ? { type: 'button' } : {}"
       :aria-label="`Session ${label}`"
-      class="border rounded-md appearance-none bg-transparent color-base text-left flex flex-col gap-1 px4 py3 w-full"
+      class="border rounded-md appearance-none bg-transparent color-base text-left flex flex-col gap-1 px4 pb3 pt5 w-full"
       :class="sessionMode === 'list'
         ? ['hover:bg-active', 'border-base']
-        : [selected ? 'border-active' : 'border-base', dimmed ? 'op50' : 'hover:bg-active']"
+        : [selected ? 'border-active bg-primary/2!' : 'border-base', dimmed ? 'op50' : 'hover:bg-active']"
       @click="emit('select', session)"
     >
-      <div v-if="session.alias" class="flex gap-1 items-center font-medium pr16">
-        <div class="i-ph-bookmark-simple-duotone op60 flex-none" />
-        <span class="truncate">{{ session.alias }}</span>
-      </div>
-      <div class="flex gap-1 items-center font-mono op50 text-sm">
-        <div class="i-ph-hash-duotone" />
-        {{ session.id }}
+      <div class="absolute top-0 left-2 flex gap-1 items-center">
+        <div
+          v-if="session.alias"
+          class="flex gap-1 items-center font-medium text-xs border px2 py1 rounded-full bg-base"
+          :class="selected ? 'border-active' : 'border-base'"
+        >
+          <div class="i-ph-bookmark-simple-duotone op60 flex-none" />
+          <span class="truncate">{{ session.alias }}</span>
+        </div>
+        <div
+          class="flex gap-1 items-center font-mono text-xs border border-base px2 py1 rounded-full bg-base"
+          :class="selected ? 'border-active' : 'border-base'"
+        >
+          <div class="i-ph-hash-duotone op-fade" />
+          <span class="op-fade">{{ session.id }}</span>
+        </div>
       </div>
       <div v-if="primaryInput" class="flex gap-1 items-center">
         <DisplayModuleId :id="primaryInput.filename" :cwd="session.meta.cwd" />
@@ -89,37 +76,28 @@ const label = computed(() => props.session.alias || props.session.id)
         </span>
       </div>
 
-      <!-- Session cwd, hidden when it matches the current project cwd. -->
-      <div v-if="showCwd" class="font-mono text-sm op-fade">
-        {{ session.meta.cwd }}
-      </div>
-
       <!-- Extra build metadata, shown only when present. -->
-      <div class="flex gap-2 flex-wrap items-center text-xs op60 pt1">
+      <div class="flex gap-2 flex-wrap items-center text-sm op60 pt1">
         <span v-if="platform" class="flex gap-1 items-center">
-          <div class="i-ph-cpu-duotone" />
+          <div :class="platformIcons[platform] || 'i-ph-cpu-duotone' " />
           {{ platform }}
         </span>
         <span v-if="format" class="flex gap-1 items-center">
-          <div class="i-ph-file-duotone" />
+          <div class="i-ph-files-duotone" />
           {{ format }}
         </span>
         <span v-if="pluginCount" class="flex gap-1 items-center">
           <div class="i-ph-plugs-duotone" />
-          {{ pluginCount }} plugin{{ pluginCount > 1 ? 's' : '' }}
-        </span>
-        <span v-if="outputLabel" class="flex gap-1 items-center font-mono max-w-50" :title="output">
-          <div :class="outputIsFile ? 'i-ph-file-duotone' : 'i-ph-folder-open-duotone'" class="flex-none" />
-          <span class="truncate">{{ outputLabel }}</span>
+          <span class="font-mono">{{ pluginCount }}</span> plugin{{ pluginCount > 1 ? 's' : '' }}
         </span>
       </div>
 
-      <DisplayTimestamp :timestamp="session.timestamp" class="pt2 text-sm op50" />
+      <DisplayTimestamp :timestamp="session.timestamp" class="pt2 text-sm op-fade" />
     </component>
 
     <!-- Per-session actions overlaid top-right (siblings of the card,
          so they never nest inside the link/button). -->
-    <div v-if="showActions" class="absolute top-2 right-2 flex gap-1 op0 group-hover:op100 focus-within:op100 transition">
+    <div v-if="showActions" class="absolute top-5 right-2 flex gap-1 op0 group-hover:op100 focus-within:op100 transition">
       <ActionIconButton
         icon="i-ph-pencil-simple-duotone"
         tooltip="Rename (set alias)"

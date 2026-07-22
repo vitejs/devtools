@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <span v-if="timestamp" class="font-mono">
+  <span v-if="timestamp">
     {{ formatTimeAgo(new Date(props.timestamp)) }}
   </span>
 </template>

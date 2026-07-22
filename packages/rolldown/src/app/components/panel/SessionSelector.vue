@@ -178,7 +178,7 @@ function sessionLabel(session: BuildInfo | null) {
         >
         <ActionIconButton
           v-if="isFiltering"
-          icon="i-ph-x-duotone"
+          icon="i-ph-x"
           tooltip="Clear filters"
           compact
           @click="search = ''; clearEntryFilter()"
@@ -269,7 +269,7 @@ function sessionLabel(session: BuildInfo | null) {
           <ActionButton type="button" @click="renameOpen = false">
             Cancel
           </ActionButton>
-          <ActionButton type="submit" variant="primary" icon="i-ph-check-duotone">
+          <ActionButton type="submit" variant="primary" icon="i-ph:check">
             Save
           </ActionButton>
         </div>

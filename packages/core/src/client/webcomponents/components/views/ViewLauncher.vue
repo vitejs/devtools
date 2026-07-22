@@ -57,7 +57,7 @@ const iconsMap: Record<DevToolsViewLauncherStatus, string> = {
   error: 'i-ph-arrow-clockwise-duotone',
   idle: 'i-ph-rocket-launch-duotone',
   loading: 'i-svg-spinners-8-dots-rotate',
-  success: 'i-ph-check-duotone',
+  success: 'i-ph:check',
 }
 
 const error = computed(() => props.entry.launcher.error)
