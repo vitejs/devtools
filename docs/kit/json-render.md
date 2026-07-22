@@ -215,6 +215,8 @@ ctx.rpc.register(defineRpcFunction({
 
 ## Built-in components
 
+An element whose `type` doesn't match any of the components below — e.g. a spec authored against a newer base-catalog version than the connected client implements, or a plain typo — renders as a visible "Unsupported component" placeholder instead of disappearing silently, so a mismatch is easy to spot during development.
+
 ### Layout
 
 #### Stack

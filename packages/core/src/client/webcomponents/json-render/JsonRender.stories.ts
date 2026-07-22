@@ -2,11 +2,12 @@ import type { Spec } from '@json-render/core'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
-import { devtoolsRegistry } from './registry'
+import { devtoolsRegistry, UnsupportedComponent } from './registry'
 
 /**
  * Render a json-render `Spec` with the DevTools registry, the same way
- * `ViewJsonRender` does at runtime.
+ * `ViewJsonRender` does at runtime — including the `UnsupportedComponent`
+ * fallback for any element `type` absent from the registry.
  */
 function renderSpec(spec: Spec) {
   return defineComponent({
@@ -16,7 +17,7 @@ function renderSpec(spec: Spec) {
         'div',
         { class: 'max-w-160 p6 bg-base color-base font-sans' },
         h(JSONUIProvider, { registry: devtoolsRegistry, handlers: {}, initialState }, {
-          default: () => h(Renderer, { spec, registry: devtoolsRegistry }),
+          default: () => h(Renderer, { spec, registry: devtoolsRegistry, fallback: UnsupportedComponent }),
         }),
       )
     },
@@ -87,6 +88,24 @@ export const Card: Story = {
       body: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+    },
+  } as unknown as Spec),
+}
+
+/**
+ * An element whose `type` has no entry in the registry — e.g. authored
+ * against a newer base-catalog version than this client implements, or a
+ * plain typo — falls back to a visible, inspectable placeholder instead of
+ * silently rendering nothing.
+ */
+export const UnsupportedComponentFallback: Story = {
+  render: () => renderSpec({
+    root: 'root',
+    state: {},
+    elements: {
+      root: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['label', 'unknown'] },
+      label: { type: 'Text', props: { text: 'The next element uses an unrecognized component type:', variant: 'caption' } },
+      unknown: { type: 'FutureChart', props: { series: [1, 2, 3] } },
     },
   } as unknown as Spec),
 }

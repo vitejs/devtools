@@ -4,7 +4,7 @@ import type { DevToolsViewJsonRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
 import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue'
-import { devtoolsRegistry } from '../../json-render/registry'
+import { devtoolsRegistry, UnsupportedComponent } from '../../json-render/registry'
 
 const props = defineProps<{
   context: DocksContext
@@ -100,7 +100,7 @@ watch(() => props.entry.ui?._stateKey, loadSpec)
       :handlers="actionHandlers"
       :initial-state="initialState"
     >
-      <Renderer :spec="spec" :registry="devtoolsRegistry" />
+      <Renderer :spec="spec" :registry="devtoolsRegistry" :fallback="UnsupportedComponent" />
     </JSONUIProvider>
     <div v-else style="display: flex; align-items: center; justify-content: center; height: 100%; opacity: 0.5; font-size: 13px;">
       No spec provided
