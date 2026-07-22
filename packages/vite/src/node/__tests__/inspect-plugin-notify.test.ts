@@ -3,13 +3,19 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ViteInspectModuleUpdatedState } from '../rpc/inspect-module-updated'
 import { EventEmitter } from 'node:events'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { getViteInspectContext } from '../inspect/context'
 import { DevToolsViteInspect } from '../inspect/plugin'
 
 type ConnectMiddleware = (req: unknown, res: unknown, next: () => void) => void
 
 describe('vite:inspect:module-updated notifications', () => {
-  afterEach(() => {
+  let cleanupCtx: ViteDevToolsNodeContext | undefined
+
+  afterEach(async () => {
     vi.useRealTimers()
+    if (cleanupCtx)
+      await getViteInspectContext(cleanupCtx).close()
+    cleanupCtx = undefined
   })
 
   it('notifies subscribers on watcher events and requests', async () => {
@@ -46,6 +52,7 @@ describe('vite:inspect:module-updated notifications', () => {
     } as unknown as ViteDevToolsNodeContext
 
     await plugin.devtools!.setup!(ctx)
+    cleanupCtx = ctx
 
     expect(middlewares).toHaveLength(1)
 
