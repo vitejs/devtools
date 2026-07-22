@@ -1,4 +1,4 @@
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsChildProcessExecuteOptions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import process from 'node:process'
 import { diagnostics } from '../diagnostics'
 
@@ -35,13 +35,24 @@ export interface WaitBuildResult {
 }
 
 /**
+ * The child process the "Run build" button spawns. Exposed so the confirmation
+ * dialog can show exactly what will run before the user commits to it.
+ */
+export function getBuildCommand(context: ViteDevToolsNodeContext): DevToolsChildProcessExecuteOptions {
+  return {
+    command: 'vite',
+    args: ['build'],
+    cwd: context.cwd ?? process.cwd(),
+    env: { [ROLLDOWN_DEVTOOLS_ENV]: 'true' },
+  }
+}
+
+/**
  * Spawn `vite build` with Rolldown's devtools output forced on. Returns
  * immediately once the child is spawned and its terminal session registered —
  * completion is awaited separately via {@link waitForBuild}.
  */
 export async function startBuild(context: ViteDevToolsNodeContext): Promise<RunBuildResult> {
-  const cwd = context.cwd ?? process.cwd()
-
   // Idempotent: a still-running build just reuses its session.
   if (currentSessionId) {
     const existing = context.terminals.sessions.get(currentSessionId)
@@ -58,12 +69,7 @@ export async function startBuild(context: ViteDevToolsNodeContext): Promise<RunB
 
   try {
     current = await context.terminals.startChildProcess(
-      {
-        command: 'vite',
-        args: ['build'],
-        cwd,
-        env: { [ROLLDOWN_DEVTOOLS_ENV]: 'true' },
-      },
+      getBuildCommand(context),
       {
         id: sessionId,
         title: `Rolldown build #${runCount}`,

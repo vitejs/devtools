@@ -1,6 +1,7 @@
 import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
 import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
+import { rolldownGetBuildCommand } from './functions/rolldown-get-build-command'
 import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
 import { rolldownGetChunksGraph } from './functions/rolldown-get-chunks-graph'
 import { rolldownGetModuleInfo } from './functions/rolldown-get-module-info'
@@ -30,6 +31,7 @@ export const rpcFunctions = [
   rolldownGetChunkInfo,
   rolldownGetPackages,
   rolldownGetPackageDetails,
+  rolldownGetBuildCommand,
   rolldownRunBuild,
   rolldownWaitForBuild,
 ] as const

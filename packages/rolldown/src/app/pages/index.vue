@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { BuildInfo } from '~~/node/rolldown/logs-manager'
-import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import BannerRolldownDevTools from '@vitejs/devtools-ui/components/Banner/BannerRolldownDevTools.vue'
 import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
 import { useClipboard } from '@vueuse/core'
@@ -48,50 +47,8 @@ const normalizedSelectedSessions = computed(() => {
 const rpc = useRpc()
 const sessions = ref<BuildInfo[]>(await rpc.value.call('vite:rolldown:list-sessions'))
 
-const building = ref(false)
-const buildError = ref<string | null>(null)
-const buildSessionId = ref<string | null>(null)
-
-async function refreshSessions() {
-  sessions.value = await rpc.value.call('vite:rolldown:list-sessions')
-}
-
-async function navigateToBuildTerminal() {
-  if (!buildSessionId.value)
-    return
-  // Jump to the Terminals dock, focused on this build's session, via the hub's
-  // dock-activation RPC.
-  await rpc.value.call('hub:docks:activate', {
-    dockId: DEVTOOLS_TERMINALS_DOCK_ID,
-    params: { sessionId: buildSessionId.value },
-  })
-}
-
-async function runBuild() {
-  // While a build is running, clicking opens its Terminals session to watch it
-  // stream, rather than starting another build.
-  if (building.value) {
-    await navigateToBuildTerminal()
-    return
-  }
-  building.value = true
-  buildError.value = null
-  try {
-    const { sessionId } = await rpc.value.call('vite:rolldown:run-build')
-    buildSessionId.value = sessionId
-    const { exitCode } = await rpc.value.call('vite:rolldown:wait-for-build')
-    if (exitCode != null && exitCode !== 0)
-      buildError.value = `Build exited with code ${exitCode}.`
-    // Refresh regardless — a failed build may still have emitted partial data.
-    await refreshSessions()
-  }
-  catch (error) {
-    buildError.value = error instanceof Error ? error.message : String(error)
-  }
-  finally {
-    building.value = false
-  }
-}
+// Drives the confirm → run → result modal (see RunBuildDialog).
+const runBuildOpen = ref(false)
 
 function selectSession(session: BuildInfo) {
   if (selectedSessionIds.value.includes(session.id)) {
@@ -117,15 +74,12 @@ function selectSession(session: BuildInfo) {
       </p>
       <button
         class="btn-action rounded-8 text-3 flex gap2 items-center justify-center h9 px4"
-        :title="building ? 'View this build in the Terminals tab' : 'Run a build with devtools output'"
-        @click="runBuild()"
+        title="Run a build with devtools output"
+        @click="runBuildOpen = true"
       >
-        <span class="text-sm" :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" />
-        {{ building ? 'Building… (view terminal)' : 'Run build with devtools' }}
+        <span class="i-ph-play-duotone text-sm" />
+        Run build with devtools
       </button>
-      <p v-if="buildError" class="m0 text-sm text-center text-red">
-        {{ buildError }}
-      </p>
       <p class="m0 op40 text-sm text-center">
         Or enable it manually in your Rolldown config:
       </p>
@@ -160,15 +114,12 @@ function selectSession(session: BuildInfo) {
       </div>
       <button
         class="btn-action rounded-8 text-3 flex gap2 items-center justify-center h8 px3"
-        :title="building ? 'View this build in the Terminals tab' : 'Run a build with devtools output'"
-        @click="runBuild()"
+        title="Run a build with devtools output"
+        @click="runBuildOpen = true"
       >
-        <span class="text-sm" :class="building ? 'i-ph-circle-notch-duotone animate-spin' : 'i-ph-play-duotone'" />
-        {{ building ? 'Building…' : 'Run build' }}
+        <span class="i-ph-play-duotone text-sm" />
+        Run build
       </button>
-      <p v-if="buildError" class="m0 text-xs text-right text-red max-w-60">
-        {{ buildError }}
-      </p>
     </div>
     <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" class="fixed bottom-5 right-5 border border-base rounded-2 w100 max-lg:w85 bg-glass z-panel-content">
       <CompareSessionMeta :sessions="normalizedSelectedSessions" class="flex-col gap0 [&>div]:border-none! [&>first-child]:border-b!" />
@@ -181,5 +132,6 @@ function selectSession(session: BuildInfo) {
         </div>
       </div>
     </div>
+    <RunBuildDialog v-model:open="runBuildOpen" @refresh="sessions = $event" />
   </div>
 </template>
