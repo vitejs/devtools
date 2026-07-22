@@ -60,7 +60,7 @@ catalogs:
     vite: ^8.1.5
   deps:
     '@devframes/hub': ^0.7.9
-    '@devframes/json-render': ^0.7.8
+    '@devframes/json-render': ^0.7.9
     '@devframes/plugin-inspect': ^0.7.9
     '@devframes/plugin-messages': ^0.7.9
     '@devframes/plugin-terminals': ^0.7.9

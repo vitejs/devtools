@@ -28,10 +28,11 @@ export interface InstallLauncherOptions {
   groupId?: string;
   label?: string;
   name?: string;
+  pkg?: string;
   install: string[];
   dev?: boolean;
 }
-export interface KitNodeContext extends DevframeHubContext {
+export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
   createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;

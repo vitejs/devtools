@@ -38,7 +38,7 @@ export interface JsonRenderer {
   readonly upstreamVersion: string;
   readonly view: JsonRenderViewRef;
 }
-export interface KitNodeContext extends DevframeHubContext {
+export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
   createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;

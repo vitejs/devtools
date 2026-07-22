@@ -1,3 +1,4 @@
+import type { DevframeHubContext } from '@devframes/hub/node'
 import type { DevframeCapabilities, DevframeViewIframe } from '@devframes/hub/types'
 import type { DevframeDefinition } from 'devframe/types'
 import type { PluginWithDevTools } from '../types/vite-augment'
@@ -53,7 +54,15 @@ export function createPluginFromDevframe(
       capabilities: options.capabilities ?? (d.capabilities as any),
       async setup(rawCtx) {
         const ctx = rawCtx as KitNodeContext
-        await mountDevframe(ctx, d, {
+        // `mountDevframe` is typed against the hub's own `DevframeHubContext`,
+        // whose `createJsonRenderer` is a deprecated back-compat shim (hub
+        // 0.7.9) typed against the hub's pre-0.7 `JsonRenderSpec` — looser
+        // (optional `props`) than the kit's own factory, which is typed
+        // against `@devframes/json-render`'s `Spec` (`props` required). The
+        // mismatch is a type-only artifact of the deprecated property: at
+        // runtime `ctx` is a fully valid `DevframeHubContext`, and
+        // `mountDevframe` never calls `createJsonRenderer`.
+        await mountDevframe(ctx as unknown as DevframeHubContext, d, {
           base: options.base,
           dock: options.dock,
         })
