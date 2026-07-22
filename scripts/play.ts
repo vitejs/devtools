@@ -87,8 +87,20 @@ async function main(): Promise<void> {
     return
   }
 
-  console.log(`\n▶ pnpm run ${play.script}  (${play.dir})\n`)
+  console.log('\n▶ pnpm run build\n')
 
+  const build = spawnSync('pnpm', ['run', 'build'], {
+    cwd: rootDir,
+    stdio: 'inherit',
+    shell: false,
+  })
+
+  if (build.status !== 0) {
+    process.exitCode = build.status ?? 1
+    return
+  }
+
+  console.log(`\n▶ pnpm run ${play.script}  (${play.dir})\n`)
   const result = spawnSync('pnpm', ['run', play.script], {
     cwd: join(rootDir, play.dir),
     stdio: 'inherit',
