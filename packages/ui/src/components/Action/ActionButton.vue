@@ -30,10 +30,10 @@ const isButton = computed(() => tag.value === 'button')
 const sm = computed(() => props.size === 'sm')
 
 const variantClass = computed(() => {
-  // Mapped onto the shared button shortcuts: `primary` is the emphasized
-  // `btn-action-active` tint, `text` is a borderless label.
+  // `primary` is the solid filled button, `text` a borderless label; both
+  // mirror antfu/design.
   if (props.variant === 'primary')
-    return sm.value ? 'btn-action-sm btn-action-active' : 'btn-action btn-action-active'
+    return sm.value ? 'btn-primary text-sm px-2.5! py-1!' : 'btn-primary'
   if (props.variant === 'text')
     return `inline-flex items-center gap-1.5 op75 hover:op100 transition${sm.value ? ' text-sm' : ''}`
   return sm.value ? 'btn-action-sm' : 'btn-action'

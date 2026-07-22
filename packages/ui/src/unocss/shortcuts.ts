@@ -21,6 +21,8 @@ export const shortcuts: UserShortcuts<Theme> = [
     'btn-action': 'border border-base rounded flex gap-2 items-center px2 py1 op75 hover:op100 hover:bg-active disabled:pointer-events-none disabled:op30!',
     'btn-action-sm': 'btn-action text-sm',
     'btn-action-active': 'color-active border-active! bg-active op100!',
+    // Solid, filled primary button (mirrors antfu/design's `btn-primary`).
+    'btn-primary': 'px3 py1.5 rounded flex gap-2 items-center bg-primary-500 hover:bg-primary-600 text-white transition disabled:op50 disabled:pointer-events-none outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40',
 
     // Icon-only buttons. `ActionIconButton` overrides the fixed `w-*`/`h-*` with
     // em-based padding so a font-size class resizes the whole control.
