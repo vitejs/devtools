@@ -1,12 +1,10 @@
 import type { PropType, VNode } from 'vue'
 import type { FloatingPopoverProps } from '../../state/floating-tooltip'
 import { onClickOutside, useDebounceFn, useEventListener } from '@vueuse/core'
-import { defineComponent, h, ref, useTemplateRef, watch } from 'vue'
+import { defineComponent, h, onMounted, onUpdated, reactive, ref, useTemplateRef, watch } from 'vue'
+import { resolveFloatingPosition } from './floating-position'
 
 // @unocss-include
-
-const DETECT_MARGIN = 100
-const DEFAULT_GAP = 10
 
 const FloatingPopoverComponent = defineComponent({
   name: 'FloatingPopover',
@@ -26,14 +24,32 @@ const FloatingPopoverComponent = defineComponent({
     const el = ref(props.item?.el)
     const renderCounter = ref(0)
 
+    const panelSize = reactive({ width: 0, height: 0 })
+
+    function measurePanel() {
+      if (!props.item || !panel.value)
+        return
+      const { width, height } = panel.value.getBoundingClientRect()
+      if (Math.abs(width - panelSize.width) > 0.5 || Math.abs(height - panelSize.height) > 0.5) {
+        panelSize.width = width
+        panelSize.height = height
+      }
+    }
+
+    onMounted(measurePanel)
+    onUpdated(measurePanel)
+
     useEventListener(window, 'resize', () => {
       if (el.value)
         renderCounter.value++
     })
 
     const clearThrottled = useDebounceFn(() => {
-      if (props.item?.el == null)
+      if (props.item?.el == null) {
         el.value = undefined
+        panelSize.width = 0
+        panelSize.height = 0
+      }
     }, 800)
 
     if (props.dismissOnClickOutside) {
@@ -87,59 +103,15 @@ const FloatingPopoverComponent = defineComponent({
 
       const rect = el.value.getBoundingClientRect()
 
-      // guess alignment of the tooltip based on viewport position
-      let align: 'bottom' | 'left' | 'right' | 'top' = 'bottom'
-
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      if (props.item?.placement)
-        align = props.item.placement
-      else if (rect.left < DETECT_MARGIN)
-        align = 'right'
-      else if (rect.left + rect.width > vw - DETECT_MARGIN)
-        align = 'left'
-      else if (rect.top < DETECT_MARGIN)
-        align = 'bottom'
-      else if (rect.top + rect.height > vh - DETECT_MARGIN)
-        align = 'top'
-
-      let style: Record<string, string> = {}
-      const gap = props.item?.gap ?? DEFAULT_GAP
-
-      switch (align) {
-        case 'bottom': {
-          style = {
-            left: `${rect.left + rect.width / 2}px`,
-            top: `${rect.top + rect.height + gap}px`,
-            transform: 'translateX(-50%)',
-          }
-          break
-        }
-        case 'top': {
-          style = {
-            left: `${rect.left + rect.width / 2}px`,
-            bottom: `${vh - rect.top + gap}px`,
-            transform: 'translateX(-50%)',
-          }
-          break
-        }
-        case 'left': {
-          style = {
-            right: `${vw - rect.left + gap}px`,
-            top: `${rect.top + rect.height / 2}px`,
-            transform: 'translateY(-50%)',
-          }
-          break
-        }
-        case 'right': {
-          style = {
-            left: `${rect.left + rect.width + gap}px`,
-            top: `${rect.top + rect.height / 2}px`,
-            transform: 'translateY(-50%)',
-          }
-          break
-        }
-      }
+      const { style } = resolveFloatingPosition({
+        rect,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        panelWidth: panelSize.width,
+        panelHeight: panelSize.height,
+        gap: props.item.gap,
+        placement: props.item.placement,
+      })
 
       previousStyle = style
 
