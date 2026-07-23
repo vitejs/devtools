@@ -130,6 +130,28 @@ The [File Explorer example](/kit/examples#file-explorer) is a complete iframe-do
 
 To skip bundling a dist with your plugin, an iframe dock can point at a hosted website that connects back to the local dev server over WebSocket. See [Remote Client](./remote-client).
 
+### Shared-iframe soft navigation
+
+A multi-tab integration — say a devtool with its own Modules / Timeline / Plugins views inside one SPA — can surface each of its tabs as its own DevTools dock while all of them share **one** live iframe and switch views by client-side (soft) navigation, with no reload.
+
+Flag the iframe dock as an **anchor** with `subTabs` and give it a `frameId`:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt-devtools',
+  type: 'iframe',
+  title: 'Nuxt DevTools',
+  icon: 'i-logos:nuxt-icon',
+  url: 'http://localhost:3000/__nuxt_devtools__/',
+  frameId: 'nuxt-devtools', // the shared iframe these docks render into
+  subTabs: { protocol: 'postmessage' }, // opt into the frame-nav adapter
+})
+```
+
+When the anchor's iframe mounts, Vite DevTools attaches the hub's frame-nav adapter. It runs a versioned, origin-locked `postMessage` handshake with the embedded app, turns the tab manifest the app reports into one **member dock** per tab (id `<frameId>:<tabId>`), and drives the loop both ways: selecting a member soft-navigates the shared frame, and the app's own navigation moves the DevTools highlight to match. Members are first-class docks — they honor `title`, `icon`, `order`, `category`, `when`, `badge`, and grouping (`frameId` and `groupId` are independent axes).
+
+The embedded app stays decoupled: it ships a small `postMessage` nav shim and takes no hub or RPC dependency, so this works cross-origin and in static builds. When no shim answers within the handshake window, the anchor renders as a single plain iframe dock. The protocol, the member-dock data model, and the shim contract live in devframe's [shared-iframe soft-navigation design](https://github.com/devframes/devframe/blob/main/plans/shared-iframe-soft-nav.md).
+
 ## Action buttons
 
 Action buttons run a client-side script when clicked. They suit:

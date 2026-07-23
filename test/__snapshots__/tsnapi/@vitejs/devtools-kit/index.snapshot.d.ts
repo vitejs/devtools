@@ -35,7 +35,6 @@ export interface JsonRenderer {
   updateState: (_: Record<string, unknown>) => void;
   dispose: () => void;
   readonly _stateKey: string;
-  readonly upstreamVersion: string;
   readonly view: JsonRenderViewRef;
 }
 export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
@@ -94,6 +93,7 @@ export { DevToolsDockHost }
 export { DevToolsDocksActiveState }
 export { DevToolsDocksUserSettings }
 export { DevToolsDockUserEntry }
+export { DevToolsFrameSubTabsConfig }
 export { DevToolsHost }
 export { DevToolsMessageElementPosition }
 export { DevToolsMessageEntry }
@@ -104,6 +104,7 @@ export { DevToolsMessageHandle }
 export { DevToolsMessageLevel }
 export { DevToolsMessagesClient }
 export { DevToolsMessagesHost }
+export { DevToolsNavTarget }
 export { DevToolsNodeContext }
 export { DevToolsNodeRpcSession }
 export { DevToolsRpcClientFunctions }

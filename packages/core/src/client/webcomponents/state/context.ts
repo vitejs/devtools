@@ -1,11 +1,12 @@
-import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DockRegistration, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
+import { attachDevToolsFrameNav } from '@vitejs/devtools-kit/client'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
-import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
+import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
@@ -50,29 +51,6 @@ export async function createDocksContext(
     return merged
   })
 
-  const registerClientDock = <T extends DevToolsDockEntry>(entry: T, force = false): DockRegistration<T> => {
-    if (clientDocks.has(entry.id) && !force)
-      throw new Error(`[@vitejs/devtools] a client dock "${entry.id}" is already registered — pass force to overwrite`)
-    clientDocks.set(entry.id, entry)
-    return {
-      update: (patch: Partial<T>) => {
-        if (patch.id != null && patch.id !== entry.id)
-          throw new Error(`[@vitejs/devtools] a client dock id is immutable ("${entry.id}")`)
-        const existing = clientDocks.get(entry.id)
-        if (existing)
-          clientDocks.set(entry.id, { ...existing, ...patch } as DevToolsDockEntry)
-      },
-      dispose: () => {
-        clientDocks.delete(entry.id)
-      },
-    }
-  }
-  const updateClientDock = (entry: DevToolsDockUserEntry) => {
-    if (!clientDocks.has(entry.id))
-      throw new Error(`[@vitejs/devtools] no client dock "${entry.id}" to update — register it first`)
-    clientDocks.set(entry.id, entry as DevToolsDockEntry)
-  }
-
   const selectedId = ref<string | null>(null)
   const selected = computed(
     () => entries.value.find(entry => entry.id === selectedId.value)
@@ -93,6 +71,43 @@ export async function createDocksContext(
       )
     }
   })
+
+  const registerClientDock = <T extends DevToolsDockEntry>(entry: T, force = false): DockRegistration<T> => {
+    if (clientDocks.has(entry.id) && !force)
+      throw new Error(`[@vitejs/devtools] a client dock "${entry.id}" is already registered — pass force to overwrite`)
+    clientDocks.set(entry.id, entry)
+    // Eagerly materialize the entry's DockEntryState. The reactive watchEffect
+    // above only creates states on its next flush, but a caller such as the
+    // shared-iframe frame-nav adapter subscribes to `entry:activated` (via
+    // `getStateById`) synchronously right after registering — so the state has
+    // to exist immediately, mirroring hub's synchronous client-host reconcile.
+    if (!dockEntryStateMap.has(entry.id))
+      dockEntryStateMap.set(entry.id, createDockEntryState(entry, selected))
+    return {
+      update: (patch: Partial<T>) => {
+        if (patch.id != null && patch.id !== entry.id)
+          throw new Error(`[@vitejs/devtools] a client dock id is immutable ("${entry.id}")`)
+        const existing = clientDocks.get(entry.id)
+        if (existing)
+          clientDocks.set(entry.id, { ...existing, ...patch } as DevToolsDockEntry)
+      },
+      dispose: () => {
+        if (!clientDocks.delete(entry.id))
+          return
+        dockEntryStateMap.delete(entry.id)
+        // Clearing the selection when the active member vanishes matches the
+        // hub reconcile behavior for a removed selected entry (shared-iframe
+        // soft-nav §7.5).
+        if (selectedId.value === entry.id)
+          selectedId.value = null
+      },
+    }
+  }
+  const updateClientDock = (entry: DevToolsDockUserEntry) => {
+    if (!clientDocks.has(entry.id))
+      throw new Error(`[@vitejs/devtools] no client dock "${entry.id}" to update — register it first`)
+    clientDocks.set(entry.id, entry as DevToolsDockEntry)
+  }
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
   let docksContext: DocksContext
@@ -160,6 +175,71 @@ export async function createDocksContext(
       return switchEntry(null)
     return switchEntry(id)
   }
+
+  // Shared-iframe soft navigation (devframe 0.7.11). An iframe dock flagged
+  // `subTabs` is an *anchor* that owns one live iframe (its `frameId`); the
+  // embedded app ships a small `postMessage` nav shim. When the anchor's iframe
+  // mounts we attach the hub-shipped frame-nav adapter, which runs the ready
+  // handshake, turns the reported tab manifest into client-only member docks,
+  // and drives the bidirectional nav loop (selecting a member soft-navigates
+  // the shared frame; the app's `navigated` report moves the dock highlight).
+  //
+  // Our shell runs its own dock machinery instead of hub's `createDevframeClientHost`,
+  // so we replicate the host's `maybeAttachFrameNav`: one adapter per `frameId`,
+  // torn down when the anchor is removed.
+  const frameNavAdapters = new Map<string, () => void>()
+  const frameNavAnchors = new Map<string, string>()
+
+  const attachFrameNav = (anchor: DevToolsViewIframe, state: DockEntryState) => {
+    const frameId = anchor.frameId ?? anchor.id
+    const start = (iframe: HTMLIFrameElement) => {
+      if (frameNavAdapters.has(frameId))
+        return
+      const adapter = attachDevToolsFrameNav({
+        frameId,
+        anchor,
+        iframe,
+        docks: {
+          register: registerClientDock,
+          switchEntry,
+          getStateById: (id: string) => dockEntryStateMap.get(id),
+        },
+      })
+      frameNavAdapters.set(frameId, adapter.dispose)
+    }
+    if (state.domElements.iframe)
+      start(state.domElements.iframe)
+    state.events.on('dom:iframe:mounted', start)
+  }
+
+  watch(
+    entries,
+    (list) => {
+      const seen = new Set<string>()
+      for (const meta of list) {
+        if (meta.type !== 'iframe' || !meta.subTabs)
+          continue
+        seen.add(meta.id)
+        if (frameNavAnchors.has(meta.id))
+          continue
+        const state = dockEntryStateMap.get(meta.id)
+        if (!state)
+          continue
+        frameNavAnchors.set(meta.id, meta.frameId ?? meta.id)
+        attachFrameNav(meta, state)
+      }
+      // An anchor that disappeared tears down its adapter, which disposes every
+      // member dock it registered and detaches the `postMessage` listener.
+      for (const [anchorId, frameId] of [...frameNavAnchors]) {
+        if (seen.has(anchorId))
+          continue
+        frameNavAnchors.delete(anchorId)
+        frameNavAdapters.get(frameId)?.()
+        frameNavAdapters.delete(frameId)
+      }
+    },
+    { immediate: true },
+  )
 
   // Honor cross-iframe dock-activation requests (devframe 0.7.3). A mounted
   // plugin — or our own launcher's "View in Terminal" action — calls the

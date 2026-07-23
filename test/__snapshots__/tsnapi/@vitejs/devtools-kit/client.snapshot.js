@@ -11,6 +11,9 @@ export var CLIENT_CONTEXT_KEY /* const */
 // #endregion
 
 // #region Other
+export { attachDevToolsFrameNav }
 export { connectRemoteDevTools }
+export { FRAME_NAV_CHANNEL }
+export { FRAME_NAV_VERSION }
 export { parseRemoteConnection }
 // #endregion

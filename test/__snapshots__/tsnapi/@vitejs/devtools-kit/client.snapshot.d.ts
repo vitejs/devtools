@@ -11,11 +11,20 @@ export declare const CLIENT_CONTEXT_KEY: string;
 // #endregion
 
 // #region Other
+export { attachDevToolsFrameNav }
 export { CommandsContext }
 export { connectRemoteDevTools }
 export { ConnectRemoteDevToolsOptions }
 export { DevToolsClientContext }
 export { DevToolsClientRpcHost }
+export { DevToolsFrameNavClient }
+export { DevToolsFrameNavClientOptions }
+export { DevToolsFrameNavEnvelope }
+export { DevToolsFrameNavFrameMessage }
+export { DevToolsFrameNavHostMessage }
+export { DevToolsFrameNavHostPayload }
+export { DevToolsFrameNavListenTarget }
+export { DevToolsFrameTab }
 export { DevToolsRpcClient }
 export { DevToolsRpcClientCall }
 export { DevToolsRpcClientCallEvent }
@@ -36,6 +45,8 @@ export { DockRenderersContext }
 export { DocksContext }
 export { DocksEntriesContext }
 export { DocksPanelContext }
+export { FRAME_NAV_CHANNEL }
+export { FRAME_NAV_VERSION }
 export { parseRemoteConnection }
 export { RpcClientEvents }
 export { RpcStreamingClientHost }

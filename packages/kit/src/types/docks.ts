@@ -11,6 +11,8 @@ export type {
   DevframeDocksHost as DevToolsDockHost,
   DevframeDocksActiveState as DevToolsDocksActiveState,
   DevframeDockUserEntry as DevToolsDockUserEntry,
+  FrameSubTabsConfig as DevToolsFrameSubTabsConfig,
+  NavTarget as DevToolsNavTarget,
   DevframeViewAction as DevToolsViewAction,
   DevframeViewBuiltin as DevToolsViewBuiltin,
   DevframeViewCustomRender as DevToolsViewCustomRender,
