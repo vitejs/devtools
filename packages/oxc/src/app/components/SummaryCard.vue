@@ -66,7 +66,6 @@ const configFiles = computed<OxcConfigFile[]>(() => {
               >
                 <DisplayFileIcon class="flex-none" :filename="configFile.path" />
                 <span class="truncate">{{ configFile.path }}</span>
-                <div class="i-ph-arrow-up-right flex-none op-fade" />
               </button>
             </template>
             <template #title>

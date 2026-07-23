@@ -17,11 +17,8 @@ const { state: lintResults, execute: reloadResults } = useAsyncState(
 )
 const { isLoading: isRunning, execute: runLint } = useAsyncState(
   async () => {
-    const resultId = await rpc.value.call('devtools-oxc:run-lint')
+    await rpc.value.call('devtools-oxc:run-lint')
     await reloadResults()
-    const result = lintResults.value?.find(item => item.timestamp === resultId)
-    if (result?.summary.files_with_issues)
-      await router.push({ query: { result: String(resultId) } })
   },
   undefined,
   { immediate: false },

@@ -1,22 +1,17 @@
 <script setup lang="ts">
-import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import { useAsyncState, useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { isMatch } from 'picomatch'
+import { useRoute } from '#app/composables/router'
 import { useRpc } from '#imports'
 
-const props = defineProps<{
-  resultId: string
-}>()
-
-const emit = defineEmits<{
-  close: []
-}>()
+const route = useRoute()
+const resultId = computed(() => String(route.params.result))
 
 const rpc = useRpc()
 const { state: lintResult, isLoading } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:get-lint-result', { resultId: props.resultId }),
+  () => rpc.value.call('devtools-oxc:get-lint-result', { resultId: resultId.value }),
   null,
 )
 
@@ -65,18 +60,12 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
 </script>
 
 <template>
-  <div class="relative h-full w-full">
-    <DisplayCloseButton
-      class="absolute right-1 top-1.5 z-panel-content bg-glass"
-      @click="emit('close')"
-    />
+  <div class="h-full of-auto flex flex-col gap-4 p6" style="scrollbar-gutter: stable">
+    <Back to="/oxlint/lint" />
 
     <VisualLoading v-if="isLoading" text="Loading lint result..." />
-    <div
-      v-else
-      class="h-full of-auto flex flex-col gap-4 p6 pr-10"
-      style="scrollbar-gutter: stable"
-    >
+
+    <template v-else>
       <SummaryCard
         v-if="showSummary && lintResult?.meta.summary"
         :summary="lintResult.meta.summary"
@@ -138,6 +127,6 @@ const showFiles = computed(() => filteredFiles.value.length > 0)
           <button class="btn-action" @click="resetSearch">Reset search</button>
         </VisualEmptyState>
       </template>
-    </div>
+    </template>
   </div>
 </template>

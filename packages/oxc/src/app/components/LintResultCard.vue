@@ -19,7 +19,7 @@ const failed = computed(() => result.summary.files_with_issues > 0)
   <ContainerCard class="relative px4 py3 cursor-pointer hover:bg-active">
     <NuxtLink
       class="absolute inset-0"
-      :to="{ path: '/oxlint/lint', query: { result: String(result.timestamp) } }"
+      :to="`/oxlint/lint/${result.timestamp}`"
       :aria-label="`Open lint result ${result.timestamp}`"
     />
 
