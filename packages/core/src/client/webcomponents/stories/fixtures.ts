@@ -58,6 +58,23 @@ export const groupedEntries: DevToolsDockEntry[] = [
 ]
 
 /**
+ * A single group whose members carry in-group sub-categories, so the popover /
+ * sidebar / settings show sub-category dividers and headers. The group's own
+ * `category` (`framework`) is the outer bucket; members split by their own
+ * `category` inside the group.
+ */
+export const subcategorizedGroupEntries: DevToolsDockEntry[] = [
+  group('tools', 'Tools', 'ph:wrench-duotone', { category: 'framework' }),
+  iframe('tools:overview', 'Overview', 'ph:gauge-duotone', { groupId: 'tools', category: 'app', defaultOrder: 0 }),
+  iframe('tools:routes', 'Routes', 'ph:signpost-duotone', { groupId: 'tools', category: 'app', defaultOrder: 1 }),
+  iframe('tools:components', 'Components', 'ph:puzzle-piece-duotone', { groupId: 'tools', category: 'framework', defaultOrder: 2 }),
+  iframe('tools:graph', 'Graph', 'ph:graph-duotone', { groupId: 'tools', category: 'advanced', defaultOrder: 3 }),
+]
+
+/** The Tools group entry on its own (for sub-category group stories). */
+export const toolsGroup = subcategorizedGroupEntries.find(e => e.id === 'tools') as DevToolsViewGroup
+
+/**
  * Enough top-level entries to exceed the dock's 5-slot capacity, so the overflow
  * button appears.
  */

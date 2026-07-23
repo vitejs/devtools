@@ -466,6 +466,22 @@ A group carries the usual `title`/`icon`/`category`/`defaultOrder`/`when` fields
 
 Membership is a flat pointer, not containment: every member stays an independently-registered top-level entry. A member whose `groupId` references a group that was never registered renders as a normal top-level entry, and a group with no members stays hidden until an entry joins it. Grouping is one level deep — a group entry does not set its own `groupId`.
 
+### Categories inside a group
+
+The `category` field plays a dual role. On a top-level entry it is the outer dock-bar bucket. On a **grouped** member — one whose `groupId` resolves to a registered group — the outer bucket is the **group's** own `category`, and the member's `category` becomes an **in-group sub-category** that divides the group's popover, edge-mode sidebar, settings list, and command-palette drill-down into sections. Sub-categories order by the same category table as the outer bar and default to `default` when unset.
+
+```ts
+// The group's category ('framework') is the outer bucket for the whole group.
+ctx.docks.register({ id: 'nuxt', title: 'Nuxt', icon: 'logos:nuxt-icon', type: 'group', category: 'framework' })
+
+// Members sort into 'app' and 'advanced' SUB-categories inside the Nuxt group,
+// while the group button itself lives in 'framework' on the bar.
+ctx.docks.register({ id: 'nuxt:overview', title: 'Overview', icon: 'ph:gauge-duotone', type: 'iframe', url: '/__nuxt/overview/', groupId: 'nuxt', category: 'app' })
+ctx.docks.register({ id: 'nuxt:graph', title: 'Graph', icon: 'ph:graph-duotone', type: 'iframe', url: '/__nuxt/graph/', groupId: 'nuxt', category: 'advanced' })
+```
+
+An orphan member (its `groupId` matches no registered group) has no group to supply an outer bucket, so it falls back to its own `category`.
+
 ### The built-in Vite+ group
 
 Vite DevTools seeds a built-in **Vite+** group that collects Vite ecosystem integrations under one button. Join it with the exported id:
@@ -487,7 +503,7 @@ DevTools for Rolldown joins this group out of the box.
 
 ### Visibility and order
 
-From the dock settings panel, users hide or reorder members within a group independently, and hide the whole group from its row.
+From the dock settings panel, users hide or reorder members within a group independently, and hide the whole group from its row. When a group's members span several sub-categories, each sub-category reorders on its own and shows its own header.
 
 ## Common options
 
@@ -498,11 +514,11 @@ Every dock type accepts these base fields:
 | `id` | `string` | Unique, namespaced. |
 | `title` | `string` | Label shown in the dock. |
 | `icon` | `string \| { light, dark }` | Iconify name, URL, data URI, or light/dark pair. |
-| `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Grouping in the dock panel. Defaults to `'default'`. |
+| `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Outer dock-bar bucket, or the in-group sub-category when `groupId` resolves to a group — see [Categories inside a group](#categories-inside-a-group). Defaults to `'default'`. |
 | `defaultOrder` | `number` | Higher numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
-| `groupId` | `string` | Collapse this entry under a group's button — see [Docked groups](#docked-groups). |
+| `groupId` | `string` | Collapse this entry under a group's button; the group's `category` becomes this entry's outer bucket — see [Docked groups](#docked-groups). |
 
 ## Update
 

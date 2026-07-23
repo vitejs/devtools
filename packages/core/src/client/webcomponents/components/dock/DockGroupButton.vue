@@ -3,7 +3,7 @@ import type { DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { watchDebounced } from '@vueuse/core'
 import { computed, h, ref, useTemplateRef } from 'vue'
-import { getGroupMembers } from '../../state/dock-settings'
+import { getGroupMembers, getGroupMembersGrouped } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { setDocksGroupPanel, useDocksGroupPanel } from '../../state/floating-tooltip'
 import DockEntry from './DockEntry.vue'
@@ -29,6 +29,14 @@ const members = computed(() => getGroupMembers(
   { whenContext: props.context.when.context },
 ))
 
+// Same members, split by in-group sub-category, for the popover's sectioned view.
+const membersGrouped = computed(() => getGroupMembersGrouped(
+  props.context.docks.entries,
+  props.group.id,
+  settings.value,
+  { whenContext: props.context.when.context },
+))
+
 // The group button is "active" while any of its members owns the panel.
 const isActive = computed(() => {
   const id = props.selected?.id
@@ -48,7 +56,7 @@ function showPanel() {
     content: () => h(DockGroupPopover, {
       context: props.context,
       group: props.group,
-      members: members.value,
+      members: membersGrouped.value,
       selectedId: props.selected?.id ?? null,
       onSelect: (entry: DevToolsDockEntry) => {
         emit('select', entry)

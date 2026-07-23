@@ -28,6 +28,24 @@ export function resolveCommandIcon(icon: DevToolsDockEntry['icon']): string | un
   return icon?.light ?? icon?.dark
 }
 
+const CATEGORY_LABELS: Record<string, string> = {
+  'default': 'Default',
+  'app': 'App',
+  'framework': 'Framework',
+  'web': 'Web',
+  'advanced': 'Advanced',
+  '~builtin': 'Built-in',
+}
+
+/**
+ * Human label for a dock category id, used for category headers (settings) and
+ * in-group sub-category nodes (command palette). Falls back to the raw id for
+ * custom categories a kit may register.
+ */
+export function getCategoryLabel(category: string): string {
+  return CATEGORY_LABELS[category] ?? category
+}
+
 /**
  * Collect the ids of every registered dock group (`type: 'group'`).
  *
@@ -60,9 +78,39 @@ export function getEntryGroup(
 }
 
 /**
- * List the member entries of a group, preserving the same sorting the dock bar
- * applies (pinned, custom order, default order). Members hidden by user
- * settings or a falsy `when` clause are filtered out unless `includeHidden`.
+ * Group a group's members by their **in-group sub-category** and sort them the
+ * same way the dock bar sorts (pinned, custom order, default order). Members
+ * hidden by user settings or a falsy `when` clause are filtered out unless
+ * `includeHidden`.
+ *
+ * A member's own `category` field is its in-group sub-category (defaulting to
+ * `'default'`) — the group's `category` is the *outer* bucket the whole group
+ * lives in, so it never bleeds into the sub-category split here. Sub-categories
+ * are ordered by the same {@link DEFAULT_CATEGORIES_ORDER} table as top-level
+ * categories, but they are not independently hideable (the outer category-hide
+ * toggle does not apply inside a group).
+ */
+export function getGroupMembersGrouped(
+  entries: DevToolsDockEntry[],
+  groupId: string,
+  settings?: Immutable<DevToolsDocksUserSettings>,
+  options?: { includeHidden?: boolean, whenContext?: WhenContext },
+): DevToolsDockEntriesGrouped {
+  const members = entries.filter(e => e.type !== 'group' && e.groupId === groupId)
+  if (!settings)
+    return members.length ? [['default', members]] : []
+  // Group by the members' own `category` (the in-group sub-category), never the
+  // group's category. Category-hide is an outer-bar concern, so it is ignored.
+  return docksGroupByCategories(members, settings, { ...options, ignoreCategoryHidden: true })
+}
+
+/**
+ * List the member entries of a group as a flat array, preserving the same
+ * sub-category order + sorting {@link getGroupMembersGrouped} produces. Members
+ * hidden by user settings or a falsy `when` clause are filtered out unless
+ * `includeHidden`. Use this where the caller only needs the members in display
+ * order (e.g. the group button's active check, empty-group detection); use
+ * {@link getGroupMembersGrouped} where the in-group sub-category split matters.
  */
 export function getGroupMembers(
   entries: DevToolsDockEntry[],
@@ -70,35 +118,50 @@ export function getGroupMembers(
   settings?: Immutable<DevToolsDocksUserSettings>,
   options?: { includeHidden?: boolean, whenContext?: WhenContext },
 ): DevToolsDockEntry[] {
-  const members = entries.filter(e => e.type !== 'group' && e.groupId === groupId)
-  if (!settings)
-    return members
-  // Reuse the category grouping (sorting + visibility) then flatten back out.
-  const group = entries.find(e => e.id === groupId)
-  const grouped = docksGroupByCategories(members, settings, { ...options, groupCategory: group?.category })
-  return grouped.flatMap(([, items]) => items)
+  return getGroupMembersGrouped(entries, groupId, settings, options).flatMap(([, items]) => items)
 }
 
 /**
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, sorts by pinned status, custom order, and default order.
+ *
+ * Outer bucketing follows the dual role of `category`: a grouped member whose
+ * `groupId` resolves to a registered group takes that **group's** `category` as
+ * its outer bucket (its own `category` is the in-group sub-category instead).
+ * When `collapseGroups` is set those members are folded away entirely and only
+ * the group entry — carrying the group's own `category` — represents them on the
+ * bar, so the outer bucket is always the group's category. Orphan members
+ * (whose `groupId` references no registered group) fall back to their own
+ * `category`.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, groupCategory?: string },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, ignoreCategoryHidden?: boolean },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false, whenContext, collapseGroups = false, groupCategory } = options ?? {}
+  const { includeHidden = false, whenContext, collapseGroups = false, ignoreCategoryHidden = false } = options ?? {}
 
-  // When collapsing, members whose `groupId` resolves to a registered group are
-  // folded under that group's button; the group entry itself stays on the bar.
-  const registeredGroupIds = collapseGroups ? getRegisteredGroupIds(entries) : undefined
+  // Map every registered group id to its resolved outer category. A grouped
+  // member's OUTER bucket is its group's category (the member's own `category`
+  // is its in-group sub-category); the group entry itself carries this same
+  // category. When only members are passed (the in-group split), no group entry
+  // is present here, so members fall back to their own `category` — exactly the
+  // sub-category behaviour we want.
+  const groupCategories = new Map<string, string>()
+  for (const entry of entries) {
+    if (entry.type === 'group')
+      groupCategories.set(entry.id, entry.category ?? 'default')
+  }
 
   const map = new Map<string, DevToolsDockEntry[]>()
   for (const entry of entries) {
+    const resolvedGroupCategory = entry.type !== 'group' && entry.groupId
+      ? groupCategories.get(entry.groupId)
+      : undefined
+
     // Collapse grouped members out of the top-level bar (orphans stay visible)
-    if (registeredGroupIds && entry.type !== 'group' && entry.groupId && registeredGroupIds.has(entry.groupId))
+    if (collapseGroups && resolvedGroupCategory !== undefined)
       continue
 
     // Skip if hidden by `when` clause
@@ -114,9 +177,12 @@ export function docksGroupByCategories(
     if (!includeHidden && docksHidden.includes(entry.id))
       continue
 
-    const category = entry.category ?? groupCategory ?? 'default'
-    // Skip if category is hidden
-    if (!includeHidden && docksCategoriesHidden.includes(category))
+    // Outer bucket: the group's category for grouped members, else the entry's
+    // own category. Orphans (groupId with no registered group) fall through to
+    // their own `category`.
+    const category = resolvedGroupCategory ?? entry.category ?? 'default'
+    // Skip if category is hidden (an outer-bar concern; not applied in-group)
+    if (!includeHidden && !ignoreCategoryHidden && docksCategoriesHidden.includes(category))
       continue
 
     if (!map.has(category))

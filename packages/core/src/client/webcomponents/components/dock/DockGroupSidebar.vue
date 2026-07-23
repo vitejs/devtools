@@ -2,7 +2,7 @@
 import type { DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed } from 'vue'
-import { getGroupMembers } from '../../state/dock-settings'
+import { getGroupMembersGrouped } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { setFloatingTooltip } from '../../state/floating-tooltip'
 import DockIcon from './DockIcon.vue'
@@ -15,7 +15,8 @@ const props = defineProps<{
 
 const settings = sharedStateToRef(props.context.docks.settings)
 
-const members = computed(() => getGroupMembers(
+// Members split by in-group sub-category so the sidebar can divide sections.
+const memberGroups = computed(() => getGroupMembersGrouped(
   props.context.docks.entries,
   props.group.id,
   settings.value,
@@ -47,24 +48,28 @@ function hideTooltip() {
     </div>
     <div class="w-8 h-px border-t border-base my0.5" />
 
-    <!-- Member icons -->
-    <button
-      v-for="member of members"
-      :key="member.id"
-      class="relative flex items-center justify-center w-8 h-8 rounded-lg transition"
-      :class="selectedId === member.id ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
-      @pointerenter="showTooltip($event, member.title)"
-      @pointerleave="hideTooltip"
-      @pointerdown="hideTooltip"
-      @click="select(member.id)"
-    >
-      <DockIcon :icon="member.icon" class="w-5 h-5 flex-none" />
-      <div
-        v-if="member.badge"
-        class="absolute top-0.5 right-0.5 bg-gray-6 text-white text-0.6em px-0.5 rounded-full shadow leading-none"
+    <!-- Member icons, grouped by in-group sub-category -->
+    <template v-for="([category, members], idx) of memberGroups" :key="category">
+      <!-- Sub-category divider, mirroring the group anchor separator -->
+      <div v-if="idx > 0 && members.length" class="w-8 h-px border-t border-base my0.5" />
+      <button
+        v-for="member of members"
+        :key="member.id"
+        class="relative flex items-center justify-center w-8 h-8 rounded-lg transition"
+        :class="selectedId === member.id ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
+        @pointerenter="showTooltip($event, member.title)"
+        @pointerleave="hideTooltip"
+        @pointerdown="hideTooltip"
+        @click="select(member.id)"
       >
-        {{ member.badge }}
-      </div>
-    </button>
+        <DockIcon :icon="member.icon" class="w-5 h-5 flex-none" />
+        <div
+          v-if="member.badge"
+          class="absolute top-0.5 right-0.5 bg-gray-6 text-white text-0.6em px-0.5 rounded-full shadow leading-none"
+        >
+          {{ member.badge }}
+        </div>
+      </button>
+    </template>
   </div>
 </template>

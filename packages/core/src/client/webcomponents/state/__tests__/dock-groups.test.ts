@@ -3,8 +3,10 @@ import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs
 import { describe, expect, it } from 'vitest'
 import {
   docksGroupByCategories,
+  getCategoryLabel,
   getEntryGroup,
   getGroupMembers,
+  getGroupMembersGrouped,
   getRegisteredGroupIds,
   resolveCommandIcon,
 } from '../dock-settings'
@@ -89,6 +91,98 @@ describe('dock groups', () => {
     expect(ids).not.toContain('nuxt')
     expect(ids).not.toContain('nuxt:overview')
     expect(ids).not.toContain('nuxt:pages')
+  })
+})
+
+describe('in-group sub-categories (dual role of `category`)', () => {
+  // The group carries category 'framework' (the OUTER bucket for the whole
+  // group); its members carry their own categories, which act as IN-GROUP
+  // sub-categories. An orphan (groupId → no registered group) keeps its own
+  // category as the outer bucket.
+  const entries: DevToolsDockEntry[] = [
+    group('nuxt', { category: 'framework' }),
+    iframe('nuxt:overview', { groupId: 'nuxt', category: 'app', defaultOrder: 1 }),
+    iframe('nuxt:pages', { groupId: 'nuxt', category: 'app', defaultOrder: 0 }),
+    iframe('nuxt:graph', { groupId: 'nuxt', category: 'advanced' }),
+    iframe('orphan', { groupId: 'ghost', category: 'web' }),
+  ]
+
+  function categoryOf(grouped: ReturnType<typeof docksGroupByCategories>, id: string): string | undefined {
+    return grouped.find(([, items]) => items.some(i => i.id === id))?.[0]
+  }
+
+  it('buckets grouped members under the GROUP\'s category, not their own', () => {
+    const grouped = docksGroupByCategories(entries, settings)
+    // members inherit the group's outer category ('framework'), ignoring their
+    // own ('app' / 'advanced') for the outer bucket
+    expect(categoryOf(grouped, 'nuxt:overview')).toBe('framework')
+    expect(categoryOf(grouped, 'nuxt:graph')).toBe('framework')
+    // the group button itself lands in its own category
+    expect(categoryOf(grouped, 'nuxt')).toBe('framework')
+    // no outer 'app'/'advanced' buckets leak from the members
+    expect(grouped.map(([c]) => c)).not.toContain('app')
+    expect(grouped.map(([c]) => c)).not.toContain('advanced')
+  })
+
+  it('keeps the group button in the group\'s category when collapsing', () => {
+    const grouped = docksGroupByCategories(entries, settings, { collapseGroups: true })
+    expect(categoryOf(grouped, 'nuxt')).toBe('framework')
+    // members folded away entirely
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).not.toContain('nuxt:overview')
+  })
+
+  it('falls back to the orphan\'s OWN category (unregistered group)', () => {
+    const grouped = docksGroupByCategories(entries, settings)
+    expect(categoryOf(grouped, 'orphan')).toBe('web')
+  })
+
+  it('splits a group\'s members by their in-group sub-category, ordered + sorted', () => {
+    const sub = getGroupMembersGrouped(entries, 'nuxt', settings)
+    // sub-categories ordered by the shared DEFAULT_CATEGORIES_ORDER (app < advanced)
+    expect(sub.map(([c]) => c)).toEqual(['app', 'advanced'])
+    // members within a sub-category sorted by defaultOrder (pages:0 before overview:1)
+    expect(sub.find(([c]) => c === 'app')![1].map(e => e.id)).toEqual(['nuxt:pages', 'nuxt:overview'])
+    expect(sub.find(([c]) => c === 'advanced')![1].map(e => e.id)).toEqual(['nuxt:graph'])
+  })
+
+  it('puts uncategorised members in a `default` sub-category', () => {
+    const plain: DevToolsDockEntry[] = [
+      group('g', { category: 'app' }),
+      iframe('g:a', { groupId: 'g' }),
+      iframe('g:b', { groupId: 'g' }),
+    ]
+    const sub = getGroupMembersGrouped(plain, 'g', settings)
+    expect(sub.map(([c]) => c)).toEqual(['default'])
+    // and their OUTER bucket is still the group's category
+    expect(docksGroupByCategories(plain, settings).find(([, items]) => items.some(i => i.id === 'g:a'))?.[0]).toBe('app')
+  })
+
+  it('sends a group with no category, and its members, to `default`', () => {
+    const plain: DevToolsDockEntry[] = [
+      group('g'),
+      iframe('g:a', { groupId: 'g' }),
+    ]
+    const grouped = docksGroupByCategories(plain, settings)
+    expect(grouped.find(([, items]) => items.some(i => i.id === 'g:a'))?.[0]).toBe('default')
+  })
+
+  it('does not apply the outer category-hide toggle inside a group', () => {
+    // hiding the outer 'app' category must not hide an in-group 'app' sub-section
+    const hidden = { ...settings, docksCategoriesHidden: ['app'] }
+    const sub = getGroupMembersGrouped(entries, 'nuxt', hidden)
+    expect(sub.find(([c]) => c === 'app')?.[1].map(e => e.id)).toEqual(['nuxt:pages', 'nuxt:overview'])
+  })
+})
+
+describe('getCategoryLabel', () => {
+  it('maps known category ids to human labels', () => {
+    expect(getCategoryLabel('framework')).toBe('Framework')
+    expect(getCategoryLabel('~builtin')).toBe('Built-in')
+  })
+
+  it('falls back to the raw id for custom categories', () => {
+    expect(getCategoryLabel('my-custom')).toBe('my-custom')
   })
 })
 

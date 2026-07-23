@@ -6,7 +6,7 @@ Three layers, one mental model:
 
 - **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`).
 - **`@devframes/hub`** — *the framework-neutral hub layer on top of devframe.* Owns docks, terminals, messages, commands, the `mountDevframe` primitive, and the json-render factory — anything that only matters once a host wants to combine multiple devframes into one UI. External project, same repo as devframe; consumed via npm.
-- **`@vitejs/devtools-kit`** — *the Vite-flavored skin over `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `viteplus` dock category), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
+- **`@vitejs/devtools-kit`** — *the Vite-flavored skin over `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `viteplus` dock group), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
 
 When deciding where something belongs: if a single-app standalone CLI would still need it, it belongs upstream in devframe; if it only matters once a host combines multiple integrations, it belongs in `@devframes/hub` (or in `@vitejs/devtools-kit` if it's Vite-specific).
 
@@ -47,7 +47,7 @@ flowchart TD
 
 ## Dep Boundary
 
-`devframe` and `@devframes/hub` are external packages consumed via `catalog:deps` — contribute upstream at [github.com/devframes/devframe](https://github.com/devframes/devframe). `packages/kit` and above build on top of them. Features that require multi-integration awareness (docks, terminals, messages, commands) belong upstream in `@devframes/hub`. Features that only matter to Vite — `ViteDevToolsNodeContext`, `PluginWithDevTools`, the `viteplus` category, the kit-pinned `/__devtools/` mount path, the `vite:open-in-editor`/`vite:open-in-finder` commands — stay in `@vitejs/devtools-kit` and `@vitejs/devtools`.
+`devframe` and `@devframes/hub` are external packages consumed via `catalog:deps` — contribute upstream at [github.com/devframes/devframe](https://github.com/devframes/devframe). `packages/kit` and above build on top of them. Features that require multi-integration awareness (docks, terminals, messages, commands) belong upstream in `@devframes/hub`. Features that only matter to Vite — `ViteDevToolsNodeContext`, `PluginWithDevTools`, the `viteplus` group, the kit-pinned `/__devtools/` mount path, the `vite:open-in-editor`/`vite:open-in-finder` commands — stay in `@vitejs/devtools-kit` and `@vitejs/devtools`.
 
 `devframe/node/hub-internals` is a marked-public-but-low-level subpath exposing a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters reaching into devframe's hub-side machinery — kit's adapters use `getInternalContext` for remote-dock token allocation and WS-endpoint metadata. End users should not import it.
 

@@ -8,7 +8,7 @@ import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
-import { docksGroupByCategories, getGroupMembers, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
+import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
@@ -249,10 +249,21 @@ export async function createDocksContext(
       .map((entry) => {
         if (entry.type !== 'group')
           return toCommand(entry)
-        const members = getGroupMembers(dockEntries.value, entry.id, settings.value, { whenContext: getWhenContext() })
+        // Members nest under the group, split by their in-group sub-category.
+        // A single sub-category (the common case) is flattened directly so the
+        // palette doesn't add a pointless one-item drill-down level.
+        const memberGroups = getGroupMembersGrouped(dockEntries.value, entry.id, settings.value, { whenContext: getWhenContext() })
+        const children: DevToolsClientCommand[] = memberGroups.length <= 1
+          ? (memberGroups[0]?.[1] ?? []).map(toCommand)
+          : memberGroups.map(([category, members]) => ({
+              id: `devtools:docks:${entry.id}:cat:${category}`,
+              source: 'client' as const,
+              title: getCategoryLabel(category),
+              children: members.map(toCommand),
+            }))
         return {
           ...toCommand(entry),
-          children: members.map(toCommand),
+          children,
         }
       })
 

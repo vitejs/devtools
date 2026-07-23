@@ -1,12 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import type { DevToolsViewGroup } from '@vitejs/devtools-kit'
+import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { h } from 'vue'
-import { group, groupedEntries } from '../../stories/fixtures'
+import { getGroupMembersGrouped } from '../../state/dock-settings'
+import { group, groupedEntries, subcategorizedGroupEntries, toolsGroup } from '../../stories/fixtures'
 import { mountWithContext, stage } from '../../stories/story-helpers'
 import DockGroupPopover from './DockGroupPopover.vue'
 
+const settings = DEFAULT_STATE_USER_SETTINGS()
 const nuxtGroup = groupedEntries.find(e => e.id === 'nuxt') as DevToolsViewGroup
-const nuxtMembers = groupedEntries.filter(e => e.type !== 'group' && (e as any).groupId === 'nuxt')
+// Members split by in-group sub-category (the shape the popover renders).
+const nuxtMembers = getGroupMembersGrouped(groupedEntries, 'nuxt', settings)
+const toolsMembers = getGroupMembersGrouped(subcategorizedGroupEntries, 'tools', settings)
 
 /** A framed surface that stands in for the floating popover container. */
 function popover(children: any) {
@@ -64,6 +69,22 @@ export const WithBadge: Story = {
         group: nuxtGroup,
         members: nuxtMembers,
         selectedId: 'nuxt:components',
+        onSelect: (entry: any) => ctx.docks.switchEntry(entry.id),
+      }))),
+    ),
+  }),
+}
+
+/** Members split across in-group sub-categories, shown with section dividers. */
+export const WithSubcategories: Story = {
+  render: () => ({
+    setup: () => mountWithContext(
+      { entries: subcategorizedGroupEntries },
+      ctx => stage(popover(h(DockGroupPopover, {
+        context: ctx,
+        group: toolsGroup,
+        members: toolsMembers,
+        selectedId: ctx.docks.selectedId,
         onSelect: (entry: any) => ctx.docks.switchEntry(entry.id),
       }))),
     ),

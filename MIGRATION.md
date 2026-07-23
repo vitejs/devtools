@@ -13,7 +13,7 @@
 ### What stays the same
 
 - The Vite DevTools SPA continues to serve at **`/__devtools/`**. The kit pins this mount path independently of devframe's new `/__devframe/` default.
-- `viteplus` remains a valid dock category.
+- `viteplus` remains the built-in Vite+ dock **group** id (join it via `groupId: DEVTOOLS_VITEPLUS_GROUP_ID`).
 - `vite:open-in-editor` and `vite:open-in-finder` server commands keep their existing IDs.
 
 ### If you import from `devframe` directly
