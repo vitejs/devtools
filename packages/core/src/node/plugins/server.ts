@@ -37,12 +37,12 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
 
 export interface DevToolsServerOptions {
   /**
-   * Start the injected overlay in passive mode (docks hidden until the
-   * developer activates them with the shortcut).
+   * Initial visibility of the injected overlay. `'passive'` keeps the docks
+   * hidden until the developer activates them with the shortcut.
    *
-   * @default true
+   * @default 'passive'
    */
-  passive?: boolean
+  visibility?: 'passive' | 'normal'
 }
 
 export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
@@ -60,7 +60,7 @@ export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
 
       const { middleware } = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
-        passive: options.passive ?? true,
+        visibility: options.visibility ?? 'passive',
         websocket: {
           host,
         },

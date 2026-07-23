@@ -25,12 +25,13 @@ const debugInvoked = createDebug('vite:devtools:rpc:invoked')
 export interface CreateWsServerOptions {
   cwd: string
   /**
-   * Whether the injected overlay starts in passive mode (docks hidden until the
-   * developer opts in). Consumed by the DevTools middleware, not the WS server.
+   * Initial visibility of the injected overlay (`'passive'` hides the docks
+   * until the developer opts in). Consumed by the DevTools middleware, not the
+   * WS server.
    *
-   * @default true
+   * @default 'passive'
    */
-  passive?: boolean
+  visibility?: 'passive' | 'normal'
   websocket: {
     port?: number
     host: string

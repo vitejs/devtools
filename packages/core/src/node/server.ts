@@ -37,7 +37,7 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
   // unauthenticated because it only toggles the local overlay's visibility and
   // writes a marker file — the docks themselves still require WS trust to
   // surface any project data.
-  const passiveOption = options.passive ?? true
+  const passiveOption = (options.visibility ?? 'passive') !== 'normal'
   h3.use(`/${DEVTOOLS_MODE_FILENAME}`, defineHandler(async (event) => {
     if (event.req.method === 'POST') {
       const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined

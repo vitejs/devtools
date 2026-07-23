@@ -15,16 +15,17 @@ export interface DevToolsOptions {
   builtinDevTools?: boolean
 
   /**
-   * Start the injected overlay in passive mode: the floating docks stay hidden
-   * and a console hint invites the developer to reveal them with a keyboard
-   * shortcut. Activating once persists a flag in the project's `node_modules`,
-   * so later dev sessions on this machine boot straight into normal mode.
+   * Initial visibility of the injected overlay.
    *
-   * Set to `false` to always show the docks.
+   * - `'passive'` — the floating docks stay hidden and a console hint invites
+   *   the developer to reveal them with a keyboard shortcut. Activating once
+   *   persists a flag in the project's `node_modules`, so later dev sessions on
+   *   this machine boot straight into normal mode.
+   * - `'normal'` — always show the docks.
    *
-   * @default true
+   * @default 'passive'
    */
-  passive?: boolean
+  visibility?: 'passive' | 'normal'
 
   /**
    * Options for building static DevTools output alongside `vite build`.
@@ -48,12 +49,12 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   const {
     builtinDevTools = true,
     build,
-    passive = true,
+    visibility = 'passive',
   } = options
 
   const plugins = [
     DevToolsInjection(),
-    DevToolsServer({ passive }),
+    DevToolsServer({ visibility }),
   ]
 
   if (build?.withApp) {

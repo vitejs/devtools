@@ -99,7 +99,7 @@ pnpm dev
 
 Open your app in the browser. The embedded client starts in **passive mode**: the floating docks stay out of the way and the console prints a hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS). Press it once and the docks appear; the choice is remembered in the project's `node_modules`, so every later dev session on this machine opens straight into the docks. The "Hide DevTools" command in the palette returns to passive mode.
 
-To always show the docks and skip passive mode, set `passive: false`:
+To always show the docks and skip passive mode, set `visibility: 'normal'`:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -108,7 +108,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [
     DevTools({
-      passive: false,
+      visibility: 'normal',
     }),
   ],
 })
