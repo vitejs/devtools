@@ -505,6 +505,8 @@ DevTools for Rolldown joins this group out of the box.
 
 From the dock settings panel, users hide or reorder members within a group independently, and hide the whole group from its row. When a group's members span several sub-categories, each sub-category reorders on its own and shows its own header.
 
+Pinning an entry moves it into a dedicated **Pinned** category that leads the dock bar ahead of every other category. A top-level entry (or a whole group button) pins to the bar-level Pinned bucket; a grouped member pins to a Pinned sub-category that leads its own group, staying inside the group rather than surfacing on the bar. A pinned entry shows even when its home category is hidden, and unpinning returns it to that category in its previous position.
+
 ## Common options
 
 Every dock type accepts these base fields:
@@ -515,7 +517,7 @@ Every dock type accepts these base fields:
 | `title` | `string` | Label shown in the dock. |
 | `icon` | `string \| { light, dark }` | Iconify name, URL, data URI, or light/dark pair. |
 | `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Outer dock-bar bucket, or the in-group sub-category when `groupId` resolves to a group — see [Categories inside a group](#categories-inside-a-group). Defaults to `'default'`. |
-| `defaultOrder` | `number` | Higher numbers appear first. Default `0`. |
+| `defaultOrder` | `number` | Orders entries within a category; lower numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
 | `groupId` | `string` | Collapse this entry under a group's button; the group's `category` becomes this entry's outer bucket — see [Docked groups](#docked-groups). |

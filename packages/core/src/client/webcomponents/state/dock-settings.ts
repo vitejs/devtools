@@ -8,6 +8,34 @@ import { DEFAULT_CATEGORIES_ORDER } from '../constants'
 export type { DevToolsDocksUserSettings }
 export type { DevToolsDockEntriesGrouped }
 
+/**
+ * Synthetic category that collects pinned dock entries. Pinning re-buckets an
+ * entry here instead of merely floating it to the top of its home category, so
+ * pinned entries lead the dock bar (and, for grouped members, lead inside their
+ * group). The `~` prefix marks it internal, mirroring `~builtin`; it is never
+ * user-hideable and does not exist upstream in `DEFAULT_CATEGORIES_ORDER`.
+ */
+export const PINNED_CATEGORY = '~pinned'
+
+/**
+ * Order weight for {@link PINNED_CATEGORY}. Strongly negative so the Pinned
+ * bucket always sorts before every real category (`framework` leads the
+ * upstream table at `-100`). Applied as a local override in the sort rather
+ * than added to the upstream `DEFAULT_CATEGORIES_ORDER` table, keeping the pin
+ * feature entirely client-side.
+ */
+export const PINNED_CATEGORY_ORDER = -100000
+
+/**
+ * Resolve a category's sort weight, layering the local {@link PINNED_CATEGORY}
+ * override on top of the upstream {@link DEFAULT_CATEGORIES_ORDER} table.
+ */
+function categoryOrder(category: string): number {
+  if (category === PINNED_CATEGORY)
+    return PINNED_CATEGORY_ORDER
+  return DEFAULT_CATEGORIES_ORDER[category] || 0
+}
+
 export interface SplitGroupsResult {
   visible: DevToolsDockEntriesGrouped
   overflow: DevToolsDockEntriesGrouped
@@ -35,6 +63,17 @@ const CATEGORY_LABELS: Record<string, string> = {
   'web': 'Web',
   'advanced': 'Advanced',
   '~builtin': 'Built-in',
+  [PINNED_CATEGORY]: 'Pinned',
+}
+
+/**
+ * Internal categories the user cannot hide via `docksCategoriesHidden`. Both
+ * are `~`-prefixed synthetic buckets: `~builtin` (always-present built-ins) and
+ * `~pinned` (the pinned bucket, whose membership the user controls per-entry
+ * via the pin toggle instead).
+ */
+export function isCategoryHideable(category: string): boolean {
+  return category !== '~builtin' && category !== PINNED_CATEGORY
 }
 
 /**
@@ -79,16 +118,18 @@ export function getEntryGroup(
 
 /**
  * Group a group's members by their **in-group sub-category** and sort them the
- * same way the dock bar sorts (pinned, custom order, default order). Members
+ * same way the dock bar sorts (custom order, then default order). Members
  * hidden by user settings or a falsy `when` clause are filtered out unless
  * `includeHidden`.
  *
  * A member's own `category` field is its in-group sub-category (defaulting to
  * `'default'`) — the group's `category` is the *outer* bucket the whole group
- * lives in, so it never bleeds into the sub-category split here. Sub-categories
- * are ordered by the same {@link DEFAULT_CATEGORIES_ORDER} table as top-level
- * categories, but they are not independently hideable (the outer category-hide
- * toggle does not apply inside a group).
+ * lives in, so it never bleeds into the sub-category split here. A pinned member
+ * moves to a `~pinned` sub-category (leading the group, via
+ * {@link PINNED_CATEGORY_ORDER}). Sub-categories are ordered by the same
+ * {@link DEFAULT_CATEGORIES_ORDER} table as top-level categories, but they are
+ * not independently hideable (the outer category-hide toggle does not apply
+ * inside a group).
  */
 export function getGroupMembersGrouped(
   entries: DevToolsDockEntry[],
@@ -123,7 +164,8 @@ export function getGroupMembers(
 
 /**
  * Group and sort dock entries based on user settings.
- * Filters out hidden entries and categories, sorts by pinned status, custom order, and default order.
+ * Filters out hidden entries and categories, then sorts by custom order and
+ * default order within each category.
  *
  * Outer bucketing follows the dual role of `category`: a grouped member whose
  * `groupId` resolves to a registered group takes that **group's** `category` as
@@ -133,6 +175,17 @@ export function getGroupMembers(
  * bar, so the outer bucket is always the group's category. Orphan members
  * (whose `groupId` references no registered group) fall back to their own
  * `category`.
+ *
+ * Pinning re-buckets an entry into {@link PINNED_CATEGORY} in place of the
+ * category slot it would otherwise occupy — the outer bucket for a top-level
+ * entry or group button, or the in-group sub-category for a member (the
+ * members-only in-group split has no group entries, so `resolvedGroupCategory`
+ * is undefined there and the member's own category slot is the one replaced).
+ * A grouped member's outer bucket is never re-pinned, so pinning a member
+ * reorders it inside its group rather than promoting it onto the top-level bar.
+ * Because the pinned bucket is chosen before the category-hide check and is
+ * itself never hideable, a pinned entry stays visible even when its original
+ * category is hidden.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
@@ -180,8 +233,20 @@ export function docksGroupByCategories(
     // Outer bucket: the group's category for grouped members, else the entry's
     // own category. Orphans (groupId with no registered group) fall through to
     // their own `category`.
-    const category = resolvedGroupCategory ?? entry.category ?? 'default'
-    // Skip if category is hidden (an outer-bar concern; not applied in-group)
+    const ownCategory = resolvedGroupCategory ?? entry.category ?? 'default'
+    // A pinned entry re-buckets into `~pinned` in place of the category slot it
+    // occupies — but only that slot. Top-level entries and group buttons
+    // (`resolvedGroupCategory === undefined`) move to the top-level `~pinned`
+    // bucket; members in the in-group split (also undefined there) move to a
+    // `~pinned` sub-category. A grouped member's OUTER bucket
+    // (`resolvedGroupCategory` defined) is left alone, so pin never promotes it
+    // off its group and onto the bar.
+    const category = docksPinned.includes(entry.id) && resolvedGroupCategory === undefined
+      ? PINNED_CATEGORY
+      : ownCategory
+    // Skip if category is hidden (an outer-bar concern; not applied in-group).
+    // `~pinned` is never hideable, so a pinned entry survives its original
+    // category being hidden.
     if (!includeHidden && !ignoreCategoryHidden && docksCategoriesHidden.includes(category))
       continue
 
@@ -193,26 +258,22 @@ export function docksGroupByCategories(
   const grouped = Array
     .from(map.entries())
     .sort(([a], [b]) => {
-      const ia = DEFAULT_CATEGORIES_ORDER[a] || 0
-      const ib = DEFAULT_CATEGORIES_ORDER[b] || 0
+      const ia = categoryOrder(a)
+      const ib = categoryOrder(b)
       return ib === ia ? b.localeCompare(a) : ia - ib
     })
 
   grouped.forEach(([_, items]) => {
+    // Ordering within a category (including the `~pinned` bucket, where every
+    // entry is pinned): custom order first, then default order, then title.
     items.sort((a, b) => {
-      // Pinned entries come first
-      const aPinned = docksPinned.includes(a.id)
-      const bPinned = docksPinned.includes(b.id)
-      if (aPinned !== bPinned)
-        return aPinned ? -1 : 1
-
-      // Then sort by custom order
+      // Custom order
       const customOrderA = docksCustomOrder[a.id] ?? 0
       const customOrderB = docksCustomOrder[b.id] ?? 0
       if (customOrderA !== customOrderB)
         return customOrderA - customOrderB
 
-      // Finally by default order
+      // Default order
       const ia = a.defaultOrder ?? 0
       const ib = b.defaultOrder ?? 0
       return ib === ia ? b.title.localeCompare(a.title) : ia - ib
