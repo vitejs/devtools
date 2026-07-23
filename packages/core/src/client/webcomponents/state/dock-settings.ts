@@ -222,6 +222,56 @@ export function docksGroupByCategories(
   return grouped
 }
 
+export interface SidebarCapacityOptions {
+  /** Measured height of the rail root, in px. */
+  availableHeight: number
+  /**
+   * Fixed vertical overhead that is always present regardless of member count:
+   * the root's padding, the pinned group anchor, and the anchor divider.
+   */
+  reservedHeight: number
+  /** Height of one member button, including its inter-item gap. */
+  itemHeight: number
+  /** Height of one sub-category divider, including its gaps. */
+  dividerHeight: number
+  /** Height of the "show more" button, including its gap. */
+  moreButtonHeight: number
+  /** Number of sub-category dividers that could render (sub-categories − 1). */
+  dividerCount: number
+  /** Total member count across every sub-category. */
+  totalItems: number
+}
+
+/**
+ * Derive how many group side nav member buttons fit in the measured rail height.
+ *
+ * Two-pass: first test whether every member fits with no show-more button; if
+ * they do, the full count is returned (no button, no overflow). Otherwise the
+ * show-more button's height is reserved and the capacity recomputed, so the
+ * button only ever costs a slot when it is actually shown.
+ *
+ * The sub-category divider budget is subtracted up front for every divider that
+ * might render, keeping the estimate conservative — the rail may fold one
+ * member early into the popover, but it never clips.
+ */
+export function deriveSidebarCapacity(options: SidebarCapacityOptions): number {
+  const { availableHeight, reservedHeight, itemHeight, dividerHeight, moreButtonHeight, dividerCount, totalItems } = options
+
+  if (totalItems <= 0 || itemHeight <= 0)
+    return 0
+
+  const budget = availableHeight - reservedHeight - Math.max(0, dividerCount) * dividerHeight
+
+  // Pass 1: does everything fit without a show-more button?
+  const fitWithoutButton = Math.floor(budget / itemHeight)
+  if (fitWithoutButton >= totalItems)
+    return totalItems
+
+  // Pass 2: overflow is unavoidable, so reserve the show-more button's slot.
+  const fitWithButton = Math.floor((budget - moreButtonHeight) / itemHeight)
+  return Math.max(0, fitWithButton)
+}
+
 /**
  * Split grouped entries into visible and overflow based on capacity.
  */
