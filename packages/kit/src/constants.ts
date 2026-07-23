@@ -44,6 +44,21 @@ export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 export const DEVTOOLS_VITEPLUS_GROUP_ID = 'viteplus'
 
 /**
+ * Filename of the passive-mode endpoint the injected client polls on load
+ * (served next to `__connection.json` under the DevTools mount path). A `GET`
+ * returns the resolved `{ passive }` state; a `POST` flips the per-project
+ * "normal mode" flag persisted in the project's `node_modules`.
+ */
+export const DEVTOOLS_MODE_FILENAME = '__mode.json'
+
+/**
+ * `window` event the mounted overlay dispatches to ask the injected client to
+ * tear itself down and return to passive mode (e.g. from the "Hide DevTools"
+ * command). Decouples the Vue-side command from the inject-side lifecycle.
+ */
+export const DEVTOOLS_HIDE_EVENT = 'vite-devtools:hide'
+
+/**
  * Dock id of the built-in Devframe Inspector (mounted from
  * `@devframes/plugin-inspect`). Shared between the node side (which pins the
  * mounted devframe to this id) and the client (which gates the dock behind the

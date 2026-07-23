@@ -35,7 +35,17 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export function DevToolsServer(): Plugin {
+export interface DevToolsServerOptions {
+  /**
+   * Start the injected overlay in passive mode (docks hidden until the
+   * developer activates them with the shortcut).
+   *
+   * @default true
+   */
+  passive?: boolean
+}
+
+export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
   let context: ViteDevToolsNodeContext
   return {
     name: 'vite:devtools:server',
@@ -50,6 +60,7 @@ export function DevToolsServer(): Plugin {
 
       const { middleware } = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
+        passive: options.passive ?? true,
         websocket: {
           host,
         },

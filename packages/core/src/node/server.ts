@@ -1,10 +1,11 @@
 import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
-import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MODE_FILENAME } from '@vitejs/devtools-kit/constants'
 import { mountStaticHandler } from 'devframe/utils/serve-static'
-import { defineHandler, H3, toNodeHandler } from 'h3'
+import { defineHandler, H3, readBody, toNodeHandler } from 'h3'
 import { dirClientStandalone } from '../dirs'
+import { isPassive, setNormalMode } from './passive-mode'
 import { createWsServer } from './ws'
 
 export interface DevToolsMiddleware {
@@ -28,6 +29,22 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
   h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
     event.res.headers.set('Content-Type', 'application/json')
     return JSON.stringify(await getConnectionMeta())
+  }))
+
+  // Passive-mode channel. The injected overlay polls this on load to decide
+  // whether to stay hidden (`GET`), and flips the per-project "normal mode"
+  // flag when the developer opts in or out (`POST { enabled }`). It is served
+  // unauthenticated because it only toggles the local overlay's visibility and
+  // writes a marker file — the docks themselves still require WS trust to
+  // surface any project data.
+  const passiveOption = options.passive ?? true
+  h3.use(`/${DEVTOOLS_MODE_FILENAME}`, defineHandler(async (event) => {
+    if (event.req.method === 'POST') {
+      const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined
+      setNormalMode(options.cwd, body?.enabled ?? true)
+    }
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify({ passive: isPassive(options.cwd, passiveOption) })
   }))
 
   // Authentication uses the devframe OTP model (see `node/auth-handler.ts`):

@@ -4,7 +4,7 @@ import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
-import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watchEffect } from 'vue'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
@@ -241,6 +241,30 @@ export async function createDocksContext(
       icon: 'ph:gear-duotone',
       action: () => {
         switchEntry('~settings')
+      },
+    },
+    {
+      id: 'devtools:hide',
+      source: 'client',
+      title: 'Hide DevTools (Passive Mode)',
+      icon: 'ph:eye-slash-duotone',
+      // Only the injected overlay can go passive; the standalone page is an
+      // explicit visit and stays mounted.
+      when: 'clientType == embedded',
+      action: async () => {
+        // Clear the persisted "normal mode" flag, then ask the inject-side
+        // lifecycle to tear the overlay down and re-arm the activation shortcut.
+        try {
+          await fetch(`${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_MODE_FILENAME}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: false }),
+          })
+        }
+        catch {
+          // Best-effort persistence; the overlay still hides for this session.
+        }
+        window.dispatchEvent(new CustomEvent(DEVTOOLS_HIDE_EVENT))
       },
     },
     {
