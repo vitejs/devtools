@@ -28,6 +28,7 @@ export { DockClientType }
 export { DockEntryState }
 export { DockEntryStateEvents }
 export { DockPanelStorage }
+export { DockRegistration }
 export { DockRenderer }
 export { DockRendererInstance }
 export { DockRendererMountOptions }

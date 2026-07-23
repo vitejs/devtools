@@ -6,6 +6,7 @@ export type {
   DockEntryState,
   DockEntryStateEvents,
   DockPanelStorage,
+  DockRegistration,
   DockRenderer,
   DockRendererInstance,
   DockRendererMountOptions,

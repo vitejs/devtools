@@ -1,5 +1,5 @@
-import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
-import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions } from '@vitejs/devtools-kit'
+import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DockRegistration, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
@@ -26,16 +26,63 @@ export async function createDocksContext(
   }
 
   const dockEntries = await useDocksEntries(rpc)
+
+  // Client-only dock registry (0.7.10 `DocksEntriesContext` API). Docks
+  // registered here live in this page only, merged over the server-provided
+  // `devframe:docks` docks by id, and never sync to shared state. Mirrors the
+  // merge semantics of `@devframes/hub`'s own client host.
+  const clientDocks = reactive(new Map<string, DevToolsDockEntry>())
+  const entries = computed<DevToolsDockEntry[]>(() => {
+    const server = dockEntries.value
+    if (clientDocks.size === 0)
+      return server
+    const seen = new Set<string>()
+    const merged: DevToolsDockEntry[] = []
+    for (const entry of server) {
+      seen.add(entry.id)
+      // a client dock sharing a server id overrides it in the local merge
+      merged.push(clientDocks.get(entry.id) ?? entry)
+    }
+    for (const [id, entry] of clientDocks) {
+      if (!seen.has(id))
+        merged.push(entry)
+    }
+    return merged
+  })
+
+  const registerClientDock = <T extends DevToolsDockEntry>(entry: T, force = false): DockRegistration<T> => {
+    if (clientDocks.has(entry.id) && !force)
+      throw new Error(`[@vitejs/devtools] a client dock "${entry.id}" is already registered — pass force to overwrite`)
+    clientDocks.set(entry.id, entry)
+    return {
+      update: (patch: Partial<T>) => {
+        if (patch.id != null && patch.id !== entry.id)
+          throw new Error(`[@vitejs/devtools] a client dock id is immutable ("${entry.id}")`)
+        const existing = clientDocks.get(entry.id)
+        if (existing)
+          clientDocks.set(entry.id, { ...existing, ...patch } as DevToolsDockEntry)
+      },
+      dispose: () => {
+        clientDocks.delete(entry.id)
+      },
+    }
+  }
+  const updateClientDock = (entry: DevToolsDockUserEntry) => {
+    if (!clientDocks.has(entry.id))
+      throw new Error(`[@vitejs/devtools] no client dock "${entry.id}" to update — register it first`)
+    clientDocks.set(entry.id, entry as DevToolsDockEntry)
+  }
+
   const selectedId = ref<string | null>(null)
   const selected = computed(
-    () => dockEntries.value.find(entry => entry.id === selectedId.value)
+    () => entries.value.find(entry => entry.id === selectedId.value)
       ?? BUILTIN_ENTRIES.find(entry => entry.id === selectedId.value)
       ?? null,
   )
 
   const dockEntryStateMap: Map<string, DockEntryState> = reactive(new Map())
   watchEffect(() => {
-    for (const entry of dockEntries.value) {
+    for (const entry of entries.value) {
       if (dockEntryStateMap.has(entry.id)) {
         dockEntryStateMap.get(entry.id)!.entryMeta = entry
         continue
@@ -61,7 +108,7 @@ export async function createDocksContext(
       panelStore.value.open = true
       return true
     }
-    const entry = dockEntries.value.find(e => e.id === id)
+    const entry = entries.value.find(e => e.id === id)
     if (!entry)
       return false
 
@@ -70,7 +117,7 @@ export async function createDocksContext(
     // With neither, the group is popover-only and selecting it is a no-op here
     // (the dock-bar group button opens the member popover instead).
     if (entry.type === 'group') {
-      const members = getGroupMembers(dockEntries.value, entry.id)
+      const members = getGroupMembers(entries.value, entry.id)
       const target = (entry.defaultChildId && members.some(m => m.id === entry.defaultChildId))
         ? entry.defaultChildId
         : members[0]?.id
@@ -155,7 +202,7 @@ export async function createDocksContext(
   })
 
   const groupedEntries = computed(() => {
-    return docksGroupByCategories(dockEntries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
+    return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
   })
 
   // Initialize commands context with reactive when-context
@@ -242,8 +289,8 @@ export async function createDocksContext(
 
     // Mirror the dock-bar collapse in the palette: members nest under their
     // group's command, and grouped members drop out of the top level.
-    const registeredGroupIds = getRegisteredGroupIds(dockEntries.value)
-    const dockChildren: DevToolsClientCommand[] = dockEntries.value
+    const registeredGroupIds = getRegisteredGroupIds(entries.value)
+    const dockChildren: DevToolsClientCommand[] = entries.value
       .filter(entry => entry.type !== '~builtin')
       .filter(entry => !(entry.groupId && registeredGroupIds.has(entry.groupId)))
       .map((entry) => {
@@ -252,7 +299,7 @@ export async function createDocksContext(
         // Members nest under the group, split by their in-group sub-category.
         // A single sub-category (the common case) is flattened directly so the
         // palette doesn't add a pointless one-item drill-down level.
-        const memberGroups = getGroupMembersGrouped(dockEntries.value, entry.id, settings.value, { whenContext: getWhenContext() })
+        const memberGroups = getGroupMembersGrouped(entries.value, entry.id, settings.value, { whenContext: getWhenContext() })
         const children: DevToolsClientCommand[] = memberGroups.length <= 1
           ? (memberGroups[0]?.[1] ?? []).map(toCommand)
           : memberGroups.map(([category, members]) => ({
@@ -288,13 +335,15 @@ export async function createDocksContext(
     docks: {
       selectedId,
       selected,
-      entries: dockEntries,
+      entries,
       entryToStateMap: markRaw(dockEntryStateMap),
       groupedEntries,
       settings: settingsStore,
       getStateById: (id: string) => dockEntryStateMap.get(id),
       switchEntry,
       toggleEntry,
+      register: registerClientDock,
+      update: updateClientDock,
     },
     commands: commandsContext,
     when: {
@@ -317,7 +366,7 @@ export async function createDocksContext(
   })
 
   registerMainFrameDockActionHandler(clientType, async (id) => {
-    const entry = dockEntries.value.find(e => e.id === id)
+    const entry = entries.value.find(e => e.id === id)
     if (!entry || entry.type !== 'action')
       return false
     return switchEntry(entry.id)
