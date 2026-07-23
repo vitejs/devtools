@@ -36,4 +36,13 @@ jobs:
         run: pnpm run build
 
       - name: Publish
-        run: pnpm dlx pkg-pr-new@0.0 publish --pnpm --compact './packages/*'
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm dlx pkg-pr-new@0.0 publish --pnpm --compact './packages/*'; then
+              exit 0
+            fi
+            echo "pkg-pr-new publish failed (attempt ${attempt}/3)" >&2
+            sleep $((attempt * 10))
+          done
+          exit 1
