@@ -12,9 +12,15 @@ import { getDevframeRpcClient } from '@devframes/hub/client'
  * `__connection.json` without dialing its own base's (wrong) endpoint — is
  * handled natively by devframe's client via `ConnectionMeta.baseUrl` since
  * devframe 0.7.2 (devframes/devframe#98), so no extra rewriting is needed here.
+ *
+ * Vite DevTools provides its own interactive authorization view, so disable
+ * devframe's native browser-prompt fallback for every kit-managed connection.
  */
 export function getDevToolsRpcClient(
   options: DevframeRpcClientOptions = {},
 ): Promise<DevframeRpcClient> {
-  return getDevframeRpcClient(options)
+  return getDevframeRpcClient({
+    ...options,
+    simpleAuth: false,
+  })
 }
