@@ -36,6 +36,11 @@ export function DevToolsVitestUI(): PluginWithDevTools {
     devtools: {
       async setup(ctx) {
         const cwd = ctx.cwd ?? process.cwd()
+        // `@vitest/ui` is installed at the workspace root, not the (possibly
+        // nested) project `cwd` — devtools installs are workspace-wide
+        // devDependencies, not scattered across whichever sub-package happens
+        // to be running Vite.
+        const installRoot = ctx.workspaceRoot ?? cwd
 
         // Hide the dock entirely when the project has no Vitest.
         if (!isPackageExists('vitest', { paths: [cwd] }))
@@ -44,7 +49,7 @@ export function DevToolsVitestUI(): PluginWithDevTools {
         ctx.views.hostStatic(VITEST_DEVTOOLS_BASE, clientPublicDir)
 
         const icon = `${VITEST_DEVTOOLS_BASE}favicon.svg`
-        const hasUi = isPackageExists('@vitest/ui', { paths: [cwd] })
+        const hasUi = isPackageExists('@vitest/ui', { paths: [installRoot] })
 
         const roots = await discoverRoots(cwd, ctx.workspaceRoot ?? cwd)
 
@@ -73,11 +78,12 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             // renders blank, so use a terminal icon the SPA ships.
             icon: 'ph:terminal-window-duotone',
           },
-          // Install `@vitest/ui` on demand (devDependency) when missing.
+          // Install `@vitest/ui` on demand (devDependency) when missing, at
+          // the workspace root.
           prepare: async () => {
-            if (!isPackageExists('@vitest/ui', { paths: [cwd] })) {
+            if (!isPackageExists('@vitest/ui', { paths: [installRoot] })) {
               try {
-                await addDependency('@vitest/ui', { cwd, dev: true })
+                await addDependency('@vitest/ui', { cwd: installRoot, dev: true })
               }
               catch (error) {
                 throw diagnostics.VTDT0001({ error: error instanceof Error ? error.message : String(error) })

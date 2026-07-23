@@ -38,7 +38,7 @@ export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
  * (Rolldown, etc.) under a single "Vite+" dock button. Vite DevTools seeds
  * this group; integrations join it by setting `groupId` to this value.
  */
-export const DEVTOOLS_VITEPLUS_GROUP_ID = '~viteplus'
+export const DEVTOOLS_VITEPLUS_GROUP_ID = 'viteplus'
 
 /**
  * Dock id of the built-in Devframe Inspector (mounted from
@@ -57,9 +57,9 @@ export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes_plugin_inspect'
 export const DEVTOOLS_TERMINALS_DOCK_ID = 'devframes_plugin_terminals'
 
 export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
+  'framework': -100,
   'default': 0,
   'app': 100,
-  'framework': 200,
   'web': 300,
   'advanced': 400,
   '~builtin': 1000,

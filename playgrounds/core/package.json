@@ -1,11 +1,11 @@
 {
-  "name": "playground",
+  "name": "playground-core",
   "type": "module",
   "version": "0.4.2",
   "private": true,
   "scripts": {
     "dev": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true vite",
-    "dev:standalone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../src/node/cli.ts",
+    "dev:standalone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../../packages/core/src/node/cli.ts",
     "build": "vite build && vite-devtools"
   }
 }

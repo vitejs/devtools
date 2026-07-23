@@ -23,20 +23,20 @@ export function MyPlugin(): PluginWithDevTools {
           elements: {
             root: {
               type: 'Stack',
-              props: { direction: 'vertical', gap: 12 },
+              props: { direction: 'column', gap: 12 },
               children: ['heading', 'info'],
             },
             heading: {
               type: 'Text',
-              props: { content: 'Hello from JSON!', variant: 'heading' },
+              props: { text: 'Hello from JSON!', variant: 'heading' },
             },
             info: {
               type: 'KeyValueTable',
               props: {
-                entries: [
-                  { key: 'Version', value: '1.0.0' },
-                  { key: 'Status', value: 'Running' },
-                ],
+                data: {
+                  Version: '1.0.0',
+                  Status: 'Running',
+                },
               },
             },
           },
@@ -68,16 +68,16 @@ ctx.createJsonRenderer({
   elements: {
     root: {
       type: 'Stack',
-      props: { direction: 'vertical', gap: 12 },
+      props: { direction: 'column', gap: 12 },
       children: ['title', 'content'],
     },
     title: {
       type: 'Text',
-      props: { content: 'My Panel', variant: 'heading' },
+      props: { text: 'My Panel', variant: 'heading' },
     },
     content: {
       type: 'Text',
-      props: { content: 'Hello world' },
+      props: { text: 'Hello world' },
     },
   },
 })
@@ -175,7 +175,7 @@ const ui = ctx.createJsonRenderer({
   elements: {
     root: {
       type: 'Stack',
-      props: { direction: 'horizontal', gap: 8 },
+      props: { direction: 'row', gap: 8 },
       children: ['input', 'submit'],
     },
     input: {
@@ -215,6 +215,8 @@ ctx.rpc.register(defineRpcFunction({
 
 ## Built-in components
 
+An element whose `type` doesn't match any of the components below — e.g. a spec authored against a newer base-catalog version than the connected client implements, or a plain typo — renders as a visible "Unsupported component" placeholder instead of disappearing silently, so a mismatch is easy to spot during development.
+
 ### Layout
 
 #### Stack
@@ -223,10 +225,12 @@ Flex layout container. Arranges children vertically or horizontally.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `direction` | `'vertical' \| 'horizontal'` | `'vertical'` | Layout direction |
+| `direction` | `'row' \| 'column'` | `'column'` | Layout direction |
 | `gap` | `number` | `8` | Gap between children in pixels |
 | `align` | `'start' \| 'center' \| 'end' \| 'stretch'` | — | Cross-axis alignment |
-| `justify` | `'start' \| 'center' \| 'end' \| 'space-between' \| 'space-around'` | — | Main-axis alignment |
+| `justify` | `'start' \| 'center' \| 'end' \| 'between' \| 'around'` | — | Main-axis alignment |
+| `wrap` | `boolean` | `false` | Allow children to wrap onto multiple lines |
+| `flex` | `number \| string` | — | `flex` shorthand for the container |
 | `padding` | `number` | — | Padding in pixels |
 
 <!-- eslint-skip -->
@@ -234,7 +238,7 @@ Flex layout container. Arranges children vertically or horizontally.
 // Horizontal toolbar with items spaced apart
 {
   type: 'Stack',
-  props: { direction: 'horizontal', gap: 8, justify: 'space-between', align: 'center' },
+  props: { direction: 'row', gap: 8, justify: 'between', align: 'center' },
   children: ['title', 'actions'],
 }
 ```
@@ -244,7 +248,7 @@ Flex layout container. Arranges children vertically or horizontally.
 // Vertical form layout
 {
   type: 'Stack',
-  props: { direction: 'vertical', gap: 12, padding: 16 },
+  props: { direction: 'column', gap: 12, padding: 16 },
   children: ['name-input', 'email-input', 'submit-btn'],
 }
 ```
@@ -257,6 +261,8 @@ Container with an optional title and collapsible behavior.
 |------|------|---------|-------------|
 | `title` | `string` | — | Header title |
 | `collapsible` | `boolean` | `false` | Whether the card can be collapsed |
+| `defaultCollapsed` | `boolean` | `false` | Start collapsed (when `collapsible`) |
+| `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->
 ```ts
@@ -291,22 +297,24 @@ Display text with different visual styles.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `content` | `string` | — | Text content |
-| `variant` | `'heading' \| 'body' \| 'caption' \| 'code'` | `'body'` | Visual style |
+| `text` | `string` | — | Text content |
+| `variant` | `'heading' \| 'subheading' \| 'body' \| 'caption' \| 'code'` | `'body'` | Visual style |
+| `weight` | `'normal' \| 'medium' \| 'bold'` | — | Font weight |
+| `color` | `'base' \| 'muted' \| 'faint' \| 'primary' \| 'success' \| 'warning' \| 'danger'` | — | Text color |
 
 <!-- eslint-skip -->
 ```ts
 // heading — 16px bold
-{ type: 'Text', props: { content: 'Module Graph', variant: 'heading' } }
+{ type: 'Text', props: { text: 'Module Graph', variant: 'heading' } }
 
 // body (default) — 13px
-{ type: 'Text', props: { content: 'Visualize module dependencies' } }
+{ type: 'Text', props: { text: 'Visualize module dependencies' } }
 
 // caption — 12px, muted
-{ type: 'Text', props: { content: 'Click a node to inspect', variant: 'caption' } }
+{ type: 'Text', props: { text: 'Click a node to inspect', variant: 'caption' } }
 
 // code — monospace with background
-{ type: 'Text', props: { content: 'src/index.ts', variant: 'code' } }
+{ type: 'Text', props: { text: 'src/index.ts', variant: 'code' } }
 ```
 
 #### Icon
@@ -330,13 +338,14 @@ Status label with semantic color variants.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `text` | `string` | — | Badge text |
-| `variant` | `'info' \| 'success' \| 'warning' \| 'error' \| 'default'` | `'default'` | Color variant |
+| `variant` | `'default' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'default'` | Color variant |
+| `minWidth` | `number` | — | Minimum width in pixels |
 
 <!-- eslint-skip -->
 ```ts
 { type: 'Badge', props: { text: 'Ready', variant: 'success' } }
 { type: 'Badge', props: { text: '3 warnings', variant: 'warning' } }
-{ type: 'Badge', props: { text: 'Failed', variant: 'error' } }
+{ type: 'Badge', props: { text: 'Failed', variant: 'danger' } }
 ```
 
 ### Inputs
@@ -351,6 +360,7 @@ Clickable button that triggers an action via the `press` event.
 | `icon` | `string` | — | Iconify icon name |
 | `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger'` | `'secondary'` | Visual style |
 | `disabled` | `boolean` | `false` | Disable interaction |
+| `loading` | `boolean` | `false` | Show a loading state |
 
 **Event**: `press` — fires when the button is clicked.
 
@@ -375,7 +385,9 @@ Text input field with optional two-way state binding.
 | `placeholder` | `string` | — | Placeholder text |
 | `value` | `string` | — | Current value (use `$bindState` for two-way binding) |
 | `label` | `string` | — | Label shown above the input |
+| `type` | `'text' \| 'search' \| 'number' \| 'password' \| 'email'` | `'text'` | Input type |
 | `disabled` | `boolean` | `false` | Disable interaction |
+| `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->
 ```ts
@@ -398,21 +410,20 @@ Display key-value pairs in a two-column table.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `title` | `string` | — | Optional header |
-| `entries` | `Array<{ key: string, value: string }>` | — | Key-value pairs |
+| `data` | `Record<string, unknown>` | — | Key-value pairs to display |
+| `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->
 ```ts
 {
   type: 'KeyValueTable',
   props: {
-    title: 'Build Info',
-    entries: [
-      { key: 'Mode', value: 'production' },
-      { key: 'Duration', value: '1.2s' },
-      { key: 'Modules', value: '142' },
-      { key: 'Output', value: 'dist/' },
-    ],
+    data: {
+      Mode: 'production',
+      Duration: '1.2s',
+      Modules: '142',
+      Output: 'dist/',
+    },
   },
 }
 ```
@@ -423,9 +434,10 @@ Tabular data with configurable columns and scroll support.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `columns` | `Array<{ key: string, label: string, width?: string }>` | — | Column definitions |
+| `columns` | `Array<string \| { key: string, label?: string }>` | — | Column definitions (a bare string uses the key as its label) |
 | `rows` | `Array<Record<string, unknown>>` | — | Row data |
-| `maxHeight` | `string` | — | Scrollable max height (e.g. `'300px'`) |
+| `height` | `number` | — | Scrollable max height in pixels |
+| `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->
 ```ts
@@ -433,16 +445,16 @@ Tabular data with configurable columns and scroll support.
   type: 'DataTable',
   props: {
     columns: [
-      { key: 'id', label: 'Module', width: '200px' },
-      { key: 'size', label: 'Size', width: '80px' },
-      { key: 'time', label: 'Transform', width: '100px' },
+      { key: 'id', label: 'Module' },
+      { key: 'size', label: 'Size' },
+      { key: 'time', label: 'Transform' },
     ],
     rows: [
       { id: 'src/index.ts', size: '2.1 KB', time: '12ms' },
       { id: 'src/utils.ts', size: '0.8 KB', time: '3ms' },
       { id: 'src/app.vue', size: '4.5 KB', time: '45ms' },
     ],
-    maxHeight: '400px',
+    height: 400,
   },
 }
 ```
@@ -454,9 +466,9 @@ Display a code snippet with an optional filename header.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `code` | `string` | — | Code content |
-| `language` | `string` | `'text'` | Language identifier |
+| `language` | `string` | — | Language identifier |
 | `filename` | `string` | — | Filename shown as header |
-| `maxHeight` | `string` | — | Scrollable max height |
+| `height` | `number` | — | Scrollable max height in pixels |
 
 <!-- eslint-skip -->
 ```ts
@@ -466,7 +478,7 @@ Display a code snippet with an optional filename header.
     code: 'export default defineConfig({\n  plugins: [vue()],\n})',
     language: 'ts',
     filename: 'vite.config.ts',
-    maxHeight: '200px',
+    height: 200,
   },
 }
 ```
@@ -493,7 +505,7 @@ Expandable tree view for inspecting nested objects.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `data` | `unknown` | — | Any JSON-serializable value |
-| `expandLevel` | `number` | `1` | How many levels to auto-expand |
+| `defaultExpanded` | `boolean` | `true` | Whether nodes start expanded |
 
 <!-- eslint-skip -->
 ```ts
@@ -508,7 +520,7 @@ Expandable tree view for inspecting nested objects.
       },
       server: { port: 3000, hmr: true },
     },
-    expandLevel: 2,
+    defaultExpanded: true,
   },
 }
 ```
@@ -528,17 +540,17 @@ function buildSpec(data: { modules: number, time: string, size: string }): JsonR
     elements: {
       'root': {
         type: 'Stack',
-        props: { direction: 'vertical', gap: 12, padding: 8 },
+        props: { direction: 'column', gap: 12, padding: 8 },
         children: ['header', 'divider', 'stats', 'modules'],
       },
       'header': {
         type: 'Stack',
-        props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
+        props: { direction: 'row', gap: 8, align: 'center', justify: 'between' },
         children: ['title', 'refresh-btn'],
       },
       'title': {
         type: 'Text',
-        props: { content: 'Build Report', variant: 'heading' },
+        props: { text: 'Build Report', variant: 'heading' },
       },
       'refresh-btn': {
         type: 'Button',
@@ -557,11 +569,11 @@ function buildSpec(data: { modules: number, time: string, size: string }): JsonR
       'stats-table': {
         type: 'KeyValueTable',
         props: {
-          entries: [
-            { key: 'Total Modules', value: String(data.modules) },
-            { key: 'Build Time', value: data.time },
-            { key: 'Output Size', value: data.size },
-          ],
+          data: {
+            'Total Modules': String(data.modules),
+            'Build Time': data.time,
+            'Output Size': data.size,
+          },
         },
       },
       'modules': {
@@ -574,13 +586,13 @@ function buildSpec(data: { modules: number, time: string, size: string }): JsonR
         props: {
           columns: [
             { key: 'name', label: 'Module' },
-            { key: 'size', label: 'Size', width: '80px' },
+            { key: 'size', label: 'Size' },
           ],
           rows: [
             { name: 'src/index.ts', size: '2.1 KB' },
             { name: 'src/app.vue', size: '4.5 KB' },
           ],
-          maxHeight: '300px',
+          height: 300,
         },
       },
     },

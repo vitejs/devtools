@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@vitejs/devtools-oxc",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "DevTools for the Oxc toolchain",
   "author": "Leo (https://github.com/yuyinws)",
   "license": "MIT",
@@ -54,7 +54,6 @@
     "@nuxt/kit": "catalog:build",
     "@types/picomatch": "catalog:types",
     "@unocss/nuxt": "catalog:build",
-    "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/core": "catalog:frontend",

@@ -381,7 +381,7 @@ Default category ordering:
 
 ```ts
 DEFAULT_CATEGORIES_ORDER = {
-  '~viteplus': -1000, // First
+  'viteplus': -1000, // First
   'default': 0,
   'app': 100,
   'framework': 200,

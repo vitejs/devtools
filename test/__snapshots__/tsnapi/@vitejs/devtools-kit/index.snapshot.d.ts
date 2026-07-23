@@ -21,14 +21,27 @@ export interface DevToolsPluginOptions {
   };
   setup: (_: ViteDevToolsNodeContext) => void | Promise<void>;
 }
+export interface DevToolsViewJsonRender extends DevframeDockEntryBase {
+  type: 'json-render';
+  ui: JsonRenderer;
+}
 export interface DevToolsViewLauncher extends DevframeViewLauncher {
   launcher: DevframeViewLauncher['launcher'] & {
     roots?: DevToolsLaunchRoot[];
   };
 }
-export interface KitNodeContext extends DevframeHubContext {
+export interface JsonRenderer {
+  updateSpec: (_: JsonRenderSpec) => void;
+  updateState: (_: Record<string, unknown>) => void;
+  dispose: () => void;
+  readonly _stateKey: string;
+  readonly upstreamVersion: string;
+  readonly view: JsonRenderViewRef;
+}
+export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
+  createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;
 }
 export interface PluginWithDevTools extends Plugin {
   devtools?: DevToolsPluginOptions;
@@ -41,6 +54,12 @@ export interface ViteDevToolsNodeContext extends KitNodeContext {
 
 // #region Types
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory;
+export type JsonRenderElement = UIElement;
+export type JsonRenderSpec = DevframeJsonRenderSpec;
+// #endregion
+
+// #region Functions
+export declare function defineJsonRenderSpec(_: JsonRenderSpec): JsonRenderSpec;
 // #endregion
 
 // #region Variables
@@ -52,7 +71,6 @@ export { ClientScriptEntry }
 export { ConnectionMeta }
 export { defineCommand }
 export { defineDockEntry }
-export { defineJsonRenderSpec }
 export { DevToolsCapabilities }
 export { DevToolsChildProcessExecuteOptions }
 export { DevToolsChildProcessTerminalSession }
@@ -103,15 +121,13 @@ export { DevToolsViewCustomRender }
 export { DevToolsViewGroup }
 export { DevToolsViewHost }
 export { DevToolsViewIframe }
-export { DevToolsViewJsonRender }
 export { DevToolsViewLauncherStatus }
 export { EntriesToObject }
 export { EventEmitter }
 export { EventsMap }
 export { EventUnsubscribe }
-export { JsonRenderElement }
-export { JsonRenderer }
-export { JsonRenderSpec }
+export { JsonRenderView }
+export { JsonRenderViewRef }
 export { PartialWithoutId }
 export { RemoteConnectionInfo }
 export { RemoteDockOptions }

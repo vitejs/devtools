@@ -14,5 +14,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { error: string }) => `Failed to start the Rolldown build process: ${p.error}`,
       fix: 'Ensure `vite` is installed in this project and can run `vite build` from the project root.',
     },
+    RDDT0004: {
+      why: (p: { id: string }) => `Invalid Rolldown session id "${p.id}".`,
+      fix: 'Session ids must be a single directory name without path separators or `..` segments.',
+    },
   },
 })

@@ -36,7 +36,10 @@ export const Tree = defineComponent({
     }
 
     return () => {
-      const { data, expandLevel = 1 } = ctx.element.props
+      const { data, defaultExpanded } = ctx.element.props
+      // Base catalog exposes a boolean `defaultExpanded` (default true); map it
+      // to the recursive expand depth this renderer uses.
+      const expandLevel = defaultExpanded === false ? 0 : Infinity
       if (data === null || data === undefined) {
         return h('span', { style: { fontSize: '12px', opacity: 0.5 } }, 'null')
       }

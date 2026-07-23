@@ -2,11 +2,12 @@ import type { Spec } from '@json-render/core'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
-import { devtoolsRegistry } from './registry'
+import { devtoolsRegistry, UnsupportedComponent } from './registry'
 
 /**
  * Render a json-render `Spec` with the DevTools registry, the same way
- * `ViewJsonRender` does at runtime.
+ * `ViewJsonRender` does at runtime — including the `UnsupportedComponent`
+ * fallback for any element `type` absent from the registry.
  */
 function renderSpec(spec: Spec) {
   return defineComponent({
@@ -16,7 +17,7 @@ function renderSpec(spec: Spec) {
         'div',
         { class: 'max-w-160 p6 bg-base color-base font-sans' },
         h(JSONUIProvider, { registry: devtoolsRegistry, handlers: {}, initialState }, {
-          default: () => h(Renderer, { spec, registry: devtoolsRegistry }),
+          default: () => h(Renderer, { spec, registry: devtoolsRegistry, fallback: UnsupportedComponent }),
         }),
       )
     },
@@ -44,33 +45,33 @@ export const Gallery: Story = {
     root: 'root',
     state: { notifications: true },
     elements: {
-      root: { type: 'Stack', props: { direction: 'vertical', gap: 16, padding: 4 }, children: ['heading', 'badges', 'buttons', 'progress', 'toggle', 'divider', 'kv', 'table', 'code'] },
-      heading: { type: 'Text', props: { content: 'Build summary', variant: 'heading' } },
-      badges: { type: 'Stack', props: { direction: 'horizontal', gap: 8, align: 'center' }, children: ['b1', 'b2', 'b3', 'b4'] },
+      root: { type: 'Stack', props: { direction: 'column', gap: 16, padding: 4 }, children: ['heading', 'badges', 'buttons', 'progress', 'toggle', 'divider', 'kv', 'table', 'code'] },
+      heading: { type: 'Text', props: { text: 'Build summary', variant: 'heading' } },
+      badges: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['b1', 'b2', 'b3', 'b4'] },
       b1: { type: 'Badge', props: { text: 'passing', variant: 'success' } },
       b2: { type: 'Badge', props: { text: '3 warnings', variant: 'warning' } },
-      b3: { type: 'Badge', props: { text: '1 error', variant: 'error' } },
+      b3: { type: 'Badge', props: { text: '1 error', variant: 'danger' } },
       b4: { type: 'Badge', props: { text: 'v0.3.4', variant: 'default' } },
-      buttons: { type: 'Stack', props: { direction: 'horizontal', gap: 8 }, children: ['btn1', 'btn2', 'btn3'] },
+      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3'] },
       btn1: { type: 'Button', props: { label: 'Rebuild', variant: 'primary', icon: 'ph:arrows-clockwise' } },
       btn2: { type: 'Button', props: { label: 'Open', variant: 'secondary', icon: 'ph:arrow-square-out' } },
       btn3: { type: 'Button', props: { label: 'Delete', variant: 'danger', icon: 'ph:trash' } },
       progress: { type: 'Progress', props: { value: 68, max: 100, label: 'Bundling' } },
       toggle: { type: 'Switch', props: { label: 'Notifications', value: '{{notifications}}' } },
       divider: { type: 'Divider', props: { label: 'Details' } },
-      kv: { type: 'KeyValueTable', props: { title: 'Environment', entries: [
-        { key: 'Vite', value: '8.1.2' },
-        { key: 'Node', value: '24.17.0' },
-        { key: 'Mode', value: 'production' },
-      ] } },
+      kv: { type: 'KeyValueTable', props: { data: {
+        Vite: '8.1.2',
+        Node: '24.17.0',
+        Mode: 'production',
+      } } },
       table: { type: 'DataTable', props: {
-        columns: [{ key: 'file', label: 'File', width: '60%' }, { key: 'size', label: 'Size' }],
+        columns: [{ key: 'file', label: 'File' }, { key: 'size', label: 'Size' }],
         rows: [
           { file: 'index.js', size: '124 kB' },
           { file: 'vendor.js', size: '612 kB' },
           { file: 'style.css', size: '18 kB' },
         ],
-        maxHeight: '160px',
+        height: 160,
       } },
       code: { type: 'CodeBlock', props: { filename: 'vite.config.ts', code: 'export default defineConfig({\n  plugins: [DevTools()],\n})' } },
     },
@@ -84,9 +85,27 @@ export const Card: Story = {
     state: {},
     elements: {
       root: { type: 'Card', props: { title: 'Plugin', collapsible: false }, children: ['body'] },
-      body: { type: 'Stack', props: { direction: 'vertical', gap: 8, padding: 4 }, children: ['t', 'badge'] },
-      t: { type: 'Text', props: { content: 'vite-plugin-inspect', variant: 'code' } },
+      body: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['t', 'badge'] },
+      t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+    },
+  } as unknown as Spec),
+}
+
+/**
+ * An element whose `type` has no entry in the registry — e.g. authored
+ * against a newer base-catalog version than this client implements, or a
+ * plain typo — falls back to a visible, inspectable placeholder instead of
+ * silently rendering nothing.
+ */
+export const UnsupportedComponentFallback: Story = {
+  render: () => renderSpec({
+    root: 'root',
+    state: {},
+    elements: {
+      root: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['label', 'unknown'] },
+      label: { type: 'Text', props: { text: 'The next element uses an unrecognized component type:', variant: 'caption' } },
+      unknown: { type: 'FutureChart', props: { series: [1, 2, 3] } },
     },
   } as unknown as Spec),
 }

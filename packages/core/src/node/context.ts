@@ -97,8 +97,8 @@ export async function createDevToolsContext(
     id: DEVTOOLS_VITEPLUS_GROUP_ID,
     type: 'group',
     title: 'Vite+',
+    category: 'framework',
     icon: { light: 'builtin:vite-plus-core', dark: 'builtin:vite-plus-core' },
-    defaultOrder: -1000,
   })
 
   // Serve the vendored integration marks used by the built-in install

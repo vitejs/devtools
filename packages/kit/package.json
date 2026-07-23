@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
+    "@devframes/json-render": "catalog:deps",
     "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
     "mlly": "catalog:deps",

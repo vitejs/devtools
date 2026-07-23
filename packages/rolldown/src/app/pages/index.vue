@@ -21,7 +21,7 @@ const sessionMode = ref<'list' | 'compare'>('list')
 
 const modeList = [
   {
-    label: 'Session List',
+    label: 'Build Sessions',
     icon: 'i-ph-list-bullets-duotone',
     value: 'list',
   },
@@ -47,6 +47,11 @@ const normalizedSelectedSessions = computed(() => {
 
 const rpc = useRpc()
 const sessions = ref<BuildInfo[]>(await rpc.value.call('vite:rolldown:list-sessions'))
+// The live project cwd; used to hide redundant per-session cwd labels.
+const currentCwd = ref('')
+rpc.value.call('vite:rolldown:get-project-info')
+  .then(info => (currentCwd.value = info.cwd))
+  .catch(() => {})
 
 // Drives the confirm → run → result modal (see RunBuildDialog).
 const runBuildOpen = ref(false)
@@ -59,15 +64,47 @@ function selectSession(session: BuildInfo) {
     selectedSessions.value = [...selectedSessions.value, session]
   }
 }
+
+function patchSession(id: string, patch: Partial<BuildInfo>) {
+  sessions.value = sessions.value.map(s => (s.id === id ? { ...s, ...patch } : s))
+  selectedSessions.value = selectedSessions.value.map(s => (s.id === id ? { ...s, ...patch } : s))
+}
+
+async function renameSession(session: BuildInfo, alias: string) {
+  const previous = session.alias
+  // Optimistic update; roll back if the RPC fails.
+  patchSession(session.id, { alias: alias || undefined })
+  try {
+    const result = await rpc.value.call('vite:rolldown:rename-session', { session: session.id, alias })
+    patchSession(session.id, { alias: result.alias || undefined })
+  }
+  catch (error) {
+    patchSession(session.id, { alias: previous })
+    console.error('[rolldown-devtools] Failed to rename session:', error)
+  }
+}
+
+async function deleteSession(session: BuildInfo) {
+  const snapshot = sessions.value
+  // Optimistic removal; restore the list if the RPC fails.
+  sessions.value = sessions.value.filter(s => s.id !== session.id)
+  selectedSessions.value = selectedSessions.value.filter(s => s.id !== session.id)
+  try {
+    await rpc.value.call('vite:rolldown:delete-session', { session: session.id })
+  }
+  catch (error) {
+    sessions.value = snapshot
+    console.error('[rolldown-devtools] Failed to delete session:', error)
+  }
+}
 </script>
 
 <template>
-  <div class="p4 flex flex-col gap-4 items-center justify-center relative">
+  <div class="p4 flex flex-col gap-4 items-center relative">
     <BannerRolldownDevTools />
-    <p v-if="sessions.length" class="op50">
-      {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
-    </p>
-    <div v-else class="flex flex-col gap-3 items-center max-w-140">
+
+    <!-- Empty state -->
+    <div v-if="!sessions.length" class="flex flex-col gap-3 items-center max-w-140">
       <p class="m0 op50 text-center">
         No sessions yet.
         <br>
@@ -99,29 +136,52 @@ function selectSession(session: BuildInfo) {
         See <a href="https://github.com/vitejs/devtools/blob/main/docs/errors/RDDT0001.md" target="_blank" rel="noopener" class="hover:op100 hover:underline">RDDT0001</a> for details.
       </p>
     </div>
-    <div class="relative flex flex-col gap3 items-center">
+
+    <!-- Sessions panel -->
+    <div v-else class="w-full max-w-3xl flex flex-col gap-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <!-- Mode switch, expanded as text tabs -->
+        <div role="tablist" aria-label="Session mode" class="inline-flex items-center gap-0.5 p0.5 border border-base rounded-lg bg-glass">
+          <button
+            v-for="mode in modeList"
+            :key="mode.value"
+            type="button"
+            role="tab"
+            :aria-selected="sessionMode === mode.value"
+            class="flex items-center gap-1.5 px3 py1.5 rounded-md text-sm transition"
+            :class="sessionMode === mode.value ? 'bg-active text-base op100' : 'op50 hover:op80 hover:bg-active'"
+            @click="sessionMode = mode.value"
+          >
+            <span :class="mode.icon" />
+            <span>{{ mode.label }}</span>
+          </button>
+        </div>
+        <ActionButton
+          icon="i-ph-play-duotone"
+          title="Run a build with devtools output"
+          @click="runBuildOpen = true"
+        >
+          Run build
+        </ActionButton>
+      </div>
+
+      <p class="m0 op50 text-sm">
+        {{ sessionMode === 'list' ? 'Select a build session to get started:' : 'Select 2 build sessions to compare:' }}
+      </p>
+
       <PanelSessionSelector
         :session-mode="sessionMode"
         :sessions="sessions"
+        :show-session-actions="true"
         :selected-session-ids="selectedSessionIds"
         :selected-sessions="selectedSessions"
+        :current-cwd="currentCwd"
         @select="selectSession"
+        @rename="renameSession"
+        @delete="deleteSession"
       />
     </div>
-    <div v-if="sessions.length" class="fixed top-5 right-5 flex flex-col gap2 items-end">
-      <div class="flex flex-row justify-around w20 h8 border border-base rounded-8 of-hidden">
-        <button v-for="mode in modeList" :key="mode.value" :title="mode.label" class="flex-1 op50 flex items-center justify-center hover:bg-active hover:text-base hover:op100!" :class="{ 'bg-active text-base op100!': sessionMode === mode.value }" @click="sessionMode = mode.value">
-          <span :class="mode.icon" class="text-sm" />
-        </button>
-      </div>
-      <ActionButton
-        icon="i-ph-play-duotone"
-        title="Run a build with devtools output"
-        @click="runBuildOpen = true"
-      >
-        Run build
-      </ActionButton>
-    </div>
+
     <div v-if="selectedSessions.length > 0 && sessionMode === 'compare'" class="fixed bottom-5 right-5 border border-base rounded-2 w100 max-lg:w85 bg-glass z-panel-content">
       <CompareSessionMeta :sessions="normalizedSelectedSessions" class="flex-col gap0 [&>div]:border-none! [&>first-child]:border-b!" />
       <div class="flex justify-center p2">
