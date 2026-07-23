@@ -166,16 +166,23 @@ export default defineConfig({
             remote: true,
           })
 
-          // Docked group: collapse several sub-tools under a single button.
-          // Mirrors how a framework like Nuxt could surface its features as
-          // individually-pluggable Vite DevTools entries under one umbrella.
+          // Shared-iframe soft navigation (devframe 0.7.11). A single anchor
+          // iframe dock owns one live iframe; the embedded SPA
+          // (`src/pages/mock-nuxt-devtools.vue`) ships the `devframe:frame-nav`
+          // postMessage shim that announces its internal tabs. The frame-nav
+          // adapter materializes one dock per reported tab (Overview / Pages /
+          // Components / Modules) — they inherit this anchor's `groupId`, so
+          // they collapse under the one "Nuxt" button and soft-navigate the
+          // shared frame with no reload. `defaultChildId` points at the anchor
+          // so opening the group reliably boots the frame; the tabs then appear
+          // in the popover.
           ctx.docks.register({
             id: 'nuxt',
             type: 'group',
             title: 'Nuxt',
             icon: 'vscode-icons:file-type-nuxt',
             category: 'framework',
-            defaultChildId: 'nuxt:overview',
+            defaultChildId: 'nuxt-devtools',
           })
           ctx.docks.register({
             id: 'playground',
@@ -183,22 +190,16 @@ export default defineConfig({
             title: 'Playground',
             icon: 'ph:flask-duotone',
           })
-          const nuxtFeatures = [
-            ['nuxt:overview', 'Overview', 'ph:gauge-duotone'],
-            ['nuxt:pages', 'Pages', 'ph:files-duotone'],
-            ['nuxt:components', 'Components', 'ph:puzzle-piece-duotone'],
-            ['nuxt:modules', 'Modules', 'ph:plugs-connected-duotone'],
-          ] as const
-          nuxtFeatures.forEach(([id, title, icon], index) => {
-            ctx.docks.register({
-              id,
-              type: 'iframe',
-              url: '/devtools/',
-              title,
-              icon,
-              groupId: 'nuxt',
-              defaultOrder: index,
-            })
+          ctx.docks.register({
+            id: 'nuxt-devtools',
+            type: 'iframe',
+            url: '/mock-nuxt-devtools',
+            title: 'Nuxt DevTools',
+            icon: 'vscode-icons:file-type-nuxt',
+            groupId: 'nuxt',
+            frameId: 'nuxt',
+            subTabs: { protocol: 'postmessage' },
+            defaultOrder: -1,
           })
 
           ctx.docks.register({

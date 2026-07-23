@@ -45,6 +45,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/mock-nuxt-devtools': RouteRecordInfo<
+      '/mock-nuxt-devtools',
+      '/mock-nuxt-devtools',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -69,6 +76,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/devtools.vue': {
       routes:
         | '/devtools'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/mock-nuxt-devtools.vue': {
+      routes:
+        | '/mock-nuxt-devtools'
       views:
         | never
       pathParamNames:
