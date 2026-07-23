@@ -66,27 +66,29 @@ export const CornerAnchors: Story = {
         { label: 'Top right', class: 'right-2 top-2' },
         { label: 'Bottom left', class: 'left-2 bottom-2' },
         { label: 'Bottom right', class: 'right-2 bottom-2' },
-      ]
-      const els: (HTMLElement | null)[] = corners.map(() => null)
-      const items = corners.map(() => shallowRef<any>(null))
+      ].map(corner => ({
+        ...corner,
+        el: null as HTMLElement | null,
+        item: shallowRef<any>(null),
+      }))
       const menu = () => h('div', { class: 'flex flex-col gap-0.5 min-w-40' }, [
         h('div', { class: 'px2 pt1 pb1.5 op60 text-2.75 uppercase tracking-wide font-medium' }, 'Menu'),
         ...['Overview', 'Pages', 'Components'].map(label =>
           h('button', { class: 'px2 py1.5 rounded text-sm text-left op80 hover:op100 hover:bg-active transition' }, label)),
       ])
       onMounted(() => {
-        corners.forEach((_, i) => {
-          if (els[i])
-            items[i].value = { el: els[i], content: menu }
-        })
+        for (const corner of corners) {
+          if (corner.el)
+            corner.item.value = { el: corner.el, content: menu }
+        }
       })
-      return () => h('div', { class: 'min-h-100 font-sans' }, corners.flatMap((corner, i) => [
+      return () => h('div', { class: 'min-h-100 font-sans' }, corners.flatMap(corner => [
         h('button', {
           key: corner.label,
-          ref: (el: any) => (els[i] = el),
+          ref: (el: any) => (corner.el = el),
           class: `fixed ${corner.class} px3 py1.5 rounded border border-base bg-glass color-base shadow`,
         }, corner.label),
-        h(FloatingPopover, { item: items[i].value, dismissOnClickOutside: false }),
+        h(FloatingPopover, { item: corner.item.value, dismissOnClickOutside: false }),
       ]))
     },
   }),
