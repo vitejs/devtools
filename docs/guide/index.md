@@ -116,9 +116,15 @@ export default defineConfig({
 
 #### Projects without an HTML entry
 
-For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead:
+For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. Two entries mirror the two visibility modes — import whichever one you want:
 
 ```ts twoslash
+// Passive: docks hidden until Shift+Alt+D
+import '@vitejs/devtools/client/inject-passive'
+```
+
+```ts twoslash
+// Normal: docks shown immediately
 import '@vitejs/devtools/client/inject'
 ```
 

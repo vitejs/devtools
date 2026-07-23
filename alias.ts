@@ -20,6 +20,7 @@ export const alias = {
   '@vitejs/devtools-vitest': r('vitest/src/index.ts'),
   '@vitejs/devtools/internal': r('core/src/internal.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
+  '@vitejs/devtools/client/inject-passive': r('core/src/client/inject-passive/index.ts'),
   '@vitejs/devtools/client/webcomponents': r('core/src/client/webcomponents/index.ts'),
   '@vitejs/devtools': r('core/src/index.ts'),
   '@vitejs/devtools-ui/unocss': r('ui/src/unocss/index.ts'),

@@ -51,6 +51,9 @@
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"
       ],
+      "@vitejs/devtools/client/inject-passive": [
+        "./packages/core/src/client/inject-passive/index.ts"
+      ],
       "@vitejs/devtools/client/webcomponents": [
         "./packages/core/src/client/webcomponents/index.ts"
       ],

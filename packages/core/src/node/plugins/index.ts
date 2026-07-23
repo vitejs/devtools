@@ -53,7 +53,7 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   } = options
 
   const plugins = [
-    DevToolsInjection(),
+    DevToolsInjection({ visibility }),
     DevToolsServer({ visibility }),
   ]
 
