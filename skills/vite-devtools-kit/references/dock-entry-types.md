@@ -378,15 +378,19 @@ entry.update({
 
 ## Category Order
 
-Default category ordering (lower sorts earlier):
+Default category ordering (lower sorts earlier), owned upstream by `@devframes/hub` and re-exported from `@vitejs/devtools-kit/constants`:
 
 ```ts
 DEFAULT_CATEGORIES_ORDER = {
   'framework': -100, // First
   'default': 0,
   'app': 100,
+  'ui': 150,
+  'data': 250,
   'web': 300,
+  'performance': 350,
   'advanced': 400,
+  'docs': 500,
   '~builtin': 1000, // Last
 }
 ```

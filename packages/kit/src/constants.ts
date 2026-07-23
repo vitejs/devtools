@@ -1,7 +1,10 @@
-import type { DevToolsDockEntryCategory } from './types/docks'
 import type { DevToolsDocksUserSettings } from './types/settings'
 
-export { DEFAULT_STATE_USER_SETTINGS } from '@devframes/hub/constants'
+// The dock category-order table is owned upstream by `@devframes/hub` (single
+// source of truth) so standalone hub viewers and Vite DevTools agree. Grouped
+// dock entries bucket under their group's category on the outer bar, and this
+// same table orders their in-group sub-categories.
+export { DEFAULT_CATEGORIES_ORDER, DEFAULT_STATE_USER_SETTINGS } from '@devframes/hub/constants'
 
 // Filename / dirname constants whose *values* are unchanged across the
 // devframe `DevTools*` → `Devframe*` rename. Re-export them under both
@@ -55,14 +58,5 @@ export const DEVTOOLS_INSPECTOR_DOCK_ID = 'devframes_plugin_inspect'
  * straight to that session's output. Mirrors the plugin's `PLUGIN_ID`.
  */
 export const DEVTOOLS_TERMINALS_DOCK_ID = 'devframes_plugin_terminals'
-
-export const DEFAULT_CATEGORIES_ORDER: Record<string, number> = {
-  'framework': -100,
-  'default': 0,
-  'app': 100,
-  'web': 300,
-  'advanced': 400,
-  '~builtin': 1000,
-} satisfies Record<DevToolsDockEntryCategory, number>
 
 export type { DevToolsDocksUserSettings }
