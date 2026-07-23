@@ -103,6 +103,7 @@ export default defineConfig({
             id: 'local2',
             title: 'Local2',
             groupId: 'playground',
+            category: 'app',
             icon: 'ph:bell-simple-ringing-duotone',
           })
 
@@ -136,6 +137,7 @@ export default defineConfig({
             icon: 'material-symbols:counter-1',
             title: 'Counter',
             groupId: 'playground',
+            category: 'app',
             // TODO: HMR
             action: createSimpleClientScript(() => {}),
           })

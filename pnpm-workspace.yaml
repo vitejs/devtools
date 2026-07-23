@@ -18,6 +18,8 @@ trustPolicyExclude:
 packages:
   - packages/*
   - examples/*
+  - playgrounds/*
+  - '!playgrounds/production'
   - docs
   - e2e
   - storybook

@@ -1285,6 +1285,8 @@ importers:
         specifier: catalog:build
         version: 4.23.1
 
+  playgrounds/core: {}
+
   storybook:
     devDependencies:
       '@iconify-json/carbon':
