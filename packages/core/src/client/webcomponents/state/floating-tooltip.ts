@@ -10,6 +10,7 @@ export interface FloatingPopoverProps {
 
 const tooltip = shallowRef<FloatingPopoverProps | null>(null)
 const docksOverflowPanel = shallowRef<FloatingPopoverProps | null>(null)
+const docksSidebarOverflowPanel = shallowRef<FloatingPopoverProps | null>(null)
 const dockContextMenu = shallowRef<FloatingPopoverProps | null>(null)
 
 export function setFloatingTooltip(info: FloatingPopoverProps | null) {
@@ -26,6 +27,20 @@ export function setDocksOverflowPanel(info: FloatingPopoverProps | null) {
 
 export function useDocksOverflowPanel() {
   return docksOverflowPanel
+}
+
+/**
+ * Dedicated slot for the group side nav's height-based "show more" flyout,
+ * kept separate from {@link docksOverflowPanel} (the dock bar's overflow) and
+ * {@link docksGroupPanel} (the bar group button's popover) so the rail's
+ * show-more never fights those features over one shared ref.
+ */
+export function setDocksSidebarOverflowPanel(info: FloatingPopoverProps | null) {
+  docksSidebarOverflowPanel.value = info
+}
+
+export function useDocksSidebarOverflowPanel() {
+  return docksSidebarOverflowPanel
 }
 
 const docksGroupPanel = shallowRef<FloatingPopoverProps | null>(null)

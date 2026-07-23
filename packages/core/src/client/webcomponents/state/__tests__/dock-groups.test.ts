@@ -8,6 +8,9 @@ import {
   getGroupMembers,
   getGroupMembersGrouped,
   getRegisteredGroupIds,
+  isCategoryHideable,
+  PINNED_CATEGORY,
+  PINNED_CATEGORY_ORDER,
   resolveCommandIcon,
 } from '../dock-settings'
 
@@ -172,6 +175,102 @@ describe('in-group sub-categories (dual role of `category`)', () => {
     const hidden = { ...settings, docksCategoriesHidden: ['app'] }
     const sub = getGroupMembersGrouped(entries, 'nuxt', hidden)
     expect(sub.find(([c]) => c === 'app')?.[1].map(e => e.id)).toEqual(['nuxt:pages', 'nuxt:overview'])
+  })
+})
+
+describe('pinning re-buckets into the ~pinned category', () => {
+  function categoryOf(grouped: ReturnType<typeof docksGroupByCategories>, id: string): string | undefined {
+    return grouped.find(([, items]) => items.some(i => i.id === id))?.[0]
+  }
+
+  it('moves a pinned top-level entry into the ~pinned category', () => {
+    const entries: DevToolsDockEntry[] = [
+      iframe('a', { category: 'app' }),
+      iframe('b', { category: 'app' }),
+    ]
+    const pinned = { ...settings, docksPinned: ['b'] }
+    const result = docksGroupByCategories(entries, pinned)
+    expect(categoryOf(result, 'b')).toBe(PINNED_CATEGORY)
+    expect(categoryOf(result, 'a')).toBe('app')
+  })
+
+  it('sorts the ~pinned category ahead of every real category', () => {
+    const entries: DevToolsDockEntry[] = [
+      iframe('fw', { category: 'framework' }), // framework leads the real table (-100)
+      iframe('pinme', { category: 'advanced' }),
+    ]
+    const pinned = { ...settings, docksPinned: ['pinme'] }
+    const result = docksGroupByCategories(entries, pinned)
+    expect(result[0]![0]).toBe(PINNED_CATEGORY)
+    expect(PINNED_CATEGORY_ORDER).toBeLessThan(-100)
+  })
+
+  it('pins a group button to the top-level ~pinned category', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('nuxt', { category: 'framework' }),
+      iframe('nuxt:overview', { groupId: 'nuxt' }),
+    ]
+    const pinned = { ...settings, docksPinned: ['nuxt'] }
+    const grouped = docksGroupByCategories(entries, pinned, { collapseGroups: true })
+    expect(categoryOf(grouped, 'nuxt')).toBe(PINNED_CATEGORY)
+  })
+
+  it('pins a grouped member into a ~pinned SUB-category inside its group (no promotion to the bar)', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('nuxt', { category: 'framework' }),
+      iframe('nuxt:overview', { groupId: 'nuxt', category: 'app' }),
+      iframe('nuxt:graph', { groupId: 'nuxt', category: 'advanced' }),
+    ]
+    const pinned = { ...settings, docksPinned: ['nuxt:graph'] }
+
+    // The member stays folded in its group on the bar — no top-level ~pinned bucket.
+    const bar = docksGroupByCategories(entries, pinned, { collapseGroups: true })
+    expect(bar.map(([c]) => c)).not.toContain(PINNED_CATEGORY)
+
+    // Inside the group it leads via a ~pinned sub-category.
+    const sub = getGroupMembersGrouped(entries, 'nuxt', pinned)
+    expect(sub[0]![0]).toBe(PINNED_CATEGORY)
+    expect(categoryOf(sub, 'nuxt:graph')).toBe(PINNED_CATEGORY)
+    expect(categoryOf(sub, 'nuxt:overview')).toBe('app')
+  })
+
+  it('keeps a pinned entry visible even when its home category is hidden', () => {
+    const entries: DevToolsDockEntry[] = [
+      iframe('a', { category: 'advanced' }),
+      iframe('b', { category: 'advanced' }),
+    ]
+    const hiddenCat = { ...settings, docksCategoriesHidden: ['advanced'], docksPinned: ['b'] }
+    const grouped = docksGroupByCategories(entries, hiddenCat)
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    // 'a' is hidden with its category; the pinned 'b' survives in ~pinned
+    expect(ids).not.toContain('a')
+    expect(ids).toContain('b')
+    expect(categoryOf(grouped, 'b')).toBe(PINNED_CATEGORY)
+  })
+
+  it('orders multiple pinned entries by custom then default order', () => {
+    const entries: DevToolsDockEntry[] = [
+      iframe('x', { defaultOrder: 1 }),
+      iframe('y', { defaultOrder: 0 }),
+      iframe('z', { defaultOrder: 2 }),
+    ]
+    const pinned = { ...settings, docksPinned: ['x', 'y', 'z'], docksCustomOrder: { x: 5, y: 6, z: 1 } }
+    const grouped = docksGroupByCategories(entries, pinned)
+    const pinnedItems = grouped.find(([c]) => c === PINNED_CATEGORY)![1].map(e => e.id)
+    // custom order wins over defaultOrder: z(1) < x(5) < y(6)
+    expect(pinnedItems).toEqual(['z', 'x', 'y'])
+  })
+})
+
+describe('isCategoryHideable', () => {
+  it('marks ~builtin and ~pinned as non-hideable', () => {
+    expect(isCategoryHideable('~builtin')).toBe(false)
+    expect(isCategoryHideable(PINNED_CATEGORY)).toBe(false)
+  })
+
+  it('marks ordinary categories as hideable', () => {
+    expect(isCategoryHideable('app')).toBe(true)
+    expect(isCategoryHideable('framework')).toBe(true)
   })
 })
 

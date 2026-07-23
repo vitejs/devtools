@@ -1,7 +1,7 @@
 {
   "name": "playground-production",
   "type": "module",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "private": true,
   "description": "Standalone workspace that installs Vite DevTools from the local built dist, to test the real user install experience.",
   "scripts": {

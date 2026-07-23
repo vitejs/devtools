@@ -25,8 +25,8 @@ export type { JsonRenderView, JsonRenderViewRef }
  *
  * Its methods are defined non-enumerably so the handle stays fully
  * serializable when carried on a `json-render` dock entry's `ui` field —
- * only the plain string metadata (`_stateKey`, `upstreamVersion`) crosses
- * the wire to the client, which subscribes through `_stateKey`.
+ * only the plain string metadata (`_stateKey`) crosses the wire to the
+ * client, which subscribes through it.
  */
 export interface JsonRenderer {
   /** Replace the entire spec. */
@@ -37,8 +37,6 @@ export interface JsonRenderer {
   dispose: () => void
   /** Shared-state key the client subscribes to for the live spec + state. */
   readonly _stateKey: string
-  /** Upstream `@json-render/*` version the view was authored against. */
-  readonly upstreamVersion: string
   /** The serializable reference to the underlying view. */
   readonly view: JsonRenderViewRef
 }

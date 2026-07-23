@@ -57,8 +57,16 @@ const currentUrl = ref(props.entry.url)
 const editingUrl = ref(props.entry.url)
 const isEditing = ref(false)
 
+// Shared-iframe soft navigation: an anchor iframe dock and each of its member
+// docks share one `frameId`, so they must render into the *same* live pane.
+// Keying on `frameId` (when present) keeps that single iframe alive across
+// switches — its navigation/scroll/JS state is preserved and the hub's
+// frame-nav adapter soft-navigates it — falling back to the entry id for plain
+// iframe docks that own their frame exclusively.
+const paneKey = computed(() => props.entry.frameId ?? props.entry.id)
+
 const iframeElement = computed(() => {
-  return props.panes.get(props.entry.id)?.iframe
+  return props.panes.get(paneKey.value)?.iframe
 })
 
 // Get current page's origin for comparison
@@ -186,10 +194,12 @@ function refresh() {
 let onIframeLoad: (() => void) | undefined
 
 onMounted(() => {
-  const existed = props.panes.has(props.entry.id)
+  const existed = props.panes.has(paneKey.value)
   // `src` is only assigned when the pane is first created, so re-mounting an
-  // existing iframe (tab switch) preserves its navigation/scroll/JS state.
-  const pane = props.panes.ensure(props.entry.id, {
+  // existing iframe (tab switch) preserves its navigation/scroll/JS state. For
+  // a shared frame this is also the boot deep-link: the first member (or the
+  // anchor) to become visible seeds the src, and every later switch soft-navs.
+  const pane = props.panes.ensure(paneKey.value, {
     src: props.entry.url,
     style: { boxShadow: 'none', outline: 'none' },
   })
@@ -236,10 +246,16 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  const pane = props.panes.get(props.entry.id)
+  const pane = props.panes.get(paneKey.value)
   if (pane && onIframeLoad)
     pane.iframe?.removeEventListener('load', onIframeLoad)
-  pane?.unmount()
+  // Only unmount if this view still owns the pane. When switching between two
+  // docks sharing a `frameId`, the incoming view may re-mount the shared pane
+  // onto its own container before this outgoing view tears down — unmounting
+  // then would wrongly hide the just-revealed iframe. Guarding on the current
+  // target makes the handoff order-independent.
+  if (pane && pane.target === viewFrame.value)
+    pane.unmount()
 })
 </script>
 

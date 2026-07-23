@@ -130,6 +130,28 @@ The [File Explorer example](/kit/examples#file-explorer) is a complete iframe-do
 
 To skip bundling a dist with your plugin, an iframe dock can point at a hosted website that connects back to the local dev server over WebSocket. See [Remote Client](./remote-client).
 
+### Shared-iframe soft navigation
+
+A multi-tab integration — say a devtool with its own Modules / Timeline / Plugins views inside one SPA — can surface each of its tabs as its own DevTools dock while all of them share **one** live iframe and switch views by client-side (soft) navigation, with no reload.
+
+Flag the iframe dock as an **anchor** with `subTabs` and give it a `frameId`:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt-devtools',
+  type: 'iframe',
+  title: 'Nuxt DevTools',
+  icon: 'i-logos:nuxt-icon',
+  url: 'http://localhost:3000/__nuxt_devtools__/',
+  frameId: 'nuxt-devtools', // the shared iframe these docks render into
+  subTabs: { protocol: 'postmessage' }, // opt into the frame-nav adapter
+})
+```
+
+When the anchor's iframe mounts, Vite DevTools attaches the hub's frame-nav adapter. It runs a versioned, origin-locked `postMessage` handshake with the embedded app, turns the tab manifest the app reports into one **member dock** per tab (id `<frameId>:<tabId>`), and drives the loop both ways: selecting a member soft-navigates the shared frame, and the app's own navigation moves the DevTools highlight to match. Members are first-class docks — they honor `title`, `icon`, `order`, `category`, `when`, `badge`, and grouping (`frameId` and `groupId` are independent axes).
+
+The embedded app stays decoupled: it ships a small `postMessage` nav shim and takes no hub or RPC dependency, so this works cross-origin and in static builds. When no shim answers within the handshake window, the anchor renders as a single plain iframe dock. The protocol, the member-dock data model, and the shim contract live in devframe's [shared-iframe soft-navigation design](https://github.com/devframes/devframe/blob/main/plans/shared-iframe-soft-nav.md).
+
 ## Action buttons
 
 Action buttons run a client-side script when clicked. They suit:
@@ -505,6 +527,8 @@ DevTools for Rolldown joins this group out of the box.
 
 From the dock settings panel, users hide or reorder members within a group independently, and hide the whole group from its row. When a group's members span several sub-categories, each sub-category reorders on its own and shows its own header.
 
+Pinning an entry moves it into a dedicated **Pinned** category that leads the dock bar ahead of every other category. A top-level entry (or a whole group button) pins to the bar-level Pinned bucket; a grouped member pins to a Pinned sub-category that leads its own group, staying inside the group rather than surfacing on the bar. A pinned entry shows even when its home category is hidden, and unpinning returns it to that category in its previous position.
+
 ## Common options
 
 Every dock type accepts these base fields:
@@ -515,7 +539,7 @@ Every dock type accepts these base fields:
 | `title` | `string` | Label shown in the dock. |
 | `icon` | `string \| { light, dark }` | Iconify name, URL, data URI, or light/dark pair. |
 | `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Outer dock-bar bucket, or the in-group sub-category when `groupId` resolves to a group — see [Categories inside a group](#categories-inside-a-group). Defaults to `'default'`. |
-| `defaultOrder` | `number` | Higher numbers appear first. Default `0`. |
+| `defaultOrder` | `number` | Orders entries within a category; lower numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
 | `groupId` | `string` | Collapse this entry under a group's button; the group's `category` becomes this entry's outer bucket — see [Docked groups](#docked-groups). |

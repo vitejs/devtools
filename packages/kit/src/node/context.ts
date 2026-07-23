@@ -67,14 +67,13 @@ export async function createKitContext(options: CreateKitContextOptions): Promis
  * The handle's methods are defined non-enumerably so the whole object stays
  * serializable when carried on a dock entry's `ui` field — the docks
  * shared-state projection walks only enumerable own keys, so the live
- * closures never reach the wire while `_stateKey` / `upstreamVersion` do.
+ * closures never reach the wire while `_stateKey` does.
  */
 function createJsonRenderer(context: KitNodeContext, spec: JsonRenderSpec): JsonRenderer {
   const view = createJsonRenderView(context, { id: `kit-${nanoid()}`, spec })
 
   const handle = {
     _stateKey: view.ref.stateKey,
-    upstreamVersion: view.ref.upstreamVersion,
     view: view.ref,
   } as JsonRenderer
 

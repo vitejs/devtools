@@ -5,7 +5,7 @@ import type { SharedState } from 'devframe/utils/shared-state'
 import type { DevToolsDockEntriesGrouped, DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { useDraggable } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
-import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped } from '../../state/dock-settings'
+import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, isCategoryHideable } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import HashBadge from '../display/HashBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
@@ -197,7 +197,7 @@ function toggleDock(id: string, visible?: boolean) {
 }
 
 function toggleCategory(category: string, visible?: boolean) {
-  if (category === '~builtin')
+  if (!isCategoryHideable(category))
     return
   const hidden = settings.value.docksCategoriesHidden
   const isHidden = hidden.includes(category)
@@ -299,9 +299,9 @@ function resetCustomOrderForContainer(container: string) {
           <button
             class="w-5 h-5 flex items-center justify-center rounded transition-colors"
             :class="[
-              category === '~builtin' ? 'bg-gray/20 cursor-not-allowed op50' : settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-primary/20 text-primary',
+              !isCategoryHideable(category) ? 'bg-gray/20 cursor-not-allowed op50' : settings.docksCategoriesHidden.includes(category) ? 'bg-gray/20' : 'bg-primary/20 text-primary',
             ]"
-            :disabled="category === '~builtin'"
+            :disabled="!isCategoryHideable(category)"
             @click="toggleCategory(category)"
           >
             <div
