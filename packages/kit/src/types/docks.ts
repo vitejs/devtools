@@ -43,6 +43,25 @@ declare module '@devframes/hub/types' {
   interface DevframeDockEntryRegistry {
     'json-render': DevToolsViewJsonRender
   }
+
+  /**
+   * Temporary shim for `DevframeViewGroup.categoryOrder`
+   * ({@link https://github.com/devframes/devframe/pull/133}), merged upstream
+   * but not yet in a published `@devframes/hub` release (pinned dep is
+   * `^0.7.11`). Lets a group entry override the sort order of its members'
+   * in-group sub-categories, scoped to that one group — every other group and
+   * the outer dock-bar ordering are untouched. Delete this augmentation once
+   * the dependency bumps past the release that carries the real field.
+   */
+  interface DevframeViewGroup {
+    /**
+     * Sort-weight overrides for this group's in-group sub-categories, keyed
+     * by sub-category id. Lower sorts earlier, matching
+     * `DEFAULT_CATEGORIES_ORDER`; a sub-category absent from this map keeps
+     * its weight from the shared table (or `0` if it's not there either).
+     */
+    categoryOrder?: Record<string, number>
+  }
 }
 
 /**

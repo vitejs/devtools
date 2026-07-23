@@ -28,12 +28,16 @@ export const PINNED_CATEGORY_ORDER = -100000
 
 /**
  * Resolve a category's sort weight, layering the local {@link PINNED_CATEGORY}
- * override on top of the upstream {@link DEFAULT_CATEGORIES_ORDER} table.
+ * override, then a caller-supplied `overrides` map (a group's own
+ * {@link DevToolsViewGroup.categoryOrder}), on top of the upstream
+ * {@link DEFAULT_CATEGORIES_ORDER} table. `overrides` is per-call — passing a
+ * group's map only reweights that group's in-group sub-categories, never the
+ * outer bar or any other group.
  */
-function categoryOrder(category: string): number {
+function categoryOrder(category: string, overrides?: Record<string, number>): number {
   if (category === PINNED_CATEGORY)
     return PINNED_CATEGORY_ORDER
-  return DEFAULT_CATEGORIES_ORDER[category] || 0
+  return overrides?.[category] ?? DEFAULT_CATEGORIES_ORDER[category] ?? 0
 }
 
 export interface SplitGroupsResult {
@@ -127,8 +131,11 @@ export function getEntryGroup(
  * lives in, so it never bleeds into the sub-category split here. A pinned member
  * moves to a `~pinned` sub-category (leading the group, via
  * {@link PINNED_CATEGORY_ORDER}). Sub-categories are ordered by the same
- * {@link DEFAULT_CATEGORIES_ORDER} table as top-level categories, but they are
- * not independently hideable (the outer category-hide toggle does not apply
+ * {@link DEFAULT_CATEGORIES_ORDER} table as top-level categories — unless the
+ * group entry itself sets {@link DevToolsViewGroup.categoryOrder}, whose
+ * weights take precedence for this group's sub-categories only, leaving every
+ * other group and the outer bar on the shared table. Sub-categories are not
+ * independently hideable (the outer category-hide toggle does not apply
  * inside a group).
  */
 export function getGroupMembersGrouped(
@@ -140,9 +147,11 @@ export function getGroupMembersGrouped(
   const members = entries.filter(e => e.type !== 'group' && e.groupId === groupId)
   if (!settings)
     return members.length ? [['default', members]] : []
+  const group = entries.find((e): e is DevToolsViewGroup => e.type === 'group' && e.id === groupId)
   // Group by the members' own `category` (the in-group sub-category), never the
   // group's category. Category-hide is an outer-bar concern, so it is ignored.
-  return docksGroupByCategories(members, settings, { ...options, ignoreCategoryHidden: true })
+  // The group's own `categoryOrder`, if set, reweights only this split.
+  return docksGroupByCategories(members, settings, { ...options, ignoreCategoryHidden: true, categoryOrderOverride: group?.categoryOrder })
 }
 
 /**
@@ -186,14 +195,20 @@ export function getGroupMembers(
  * Because the pinned bucket is chosen before the category-hide check and is
  * itself never hideable, a pinned entry stays visible even when its original
  * category is hidden.
+ *
+ * `categoryOrderOverride` reweights the categories produced by *this call*
+ * (used by {@link getGroupMembersGrouped} to apply a group's own
+ * {@link DevToolsViewGroup.categoryOrder} to its in-group sub-category split)
+ * — it never touches the shared {@link DEFAULT_CATEGORIES_ORDER} table, so it
+ * has no effect on any other call, group, or the outer bar.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, ignoreCategoryHidden?: boolean },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, ignoreCategoryHidden?: boolean, categoryOrderOverride?: Record<string, number> },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false, whenContext, collapseGroups = false, ignoreCategoryHidden = false } = options ?? {}
+  const { includeHidden = false, whenContext, collapseGroups = false, ignoreCategoryHidden = false, categoryOrderOverride } = options ?? {}
 
   // Map every registered group id to its resolved outer category. A grouped
   // member's OUTER bucket is its group's category (the member's own `category`
@@ -258,8 +273,8 @@ export function docksGroupByCategories(
   const grouped = Array
     .from(map.entries())
     .sort(([a], [b]) => {
-      const ia = categoryOrder(a)
-      const ib = categoryOrder(b)
+      const ia = categoryOrder(a, categoryOrderOverride)
+      const ib = categoryOrder(b, categoryOrderOverride)
       return ib === ia ? b.localeCompare(a) : ia - ib
     })
 
