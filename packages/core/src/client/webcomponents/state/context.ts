@@ -10,7 +10,7 @@ import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vu
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
-import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
+import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
@@ -113,6 +113,31 @@ export async function createDocksContext(
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
   let docksContext: DocksContext
 
+  let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
+  const getSettingsStore = async () => {
+    if (!_settingsStorePromise) {
+      _settingsStorePromise = rpc.sharedState.get(
+        'devframe:user-settings',
+        { initialValue: DEFAULT_STATE_USER_SETTINGS() },
+      )
+    }
+    return _settingsStorePromise
+  }
+
+  // Get settings store ahead of `switchEntry` — its group→member resolution
+  // needs `getWhenContext` to honor a `defaultChildId` target's `when` clause.
+  const settingsStore = markRaw(await getSettingsStore())
+  const settings = sharedStateToRef(settingsStore)
+
+  // Shared when-context provider — used by both commands and docks
+  let commandsContext: CommandsContext
+  const getWhenContext = (): WhenContext => ({
+    clientType,
+    dockOpen: panelStore.value.open,
+    paletteOpen: commandsContext?.paletteOpen ?? false,
+    dockSelectedId: selectedId.value ?? '',
+  })
+
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
@@ -129,14 +154,14 @@ export async function createDocksContext(
       return false
 
     // A group has no view of its own — resolve to the member it represents.
-    // Prefer the author's `defaultChildId`, otherwise the first visible member.
-    // With neither, the group is popover-only and selecting it is a no-op here
-    // (the dock-bar group button opens the member popover instead).
+    // Prefer the author's `defaultChildId` (honoring its `when` clause but
+    // ignoring its render-only `visibility` — see `resolveGroupDefaultChild`),
+    // otherwise the first member. With neither, the group is popover-only and
+    // selecting it is a no-op here (the dock-bar group button opens the
+    // member popover instead).
     if (entry.type === 'group') {
-      const members = getGroupMembers(entries.value, entry.id)
-      const target = (entry.defaultChildId && members.some(m => m.id === entry.defaultChildId))
-        ? entry.defaultChildId
-        : members[0]?.id
+      const target = resolveGroupDefaultChild(entries.value, entry.id, entry.defaultChildId, getWhenContext())?.id
+        ?? getGroupMembers(entries.value, entry.id)[0]?.id
       if (!target)
         return false
       return switchEntry(target)
@@ -258,30 +283,8 @@ export async function createDocksContext(
     },
   })
 
-  let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
-  const getSettingsStore = async () => {
-    if (!_settingsStorePromise) {
-      _settingsStorePromise = rpc.sharedState.get(
-        'devframe:user-settings',
-        { initialValue: DEFAULT_STATE_USER_SETTINGS() },
-      )
-    }
-    return _settingsStorePromise
-  }
-
-  // Get settings store and create computed grouped entries
-  const settingsStore = markRaw(await getSettingsStore())
-  const settings = sharedStateToRef(settingsStore)
-
-  // Shared when-context provider — used by both commands and docks
-  let commandsContext: CommandsContext
-  const getWhenContext = (): WhenContext => ({
-    clientType,
-    dockOpen: panelStore.value.open,
-    paletteOpen: commandsContext?.paletteOpen ?? false,
-    dockSelectedId: selectedId.value ?? '',
-  })
-
+  // Settings store, `settings`, and `getWhenContext` are established earlier
+  // (right before `switchEntry`) — its group→member resolution needs them.
   const groupedEntries = computed(() => {
     return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
   })

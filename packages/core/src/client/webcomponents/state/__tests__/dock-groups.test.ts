@@ -12,6 +12,7 @@ import {
   PINNED_CATEGORY,
   PINNED_CATEGORY_ORDER,
   resolveCommandIcon,
+  resolveGroupDefaultChild,
 } from '../dock-settings'
 
 function iframe(id: string, extra: Partial<DevToolsDockEntry> = {}): DevToolsDockEntry {
@@ -136,6 +137,69 @@ describe('render-only `visibility` (subTabs anchor use case)', () => {
 
     const embedded = docksGroupByCategories(conditional, settings, { whenContext: { clientType: 'embedded' } as any })
     expect(embedded.flatMap(([, items]) => items.map(i => i.id))).toContain('conditional')
+  })
+})
+
+describe('resolveGroupDefaultChild (group→member resolution ignores `visibility`, respects `when`)', () => {
+  it('resolves a plain, fully-visible default child', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:a' } as any),
+      iframe('g:a', { groupId: 'g' }),
+      iframe('g:b', { groupId: 'g' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:a')?.id).toBe('g:a')
+  })
+
+  it('resolves the target even when it is render-only hidden via `visibility`', () => {
+    // The core bug fixed here: a defaultChildId target with `visibility: 'false'`
+    // must still fire — visibility only hides the target's own dock-bar button.
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:hidden' } as any),
+      iframe('g:hidden', { groupId: 'g', visibility: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:hidden')?.id).toBe('g:hidden')
+  })
+
+  it('does NOT resolve the target when its own `when` clause evaluates false', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:embedded-only' } as any),
+      iframe('g:embedded-only', { groupId: 'g', when: 'clientType == embedded' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:embedded-only', { clientType: 'standalone' } as any)).toBeUndefined()
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:embedded-only', { clientType: 'embedded' } as any)?.id).toBe('g:embedded-only')
+  })
+
+  it('does NOT resolve an unconditionally `when: false` target with no whenContext', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:off' } as any),
+      iframe('g:off', { groupId: 'g', when: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:off')).toBeUndefined()
+  })
+
+  it('resolves the target even when `when`-hidden AND `visibility`-hidden together, as long as `when` passes', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:both' } as any),
+      iframe('g:both', { groupId: 'g', when: 'clientType == embedded', visibility: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:both', { clientType: 'embedded' } as any)?.id).toBe('g:both')
+  })
+
+  it('returns undefined when there is no defaultChildId', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g'),
+      iframe('g:a', { groupId: 'g' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', undefined)).toBeUndefined()
+  })
+
+  it('returns undefined when defaultChildId does not reference a member of this group', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'other:x' } as any),
+      iframe('g:a', { groupId: 'g' }),
+      iframe('other:x', { groupId: 'other-group' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'other:x')).toBeUndefined()
   })
 })
 

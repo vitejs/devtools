@@ -3,7 +3,7 @@ import type { DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { watchDebounced } from '@vueuse/core'
 import { computed, h, ref, useTemplateRef } from 'vue'
-import { getGroupMembers, getGroupMembersGrouped } from '../../state/dock-settings'
+import { getGroupMembers, getGroupMembersGrouped, resolveGroupDefaultChild } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { setDocksGroupPanel, useDocksGroupPanel } from '../../state/floating-tooltip'
 import DockEntry from './DockEntry.vue'
@@ -98,8 +98,14 @@ function onClick() {
     return
   }
   // `defaultChildId` opens its member directly; otherwise reveal the popover.
-  const fallback = props.group.defaultChildId
-    && members.value.find(m => m.id === props.group.defaultChildId)
+  // Resolved regardless of the target's render-only `visibility` (a hidden
+  // button must still fire), but honoring its `when` clause.
+  const fallback = resolveGroupDefaultChild(
+    props.context.docks.entries,
+    props.group.id,
+    props.group.defaultChildId,
+    props.context.when.context,
+  )
   if (fallback) {
     hidePanel()
     emit('select', fallback)
