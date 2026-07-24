@@ -101,7 +101,7 @@ catalogs:
     webext-bridge: ^6.0.1
   devtools:
     '@antfu/eslint-config': ^9.2.0
-    '@nuxt/devtools': ^3.2.4
+    '@nuxt/devtools': ^4.0.0-alpha.9
     '@nuxt/eslint': ^1.16.0
     '@typescript-eslint/utils': ^8.65.0
     '@unocss/eslint-config': *unocss
