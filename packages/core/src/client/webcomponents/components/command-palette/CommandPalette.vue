@@ -19,6 +19,7 @@ const show = computed({
 const search = ref('')
 const selectedIndex = ref(0)
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput')
+const listContainer = useTemplateRef<HTMLElement>('listContainer')
 const visible = ref(false)
 
 // Breadcrumb stack for sub-command drill-down
@@ -113,7 +114,8 @@ function scrollToItem() {
   const item = filtered.value[selectedIndex.value]
   if (!item)
     return
-  const el = document.getElementById(`cmd-${item.entry.id}`)
+  const root = listContainer.value?.getRootNode() as ShadowRoot | Document | undefined
+  const el = root?.getElementById(`cmd-${item.entry.id}`)
   el?.scrollIntoView({ block: 'nearest' })
 }
 
@@ -289,7 +291,7 @@ function getKeybindings(id: string) {
           </header>
 
           <!-- Items -->
-          <div class="flex-1 of-y-auto p-1.5">
+          <div ref="listContainer" class="flex-1 of-y-auto p-1.5">
             <CommandPaletteItem
               v-for="(item, idx) of filtered"
               :key="item.entry.id"
