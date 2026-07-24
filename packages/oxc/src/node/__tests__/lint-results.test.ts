@@ -106,3 +106,21 @@ it('accepts the null rule count emitted by recent oxlint versions', async () => 
     ),
   ).resolves.toMatchObject({ summary: { number_of_rules: null } })
 })
+
+it('skips the "no files found" notice oxlint prints to stdout ahead of the JSON payload', async () => {
+  const root = await createFixture()
+  const rawOutput = [
+    'No files found to lint. Please check your paths and ignore patterns.',
+    JSON.stringify({
+      diagnostics: [],
+      number_of_files: 0,
+      number_of_rules: 95,
+      threads_count: 11,
+      start_time: 0.03,
+    }),
+  ].join('\n')
+
+  await expect(parseOxlintOutput(rawOutput, root)).resolves.toMatchObject({
+    summary: { number_of_files: 0 },
+  })
+})
