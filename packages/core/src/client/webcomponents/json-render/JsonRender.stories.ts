@@ -84,7 +84,7 @@ export const Card: Story = {
     root: 'root',
     state: {},
     elements: {
-      root: { type: 'Card', props: { title: 'Plugin', collapsible: false }, children: ['body'] },
+      root: { type: 'Card', props: { title: 'Plugin', collapsible: false, variant: 'secondary', interactive: true }, children: ['body'] },
       body: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
