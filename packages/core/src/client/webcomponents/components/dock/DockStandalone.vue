@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, useTemplateRef, watch } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
-import { useIframePanes } from '../../utils/useIframePanes'
+import { getEntryPaneKey, useIframePanes } from '../../utils/useIframePanes'
 import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
 import CommandPalette from '../command-palette/CommandPalette.vue'
 import Confirm from '../display/Confirm.vue'
@@ -20,7 +20,7 @@ const props = defineProps<{
 
 const context = props.context
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const panes = useIframePanes(viewsContainer, context.panel)
+const panes = useIframePanes(viewsContainer, context.panel, () => getEntryPaneKey(context.docks.selected))
 
 const isRpcTrusted = useIsRpcTrusted(context, (isTrusted) => {
   if (!isTrusted) {
