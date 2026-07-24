@@ -18,15 +18,15 @@ export interface DevToolsOptions {
   /**
    * Initial visibility of the injected overlay.
    *
+   * - `'normal'` — show the docks immediately.
    * - `'passive'` — the floating docks stay hidden and a console hint invites
    *   the developer to reveal them with a keyboard shortcut. Activating once
    *   persists a flag in the project's `node_modules`, so later dev sessions on
    *   this machine boot straight into normal mode.
-   * - `'normal'` — always show the docks.
    * - `'hidden'` — always keep the docks hidden; the shortcut reveals them for
    *   the current session only, without remembering the choice.
    *
-   * @default 'passive'
+   * @default 'normal'
    */
   visibility?: DevToolsVisibility
 
@@ -52,12 +52,12 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   const {
     builtinDevTools = true,
     build,
-    visibility = 'passive',
+    visibility = 'normal',
   } = options
 
   const plugins = [
     DevToolsInjection({ visibility }),
-    DevToolsServer({ visibility }),
+    DevToolsServer(),
   ]
 
   if (build?.withApp) {

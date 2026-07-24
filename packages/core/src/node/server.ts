@@ -5,7 +5,7 @@ import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MODE_FILENAME } from '@vite
 import { mountStaticHandler } from 'devframe/utils/serve-static'
 import { defineHandler, H3, readBody, toNodeHandler } from 'h3'
 import { dirClientStandalone } from '../dirs'
-import { isPassive, setNormalMode } from './passive-mode'
+import { setNormalMode } from './passive-mode'
 import { createWsServer } from './ws'
 
 export interface DevToolsMiddleware {
@@ -31,20 +31,20 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
     return JSON.stringify(await getConnectionMeta())
   }))
 
-  // Passive-mode channel. The injected overlay polls this on load to decide
-  // whether to stay hidden (`GET`), and flips the per-project "normal mode"
-  // flag when the developer opts in or out (`POST { enabled }`). It is served
-  // unauthenticated because it only toggles the local overlay's visibility and
-  // writes a marker file — the docks themselves still require WS trust to
-  // surface any project data.
-  const passiveOption = (options.visibility ?? 'passive') !== 'normal'
+  // Passive-mode persistence. `POST { enabled }` flips the per-project "normal
+  // mode" flag in node_modules; the injection plugin reads that flag when it
+  // decides which client entry to inject on the next load. Served
+  // unauthenticated because it only writes a local marker file — the docks
+  // themselves still require WS trust to surface any project data.
   h3.use(`/${DEVTOOLS_MODE_FILENAME}`, defineHandler(async (event) => {
-    if (event.req.method === 'POST') {
-      const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined
-      setNormalMode(options.cwd, body?.enabled ?? true)
+    if (event.req.method !== 'POST') {
+      event.res.status = 405
+      return ''
     }
+    const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined
+    setNormalMode(options.cwd, body?.enabled ?? true)
     event.res.headers.set('Content-Type', 'application/json')
-    return JSON.stringify({ passive: isPassive(options.cwd, passiveOption) })
+    return JSON.stringify({ ok: true })
   }))
 
   // Authentication uses the devframe OTP model (see `node/auth-handler.ts`):

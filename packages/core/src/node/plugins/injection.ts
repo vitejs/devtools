@@ -10,13 +10,13 @@ export interface DevToolsInjectionOptions {
   /**
    * Initial visibility of the injected overlay.
    *
+   * - `'normal'` — docks shown immediately.
    * - `'passive'` — docks hidden until the shortcut; revealing is remembered
    *   for the project (unless already opted into normal mode).
-   * - `'normal'` — docks shown immediately.
    * - `'hidden'` — docks hidden; the shortcut reveals them for the current
    *   session only, every load.
    *
-   * @default 'passive'
+   * @default 'normal'
    */
   visibility?: DevToolsVisibility
 }
@@ -44,7 +44,7 @@ function resolveDevToolsInjectionEntry(mode: EntryMode): string {
 }
 
 export function DevToolsInjection(options: DevToolsInjectionOptions = {}): Plugin {
-  const visibility = options.visibility ?? 'passive'
+  const visibility = options.visibility ?? 'normal'
   let root = process.cwd()
 
   // Resolve which client entry to inject. `normal` and `hidden` are fixed;

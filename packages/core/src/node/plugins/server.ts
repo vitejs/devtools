@@ -1,6 +1,5 @@
 import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
-import type { DevToolsVisibility } from './injection'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
   DEVTOOLS_MOUNT_PATH,
@@ -36,17 +35,7 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export interface DevToolsServerOptions {
-  /**
-   * Initial visibility of the injected overlay. `'passive'` and `'hidden'` keep
-   * the docks hidden until the developer activates them with the shortcut.
-   *
-   * @default 'passive'
-   */
-  visibility?: DevToolsVisibility
-}
-
-export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
+export function DevToolsServer(): Plugin {
   let context: ViteDevToolsNodeContext
   return {
     name: 'vite:devtools:server',
@@ -61,7 +50,6 @@ export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
 
       const { middleware } = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
-        visibility: options.visibility ?? 'passive',
         websocket: {
           host,
         },

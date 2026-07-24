@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'pathe'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { isNormalModeEnabled, isPassive, resolveModeFile, setNormalMode } from './passive-mode'
+import { isNormalModeEnabled, resolveModeFile, setNormalMode } from './passive-mode'
 
 let root: string
 
@@ -27,16 +27,14 @@ describe('passive-mode', () => {
     expect(resolveModeFile(nested)).toBe(join(root, 'node_modules', '.vite-devtools', 'mode.json'))
   })
 
-  it('defaults to not enabled and reports passive', () => {
+  it('defaults to not enabled', () => {
     expect(isNormalModeEnabled(root)).toBe(false)
-    expect(isPassive(root, true)).toBe(true)
   })
 
-  it('persists normal mode, flipping passive off', () => {
+  it('persists normal mode', () => {
     setNormalMode(root, true)
     expect(existsSync(resolveModeFile(root))).toBe(true)
     expect(isNormalModeEnabled(root)).toBe(true)
-    expect(isPassive(root, true)).toBe(false)
   })
 
   it('removes the flag when disabled', () => {
@@ -44,11 +42,5 @@ describe('passive-mode', () => {
     setNormalMode(root, false)
     expect(existsSync(resolveModeFile(root))).toBe(false)
     expect(isNormalModeEnabled(root)).toBe(false)
-  })
-
-  it('always reports not-passive when the option is disabled', () => {
-    expect(isPassive(root, false)).toBe(false)
-    setNormalMode(root, true)
-    expect(isPassive(root, false)).toBe(false)
   })
 })

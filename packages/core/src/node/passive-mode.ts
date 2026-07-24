@@ -72,14 +72,3 @@ export function setNormalMode(root: string, enabled: boolean): void {
     diagnostics.DTK0033({ file, cause: error })
   }
 }
-
-/**
- * Resolve whether the injected overlay should start hidden. Passive mode is the
- * default; a project can opt out entirely (`passive: false`), and an activated
- * "normal mode" flag always wins.
- */
-export function isPassive(root: string, passiveOption: boolean): boolean {
-  if (!passiveOption)
-    return false
-  return !isNormalModeEnabled(root)
-}
