@@ -138,6 +138,16 @@ export async function createDocksContext(
     dockSelectedId: selectedId.value ?? '',
   })
 
+  // Tracks the shared frame's current member tab, keyed by `frameId`. A
+  // `subTabs` anchor boots a shared iframe but has no view distinct from its
+  // synthesized member tabs (they all render the same frame), and it is usually
+  // hidden from the bar via `visibility: 'false'`. Remembering which member is
+  // live lets `switchEntry` redirect a later re-selection of the anchor (e.g. a
+  // group `defaultChildId` reopening the group) onto that visible tab instead of
+  // lingering on the invisible anchor. Populated below whenever a member is
+  // selected; read when a `subTabs` anchor is selected.
+  const frameNavCurrentMember = new Map<string, string>()
+
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
@@ -167,6 +177,21 @@ export async function createDocksContext(
       return switchEntry(target)
     }
 
+    // A `subTabs` anchor owns the shared frame but has no view of its own apart
+    // from its synthesized member tabs, and is usually hidden from the bar
+    // (`visibility: 'false'`). Once the frame has reported a current tab,
+    // selecting the anchor — via a group `defaultChildId` boot, the command
+    // palette, or an RPC activation — redirects to that live member so a visible
+    // dock is highlighted instead of the invisible anchor. Before any tab exists
+    // (first boot) there is no current member, so we fall through and select the
+    // anchor itself to mount its iframe and boot the frame.
+    if (entry.type === 'iframe' && entry.subTabs) {
+      const frameId = entry.frameId ?? entry.id
+      const currentMemberId = frameNavCurrentMember.get(frameId)
+      if (currentMemberId && currentMemberId !== id && entries.value.some(e => e.id === currentMemberId))
+        return switchEntry(currentMemberId)
+    }
+
     // If the action is in a popup, delegate to the main frame
     if (entry.type === 'action') {
       const delegated = await triggerMainFrameDockAction(clientType, entry.id)
@@ -190,6 +215,12 @@ export async function createDocksContext(
       })
       await executeSetupScript(entry, scriptContext)
     }
+
+    // Remember the shared frame's current member tab (a member carries its
+    // anchor's `frameId` but is not itself a `subTabs` anchor) so re-selecting
+    // the usually-hidden anchor later lands back on this visible tab.
+    if (entry.type === 'iframe' && entry.frameId && !entry.subTabs)
+      frameNavCurrentMember.set(entry.frameId, entry.id)
 
     selectedId.value = entry.id
     panelStore.value.open = true
