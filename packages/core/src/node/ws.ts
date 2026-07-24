@@ -15,6 +15,7 @@ import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
+import type { DevToolsConfig } from './config'
 import { getAuthHandler } from './auth-handler'
 import { MARK_INFO } from './constants'
 import { diagnostics } from './diagnostics'
@@ -146,8 +147,16 @@ export async function createWsServer(options: CreateWsServerOptions) {
     ? { server: viteHttpServer, path: DEVTOOLS_WS_PATH, destroyUnmatched: false }
     : { port: port!, host, https }
 
+  // Vite's published types bundle a frozen snapshot of `DevToolsConfig` (to type
+  // `ResolvedConfig.devtools` without depending on this package at runtime), so a field just
+  // added here isn't visible through `context.viteConfig.devtools.config` until Vite re-vendors
+  // it — the same gap `vite-augment.ts` works around for `Plugin.devtools`. Read it through a
+  // narrow cast rather than waiting on that.
+  const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
+
   attachWsRpcTransport(rpcGroup, {
     ...binding,
+    allowedOrigins,
     definitions: rpcHost.definitions,
     onConnected: (peer, meta) => {
       // crossws exposes the upgrade request (with its query string + headers)
