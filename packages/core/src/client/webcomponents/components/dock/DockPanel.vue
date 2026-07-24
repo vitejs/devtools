@@ -6,7 +6,7 @@ import type { DockLayout } from './dock-layout'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
-import { useIframePanes } from '../../utils/useIframePanes'
+import { getEntryPaneKey, useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
 import { DEFAULT_DOCK_LAYOUT, resolveDockAnchor } from './dock-layout'
 import { openDockContextMenu } from './DockContextMenu'
@@ -36,7 +36,7 @@ const mousePosition = reactive({ x: 0, y: 0 })
 
 const dockPanel = useTemplateRef<HTMLDivElement>('dockPanel')
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const panes = useIframePanes(viewsContainer, context.panel)
+const panes = useIframePanes(viewsContainer, context.panel, () => getEntryPaneKey(selected.value))
 
 function openContextMenu(e: MouseEvent) {
   if (!dockPanel.value)
