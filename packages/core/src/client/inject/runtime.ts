@@ -3,16 +3,17 @@
 
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
+import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../constants'
 import { createDocksContext } from '../webcomponents/state/context'
 
 export type InjectMode = 'passive' | 'normal' | 'hidden'
 
-// Endpoint the node middleware serves next to `__connection.json`. Node picks
-// which client entry to inject (`inject` vs `inject-passive`) from the persisted
-// flag; this `POST { enabled }` is how the client writes that flag back when the
-// developer activates the docks or hides them again.
+// Persistence endpoint the node middleware serves next to `__connection.json`.
+// Node picks the client entry to inject from the persisted flag; this
+// `POST { enabled }` is how the client writes that flag back when the developer
+// activates the docks (passive mode) or hides them again.
 const MODE_URL = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_MODE_FILENAME}`
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
