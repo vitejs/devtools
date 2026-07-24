@@ -97,6 +97,48 @@ describe('dock groups', () => {
   })
 })
 
+describe('render-only `visibility` (subTabs anchor use case)', () => {
+  // A shared-frame subTabs anchor: registered so it keeps driving the
+  // postMessage nav loop, but hidden from the dock bar in favor of its
+  // synthesized member tabs rendering their own buttons.
+  const entries: DevToolsDockEntry[] = [
+    iframe('anchor', { visibility: 'false', subTabs: {} } as any),
+    iframe('anchor:overview', { groupId: undefined }),
+    iframe('a'),
+  ]
+
+  it('drops the entry from the rendered dock bar', () => {
+    const grouped = docksGroupByCategories(entries, settings)
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).not.toContain('anchor')
+    expect(ids).toContain('anchor:overview')
+    expect(ids).toContain('a')
+  })
+
+  it('stays reachable in the raw entries array (activation, RPC, subTabs)', () => {
+    // `visibility` never removes the entry from the raw list — only grouped/
+    // rendered results (as produced by `docksGroupByCategories`) omit it.
+    expect(entries.map(e => e.id)).toContain('anchor')
+  })
+
+  it('still lists the entry in the settings management view (includeHidden)', () => {
+    const grouped = docksGroupByCategories(entries, settings, { includeHidden: true })
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).toContain('anchor')
+  })
+
+  it('evaluates `visibility` against a whenContext, same as `when`', () => {
+    const conditional: DevToolsDockEntry[] = [
+      iframe('conditional', { visibility: 'clientType == embedded' } as any),
+    ]
+    const standalone = docksGroupByCategories(conditional, settings, { whenContext: { clientType: 'standalone' } as any })
+    expect(standalone.flatMap(([, items]) => items.map(i => i.id))).not.toContain('conditional')
+
+    const embedded = docksGroupByCategories(conditional, settings, { whenContext: { clientType: 'embedded' } as any })
+    expect(embedded.flatMap(([, items]) => items.map(i => i.id))).toContain('conditional')
+  })
+})
+
 describe('in-group sub-categories (dual role of `category`)', () => {
   // The group carries category 'framework' (the OUTER bucket for the whole
   // group); its members carry their own categories, which act as IN-GROUP
