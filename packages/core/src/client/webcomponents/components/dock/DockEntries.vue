@@ -3,7 +3,7 @@ import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { evaluateWhen } from 'devframe/utils/when'
 import { toRefs } from 'vue'
-import { getGroupMembers } from '../../state/dock-settings'
+import { getGroupMembers, resolveGroupDefaultChild } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import DockEntry from './DockEntry.vue'
 import DockGroupButton from './DockGroupButton.vue'
@@ -29,15 +29,12 @@ function isDockVisible(dock: DevToolsDockEntry): boolean {
   // target is render-only hidden via `visibility`: clicking the group button
   // jumps straight to that member instead of opening the (visibly empty)
   // popover, so the button must stay reachable. Only treat the group as empty
-  // when no member is visible AND no reachable `defaultChildId` target exists.
+  // when no member is visible AND no reachable `defaultChildId` target exists
+  // (a target hidden by its own `when` clause doesn't count as reachable).
   if (dock.type === 'group') {
     const members = getGroupMembers(props.context.docks.entries, dock.id, settings.value, { whenContext: props.context.when.context })
-    if (members.length === 0) {
-      const hasReachableDefault = dock.defaultChildId
-        && getGroupMembers(props.context.docks.entries, dock.id).some(m => m.id === dock.defaultChildId)
-      if (!hasReachableDefault)
-        return false
-    }
+    if (members.length === 0 && !resolveGroupDefaultChild(props.context.docks.entries, dock.id, dock.defaultChildId, props.context.when.context))
+      return false
   }
   if (dock.when && !evaluateWhen(dock.when, props.context.when.context))
     return false

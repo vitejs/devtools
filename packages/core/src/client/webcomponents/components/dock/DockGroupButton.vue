@@ -3,7 +3,7 @@ import type { DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { watchDebounced } from '@vueuse/core'
 import { computed, h, ref, useTemplateRef } from 'vue'
-import { getGroupMembers, getGroupMembersGrouped } from '../../state/dock-settings'
+import { getGroupMembers, getGroupMembersGrouped, resolveGroupDefaultChild } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { setDocksGroupPanel, useDocksGroupPanel } from '../../state/floating-tooltip'
 import DockEntry from './DockEntry.vue'
@@ -27,17 +27,6 @@ const members = computed(() => getGroupMembers(
   props.group.id,
   settings.value,
   { whenContext: props.context.when.context },
-))
-
-// Unfiltered membership (no `settings`/`whenContext`), matching `switchEntry`'s
-// own group→member resolution (state/context.ts). `defaultChildId` must stay
-// reachable even when its target is render-only hidden via `visibility` — only
-// the dock-bar *button* for that member disappears, not the ability to jump to
-// it as a group's default. `members` above stays visibility-filtered for the
-// active-check and popover, which should only ever show visible buttons.
-const allMembers = computed(() => getGroupMembers(
-  props.context.docks.entries,
-  props.group.id,
 ))
 
 // Same members, split by in-group sub-category, for the popover's sectioned view.
@@ -109,10 +98,14 @@ function onClick() {
     return
   }
   // `defaultChildId` opens its member directly; otherwise reveal the popover.
-  // Resolved against `allMembers` (unfiltered) so a `visibility: 'false'`
-  // target still fires — render-only hiding must never break reachability.
-  const fallback = props.group.defaultChildId
-    && allMembers.value.find(m => m.id === props.group.defaultChildId)
+  // Resolved regardless of the target's render-only `visibility` (a hidden
+  // button must still fire), but honoring its `when` clause.
+  const fallback = resolveGroupDefaultChild(
+    props.context.docks.entries,
+    props.group.id,
+    props.group.defaultChildId,
+    props.context.when.context,
+  )
   if (fallback) {
     hidePanel()
     emit('select', fallback)

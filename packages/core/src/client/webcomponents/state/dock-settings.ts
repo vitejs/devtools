@@ -172,6 +172,44 @@ export function getGroupMembers(
 }
 
 /**
+ * Resolve a group's `defaultChildId` to its target member, for the "clicking
+ * the group button jumps straight to this member" behavior (the dock-bar
+ * button and `switchEntry`'s own group→member resolution both need this).
+ *
+ * Respects the member's own `when` clause — a conditionally-unavailable
+ * target (e.g. `when: 'clientType == embedded'` evaluating false) is not a
+ * valid default and this returns `undefined` so the caller falls back to its
+ * own behavior (open the popover, or pick another member). Deliberately
+ * ignores the render-only `visibility` clause: `visibility` never affects
+ * reachability (see {@link docksGroupByCategories}'s `visibility` check), and
+ * jumping straight to a `defaultChildId` target is exactly the kind of
+ * id-based activation the render-only contract says stays unaffected — only
+ * the target's own dock-bar button (if it has one) should disappear.
+ */
+export function resolveGroupDefaultChild(
+  entries: DevToolsDockEntry[],
+  groupId: string,
+  defaultChildId: string | undefined,
+  whenContext?: WhenContext,
+): DevToolsDockEntry | undefined {
+  if (!defaultChildId)
+    return undefined
+  const member = entries.find(e => e.type !== 'group' && e.groupId === groupId && e.id === defaultChildId)
+  if (!member)
+    return undefined
+  if (member.when) {
+    if (whenContext) {
+      if (!evaluateWhen(member.when, whenContext))
+        return undefined
+    }
+    else if (member.when === 'false') {
+      return undefined
+    }
+  }
+  return member
+}
+
+/**
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, then sorts by custom order and
  * default order within each category.
