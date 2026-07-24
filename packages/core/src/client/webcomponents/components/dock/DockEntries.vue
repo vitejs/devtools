@@ -30,9 +30,13 @@ function isDockVisible(dock: DevToolsDockEntry): boolean {
     if (members.length === 0)
       return false
   }
-  if (!dock.when)
-    return true
-  return evaluateWhen(dock.when, props.context.when.context)
+  if (dock.when && !evaluateWhen(dock.when, props.context.when.context))
+    return false
+  // Render-only counterpart to `when`: hides just this button, leaving the
+  // entry itself registered and reachable everywhere else.
+  if (dock.visibility && !evaluateWhen(dock.visibility, props.context.when.context))
+    return false
+  return true
 }
 
 function toggleDockEntry(dock: DevToolsDockEntry) {

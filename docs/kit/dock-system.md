@@ -154,6 +154,8 @@ When the anchor's iframe mounts, Vite DevTools attaches the hub's frame-nav adap
 
 The embedded app stays decoupled: it ships a small `postMessage` nav shim and takes no hub or RPC dependency, so this works cross-origin and in static builds. When no shim answers within the handshake window, the anchor renders as a single plain iframe dock. The protocol, the member-dock data model, and the shim contract live in devframe's [shared-iframe soft-navigation design](https://github.com/devframes/devframe/blob/main/plans/shared-iframe-soft-nav.md).
 
+Set [`visibility: 'false'`](/kit/when-clauses#render-only-visibility) on the anchor when only its synthesized member tabs should have their own dock-bar buttons — the anchor keeps driving the nav loop, but its own button disappears.
+
 ## Action buttons
 
 Action buttons run a client-side script when clicked. They suit:
@@ -559,6 +561,7 @@ Every dock type accepts these base fields:
 | `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Outer dock-bar bucket, or the in-group sub-category when `groupId` resolves to a group — see [Categories inside a group](#categories-inside-a-group). Defaults to `'default'`. |
 | `defaultOrder` | `number` | Orders entries within a category; lower numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
+| `visibility` | `string` | Render-only counterpart to `when` — hides just this entry's dock-bar button, leaving it registered and reachable. See [Render-only visibility](/kit/when-clauses#render-only-visibility). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
 | `groupId` | `string` | Collapse this entry under a group's button; the group's `category` becomes this entry's outer bucket — see [Docked groups](#docked-groups). |
 

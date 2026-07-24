@@ -176,6 +176,12 @@ export function getGroupMembers(
  * Filters out hidden entries and categories, then sorts by custom order and
  * default order within each category.
  *
+ * Both `when` and its render-only counterpart `visibility` only ever drop an
+ * entry out of the grouped result *this call* produces — the entry always
+ * remains in the caller's raw `entries` array, so activation, RPC, and the
+ * `subTabs` frame-nav adapter (which read `entries` directly rather than a
+ * grouped result) are unaffected by either clause.
+ *
  * Outer bucketing follows the dual role of `category`: a grouped member whose
  * `groupId` resolves to a registered group takes that **group's** `category` as
  * its outer bucket (its own `category` is the in-group sub-category instead).
@@ -236,6 +242,17 @@ export function docksGroupByCategories(
     if (entry.when && whenContext && !evaluateWhen(entry.when, whenContext) && !includeHidden)
       continue
     if (entry.when && !whenContext && entry.when === 'false' && !includeHidden)
+      continue
+    // Skip if hidden by the render-only `visibility` clause. Unlike `when`,
+    // `visibility` never affects the entry's registration or reachability —
+    // it only decides whether *this call* (a dock-bar/popover/sidebar render)
+    // includes the entry's own button. Callers that need the entry regardless
+    // (activation, RPC, the `subTabs` frame-nav adapter, the settings
+    // management view via `includeHidden`) read `entries` directly and are
+    // unaffected by this check.
+    if (entry.visibility && whenContext && !evaluateWhen(entry.visibility, whenContext) && !includeHidden)
+      continue
+    if (entry.visibility && !whenContext && entry.visibility === 'false' && !includeHidden)
       continue
     // The Devframe Inspector is hidden by default; it only joins the dock bar
     // once opted into via Settings → Advanced. The settings management view
