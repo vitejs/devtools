@@ -1,53 +1,8 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
-import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import { useLocalStorage } from '@vueuse/core'
-import { createDocksContext } from '../webcomponents/state/context'
+import { startDevTools } from './runtime'
 
-export async function init(): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] Client injected')
-
-  // Inject runs in the user's host page, so `document.baseURI` points at
-  // the user's app — not at the Vite DevTools mount. Pass the mount path
-  // explicitly so the connection meta lookup hits `/__devtools/__connection.json`.
-  const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
-
-  const state = useLocalStorage<DockPanelStorage>(
-    'vite-devtools-dock-state',
-    {
-      mode: 'float',
-      width: 80,
-      height: 80,
-      top: 0,
-      left: 0,
-      position: 'left',
-      open: false,
-      inactiveTimeout: 3_000,
-    },
-    { mergeDefaults: true },
-  )
-
-  const context = await createDocksContext(
-    'embedded',
-    rpc,
-    state,
-  )
-  ;(globalThis as any)[CLIENT_CONTEXT_KEY] = context
-
-  const { DockEmbedded } = import.meta.env.VITE_DEVTOOLS_LOCAL_DEV
-    ? await import('../webcomponents')
-    : await import('@vitejs/devtools/client/webcomponents')
-
-  const dockEl = new DockEmbedded({ context })
-  document.body.appendChild(dockEl)
-}
-
-if (window.parent !== window)
-  // eslint-disable-next-line no-console
-  console.log('[VITE DEVTOOLS] Skipping in iframe')
-else
-  init()
+// Normal entry: mount the floating docks immediately. Node injects this when
+// the project's DevTools visibility resolves to `normal`.
+startDevTools('normal')

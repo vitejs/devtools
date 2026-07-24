@@ -31,6 +31,7 @@ Emitted by `@vitejs/devtools` and `@vitejs/devtools-kit`.
 | [DTK0030](./DTK0030) | error | Dock Entry Not Found |
 | [DTK0031](./DTK0031) | error | Dock Entry Not a Launcher |
 | [DTK0032](./DTK0032) | error | Dock Launch Error |
+| [DTK0033](./DTK0033) | warn | DevTools Mode Persist Failed |
 | [DTK0050](./DTK0050) | error | Integration Install Failed |
 | [DTK0051](./DTK0051) | warn | Connection Meta Serve Failed |
 | [DTK0052](./DTK0052) | error | Launcher Process Exited Before Ready |
