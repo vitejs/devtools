@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "@vitejs/devtools-oxc",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "DevTools for the Oxc toolchain",
   "author": "Leo (https://github.com/yuyinws)",
   "license": "MIT",
