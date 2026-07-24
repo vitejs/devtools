@@ -7,7 +7,7 @@ import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME, DEVTOOLS_MOUNT_PATH } from
 import { useLocalStorage } from '@vueuse/core'
 import { createDocksContext } from '../webcomponents/state/context'
 
-export type InjectMode = 'passive' | 'normal'
+export type InjectMode = 'passive' | 'normal' | 'hidden'
 
 // Endpoint the node middleware serves next to `__connection.json`. Node picks
 // which client entry to inject (`inject` vs `inject-passive`) from the persisted
@@ -100,7 +100,7 @@ function printPassiveHint(): void {
   )
 }
 
-function armPassive(): void {
+function armPassive(persist: boolean): void {
   printPassiveHint()
   if (shortcutListener)
     return
@@ -109,7 +109,7 @@ function armPassive(): void {
       return
     event.preventDefault()
     disarmPassive()
-    void activate()
+    void activate(persist)
   }
   window.addEventListener('keydown', shortcutListener, true)
 }
@@ -121,26 +121,36 @@ function disarmPassive(): void {
   shortcutListener = undefined
 }
 
-// Reveal the docks and remember "normal mode" for this project so the next load
-// injects the `inject` (normal) entry directly.
-async function activate(): Promise<void> {
-  await persistNormalMode(true)
+// Reveal the docks. In passive mode this also remembers "normal mode" for the
+// project so the next load injects the `inject` entry directly; in hidden mode
+// (`persist` false) the reveal lasts only for this session.
+async function activate(persist: boolean): Promise<void> {
+  if (persist)
+    await persistNormalMode(true)
   await mountDock()
 }
 
-// Tear the docks down and drop back to passive mode (the "Hide DevTools"
-// command dispatches `DEVTOOLS_HIDE_EVENT` to reach us here).
-async function deactivate(): Promise<void> {
-  await persistNormalMode(false)
+// Tear the docks down and re-arm the shortcut (the "Hide DevTools" command
+// dispatches `DEVTOOLS_HIDE_EVENT` to reach us here). In passive mode this also
+// clears the persisted flag so the project drops back to passive on next load.
+async function deactivate(persist: boolean): Promise<void> {
+  if (persist)
+    await persistNormalMode(false)
   unmountDock()
-  armPassive()
+  armPassive(persist)
 }
 
 /**
- * Boot the injected overlay in the given mode. `normal` mounts the docks
- * immediately; `passive` prints the activation hint and waits for the shortcut.
- * Either way the client can transition between the two in-page (activate / the
- * "Hide DevTools" command) without a reload.
+ * Boot the injected overlay in the given mode:
+ *
+ * - `normal` mounts the docks immediately.
+ * - `passive` prints the activation hint and waits for the shortcut; revealing
+ *   remembers "normal mode" for the project (next load starts shown).
+ * - `hidden` behaves like passive but never persists — the docks reveal on the
+ *   shortcut for this session only, and every load starts hidden.
+ *
+ * In every mode the client can transition in-page (activate / the "Hide
+ * DevTools" command) without a reload.
  */
 export function startDevTools(initialMode: InjectMode): void {
   if (window.parent !== window) {
@@ -152,12 +162,15 @@ export function startDevTools(initialMode: InjectMode): void {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
+  // Only passive mode remembers the reveal across loads; hidden is per-session.
+  const persist = initialMode === 'passive'
+
   window.addEventListener(DEVTOOLS_HIDE_EVENT, () => {
-    void deactivate()
+    void deactivate(persist)
   })
 
-  if (initialMode === 'passive')
-    armPassive()
-  else
+  if (initialMode === 'normal')
     void mountDock()
+  else
+    armPassive(persist)
 }

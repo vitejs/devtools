@@ -99,7 +99,7 @@ pnpm dev
 
 Open your app in the browser. The embedded client starts in **passive mode**: the floating docks stay out of the way and the console prints a hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS). Press it once and the docks appear; the choice is remembered in the project's `node_modules`, so every later dev session on this machine opens straight into the docks. The "Hide DevTools" command in the palette returns to passive mode.
 
-To always show the docks and skip passive mode, set `visibility: 'normal'`:
+The `visibility` option sets the starting mode: `'passive'` (the default, above), `'normal'` to always show the docks, or `'hidden'` to keep them hidden and reveal them with the shortcut for the current session only — every load starts hidden and nothing is remembered.
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -116,16 +116,21 @@ export default defineConfig({
 
 #### Projects without an HTML entry
 
-For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. Two entries mirror the two visibility modes — import whichever one you want:
-
-```ts twoslash
-// Passive: docks hidden until Shift+Alt+D
-import '@vitejs/devtools/client/inject-passive'
-```
+For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. One entry per visibility mode — import whichever one you want:
 
 ```ts twoslash
 // Normal: docks shown immediately
 import '@vitejs/devtools/client/inject'
+```
+
+```ts twoslash
+// Passive: docks hidden until Shift+Alt+D, then remembered
+import '@vitejs/devtools/client/inject-passive'
+```
+
+```ts twoslash
+// Hidden: docks hidden until Shift+Alt+D, every session
+import '@vitejs/devtools/client/inject-hidden'
 ```
 
 See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.

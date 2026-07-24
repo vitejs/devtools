@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite'
+import type { DevToolsVisibility } from './injection'
 import { DevToolsBuild } from './build'
 import { DevToolsBuiltin } from './builtin'
 import { DevToolsInjection } from './injection'
@@ -22,10 +23,12 @@ export interface DevToolsOptions {
    *   persists a flag in the project's `node_modules`, so later dev sessions on
    *   this machine boot straight into normal mode.
    * - `'normal'` — always show the docks.
+   * - `'hidden'` — always keep the docks hidden; the shortcut reveals them for
+   *   the current session only, without remembering the choice.
    *
    * @default 'passive'
    */
-  visibility?: 'passive' | 'normal'
+  visibility?: DevToolsVisibility
 
   /**
    * Options for building static DevTools output alongside `vite build`.

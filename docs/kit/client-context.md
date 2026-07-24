@@ -17,7 +17,7 @@ The client script is the browser entry of Vite DevTools (published as `@vitejs/d
 
 ### How injection works
 
-The `DevTools()` plugin injects the script through Vite's `transformIndexHtml` hook. During `vite dev`, every HTML page served by Vite receives a module script that imports the injection virtual module, which in turn loads the client entry. The plugin picks the entry from the project's resolved visibility: `@vitejs/devtools/client/inject-passive` (docks hidden until <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd>) by default, or `@vitejs/devtools/client/inject` (docks shown immediately) once normal mode is active:
+The `DevTools()` plugin injects the script through Vite's `transformIndexHtml` hook. During `vite dev`, every HTML page served by Vite receives a module script that imports the injection virtual module, which in turn loads the client entry. The plugin picks the entry from the project's resolved visibility: `@vitejs/devtools/client/inject-passive` (docks hidden until <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd>, then remembered) by default, `@vitejs/devtools/client/inject` (docks shown immediately) for normal mode, or `@vitejs/devtools/client/inject-hidden` (revealed per session, never remembered) for hidden mode:
 
 ```mermaid
 sequenceDiagram

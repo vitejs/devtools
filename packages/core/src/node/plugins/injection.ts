@@ -2,36 +2,61 @@ import type { Plugin } from 'vite'
 import process from 'node:process'
 import { join, normalize } from 'pathe'
 import { dirDist } from '../../dirs'
-import { isPassive } from '../passive-mode'
+import { isNormalModeEnabled } from '../passive-mode'
+
+export type DevToolsVisibility = 'passive' | 'normal' | 'hidden'
 
 export interface DevToolsInjectionOptions {
   /**
-   * Initial visibility of the injected overlay. `'passive'` injects the
-   * passive client (docks hidden until the shortcut) unless the project has
-   * already opted into normal mode; `'normal'` always injects the normal client.
+   * Initial visibility of the injected overlay.
+   *
+   * - `'passive'` — docks hidden until the shortcut; revealing is remembered
+   *   for the project (unless already opted into normal mode).
+   * - `'normal'` — docks shown immediately.
+   * - `'hidden'` — docks hidden; the shortcut reveals them for the current
+   *   session only, every load.
    *
    * @default 'passive'
    */
-  visibility?: 'passive' | 'normal'
+  visibility?: DevToolsVisibility
 }
 
-const DEVTOOLS_INJECTION_VIRTUAL_ID = 'virtual:vite-devtools-injection'
-const DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID = 'virtual:vite-devtools-injection-passive'
+// One virtual module per client entry; each statically imports its entry, so
+// the modules themselves are cacheable and the per-request choice lives in
+// `transformIndexHtml`.
+const ENTRY_BY_MODE = {
+  normal: 'inject',
+  passive: 'inject-passive',
+  hidden: 'inject-hidden',
+} as const
 
-const RESOLVED_DEVTOOLS_INJECTION_VIRTUAL_ID = `\0${DEVTOOLS_INJECTION_VIRTUAL_ID}`
-const RESOLVED_DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID = `\0${DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID}`
+type EntryMode = keyof typeof ENTRY_BY_MODE
 
-function resolveDevToolsInjectionEntry(passive: boolean): string {
-  const local = passive ? 'src/client/inject-passive/index.ts' : 'src/client/inject/index.ts'
-  const dist = passive ? 'client/inject-passive.js' : 'client/inject.js'
+function virtualId(mode: EntryMode): string {
+  return `virtual:vite-devtools-injection:${mode}`
+}
+
+function resolveDevToolsInjectionEntry(mode: EntryMode): string {
+  const name = ENTRY_BY_MODE[mode]
   return process.env.VITE_DEVTOOLS_LOCAL_DEV
-    ? normalize(join(dirDist, '..', local))
-    : normalize(join(dirDist, dist))
+    ? normalize(join(dirDist, '..', `src/client/${name}/index.ts`))
+    : normalize(join(dirDist, `client/${name}.js`))
 }
 
 export function DevToolsInjection(options: DevToolsInjectionOptions = {}): Plugin {
   const visibility = options.visibility ?? 'passive'
   let root = process.cwd()
+
+  // Resolve which client entry to inject. `normal` and `hidden` are fixed;
+  // `passive` upgrades to `normal` once the project has opted in.
+  const resolveMode = (): EntryMode => {
+    if (visibility === 'normal')
+      return 'normal'
+    if (visibility === 'hidden')
+      return 'hidden'
+    return isNormalModeEnabled(root) ? 'normal' : 'passive'
+  }
+
   return {
     name: 'vite:devtools:injection',
     enforce: 'post',
@@ -46,32 +71,29 @@ export function DevToolsInjection(options: DevToolsInjectionOptions = {}): Plugi
       // Resolved per HTML request (not cached), so activating or hiding the
       // docks — which flips the persisted flag — takes effect on the next load.
       handler() {
-        const virtualId = isPassive(root, visibility !== 'normal')
-          ? DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID
-          : DEVTOOLS_INJECTION_VIRTUAL_ID
         return [
           {
             tag: 'script',
             attrs: {
               type: 'module',
             },
-            children: `import ${JSON.stringify(virtualId)}`,
+            children: `import ${JSON.stringify(virtualId(resolveMode()))}`,
             injectTo: 'body',
           },
         ]
       },
     },
     resolveId(id) {
-      if (id === DEVTOOLS_INJECTION_VIRTUAL_ID)
-        return RESOLVED_DEVTOOLS_INJECTION_VIRTUAL_ID
-      if (id === DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID)
-        return RESOLVED_DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID
+      for (const mode of Object.keys(ENTRY_BY_MODE) as EntryMode[]) {
+        if (id === virtualId(mode))
+          return `\0${id}`
+      }
     },
     load(id) {
-      if (id === RESOLVED_DEVTOOLS_INJECTION_VIRTUAL_ID)
-        return `import(${JSON.stringify(resolveDevToolsInjectionEntry(false))})\n`
-      if (id === RESOLVED_DEVTOOLS_INJECTION_PASSIVE_VIRTUAL_ID)
-        return `import(${JSON.stringify(resolveDevToolsInjectionEntry(true))})\n`
+      for (const mode of Object.keys(ENTRY_BY_MODE) as EntryMode[]) {
+        if (id === `\0${virtualId(mode)}`)
+          return `import(${JSON.stringify(resolveDevToolsInjectionEntry(mode))})\n`
+      }
     },
   }
 }
