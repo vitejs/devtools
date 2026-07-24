@@ -61,7 +61,7 @@ catalogs:
     unrun: ^0.3.1
     vite: ^8.1.5
   deps:
-    '@devframes/hub': ^0.7.11
+    '@devframes/hub': ^0.7.12
     '@devframes/json-render': ^0.7.11
     '@devframes/plugin-inspect': ^0.7.11
     '@devframes/plugin-messages': ^0.7.11
@@ -70,7 +70,7 @@ catalogs:
     actionspack: ^0.1.5
     birpc: ^4.0.0
     cac: ^7.0.0
-    devframe: ^0.7.11
+    devframe: ^0.7.12
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
