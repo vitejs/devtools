@@ -89,7 +89,12 @@ export const Gallery: Story = {
  * (`primary`/`ghost`); `interactive` strengthens the Card's border on hover
  * and tints each row's (`Stack`) background on hover.
  */
-export const Card: Story = {
+interface CardArgs {
+  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
+  interactive: boolean
+}
+
+export const Card: StoryObj<Meta<CardArgs>> = {
   argTypes: {
     variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
     interactive: { control: 'boolean' },
