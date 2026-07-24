@@ -419,3 +419,16 @@ ctx.docks.register({ id: 'nuxt', title: 'Nuxt', icon: 'logos:nuxt-icon', type: '
 // Outer bucket = 'framework' (the group's); 'app' is the in-group sub-category.
 ctx.docks.register({ id: 'nuxt:overview', title: 'Overview', icon: 'ph:gauge-duotone', type: 'iframe', url: '/__nuxt/overview/', groupId: 'nuxt', category: 'app' })
 ```
+
+A group's `categoryOrder` (`Record<category, weight>`) overrides `DEFAULT_CATEGORIES_ORDER` for that group's own in-group sub-categories only — it never affects other groups or the outer bar. Omitted sub-categories keep their weight from the shared table:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  category: 'framework',
+  categoryOrder: { advanced: -1, app: 1 }, // 'advanced' now leads 'app' inside this group
+})
+```

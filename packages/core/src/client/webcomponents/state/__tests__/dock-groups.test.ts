@@ -178,6 +178,49 @@ describe('in-group sub-categories (dual role of `category`)', () => {
   })
 })
 
+describe('per-group sub-category order override (group.categoryOrder)', () => {
+  // Same shape as the sub-category fixture above ('app' before 'advanced' by
+  // default), but the 'nuxt' group flips that with its own `categoryOrder`.
+  const entries: DevToolsDockEntry[] = [
+    group('nuxt', { category: 'framework', categoryOrder: { advanced: -1, app: 1 } }),
+    iframe('nuxt:overview', { groupId: 'nuxt', category: 'app' }),
+    iframe('nuxt:graph', { groupId: 'nuxt', category: 'advanced' }),
+    group('other', { category: 'framework' }),
+    iframe('other:page', { groupId: 'other', category: 'app' }),
+    iframe('other:tools', { groupId: 'other', category: 'advanced' }),
+  ]
+
+  it('reorders sub-categories inside the overriding group only', () => {
+    const sub = getGroupMembersGrouped(entries, 'nuxt', settings)
+    // 'advanced' (-1) now sorts ahead of 'app' (1) — the reverse of the default table
+    expect(sub.map(([c]) => c)).toEqual(['advanced', 'app'])
+  })
+
+  it('leaves other groups on the shared DEFAULT_CATEGORIES_ORDER table', () => {
+    const sub = getGroupMembersGrouped(entries, 'other', settings)
+    // unaffected by nuxt's override: default order is 'app' (100) before 'advanced' (400)
+    expect(sub.map(([c]) => c)).toEqual(['app', 'advanced'])
+  })
+
+  it('leaves the outer dock bar unaffected', () => {
+    const grouped = docksGroupByCategories(entries, settings, { collapseGroups: true })
+    // both group buttons still sort by their own outer category ('framework'), untouched
+    expect(grouped.map(([c]) => c)).toEqual(['framework'])
+  })
+
+  it('falls back to the shared table for sub-categories the override omits', () => {
+    const partial: DevToolsDockEntry[] = [
+      group('g', { category: 'framework', categoryOrder: { advanced: -1 } }),
+      iframe('g:a', { groupId: 'g', category: 'app' }),
+      iframe('g:b', { groupId: 'g', category: 'advanced' }),
+      iframe('g:c', { groupId: 'g', category: 'web' }),
+    ]
+    const sub = getGroupMembersGrouped(partial, 'g', settings)
+    // 'advanced' (-1, overridden) leads; 'app' (100) and 'web' (300) keep the shared order
+    expect(sub.map(([c]) => c)).toEqual(['advanced', 'app', 'web'])
+  })
+})
+
 describe('pinning re-buckets into the ~pinned category', () => {
   function categoryOf(grouped: ReturnType<typeof docksGroupByCategories>, id: string): string | undefined {
     return grouped.find(([, items]) => items.some(i => i.id === id))?.[0]

@@ -76,6 +76,8 @@ interface DockEntry {
   groupId?: string
   /** Member opened when a group button is activated (for type: 'group') */
   defaultChildId?: string
+  /** Per-group override of in-group sub-category order (for type: 'group') — see Categories inside a group */
+  categoryOrder?: Record<string, number>
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
@@ -503,6 +505,22 @@ ctx.docks.register({ id: 'nuxt:graph', title: 'Graph', icon: 'ph:graph-duotone',
 ```
 
 An orphan member (its `groupId` matches no registered group) has no group to supply an outer bucket, so it falls back to its own `category`.
+
+A group can reshuffle its own sub-category order with `categoryOrder`, a `Record<category, weight>` that overrides `DEFAULT_CATEGORIES_ORDER` for that group's members only — every other group and the outer dock-bar order are untouched:
+
+```ts
+// 'advanced' now leads 'app' inside this group, reversing the shared default.
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  category: 'framework',
+  categoryOrder: { advanced: -1, app: 1 },
+})
+```
+
+A sub-category the map omits keeps its weight from the shared table.
 
 ### The built-in Vite+ group
 
