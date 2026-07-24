@@ -127,6 +127,20 @@ describe('render-only `visibility` (subTabs anchor use case)', () => {
     expect(ids).toContain('anchor')
   })
 
+  it('keeps a visibility-hidden member reachable via getGroupMembers when no settings are passed', () => {
+    // This is the contract DockGroupButton's `defaultChildId` resolution and
+    // switchEntry's group→member resolution both rely on: calling
+    // `getGroupMembers` without `settings`/`whenContext` (id-based activation)
+    // must never drop a member hidden by the render-only `visibility` clause —
+    // only settings/whenContext-aware calls (dock-bar/popover rendering) do.
+    const grouped: DevToolsDockEntry[] = [
+      group('g'),
+      iframe('g:hidden', { groupId: 'g', visibility: 'false' } as any),
+    ]
+    expect(getGroupMembers(grouped, 'g').map(e => e.id)).toEqual(['g:hidden'])
+    expect(getGroupMembers(grouped, 'g', settings, { whenContext: {} as any }).map(e => e.id)).toEqual([])
+  })
+
   it('evaluates `visibility` against a whenContext, same as `when`', () => {
     const conditional: DevToolsDockEntry[] = [
       iframe('conditional', { visibility: 'clientType == embedded' } as any),

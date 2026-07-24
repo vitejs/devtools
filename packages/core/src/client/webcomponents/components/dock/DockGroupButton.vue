@@ -29,6 +29,17 @@ const members = computed(() => getGroupMembers(
   { whenContext: props.context.when.context },
 ))
 
+// Unfiltered membership (no `settings`/`whenContext`), matching `switchEntry`'s
+// own group→member resolution (state/context.ts). `defaultChildId` must stay
+// reachable even when its target is render-only hidden via `visibility` — only
+// the dock-bar *button* for that member disappears, not the ability to jump to
+// it as a group's default. `members` above stays visibility-filtered for the
+// active-check and popover, which should only ever show visible buttons.
+const allMembers = computed(() => getGroupMembers(
+  props.context.docks.entries,
+  props.group.id,
+))
+
 // Same members, split by in-group sub-category, for the popover's sectioned view.
 const membersGrouped = computed(() => getGroupMembersGrouped(
   props.context.docks.entries,
@@ -98,8 +109,10 @@ function onClick() {
     return
   }
   // `defaultChildId` opens its member directly; otherwise reveal the popover.
+  // Resolved against `allMembers` (unfiltered) so a `visibility: 'false'`
+  // target still fires — render-only hiding must never break reachability.
   const fallback = props.group.defaultChildId
-    && members.value.find(m => m.id === props.group.defaultChildId)
+    && allMembers.value.find(m => m.id === props.group.defaultChildId)
   if (fallback) {
     hidePanel()
     emit('select', fallback)

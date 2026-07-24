@@ -25,10 +25,19 @@ const settings = sharedStateToRef(props.context.docks.settings)
 
 function isDockVisible(dock: DevToolsDockEntry): boolean {
   // Hide empty groups — a group button with no members has nothing to reveal.
+  // A `defaultChildId` still counts as "something to reveal" even when its
+  // target is render-only hidden via `visibility`: clicking the group button
+  // jumps straight to that member instead of opening the (visibly empty)
+  // popover, so the button must stay reachable. Only treat the group as empty
+  // when no member is visible AND no reachable `defaultChildId` target exists.
   if (dock.type === 'group') {
     const members = getGroupMembers(props.context.docks.entries, dock.id, settings.value, { whenContext: props.context.when.context })
-    if (members.length === 0)
-      return false
+    if (members.length === 0) {
+      const hasReachableDefault = dock.defaultChildId
+        && getGroupMembers(props.context.docks.entries, dock.id).some(m => m.id === dock.defaultChildId)
+      if (!hasReachableDefault)
+        return false
+    }
   }
   if (dock.when && !evaluateWhen(dock.when, props.context.when.context))
     return false
