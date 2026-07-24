@@ -490,6 +490,8 @@ ctx.docks.register({
 
 A group carries the usual `title`/`icon`/`category`/`defaultOrder`/`when` fields and has no view of its own. `defaultChildId` names the member opened when the group button is activated; without it, the button reveals the member popover and opens a view once a member is chosen.
 
+Pointing `defaultChildId` at a [shared-iframe anchor](#shared-iframe-soft-navigation) that is hidden with `visibility: 'false'` is the idiomatic way to boot a soft-nav frame: activating the group mounts the anchor's iframe the first time, and every later activation resurfaces the frame's current member tab so a visible dock stays highlighted rather than the anchor itself.
+
 Membership is a flat pointer, not containment: every member stays an independently-registered top-level entry. A member whose `groupId` references a group that was never registered renders as a normal top-level entry, and a group with no members stays hidden until an entry joins it. Grouping is one level deep — a group entry does not set its own `groupId`.
 
 ### Categories inside a group

@@ -199,6 +199,12 @@ export default defineConfig({
             groupId: 'nuxt',
             frameId: 'nuxt',
             subTabs: { protocol: 'postmessage' },
+            // The anchor only exists to boot the shared frame; its synthesized
+            // member tabs (Overview / Pages / …) render the real buttons, so the
+            // anchor's own button is hidden via the render-only `visibility`
+            // clause. `defaultChildId` on the group still points here so opening
+            // the group boots the frame.
+            visibility: 'false',
             defaultOrder: -1,
           })
 
