@@ -7,6 +7,7 @@ export interface DevToolsConfig extends Partial<StartOptions> {
   environments?: string[];
   clientAuth?: boolean;
   clientAuthTokens?: string[];
+  allowedOrigins?: string[];
 }
 export interface ResolvedDevToolsConfig {
   config: Omit<DevToolsConfig, 'enabled'> & {
