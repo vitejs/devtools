@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { applyDarkClassToHtml } from '@vitejs/devtools-ui/composables/dark'
 import { connect, connectionState } from './composables/rpc'
 import 'floating-vue/dist/style.css'
 import './assets/css/main.css'
-import '@vitejs/devtools-ui/composables/dark'
+
+applyDarkClassToHtml()
 
 connect()
 </script>
