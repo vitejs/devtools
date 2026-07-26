@@ -41,7 +41,14 @@ export async function ensureOxcGitignored(root: string) {
 }
 
 export async function parseOxlintOutput(rawOutput: string, root: string) {
-  const data = JSON.parse(rawOutput) as Record<string, unknown>
+  // Oxlint can print human-readable notices (e.g. "No files found to lint...") to stdout
+  // ahead of the JSON payload even in `-f json` mode. Skip to the first `{` so those notices
+  // don't break parsing.
+  const jsonStart = rawOutput.indexOf('{')
+  const data = JSON.parse(jsonStart === -1 ? rawOutput : rawOutput.slice(jsonStart)) as Record<
+    string,
+    unknown
+  >
   const summaryFields = [
     'number_of_files',
     'number_of_rules',
