@@ -41,6 +41,7 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "@oxlint-config-inspector/core": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "cac": "catalog:deps",
     "devframe": "catalog:deps",

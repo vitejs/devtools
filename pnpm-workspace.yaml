@@ -66,6 +66,7 @@ catalogs:
     '@devframes/plugin-inspect': ^0.7.11
     '@devframes/plugin-messages': ^0.7.11
     '@devframes/plugin-terminals': ^0.7.11
+    '@oxlint-config-inspector/core': ^1.1.1
     '@rolldown/debug': ^1.2.0
     actionspack: ^0.1.5
     birpc: ^4.0.0
