@@ -418,7 +418,7 @@ function resetCustomOrderForContainer(container: string) {
               >
                 <div
                   :class="settings.docksPinned.includes(dock.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
-                  class="text-base"
+                  class="color-base"
                 />
               </button>
             </div>
@@ -542,7 +542,7 @@ function resetCustomOrderForContainer(container: string) {
                     >
                       <div
                         :class="settings.docksPinned.includes(member.id) ? 'i-ph-push-pin-fill rotate--45' : 'i-ph-push-pin'"
-                        class="text-base"
+                        class="color-base"
                       />
                     </button>
                   </div>
