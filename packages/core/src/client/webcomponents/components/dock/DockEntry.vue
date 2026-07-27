@@ -77,6 +77,7 @@ useEventListener('pointerdown', () => {
   >
     <button
       ref="button"
+      :aria-label="dock.title"
       :class="[
         isVertical ? 'rotate-270' : '',
         isDimmed ? 'op50 saturate-0' : '',
