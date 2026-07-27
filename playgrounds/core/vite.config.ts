@@ -105,7 +105,6 @@ export default defineConfig({
     createPluginFromDevframe(createA11yDevframe(), {
       dock: {
         category: 'web',
-        icon: 'ph:wheelchair-duotone',
         // The panel scans the host page itself, so it needs its agent
         // injected as a client script — see the `@devframes/plugin-a11y`
         // README's "How it works" section.
@@ -120,16 +119,16 @@ export default defineConfig({
       // production DevTools mount.
       write: true,
     }), {
-      dock: { category: 'app', icon: 'ph:git-branch-duotone' },
+      dock: { category: 'app' },
     }),
     createPluginFromDevframe(createOgDevframe(), {
-      dock: { category: 'web', icon: 'ph:share-network-duotone' },
+      dock: { category: 'web' },
     }),
     createPluginFromDevframe(createDataInspectorDevframe(), {
-      dock: { category: 'advanced', icon: 'ph:database-duotone' },
+      dock: { category: 'advanced' },
     }),
     createPluginFromDevframe(createCodeServerDevframe(), {
-      dock: { category: 'advanced', icon: 'ph:code-duotone' },
+      dock: { category: 'advanced' },
     }),
     {
       name: 'local',
