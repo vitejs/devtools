@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { isDark } from '@vitejs/devtools-ui/composables/dark'
+import { usePreferredDark } from '@vueuse/core'
 import { computed } from 'vue'
 
+const isDark = usePreferredDark()
 const theme = computed(() => isDark.value ? 'white' : 'black')
 </script>
 

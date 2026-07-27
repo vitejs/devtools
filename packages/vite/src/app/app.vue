@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
+import { applyDarkClassToHtml } from '@vitejs/devtools-ui/composables/dark'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
 import { useSeoMeta } from '#app/composables/head'
 import { connect, rpcConnectionState } from './composables/rpc'
@@ -7,7 +8,8 @@ import 'floating-vue/dist/style.css'
 import './styles/cm.css'
 import './styles/splitpanes.css'
 import './styles/global.css'
-import '@vitejs/devtools-ui/composables/dark'
+
+applyDarkClassToHtml()
 
 useSeoMeta({
   title: 'Vite DevTools',
