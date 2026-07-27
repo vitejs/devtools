@@ -16,7 +16,6 @@ import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import VueRouter from 'vue-router/vite'
 import { alias } from '../../alias'
-import { A11yCheckerPlugin } from '../../examples/plugin-a11y-checker/src/node'
 import { GitUIPlugin } from '../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../packages/core/src'
 import { buildCSS } from '../../packages/core/src/client/webcomponents/scripts/build-css'
@@ -96,12 +95,10 @@ export default defineConfig({
     Tracer({
       viteDevtools: true,
     }),
-    A11yCheckerPlugin(),
+    // Kit-pattern json-render demo — see docs/kit/examples.md.
     GitUIPlugin(),
 
-    // Official @devframes/plugin-* dashboards, dogfooded alongside the two
-    // kit-pattern demos above (which stay as teaching examples for
-    // docs/kit/examples.md).
+    // Official @devframes/plugin-* dashboards.
     createPluginFromDevframe(createA11yDevframe(), {
       dock: {
         category: 'web',
