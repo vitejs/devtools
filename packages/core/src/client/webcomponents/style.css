@@ -2,6 +2,54 @@
   --un-text-opacity: 100%;
 }
 
+/*
+ * Thin/transparent scrollbar, matching packages/ui/src/styles/global.css —
+ * that stylesheet only reaches the Nuxt plugin apps, not this injected
+ * webcomponents shell, which otherwise falls back to the browser default
+ * (thick, opaque-gutter) scrollbar clashing with the translucent dock.
+ * `:host`, not `:root` — this stylesheet is adopted into the dock's shadow
+ * root (`defineCustomElement(..., { shadowRoot: true, styles: [css] })`),
+ * where `:root` only ever matches the top-level document's <html>.
+ * Rules below are unscoped (not `#vite-devtools-anchor ...`) since the
+ * shadow boundary already keeps them from leaking onto the host page, and
+ * scoping under the anchor's id would miss edge-docked mode entirely
+ * (`DockEmbedded.vue` renders `DockEdge`/`#vite-devtools-edge-panel` and
+ * `Dock`/`#vite-devtools-anchor` as mutually exclusive siblings).
+ */
+:host {
+  --app-scrollbar-size: 6px;
+  --app-scrollbar-radius: 1px;
+  --app-scrollbar-thumb: #8884;
+  --app-scrollbar-thumb-hover: #8885;
+}
+
+::-webkit-scrollbar {
+  width: var(--app-scrollbar-size);
+}
+
+::-webkit-scrollbar:horizontal {
+  height: var(--app-scrollbar-size);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar-thumb);
+  transition: background 0.2s ease;
+  border-radius: var(--app-scrollbar-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--app-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-track {
+  border-radius: var(--app-scrollbar-radius);
+  background: transparent;
+}
+
 #vite-devtools-anchor {
   --uno: w-0 z-floating-anchor fixed origin-center font-sans text-[15px] box-border;
   transform: translate(-50%, -50%) rotate(0);
