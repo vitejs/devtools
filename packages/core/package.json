@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.4.5",
+  "version": "0.4.9",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -24,6 +24,8 @@
     "./cli": "./dist/cli.js",
     "./cli-commands": "./dist/cli-commands.js",
     "./client/inject": "./dist/client/inject.js",
+    "./client/inject-passive": "./dist/client/inject-passive.js",
+    "./client/inject-hidden": "./dist/client/inject-hidden.js",
     "./client/webcomponents": "./dist/client/webcomponents.js",
     "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",

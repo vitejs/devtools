@@ -97,14 +97,40 @@ pnpm build
 pnpm dev
 ```
 
-Open your app in the browser; the DevTools panel appears in the corner.
+Open your app in the browser; the floating docks appear in the corner.
+
+The `visibility` option sets the starting mode. The default `'normal'` shows the docks immediately. `'passive'` keeps them out of the way and prints a console hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS); revealing once is remembered in the project's `node_modules`, so later dev sessions on this machine open straight into the docks, and the "Hide DevTools" command returns to passive mode. `'hidden'` also starts hidden but never remembers — the shortcut reveals the docks for the current session only.
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools({
+      visibility: 'passive',
+    }),
+  ],
+})
+```
 
 #### Projects without an HTML entry
 
-For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead:
+For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. One entry per visibility mode — import whichever one you want:
 
 ```ts twoslash
+// Normal: docks shown immediately
 import '@vitejs/devtools/client/inject'
+```
+
+```ts twoslash
+// Passive: docks hidden until Shift+Alt+D, then remembered
+import '@vitejs/devtools/client/inject-passive'
+```
+
+```ts twoslash
+// Hidden: docks hidden until Shift+Alt+D, every session
+import '@vitejs/devtools/client/inject-hidden'
 ```
 
 See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.

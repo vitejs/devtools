@@ -5,11 +5,12 @@ import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
 import { attachDevToolsFrameNav } from '@vitejs/devtools-kit/client'
-import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
+import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
+import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
-import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon } from './dock-settings'
+import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
@@ -112,6 +113,41 @@ export async function createDocksContext(
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
   let docksContext: DocksContext
 
+  let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
+  const getSettingsStore = async () => {
+    if (!_settingsStorePromise) {
+      _settingsStorePromise = rpc.sharedState.get(
+        'devframe:user-settings',
+        { initialValue: DEFAULT_STATE_USER_SETTINGS() },
+      )
+    }
+    return _settingsStorePromise
+  }
+
+  // Get settings store ahead of `switchEntry` — its group→member resolution
+  // needs `getWhenContext` to honor a `defaultChildId` target's `when` clause.
+  const settingsStore = markRaw(await getSettingsStore())
+  const settings = sharedStateToRef(settingsStore)
+
+  // Shared when-context provider — used by both commands and docks
+  let commandsContext: CommandsContext
+  const getWhenContext = (): WhenContext => ({
+    clientType,
+    dockOpen: panelStore.value.open,
+    paletteOpen: commandsContext?.paletteOpen ?? false,
+    dockSelectedId: selectedId.value ?? '',
+  })
+
+  // Tracks the shared frame's current member tab, keyed by `frameId`. A
+  // `subTabs` anchor boots a shared iframe but has no view distinct from its
+  // synthesized member tabs (they all render the same frame), and it is usually
+  // hidden from the bar via `visibility: 'false'`. Remembering which member is
+  // live lets `switchEntry` redirect a later re-selection of the anchor (e.g. a
+  // group `defaultChildId` reopening the group) onto that visible tab instead of
+  // lingering on the invisible anchor. Populated below whenever a member is
+  // selected; read when a `subTabs` anchor is selected.
+  const frameNavCurrentMember = new Map<string, string>()
+
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
@@ -128,17 +164,32 @@ export async function createDocksContext(
       return false
 
     // A group has no view of its own — resolve to the member it represents.
-    // Prefer the author's `defaultChildId`, otherwise the first visible member.
-    // With neither, the group is popover-only and selecting it is a no-op here
-    // (the dock-bar group button opens the member popover instead).
+    // Prefer the author's `defaultChildId` (honoring its `when` clause but
+    // ignoring its render-only `visibility` — see `resolveGroupDefaultChild`),
+    // otherwise the first member. With neither, the group is popover-only and
+    // selecting it is a no-op here (the dock-bar group button opens the
+    // member popover instead).
     if (entry.type === 'group') {
-      const members = getGroupMembers(entries.value, entry.id)
-      const target = (entry.defaultChildId && members.some(m => m.id === entry.defaultChildId))
-        ? entry.defaultChildId
-        : members[0]?.id
+      const target = resolveGroupDefaultChild(entries.value, entry.id, entry.defaultChildId, getWhenContext())?.id
+        ?? getGroupMembers(entries.value, entry.id)[0]?.id
       if (!target)
         return false
       return switchEntry(target)
+    }
+
+    // A `subTabs` anchor owns the shared frame but has no view of its own apart
+    // from its synthesized member tabs, and is usually hidden from the bar
+    // (`visibility: 'false'`). Once the frame has reported a current tab,
+    // selecting the anchor — via a group `defaultChildId` boot, the command
+    // palette, or an RPC activation — redirects to that live member so a visible
+    // dock is highlighted instead of the invisible anchor. Before any tab exists
+    // (first boot) there is no current member, so we fall through and select the
+    // anchor itself to mount its iframe and boot the frame.
+    if (entry.type === 'iframe' && entry.subTabs) {
+      const frameId = entry.frameId ?? entry.id
+      const currentMemberId = frameNavCurrentMember.get(frameId)
+      if (currentMemberId && currentMemberId !== id && entries.value.some(e => e.id === currentMemberId))
+        return switchEntry(currentMemberId)
     }
 
     // If the action is in a popup, delegate to the main frame
@@ -164,6 +215,12 @@ export async function createDocksContext(
       })
       await executeSetupScript(entry, scriptContext)
     }
+
+    // Remember the shared frame's current member tab (a member carries its
+    // anchor's `frameId` but is not itself a `subTabs` anchor) so re-selecting
+    // the usually-hidden anchor later lands back on this visible tab.
+    if (entry.type === 'iframe' && entry.frameId && !entry.subTabs)
+      frameNavCurrentMember.set(entry.frameId, entry.id)
 
     selectedId.value = entry.id
     panelStore.value.open = true
@@ -257,30 +314,8 @@ export async function createDocksContext(
     },
   })
 
-  let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
-  const getSettingsStore = async () => {
-    if (!_settingsStorePromise) {
-      _settingsStorePromise = rpc.sharedState.get(
-        'devframe:user-settings',
-        { initialValue: DEFAULT_STATE_USER_SETTINGS() },
-      )
-    }
-    return _settingsStorePromise
-  }
-
-  // Get settings store and create computed grouped entries
-  const settingsStore = markRaw(await getSettingsStore())
-  const settings = sharedStateToRef(settingsStore)
-
-  // Shared when-context provider — used by both commands and docks
-  let commandsContext: CommandsContext
-  const getWhenContext = (): WhenContext => ({
-    clientType,
-    dockOpen: panelStore.value.open,
-    paletteOpen: commandsContext?.paletteOpen ?? false,
-    dockSelectedId: selectedId.value ?? '',
-  })
-
+  // Settings store, `settings`, and `getWhenContext` are established earlier
+  // (right before `switchEntry`) — its group→member resolution needs them.
   const groupedEntries = computed(() => {
     return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
   })
@@ -321,6 +356,30 @@ export async function createDocksContext(
       icon: 'ph:gear-duotone',
       action: () => {
         switchEntry('~settings')
+      },
+    },
+    {
+      id: 'devtools:hide',
+      source: 'client',
+      title: 'Hide DevTools (Passive Mode)',
+      icon: 'ph:eye-slash-duotone',
+      // Only the injected overlay can go passive; the standalone page is an
+      // explicit visit and stays mounted.
+      when: 'clientType == embedded',
+      action: async () => {
+        // Clear the persisted "normal mode" flag, then ask the inject-side
+        // lifecycle to tear the overlay down and re-arm the activation shortcut.
+        try {
+          await fetch(`${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_MODE_FILENAME}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: false }),
+          })
+        }
+        catch {
+          // Best-effort persistence; the overlay still hides for this session.
+        }
+        window.dispatchEvent(new CustomEvent(DEVTOOLS_HIDE_EVENT))
       },
     },
     {

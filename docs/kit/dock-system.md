@@ -76,6 +76,8 @@ interface DockEntry {
   groupId?: string
   /** Member opened when a group button is activated (for type: 'group') */
   defaultChildId?: string
+  /** Per-group override of in-group sub-category order (for type: 'group') — see Categories inside a group */
+  categoryOrder?: Record<string, number>
   /** URL to load in the iframe (for type: 'iframe') */
   url?: string
   /** Action configuration (for type: 'action') */
@@ -151,6 +153,8 @@ ctx.docks.register({
 When the anchor's iframe mounts, Vite DevTools attaches the hub's frame-nav adapter. It runs a versioned, origin-locked `postMessage` handshake with the embedded app, turns the tab manifest the app reports into one **member dock** per tab (id `<frameId>:<tabId>`), and drives the loop both ways: selecting a member soft-navigates the shared frame, and the app's own navigation moves the DevTools highlight to match. Members are first-class docks — they honor `title`, `icon`, `order`, `category`, `when`, `badge`, and grouping (`frameId` and `groupId` are independent axes).
 
 The embedded app stays decoupled: it ships a small `postMessage` nav shim and takes no hub or RPC dependency, so this works cross-origin and in static builds. When no shim answers within the handshake window, the anchor renders as a single plain iframe dock. The protocol, the member-dock data model, and the shim contract live in devframe's [shared-iframe soft-navigation design](https://github.com/devframes/devframe/blob/main/plans/shared-iframe-soft-nav.md).
+
+Set [`visibility: 'false'`](/kit/when-clauses#render-only-visibility) on the anchor when only its synthesized member tabs should have their own dock-bar buttons — the anchor keeps driving the nav loop, but its own button disappears.
 
 ## Action buttons
 
@@ -486,6 +490,8 @@ ctx.docks.register({
 
 A group carries the usual `title`/`icon`/`category`/`defaultOrder`/`when` fields and has no view of its own. `defaultChildId` names the member opened when the group button is activated; without it, the button reveals the member popover and opens a view once a member is chosen.
 
+Pointing `defaultChildId` at a [shared-iframe anchor](#shared-iframe-soft-navigation) that is hidden with `visibility: 'false'` is the idiomatic way to boot a soft-nav frame: activating the group mounts the anchor's iframe the first time, and every later activation resurfaces the frame's current member tab so a visible dock stays highlighted rather than the anchor itself.
+
 Membership is a flat pointer, not containment: every member stays an independently-registered top-level entry. A member whose `groupId` references a group that was never registered renders as a normal top-level entry, and a group with no members stays hidden until an entry joins it. Grouping is one level deep — a group entry does not set its own `groupId`.
 
 ### Categories inside a group
@@ -503,6 +509,22 @@ ctx.docks.register({ id: 'nuxt:graph', title: 'Graph', icon: 'ph:graph-duotone',
 ```
 
 An orphan member (its `groupId` matches no registered group) has no group to supply an outer bucket, so it falls back to its own `category`.
+
+A group can reshuffle its own sub-category order with `categoryOrder`, a `Record<category, weight>` that overrides `DEFAULT_CATEGORIES_ORDER` for that group's members only — every other group and the outer dock-bar order are untouched:
+
+```ts
+// 'advanced' now leads 'app' inside this group, reversing the shared default.
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  category: 'framework',
+  categoryOrder: { advanced: -1, app: 1 },
+})
+```
+
+A sub-category the map omits keeps its weight from the shared table.
 
 ### The built-in Vite+ group
 
@@ -541,6 +563,7 @@ Every dock type accepts these base fields:
 | `category` | `'app' \| 'framework' \| 'web' \| 'advanced' \| 'default'` | Outer dock-bar bucket, or the in-group sub-category when `groupId` resolves to a group — see [Categories inside a group](#categories-inside-a-group). Defaults to `'default'`. |
 | `defaultOrder` | `number` | Orders entries within a category; lower numbers appear first. Default `0`. |
 | `when` | `string` | Visibility expression — see [When Clauses](/kit/when-clauses). |
+| `visibility` | `string` | Render-only counterpart to `when` — hides just this entry's dock-bar button, leaving it registered and reachable. See [Render-only visibility](/kit/when-clauses#render-only-visibility). |
 | `badge` | `string` | Short text badge (e.g. unread count). |
 | `groupId` | `string` | Collapse this entry under a group's button; the group's `category` becomes this entry's outer bucket — see [Docked groups](#docked-groups). |
 

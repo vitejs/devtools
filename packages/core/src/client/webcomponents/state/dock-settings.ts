@@ -28,12 +28,16 @@ export const PINNED_CATEGORY_ORDER = -100000
 
 /**
  * Resolve a category's sort weight, layering the local {@link PINNED_CATEGORY}
- * override on top of the upstream {@link DEFAULT_CATEGORIES_ORDER} table.
+ * override, then a caller-supplied `overrides` map (a group's own
+ * {@link DevToolsViewGroup.categoryOrder}), on top of the upstream
+ * {@link DEFAULT_CATEGORIES_ORDER} table. `overrides` is per-call — passing a
+ * group's map only reweights that group's in-group sub-categories, never the
+ * outer bar or any other group.
  */
-function categoryOrder(category: string): number {
+function categoryOrder(category: string, overrides?: Record<string, number>): number {
   if (category === PINNED_CATEGORY)
     return PINNED_CATEGORY_ORDER
-  return DEFAULT_CATEGORIES_ORDER[category] || 0
+  return overrides?.[category] ?? DEFAULT_CATEGORIES_ORDER[category] ?? 0
 }
 
 export interface SplitGroupsResult {
@@ -127,8 +131,11 @@ export function getEntryGroup(
  * lives in, so it never bleeds into the sub-category split here. A pinned member
  * moves to a `~pinned` sub-category (leading the group, via
  * {@link PINNED_CATEGORY_ORDER}). Sub-categories are ordered by the same
- * {@link DEFAULT_CATEGORIES_ORDER} table as top-level categories, but they are
- * not independently hideable (the outer category-hide toggle does not apply
+ * {@link DEFAULT_CATEGORIES_ORDER} table as top-level categories — unless the
+ * group entry itself sets {@link DevToolsViewGroup.categoryOrder}, whose
+ * weights take precedence for this group's sub-categories only, leaving every
+ * other group and the outer bar on the shared table. Sub-categories are not
+ * independently hideable (the outer category-hide toggle does not apply
  * inside a group).
  */
 export function getGroupMembersGrouped(
@@ -140,9 +147,11 @@ export function getGroupMembersGrouped(
   const members = entries.filter(e => e.type !== 'group' && e.groupId === groupId)
   if (!settings)
     return members.length ? [['default', members]] : []
+  const group = entries.find((e): e is DevToolsViewGroup => e.type === 'group' && e.id === groupId)
   // Group by the members' own `category` (the in-group sub-category), never the
   // group's category. Category-hide is an outer-bar concern, so it is ignored.
-  return docksGroupByCategories(members, settings, { ...options, ignoreCategoryHidden: true })
+  // The group's own `categoryOrder`, if set, reweights only this split.
+  return docksGroupByCategories(members, settings, { ...options, ignoreCategoryHidden: true, categoryOrderOverride: group?.categoryOrder })
 }
 
 /**
@@ -163,9 +172,53 @@ export function getGroupMembers(
 }
 
 /**
+ * Resolve a group's `defaultChildId` to its target member, for the "clicking
+ * the group button jumps straight to this member" behavior (the dock-bar
+ * button and `switchEntry`'s own group→member resolution both need this).
+ *
+ * Respects the member's own `when` clause — a conditionally-unavailable
+ * target (e.g. `when: 'clientType == embedded'` evaluating false) is not a
+ * valid default and this returns `undefined` so the caller falls back to its
+ * own behavior (open the popover, or pick another member). Deliberately
+ * ignores the render-only `visibility` clause: `visibility` never affects
+ * reachability (see {@link docksGroupByCategories}'s `visibility` check), and
+ * jumping straight to a `defaultChildId` target is exactly the kind of
+ * id-based activation the render-only contract says stays unaffected — only
+ * the target's own dock-bar button (if it has one) should disappear.
+ */
+export function resolveGroupDefaultChild(
+  entries: DevToolsDockEntry[],
+  groupId: string,
+  defaultChildId: string | undefined,
+  whenContext?: WhenContext,
+): DevToolsDockEntry | undefined {
+  if (!defaultChildId)
+    return undefined
+  const member = entries.find(e => e.type !== 'group' && e.groupId === groupId && e.id === defaultChildId)
+  if (!member)
+    return undefined
+  if (member.when) {
+    if (whenContext) {
+      if (!evaluateWhen(member.when, whenContext))
+        return undefined
+    }
+    else if (member.when === 'false') {
+      return undefined
+    }
+  }
+  return member
+}
+
+/**
  * Group and sort dock entries based on user settings.
  * Filters out hidden entries and categories, then sorts by custom order and
  * default order within each category.
+ *
+ * Both `when` and its render-only counterpart `visibility` only ever drop an
+ * entry out of the grouped result *this call* produces — the entry always
+ * remains in the caller's raw `entries` array, so activation, RPC, and the
+ * `subTabs` frame-nav adapter (which read `entries` directly rather than a
+ * grouped result) are unaffected by either clause.
  *
  * Outer bucketing follows the dual role of `category`: a grouped member whose
  * `groupId` resolves to a registered group takes that **group's** `category` as
@@ -186,14 +239,20 @@ export function getGroupMembers(
  * Because the pinned bucket is chosen before the category-hide check and is
  * itself never hideable, a pinned entry stays visible even when its original
  * category is hidden.
+ *
+ * `categoryOrderOverride` reweights the categories produced by *this call*
+ * (used by {@link getGroupMembersGrouped} to apply a group's own
+ * {@link DevToolsViewGroup.categoryOrder} to its in-group sub-category split)
+ * — it never touches the shared {@link DEFAULT_CATEGORIES_ORDER} table, so it
+ * has no effect on any other call, group, or the outer bar.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],
   settings: Immutable<DevToolsDocksUserSettings>,
-  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, ignoreCategoryHidden?: boolean },
+  options?: { includeHidden?: boolean, whenContext?: WhenContext, collapseGroups?: boolean, ignoreCategoryHidden?: boolean, categoryOrderOverride?: Record<string, number> },
 ): DevToolsDockEntriesGrouped {
   const { docksHidden, docksCategoriesHidden, docksCustomOrder, docksPinned } = settings
-  const { includeHidden = false, whenContext, collapseGroups = false, ignoreCategoryHidden = false } = options ?? {}
+  const { includeHidden = false, whenContext, collapseGroups = false, ignoreCategoryHidden = false, categoryOrderOverride } = options ?? {}
 
   // Map every registered group id to its resolved outer category. A grouped
   // member's OUTER bucket is its group's category (the member's own `category`
@@ -221,6 +280,17 @@ export function docksGroupByCategories(
     if (entry.when && whenContext && !evaluateWhen(entry.when, whenContext) && !includeHidden)
       continue
     if (entry.when && !whenContext && entry.when === 'false' && !includeHidden)
+      continue
+    // Skip if hidden by the render-only `visibility` clause. Unlike `when`,
+    // `visibility` never affects the entry's registration or reachability —
+    // it only decides whether *this call* (a dock-bar/popover/sidebar render)
+    // includes the entry's own button. Callers that need the entry regardless
+    // (activation, RPC, the `subTabs` frame-nav adapter, the settings
+    // management view via `includeHidden`) read `entries` directly and are
+    // unaffected by this check.
+    if (entry.visibility && whenContext && !evaluateWhen(entry.visibility, whenContext) && !includeHidden)
+      continue
+    if (entry.visibility && !whenContext && entry.visibility === 'false' && !includeHidden)
       continue
     // The Devframe Inspector is hidden by default; it only joins the dock bar
     // once opted into via Settings → Advanced. The settings management view
@@ -258,8 +328,8 @@ export function docksGroupByCategories(
   const grouped = Array
     .from(map.entries())
     .sort(([a], [b]) => {
-      const ia = categoryOrder(a)
-      const ib = categoryOrder(b)
+      const ia = categoryOrder(a, categoryOrderOverride)
+      const ib = categoryOrder(b, categoryOrderOverride)
       return ib === ia ? b.localeCompare(a) : ia - ib
     })
 

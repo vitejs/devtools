@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite'
+import type { DevToolsVisibility } from './injection'
 import { DevToolsBuild } from './build'
 import { DevToolsBuiltin } from './builtin'
 import { DevToolsInjection } from './injection'
@@ -13,6 +14,21 @@ export interface DevToolsOptions {
    * @default true
    */
   builtinDevTools?: boolean
+
+  /**
+   * Initial visibility of the injected overlay.
+   *
+   * - `'normal'` — show the docks immediately.
+   * - `'passive'` — the floating docks stay hidden and a console hint invites
+   *   the developer to reveal them with a keyboard shortcut. Activating once
+   *   persists a flag in the project's `node_modules`, so later dev sessions on
+   *   this machine boot straight into normal mode.
+   * - `'hidden'` — always keep the docks hidden; the shortcut reveals them for
+   *   the current session only, without remembering the choice.
+   *
+   * @default 'normal'
+   */
+  visibility?: DevToolsVisibility
 
   /**
    * Options for building static DevTools output alongside `vite build`.
@@ -36,10 +52,11 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   const {
     builtinDevTools = true,
     build,
+    visibility = 'normal',
   } = options
 
   const plugins = [
-    DevToolsInjection(),
+    DevToolsInjection({ visibility }),
     DevToolsServer(),
   ]
 

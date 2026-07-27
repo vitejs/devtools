@@ -10,8 +10,10 @@ withDefaults(defineProps<{
   selected: DevToolsDockEntry | null
   isVertical: boolean
   rotate?: boolean
+  dimInactive?: boolean
 }>(), {
   rotate: true,
+  dimInactive: true,
 })
 
 const emit = defineEmits<{
@@ -29,6 +31,7 @@ const emit = defineEmits<{
       :entries="entries"
       :is-vertical="isVertical && rotate"
       :selected="selected"
+      :dim-inactive="dimInactive"
       @select="(e) => emit('select', e)"
     />
   </template>

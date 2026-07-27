@@ -74,6 +74,8 @@ export default defineConfig([
     deps,
     entry: {
       'client/inject': 'src/client/inject/index.ts',
+      'client/inject-passive': 'src/client/inject-passive/index.ts',
+      'client/inject-hidden': 'src/client/inject-hidden/index.ts',
       'client/webcomponents': 'src/client/webcomponents/index.ts',
     },
     dts: true,
@@ -89,6 +91,8 @@ export default defineConfig([
         await checkClientDist({
           entries: [
             resolve(distDir, 'client/inject.js'),
+            resolve(distDir, 'client/inject-passive.js'),
+            resolve(distDir, 'client/inject-hidden.js'),
             resolve(distDir, 'client/webcomponents.js'),
           ],
           cwd: here,

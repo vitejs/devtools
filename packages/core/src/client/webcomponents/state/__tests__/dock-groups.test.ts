@@ -12,6 +12,7 @@ import {
   PINNED_CATEGORY,
   PINNED_CATEGORY_ORDER,
   resolveCommandIcon,
+  resolveGroupDefaultChild,
 } from '../dock-settings'
 
 function iframe(id: string, extra: Partial<DevToolsDockEntry> = {}): DevToolsDockEntry {
@@ -97,6 +98,111 @@ describe('dock groups', () => {
   })
 })
 
+describe('render-only `visibility` (subTabs anchor use case)', () => {
+  // A shared-frame subTabs anchor: registered so it keeps driving the
+  // postMessage nav loop, but hidden from the dock bar in favor of its
+  // synthesized member tabs rendering their own buttons.
+  const entries: DevToolsDockEntry[] = [
+    iframe('anchor', { visibility: 'false', subTabs: {} } as any),
+    iframe('anchor:overview', { groupId: undefined }),
+    iframe('a'),
+  ]
+
+  it('drops the entry from the rendered dock bar', () => {
+    const grouped = docksGroupByCategories(entries, settings)
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).not.toContain('anchor')
+    expect(ids).toContain('anchor:overview')
+    expect(ids).toContain('a')
+  })
+
+  it('stays reachable in the raw entries array (activation, RPC, subTabs)', () => {
+    // `visibility` never removes the entry from the raw list — only grouped/
+    // rendered results (as produced by `docksGroupByCategories`) omit it.
+    expect(entries.map(e => e.id)).toContain('anchor')
+  })
+
+  it('still lists the entry in the settings management view (includeHidden)', () => {
+    const grouped = docksGroupByCategories(entries, settings, { includeHidden: true })
+    const ids = grouped.flatMap(([, items]) => items.map(i => i.id))
+    expect(ids).toContain('anchor')
+  })
+
+  it('evaluates `visibility` against a whenContext, same as `when`', () => {
+    const conditional: DevToolsDockEntry[] = [
+      iframe('conditional', { visibility: 'clientType == embedded' } as any),
+    ]
+    const standalone = docksGroupByCategories(conditional, settings, { whenContext: { clientType: 'standalone' } as any })
+    expect(standalone.flatMap(([, items]) => items.map(i => i.id))).not.toContain('conditional')
+
+    const embedded = docksGroupByCategories(conditional, settings, { whenContext: { clientType: 'embedded' } as any })
+    expect(embedded.flatMap(([, items]) => items.map(i => i.id))).toContain('conditional')
+  })
+})
+
+describe('resolveGroupDefaultChild (group→member resolution ignores `visibility`, respects `when`)', () => {
+  it('resolves a plain, fully-visible default child', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:a' } as any),
+      iframe('g:a', { groupId: 'g' }),
+      iframe('g:b', { groupId: 'g' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:a')?.id).toBe('g:a')
+  })
+
+  it('resolves the target even when it is render-only hidden via `visibility`', () => {
+    // The core bug fixed here: a defaultChildId target with `visibility: 'false'`
+    // must still fire — visibility only hides the target's own dock-bar button.
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:hidden' } as any),
+      iframe('g:hidden', { groupId: 'g', visibility: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:hidden')?.id).toBe('g:hidden')
+  })
+
+  it('does NOT resolve the target when its own `when` clause evaluates false', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:embedded-only' } as any),
+      iframe('g:embedded-only', { groupId: 'g', when: 'clientType == embedded' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:embedded-only', { clientType: 'standalone' } as any)).toBeUndefined()
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:embedded-only', { clientType: 'embedded' } as any)?.id).toBe('g:embedded-only')
+  })
+
+  it('does NOT resolve an unconditionally `when: false` target with no whenContext', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:off' } as any),
+      iframe('g:off', { groupId: 'g', when: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:off')).toBeUndefined()
+  })
+
+  it('resolves the target even when `when`-hidden AND `visibility`-hidden together, as long as `when` passes', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'g:both' } as any),
+      iframe('g:both', { groupId: 'g', when: 'clientType == embedded', visibility: 'false' } as any),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'g:both', { clientType: 'embedded' } as any)?.id).toBe('g:both')
+  })
+
+  it('returns undefined when there is no defaultChildId', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g'),
+      iframe('g:a', { groupId: 'g' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', undefined)).toBeUndefined()
+  })
+
+  it('returns undefined when defaultChildId does not reference a member of this group', () => {
+    const entries: DevToolsDockEntry[] = [
+      group('g', { defaultChildId: 'other:x' } as any),
+      iframe('g:a', { groupId: 'g' }),
+      iframe('other:x', { groupId: 'other-group' }),
+    ]
+    expect(resolveGroupDefaultChild(entries, 'g', 'other:x')).toBeUndefined()
+  })
+})
+
 describe('in-group sub-categories (dual role of `category`)', () => {
   // The group carries category 'framework' (the OUTER bucket for the whole
   // group); its members carry their own categories, which act as IN-GROUP
@@ -175,6 +281,49 @@ describe('in-group sub-categories (dual role of `category`)', () => {
     const hidden = { ...settings, docksCategoriesHidden: ['app'] }
     const sub = getGroupMembersGrouped(entries, 'nuxt', hidden)
     expect(sub.find(([c]) => c === 'app')?.[1].map(e => e.id)).toEqual(['nuxt:pages', 'nuxt:overview'])
+  })
+})
+
+describe('per-group sub-category order override (group.categoryOrder)', () => {
+  // Same shape as the sub-category fixture above ('app' before 'advanced' by
+  // default), but the 'nuxt' group flips that with its own `categoryOrder`.
+  const entries: DevToolsDockEntry[] = [
+    group('nuxt', { category: 'framework', categoryOrder: { advanced: -1, app: 1 } }),
+    iframe('nuxt:overview', { groupId: 'nuxt', category: 'app' }),
+    iframe('nuxt:graph', { groupId: 'nuxt', category: 'advanced' }),
+    group('other', { category: 'framework' }),
+    iframe('other:page', { groupId: 'other', category: 'app' }),
+    iframe('other:tools', { groupId: 'other', category: 'advanced' }),
+  ]
+
+  it('reorders sub-categories inside the overriding group only', () => {
+    const sub = getGroupMembersGrouped(entries, 'nuxt', settings)
+    // 'advanced' (-1) now sorts ahead of 'app' (1) — the reverse of the default table
+    expect(sub.map(([c]) => c)).toEqual(['advanced', 'app'])
+  })
+
+  it('leaves other groups on the shared DEFAULT_CATEGORIES_ORDER table', () => {
+    const sub = getGroupMembersGrouped(entries, 'other', settings)
+    // unaffected by nuxt's override: default order is 'app' (100) before 'advanced' (400)
+    expect(sub.map(([c]) => c)).toEqual(['app', 'advanced'])
+  })
+
+  it('leaves the outer dock bar unaffected', () => {
+    const grouped = docksGroupByCategories(entries, settings, { collapseGroups: true })
+    // both group buttons still sort by their own outer category ('framework'), untouched
+    expect(grouped.map(([c]) => c)).toEqual(['framework'])
+  })
+
+  it('falls back to the shared table for sub-categories the override omits', () => {
+    const partial: DevToolsDockEntry[] = [
+      group('g', { category: 'framework', categoryOrder: { advanced: -1 } }),
+      iframe('g:a', { groupId: 'g', category: 'app' }),
+      iframe('g:b', { groupId: 'g', category: 'advanced' }),
+      iframe('g:c', { groupId: 'g', category: 'web' }),
+    ]
+    const sub = getGroupMembersGrouped(partial, 'g', settings)
+    // 'advanced' (-1, overridden) leads; 'app' (100) and 'web' (300) keep the shared order
+    expect(sub.map(([c]) => c)).toEqual(['advanced', 'app', 'web'])
   })
 })
 

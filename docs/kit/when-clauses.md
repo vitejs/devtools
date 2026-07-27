@@ -40,6 +40,24 @@ ctx.docks.register(defineDockEntry({
 
 `when: 'false'` hides a dock entry unconditionally.
 
+### Render-only visibility
+
+`visibility` is a narrower, render-only counterpart to `when`: it hides only the entry's own dock-bar button, while the entry stays registered and fully reachable — `docks.activate()`/`switchEntry()` by id, RPC lookups, and anything else that walks the raw entry list keep working exactly as if it were visible.
+
+The canonical use case is a shared-frame [`subTabs`](/kit/dock-system#shared-iframe-soft-navigation) anchor: the anchor iframe must stay registered to keep driving the postMessage nav loop, but only its synthesized member tabs should render as dock-bar buttons.
+
+```ts
+ctx.docks.register(defineDockEntry({
+  id: 'my-plugin:anchor',
+  title: 'Anchor',
+  type: 'iframe',
+  url: '/my-plugin/',
+  icon: 'ph:cursor-duotone',
+  visibility: 'false', // no button of its own — only its subTabs members render
+  subTabs: { /* ... */ },
+}))
+```
+
 ## Expression syntax
 
 ### Operators
@@ -134,7 +152,7 @@ Flat keys take priority over nested objects when both exist.
 
 ## Type-safe `when` clauses
 
-`defineCommand` and `defineDockEntry` capture the `when:` string as a TypeScript literal and validate it against `WhenContext` through [`whenexpr`](https://github.com/antfu/whenexpr)'s `WhenExpression<Ctx, S>` helper. Syntax errors surface as compile-time errors at the call site.
+`defineCommand` and `defineDockEntry` capture the `when:` string as a TypeScript literal and validate it against `WhenContext` through [`whenexpr`](https://github.com/antfu/whenexpr)'s `WhenExpression<Ctx, S>` helper. Syntax errors surface as compile-time errors at the call site. `defineDockEntry` validates `visibility:` the same way.
 
 ```ts
 import { defineCommand } from '@vitejs/devtools-kit'

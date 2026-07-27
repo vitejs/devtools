@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { applyDarkClassToHtml } from '@vitejs/devtools-ui/composables/dark'
 import { useSeoMeta } from '#app/composables/head'
 
 import { connect, connectionState } from './composables/rpc'
@@ -6,7 +7,8 @@ import 'floating-vue/dist/style.css'
 import './styles/cm.css'
 import './styles/splitpanes.css'
 import './styles/global.css'
-import '@vitejs/devtools-ui/composables/dark'
+
+applyDarkClassToHtml()
 
 useSeoMeta({
   title: 'Rolldown DevTools',

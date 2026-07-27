@@ -7,17 +7,20 @@ import { devtoolsRegistry, UnsupportedComponent } from './registry'
 /**
  * Render a json-render `Spec` with the DevTools registry, the same way
  * `ViewJsonRender` does at runtime — including the `UnsupportedComponent`
- * fallback for any element `type` absent from the registry.
+ * fallback for any element `type` absent from the registry. Accepts a getter
+ * instead of a plain `Spec` so stories can rebuild the spec from reactive
+ * Storybook `args` (e.g. toggling `variant`/`interactive` live via Controls).
  */
-function renderSpec(spec: Spec) {
+function renderSpec(specOrGetter: Spec | (() => Spec)) {
   return defineComponent({
     setup() {
-      const initialState = (spec as any).state ?? {}
+      const getSpec = typeof specOrGetter === 'function' ? specOrGetter : () => specOrGetter
+      const initialState = (getSpec() as any).state ?? {}
       return () => h(
         'div',
         { class: 'max-w-160 p6 bg-base color-base font-sans' },
         h(JSONUIProvider, { registry: devtoolsRegistry, handlers: {}, initialState }, {
-          default: () => h(Renderer, { spec, registry: devtoolsRegistry, fallback: UnsupportedComponent }),
+          default: () => h(Renderer, { spec: getSpec(), registry: devtoolsRegistry, fallback: UnsupportedComponent }),
         }),
       )
     },
@@ -78,18 +81,39 @@ export const Gallery: Story = {
   } as unknown as Spec),
 }
 
-/** A `Card` grouping content under a titled, bordered surface. */
-export const Card: Story = {
-  render: () => renderSpec({
+/**
+ * A `Card` grouping content under a titled, bordered surface. Toggle the
+ * Controls below to compare today's default (`primary`, non-`interactive` —
+ * unchanged from before this fix) against the new opt-in look: `variant`
+ * tints the background (`secondary`/`danger`) or leaves it untouched
+ * (`primary`/`ghost`); `interactive` strengthens the Card's border on hover
+ * and tints each row's (`Stack`) background on hover.
+ */
+interface CardArgs {
+  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
+  interactive: boolean
+}
+
+export const Card: StoryObj<Meta<CardArgs>> = {
+  argTypes: {
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
+    interactive: { control: 'boolean' },
+  },
+  args: { variant: 'primary', interactive: false },
+  render: args => renderSpec(() => ({
     root: 'root',
     state: {},
     elements: {
-      root: { type: 'Card', props: { title: 'Plugin', collapsible: false }, children: ['body'] },
-      body: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['t', 'badge'] },
+      root: { type: 'Card', props: { title: 'Plugin', collapsible: false, variant: args.variant, interactive: args.interactive }, children: ['body'] },
+      body: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['row1', 'row2'] },
+      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t2', 'badge2'] },
+      t2: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
+      badge2: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
     },
-  } as unknown as Spec),
+  } as unknown as Spec)),
 }
 
 /**

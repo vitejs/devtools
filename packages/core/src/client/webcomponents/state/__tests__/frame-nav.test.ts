@@ -234,3 +234,95 @@ describe('shared-iframe soft navigation', () => {
     expect(context.docks.selectedId).toBeNull()
   })
 })
+
+// A hidden `subTabs` anchor (`visibility: 'false'`) exists only to boot the
+// shared frame; its synthesized member tabs render the real buttons. A group's
+// `defaultChildId` points at the anchor so opening the group boots the frame —
+// but selection must then land on a visible member tab, never linger on the
+// invisible anchor.
+describe('hidden subTabs anchor: selection lands on a visible member', () => {
+  let bus: ReturnType<typeof stubMessageBus> | undefined
+
+  afterEach(() => {
+    bus?.restore()
+    bus = undefined
+  })
+
+  function hiddenAnchorEntry(): DevToolsDockEntry {
+    return { ...anchorEntry(), groupId: 'nuxt-group', visibility: 'false' } as DevToolsDockEntry
+  }
+
+  function groupEntry(): DevToolsDockEntry {
+    return {
+      id: 'nuxt-group',
+      type: 'group',
+      title: 'Nuxt',
+      icon: 'i',
+      defaultChildId: 'nuxt',
+    } as DevToolsDockEntry
+  }
+
+  async function bootFrame(context: Awaited<ReturnType<typeof createDocksContext>>, current = 'modules') {
+    const { iframe } = makeFakeIframe(ANCHOR_URL)
+    context.docks.getStateById('nuxt')!.domElements.iframe = iframe
+    await nextTick()
+    bus!.emit(frameMessage('ready', { tabs: READY_TABS, current }))
+  }
+
+  it('first boot selects the anchor to mount its frame (no member exists yet)', async () => {
+    bus = stubMessageBus()
+    const context = await createDocksContext('embedded', createMockRpc([hiddenAnchorEntry()]))
+
+    // No member tabs materialized yet, so selecting the anchor mounts its iframe.
+    await context.docks.switchEntry('nuxt')
+    expect(context.docks.selectedId).toBe('nuxt')
+  })
+
+  it('redirects a re-selected anchor to the frame\'s current member tab', async () => {
+    bus = stubMessageBus()
+    const context = await createDocksContext('embedded', createMockRpc([hiddenAnchorEntry()]))
+    await bootFrame(context, 'modules')
+    expect(context.docks.selectedId).toBe('nuxt:modules')
+
+    await context.docks.switchEntry('nuxt:timeline')
+    expect(context.docks.selectedId).toBe('nuxt:timeline')
+
+    // Selecting the (hidden) anchor again lands back on the live member, not the anchor.
+    await context.docks.switchEntry('nuxt')
+    expect(context.docks.selectedId).toBe('nuxt:timeline')
+  })
+
+  it('re-opening the group lands on the current member, not the hidden anchor', async () => {
+    bus = stubMessageBus()
+    const context = await createDocksContext('embedded', createMockRpc([groupEntry(), hiddenAnchorEntry()]))
+
+    // Open the group → boots the frame via its `defaultChildId` anchor → lands
+    // on the reported member tab.
+    await context.docks.switchEntry('nuxt-group')
+    await bootFrame(context, 'modules')
+    expect(context.docks.selectedId).toBe('nuxt:modules')
+
+    await context.docks.switchEntry('nuxt:timeline')
+    await context.docks.switchEntry(null)
+    expect(context.docks.selectedId).toBeNull()
+
+    // Re-open the group: it must resurface the current member, not the invisible anchor.
+    await context.docks.switchEntry('nuxt-group')
+    expect(context.docks.selectedId).toBe('nuxt:timeline')
+  })
+
+  it('falls back to the anchor when the remembered member no longer exists', async () => {
+    bus = stubMessageBus()
+    const context = await createDocksContext('embedded', createMockRpc([hiddenAnchorEntry()]))
+    await bootFrame(context, 'modules')
+    expect(context.docks.selectedId).toBe('nuxt:modules')
+
+    // The manifest empties, disposing every member. Re-selecting the anchor now
+    // has no live member to redirect to, so it boots the frame afresh.
+    bus.emit(frameMessage('manifest', { tabs: [] }))
+    expect(context.docks.selectedId).toBeNull()
+
+    await context.docks.switchEntry('nuxt')
+    expect(context.docks.selectedId).toBe('nuxt')
+  })
+})

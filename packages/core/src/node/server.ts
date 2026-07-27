@@ -3,8 +3,10 @@ import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
 import { mountStaticHandler } from 'devframe/utils/serve-static'
-import { defineHandler, H3, toNodeHandler } from 'h3'
+import { defineHandler, H3, readBody, toNodeHandler } from 'h3'
+import { DEVTOOLS_MODE_FILENAME } from '../constants'
 import { dirClientStandalone } from '../dirs'
+import { setNormalMode } from './passive-mode'
 import { createWsServer } from './ws'
 
 export interface DevToolsMiddleware {
@@ -28,6 +30,22 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
   h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
     event.res.headers.set('Content-Type', 'application/json')
     return JSON.stringify(await getConnectionMeta())
+  }))
+
+  // Passive-mode persistence. `POST { enabled }` flips the per-project "normal
+  // mode" flag in node_modules; the injection plugin reads that flag when it
+  // decides which client entry to inject on the next load. Served
+  // unauthenticated because it only writes a local marker file — the docks
+  // themselves still require WS trust to surface any project data.
+  h3.use(`/${DEVTOOLS_MODE_FILENAME}`, defineHandler(async (event) => {
+    if (event.req.method !== 'POST') {
+      event.res.status = 405
+      return ''
+    }
+    const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined
+    setNormalMode(options.cwd, body?.enabled ?? true)
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify({ ok: true })
   }))
 
   // Authentication uses the devframe OTP model (see `node/auth-handler.ts`):
