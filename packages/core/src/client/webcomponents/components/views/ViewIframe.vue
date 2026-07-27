@@ -5,6 +5,7 @@ import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
 import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watchEffect } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 
 const props = defineProps<{
@@ -45,6 +46,13 @@ function stripRemoteConnectionParam(url: string): string {
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
 const isEdgeMode = computed(() => props.context.panel.store.mode === 'edge')
+const addressBarBorderClass = computed(() => {
+  if (isEdgeMode.value)
+    return 'border-b'
+  if (getEntryGroup(props.context.docks.entries, props.entry))
+    return 'border-t border-r rounded-tr-md'
+  return 'border rounded-t-md border-b-0'
+})
 const ADDRESS_BAR_HEIGHT = 40
 
 const isLoading = ref(true)
@@ -263,8 +271,8 @@ onUnmounted(() => {
   <div class="w-full h-full flex flex-col">
     <div
       v-if="showAddressBar"
-      class="flex-none px-2 w-full flex items-center gap-1"
-      :class="isEdgeMode ? 'border-b border-base' : 'border rounded-t-md border-base border-b-0'"
+      class="flex-none px-2 w-full flex items-center gap-1 border-base"
+      :class="addressBarBorderClass"
       :style="{ height: `${ADDRESS_BAR_HEIGHT}px` }"
     >
       <!-- Navigation buttons (hidden for cross-origin) -->
