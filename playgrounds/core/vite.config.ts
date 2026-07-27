@@ -1,15 +1,21 @@
 import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { a11yAgentBundlePath, createA11yDevframe } from '@devframes/plugin-a11y'
+import { createCodeServerDevframe } from '@devframes/plugin-code-server'
+import { createDataInspectorDevframe } from '@devframes/plugin-data-inspector'
+import { createGitDevframe } from '@devframes/plugin-git'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
+import { createOgDevframe } from '@devframes/plugin-og'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
 import { createPluginFromDevframe, createSimpleClientScript } from '@vitejs/devtools-kit/node'
 import Vue from '@vitejs/plugin-vue'
+import { normalize } from 'pathe'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import Tracer from 'vite-plugin-vue-tracer'
 import VueRouter from 'vue-router/vite'
 import { alias } from '../../alias'
-import { A11yCheckerPlugin } from '../../examples/plugin-a11y-checker/src/node'
 import { GitUIPlugin } from '../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../packages/core/src'
 import { buildCSS } from '../../packages/core/src/client/webcomponents/scripts/build-css'
@@ -26,6 +32,11 @@ declare module '@vitejs/devtools-kit' {
     counter: { count: number }
   }
 }
+
+// The monorepo root, two levels up from this playground — used so
+// @devframes/plugin-git dogfoods against this actual checkout rather than
+// whatever `cwd` the playground's dev server happens to run from.
+const monorepoRoot = fileURLToPath(new URL('../..', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -84,8 +95,38 @@ export default defineConfig({
     Tracer({
       viteDevtools: true,
     }),
-    A11yCheckerPlugin(),
+    // Kit-pattern json-render demo — see docs/kit/examples.md.
     GitUIPlugin(),
+
+    // Official @devframes/plugin-* dashboards.
+    createPluginFromDevframe(createA11yDevframe(), {
+      dock: {
+        category: 'web',
+        // The panel scans the host page itself, so it needs its agent
+        // injected as a client script — see the `@devframes/plugin-a11y`
+        // README's "How it works" section.
+        clientScript: { importFrom: `/@fs/${normalize(a11yAgentBundlePath)}` },
+      },
+    }),
+    createPluginFromDevframe(createGitDevframe({
+      // Dogfoods against this actual monorepo checkout.
+      repoRoot: monorepoRoot,
+      // Playground only — enables staging/unstaging/committing from the UI
+      // against this real checkout. Do not enable write mode for a
+      // production DevTools mount.
+      write: true,
+    }), {
+      dock: { category: 'app' },
+    }),
+    createPluginFromDevframe(createOgDevframe(), {
+      dock: { category: 'web' },
+    }),
+    createPluginFromDevframe(createDataInspectorDevframe(), {
+      dock: { category: 'advanced' },
+    }),
+    createPluginFromDevframe(createCodeServerDevframe(), {
+      dock: { category: 'advanced' },
+    }),
     {
       name: 'local',
       devtools: {
