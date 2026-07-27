@@ -7,5 +7,12 @@
     "dev": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true vite",
     "dev:standalone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../../packages/core/src/node/cli.ts",
     "build": "vite build && vite-devtools"
+  },
+  "dependencies": {
+    "@devframes/plugin-a11y": "catalog:deps",
+    "@devframes/plugin-code-server": "catalog:deps",
+    "@devframes/plugin-data-inspector": "catalog:deps",
+    "@devframes/plugin-git": "catalog:deps",
+    "@devframes/plugin-og": "catalog:deps"
   }
 }
