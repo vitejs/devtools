@@ -9,12 +9,15 @@ import { setDocksGroupPanel, useDocksGroupPanel } from '../../state/floating-too
 import DockEntry from './DockEntry.vue'
 import DockGroupPopover from './DockGroupPopover.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   context: DocksContext
   group: DevToolsViewGroup
   isVertical: boolean
   selected: DevToolsDockEntry | null
-}>()
+  dimInactive?: boolean
+}>(), {
+  dimInactive: true,
+})
 
 const emit = defineEmits<{
   (e: 'select', entry: DevToolsDockEntry): void
@@ -122,7 +125,7 @@ function onClick() {
       :dock="group"
       :is-vertical="isVertical"
       :is-selected="isActive || isPanelVisible"
-      :is-dimmed="selected ? !isActive : false"
+      :is-dimmed="dimInactive && selected ? !isActive : false"
       :badge="group.badge"
       @click="onClick"
     />

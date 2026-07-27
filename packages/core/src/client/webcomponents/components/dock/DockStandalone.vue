@@ -61,6 +61,7 @@ function switchEntry(id: string | undefined) {
           :groups="groupedEntries"
           :is-vertical="false"
           :selected="context.docks.selected"
+          :dim-inactive="false"
           @select="(e) => switchEntry(e?.id)"
         >
           <template #separator>

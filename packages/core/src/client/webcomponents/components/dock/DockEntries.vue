@@ -8,12 +8,15 @@ import { sharedStateToRef } from '../../state/docks'
 import DockEntry from './DockEntry.vue'
 import DockGroupButton from './DockGroupButton.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   context: DocksContext
   entries: DevToolsDockEntry[]
   selected: DevToolsDockEntry | null
   isVertical: boolean
-}>()
+  dimInactive?: boolean
+}>(), {
+  dimInactive: true,
+})
 
 const emit = defineEmits<{
   (e: 'select', entry: DevToolsDockEntry): void
@@ -62,6 +65,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
         :group="dock"
         :is-vertical="isVertical"
         :selected="selected"
+        :dim-inactive="dimInactive"
         @select="(e) => emit('select', e)"
       />
       <DockEntry
@@ -70,7 +74,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
         :dock
         :is-action="dock.type === 'action'"
         :is-selected="selected?.id === dock.id"
-        :is-dimmed="selected ? (selected.id !== dock.id) : false"
+        :is-dimmed="dimInactive && selected ? (selected.id !== dock.id) : false"
         :is-vertical="isVertical"
         :badge="dock.badge"
         @click="toggleDockEntry(dock)"
