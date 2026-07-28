@@ -3,11 +3,13 @@ import type { InspectConfigResult, InspectedRule } from '@oxlint-config-inspecto
 import { computed, ref, watch } from 'vue'
 import {
   filterRules,
+  getRuleCategoryFilters,
   getRulePluginFilters,
   RULE_STATE_FILTERS,
   RULE_USAGE_FILTERS,
 } from '../../utils/config-inspector'
 import type {
+  RuleCategoryFilter,
   RulePluginFilter,
   RuleStateFilter,
   RuleUsageFilter,
@@ -22,16 +24,29 @@ const emit = defineEmits<{
 }>()
 
 const query = ref('')
+const category = ref<RuleCategoryFilter>('all')
 const plugin = ref<RulePluginFilter>('all')
 const usage = ref<RuleUsageFilter>('using')
 const state = ref<RuleStateFilter>('active')
 
 const pluginFilters = computed(() =>
   getRulePluginFilters(props.config.rules, {
+    category: category.value,
     query: query.value,
     state: state.value,
     usage: usage.value,
   }),
+)
+const categoryFilters = computed(() =>
+  getRuleCategoryFilters(props.config.rules, {
+    plugin: plugin.value,
+    query: query.value,
+    state: state.value,
+    usage: usage.value,
+  }),
+)
+const categoryTitles = computed(() =>
+  categoryFilters.value.map(value => (value === 'all' ? 'All' : value)),
 )
 const pluginTitles = computed(() =>
   pluginFilters.value.map(value => (value === 'all' ? 'All' : value)),
@@ -42,9 +57,13 @@ const stateTitles = ['All', 'Active', 'Recommended', 'Fixable', 'Deprecated']
 watch(pluginFilters, filters => {
   if (!filters.includes(plugin.value)) plugin.value = 'all'
 })
+watch(categoryFilters, filters => {
+  if (!filters.includes(category.value)) category.value = 'all'
+})
 
 const filteredRules = computed(() =>
   filterRules(props.config.rules, {
+    category: category.value,
     plugin: plugin.value,
     query: query.value,
     state: state.value,
@@ -55,6 +74,7 @@ const filteredRules = computed(() =>
 const hasActiveFilters = computed(
   () =>
     query.value !== '' ||
+    category.value !== 'all' ||
     plugin.value !== 'all' ||
     usage.value !== 'using' ||
     state.value !== 'active',
@@ -62,6 +82,7 @@ const hasActiveFilters = computed(
 
 function clearFilters() {
   query.value = ''
+  category.value = 'all'
   plugin.value = 'all'
   usage.value = 'using'
   state.value = 'active'
@@ -95,7 +116,16 @@ function showRule(rule: InspectedRule) {
     </div>
 
     <div class="grid gap-3">
-      <div class="grid gap-2 sm:grid-cols-[4rem_1fr] sm:items-start">
+      <div class="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-start">
+        <span class="text-right text-sm leading-7 op-fade">Categories</span>
+        <ConfigOptionSelectGroup
+          v-model="category"
+          :options="categoryFilters"
+          :titles="categoryTitles"
+          :classes="categoryFilters.map(value => (value === 'all' ? '' : 'font-mono'))"
+        />
+      </div>
+      <div class="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-start">
         <span class="text-right text-sm leading-7 op-fade">Plugins</span>
         <ConfigOptionSelectGroup
           v-model="plugin"
@@ -104,7 +134,7 @@ function showRule(rule: InspectedRule) {
           :classes="pluginFilters.map(value => (value === 'all' ? '' : 'font-mono'))"
         />
       </div>
-      <div class="grid gap-2 sm:grid-cols-[4rem_1fr] sm:items-start">
+      <div class="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-start">
         <span class="text-right text-sm leading-7 op-fade">Usage</span>
         <ConfigOptionSelectGroup
           v-model="usage"
@@ -130,7 +160,7 @@ function showRule(rule: InspectedRule) {
           </template>
         </ConfigOptionSelectGroup>
       </div>
-      <div class="grid gap-2 sm:grid-cols-[4rem_1fr] sm:items-start">
+      <div class="grid gap-2 sm:grid-cols-[5rem_1fr] sm:items-start">
         <span class="text-right text-sm leading-7 op-fade">State</span>
         <ConfigOptionSelectGroup
           v-model="state"

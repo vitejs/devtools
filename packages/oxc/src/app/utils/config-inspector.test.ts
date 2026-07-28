@@ -1,9 +1,15 @@
 import type { InspectedRule } from '@oxlint-config-inspector/core'
 import { describe, expect, it } from 'vitest'
-import { filterRules, getRulePluginFilters, resolveSelectedConfigPath } from './config-inspector'
+import {
+  filterRules,
+  getRuleCategoryFilters,
+  getRulePluginFilters,
+  resolveSelectedConfigPath,
+} from './config-inspector'
 
 const rule = {
   aliases: [],
+  category: 'correctness',
   defaultSeverity: 'off',
   deprecated: false,
   fixable: true,
@@ -42,6 +48,7 @@ describe('filterRules', () => {
   it('combines text, plugin, usage, and state filters', () => {
     expect(
       filterRules([rule], {
+        category: 'correctness',
         plugin: 'eslint',
         query: 'debug',
         state: 'fixable',
@@ -50,7 +57,17 @@ describe('filterRules', () => {
     ).toEqual([rule])
     expect(
       filterRules([rule], {
+        category: 'all',
         plugin: 'typescript',
+        query: '',
+        state: 'all',
+        usage: 'all',
+      }),
+    ).toEqual([])
+    expect(
+      filterRules([rule], {
+        category: 'suspicious',
+        plugin: 'eslint',
         query: '',
         state: 'all',
         usage: 'all',
@@ -77,6 +94,7 @@ describe('getRulePluginFilters', () => {
 
     expect(
       getRulePluginFilters([rule, unusedRule], {
+        category: 'all',
         query: '',
         state: 'active',
         usage: 'using',
@@ -84,10 +102,40 @@ describe('getRulePluginFilters', () => {
     ).toEqual(['all', 'eslint'])
     expect(
       getRulePluginFilters([rule, unusedRule], {
+        category: 'all',
         query: '',
         state: 'active',
         usage: 'all',
       }),
     ).toEqual(['all', 'eslint', 'typescript'])
+  })
+})
+
+describe('getRuleCategoryFilters', () => {
+  it('only includes categories matching the other filters', () => {
+    const unusedRule = {
+      ...rule,
+      category: 'suspicious',
+      pluginName: 'typescript',
+      severityStates: [],
+      used: false,
+    } as InspectedRule
+
+    expect(
+      getRuleCategoryFilters([rule, unusedRule], {
+        plugin: 'all',
+        query: '',
+        state: 'active',
+        usage: 'using',
+      }),
+    ).toEqual(['all', 'correctness'])
+    expect(
+      getRuleCategoryFilters([rule, unusedRule], {
+        plugin: 'all',
+        query: '',
+        state: 'active',
+        usage: 'all',
+      }),
+    ).toEqual(['all', 'correctness', 'suspicious'])
   })
 })

@@ -5,6 +5,7 @@ import type {
 } from '@oxlint-config-inspector/core'
 
 export type InspectorTab = 'overview' | 'rules' | 'overrides'
+export type RuleCategoryFilter = 'all' | (string & {})
 export type RulePluginFilter = 'all' | (string & {})
 export type RuleStateFilter = 'active' | 'all' | 'deprecated' | 'fixable' | 'recommended'
 export type RuleUsageFilter =
@@ -47,6 +48,7 @@ export function resolveSelectedConfigPath(
 export function getRulePluginFilters(
   rules: InspectedRule[],
   filters: {
+    category: RuleCategoryFilter
     query: string
     state: RuleStateFilter
     usage: RuleUsageFilter
@@ -59,9 +61,26 @@ export function getRulePluginFilters(
   return ['all', ...new Set(plugins)]
 }
 
+export function getRuleCategoryFilters(
+  rules: InspectedRule[],
+  filters: {
+    plugin: RulePluginFilter
+    query: string
+    state: RuleStateFilter
+    usage: RuleUsageFilter
+  },
+): RuleCategoryFilter[] {
+  const categories = filterRules(rules, { ...filters, category: 'all' }).flatMap(rule =>
+    rule.category ? [rule.category] : [],
+  )
+
+  return ['all', ...new Set(categories)]
+}
+
 export function filterRules(
   rules: InspectedRule[],
   filters: {
+    category: RuleCategoryFilter
     plugin: RulePluginFilter
     query: string
     state: RuleStateFilter
@@ -71,6 +90,7 @@ export function filterRules(
   const query = filters.query.trim().toLowerCase()
 
   return rules.filter(rule => {
+    if (filters.category !== 'all' && rule.category !== filters.category) return false
     if (filters.plugin !== 'all' && rule.pluginName !== filters.plugin) return false
     if (!matchesUsage(rule, filters.usage) || !matchesState(rule, filters.state)) return false
     if (!query) return true
