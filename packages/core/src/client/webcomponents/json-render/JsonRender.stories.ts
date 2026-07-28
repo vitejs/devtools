@@ -82,29 +82,35 @@ export const Gallery: Story = {
 }
 
 /**
- * A `Card` grouping content under a titled, bordered surface. Toggle the
- * Controls below to compare today's default (`primary`, non-`interactive` —
- * unchanged from before this fix) against the new opt-in look: `variant`
+ * A `Card` grouping content under a titled, bordered surface. `variant`
  * tints the background (`secondary`/`danger`) or leaves it untouched
- * (`primary`/`ghost`); `interactive` strengthens the Card's border on hover
- * and tints each row's (`Stack`) background on hover.
+ * (`primary`/`ghost`); `interactive` strengthens the border on hover and
+ * tints each row's (`Stack`) background. `collapsible` + `defaultCollapsed`
+ * control the initial collapse state; clear `title` to confirm the header
+ * (and its chevron) still renders without one.
  */
 interface CardArgs {
   variant: 'primary' | 'secondary' | 'ghost' | 'danger'
   interactive: boolean
+  title: string
+  collapsible: boolean
+  defaultCollapsed: boolean
 }
 
 export const Card: StoryObj<Meta<CardArgs>> = {
   argTypes: {
     variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
     interactive: { control: 'boolean' },
+    title: { control: 'text' },
+    collapsible: { control: 'boolean' },
+    defaultCollapsed: { control: 'boolean' },
   },
-  args: { variant: 'primary', interactive: false },
+  args: { variant: 'primary', interactive: false, title: 'Plugin', collapsible: true, defaultCollapsed: false },
   render: args => renderSpec(() => ({
     root: 'root',
     state: {},
     elements: {
-      root: { type: 'Card', props: { title: 'Plugin', collapsible: false, variant: args.variant, interactive: args.interactive }, children: ['body'] },
+      root: { type: 'Card', props: { title: args.title, collapsible: args.collapsible, defaultCollapsed: args.defaultCollapsed, variant: args.variant, interactive: args.interactive }, children: ['body'] },
       body: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['row1', 'row2'] },
       row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },

@@ -259,7 +259,7 @@ Container with an optional title and collapsible behavior.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `title` | `string` | — | Header title |
+| `title` | `string` | — | Header title. A collapsible card still shows its (empty) header without one — otherwise there'd be nothing to click |
 | `collapsible` | `boolean` | `false` | Whether the card can be collapsed |
 | `defaultCollapsed` | `boolean` | `false` | Start collapsed (when `collapsible`) |
 | `loading` | `boolean` | `false` | Show a loading state |

@@ -22,6 +22,15 @@ import { UnsupportedComponent } from './components/UnsupportedComponent'
  */
 export { UnsupportedComponent }
 
+/**
+ * Per-component `props` shapes, co-located with each component and
+ * re-exported here as this catalog's public type surface — the single
+ * source of truth a spec author can opt into for strict typing, instead of
+ * each component's props duplicated into a separate types package.
+ */
+export type { CardProps } from './components/Card'
+export type { UIElement as JsonRenderElement } from '@json-render/core'
+
 export const devtoolsRegistry: Record<string, Component> = {
   Stack,
   Card,
