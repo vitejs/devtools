@@ -94,10 +94,8 @@ const isRpcTrusted = useIsRpcTrusted(context, (isTrusted) => {
 
 const groupedEntries = computed(() => context.docks.groupedEntries)
 
-// A lone overflowing entry folds back into `visible` (rendered inline) rather
-// than earning its own `DockOverflowButton` — see `foldSingleOverflow`.
 const splitEntries = computed(() => {
-  return docksSplitGroupsWithCapacity(groupedEntries.value, layout.value.maxVisibleItems, { foldSingleOverflow: true })
+  return docksSplitGroupsWithCapacity(groupedEntries.value, layout.value.maxVisibleItems)
 })
 
 const selectedEntry = computed(() => {
