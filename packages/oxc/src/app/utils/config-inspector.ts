@@ -35,6 +35,15 @@ export const RULE_USAGE_FILTERS: RuleUsageFilter[] = [
   'off-only',
 ]
 
+export function resolveSelectedConfigPath(
+  paths: string[],
+  requestedPath: string,
+  selectedPath: string,
+) {
+  if (requestedPath) return paths.includes(requestedPath) ? requestedPath : ''
+  return paths.includes(selectedPath) ? selectedPath : (paths[0] ?? '')
+}
+
 export function getRulePluginFilters(
   rules: InspectedRule[],
   filters: {

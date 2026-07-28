@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InspectedRule } from '@oxlint-config-inspector/core'
 import type { InspectorTab } from '../../utils/config-inspector'
+import { resolveSelectedConfigPath } from '../../utils/config-inspector'
 import ConfigOverview from '../../components/config/ConfigOverview.vue'
 import ConfigOverrides from '../../components/config/ConfigOverrides.vue'
 import ConfigRuleDetails from '../../components/config/ConfigRuleDetails.vue'
@@ -9,8 +10,14 @@ import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyS
 import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 
 const rpc = useRpc()
+const route = useRoute()
+const router = useRouter()
+const requestedPath = computed(() =>
+  typeof route.query.config === 'string' ? route.query.config : '',
+)
 
 const {
   state: configFiles,
@@ -30,12 +37,20 @@ const supportedConfigs = computed(() =>
 
 const selectedPath = ref('')
 watch(
-  supportedConfigs,
-  files => {
-    if (!files.some(file => file.path === selectedPath.value))
-      selectedPath.value = files[0]?.path ?? ''
+  [supportedConfigs, requestedPath],
+  ([files, requested]) => {
+    selectedPath.value = resolveSelectedConfigPath(
+      files.map(file => file.path),
+      requested,
+      selectedPath.value,
+    )
   },
   { immediate: true },
+)
+const missingConfig = computed(
+  () =>
+    !!requestedPath.value &&
+    !supportedConfigs.value.some(file => file.path === requestedPath.value),
 )
 
 const {
@@ -78,6 +93,11 @@ watch(detailsOpen, open => {
 
 watch(selectedPath, () => {
   detailsOpen.value = false
+  if (selectedPath.value && route.query.config !== selectedPath.value) {
+    router.replace({
+      query: { ...route.query, config: selectedPath.value },
+    })
+  }
 })
 
 const isLoading = computed(() => isLoadingFiles.value || isLoadingConfig.value)
@@ -90,6 +110,8 @@ const errorMessage = computed(() => {
 
 <template>
   <div class="mx-auto max-w-7xl p6">
+    <Back />
+
     <header
       v-if="supportedConfigs.length"
       class="mb4 flex flex-wrap items-end justify-between gap-4"
@@ -113,7 +135,7 @@ const errorMessage = computed(() => {
         </button>
       </nav>
 
-      <label v-if="activeTab !== 'overview'" class="ml-auto max-w-full">
+      <label v-if="activeTab !== 'overview' || missingConfig" class="ml-auto max-w-full">
         <span class="relative max-w-full">
           <select
             v-model="selectedPath"
@@ -123,6 +145,7 @@ const errorMessage = computed(() => {
             class="min-w-48 max-w-full appearance-none pl10 pr10 py2 text-sm font-mono rounded-lg bg-base color-base border border-base outline-none transition-all focus-visible:ring-3 focus-visible:ring-primary-500/30 disabled:op50 disabled:pointer-events-none"
             style="field-sizing: content"
           >
+            <option v-if="missingConfig" value="" disabled>{{ requestedPath }} (missing)</option>
             <option v-for="file in supportedConfigs" :key="file.path" :value="file.path">
               {{ file.path }}
             </option>
@@ -144,6 +167,13 @@ const errorMessage = computed(() => {
       icon="i-ph-warning-circle-duotone"
       title="Could not load config"
       :description="errorMessage"
+    />
+
+    <VisualEmptyState
+      v-else-if="missingConfig"
+      icon="i-ph-file-x-duotone"
+      title="Oxlint config not found"
+      :description="`${requestedPath} is no longer available in this workspace.`"
     />
 
     <VisualEmptyState

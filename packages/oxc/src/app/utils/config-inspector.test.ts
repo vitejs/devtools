@@ -1,6 +1,6 @@
 import type { InspectedRule } from '@oxlint-config-inspector/core'
 import { describe, expect, it } from 'vitest'
-import { filterRules, getRulePluginFilters } from './config-inspector'
+import { filterRules, getRulePluginFilters, resolveSelectedConfigPath } from './config-inspector'
 
 const rule = {
   aliases: [],
@@ -25,6 +25,18 @@ const rule = {
   },
   used: true,
 } as InspectedRule
+
+describe('resolveSelectedConfigPath', () => {
+  const rootPath = '.oxlintrc.json'
+  const nestedPath = 'packages/app/oxlint.config.ts'
+  const paths = [rootPath, nestedPath]
+
+  it('selects the exact requested config and preserves missing targets', () => {
+    expect(resolveSelectedConfigPath(paths, nestedPath, rootPath)).toBe(nestedPath)
+    expect(resolveSelectedConfigPath(paths, 'deleted/oxlint.config.ts', rootPath)).toBe('')
+    expect(resolveSelectedConfigPath(paths, '', nestedPath)).toBe(nestedPath)
+  })
+})
 
 describe('filterRules', () => {
   it('combines text, plugin, usage, and state filters', () => {
