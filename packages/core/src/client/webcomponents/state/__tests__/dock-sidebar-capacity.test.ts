@@ -67,4 +67,32 @@ describe('docksSplitGroupsWithCapacity (sidebar overflow)', () => {
     expect(visible).toEqual([['app', [iframe('a'), iframe('b')]], ['web', [iframe('c')]]])
     expect(overflow).toEqual([['web', [iframe('d')]]])
   })
+
+  it('leaves a single overflowing entry in overflow by default', () => {
+    const groups: DevToolsDockEntriesGrouped = [['default', [iframe('a'), iframe('b'), iframe('c')]]]
+    const { visible, overflow } = docksSplitGroupsWithCapacity(groups, 2)
+    expect(visible).toEqual([['default', [iframe('a'), iframe('b')]]])
+    expect(overflow).toEqual([['default', [iframe('c')]]])
+  })
+
+  it('foldSingleOverflow folds a lone overflowing entry back into visible', () => {
+    const groups: DevToolsDockEntriesGrouped = [['default', [iframe('a'), iframe('b'), iframe('c')]]]
+    const { visible, overflow } = docksSplitGroupsWithCapacity(groups, 2, { foldSingleOverflow: true })
+    expect(visible).toEqual([['default', [iframe('a'), iframe('b')]], ['default', [iframe('c')]]])
+    expect(overflow).toEqual([])
+  })
+
+  it('foldSingleOverflow leaves two or more overflowing entries alone', () => {
+    const groups: DevToolsDockEntriesGrouped = [['default', [iframe('a'), iframe('b'), iframe('c'), iframe('d')]]]
+    const { visible, overflow } = docksSplitGroupsWithCapacity(groups, 2, { foldSingleOverflow: true })
+    expect(visible).toEqual([['default', [iframe('a'), iframe('b')]]])
+    expect(overflow).toEqual([['default', [iframe('c'), iframe('d')]]])
+  })
+
+  it('foldSingleOverflow is a no-op when nothing overflows', () => {
+    const groups: DevToolsDockEntriesGrouped = [['default', [iframe('a'), iframe('b')]]]
+    const { visible, overflow } = docksSplitGroupsWithCapacity(groups, 2, { foldSingleOverflow: true })
+    expect(visible).toEqual(groups)
+    expect(overflow).toEqual([])
+  })
 })
