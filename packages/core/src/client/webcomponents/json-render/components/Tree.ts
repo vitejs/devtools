@@ -1,12 +1,17 @@
 import type { VNode } from 'vue'
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h, ref } from 'vue'
 import { syntaxNumber, syntaxString } from './tokens'
+import { registryProps } from './types'
+
+export interface TreeProps {
+  data?: unknown
+  defaultExpanded?: boolean
+}
 
 export const Tree = defineComponent({
   name: 'JrTree',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Tree', TreeProps>(),
+  setup(ctx) {
     function renderNode(value: unknown, key: string, depth: number, expandLevel: number): VNode {
       const isExpanded = ref(depth < expandLevel)
       const isObject = value !== null && typeof value === 'object'

@@ -1,11 +1,15 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { borderSolid } from './tokens'
+import { registryProps } from './types'
+
+export interface DividerProps {
+  label?: string
+}
 
 export const Divider = defineComponent({
   name: 'JrDivider',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Divider', DividerProps>(),
+  setup(ctx) {
     return () => {
       const { label } = ctx.element.props
       const rule = { flex: 1, border: 'none', borderTop: borderSolid() }
