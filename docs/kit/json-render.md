@@ -232,6 +232,8 @@ Flex layout container. Arranges children vertically or horizontally.
 | `wrap` | `boolean` | `false` | Allow children to wrap onto multiple lines |
 | `flex` | `number \| string` | — | `flex` shorthand for the container |
 | `padding` | `number` | — | Padding in pixels |
+| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'info' \| 'success' \| 'warning'` | `'primary'` | Background tint (`danger`/`info`/`success`/`warning` also draw a matching border) |
+| `interactive` | `boolean` | `false` | Tint the background on hover — useful for clickable-looking rows |
 
 <!-- eslint-skip -->
 ```ts
@@ -262,6 +264,8 @@ Container with an optional title and collapsible behavior.
 | `title` | `string` | — | Header title. A collapsible card still shows its (empty) header without one — otherwise there'd be nothing to click |
 | `collapsible` | `boolean` | `false` | Whether the card can be collapsed |
 | `defaultCollapsed` | `boolean` | `false` | Start collapsed (when `collapsible`) |
+| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'info' \| 'success' \| 'warning'` | `'primary'` | A light background tint on the body, a stronger same-hue tint on the header bar, and a matching border (`danger`/`info`/`success`/`warning`) |
+| `interactive` | `boolean` | `false` | Brighten the border on hover |
 | `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->

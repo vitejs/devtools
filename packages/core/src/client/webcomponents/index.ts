@@ -17,6 +17,7 @@ export type {
   JsonRenderElement,
   KeyValueTableProps,
   ProgressProps,
+  StackProps,
   SwitchProps,
   TabDescriptor,
   TabsProps,

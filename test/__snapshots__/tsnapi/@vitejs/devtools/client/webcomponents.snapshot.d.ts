@@ -19,7 +19,7 @@ export interface CardProps {
   title?: string;
   collapsible?: boolean;
   defaultCollapsed?: boolean;
-  variant?: CardVariant;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning';
   interactive?: boolean;
 }
 export interface CodeBlockProps {
@@ -64,6 +64,17 @@ export interface ProgressProps {
   value: number;
   max?: number;
   label?: string;
+}
+export interface StackProps {
+  direction?: 'row' | 'column';
+  gap?: number;
+  align?: 'start' | 'center' | 'end' | 'stretch';
+  justify?: 'start' | 'center' | 'end' | 'between' | 'around';
+  padding?: number;
+  wrap?: boolean;
+  flex?: number | string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning';
+  interactive?: boolean;
 }
 export interface SwitchProps {
   value?: boolean;

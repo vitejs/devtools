@@ -84,15 +84,18 @@ export const Gallery: Story = {
 }
 
 /**
- * A `Card` grouping content under a titled, bordered surface. `variant`
- * tints the background (`secondary`/`danger`) or leaves it untouched
- * (`primary`/`ghost`); `interactive` strengthens the border on hover and
- * tints each row's (`Stack`) background. `collapsible` + `defaultCollapsed`
+ * A `Card` grouping content under a titled, bordered surface. `secondary`
+ * tints the background with no border; `ghost` and `primary` are untinted.
+ * `info`/`success`/`warning`/`danger` each draw a light body tint, a
+ * stronger same-hue header bar, and a matching border. `interactive`
+ * strengthens the border on hover (same hue for the four semantic variants)
+ * and tints each row's (`Stack`) background. `collapsible` + `defaultCollapsed`
  * control the initial collapse state; clear `title` to confirm the header
  * (and its chevron) still renders without one.
  */
 interface CardArgs {
-  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning'
+  rowVariant: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning'
   interactive: boolean
   title: string
   collapsible: boolean
@@ -101,23 +104,24 @@ interface CardArgs {
 
 export const Card: StoryObj<Meta<CardArgs>> = {
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'info', 'success', 'warning'] },
+    rowVariant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'info', 'success', 'warning'] },
     interactive: { control: 'boolean' },
     title: { control: 'text' },
     collapsible: { control: 'boolean' },
     defaultCollapsed: { control: 'boolean' },
   },
-  args: { variant: 'primary', interactive: false, title: 'Plugin', collapsible: true, defaultCollapsed: false },
+  args: { variant: 'primary', rowVariant: 'ghost', interactive: false, title: 'Plugin', collapsible: true, defaultCollapsed: false },
   render: args => renderSpec(() => ({
     root: 'root',
     state: {},
     elements: {
       root: { type: 'Card', props: { title: args.title, collapsible: args.collapsible, defaultCollapsed: args.defaultCollapsed, variant: args.variant, interactive: args.interactive }, children: ['body'] },
       body: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['row1', 'row2'] },
-      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t', 'badge'] },
+      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', variant: args.rowVariant, interactive: args.interactive }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
-      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t2', 'badge2'] },
+      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', variant: args.rowVariant, interactive: args.interactive }, children: ['t2', 'badge2'] },
       t2: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
       badge2: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
     },
