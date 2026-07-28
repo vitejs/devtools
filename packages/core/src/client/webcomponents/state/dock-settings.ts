@@ -405,6 +405,13 @@ export function deriveSidebarCapacity(options: SidebarCapacityOptions): number {
 
 /**
  * Split grouped entries into visible and overflow based on capacity.
+ *
+ * A lone overflowing entry folds back into `visible` instead of staying in
+ * `overflow` — a whole overflow affordance (button + badge + popover) just to
+ * reveal one icon costs more chrome than it saves, so that one entry renders
+ * inline in the slot the affordance would have occupied. Folding only
+ * triggers for exactly one overflowing entry; two or more still overflow
+ * normally.
  */
 export function docksSplitGroupsWithCapacity(
   groups: DevToolsDockEntriesGrouped,
@@ -428,6 +435,9 @@ export function docksSplitGroupsWithCapacity(
       visible.push([category, items])
     }
   }
+
+  if (overflow.reduce((acc, [, items]) => acc + items.length, 0) === 1)
+    return { visible: [...visible, ...overflow], overflow: [] }
 
   return { visible, overflow }
 }

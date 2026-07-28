@@ -146,6 +146,7 @@ const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPa
       <button
         v-for="member of members"
         :key="member.id"
+        :aria-label="member.title"
         class="relative flex items-center justify-center w-8 h-8 rounded-lg transition"
         :class="selectedId === member.id ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
         @pointerenter="showTooltip($event, member.title)"
@@ -167,6 +168,7 @@ const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPa
     <button
       v-if="hasOverflow"
       ref="moreButton"
+      aria-label="Show more"
       class="relative flex items-center justify-center w-8 h-8 rounded-lg transition mt-auto flex-none"
       :class="moreButtonActive ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
       @pointerenter="showTooltip($event, 'Show more')"
