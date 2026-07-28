@@ -139,6 +139,12 @@ export const HigherCapacity: Story = {
   args: { maxVisibleItems: 9 },
 }
 
+/** `maxVisibleItems: 8` — exactly one entry overflows, so it renders inline instead of behind the overflow button. */
+export const SingleOverflowItem: Story = {
+  ...floatStory({ entries: overflowEntries, panel: { position: 'bottom', left: 50, top: 100, inactiveTimeout: -1 } }),
+  args: { maxVisibleItems: 8 },
+}
+
 /** `glowSize: 280`, `glowBlur: 90` — a larger, softer ambient glow. */
 export const LargeGlow: Story = {
   ...floatStory({ entries: categorizedEntries, panel: { position: 'bottom', left: 50, top: 100, inactiveTimeout: -1 } }),

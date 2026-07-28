@@ -98,6 +98,8 @@ const splitEntries = computed(() => {
   return docksSplitGroupsWithCapacity(groupedEntries.value, layout.value.maxVisibleItems)
 })
 
+const overflowCount = computed(() => splitEntries.value.overflow.reduce((acc, [, items]) => acc + items.length, 0))
+
 const selectedEntry = computed(() => {
   return context.docks.selected
 })
@@ -311,7 +313,17 @@ onMounted(() => {
             @select="(e) => context.docks.switchEntry(e?.id)"
           />
 
-          <template v-if="splitEntries.overflow.length > 0">
+          <template v-if="overflowCount === 1">
+            <div class="border-base m1 h-20px w-px border-r-1.5" />
+            <DockEntriesWithCategories
+              :context="context"
+              :groups="splitEntries.overflow"
+              :is-vertical="context.panel.isVertical"
+              :selected="selectedEntry"
+              @select="(e) => context.docks.switchEntry(e?.id)"
+            />
+          </template>
+          <template v-else-if="overflowCount > 1">
             <div class="border-base m1 h-20px w-px border-r-1.5" />
             <DockOverflowButton
               :context="context"
