@@ -240,6 +240,7 @@ const contentClass = computed(() => {
       >
         <button
           ref="positionButton"
+          aria-label="Edge position"
           class="p1.5 rounded hover:bg-active transition op75 hover:op100"
           @pointerenter="showTooltip(positionButton, 'Edge position')"
           @pointerleave="hideTooltip"
@@ -250,6 +251,7 @@ const contentClass = computed(() => {
         </button>
         <button
           ref="floatButton"
+          aria-label="Float mode"
           class="p1.5 rounded hover:bg-active transition op50 hover:op100"
           @pointerenter="showTooltip(floatButton, 'Float mode')"
           @pointerleave="hideTooltip"
