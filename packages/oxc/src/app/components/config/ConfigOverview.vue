@@ -2,7 +2,6 @@
 import type { InspectConfigResult } from '@oxlint-config-inspector/core'
 import type { OxcConfigFile } from '../../../types'
 import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
-import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { computed } from 'vue'
 
 const props = defineProps<{

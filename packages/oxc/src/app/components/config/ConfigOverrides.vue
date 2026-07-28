@@ -16,7 +16,7 @@ defineProps<{
 <template>
   <VisualEmptyState
     v-if="config.overrideGroups.length === 0"
-    icon="i-ph-stack-duotone"
+    icon="i-ph-files-duotone"
     title="No overrides"
     description="No override configuration was found."
   />
