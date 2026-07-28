@@ -36,12 +36,14 @@ const usageConfigs = computed(() => createRuleUsageConfigs(props.rule, props.ove
   <div class="grid w-[min(80vw,48rem)] max-w-full gap-5">
     <section>
       <h3 class="mb3 font-medium">Details</h3>
-      <dl class="grid gap-2 sm:grid-cols-[max-content_1fr]">
-        <template v-for="[label, value] in details" :key="label">
-          <dt class="op-fade">{{ label }}</dt>
-          <dd class="break-words">{{ value }}</dd>
-        </template>
-      </dl>
+      <ContainerCard>
+        <dl class="grid grid-cols-[160px_2fr] items-center gap-2 p4">
+          <template v-for="[label, value] in details" :key="label">
+            <dt>{{ label }}</dt>
+            <dd class="break-words">{{ value }}</dd>
+          </template>
+        </dl>
+      </ContainerCard>
     </section>
 
     <section>

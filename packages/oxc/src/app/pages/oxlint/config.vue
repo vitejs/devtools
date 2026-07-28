@@ -6,6 +6,7 @@ import ConfigOverview from '../../components/config/ConfigOverview.vue'
 import ConfigOverrides from '../../components/config/ConfigOverrides.vue'
 import ConfigRuleDetails from '../../components/config/ConfigRuleDetails.vue'
 import ConfigRules from '../../components/config/ConfigRules.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
 import { useAsyncState } from '@vueuse/core'
@@ -222,7 +223,7 @@ const errorMessage = computed(() => {
                 <span class="i-ph-arrow-square-out-duotone" />
               </a>
             </div>
-            <div class="mt1 text-xs font-normal op-fade">{{ selectedRule.source }}</div>
+            <DisplayBadge :text="selectedRule.source" class="mt1 inline-flex" />
           </div>
           <button type="button" class="btn-icon" aria-label="Close" @click="detailsOpen = false">
             <span class="i-ph-x" />
