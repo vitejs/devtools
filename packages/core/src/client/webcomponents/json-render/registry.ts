@@ -22,6 +22,26 @@ import { UnsupportedComponent } from './components/UnsupportedComponent'
  */
 export { UnsupportedComponent }
 
+/**
+ * Per-component `props` shapes, co-located with each component and
+ * re-exported here as this catalog's public type surface — the single
+ * source of truth a spec author can opt into for strict typing, instead of
+ * each component's props duplicated into a separate types package.
+ */
+export type { BadgeProps } from './components/Badge'
+export type { ButtonProps } from './components/Button'
+export type { CodeBlockProps } from './components/CodeBlock'
+export type { DataTableColumn, DataTableProps } from './components/DataTable'
+export type { DividerProps } from './components/Divider'
+export type { IconProps } from './components/Icon'
+export type { KeyValueTableProps } from './components/KeyValueTable'
+export type { ProgressProps } from './components/Progress'
+export type { SwitchProps } from './components/Switch'
+export type { TextProps } from './components/Text'
+export type { TextInputProps } from './components/TextInput'
+export type { TreeProps } from './components/Tree'
+export type { UIElement as JsonRenderElement } from '@json-render/core'
+
 export const devtoolsRegistry: Record<string, Component> = {
   Stack,
   Card,

@@ -1,11 +1,18 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { borderSolid, surfaceMuted } from './tokens'
+import { registryProps } from './types'
+
+export interface CodeBlockProps {
+  code?: string
+  filename?: string
+  language?: string
+  height?: number
+}
 
 export const CodeBlock = defineComponent({
   name: 'JrCodeBlock',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'CodeBlock', CodeBlockProps>(),
+  setup(ctx) {
     return () => {
       const { code, filename, language, height } = ctx.element.props
       const header = filename || language
