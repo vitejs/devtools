@@ -3,6 +3,7 @@ import { oxlintDeleteResult } from './functions/oxlint-delete-result'
 import { oxlintGetResult } from './functions/oxlint-get-result'
 import { oxlintListResults } from './functions/oxlint-list-results'
 import { oxlintRun } from './functions/oxlint-run'
+import { oxlintInspectConfig } from './functions/oxlint-inspect-config'
 import { overview } from './functions/overview'
 import { oxlintGetConfigFile } from './functions/oxlint-get-config-file'
 import { oxfmtGetConfigFile } from './functions/oxfmt-get-config-file'
@@ -14,6 +15,7 @@ export const rpcFunctions = [
   oxlintListResults,
   oxlintGetResult,
   oxlintDeleteResult,
+  oxlintInspectConfig,
   overview,
   oxlintGetConfigFile,
   oxfmtGetConfigFile,
