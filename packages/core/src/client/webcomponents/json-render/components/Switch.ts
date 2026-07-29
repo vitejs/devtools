@@ -1,12 +1,19 @@
-import type { RegistryComponentProps } from './types'
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
 import { primary, surfaceSubtle } from './tokens'
+import { registryProps } from './types'
+
+export interface SwitchProps {
+  /** Two-way bindable via `{ $bindState: '...' }`. */
+  value?: boolean
+  label?: string
+  disabled?: boolean
+}
 
 export const Switch = defineComponent({
   name: 'JrSwitch',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Switch', SwitchProps>(),
+  setup(ctx) {
     return () => {
       const { label, disabled } = ctx.element.props
       const [value, setValue] = useBoundProp<boolean>(ctx.element.props.value, ctx.bindings?.value)

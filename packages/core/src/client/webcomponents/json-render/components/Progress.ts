@@ -1,11 +1,17 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { primary, surfaceBadge } from './tokens'
+import { registryProps } from './types'
+
+export interface ProgressProps {
+  value: number
+  max?: number
+  label?: string
+}
 
 export const Progress = defineComponent({
   name: 'JrProgress',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Progress', ProgressProps>(),
+  setup(ctx) {
     return () => {
       const { value, max = 100, label } = ctx.element.props
       const percent = Math.min(100, Math.max(0, (value / max) * 100))

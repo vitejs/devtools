@@ -1,11 +1,17 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { surfaceSubtle } from './tokens'
+import { registryProps } from './types'
+
+export interface TextProps {
+  text?: string
+  variant?: 'heading' | 'subheading' | 'body' | 'caption' | 'code'
+  weight?: 'normal' | 'medium' | 'bold'
+}
 
 export const Text = defineComponent({
   name: 'JrText',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Text', TextProps>(),
+  setup(ctx) {
     return () => {
       const { text, variant = 'body', weight } = ctx.element.props
       const styles: Record<string, Record<string, string>> = {

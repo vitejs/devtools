@@ -69,9 +69,16 @@ const configFiles = computed<OxcConfigFile[]>(() => {
               </button>
             </template>
             <template #title>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-2">
                 <DisplayFileIcon class="flex-none" :filename="configFile.path" />
                 <div>{{ configFile.path }}</div>
+                <NuxtLink
+                  :to="{ path: '/oxlint/config', query: { config: configFile.path } }"
+                  class="btn-action-sm ml-2"
+                >
+                  Inspect config
+                  <span class="i-ph-arrow-right" />
+                </NuxtLink>
               </div>
             </template>
             <div class="w-150 max-w-full font-mono">

@@ -50,10 +50,15 @@ async function mountDock(): Promise<void> {
   if (dockEl)
     return
 
-  // Inject runs in the user's host page, so `document.baseURI` points at
-  // the user's app — not at the Vite DevTools mount. Pass the mount path
-  // explicitly so the connection meta lookup hits `/__devtools/__connection.json`.
-  const rpc = await getDevToolsRpcClient({ baseURL: DEVTOOLS_MOUNT_PATH })
+  // Prefer the host page's origin for backwards compatibility. When the page
+  // is served by another backend, fall back to the Vite origin that loaded
+  // this module.
+  const rpc = await getDevToolsRpcClient({
+    baseURL: [
+      DEVTOOLS_MOUNT_PATH,
+      new URL(DEVTOOLS_MOUNT_PATH, import.meta.url).href,
+    ],
+  })
 
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',

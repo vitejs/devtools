@@ -1,289 +1,242 @@
 <script setup lang="ts">
-import type * as Monaco from 'modern-monaco/editor-core'
-import { parse, iterator } from '@humanwhocodes/momoa'
-import type { MemberNode, ObjectNode, StringNode } from '@humanwhocodes/momoa'
+import type { InspectedRule } from '@oxlint-config-inspector/core'
+import type { InspectorTab } from '../../utils/config-inspector'
+import { resolveSelectedConfigPath } from '../../utils/config-inspector'
+import ConfigOverview from '../../components/config/ConfigOverview.vue'
+import ConfigOverrides from '../../components/config/ConfigOverrides.vue'
+import ConfigRuleDetails from '../../components/config/ConfigRuleDetails.vue'
+import ConfigRules from '../../components/config/ConfigRules.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
+import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
 import { useAsyncState } from '@vueuse/core'
-import { isDark } from '@vitejs/devtools-ui/composables/dark'
-import { applyMonacoTheme, createReadOnlyMonacoEditor, getMonaco } from '~/composables/monaco'
+import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 
 const rpc = useRpc()
-
-const { state: configData, isReady } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:get-lint-config-file'),
-  null,
+const route = useRoute()
+const router = useRouter()
+const requestedPath = computed(() =>
+  typeof route.query.config === 'string' ? route.query.config : '',
 )
 
-const OXC_RULES_BASE = 'https://oxc.rs/docs/guide/usage/linter/rules'
-const CONFIG_REF_BASE = 'https://oxc.rs/docs/guide/usage/linter/config-file-reference.html'
-const DEFAULT_DOC_URL = 'https://oxc.rs/docs/guide/usage/linter.html'
+const {
+  state: configFiles,
+  isLoading: isLoadingFiles,
+  error: configFilesError,
+} = useAsyncState(() => rpc.value.call('devtools-oxc:get-config-files'), [])
 
-const CONFIG_SECTION_URLS = {
-  categories: `${CONFIG_REF_BASE}#categories`,
-  plugins: `${CONFIG_REF_BASE}#plugins`,
-  ignorePatterns: `${CONFIG_REF_BASE}#ignorepatterns`,
-  env: `${CONFIG_REF_BASE}#env`,
-  extends: `${CONFIG_REF_BASE}#extends`,
-  globals: `${CONFIG_REF_BASE}#globals`,
-  jsPlugins: `${CONFIG_REF_BASE}#jsplugins`,
-  overrides: `${CONFIG_REF_BASE}#overrides`,
-  settings: `${CONFIG_REF_BASE}#settings`,
-  $schema: `${CONFIG_REF_BASE}#schema`,
-} as const
+const supportedConfigs = computed(() =>
+  configFiles.value.filter(
+    file =>
+      file.tool === 'oxlint' &&
+      file.format !== 'mts' &&
+      file.format !== 'cts' &&
+      (file.source === 'oxc' || file.path.endsWith('vite.config.ts')),
+  ),
+)
 
-const editorRef = ref<HTMLDivElement | null>(null)
-const currentDocUrl = ref(DEFAULT_DOC_URL)
-const iframeLoading = ref(true)
-let monaco: typeof Monaco | null = null
-let editor: Monaco.editor.IStandaloneCodeEditor | null = null
-let model: Monaco.editor.ITextModel | null = null
-let cursorDisposable: Monaco.IDisposable | null = null
+const selectedPath = ref('')
+watch(
+  [supportedConfigs, requestedPath],
+  ([files, requested]) => {
+    selectedPath.value = resolveSelectedConfigPath(
+      files.map(file => file.path),
+      requested,
+      selectedPath.value,
+    )
+  },
+  { immediate: true },
+)
+const missingConfig = computed(
+  () =>
+    !!requestedPath.value &&
+    !supportedConfigs.value.some(file => file.path === requestedPath.value),
+)
 
-interface RuleRange {
-  key: string
-  from: number
-  to: number
+const {
+  state: config,
+  isLoading: isLoadingConfig,
+  error: configError,
+  execute: inspectConfig,
+} = useAsyncState(
+  () => rpc.value.call('devtools-oxc:inspect-lint-config', selectedPath.value),
+  null,
+  { immediate: false },
+)
+
+watch(
+  selectedPath,
+  path => {
+    config.value = null
+    if (path) inspectConfig()
+  },
+  { immediate: true },
+)
+
+const tabs = [
+  ['overview', 'Overview', 'i-ph-stack-duotone'],
+  ['rules', 'Rules', 'i-ph-list-dashes-duotone'],
+  ['overrides', 'Overrides', 'i-ph-files-duotone'],
+] as const satisfies readonly (readonly [InspectorTab, string, string])[]
+const activeTab = ref<InspectorTab>('overview')
+const selectedRule = ref<InspectedRule | null>(null)
+const detailsOpen = ref(false)
+
+function showRule(ruleId: string) {
+  selectedRule.value = config.value?.rules.find(rule => rule.ruleId === ruleId) ?? null
+  detailsOpen.value = selectedRule.value !== null
 }
 
-interface SectionRange {
-  from: number
-  to: number
-}
-
-interface ConfigRanges {
-  categories: SectionRange | null
-  plugins: SectionRange | null
-  ignorePatterns: SectionRange | null
-  env: SectionRange | null
-  extends: SectionRange | null
-  globals: SectionRange | null
-  jsPlugins: SectionRange | null
-  overrides: SectionRange | null
-  settings: SectionRange | null
-  rules: { from: number; to: number; members: RuleRange[] } | null
-  $schema: SectionRange | null
-}
-
-let configRanges: ConfigRanges | null = null
-
-function getMemberRange(member: MemberNode, content: string): { from: number; to: number } {
-  const keyRange = member.name.range ?? [member.name.loc.start.offset, member.name.loc.end.offset]
-  const valueRange = member.value.range ?? [
-    member.value.loc.start.offset,
-    member.value.loc.end.offset,
-  ]
-  const from = Math.min(keyRange[0], valueRange[0])
-  let to = Math.max(keyRange[1], valueRange[1])
-  const afterValue = content.slice(to)
-  const commaMatch = afterValue.match(/^\s*,/)
-  if (commaMatch) to += commaMatch[0].length
-  return { from, to }
-}
-
-function initConfigRanges(content: string) {
-  let ast: ReturnType<typeof parse>
-  try {
-    ast = parse(content, { ranges: true, mode: 'json5' })
-  } catch {
-    configRanges = null
-    return
-  }
-  const root = ast.body
-  if (root.type !== 'Object') return
-
-  const result: ConfigRanges = {
-    categories: null,
-    plugins: null,
-    ignorePatterns: null,
-    env: null,
-    extends: null,
-    globals: null,
-    jsPlugins: null,
-    overrides: null,
-    settings: null,
-    rules: null,
-    $schema: null,
-  }
-
-  const SECTION_KEYS = [
-    'categories',
-    'plugins',
-    'ignorePatterns',
-    'env',
-    'extends',
-    'globals',
-    'jsPlugins',
-    'overrides',
-    'settings',
-    '$schema',
-  ] as const
-
-  const rootObject = root as ObjectNode
-
-  for (const { node, parent } of iterator(ast, ({ phase }) => phase === 'enter')) {
-    if (node.type === 'Member') {
-      const member = node as MemberNode
-      const name =
-        member.name.type === 'String'
-          ? (member.name as StringNode).value
-          : (member.name as { name: string }).name
-
-      const { from, to } = getMemberRange(member, content)
-
-      if (parent !== rootObject) continue
-
-      if (SECTION_KEYS.includes(name as (typeof SECTION_KEYS)[number]))
-        result[name as (typeof SECTION_KEYS)[number]] = { from, to }
-      else if (name === 'rules' && member.value.type === 'Object') {
-        const rulesObject = member.value as ObjectNode
-        const members: RuleRange[] = rulesObject.members.map(m => {
-          const key =
-            m.name.type === 'String'
-              ? (m.name as StringNode).value
-              : (m.name as { name: string }).name
-          const range = getMemberRange(m, content)
-          return { key, from: range.from, to: range.to }
-        })
-        result.rules = {
-          from,
-          to,
-          members,
-        }
-      }
-    }
-  }
-
-  configRanges = result
-}
-
-function getRuleDocUrl(ruleKey: string): string {
-  const slash = ruleKey.indexOf('/')
-  const scope = slash === -1 ? 'eslint' : ruleKey.slice(0, slash).replace(/-/g, '_')
-  const value = slash === -1 ? ruleKey : ruleKey.slice(slash + 1)
-  return `${OXC_RULES_BASE}/${scope}/${value}.html`
-}
-
-function getDocUrlAtCursor(pos: number, content: string): string {
-  if (!configRanges) return DEFAULT_DOC_URL
-
-  const { rules, ...sections } = configRanges
-
-  for (const [key, range] of Object.entries(sections)) {
-    if (range && pos >= range.from && pos <= range.to) {
-      const url = CONFIG_SECTION_URLS[key as keyof typeof CONFIG_SECTION_URLS]
-      if (url) return url
-    }
-  }
-
-  if (rules && pos >= rules.from && pos <= rules.to) {
-    for (const { key, from, to } of rules.members) {
-      if (pos >= from && pos <= to) return getRuleDocUrl(key)
-    }
-    const lineFrom = content.lastIndexOf('\n', pos) + 1
-    const lineTo = content.indexOf('\n', pos)
-    const line = content.slice(lineFrom, lineTo === -1 ? content.length : lineTo)
-    const keyMatch = line.match(/"([^"]+)"\s*:/)
-    const ruleKey = keyMatch?.[1]
-    if (ruleKey) return getRuleDocUrl(ruleKey)
-  }
-
-  return DEFAULT_DOC_URL
-}
-
-function updateDocUrlFromCursor() {
-  if (!editor || !model) return
-  const position = editor.getPosition()
-  if (!position) return
-  const content = model.getValue()
-  const pos = model.getOffsetAt(position)
-  const url = getDocUrlAtCursor(pos, content)
-  if (currentDocUrl.value !== url) {
-    currentDocUrl.value = url
-    iframeLoading.value = true
-  }
-}
-
-const initialized = ref(false)
-
-async function initEditor() {
-  if (!editorRef.value || initialized.value || !isReady.value) return
-
-  const content = configData.value ?? '{}'
-  initConfigRanges(content)
-
-  // Claim the slot synchronously so the reactive watcher can't kick off a
-  // second init while `getMonaco` is awaited.
-  initialized.value = true
-
-  monaco = await getMonaco()
-
-  if (!editorRef.value) return
-
-  model = monaco.editor.createModel(content, 'json')
-  editor = createReadOnlyMonacoEditor(monaco, editorRef.value)
-  editor.setModel(model)
-
-  applyMonacoTheme(monaco)
-
-  cursorDisposable = editor.onDidChangeCursorPosition(() => updateDocUrlFromCursor())
-
-  updateDocUrlFromCursor()
-}
-
-watch([editorRef, isReady], () => initEditor(), { immediate: true })
-
-watch(isDark, () => {
-  if (monaco) applyMonacoTheme(monaco)
+watch(detailsOpen, open => {
+  if (!open) selectedRule.value = null
 })
 
-onBeforeUnmount(() => {
-  cursorDisposable?.dispose()
-  editor?.dispose()
-  model?.dispose()
-  editor = null
-  model = null
+watch(selectedPath, () => {
+  detailsOpen.value = false
+  if (selectedPath.value && route.query.config !== selectedPath.value) {
+    router.replace({
+      query: { ...route.query, config: selectedPath.value },
+    })
+  }
+})
+
+const isLoading = computed(() => isLoadingFiles.value || isLoadingConfig.value)
+const error = computed(() => configFilesError.value ?? configError.value)
+const errorMessage = computed(() => {
+  const value = error.value
+  return value instanceof Error ? value.message : String(value)
 })
 </script>
 
 <template>
-  <div class="h-[calc(100vh-4rem)] max-w-7xl p4 mx-auto">
-    <Back to="/" />
-    <div class="flex flex-col lg:flex-row h-full border border-base rounded-lg of-hidden bg-base">
-      <div class="flex-1 min-h-0 min-w-0 border-b border-base lg:border-b-0 lg:border-r">
-        <div ref="editorRef" class="h-full min-h-200px lg:min-h-0" />
-      </div>
-      <div class="flex-1 min-h-200px lg:min-h-0 min-w-0 relative">
-        <iframe
-          :src="currentDocUrl"
-          class="w-full h-full border-0"
-          sandbox="allow-same-origin allow-scripts"
-          title="Rule documentation"
-          @load="iframeLoading = false"
-        />
-        <Transition
-          enter-active-class="transition-opacity duration-150"
-          enter-from-class="op0"
-          leave-active-class="transition-opacity duration-150"
-          leave-to-class="op0"
+  <div class="mx-auto max-w-7xl p6">
+    <Back />
+
+    <header
+      v-if="supportedConfigs.length"
+      class="mb4 flex flex-wrap items-end justify-between gap-4"
+    >
+      <nav
+        v-if="config"
+        class="flex flex-wrap items-center gap-3"
+        aria-label="Config inspector views"
+      >
+        <button
+          v-for="[value, label, icon] in tabs"
+          :key="value"
+          type="button"
+          class="btn-action flex-none px3! py1.5! text-base"
+          :class="{ 'btn-action-active': activeTab === value }"
+          :aria-pressed="activeTab === value"
+          @click="activeTab = value"
         >
-          <div
-            v-show="iframeLoading"
-            class="absolute inset-0 flex items-center justify-center bg-base pointer-events-none"
+          <span :class="icon" class="flex-none text-xl" />
+          {{ label }}
+        </button>
+      </nav>
+
+      <label v-if="activeTab !== 'overview' || missingConfig" class="ml-auto max-w-full">
+        <span class="relative max-w-full">
+          <select
+            v-model="selectedPath"
+            :disabled="isLoadingConfig"
+            :title="selectedPath"
+            aria-label="Config"
+            class="min-w-48 max-w-full appearance-none pl10 pr10 py2 text-sm font-mono rounded-lg bg-base color-base border border-base outline-none transition-all focus-visible:ring-3 focus-visible:ring-primary-500/30 disabled:op50 disabled:pointer-events-none"
+            style="field-sizing: content"
           >
-            <span
-              class="size-8 animate-spin rounded-full border-2 border-base border-t-primary-500"
-              aria-hidden="true"
-            />
+            <option v-if="missingConfig" value="" disabled>{{ requestedPath }} (missing)</option>
+            <option v-for="file in supportedConfigs" :key="file.path" :value="file.path">
+              {{ file.path }}
+            </option>
+          </select>
+          <span
+            class="i-ph-file-code-duotone pointer-events-none absolute left-3 top-1/2 translate-y--1/2 op60"
+          />
+          <span
+            class="i-ph-caret-down pointer-events-none absolute right-4 top-1/2 translate-y--1/2 op60"
+          />
+        </span>
+      </label>
+    </header>
+
+    <VisualLoading v-if="isLoading" text="Loading Oxlint config..." />
+
+    <VisualEmptyState
+      v-else-if="error"
+      icon="i-ph-warning-circle-duotone"
+      title="Could not load config"
+      :description="errorMessage"
+    />
+
+    <VisualEmptyState
+      v-else-if="missingConfig"
+      icon="i-ph-file-x-duotone"
+      title="Oxlint config not found"
+      :description="`${requestedPath} is no longer available in this workspace.`"
+    />
+
+    <VisualEmptyState
+      v-else-if="!selectedPath"
+      icon="i-ph-file-x-duotone"
+      title="No supported Oxlint config"
+      description="Add a supported Oxlint config to this workspace."
+    />
+
+    <template v-else-if="config">
+      <ConfigOverview
+        v-if="activeTab === 'overview'"
+        v-model:selected-path="selectedPath"
+        :config="config"
+        :config-files="supportedConfigs"
+      />
+      <ConfigRules
+        v-else-if="activeTab === 'rules'"
+        :key="selectedPath"
+        :config="config"
+        @select-rule="showRule"
+      />
+      <ConfigOverrides v-else :config="config" @select-rule="showRule" />
+    </template>
+
+    <div
+      v-if="detailsOpen && selectedRule && config"
+      class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
+      @click.self="detailsOpen = false"
+    >
+      <div
+        class="fixed right-0 bottom-0 top-20 w-full max-w-3xl z-panel-content bg-glass border-l border-t border-base rounded-tl-xl flex flex-col"
+      >
+        <header class="flex items-center justify-between gap-4 border-b border-base px5 py4">
+          <div>
+            <div class="flex items-center gap-2">
+              <div class="font-mono">{{ selectedRule.ruleId }}</div>
+              <a
+                v-if="selectedRule.docsUrl"
+                :href="selectedRule.docsUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-action-sm"
+              >
+                Docs
+                <span class="i-ph-arrow-square-out-duotone" />
+              </a>
+            </div>
+            <DisplayBadge :text="selectedRule.source" class="mt1 inline-flex" />
           </div>
-        </Transition>
+          <button type="button" class="btn-icon" aria-label="Close" @click="detailsOpen = false">
+            <span class="i-ph-x" />
+          </button>
+        </header>
+        <div class="of-auto p6">
+          <ConfigRuleDetails
+            class="mx-auto"
+            :rule="selectedRule"
+            :override-groups="config.overrideGroups"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style>
-.monaco-editor,
-.monaco-editor .overflow-guard {
-  width: 100% !important;
-  height: 100% !important;
-}
-</style>

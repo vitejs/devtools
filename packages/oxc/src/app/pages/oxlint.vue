@@ -13,11 +13,11 @@ useSideNav(() => [
     icon: 'i-ph-magnifying-glass-duotone',
     to: '/oxlint/lint',
   },
-  // {
-  //   title: 'Config Inspector',
-  //   icon: 'i-ph-gear-duotone',
-  //   to: '/oxlint/config',
-  // },
+  {
+    title: 'Config Inspector',
+    icon: 'i-ph-gear-duotone',
+    to: '/oxlint/config',
+  },
   {
     title: 'Documents',
     icon: 'i-ph-book-open-duotone',
@@ -31,7 +31,7 @@ useSideNav(() => [
     class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden"
   >
     <PanelSideNav />
-    <div class="of-auto h-screen max-h-screen relative">
+    <div class="of-auto h-screen max-h-screen relative" style="scrollbar-gutter: stable">
       <NuxtPage />
     </div>
   </div>

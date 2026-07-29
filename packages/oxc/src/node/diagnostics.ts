@@ -18,5 +18,10 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
         `Failed to delete lint result "${p.resultId}": ${p.reason}`,
       fix: 'Check that the lint result exists and the project directory is writable.',
     },
+    OXDT0004: {
+      why: (p: { configPath: string; reason: string }) =>
+        `Failed to inspect Oxlint config "${p.configPath}": ${p.reason}`,
+      fix: 'Choose a supported Oxlint config inside the workspace and ensure Oxlint can read its rules.',
+    },
   },
 })
