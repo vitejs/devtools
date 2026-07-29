@@ -1,6 +1,6 @@
 import { isDark } from '@vitejs/devtools-ui/composables/dark'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { getHashColorFromString, getHsla } from '../color'
+import { getHashColorFromString, getHsla, getPluginColor, predefinedColorMap } from '../color'
 
 describe('getHashColorFromString', () => {
   it('should get the same color with the same string', () => {
@@ -32,5 +32,22 @@ describe('getHsla', () => {
   it('dark mode with custom opacity', () => {
     isDark.value = true
     expect(getHsla(180, 0.8)).toBe('hsla(180, 50%, 60%, 0.8)')
+  })
+})
+
+describe('getPluginColor', () => {
+  it('should use predefinedColorMap with known name', () => {
+    for (const name in predefinedColorMap) {
+      if (Object.hasOwn(predefinedColorMap, name)
+        && name === name.replace(/[^a-z]+/gi, '').toLowerCase()) {
+        if (typeof predefinedColorMap[name] === 'number') {
+          expect(getPluginColor(`8080-=(🤔)${name}`)).toBe(getHsla(predefinedColorMap[name]))
+        }
+      }
+    }
+  })
+
+  it('should use getHashColorFromString with unknown name', () => {
+    expect(getPluginColor('😄Foo')).toBe(getHashColorFromString('foo'))
   })
 })

@@ -83,7 +83,7 @@ export default function myPlugin(): Plugin {
         }
 
         // Host static UI
-        ctx.views.hostStatic('/.my-plugin/', clientDist)
+        ctx.views.hostStatic('/__my-plugin/', clientDist)
 
         // Register dock entry
         ctx.docks.register({
@@ -91,7 +91,7 @@ export default function myPlugin(): Plugin {
           title: 'My Plugin',
           icon: 'ph:puzzle-piece-duotone',
           type: 'iframe',
-          url: '/.my-plugin/',
+          url: '/__my-plugin/',
         })
       },
     },

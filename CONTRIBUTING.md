@@ -10,7 +10,7 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## Setup
 
-Requires `pnpm@10.x`.
+Requires `pnpm@11.x`.
 
 ```bash
 pnpm install
@@ -98,12 +98,6 @@ Typed RPC wrapper over `birpc` with WebSocket presets.
 - Type-safe RPC methods
 
 **Key files**: `src/index.ts`, `src/client.ts`, `src/server.ts`, `src/presets/ws/`
-
----
-
-### `packages/self-inspect` - `@vitejs/devtools-self-inspect`
-
-Meta-introspection — DevTools for the DevTools itself.
 
 ---
 

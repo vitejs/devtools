@@ -2,19 +2,19 @@
 
 This example shows how to build an accessibility auditing plugin with `@vitejs/devtools-kit` and [axe-core](https://github.com/dequelabs/axe-core).
 
-It registers an **action dock** that runs an axe-core audit on the current page and reports violations as DevTools logs.
+It registers an **action dock** that runs an axe-core audit on the current page and reports violations as DevTools messages.
 
 ## How It Works
 
 1. Node plugin (`src/node/plugin.ts`)
    - registers an `action` dock entry that points to a client-side script
-   - sends a startup log via `context.logs.add(...)`
+   - sends a startup message via `context.messages.add(...)`
 
 2. Client script (`src/client/run-axe.ts`)
    - runs `axe.run(document)` when the dock action is triggered
-   - maps each violation to a DevTools log with level based on impact (`critical`/`serious` → error, `moderate` → warn, `minor` → info)
-   - attaches WCAG tags and element selectors to each log entry
-   - updates a summary log with the total violation/pass count
+   - maps each violation to a DevTools message with level based on impact (`critical`/`serious` → error, `moderate` → warn, `minor` → info)
+   - attaches WCAG tags and element selectors to each message entry
+   - updates a summary message with the total violation/pass count
 
 ## Run The Example
 

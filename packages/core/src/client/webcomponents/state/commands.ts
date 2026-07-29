@@ -1,11 +1,13 @@
-import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDocksUserSettings, DevToolsServerCommandEntry, WhenContext } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsCommandEntry, DevToolsCommandKeybinding, DevToolsDocksUserSettings, DevToolsServerCommandEntry } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedState } from 'devframe/utils/shared-state'
+import type { WhenContext } from 'devframe/utils/when'
 import type { ShallowRef } from 'vue'
-import { evaluateWhen } from '@vitejs/devtools-kit/utils/when'
-import { computed, markRaw, reactive, ref } from 'vue'
+import { evaluateWhen } from 'devframe/utils/when'
+import { computed, markRaw, reactive, ref, watch } from 'vue'
 import { sharedStateToRef } from './docks'
 import { collectAllKeybindings, normalizeKeyEvent } from './keybindings'
+import { useDockPopupWindow } from './popup'
 
 export { formatKeybinding, isMac, normalizeKeyEvent } from './keybindings'
 
@@ -22,7 +24,7 @@ export async function createCommandsContext(
   }
 
   // Server commands from shared state
-  const serverCommandsState = await rpc.sharedState.get('devtoolskit:internal:commands', { initialValue: [] })
+  const serverCommandsState = await rpc.sharedState.get('devframe:commands', { initialValue: [] })
   const serverCommands: ShallowRef<DevToolsServerCommandEntry[]> = sharedStateToRef(serverCommandsState)
 
   // Client commands (local registry)
@@ -178,6 +180,14 @@ function setupShortcutListener(
     }
   }
 
-  // Attach to window — works for both embedded (shadow DOM) and standalone
+  // Attach to the host window. This covers embedded (shadow DOM) mode and the
+  // host page while a popup is open.
   window.addEventListener('keydown', handler, { capture: true })
+
+  watch(useDockPopupWindow(), (popup, prev) => {
+    if (prev)
+      prev.removeEventListener('keydown', handler, { capture: true })
+    if (popup)
+      popup.addEventListener('keydown', handler, { capture: true })
+  })
 }

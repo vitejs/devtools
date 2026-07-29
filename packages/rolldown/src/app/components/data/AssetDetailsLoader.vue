@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
-import { useRpc } from '#imports'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { useAsyncState } from '@vueuse/core'
+import { useRpc } from '#imports'
 
 const props = defineProps<{
   asset: string
@@ -55,7 +55,7 @@ const { state } = useAsyncState(
 </script>
 
 <template>
-  <div v-if="state?.asset" p4 relative h-full w-full of-auto bg-glass z-panel-content>
+  <div v-if="state?.asset" class="p4 relative h-full w-full of-auto bg-glass z-panel-content">
     <DataAssetDetails :asset="state.asset" :session="session" :chunks="state?.chunks" :importers="state?.importers" :imports="state?.imports">
       <DisplayCloseButton
         @click="emit('close')"

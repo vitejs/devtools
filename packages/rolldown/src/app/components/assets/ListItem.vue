@@ -9,13 +9,13 @@ defineProps<{
 <template>
   <NuxtLink
     :to="{ query: { asset: asset.filename } }"
-    w-full font-mono border="~ rounded base" px2 py1 text-sm hover="bg-active"
+    class="block h-8 w-full min-w-0 overflow-hidden font-mono border rounded border-base px2 py1 text-sm hover:bg-active"
   >
-    <div flex="~ gap-1">
-      <DisplayFileIcon :filename="asset.filename" />
-      <span overflow-hidden text-ellipsis break-all line-clamp-2>
+    <div class="h-full min-w-0 flex gap-1 items-center">
+      <DisplayFileIcon :filename="asset.filename" class="flex-none" />
+      <span class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
         {{ asset.filename }}
-        <span op50>
+        <span class="op50">
           ({{ asset.chunk?.name?.replace(/[\[\]]/g, '') }})
         </span>
       </span>

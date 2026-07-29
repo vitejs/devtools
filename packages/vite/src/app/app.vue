@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { useHead } from '#app/composables/head'
-import PanelSideNav from '@vitejs/devtools-ui/components/PanelSideNav.vue'
+import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
+import { applyDarkClassToHtml } from '@vitejs/devtools-ui/composables/dark'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
+import { useSeoMeta } from '#app/composables/head'
 import { connect, rpcConnectionState } from './composables/rpc'
-import './styles/global.css'
-import '@vitejs/devtools-ui/composables/dark'
 import 'floating-vue/dist/style.css'
+import './styles/cm.css'
+import './styles/splitpanes.css'
+import './styles/global.css'
 
-useHead({
+applyDarkClassToHtml()
+
+useSeoMeta({
   title: 'Vite DevTools',
 })
 
@@ -20,21 +24,31 @@ useSideNav(() => {
       icon: 'i-ph-house-duotone',
       to: '/home',
     },
+    {
+      title: 'Modules Graph',
+      icon: 'i-ph-graph-duotone',
+      to: '/graph',
+    },
+    {
+      title: 'Plugins',
+      icon: 'i-ph-plugs-duotone',
+      to: '/plugins',
+    },
   ]
 })
 </script>
 
 <template>
-  <div v-if="rpcConnectionState.error" text-red>
+  <div v-if="rpcConnectionState.error" class="text-red">
     {{ rpcConnectionState.error }}
   </div>
   <VisualLoading
     v-else-if="!rpcConnectionState.connected"
     text="Connecting..."
   />
-  <div v-else grid="~ cols-[max-content_1fr]" h-screen w-screen max-w-screen max-h-screen of-hidden>
+  <div v-else class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden">
     <PanelSideNav />
-    <div of-auto h-screen max-h-screen relative>
+    <div class="of-auto h-screen max-h-screen relative">
       <NuxtPage />
     </div>
   </div>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { ModuleImport } from '@rolldown/debug'
 import type { SessionContext } from '~~/shared/types'
-import { useRoute } from '#app/composables/router'
-import { NuxtLink } from '#components'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { Tooltip } from 'floating-vue'
 import { relative } from 'pathe'
 import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { NuxtLink } from '#components'
 
 const props = withDefaults(
   defineProps<{
@@ -55,7 +55,7 @@ const containerClass = computed(() => {
     :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: id, chunk: undefined }, hash: location.hash }) : undefined"
   >
     <Tooltip
-      my-auto text-sm font-mono block w-full
+      class="my-auto text-sm font-mono block w-full"
       :triggers="['hover']"
       :delay="1200"
       :disabled="disableTooltip || (props.id?.length || 0) < 30"
@@ -65,8 +65,8 @@ const containerClass = computed(() => {
         v-if="id"
         :class="containerClass"
       >
-        <DisplayFileIcon v-if="icon" :filename="id" mr1.5 />
-        <span overflow-hidden text-ellipsis break-all line-clamp-2>
+        <DisplayFileIcon v-if="icon" :filename="id" class="mr1.5" />
+        <span class="overflow-hidden text-ellipsis break-all line-clamp-2">
           <DisplayHighlightedPath :path="relativePath" :minimal="minimal" />
         </span>
         <slot />
@@ -85,7 +85,7 @@ const containerClass = computed(() => {
         <slot name="detail" />
       </div>
       <template #popper>
-        <span font-mono text-sm>
+        <span class="font-mono text-sm">
           {{ props.id }}
         </span>
       </template>

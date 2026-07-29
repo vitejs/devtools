@@ -19,7 +19,7 @@ export default function App() {
             (wheelchair) to run an accessibility audit on this page.
             The results will appear in the
             {' '}
-            <strong>Logs</strong>
+            <strong>Messages</strong>
             {' '}
             panel.
           </p>

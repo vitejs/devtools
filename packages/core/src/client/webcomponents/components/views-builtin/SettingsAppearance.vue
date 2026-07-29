@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedState } from 'devframe/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { computed } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
@@ -67,7 +67,7 @@ function setDockMode(mode: string) {
     <label class="flex items-center gap-3 cursor-pointer group">
       <button
         class="w-10 h-6 rounded-full transition-colors relative shrink-0"
-        :class="settings.showIframeAddressBar ? 'bg-lime' : 'bg-gray/30'"
+        :class="settings.showIframeAddressBar ? 'bg-primary' : 'bg-gray/30'"
         @click="settingsStore.mutate((s) => { s.showIframeAddressBar = !s.showIframeAddressBar })"
       >
         <div
@@ -85,7 +85,7 @@ function setDockMode(mode: string) {
     <label class="flex items-center gap-3 cursor-pointer group">
       <button
         class="w-10 h-6 rounded-full transition-colors relative shrink-0"
-        :class="settings.closeOnOutsideClick ? 'bg-lime' : 'bg-gray/30'"
+        :class="settings.closeOnOutsideClick ? 'bg-primary' : 'bg-gray/30'"
         @click="settingsStore.mutate((s) => { s.closeOnOutsideClick = !s.closeOnOutsideClick })"
       >
         <div

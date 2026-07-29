@@ -1,6 +1,16 @@
 import type { RegistryComponentProps } from './types'
 import { defineComponent, h, ref } from 'vue'
-import { border, borderSolid } from './tokens'
+import { border, borderSolid, borderStrong, colors, surfaceMuted } from './tokens'
+
+// Mirrors `ContainerCard.vue`'s (packages/ui) opt-in `variant` model: `primary`
+// (default) keeps today's fully transparent look, so existing specs render
+// unchanged; `ghost` is the same no-fill look under a more intentional name.
+const variantBackground: Record<string, string | undefined> = {
+  primary: undefined,
+  secondary: surfaceMuted,
+  ghost: undefined,
+  danger: colors.danger.bg,
+}
 
 export const Card = defineComponent({
   name: 'JrCard',
@@ -8,14 +18,21 @@ export const Card = defineComponent({
   setup(ctx: RegistryComponentProps, { slots }) {
     const collapsed = ref(false)
     return () => {
-      const { title, collapsible } = ctx.element.props
+      const { title, collapsible, variant = 'primary', interactive = false } = ctx.element.props
       return h('div', {
         class: 'jr-card',
         style: {
           border: borderSolid(border),
           borderRadius: '6px',
           overflow: 'hidden',
+          backgroundColor: variantBackground[variant],
+          transition: interactive ? 'border-color 0.15s ease' : undefined,
         },
+        // `interactive` strengthens the border on hover rather than tinting
+        // the background (already set by `variant`) — same transition timing
+        // as Stack's row hover, just on `border-color` instead of `background`.
+        onMouseenter: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = borderStrong } : undefined,
+        onMouseleave: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = border } : undefined,
       }, [
         title && h('div', {
           class: 'jr-card-header',

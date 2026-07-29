@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useRpc } from '#imports'
+import BannerViteDevTools from '@vitejs/devtools-ui/components/Banner/BannerViteDevTools.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
+import { useRpc } from '#imports'
 
 const rpc = useRpc()
 const { state, isLoading } = useAsyncState(
@@ -29,7 +30,7 @@ const environmentMetadata = computed(() => state.value?.envInfo)
 const metadata = computed(() => [
   {
     id: 'project',
-    icon: 'i-material-icon-theme:vite',
+    icon: 'i-ph-briefcase-duotone',
     rows: [
       {
         id: 'root',
@@ -39,7 +40,7 @@ const metadata = computed(() => [
       },
       {
         id: 'base',
-        icon: 'i-ph-folder-duotone',
+        icon: 'i-ph-folder-simple-user-duotone',
         label: 'Base',
         value: projectMetadata.value?.base,
       },
@@ -53,23 +54,23 @@ const metadata = computed(() => [
   },
   {
     id: 'system',
-    icon: 'i-ph:desktop',
+    icon: 'i-ph-desktop-tower-duotone',
     rows: [
       {
         id: 'os',
-        icon: 'i-ph-folder-duotone',
+        icon: 'i-ph-app-window-duotone',
         label: 'OS',
         value: environmentMetadata.value?.os,
       },
       {
         id: 'cpu',
-        icon: 'i-ph:cpu',
+        icon: 'i-ph:cpu-duotone',
         label: 'CPU',
         value: environmentMetadata.value?.cpu,
       },
       {
         id: 'memory',
-        icon: 'i-ph:memory',
+        icon: 'i-ph:memory-duotone',
         label: 'Memory',
         value: environmentMetadata.value?.memory,
       },
@@ -77,35 +78,35 @@ const metadata = computed(() => [
   },
   {
     id: 'runtime',
-    icon: 'i-system-uicons:version',
+    icon: 'i-ph-stack-duotone',
     rows: [
       {
         id: 'node',
-        icon: 'i-ri:nodejs-fill',
+        icon: 'i-catppuccin-package-json icon-catppuccin',
         label: 'Node',
         value: environmentMetadata.value?.node,
       },
       {
         id: 'bun',
-        icon: 'i-catppuccin:bun',
+        icon: 'i-catppuccin:bun icon-catppuccin',
         label: 'Bun',
         value: environmentMetadata.value?.bun,
       },
       {
         id: 'npm',
-        icon: 'i-ri:npmjs-fill',
+        icon: 'i-catppuccin:npm icon-catppuccin',
         label: 'NPM',
         value: environmentMetadata.value?.npm,
       },
       {
         id: 'pnpm',
-        icon: 'i-catppuccin:pnpm',
+        icon: 'i-catppuccin:pnpm icon-catppuccin',
         label: 'PNPM',
         value: environmentMetadata.value?.pnpm,
       },
       {
         id: 'yarn',
-        icon: 'i-catppuccin:yarn',
+        icon: 'i-catppuccin:yarn icon-catppuccin',
         label: 'Yarn',
         value: environmentMetadata.value?.yarn,
       },
@@ -119,28 +120,27 @@ const metadata = computed(() => [
     v-if="isLoading"
     text="Connecting..."
   />
-  <div v-else p4 flex="~ col gap-4" items-center justify-center relative>
-    <VisualLogoBanner />
+  <div v-else class="p4 flex flex-col gap-4 items-center justify-center relative">
+    <BannerViteDevTools />
 
-    <div border="~ base rounded" p2 flex="~ col gap-4 justify-center">
+    <div class="border border-base rounded p2 flex flex-col gap-4 justify-center">
       <div
         v-for="section in metadata"
         :key="section.id"
-        p4
-        flex="~ gap-14 items-center"
+        class="p4 flex gap-14 items-center"
       >
         <div class="text-3xl flex ml3" :class="section.icon" />
         <div>
           <div
             v-for="row in section.rows"
             :key="row.id"
-            grid="~ cols-[max-content_80px_2fr] gap-2 items-center"
+            class="grid grid-cols-[max-content_80px_2fr] gap-2 items-center"
           >
             <div :class="row.icon" />
             <div>
               {{ row.label }}
             </div>
-            <div font-mono truncate>
+            <div class="font-mono truncate">
               {{ row.value }}
             </div>
           </div>

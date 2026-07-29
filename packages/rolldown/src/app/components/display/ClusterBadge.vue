@@ -32,11 +32,11 @@ const style = computed(() => ({
 
 <template>
   <Tooltip>
-    <div flex="~ gap-1 items-center" text-sm pl1 pr2 rounded border-l-3 border :style>
-      <div v-if="parsed.namespace" text-xs op-fade>
+    <div class="flex gap-1 items-center text-sm pl1 pr2 rounded border-l-3 border" :style>
+      <div v-if="parsed.namespace" class="text-xs op-fade">
         {{ parsed.namespace }}:
       </div>
-      <div rounded-full font-mono>
+      <div class="rounded-full font-mono">
         {{ parsed.value }}
       </div>
     </div>

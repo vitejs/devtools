@@ -1,0 +1,135 @@
+import type { Spec } from '@json-render/core'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { JSONUIProvider, Renderer } from '@json-render/vue'
+import { defineComponent, h } from 'vue'
+import { devtoolsRegistry, UnsupportedComponent } from './registry'
+
+/**
+ * Render a json-render `Spec` with the DevTools registry, the same way
+ * `ViewJsonRender` does at runtime — including the `UnsupportedComponent`
+ * fallback for any element `type` absent from the registry. Accepts a getter
+ * instead of a plain `Spec` so stories can rebuild the spec from reactive
+ * Storybook `args` (e.g. toggling `variant`/`interactive` live via Controls).
+ */
+function renderSpec(specOrGetter: Spec | (() => Spec)) {
+  return defineComponent({
+    setup() {
+      const getSpec = typeof specOrGetter === 'function' ? specOrGetter : () => specOrGetter
+      const initialState = (getSpec() as any).state ?? {}
+      return () => h(
+        'div',
+        { class: 'max-w-160 p6 bg-base color-base font-sans' },
+        h(JSONUIProvider, { registry: devtoolsRegistry, handlers: {}, initialState }, {
+          default: () => h(Renderer, { spec: getSpec(), registry: devtoolsRegistry, fallback: UnsupportedComponent }),
+        }),
+      )
+    },
+  })
+}
+
+const meta = {
+  title: 'JsonRender/Gallery',
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: 'The json-render primitive registry (`Stack`, `Card`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
+      },
+    },
+  },
+} satisfies Meta
+
+export default meta
+type Story = StoryObj
+
+/** Every common primitive laid out in one spec. */
+export const Gallery: Story = {
+  render: () => renderSpec({
+    root: 'root',
+    state: { notifications: true },
+    elements: {
+      root: { type: 'Stack', props: { direction: 'column', gap: 16, padding: 4 }, children: ['heading', 'badges', 'buttons', 'progress', 'toggle', 'divider', 'kv', 'table', 'code'] },
+      heading: { type: 'Text', props: { text: 'Build summary', variant: 'heading' } },
+      badges: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['b1', 'b2', 'b3', 'b4'] },
+      b1: { type: 'Badge', props: { text: 'passing', variant: 'success' } },
+      b2: { type: 'Badge', props: { text: '3 warnings', variant: 'warning' } },
+      b3: { type: 'Badge', props: { text: '1 error', variant: 'danger' } },
+      b4: { type: 'Badge', props: { text: 'v0.3.4', variant: 'default' } },
+      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3'] },
+      btn1: { type: 'Button', props: { label: 'Rebuild', variant: 'primary', icon: 'ph:arrows-clockwise' } },
+      btn2: { type: 'Button', props: { label: 'Open', variant: 'secondary', icon: 'ph:arrow-square-out' } },
+      btn3: { type: 'Button', props: { label: 'Delete', variant: 'danger', icon: 'ph:trash' } },
+      progress: { type: 'Progress', props: { value: 68, max: 100, label: 'Bundling' } },
+      toggle: { type: 'Switch', props: { label: 'Notifications', value: '{{notifications}}' } },
+      divider: { type: 'Divider', props: { label: 'Details' } },
+      kv: { type: 'KeyValueTable', props: { data: {
+        Vite: '8.1.2',
+        Node: '24.17.0',
+        Mode: 'production',
+      } } },
+      table: { type: 'DataTable', props: {
+        columns: [{ key: 'file', label: 'File' }, { key: 'size', label: 'Size' }],
+        rows: [
+          { file: 'index.js', size: '124 kB' },
+          { file: 'vendor.js', size: '612 kB' },
+          { file: 'style.css', size: '18 kB' },
+        ],
+        height: 160,
+      } },
+      code: { type: 'CodeBlock', props: { filename: 'vite.config.ts', code: 'export default defineConfig({\n  plugins: [DevTools()],\n})' } },
+    },
+  } as unknown as Spec),
+}
+
+/**
+ * A `Card` grouping content under a titled, bordered surface. Toggle the
+ * Controls below to compare today's default (`primary`, non-`interactive` —
+ * unchanged from before this fix) against the new opt-in look: `variant`
+ * tints the background (`secondary`/`danger`) or leaves it untouched
+ * (`primary`/`ghost`); `interactive` strengthens the Card's border on hover
+ * and tints each row's (`Stack`) background on hover.
+ */
+interface CardArgs {
+  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
+  interactive: boolean
+}
+
+export const Card: StoryObj<Meta<CardArgs>> = {
+  argTypes: {
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
+    interactive: { control: 'boolean' },
+  },
+  args: { variant: 'primary', interactive: false },
+  render: args => renderSpec(() => ({
+    root: 'root',
+    state: {},
+    elements: {
+      root: { type: 'Card', props: { title: 'Plugin', collapsible: false, variant: args.variant, interactive: args.interactive }, children: ['body'] },
+      body: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['row1', 'row2'] },
+      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t', 'badge'] },
+      t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
+      badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t2', 'badge2'] },
+      t2: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
+      badge2: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+    },
+  } as unknown as Spec)),
+}
+
+/**
+ * An element whose `type` has no entry in the registry — e.g. authored
+ * against a newer base-catalog version than this client implements, or a
+ * plain typo — falls back to a visible, inspectable placeholder instead of
+ * silently rendering nothing.
+ */
+export const UnsupportedComponentFallback: Story = {
+  render: () => renderSpec({
+    root: 'root',
+    state: {},
+    elements: {
+      root: { type: 'Stack', props: { direction: 'column', gap: 8, padding: 4 }, children: ['label', 'unknown'] },
+      label: { type: 'Text', props: { text: 'The next element uses an unrecognized component type:', variant: 'caption' } },
+      unknown: { type: 'FutureChart', props: { series: [1, 2, 3] } },
+    },
+  } as unknown as Spec),
+}

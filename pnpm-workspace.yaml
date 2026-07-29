@@ -1,27 +1,36 @@
 allowBuilds:
   '@parcel/watcher': true
   esbuild: true
+  rolldown: true
   simple-git-hooks: true
   unrs-resolver: true
   vue-demi: true
-
 ignoreWorkspaceRootCheck: true
+minimumReleaseAge: 0
+verifyDepsBeforeRun: true
 shamefullyHoist: true
 shellEmulator: true
 strictPeerDependencies: false
 trustPolicy: no-downgrade
 trustPolicyExclude:
   - langium
+  - tinyexec
 packages:
   - packages/*
   - examples/*
+  - playgrounds/*
+  - '!playgrounds/production'
   - docs
+  - e2e
+  - storybook
+
 overrides:
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
   '@nuxt/kit': 'catalog:build'
   '@nuxt/vite-builder': 'catalog:build'
   '@rolldown/debug': 'catalog:deps'
+  cac: 'catalog:deps'
   chokidar: 'catalog:devtools'
   esbuild: 'catalog:build'
   langium: 'catalog:resolutions'
@@ -29,161 +38,180 @@ overrides:
   nuxt: 'catalog:build'
   rolldown: 'catalog:build'
   semver: 'catalog:resolutions'
+  twoslash: 'catalog:docs'
   vite: 'catalog:build'
+
+refs:
+  devframe: &devframe ^0.7.15
+  nuxt: &nuxt ^4.5.1
+  shiki: &shiki ^4.3.1
+  storybook: &storybook ^10.5.5
+  unocss: &unocss ^66.7.5
+  vueuse: &vueuse ^14.4.0
+
 catalogs:
   build:
-    '@antfu/ni': ^30.0.0
-    '@nuxt/kit': ^4.4.2
-    '@nuxt/vite-builder': ^4.4.2
-    '@unocss/nuxt': ^66.6.8
-    '@vitejs/plugin-vue': ^6.0.6
-    '@vueuse/nuxt': ^14.2.1
-    esbuild: ^0.28.0
-    magic-string: ^0.30.21
-    nitropack: ^2.13.3
-    nuxt: ^4.4.2
-    rolldown: ^1.0.0-rc.15
-    tsdown: ^0.21.8
-    tsx: ^4.21.0
-    turbo: ^2.9.6
-    unocss: ^66.6.8
-    unplugin-vue: ^7.1.1
-    vite: ^8.0.8
+    '@antfu/ni': ^30.3.0
+    '@nuxt/icon': ^2.4.1
+    '@nuxt/kit': *nuxt
+    '@nuxt/vite-builder': *nuxt
+    '@unocss/nuxt': *unocss
+    '@vitejs/plugin-vue': ^6.0.8
+    '@vueuse/nuxt': ^14.4.0
+    esbuild: ^0.28.1
+    magic-string: ^1.1.0
+    nitropack: ^2.13.4
+    nuxt: *nuxt
+    rolldown: ^1.2.0
+    tsdown: ^0.22.14
+    tsx: ^4.23.1
+    turbo: ^2.10.7
+    unocss: *unocss
+    unplugin-vue: ^7.2.0
+    unrun: ^0.3.1
+    vite: ^8.1.5
   deps:
-    '@pnpm/read-project-manifest': ^1001.2.6
-    '@rolldown/debug': ^1.0.0-rc.15
-    ansis: ^4.2.0
+    '@devframes/hub': *devframe
+    '@devframes/json-render': *devframe
+    '@devframes/plugin-a11y': *devframe
+    '@devframes/plugin-code-server': *devframe
+    '@devframes/plugin-data-inspector': *devframe
+    '@devframes/plugin-git': *devframe
+    '@devframes/plugin-inspect': *devframe
+    '@devframes/plugin-messages': *devframe
+    '@devframes/plugin-og': *devframe
+    '@devframes/plugin-terminals': *devframe
+    '@oxlint-config-inspector/core': ^1.1.1
+    '@rolldown/debug': ^1.2.0
+    actionspack: ^0.1.5
     birpc: ^4.0.0
     cac: ^7.0.0
+    devframe: *devframe
     diff: ^9.0.0
     envinfo: ^7.21.0
     get-port-please: ^3.2.0
-    h3: ^1.15.11
-    launch-editor: ^2.13.2
-    logs-sdk: ^0.0.6
+    h3: 2.0.1-rc.22
+    local-pkg: ^1.2.1
     mlly: ^1.8.2
     mrmime: ^2.0.1
-    obug: ^2.1.1
-    ohash: ^2.0.11
-    open: ^11.0.0
-    p-limit: ^7.3.0
+    nostics: ^1.2.0
+    nypm: ^0.6.9
+    obug: ^2.1.4
+    p-limit: ^7.3.1
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
-    publint: ^0.3.18
-    sirv: ^3.0.2
-    split2: ^4.2.0
-    structured-clone-es: ^2.0.0
-    tinyexec: ^1.1.1
-    tinyglobby: ^0.2.16
-    unconfig: ^7.5.0
+    tinyexec: ^1.2.4
+    tinyglobby: ^0.2.17
     unstorage: ^1.17.5
-    valibot: ^1.3.1
-    vue: ^3.5.32
+    vue: ^3.5.40
     webext-bridge: ^6.0.1
-    ws: ^8.20.0
   devtools:
-    '@antfu/eslint-config': ^8.2.0
-    '@nuxt/devtools': ^3.2.4
-    '@nuxt/eslint': ^1.15.2
-    '@typescript-eslint/utils': ^8.58.2
-    '@unocss/eslint-config': ^66.6.8
-    '@unocss/preset-web-fonts': ^66.6.8
-    axe-core: ^4.11.3
-    bumpp: ^11.0.1
+    '@antfu/eslint-config': ^9.2.0
+    '@nuxt/devtools': ^4.0.0-alpha.9
+    '@nuxt/eslint': ^1.16.0
+    '@typescript-eslint/utils': ^8.65.0
+    '@unocss/eslint-config': *unocss
+    '@unocss/preset-web-fonts': *unocss
+    axe-core: ^4.12.1
+    bumpp: ^12.1.1
     chokidar: ^5.0.0
-    eslint: ^10.2.0
+    eslint: ^10.8.0
     nano-staged: ^1.0.2
+    oxfmt: ^0.60.0
+    oxlint: ^1.76.0
+    prompts: ^2.4.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
-    skills-npm: ^1.1.1
-    solid-js: ^1.9.12
-    typescript: ^6.0.2
-    vite-plugin-inspect: ^12.0.0-beta.1
-    vite-plugin-solid: ^2.11.12
-    vue-tsc: ^3.2.6
+    skills-npm: ^1.2.0
+    solid-js: ^1.9.14
+    typescript: ^6.0.3
+    vite-plugin-inspect: ^12.0.2
+    vite-plugin-solid: ^2.11.14
+    vue-tsc: ^3.3.8
   docs:
-    '@shikijs/vitepress-twoslash': ^4.0.2
-    '@voidzero-dev/vitepress-theme': ^4.8.4
-    mermaid: ^11.14.0
-    vitepress: ^2.0.0-alpha.17
-    vitepress-plugin-group-icons: ^1.7.3
+    '@shikijs/vitepress-twoslash': *shiki
+    '@voidzero-dev/vitepress-theme': ^5.0.4
+    mermaid: ^11.16.0
+    twoslash: ^0.3.9
+    vitepress: ^2.0.0-alpha.18
+    vitepress-plugin-group-icons: ^1.7.6
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
-    '@floating-ui/dom': ^1.7.6
-    '@json-render/core': 0.13.0
-    '@json-render/vue': 0.13.0
-    '@visual-json/vue': ^0.4.0
-    '@vueuse/components': ^14.2.1
-    '@vueuse/core': ^14.2.1
-    '@vueuse/router': ^14.2.1
-    '@xterm/addon-fit': ^0.11.0
-    '@xterm/xterm': ^6.0.0
+    '@floating-ui/dom': ^1.8.0
+    '@humanwhocodes/momoa': ^3.3.10
+    '@json-render/core': ^0.19.0
+    '@json-render/vue': ^0.19.0
+    '@vueuse/components': *vueuse
+    '@vueuse/core': *vueuse
+    '@vueuse/router': *vueuse
     comlink: ^4.4.2
     d3: ^7.9.0
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
-    diff-match-patch-es: ^1.0.1
-    dompurify: ^3.3.3
+    diff-match-patch-es: ^2.0.0
+    dompurify: ^3.4.12
     floating-vue: ^5.2.2
-    fuse.js: ^7.3.0
-    idb-keyval: ^6.2.2
-    modern-monaco: ^0.4.0
+    fuse.js: ^7.5.0
+    idb-keyval: ^6.3.0
+    iframe-pane: ^1.1.0
+    modern-monaco: ^0.4.2
     nanovis: ^1.0.0
-    react: ^19.2.5
-    react-dom: ^19.2.5
-    splitpanes: ^4.0.4
+    picomatch: ^4.0.5
+    react: ^19.2.8
+    react-dom: ^19.2.8
+    shiki: *shiki
+    splitpanes: ^4.1.2
     theme-vitesse: ^1.0.0
     ua-parser-modern: ^0.1.1
-    vite-hot-client: ^2.1.0
-    vue-virtual-scroller: ^2.0.1
+    vite-hot-client: ^2.2.0
+    vue-router: ^5.2.0
+    vue-virtual-scroller: ^3.0.4
   icons:
-    '@iconify-json/carbon': ^1.2.20
+    '@iconify-json/carbon': ^1.2.24
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.51
-    '@iconify-json/fluent': ^1.2.45
+    '@iconify-json/codicon': ^1.2.65
+    '@iconify-json/fluent': ^1.2.54
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.11
-    '@iconify-json/material-icon-theme': ^1.2.58
-    '@iconify-json/octicon': ^1.2.22
+    '@iconify-json/lucide': ^1.2.120
+    '@iconify-json/material-icon-theme': ^1.2.69
+    '@iconify-json/octicon': ^1.2.30
     '@iconify-json/ph': ^1.2.2
+    '@iconify-json/radix-icons': ^1.2.6
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.78
+    '@iconify-json/simple-icons': ^1.2.92
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
-    '@iconify-json/tabler': ^1.2.33
+    '@iconify-json/tabler': ^1.2.38
+    '@iconify-json/twemoji': ^1.2.5
+    '@iconify-json/vscode-icons': ^1.2.67
   inlined:
     '@antfu/utils': ^9.3.0
-    '@clack/prompts': ^1.2.0
-    human-id: ^4.1.3
-    immer: ^11.1.4
-    stream-json: ^1.9.1
+    '@clack/prompts': ^1.7.0
+    human-id: ^4.2.0
   playground:
-    vite-plugin-vue-tracer: ^1.3.0
-    vue-router: ^5.0.4
+    vite-plugin-vue-tracer: ^1.4.0
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
-    langium: ^4.2.2
-    semver: ^7.7.4
+    langium: ^4.3.1
+    semver: ^7.8.5
+  storybook:
+    '@storybook/addon-docs': *storybook
+    '@storybook/vue3-vite': *storybook
+    storybook: *storybook
   testing:
-    vitest: ^4.1.4
-    vitest-package-exports: ^1.2.0
-    yaml: ^2.8.3
+    playwright-core: ^1.62.0
+    tsnapi: ^1.2.0
+    vitest: ^4.1.10
   types:
-    '@types/chrome': ^0.1.40
+    '@types/chrome': ^0.2.2
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
     '@types/envinfo': ^7.8.4
-    '@types/react': ^19.2.14
+    '@types/picomatch': ^4.0.3
+    '@types/prompts': ^2.4.9
+    '@types/react': ^19.2.17
     '@types/react-dom': ^19.2.3
-    '@types/split2': ^4.2.3
     '@types/splitpanes': ^2.2.6
-    '@types/stream-json': ^1.7.8
     '@types/ws': ^8.18.1
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
-  - rolldown
-  - simple-git-hooks
-  - unrs-resolver
-  - vue-demi

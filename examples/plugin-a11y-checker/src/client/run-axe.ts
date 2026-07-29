@@ -1,10 +1,10 @@
-import type { DevToolsLogLevel } from '@vitejs/devtools-kit'
+import type { DevToolsMessageLevel } from '@vitejs/devtools-kit'
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client'
 import axe from 'axe-core'
 
-const SUMMARY_LOG_ID = 'a11y-checker-summary'
+const SUMMARY_MESSAGE_ID = 'a11y-checker-summary'
 
-function impactToLevel(impact: string | undefined | null): DevToolsLogLevel {
+function impactToLevel(impact: string | undefined | null): DevToolsMessageLevel {
   switch (impact) {
     case 'critical':
     case 'serious':
@@ -18,11 +18,11 @@ function impactToLevel(impact: string | undefined | null): DevToolsLogLevel {
 }
 
 export default async function runA11yCheck(context: DockClientScriptContext): Promise<void> {
-  const { logs } = context
+  const { messages } = context
 
   // Show loading state
-  const summary = await logs.add({
-    id: SUMMARY_LOG_ID,
+  const summary = await messages.add({
+    id: SUMMARY_MESSAGE_ID,
     message: 'Running accessibility audit...',
     level: 'info',
     category: 'a11y',
@@ -38,7 +38,7 @@ export default async function runA11yCheck(context: DockClientScriptContext): Pr
       const firstNode = violation.nodes[0]
 
       // Fire-and-forget — no need to await when handle isn't needed
-      logs.add({
+      messages.add({
         id: `a11y-violation-${violation.id}`,
         message: violation.description,
         level,

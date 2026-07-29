@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-ui",
   "type": "module",
-  "version": "0.1.14",
+  "version": "0.4.10",
   "private": true,
   "description": "DevTools UI for Vite",
   "author": "VoidZero Inc.",
@@ -36,6 +36,10 @@
       "types": "./src/unocss/shared-shortcuts.ts",
       "import": "./src/unocss/shared-shortcuts.ts"
     },
+    "./unocss/shortcuts": {
+      "types": "./src/unocss/shortcuts.ts",
+      "import": "./src/unocss/shortcuts.ts"
+    },
     "./styles/global.css": "./src/styles/global.css",
     "./components/*": {
       "types": "./src/components/*.vue",
@@ -44,6 +48,18 @@
     "./composables/*": {
       "types": "./src/composables/*.ts",
       "import": "./src/composables/*.ts"
+    },
+    "./state/*": {
+      "types": "./src/state/*.ts",
+      "import": "./src/state/*.ts"
+    },
+    "./worker/*": {
+      "types": "./src/worker/*.ts",
+      "import": "./src/worker/*.ts"
+    },
+    "./plugins/*": {
+      "types": "./src/plugins/*.ts",
+      "import": "./src/plugins/*.ts"
     },
     "./utils/*": {
       "types": "./src/utils/*.ts",
@@ -54,9 +70,17 @@
   "module": "./src/index.ts",
   "peerDependencies": {
     "@vueuse/core": "*",
+    "d3-hierarchy": "*",
+    "d3-shape": "*",
+    "floating-vue": "*",
+    "fuse.js": "*",
+    "nanovis": "*",
     "nuxt": "*",
     "unocss": "*",
     "vue": "*",
-    "vue-virtual-scroller": ">=2.0.0-beta.0"
+    "vue-virtual-scroller": "^3.0.0"
+  },
+  "dependencies": {
+    "pathe": "catalog:deps"
   }
 }

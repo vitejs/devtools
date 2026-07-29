@@ -1,0 +1,80 @@
+{
+  "type": "module",
+  "name": "@vitejs/devtools-oxc",
+  "version": "0.4.10",
+  "description": "DevTools for the Oxc toolchain",
+  "author": "Leo (https://github.com/yuyinws)",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools/tree/main/packages/oxc#readme",
+  "repository": {
+    "directory": "packages/oxc",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "oxc",
+    "oxlint",
+    "oxfmt",
+    "devtools"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./vite": "./dist/vite.mjs"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "oxc-devtools": "./bin/oxc-devtools.mjs"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm dev:prepare && nuxi build src && tsdown",
+    "dev": "nuxi dev src",
+    "dev:prepare": "nuxi prepare src",
+    "lint": "oxlint --ignore-pattern 'src/app/fixtures/**' && oxfmt --check . '!src/app/fixtures/**'",
+    "lint:fix": "oxlint --fix --ignore-pattern 'src/app/fixtures/**' && oxfmt . '!src/app/fixtures/**'",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@oxlint-config-inspector/core": "catalog:deps",
+    "@vitejs/devtools-kit": "workspace:*",
+    "cac": "catalog:deps",
+    "devframe": "catalog:deps",
+    "local-pkg": "catalog:deps",
+    "nostics": "catalog:deps",
+    "pathe": "catalog:deps",
+    "tinyexec": "catalog:deps"
+  },
+  "devDependencies": {
+    "@humanwhocodes/momoa": "catalog:frontend",
+    "@nuxt/kit": "catalog:build",
+    "@types/picomatch": "catalog:types",
+    "@unocss/nuxt": "catalog:build",
+    "@vitejs/devtools-kit": "workspace:*",
+    "@vitejs/devtools-ui": "workspace:*",
+    "@vueuse/core": "catalog:frontend",
+    "@vueuse/nuxt": "catalog:build",
+    "devframe": "catalog:deps",
+    "floating-vue": "catalog:frontend",
+    "modern-monaco": "catalog:frontend",
+    "nuxt": "catalog:build",
+    "oxfmt": "catalog:devtools",
+    "oxlint": "catalog:devtools",
+    "pathe": "catalog:deps",
+    "picomatch": "catalog:frontend",
+    "shiki": "catalog:frontend",
+    "theme-vitesse": "catalog:frontend",
+    "tsdown": "catalog:build",
+    "tsx": "catalog:build",
+    "typescript": "catalog:devtools",
+    "unocss": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:deps",
+    "vue-router": "catalog:frontend"
+  }
+}

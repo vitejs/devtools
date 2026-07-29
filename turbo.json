@@ -4,6 +4,7 @@
   "tasks": {
     "@vitejs/devtools#build": {
       "outputLogs": "new-only",
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**"
       ]
@@ -20,20 +21,16 @@
         "dist/**"
       ]
     },
+    "@vitejs/devtools-oxc#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@vitejs/devtools-rolldown#build": {
       "outputLogs": "new-only",
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "@vitejs/devtools-self-inspect#build": {
-      "outputLogs": "new-only",
-      "outputs": [
-        "dist/**"
-      ]
-    },
-    "@vitejs/devtools-rpc#build": {
-      "outputLogs": "new-only",
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**"
       ]
@@ -45,6 +42,13 @@
       ]
     },
     "@vitejs/devtools-vite#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-vitest#build": {
       "outputLogs": "new-only",
       "outputs": [
         "dist/**"

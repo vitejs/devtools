@@ -1,8 +1,12 @@
 import type { StartOptions } from './cli-commands'
-import { isObject } from './utils'
+import { isObject } from 'devframe/node'
 
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean
+  /**
+   * Vite environments to enable DevTools for. Defaults to all environments.
+   */
+  environments?: string[]
   /**
    * Disable client authentication.
    *
@@ -20,6 +24,16 @@ export interface DevToolsConfig extends Partial<StartOptions> {
    * will be auto-approved without a terminal prompt.
    */
   clientAuthTokens?: string[]
+  /**
+   * Origins allowed to open the DevTools WebSocket connection, in addition to the built-in
+   * loopback allowlist (`localhost`, `127.0.0.1`, etc).
+   *
+   * The loopback check is a plain string match against the `Origin` header, not a DNS/hosts-file
+   * resolution — a custom dev hostname that resolves to loopback via `/etc/hosts` or a local DNS
+   * override (e.g. `dev-my-app.example.com`) is invisible to it and gets rejected. List such
+   * hostnames here explicitly.
+   */
+  allowedOrigins?: string[]
 }
 
 export interface ResolvedDevToolsConfig {

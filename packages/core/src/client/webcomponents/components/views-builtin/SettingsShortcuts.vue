@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
-import { formatKeybinding, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
+import { formatKeybinding, isKeybindingOverrideDifferentFromDefault, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
 import KeybindingBadge from '../command-palette/KeybindingBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
@@ -54,25 +54,33 @@ function getEffectiveKeybindings(id: string): DevToolsCommandKeybinding[] {
   return commandsCtx.getKeybindings(id)
 }
 
-function isOverridden(id: string): boolean {
-  return shortcutOverrides.value[id] !== undefined
+function isExecutable(command: DevToolsCommandEntry): boolean {
+  return command.source === 'server' || !!command.action
 }
 
-function getDefaultKey(id: string): string | undefined {
+function isOverridden(id: string): boolean {
+  return isKeybindingOverrideDifferentFromDefault(shortcutOverrides.value[id], getDefaultKeybindings(id))
+}
+
+function getDefaultKeybindings(id: string): DevToolsCommandKeybinding[] {
   for (const cmd of commandsCtx.commands) {
     if (cmd.id === id)
-      return cmd.keybindings?.[0]?.key
+      return cmd.keybindings ?? []
     if (cmd.children) {
       const child = cmd.children.find(c => c.id === id)
       if (child)
-        return child.keybindings?.[0]?.key
+        return child.keybindings ?? []
     }
   }
+  return []
 }
 
 function clearShortcut(commandId: string) {
   commandsCtx.settings.mutate((state) => {
-    state.commandShortcuts[commandId] = []
+    if (getDefaultKeybindings(commandId).length > 0)
+      state.commandShortcuts[commandId] = []
+    else
+      delete state.commandShortcuts[commandId]
   })
 }
 
@@ -199,37 +207,39 @@ function onEditorKeyDown(e: KeyboardEvent) {
 function saveEditor() {
   if (!editorCommandId.value || !editorCanSave.value)
     return
-  const defaultKey = getDefaultKey(editorCommandId.value)
-  if (editorComposedKey.value === defaultKey) {
-    if (isOverridden(editorCommandId.value)) {
-      commandsCtx.settings.mutate((state) => {
-        delete state.commandShortcuts[editorCommandId.value!]
-      })
-    }
+  const override = [{ key: editorComposedKey.value }]
+  if (isKeybindingOverrideDifferentFromDefault(override, getDefaultKeybindings(editorCommandId.value))) {
+    commandsCtx.settings.mutate((state) => {
+      state.commandShortcuts[editorCommandId.value!] = override
+    })
   }
   else {
     commandsCtx.settings.mutate((state) => {
-      state.commandShortcuts[editorCommandId.value!] = [{ key: editorComposedKey.value }]
+      delete state.commandShortcuts[editorCommandId.value!]
     })
   }
   closeEditor()
 }
 
 // Close editor on Escape
-watch(editorOpen, (v) => {
+const editorModal = ref<HTMLElement | null>(null)
+watch(editorOpen, async (v) => {
   if (!v)
     return
+  await nextTick()
+  const doc = editorModal.value?.ownerDocument ?? document
+  const win = doc.defaultView ?? window
   const handler = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       // Only close if not captured by the key input
-      const active = document.activeElement
+      const active = doc.activeElement
       if (!active || !active.classList.contains('shortcut-key-input')) {
         closeEditor()
-        window.removeEventListener('keydown', handler)
+        win.removeEventListener('keydown', handler)
       }
     }
   }
-  window.addEventListener('keydown', handler)
+  win.addEventListener('keydown', handler)
 })
 </script>
 
@@ -276,7 +286,7 @@ watch(editorOpen, (v) => {
       </div>
 
       <!-- Keybinding display -->
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div v-if="isExecutable(row.command)" class="flex items-center gap-1.5 shrink-0">
         <template v-if="getEffectiveKeybindings(row.command.id).length > 0">
           <button
             v-for="(kb, ki) of getEffectiveKeybindings(row.command.id)"
@@ -329,6 +339,7 @@ watch(editorOpen, (v) => {
   <!-- Shortcut Editor Popup -->
   <div
     v-if="editorOpen"
+    ref="editorModal"
     class="fixed inset-0 z-command-palette flex items-center justify-center"
   >
     <div class="absolute inset-0 bg-black/30" @click="closeEditor" />

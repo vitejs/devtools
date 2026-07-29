@@ -1,0 +1,53 @@
+@import 'splitpanes/dist/splitpanes.css';
+
+
+/* Splitpanes */
+.splitpanes__pane {
+  transition: none !important;
+}
+
+.splitpanes__splitter {
+  position: relative;
+}
+
+.splitpanes__splitter:before {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: .2s ease;
+  content: '';
+  transition: opacity 0.4s;
+  z-index: 1;
+}
+
+.splitpanes__splitter:hover:before {
+  background: #8881;
+  opacity: 1;
+}
+
+.splitpanes--vertical>.splitpanes__splitter {
+  width: 0 !important;
+  min-width: 0 !important;
+}
+
+.splitpanes--horizontal>.splitpanes__splitter {
+  height: 0 !important;
+  min-height: 0 !important;
+}
+
+.splitpanes--vertical>.splitpanes__splitter:before {
+  left: -5px;
+  right: -5px;
+  height: 100%;
+}
+
+.splitpanes--horizontal>.splitpanes__splitter:before {
+  top: -5px;
+  bottom: -5px;
+  width: 100%;
+}
+
+.splitpanes__pane[style*="display: none"]+.splitpanes__splitter,
+.splitpanes__pane[hidden]+.splitpanes__splitter {
+  display: none;
+}

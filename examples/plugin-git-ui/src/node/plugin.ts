@@ -39,10 +39,10 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interact
             return
           const result = await git(['add', '--', params.file], gitRoot)
           if (result.ok) {
-            ctx.logs.add({ message: `Staged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Staged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
           }
           else {
-            ctx.logs.add({ message: `Stage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Stage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
           await refreshUi(ctx, getUi(), interactive)
         },
@@ -58,10 +58,10 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interact
             return
           const result = await git(['restore', '--staged', '--', params.file], gitRoot)
           if (result.ok) {
-            ctx.logs.add({ message: `Unstaged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Unstaged: ${params.file}`, level: 'info', category: 'git-ui', notify: true })
           }
           else {
-            ctx.logs.add({ message: `Unstage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Unstage failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
           await refreshUi(ctx, getUi(), interactive)
         },
@@ -75,10 +75,10 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interact
         handler: async () => {
           const result = await git(['add', '-A'], gitRoot)
           if (result.ok) {
-            ctx.logs.add({ message: 'Staged all files', level: 'info', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: 'Staged all files', level: 'info', category: 'git-ui', notify: true })
           }
           else {
-            ctx.logs.add({ message: `Stage all failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Stage all failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
           await refreshUi(ctx, getUi(), interactive)
         },
@@ -89,19 +89,22 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interact
       name: 'git-ui:commit',
       type: 'action',
       setup: ctx => ({
-        handler: async (params: { message?: string }) => {
+        handler: async (params: { message?: string, amend?: boolean }) => {
           const message = params?.message
           if (!message) {
-            ctx.logs.add({ message: 'Commit message is empty', level: 'warn', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: 'Commit message is empty', level: 'warn', category: 'git-ui', notify: true })
             return
           }
 
-          const result = await git(['commit', '-m', message], gitRoot)
+          const args = ['commit', '-m', message]
+          if (params?.amend)
+            args.push('--amend')
+          const result = await git(args, gitRoot)
           if (result.ok) {
-            ctx.logs.add({ message: `Committed: ${message}`, level: 'info', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Committed: ${message}`, level: 'info', category: 'git-ui', notify: true })
           }
           else {
-            ctx.logs.add({ message: `Commit failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
+            ctx.messages.add({ message: `Commit failed: ${result.stderr}`, level: 'error', category: 'git-ui', notify: true })
           }
 
           await refreshUi(ctx, getUi(), interactive)
@@ -135,7 +138,7 @@ export function GitUIPlugin(): PluginWithDevTools {
         if (interactive) {
           const rpcFunctions = createRpcFunctions(gitRoot, () => ui, interactive)
           for (const fn of rpcFunctions) {
-            ctx.rpc.register(fn)
+            ctx.rpc.register(fn as any)
           }
         }
       },

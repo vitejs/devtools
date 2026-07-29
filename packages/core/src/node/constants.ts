@@ -1,4 +1,4 @@
-import c from 'ansis'
+import { colors as c } from 'devframe/utils/colors'
 
 export const MARK_CHECK: string = c.green('✔')
 export const MARK_INFO: string = c.blue('ℹ')

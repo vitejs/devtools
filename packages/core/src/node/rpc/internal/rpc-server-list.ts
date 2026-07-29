@@ -3,6 +3,7 @@ import { defineRpcFunction } from '@vitejs/devtools-kit'
 export const rpcServerList = defineRpcFunction({
   name: 'devtoolskit:internal:rpc:server:list',
   type: 'static',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       async handler() {

@@ -1,22 +1,59 @@
 <script setup lang="ts">
 import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
-import type { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { getWindowOrigin, resolveDockIframeUrl } from '../../utils/iframe-url'
 
 const props = defineProps<{
   context: DocksContext
   entry: DevToolsViewIframe
-  persistedDoms: PersistedDomViewsManager
+  panes: IframePanes
   iframeStyle?: CSSProperties
 }>()
+
+function stripRemoteConnectionParam(url: string): string {
+  // Remove the remote connection descriptor so the auth token isn't exposed
+  // in the address bar (user could accidentally copy it).
+  let result = url
+
+  const hashIdx = result.indexOf('#')
+  if (hashIdx !== -1) {
+    const hash = result.slice(hashIdx + 1)
+    const filtered = hash
+      .split('&')
+      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
+      .join('&')
+    result = filtered ? `${result.slice(0, hashIdx)}#${filtered}` : result.slice(0, hashIdx)
+  }
+
+  const qIdx = result.indexOf('?')
+  if (qIdx !== -1) {
+    const query = result.slice(qIdx + 1)
+    const filtered = query
+      .split('&')
+      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
+      .join('&')
+    result = filtered ? `${result.slice(0, qIdx)}?${filtered}` : result.slice(0, qIdx)
+  }
+
+  return result
+}
 
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
 const isEdgeMode = computed(() => props.context.panel.store.mode === 'edge')
+const addressBarBorderClass = computed(() => {
+  if (isEdgeMode.value)
+    return 'border-b'
+  if (getEntryGroup(props.context.docks.entries, props.entry))
+    return 'border-t border-r rounded-tr-md'
+  return 'border rounded-t-md border-b-0'
+})
 const ADDRESS_BAR_HEIGHT = 40
 
 const isLoading = ref(true)
@@ -32,8 +69,16 @@ const currentUrl = ref(resolvedEntryUrl.value)
 const editingUrl = ref(resolvedEntryUrl.value)
 const isEditing = ref(false)
 
+// Shared-iframe soft navigation: an anchor iframe dock and each of its member
+// docks share one `frameId`, so they must render into the *same* live pane.
+// Keying on `frameId` (when present) keeps that single iframe alive across
+// switches — its navigation/scroll/JS state is preserved and the hub's
+// frame-nav adapter soft-navigates it — falling back to the entry id for plain
+// iframe docks that own their frame exclusively.
+const paneKey = computed(() => props.entry.frameId ?? props.entry.id)
+
 const iframeElement = computed(() => {
-  return props.persistedDoms.getHolder(props.entry.id, 'iframe')?.element
+  return props.panes.get(paneKey.value)?.iframe
 })
 
 // Check if iframe URL is cross-origin
@@ -49,16 +94,17 @@ const isCrossOrigin = computed(() => {
 
 // Display URL - hides host if same as current page
 const displayUrl = computed(() => {
+  const sanitized = stripRemoteConnectionParam(currentUrl.value)
   if (isCrossOrigin.value) {
-    return currentUrl.value
+    return sanitized
   }
   try {
-    const url = new URL(currentUrl.value)
+    const url = new URL(sanitized)
     // Show only pathname + search + hash for same-origin
     return url.pathname + url.search + url.hash
   }
   catch {
-    return currentUrl.value
+    return sanitized
   }
 })
 
@@ -139,66 +185,57 @@ function refresh() {
   iframe.src = src
 }
 
-onMounted(() => {
-  if (props.persistedDoms.getHolder(props.entry.id, 'iframe')) {
-    updateCurrentUrl()
-  }
-  const holder = props.persistedDoms.getOrCreateHolder(props.entry.id, 'iframe')
-  holder.element.style.boxShadow = 'none'
-  holder.element.style.outline = 'none'
+let onIframeLoad: (() => void) | undefined
 
-  if (!holder.element.src)
-    holder.element.src = resolvedEntryUrl.value
+onMounted(() => {
+  const existed = props.panes.has(paneKey.value)
+  // `src` is only assigned when the pane is first created, so re-mounting an
+  // existing iframe (tab switch) preserves its navigation/scroll/JS state. For
+  // a shared frame this is also the boot deep-link: the first member (or the
+  // anchor) to become visible seeds the src, and every later switch soft-navs.
+  const pane = props.panes.ensure(paneKey.value, {
+    src: resolvedEntryUrl.value,
+    style: { boxShadow: 'none', outline: 'none' },
+  })
+  const iframe = pane.iframe
+
+  if (existed)
+    updateCurrentUrl()
 
   // Listen for iframe load events
-  holder.element.addEventListener('load', () => {
+  onIframeLoad = () => {
     isIframeLoading.value = false
     updateCurrentUrl()
-  })
+  }
+  iframe.addEventListener('load', onIframeLoad)
 
   const entryState = props.context.docks.getStateById(props.entry.id)
   if (entryState)
-    entryState.domElements.iframe = holder.element
+    entryState.domElements.iframe = iframe
 
+  // iframe-pane positions the iframe exactly over the mount target (the view
+  // frame below the address bar), so no manual offset is needed — only the
+  // cosmetic borders differ between edge/float and address-bar states.
   watchEffect(() => {
-    Object.assign(holder.element.style, props.iframeStyle)
-    if (showAddressBar.value) {
-      holder.element.style.marginTop = `${ADDRESS_BAR_HEIGHT}px`
-      if (!isEdgeMode.value) {
-        holder.element.style.borderTopLeftRadius = '0px'
-        holder.element.style.borderTopRightRadius = '0px'
-      }
+    Object.assign(iframe.style, props.iframeStyle)
+    if (showAddressBar.value && !isEdgeMode.value) {
+      iframe.style.borderTopLeftRadius = '0px'
+      iframe.style.borderTopRightRadius = '0px'
     }
     else {
-      holder.element.style.marginTop = '0px'
-      holder.element.style.borderTopLeftRadius = ''
-      holder.element.style.borderTopRightRadius = ''
+      iframe.style.borderTopLeftRadius = ''
+      iframe.style.borderTopRightRadius = ''
     }
     if (isEdgeMode.value) {
-      holder.element.style.borderRadius = '0px'
-      holder.element.style.border = 'none'
+      iframe.style.borderRadius = '0px'
+      iframe.style.border = 'none'
     }
   })
 
-  watch(
-    () => props.context.panel,
-    () => {
-      holder.update()
-    },
-    { deep: true },
-  )
-
-  watchEffect(
-    () => {
-      holder.element.style.pointerEvents = (props.context.panel.isDragging || props.context.panel.isResizing) ? 'none' : 'auto'
-    },
-    { flush: 'sync' },
-  )
-
-  holder.mount(viewFrame.value!)
+  pane.mount(viewFrame.value!)
   isLoading.value = false
   nextTick(() => {
-    holder.update()
+    pane.update()
   })
 })
 
@@ -221,8 +258,16 @@ watch(
 )
 
 onUnmounted(() => {
-  const holder = props.persistedDoms.getHolder(props.entry.id, 'iframe')
-  holder?.unmount()
+  const pane = props.panes.get(paneKey.value)
+  if (pane && onIframeLoad)
+    pane.iframe?.removeEventListener('load', onIframeLoad)
+  // Only unmount if this view still owns the pane. When switching between two
+  // docks sharing a `frameId`, the incoming view may re-mount the shared pane
+  // onto its own container before this outgoing view tears down — unmounting
+  // then would wrongly hide the just-revealed iframe. Guarding on the current
+  // target makes the handoff order-independent.
+  if (pane && pane.target === viewFrame.value)
+    pane.unmount()
 })
 </script>
 
@@ -230,8 +275,8 @@ onUnmounted(() => {
   <div class="w-full h-full flex flex-col">
     <div
       v-if="showAddressBar"
-      class="flex-none px-2 w-full flex items-center gap-1"
-      :class="isEdgeMode ? 'border-b border-base' : 'border rounded-t-md border-base border-b-0'"
+      class="flex-none px-2 w-full flex items-center gap-1 border-base"
+      :class="addressBarBorderClass"
       :style="{ height: `${ADDRESS_BAR_HEIGHT}px` }"
     >
       <!-- Navigation buttons (hidden for cross-origin) -->

@@ -2,13 +2,63 @@
   --un-text-opacity: 100%;
 }
 
+/*
+ * Thin/transparent scrollbar, matching packages/ui/src/styles/global.css —
+ * that stylesheet only reaches the Nuxt plugin apps, not this injected
+ * webcomponents shell, which otherwise falls back to the browser default
+ * (thick, opaque-gutter) scrollbar clashing with the translucent dock.
+ * `:host`, not `:root` — this stylesheet is adopted into the dock's shadow
+ * root (`defineCustomElement(..., { shadowRoot: true, styles: [css] })`),
+ * where `:root` only ever matches the top-level document's <html>.
+ * Rules below are unscoped (not `#vite-devtools-anchor ...`) since the
+ * shadow boundary already keeps them from leaking onto the host page, and
+ * scoping under the anchor's id would miss edge-docked mode entirely
+ * (`DockEmbedded.vue` renders `DockEdge`/`#vite-devtools-edge-panel` and
+ * `Dock`/`#vite-devtools-anchor` as mutually exclusive siblings).
+ */
+:host {
+  --app-scrollbar-size: 6px;
+  --app-scrollbar-radius: 1px;
+  --app-scrollbar-thumb: #8884;
+  --app-scrollbar-thumb-hover: #8885;
+}
+
+::-webkit-scrollbar {
+  width: var(--app-scrollbar-size);
+}
+
+::-webkit-scrollbar:horizontal {
+  height: var(--app-scrollbar-size);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar-thumb);
+  transition: background 0.2s ease;
+  border-radius: var(--app-scrollbar-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--app-scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-track {
+  border-radius: var(--app-scrollbar-radius);
+  background: transparent;
+}
+
 #vite-devtools-anchor {
   --uno: w-0 z-floating-anchor fixed origin-center font-sans text-[15px] box-border;
   transform: translate(-50%, -50%) rotate(0);
 }
 
 #vite-devtools-anchor #vite-devtools-dock-container {
-  --uno: absolute left-0 top-0 h-[40px] min-w-[100px] w-max flex;
+  --uno: absolute left-0 top-0 w-max flex;
+  height: var(--vite-devtools-dock-height, 40px);
+  min-width: var(--vite-devtools-dock-min-width, 100px);
   transform: translate(-50%, -50%);
 }
 
@@ -18,14 +68,17 @@
 }
 
 #vite-devtools-anchor #vite-devtools-dock {
-  --uno: h-full rounded-full select-none touch-none ma h-[40px];
+  --uno: h-full rounded-full select-none touch-none ma;
   --uno: "shadow text-[#333] dark:text-white  bg-glass";
   --uno: transition-all duration-500;
+  height: var(--vite-devtools-dock-height, 40px);
   width: calc-size(max-content, size);
 }
 
 #vite-devtools-anchor.vite-devtools-minimized #vite-devtools-dock {
-  --uno: w-[22px] h-[22px] px-0 py-[2px];
+  --uno: px-0 py-[2px];
+  width: var(--vite-devtools-dock-minimized-size, 22px);
+  height: var(--vite-devtools-dock-minimized-size, 22px);
 }
 
 #vite-devtools-anchor.vite-devtools-minimized .vite-devtools-dock-bracket {
@@ -37,9 +90,12 @@
 }
 
 #vite-devtools-anchor #vite-devtools-glowing {
-  --uno: absolute left-0 top-0 w-[160px] h-[160px] opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full blur-[60px];
+  --uno: absolute left-0 top-0 opacity-0 transition-all duration-[1000ms] ease-out pointer-events-none -z-[1] rounded-full;
+  width: var(--vite-devtools-dock-glow-size, 160px);
+  height: var(--vite-devtools-dock-glow-size, 160px);
+  filter: blur(var(--vite-devtools-dock-glow-blur, 60px));
   transform: translate(-50%, -50%);
-  background-image: linear-gradient(45deg, #61d9ff, #7a23a1, #715ebd);
+  background-image: linear-gradient(45deg, #61d9ff, #6b84fd, #715ebd);
 }
 
 @media print {
@@ -62,4 +118,18 @@
 }
 .vite-devtools-resize-handle:hover {
   --uno: bg-gray-400:10;
+}
+
+@keyframes vite-devtools-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+.vite-devtools-shake {
+  animation: vite-devtools-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vite-devtools-shake {
+    animation: none;
+  }
 }

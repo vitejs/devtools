@@ -14,12 +14,20 @@ export async function getIconifySvg(collection: string, icon: string) {
       getIconifySvgMap.set(id, svg)
       return svg
     })
+    .catch((err) => {
+      // Don't cache failures — drop the entry so a later render can retry.
+      getIconifySvgMap.delete(id)
+      throw err
+    })
   getIconifySvgMap.set(id, promise)
   return promise
 
   async function _get() {
     const url = `https://api.iconify.design/${collection}/${icon}.svg?color=currentColor&width=100%`
-    const svg = await fetch(url).then(res => res.text())
+    // Bound the request so a stalled connection (offline / flaky CDN / firewall
+    // black-holing the host) rejects instead of hanging forever — the caller
+    // already degrades a rejected fetch to a blank icon.
+    const svg = await fetch(url, { signal: AbortSignal.timeout(10_000) }).then(res => res.text())
     return purify.sanitize(svg)
   }
 }

@@ -1,103 +1,64 @@
+import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
+import type { NodeHandler } from 'h3'
 import type { CreateWsServerOptions } from './ws'
 import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
-import { createApp, eventHandler, fromNodeMiddleware, getQuery, toNodeListener } from 'h3'
-import sirv from 'sirv'
+import { mountStaticHandler } from 'devframe/utils/serve-static'
+import { defineHandler, H3, readBody, toNodeHandler } from 'h3'
+import { DEVTOOLS_MODE_FILENAME } from '../constants'
 import { dirClientStandalone } from '../dirs'
-import { consumeTempAuthToken } from './auth-state'
-import { getInternalContext } from './context-internal'
+import { setNormalMode } from './passive-mode'
 import { createWsServer } from './ws'
 
-function generateAuthPageHtml(): string {
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <title>Vite DevTools Authorization</title>
-  <style>
-    html { font-family: system-ui, sans-serif; padding: 2rem; }
-    body { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; }
-    #message { font-size: 1.2rem; }
-    @media (prefers-color-scheme: dark) { html { background: #1a1a1a; color: #e0e0e0; } }
-  </style>
-</head>
-<body>
-  <div id="message">Verifying...</div>
-  <script>
-    const query = new URLSearchParams(location.search)
-    const id = query.get('id')
-    const el = document.getElementById('message')
-
-    if (!id) {
-      el.textContent = '\\u26a0\\ufe0f No auth token found. Please check your URL.'
-      el.style.color = '#df513f'
-    } else {
-      fetch(location.pathname.replace(/\\/$/, '') + '-verify?id=' + encodeURIComponent(id))
-        .then(async (r) => {
-          if (r.status !== 200) throw new Error(await r.text())
-          const data = await r.json()
-          const authToken = data.authToken
-
-          localStorage.setItem('__VITE_DEVTOOLS_CONNECTION_AUTH_TOKEN__', authToken)
-
-          try {
-            const bc = new BroadcastChannel('vite-devtools-auth')
-            bc.postMessage({ type: 'auth-update', authToken: authToken })
-          } catch {}
-
-          el.textContent = '\\u2705 Authorized! You can close this window now.'
-          window.close()
-        })
-        .catch((err) => {
-          el.textContent = '\\u26a0\\ufe0f Failed to authorize: ' + err.message
-          el.style.color = '#df513f'
-        })
-    }
-  </script>
-</body>
-</html>`
+export interface DevToolsMiddleware {
+  h3: H3
+  rpc: Awaited<ReturnType<typeof createWsServer>>['rpc']
+  middleware: NodeHandler
+  getConnectionMeta: Awaited<ReturnType<typeof createWsServer>>['getConnectionMeta']
 }
 
-export async function createDevToolsMiddleware(options: CreateWsServerOptions) {
-  const h3 = createApp()
-  const contextInternal = getInternalContext(options.context)
+export async function createDevToolsMiddleware(options: CreateWsServerOptions): Promise<DevToolsMiddleware> {
+  const h3 = new H3()
 
   const { rpc, getConnectionMeta } = await createWsServer(options)
 
-  h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, eventHandler(async (event) => {
-    event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify(await getConnectionMeta()))
+  // Hand the host the live connection-meta getter so each mounted devframe's
+  // `mountConnectionMeta` middleware can serve it at the devframe's own base
+  // (the getter didn't exist yet when the host was created, before the WS
+  // server allocated its endpoint).
+  ;(options.context.host as ViteDevToolsHost).provideConnectionMeta?.(getConnectionMeta)
+
+  h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify(await getConnectionMeta())
   }))
 
-  h3.use('/auth-verify', eventHandler((event) => {
-    const { id } = getQuery(event) as { id?: string }
-    if (!id) {
-      event.node.res.statusCode = 400
-      return event.node.res.end('Missing id parameter')
+  // Passive-mode persistence. `POST { enabled }` flips the per-project "normal
+  // mode" flag in node_modules; the injection plugin reads that flag when it
+  // decides which client entry to inject on the next load. Served
+  // unauthenticated because it only writes a local marker file — the docks
+  // themselves still require WS trust to surface any project data.
+  h3.use(`/${DEVTOOLS_MODE_FILENAME}`, defineHandler(async (event) => {
+    if (event.req.method !== 'POST') {
+      event.res.status = 405
+      return ''
     }
-
-    const clientAuthToken = consumeTempAuthToken(id, contextInternal.storage.auth)
-    if (!clientAuthToken) {
-      event.node.res.statusCode = 403
-      return event.node.res.end('Invalid or expired auth token')
-    }
-
-    event.node.res.setHeader('Content-Type', 'application/json')
-    return event.node.res.end(JSON.stringify({ authToken: clientAuthToken }))
+    const body = (await readBody(event).catch(() => undefined)) as { enabled?: boolean } | undefined
+    setNormalMode(options.cwd, body?.enabled ?? true)
+    event.res.headers.set('Content-Type', 'application/json')
+    return JSON.stringify({ ok: true })
   }))
 
-  h3.use('/auth', eventHandler((event) => {
-    event.node.res.setHeader('Content-Type', 'text/html')
-    return event.node.res.end(generateAuthPageHtml())
-  }))
+  // Authentication uses the devframe OTP model (see `node/auth-handler.ts`):
+  // an untrusted client is shown a one-time code in the terminal which it
+  // exchanges via `anonymous:devframe:auth:exchange`, or opens the
+  // `?devframe_otp=` magic link the client consumes on load — no auth page here.
 
-  h3.use(fromNodeMiddleware(sirv(dirClientStandalone, {
-    dev: true,
-    single: true,
-  })))
+  mountStaticHandler(h3, '', dirClientStandalone)
 
   return {
     h3,
     rpc,
-    middleware: toNodeListener(h3),
+    middleware: toNodeHandler(h3),
     getConnectionMeta,
   }
 }

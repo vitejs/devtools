@@ -1,11 +1,39 @@
 name: Publish Any Commit
-on: [push, pull_request]
+
+on:
+  - push
+  - pull_request
 
 permissions: {}
 
 jobs:
-  release:
-    uses: sxzz/workflows/.github/workflows/release-commit.yml@v1
-    with:
-      packages: "'./packages/*'"
-      compact: true
+  release-release:
+    name: Release Commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          fetch-depth: '1'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
+
+      - name: Setup node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: lts/*
+          cache: pnpm
+          package-manager-cache: true
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        shell: bash
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Publish
+        run: pnpm dlx pkg-pr-new@0.0 publish --pnpm --compact './packages/*'

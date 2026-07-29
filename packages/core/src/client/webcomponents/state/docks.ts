@@ -1,8 +1,8 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient, DockEntryState, DockEntryStateEvents, DockPanelStorage } from '@vitejs/devtools-kit/client'
-import type { SharedState } from '@vitejs/devtools-kit/utils/shared-state'
+import type { SharedState } from 'devframe/utils/shared-state'
 import type { Ref, ShallowRef } from 'vue'
-import { createEventEmitter } from '@vitejs/devtools-kit/utils/events'
+import { createEventEmitter } from 'devframe/utils/events'
 import { markRaw, reactive, shallowRef, watch } from 'vue'
 
 export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
@@ -79,7 +79,7 @@ export async function useDocksEntries(rpc: DevToolsRpcClient): Promise<Ref<DevTo
   if (docksEntriesRefByRpc.has(rpc)) {
     return docksEntriesRefByRpc.get(rpc)!
   }
-  const state = await rpc.sharedState.get('devtoolskit:internal:docks', { initialValue: [] })
+  const state = await rpc.sharedState.get('devframe:docks', { initialValue: [] })
   const docksEntriesRef = sharedStateToRef(state)
   docksEntriesRefByRpc.set(rpc, docksEntriesRef)
   return docksEntriesRef

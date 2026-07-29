@@ -1,5 +1,8 @@
 import type { DevToolsClientContext } from './docks'
 
+// The kit owns this global key — the webcomponents host writes to it and
+// dock client scripts read from it. Independent of devframe-hub's own
+// `CLIENT_CONTEXT_KEY` (which points at a different global).
 const CLIENT_CONTEXT_KEY = '__VITE_DEVTOOLS_CLIENT_CONTEXT__'
 
 /**

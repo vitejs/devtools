@@ -1,29 +1,31 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { borderSolid, borderSubtle } from './tokens'
+import { registryProps } from './types'
+
+export interface KeyValueTableProps {
+  data?: Record<string, unknown>
+}
 
 export const KeyValueTable = defineComponent({
   name: 'JrKeyValueTable',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'KeyValueTable', KeyValueTableProps>(),
+  setup(ctx) {
     return () => {
-      const { title, entries = [] } = ctx.element.props
+      const { data = {} } = ctx.element.props
+      const entries = Object.entries(data)
       return h('div', { class: 'jr-kv-table' }, [
-        title && h('div', {
-          style: { fontSize: '13px', fontWeight: '600', marginBottom: '8px' },
-        }, title),
         h('table', {
           style: { width: '100%', borderCollapse: 'collapse', fontSize: '12px' },
-        }, entries.map((entry: any) =>
+        }, entries.map(([key, value]) =>
           h('tr', {
             style: { borderBottom: borderSolid(borderSubtle) },
           }, [
             h('td', {
               style: { padding: '6px 8px', opacity: '0.7', whiteSpace: 'nowrap', verticalAlign: 'top' },
-            }, entry.key),
+            }, key),
             h('td', {
               style: { padding: '6px 8px', fontFamily: 'monospace', wordBreak: 'break-all' },
-            }, entry.value),
+            }, typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value ?? '')),
           ]),
         )),
       ])

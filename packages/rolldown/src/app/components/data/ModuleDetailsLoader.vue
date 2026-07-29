@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ModuleInfo, RolldownModuleTransformInfo, SessionContext } from '~~/shared/types'
-import { useRpc } from '#imports'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { computedAsync } from '@vueuse/core'
 import { nextTick, ref, watchEffect } from 'vue'
 import { settings } from '~~/app/state/settings'
+import { useRpc } from '#imports'
 
 const props = defineProps<{
   session: SessionContext
@@ -57,57 +57,46 @@ function selectFlowNode(v: boolean) {
 </script>
 
 <template>
-  <div v-if="info" relative h-full w-full>
+  <div v-if="info" class="relative h-full w-full">
     <DisplayCloseButton
-      absolute right-2 top-1.5 bg-glass z-panel-content
+      class="absolute right-2 top-1.5 bg-glass z-panel-content"
       @click="emit('close')"
     />
     <div
-      bg-glass absolute left-2 top-2 z-panel-content p2
-      border="~ base rounded-lg"
-      flex="~ col gap-2"
+      class="bg-glass absolute left-2 top-2 z-panel-content p2 border border-base rounded-lg flex flex-col gap-2"
     >
-      <DisplayModuleId :id="module" px2 pt1 :session />
-      <div text-xs font-mono flex="~ items-center gap-3" ml2>
+      <DisplayModuleId :id="module" class="px2 pt1" :session />
+      <div class="text-xs font-mono flex items-center gap-3 ml2">
         <ModulesBuildMetrics v-if="info" :metrics="info.build_metrics" />
       </div>
-      <div flex="~ gap-2">
+      <div class="flex gap-2">
         <button
           :class="settings.moduleDetailsViewType === 'flow' ? 'text-primary' : ''"
-          flex="~ gap-2 items-center justify-center"
-          px2 py1 w-40
-          border="~ base rounded-lg"
-          hover="bg-active"
+          class="flex gap-2 items-center justify-center px2 py1 w-40 border border-base rounded-lg hover:bg-active"
           @click="settings.moduleDetailsViewType = 'flow'"
         >
-          <div i-ph-git-branch-duotone rotate-180 />
+          <div class="i-ph-git-branch-duotone rotate-180" />
           Build Flow
         </button>
         <button
           :class="settings.moduleDetailsViewType === 'charts' ? 'text-primary' : ''"
-          flex="~ gap-2 items-center justify-center"
-          px2 py1 w-40
-          border="~ base rounded-lg"
-          hover="bg-active"
+          class="flex gap-2 items-center justify-center px2 py1 w-40 border border-base rounded-lg hover:bg-active"
           @click="settings.moduleDetailsViewType = 'charts'"
         >
-          <div i-ph-chart-donut-duotone />
+          <div class="i-ph-chart-donut-duotone" />
           Charts
         </button>
         <button
           :class="settings.moduleDetailsViewType === 'imports' ? 'text-primary' : ''"
-          flex="~ gap-2 items-center justify-center"
-          px2 py1 w-40
-          border="~ base rounded-lg"
-          hover="bg-active"
+          class="flex gap-2 items-center justify-center px2 py1 w-40 border border-base rounded-lg hover:bg-active"
           @click="settings.moduleDetailsViewType = 'imports'"
         >
-          <div i-ph-graph-duotone />
+          <div class="i-ph-graph-duotone" />
           Imports
         </button>
       </div>
     </div>
-    <div of-auto h-full pt-30>
+    <div class="of-auto h-full pt-30">
       <FlowmapModuleFlow
         v-if="settings.moduleDetailsViewType === 'flow'"
         :info

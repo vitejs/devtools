@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import {
@@ -11,13 +11,13 @@ import {
   DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
-import c from 'ansis'
+import { colors as c } from 'devframe/utils/colors'
 import { dirname, join, relative, resolve } from 'pathe'
 import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
 
 export interface BuildStaticOptions {
-  context: DevToolsNodeContext
+  context: ViteDevToolsNodeContext
   outDir: string
   withApp?: boolean
 }
@@ -45,7 +45,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(context.docks.values()), 'utf-8')
 
   console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
-  const { collectStaticRpcDump } = await import('./static-dump')
+  const { collectStaticRpcDump } = await import('devframe/rpc')
   const dump = await collectStaticRpcDump(
     context.rpc.definitions.values(),
     context,

@@ -1,6 +1,6 @@
+import { getPluginColor } from '@vitejs/devtools-ui/utils/color'
 import { defineComponent, h } from 'vue'
 import { isPackageName } from '~~/shared/utils/filepath'
-import { getPluginColor } from '~/utils/color'
 
 // @unocss-include
 export default defineComponent({

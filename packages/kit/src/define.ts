@@ -1,12 +1,16 @@
-import type { DevToolsNodeContext, DevToolsServerCommandInput, JsonRenderSpec } from './types'
-import { createDefineWrapperWithContext } from '@vitejs/devtools-rpc'
+import type { JsonRenderSpec, ViteDevToolsNodeContext } from './types'
+import { createDefineWrapperWithContext } from 'devframe/rpc'
 
-export const defineRpcFunction = createDefineWrapperWithContext<DevToolsNodeContext>()
+export { defineCommand, defineDockEntry } from '@devframes/hub'
 
-export function defineCommand(command: DevToolsServerCommandInput): DevToolsServerCommandInput {
-  return command
-}
-
+/**
+ * Identity helper that types a json-render spec literal. `@devframes/hub` no
+ * longer ships this (json-render moved to the opt-in `@devframes/json-render`
+ * package, whose spec is a plain `@json-render/core` `Spec`), so the kit keeps
+ * the convenience helper for authoring specs with inference.
+ */
 export function defineJsonRenderSpec(spec: JsonRenderSpec): JsonRenderSpec {
   return spec
 }
+
+export const defineRpcFunction = createDefineWrapperWithContext<ViteDevToolsNodeContext>()

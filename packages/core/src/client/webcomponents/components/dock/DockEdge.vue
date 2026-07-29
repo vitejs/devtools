@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
-import { computed, h, markRaw, useTemplateRef } from 'vue'
+import { computed, h, useTemplateRef } from 'vue'
+import { getEntryGroup } from '../../state/dock-settings'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
-import { PersistedDomViewsManager } from '../../utils/PersistedDomViewsManager'
+import { useIframePanes } from '../../utils/useIframePanes'
 import ViewEntry from '../views/ViewEntry.vue'
 import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
+import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 
 const props = defineProps<{
@@ -16,12 +18,19 @@ const context = props.context
 const store = context.panel.store
 
 const viewsContainer = useTemplateRef<HTMLElement>('viewsContainer')
-const persistedDoms = markRaw(new PersistedDomViewsManager(viewsContainer))
+const panes = useIframePanes(viewsContainer, context.panel)
 
 const isVertical = computed(() => store.position === 'left' || store.position === 'right')
 
 const groupedEntries = computed(() => context.docks.groupedEntries)
 const selectedEntry = computed(() => context.docks.selected)
+const activeGroup = computed(() => getEntryGroup(context.docks.entries, selectedEntry.value))
+const hasPanelContent = computed(() => {
+  const entry = selectedEntry.value
+  return context.panel.store.open
+    && !!entry
+    && entry.type !== 'action'
+})
 
 const positions = ['top', 'right', 'bottom', 'left'] as const
 const positionIcons: Record<string, string> = {
@@ -35,6 +44,12 @@ const positionLabels: Record<string, string> = {
   right: 'Right',
   bottom: 'Bottom',
   left: 'Left',
+}
+const positionDropdownPlacement: Record<string, 'top' | 'bottom' | 'left' | 'right'> = {
+  top: 'bottom',
+  bottom: 'top',
+  left: 'right',
+  right: 'left',
 }
 
 function switchPosition(pos: 'top' | 'right' | 'bottom' | 'left') {
@@ -65,6 +80,7 @@ function togglePositionDropdown() {
   setEdgePositionDropdown({
     el: positionButton.value,
     gap: 6,
+    placement: positionDropdownPlacement[store.position],
     content: () => h('div', { class: 'flex flex-col gap-0.5 min-w-28' }, positions.map(pos =>
       h('button', {
         class: [
@@ -114,43 +130,75 @@ const panelStyle = computed<CSSProperties>(() => {
       style.left = '0'
       style.right = '0'
       style.bottom = '0'
-      style.height = `${store.height}vh`
-      style.minHeight = '150px'
       style.borderRadius = '8px 8px 0 0'
+      if (hasPanelContent.value) {
+        style.height = `${store.height}vh`
+        style.minHeight = '150px'
+      }
       break
     case 'top':
       style.left = '0'
       style.right = '0'
       style.top = '0'
-      style.height = `${store.height}vh`
-      style.minHeight = '150px'
       style.borderRadius = '0 0 8px 8px'
+      if (hasPanelContent.value) {
+        style.height = `${store.height}vh`
+        style.minHeight = '150px'
+      }
       break
     case 'left':
       style.top = '0'
       style.bottom = '0'
       style.left = '0'
-      style.width = `${store.width}vw`
-      style.minWidth = '200px'
       style.borderRadius = '0 8px 8px 0'
+      if (hasPanelContent.value) {
+        style.width = `${store.width}vw`
+        style.minWidth = '200px'
+      }
       break
     case 'right':
       style.top = '0'
       style.bottom = '0'
       style.right = '0'
-      style.width = `${store.width}vw`
-      style.minWidth = '200px'
       style.borderRadius = '8px 0 0 8px'
+      if (hasPanelContent.value) {
+        style.width = `${store.width}vw`
+        style.minWidth = '200px'
+      }
       break
   }
 
   return style
 })
 
+const panelLayoutClass = computed(() => {
+  switch (store.position) {
+    case 'bottom':
+      return 'flex flex-col-reverse'
+    case 'top':
+      return 'flex flex-col'
+    case 'left':
+      return 'flex flex-row'
+    case 'right':
+      return 'flex flex-row-reverse'
+    default:
+      return 'flex flex-col-reverse'
+  }
+})
+
 const toolbarClass = computed(() => {
-  return isVertical.value
-    ? 'flex-col h-full w-[40px] border-r border-base'
-    : 'flex-row w-full border-b border-base'
+  switch (store.position) {
+    case 'bottom':
+      return 'flex-row w-full border-t border-base'
+    case 'top':
+      return 'flex-row w-full border-b border-base'
+    case 'left':
+      return 'flex-col h-full w-[40px] border-r border-base'
+    case 'right':
+      return 'flex-col h-full w-[40px] border-l border-base'
+    default:
+      return 'flex-row w-full border-t border-base'
+  }
 })
 
 const contentClass = computed(() => {
@@ -164,10 +212,10 @@ const contentClass = computed(() => {
   <div
     id="vite-devtools-edge-panel"
     class="bg-glass:75 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
-    :class="`flex ${isVertical ? 'flex-row' : 'flex-col'}`"
+    :class="panelLayoutClass"
     :style="panelStyle"
   >
-    <DockPanelResizer :panel="context.panel" edge-mode />
+    <DockPanelResizer v-if="hasPanelContent" :panel="context.panel" edge-mode />
 
     <!-- Toolbar -->
     <div class="flex items-center shrink-0 select-none py1" :class="toolbarClass">
@@ -192,6 +240,7 @@ const contentClass = computed(() => {
       >
         <button
           ref="positionButton"
+          aria-label="Edge position"
           class="p1.5 rounded hover:bg-active transition op75 hover:op100"
           @pointerenter="showTooltip(positionButton, 'Edge position')"
           @pointerleave="hideTooltip"
@@ -202,6 +251,7 @@ const contentClass = computed(() => {
         </button>
         <button
           ref="floatButton"
+          aria-label="Float mode"
           class="p1.5 rounded hover:bg-active transition op50 hover:op100"
           @pointerenter="showTooltip(floatButton, 'Float mode')"
           @pointerleave="hideTooltip"
@@ -214,30 +264,29 @@ const contentClass = computed(() => {
     </div>
 
     <!-- Content -->
-    <div class="relative" :class="contentClass">
-      <template v-if="selectedEntry && selectedEntry.type !== 'action'">
-        <ViewEntry
-          v-if="viewsContainer"
-          :key="selectedEntry.id"
-          :context
-          :entry="selectedEntry"
-          :persisted-doms="persistedDoms"
-        />
-      </template>
-      <div
-        v-else
-        class="absolute inset-0 flex items-center justify-center op40 select-none"
-      >
-        <div class="flex flex-col items-center gap-2">
-          <div class="i-ph-layout-duotone w-8 h-8" />
-          <span class="text-sm">{{ selectedEntry ? 'Action executed' : 'Select a dock entry' }}</span>
-        </div>
-      </div>
-      <div
-        id="vite-devtools-views-container"
-        ref="viewsContainer"
-        class="absolute inset-0 pointer-events-none"
+    <div v-show="hasPanelContent" class="flex" :class="contentClass">
+      <DockGroupSidebar
+        v-if="activeGroup"
+        :context
+        :group="activeGroup"
+        :selected-id="selectedEntry?.id ?? null"
       />
+      <div class="relative flex-1 min-w-0 h-full">
+        <slot name="view" :entry="selectedEntry">
+          <ViewEntry
+            v-if="hasPanelContent && panes && selectedEntry"
+            :key="selectedEntry.id"
+            :context
+            :entry="selectedEntry"
+            :panes="panes"
+          />
+          <div
+            id="vite-devtools-views-container"
+            ref="viewsContainer"
+            class="absolute inset-0 pointer-events-none"
+          />
+        </slot>
+      </div>
     </div>
   </div>
 </template>

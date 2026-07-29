@@ -33,7 +33,7 @@ export function A11yCheckerPlugin(): PluginWithDevTools {
           },
         })
 
-        context.logs.add({
+        context.messages.add({
           message: 'A11y Checker ready — click the icon to run an audit',
           level: 'info',
           notify: true,

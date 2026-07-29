@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import type { PackageInfo, SessionContext } from '~~/shared/types/data'
+import type { PackageInfo, PackageMeta, SessionContext } from '~~/shared/types/data'
 import type { ClientSettings } from '~/state/settings'
 import type { PackageChartInfo, PackageChartNode } from '~/types/chart'
-import { useRoute, useRouter } from '#app/composables/router'
-import { useRpc } from '#imports'
+import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/Chart/ChartNavBreadcrumb.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
 import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { Treemap } from 'nanovis'
 import { computed, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
+import { useRpc } from '#imports'
 import ChartTreemap from '~/components/chart/Treemap.vue'
 import { useChartGraph } from '~/composables/chart'
 import { settings } from '~/state/settings'
@@ -33,13 +35,19 @@ const packageTypeRules = [
     description: 'Transitive Dependencies',
     icon: 'i-octicon:package-24 light:filter-invert-30!',
   },
+  {
+    match: /.*/,
+    name: 'unbundled',
+    description: 'Unbundled Dependencies',
+    icon: 'i-ph-package-duotone',
+  },
 ]
 const rpc = useRpc()
-const searchValue = ref<{ search: string, selected: string[] }>({
+const searchValue = ref<{ search: string, selected: string[] | null }>({
   search: '',
   selected: ['direct', 'transitive'],
 })
-const { state: packages, isLoading } = useAsyncState(
+const { state: packageMeta, isLoading } = useAsyncState<PackageMeta | null>(
   async () => {
     return await rpc.value.call(
       'vite:rolldown:get-packages',
@@ -48,10 +56,12 @@ const { state: packages, isLoading } = useAsyncState(
   },
   null,
 )
+const isSupported = computed(() => packageMeta.value?.isSupported ?? true)
+const packages = computed(() => packageMeta.value?.packages ?? [])
 
 const fuse = computedWithControl(
   () => packages.value,
-  () => new Fuse(packages.value!, {
+  () => new Fuse(packages.value, {
     includeScore: true,
     keys: ['name'],
     ignoreLocation: true,
@@ -59,15 +69,30 @@ const fuse = computedWithControl(
   }),
 )
 
-const duplicatePackagesCount = computed(() => {
-  if (!packages.value) {
-    return 0
-  }
-  return Object.values(packages.value!.reduce((acc, p) => {
-    acc[p.name] = (acc[p.name] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)).filter(count => count > 1).length
-})
+const searched = computed(() => (
+  searchValue.value.search
+    ? fuse.value.search(searchValue.value.search).map(r => r.item)
+    : [...packages.value]),
+)
+
+function matchesSelectedPackageType(item: PackageInfo) {
+  const selected = searchValue.value.selected
+  if (!selected)
+    return true
+
+  if (item.isUsed === false)
+    return selected.includes('unbundled')
+
+  return selected.includes(item.type || '')
+}
+
+const filteredPackages = computed(() => searched.value.filter(matchesSelectedPackageType))
+
+const duplicatePackagesCount = computed(() => new Set(
+  packages.value
+    .filter(item => item.duplicated)
+    .map(item => item.name),
+).size)
 
 const packageViewTypes = computed(() => [
   {
@@ -87,21 +112,15 @@ const packageViewTypes = computed(() => [
   },
 ] as const)
 
-const searched = computed(() => (
-  searchValue.value.search
-    ? fuse.value.search(searchValue.value.search).map(r => r.item)
-    : [...(packages.value || [])]),
-)
-
 const normalizedPackages = computed(() => {
   const packagesSizeSortType = settings.value.packageSizeSortType
-  const data = searched.value.toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
+  const data = filteredPackages.value.toSorted((a, b) => (a.name || '').localeCompare(b.name || ''))
 
   const sortedPackages = packagesSizeSortType
     ? data.sort((a, b) => packagesSizeSortType === 'asc' ? a.transformedCodeSize - b.transformedCodeSize : b.transformedCodeSize - a.transformedCodeSize)
     : data
 
-  return sortedPackages.filter(item => !searchValue.value.selected || searchValue.value.selected.some(rule => rule.match(item.type!)))
+  return sortedPackages
 })
 
 function toggleDisplay(type: ClientSettings['packageViewType']) {
@@ -123,7 +142,7 @@ const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, select
     },
     onClick(node) {
       if (node.meta?.type === 'package') {
-        router.replace({ query: { ...route.query, package: `${node.meta?.name}@${node.meta?.version}` } })
+        router.replace({ query: { ...route.query, package: node.meta.id } })
       }
     },
     onLeave() {
@@ -151,15 +170,23 @@ watch(() => settings.value.packageViewType, () => {
 
 <template>
   <VisualLoading v-if="isLoading" />
-  <div v-else relative>
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div v-else-if="!isSupported" class="h-full flex flex-col gap-2 items-center justify-center p4 text-center">
+    <p class="m0 op50">
+      Package graph is not available for this build
+    </p>
+    <p class="m0 op40 text-sm">
+      Rebuild with Rolldown 1.0.2 or later to generate it.
+    </p>
+  </div>
+  <div v-else class="relative h-full min-h-0 flex flex-col">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="packageTypeRules">
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of packageViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.packageViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -169,13 +196,16 @@ watch(() => settings.value.packageViewType, () => {
         </div>
       </DataSearchPanel>
     </div>
-    <div flex="~ col gap-2" pt4 px4 pb4 overflow-x-auto>
+    <div
+      class="flex flex-col gap-2 flex-1 min-h-0 pt4 px4 pb4 overflow-x-auto"
+      :class="settings.packageViewType === 'table' ? 'overflow-y-hidden' : 'overflow-y-auto'"
+    >
       <template v-if="settings.packageViewType === 'table'">
         <PackagesTable :packages="normalizedPackages" :session="session" />
         <div
-          fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+          class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
         >
-          <span op50>{{ searched.length }} of {{ packages?.length || 0 }}</span>
+          <span class="op50">{{ normalizedPackages.length }} of {{ packages.length }}</span>
         </div>
       </template>
       <template v-else-if="settings.packageViewType === 'treemap'">
@@ -187,31 +217,30 @@ watch(() => settings.value.packageViewType, () => {
         >
           <template #default="{ selected, options, onSelect }">
             <ChartNavBreadcrumb
-              border="b base" py2 min-h-10
+              class="border-b border-base py2 min-h-10"
               :selected="selected"
               :options="options"
               @select="onSelect"
             />
           </template>
         </ChartTreemap>
-        <span v-else w-full h-48 flex="~ items-center justify-center" op50 italic>
+        <span v-else class="w-full h-48 flex items-center justify-center op50 italic">
           No Data
         </span>
       </template>
       <template v-else-if="settings.packageViewType === 'duplicate-packages'">
-        <PackagesDuplicated :packages="normalizedPackages" :session="session" />
+        <PackagesDuplicated :packages="packages" :session="session" />
       </template>
     </div>
     <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
       <div
         v-if="nodeHover?.meta"
-        bg-glass border="~ base rounded" p2 text-sm
-        flex="~ col gap-2"
+        class="bg-glass border border-base rounded p2 text-sm flex flex-col gap-2"
       >
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           {{ nodeHover.text }}
         </div>
-        <div flex="~ gap-1 items-center">
+        <div class="flex gap-1 items-center">
           <DisplayFileSizeBadge :bytes="nodeHover.size" :percent="false" />
         </div>
       </div>

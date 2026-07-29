@@ -10,6 +10,30 @@ Advanced patterns for server-client communication in DevTools integrations.
 | `action` | Never cached | Mutations, side effects |
 | `static` | Cached indefinitely | Constants, configuration |
 
+## JSON-Serializable Declaration
+
+Declare the wire/dump shape contract with `jsonSerializable`:
+
+| Value | Encoder | Round-trips |
+|-------|---------|-------------|
+| `false` (default) | `structured-clone-es` | `Map`, `Set`, `Date`, `BigInt`, cycles, class instances |
+| `true` (opt-in) | strict `JSON.stringify` | JSON-only |
+
+```ts
+defineRpcFunction({
+  name: 'my-plugin:list-modules',
+  type: 'query',
+  jsonSerializable: true,
+  setup: () => ({
+    handler: async (): Promise<Module[]> => Array.from(moduleMap.values()),
+  }),
+})
+```
+
+**`jsonSerializable: true` throws `DF0020` synchronously** when the handler returns a value JSON cannot round-trip (e.g. a `Map`). The error fires in dev right at the call site, not silently at build time. Use it whenever your data is genuinely JSON-shaped — it unlocks plain-JSON wire format and is the default expectation for MCP-exposed tools.
+
+**`agent` requires `jsonSerializable: true`.** Registration throws `DF0019` if you set `agent: { description: ... }` without also declaring the function JSON-safe.
+
 ## Type-Safe RPC Setup
 
 ### Step 1: Define Types
@@ -63,7 +87,7 @@ const listModules = defineRpcFunction({
 
 ## Context Access in Setup
 
-The `setup` function receives the full `DevToolsNodeContext`:
+The `setup` function receives the full `ViteDevToolsNodeContext`:
 
 ```ts
 defineRpcFunction({
@@ -87,27 +111,27 @@ defineRpcFunction({
 
 ## Sharing State Across RPC Functions
 
-When multiple RPC functions need shared plugin state (manager instances, options, cached data), use a `WeakMap<DevToolsNodeContext, T>` with get/set helpers instead of mutating the context object:
+When multiple RPC functions need shared plugin state (manager instances, options, cached data), use a `WeakMap<ViteDevToolsNodeContext, T>` with get/set helpers instead of mutating the context object:
 
 ```ts
 // src/node/rpc/context.ts
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 
 interface MyPluginContext {
   dataDir: string
   manager: DataManager
 }
 
-const pluginContext = new WeakMap<DevToolsNodeContext, MyPluginContext>()
+const pluginContext = new WeakMap<ViteDevToolsNodeContext, MyPluginContext>()
 
-export function getPluginContext(ctx: DevToolsNodeContext): MyPluginContext {
+export function getPluginContext(ctx: ViteDevToolsNodeContext): MyPluginContext {
   const value = pluginContext.get(ctx)
   if (!value)
     throw new Error('Plugin context not initialized')
   return value
 }
 
-export function setPluginContext(ctx: DevToolsNodeContext, value: MyPluginContext) {
+export function setPluginContext(ctx: ViteDevToolsNodeContext, value: MyPluginContext) {
   pluginContext.set(ctx, value)
 }
 ```

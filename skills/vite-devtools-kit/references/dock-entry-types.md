@@ -11,10 +11,11 @@ interface DockEntryBase {
   id: string // Unique identifier
   title: string // Display title
   icon: string // URL, data URI, or Iconify name
-  category?: string // Grouping category
+  category?: string // Outer dock-bar bucket, or in-group sub-category when `groupId` resolves to a group
   defaultOrder?: number // Sort order (higher = earlier)
   when?: string // Conditional visibility expression — see [When Clauses](./when-clauses.md)
   badge?: string // Badge text on dock icon (e.g., count)
+  groupId?: string // Collapse under a group's button; the group's `category` becomes the outer bucket
 }
 ```
 
@@ -53,6 +54,12 @@ interface IframeEntry extends DockEntryBase {
   url: string // URL to load
   frameId?: string // Share iframe between entries
   clientScript?: ClientScriptEntry // Optional client script
+  remote?: boolean | RemoteDockOptions // Enable remote-hosted UI mode
+}
+
+interface RemoteDockOptions {
+  transport?: 'fragment' | 'query' // default: 'fragment'
+  originLock?: boolean // default: true
 }
 
 // Example
@@ -61,7 +68,7 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
 
@@ -74,16 +81,33 @@ const clientDist = fileURLToPath(
   new URL('../dist/client', import.meta.url)
 )
 
-ctx.views.hostStatic('/.my-plugin/', clientDist)
+ctx.views.hostStatic('/__my-plugin/', clientDist)
 
 ctx.docks.register({
   id: 'my-plugin',
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
 })
 ```
+
+### Remote-hosted UI
+
+Point a dock at a hosted website (e.g. `https://example.com/devtools`) instead of bundling a SPA. DevTools injects a session-only auth token + WS URL into the iframe `src`; the hosted page calls `connectRemoteDevTools()` to get a fully connected `DevToolsRpcClient`.
+
+```ts
+ctx.docks.register({
+  id: 'my-remote-tool',
+  title: 'My Tool',
+  icon: 'ph:cloud-duotone',
+  type: 'iframe',
+  url: 'https://example.com/devtools',
+  remote: true,
+})
+```
+
+Dev-mode only — the WS server does not exist in build mode, so remote docks are auto-hidden in build mode unless an explicit `when` clause is set. See [Remote Client Patterns](./remote-client-patterns.md) for the full flow.
 
 ## Action Entries
 
@@ -354,19 +378,24 @@ entry.update({
 
 ## Category Order
 
-Default category ordering:
+Default category ordering (lower sorts earlier), owned upstream by `@devframes/hub` and re-exported from `@vitejs/devtools-kit/constants`:
 
 ```ts
 DEFAULT_CATEGORIES_ORDER = {
-  '~viteplus': -1000, // First
+  'framework': -100, // First
   'default': 0,
   'app': 100,
-  'framework': 200,
+  'ui': 150,
+  'data': 250,
   'web': 300,
+  'performance': 350,
   'advanced': 400,
+  'docs': 500,
   '~builtin': 1000, // Last
 }
 ```
+
+The same table orders in-group sub-categories. (`viteplus` is a dock **group** id, not a category — join it via `groupId: DEVTOOLS_VITEPLUS_GROUP_ID`.)
 
 Use `category` to group related entries:
 
@@ -376,7 +405,30 @@ ctx.docks.register({
   title: 'My Plugin',
   icon: 'ph:house-duotone',
   type: 'iframe',
-  url: '/.my-plugin/',
+  url: '/__my-plugin/',
   category: 'framework',
+})
+```
+
+### In-group sub-categories
+
+When an entry sets a `groupId` that resolves to a registered group, its outer bucket becomes the **group's** `category`, and its own `category` becomes an **in-group sub-category** dividing the group's popover, sidebar, settings list, and palette. Unset members fall into a `default` sub-category; an orphan (unregistered `groupId`) falls back to its own `category`.
+
+```ts
+ctx.docks.register({ id: 'nuxt', title: 'Nuxt', icon: 'logos:nuxt-icon', type: 'group', category: 'framework' })
+// Outer bucket = 'framework' (the group's); 'app' is the in-group sub-category.
+ctx.docks.register({ id: 'nuxt:overview', title: 'Overview', icon: 'ph:gauge-duotone', type: 'iframe', url: '/__nuxt/overview/', groupId: 'nuxt', category: 'app' })
+```
+
+A group's `categoryOrder` (`Record<category, weight>`) overrides `DEFAULT_CATEGORIES_ORDER` for that group's own in-group sub-categories only — it never affects other groups or the outer bar. Omitted sub-categories keep their weight from the shared table:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  category: 'framework',
+  categoryOrder: { advanced: -1, app: 1 }, // 'advanced' now leads 'app' inside this group
 })
 ```
