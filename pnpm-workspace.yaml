@@ -81,6 +81,7 @@ catalogs:
     '@devframes/plugin-messages': *devframe
     '@devframes/plugin-og': *devframe
     '@devframes/plugin-terminals': *devframe
+    '@oxlint-config-inspector/core': ^1.1.1
     '@rolldown/debug': ^1.2.0
     actionspack: ^0.1.5
     birpc: ^4.0.0

@@ -1,12 +1,20 @@
-import type { RegistryComponentProps } from './types'
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
 import { borderInput, borderSolid } from './tokens'
+import { registryProps } from './types'
+
+export interface TextInputProps {
+  /** Two-way bindable via `{ $bindState: '...' }`. */
+  value?: string
+  placeholder?: string
+  label?: string
+  disabled?: boolean
+}
 
 export const TextInput = defineComponent({
   name: 'JrTextInput',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'TextInput', TextInputProps>(),
+  setup(ctx) {
     return () => {
       const { placeholder, label, disabled } = ctx.element.props
       const [value, setValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)

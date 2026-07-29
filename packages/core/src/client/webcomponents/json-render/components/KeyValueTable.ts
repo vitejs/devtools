@@ -1,14 +1,18 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { borderSolid, borderSubtle } from './tokens'
+import { registryProps } from './types'
+
+export interface KeyValueTableProps {
+  data?: Record<string, unknown>
+}
 
 export const KeyValueTable = defineComponent({
   name: 'JrKeyValueTable',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'KeyValueTable', KeyValueTableProps>(),
+  setup(ctx) {
     return () => {
       const { data = {} } = ctx.element.props
-      const entries = Object.entries(data as Record<string, unknown>)
+      const entries = Object.entries(data)
       return h('div', { class: 'jr-kv-table' }, [
         h('table', {
           style: { width: '100%', borderCollapse: 'collapse', fontSize: '12px' },

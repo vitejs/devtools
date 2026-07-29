@@ -1,11 +1,15 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
-import { useIconSvg } from './types'
+import { registryProps, useIconSvg } from './types'
+
+export interface IconProps {
+  name?: string
+  size?: number
+}
 
 export const Icon = defineComponent({
   name: 'JrIcon',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Icon', IconProps>(),
+  setup(ctx) {
     const iconSvg = useIconSvg(() => ctx.element.props.name)
 
     return () => {

@@ -1,14 +1,21 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h } from 'vue'
 import { colors } from './tokens'
+import { registryProps } from './types'
+
+export interface BadgeProps {
+  text?: string
+  variant?: 'default' | 'info' | 'success' | 'warning' | 'danger'
+  title?: string
+  minWidth?: number
+}
 
 export const Badge = defineComponent({
   name: 'JrBadge',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps) {
+  props: registryProps<'Badge', BadgeProps>(),
+  setup(ctx) {
     return () => {
       const { text, variant = 'default', title, minWidth } = ctx.element.props
-      const c = colors[variant as keyof typeof colors] || colors.default
+      const c = colors[variant] || colors.default
       // Base catalog `minWidth` is a number of pixels.
       const minWidthCss = minWidth == null ? undefined : (typeof minWidth === 'number' ? `${minWidth}px` : minWidth)
       return h('span', {
