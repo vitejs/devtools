@@ -42,22 +42,22 @@ overrides:
   vite: 'catalog:build'
 
 refs:
-  devframe: &devframe ^0.7.14
-  nuxt: &nuxt ^4.5.0
+  devframe: &devframe ^0.7.15
+  nuxt: &nuxt ^4.5.1
   shiki: &shiki ^4.3.1
-  storybook: &storybook ^10.5.4
+  storybook: &storybook ^10.5.5
   unocss: &unocss ^66.7.5
-  vueuse: &vueuse ^14.3.0
+  vueuse: &vueuse ^14.4.0
 
 catalogs:
   build:
     '@antfu/ni': ^30.3.0
-    '@nuxt/icon': ^2.3.1
+    '@nuxt/icon': ^2.4.1
     '@nuxt/kit': *nuxt
     '@nuxt/vite-builder': *nuxt
     '@unocss/nuxt': *unocss
     '@vitejs/plugin-vue': ^6.0.8
-    '@vueuse/nuxt': ^14.3.0
+    '@vueuse/nuxt': ^14.4.0
     esbuild: ^0.28.1
     magic-string: ^1.1.0
     nitropack: ^2.13.4
@@ -95,7 +95,7 @@ catalogs:
     mlly: ^1.8.2
     mrmime: ^2.0.1
     nostics: ^1.2.0
-    nypm: ^0.6.8
+    nypm: ^0.6.9
     obug: ^2.1.4
     p-limit: ^7.3.1
     pathe: ^2.0.3
@@ -113,12 +113,12 @@ catalogs:
     '@unocss/eslint-config': *unocss
     '@unocss/preset-web-fonts': *unocss
     axe-core: ^4.12.1
-    bumpp: ^12.0.0
+    bumpp: ^12.1.1
     chokidar: ^5.0.0
     eslint: ^10.8.0
     nano-staged: ^1.0.2
     oxfmt: ^0.60.0
-    oxlint: ^1.75.0
+    oxlint: ^1.76.0
     prompts: ^2.4.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
@@ -126,7 +126,7 @@ catalogs:
     solid-js: ^1.9.14
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.2
-    vite-plugin-solid: ^2.11.13
+    vite-plugin-solid: ^2.11.14
     vue-tsc: ^3.3.8
   docs:
     '@shikijs/vitepress-twoslash': *shiki
@@ -134,7 +134,7 @@ catalogs:
     mermaid: ^11.16.0
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.18
-    vitepress-plugin-group-icons: ^1.7.5
+    vitepress-plugin-group-icons: ^1.7.6
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.8.0
@@ -169,7 +169,7 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.24
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.64
+    '@iconify-json/codicon': ^1.2.65
     '@iconify-json/fluent': ^1.2.54
     '@iconify-json/fluent-emoji-flat': ^1.2.5
     '@iconify-json/logos': ^1.2.11
@@ -182,7 +182,7 @@ catalogs:
     '@iconify-json/simple-icons': ^1.2.92
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
-    '@iconify-json/tabler': ^1.2.37
+    '@iconify-json/tabler': ^1.2.38
     '@iconify-json/twemoji': ^1.2.5
     '@iconify-json/vscode-icons': ^1.2.67
   inlined:
