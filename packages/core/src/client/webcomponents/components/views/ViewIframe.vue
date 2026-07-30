@@ -7,7 +7,7 @@ import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
-import { getWindowOrigin, resolveDockIframeUrl } from '../../utils/iframe-url'
+import { getDocksContextOrigin, getWindowOrigin, resolveDockIframeUrl } from '../../utils/iframe-url'
 
 const props = defineProps<{
   context: DocksContext
@@ -63,7 +63,7 @@ const urlInputRef = useTemplateRef<HTMLInputElement>('urlInput')
 
 // Address bar state
 const currentPageOrigin = computed(() => getWindowOrigin())
-const resolvedBaseOrigin = computed(() => props.context.runtime.appOrigin || currentPageOrigin.value)
+const resolvedBaseOrigin = computed(() => getDocksContextOrigin(props.context))
 const resolvedEntryUrl = computed(() => resolveDockIframeUrl(props.entry.url, resolvedBaseOrigin.value))
 const currentUrl = ref(resolvedEntryUrl.value)
 const editingUrl = ref(resolvedEntryUrl.value)

@@ -9,7 +9,6 @@ import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtoo
 import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
-import { getWindowOrigin } from '../utils/iframe-url'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
@@ -491,9 +490,6 @@ export async function createDocksContext(
         return getWhenContext()
       },
     },
-    runtime: reactive({
-      appOrigin: getWindowOrigin(),
-    }),
     connection: {
       get status() {
         return rpc.status

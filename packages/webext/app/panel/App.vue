@@ -3,7 +3,8 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { createDocksContext, DockStandalone } from '@vitejs/devtools/client/webcomponents'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
-import { getInspectedWindowMetadata } from './inspected-window'
+import { getInspectedWindowMetadata, registerBrowserExtensionOrigin } from './inspected-window'
+import { waitForRpcConnection } from './rpc-connection'
 
 const context = ref<DocksContext | null>(null)
 const errorMessage = ref<string | null>(null)
@@ -48,16 +49,16 @@ async function initialize() {
     if (!meta)
       throw new Error('Unable to reconnect to the inspected page.')
 
+    await registerBrowserExtensionOrigin(meta.connectionMeta.baseUrl)
+
     const rpc = await getDevToolsRpcClient({
       authToken: meta.authToken,
+      baseURL: new URL('.', meta.connectionMeta.baseUrl).href,
       connectionMeta: meta.connectionMeta,
-      wsOptions: {
-        url: meta.wsUrl,
-      },
     })
+    await waitForRpcConnection(rpc)
 
     const docksContext = await createDocksContext('standalone', rpc)
-    docksContext.runtime.appOrigin = meta.origin
     context.value = docksContext
     ;(globalThis as any)[CLIENT_CONTEXT_KEY] = context.value
   }

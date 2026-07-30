@@ -1,23 +1,6 @@
-import type { DocksContext as HubDocksContext } from '@devframes/hub/client'
-
-export interface DocksRuntimeContext {
-  /**
-   * Origin of the target app
-   */
-  appOrigin: string
-}
-
-export interface DocksContext extends HubDocksContext {
-  /**
-   * Vite host runtime state
-   */
-  readonly runtime: DocksRuntimeContext
-}
-
-export type DevToolsClientContext = DocksContext
-
 export type {
   CommandsContext,
+  DevframeClientContext as DevToolsClientContext,
   DevframeClientRpcHost as DevToolsClientRpcHost,
   DockClientType,
   DockEntryState,
@@ -28,6 +11,7 @@ export type {
   DockRendererInstance,
   DockRendererMountOptions,
   DockRenderersContext,
+  DocksContext,
   DocksEntriesContext,
   DocksPanelContext,
   RpcClientEvents,

@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../constants'
 import { createDocksContext } from '../webcomponents/state/context'
@@ -15,6 +16,7 @@ export type InjectMode = 'passive' | 'normal' | 'hidden'
 // `POST { enabled }` is how the client writes that flag back when the developer
 // activates the docks (passive mode) or hides them again.
 const MODE_URL = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_MODE_FILENAME}`
+const DEVFRAME_CONNECTION_META_KEY = '__DEVFRAME_CONNECTION_META__'
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 
@@ -43,6 +45,37 @@ async function persistNormalMode(enabled: boolean): Promise<void> {
   }
   catch {
     // Persistence is best-effort — the overlay still toggles for this session.
+  }
+}
+
+async function ensureConnectionMetadata(): Promise<void> {
+  if ((globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY])
+    return
+
+  // TODO: Devframe should expose a metadata bootstrap API so hosts can publish
+  // connection state without writing its reserved window global directly.
+  const bases = [
+    new URL(DEVTOOLS_MOUNT_PATH, window.location.href),
+    new URL(DEVTOOLS_MOUNT_PATH, import.meta.url),
+  ]
+
+  for (const base of bases) {
+    try {
+      const metaUrl = new URL(DEVTOOLS_CONNECTION_META_FILENAME, base)
+      const response = await fetch(metaUrl)
+      if (!response.ok)
+        continue
+
+      const connectionMeta = await response.json() as ConnectionMeta
+      ;(globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY] = {
+        ...connectionMeta,
+        baseUrl: response.url || metaUrl.href,
+      }
+      return
+    }
+    catch {
+      // Try the Vite module origin when the host page is served elsewhere.
+    }
   }
 }
 
@@ -168,6 +201,8 @@ export function startDevTools(initialMode: InjectMode): void {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
+  const connectionMetadataReady = ensureConnectionMetadata()
+
   // Only passive mode remembers the reveal across loads; hidden is per-session.
   const persist = initialMode === 'passive'
 
@@ -176,7 +211,7 @@ export function startDevTools(initialMode: InjectMode): void {
   })
 
   if (initialMode === 'normal')
-    void mountDock()
+    void connectionMetadataReady.then(() => mountDock())
   else
     armPassive(persist)
 }

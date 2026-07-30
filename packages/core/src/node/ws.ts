@@ -17,6 +17,7 @@ import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { getAuthHandler } from './auth-handler'
+import { registerBrowserExtensionOrigin as addBrowserExtensionOrigin } from './browser-extension-origin'
 import { MARK_INFO } from './constants'
 import { diagnostics } from './diagnostics'
 import { resolveHttpsConfig } from './https'
@@ -152,7 +153,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // added here isn't visible through `context.viteConfig.devtools.config` until Vite re-vendors
   // it — the same gap `vite-augment.ts` works around for `Plugin.devtools`. Read it through a
   // narrow cast rather than waiting on that.
-  const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
+  // The transport keeps this array by reference. The connection-meta endpoint
+  // can add the exact origin of a browser-extension panel before that panel
+  // opens its WebSocket; RPC authentication remains a separate gate.
+  const allowedOrigins = [
+    ...((context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins ?? []),
+  ]
 
   attachWsRpcTransport(rpcGroup, {
     ...binding,
@@ -219,5 +225,8 @@ export async function createWsServer(options: CreateWsServerOptions) {
     rpc: rpcGroup,
     rpcHost,
     getConnectionMeta,
+    registerBrowserExtensionOrigin(origin: string | undefined) {
+      return addBrowserExtensionOrigin(allowedOrigins, origin)
+    },
   }
 }

@@ -81,6 +81,7 @@ export interface TreeProps {
 
 // #region Functions
 export declare function createDockEntryState(_: DevToolsDockEntry, _: Ref<DevToolsDockEntry | null>): DockEntryState;
+export declare function createDocksContext(_: 'embedded' | 'standalone', _: DevToolsRpcClient, _?: Ref<DockPanelStorage>): Promise<DocksContext>;
 export declare function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage;
 export declare function sharedStateToRef<T>(_: SharedState<T>): ShallowRef<T>;
 export declare function useDocksEntries(_: DevToolsRpcClient): Promise<Ref<DevToolsDockEntry[]>>;

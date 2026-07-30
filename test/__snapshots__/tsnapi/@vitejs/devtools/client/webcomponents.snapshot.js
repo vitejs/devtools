@@ -7,6 +7,7 @@ export var DockEmbedded /* const */
 
 // #region Other
 export { createDockEntryState }
+export { createDocksContext }
 export { DEFAULT_DOCK_PANEL_STORE }
 export { DockStandalone }
 export { sharedStateToRef }

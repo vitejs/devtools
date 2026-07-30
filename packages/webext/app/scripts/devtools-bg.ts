@@ -1,6 +1,6 @@
 const META_CHECK_INTERVAL = 1000
 const META_CHECK_ATTEMPTS = 10
-const META_CHECK_EVAL = 'Boolean(window.__VITE_DEVTOOLS_CONNECTION_META__)'
+const META_CHECK_EVAL = 'Boolean(window.__DEVFRAME_CONNECTION_META__?.baseUrl)'
 const PANEL_TITLE = 'Vite'
 const PANEL_ICON = 'icons/128.png'
 const PANEL_PAGE = 'dist/app/panel/devtools-panel.html'
