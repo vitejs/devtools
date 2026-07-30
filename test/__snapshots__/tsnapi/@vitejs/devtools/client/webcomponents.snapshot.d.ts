@@ -13,6 +13,7 @@ export interface ButtonProps {
   variant?: BaseVariant;
   icon?: string;
   disabled?: boolean;
+  loading?: boolean;
 }
 export interface CodeBlockProps {
   code?: string;
