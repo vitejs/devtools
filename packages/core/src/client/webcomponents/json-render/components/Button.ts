@@ -11,6 +11,8 @@ export interface ButtonProps {
   variant?: BaseVariant
   icon?: string
   disabled?: boolean
+  /** Shows `BaseButton`'s spinner in place of `icon` and implies `disabled`. */
+  loading?: boolean
 }
 
 export const Button = defineComponent({
@@ -18,7 +20,7 @@ export const Button = defineComponent({
   props: registryProps<'Button', ButtonProps>(),
   setup(ctx) {
     return () => {
-      const { label, icon, variant = 'secondary', disabled } = ctx.element.props
+      const { label, icon, variant = 'secondary', disabled, loading } = ctx.element.props
       const press = ctx.on('press')
       const resolved: BaseVariant = VARIANTS.has(variant) ? variant : 'secondary'
 
@@ -26,6 +28,7 @@ export const Button = defineComponent({
         variant: resolved,
         size: 'sm',
         disabled,
+        loading,
         onClick: () => press.emit(),
       }, {
         icon: icon

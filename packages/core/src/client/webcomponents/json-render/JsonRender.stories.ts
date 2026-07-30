@@ -55,10 +55,12 @@ export const Gallery: Story = {
       b2: { type: 'Badge', props: { text: '3 warnings', variant: 'warning' } },
       b3: { type: 'Badge', props: { text: '1 error', variant: 'danger' } },
       b4: { type: 'Badge', props: { text: 'v0.3.4', variant: 'default' } },
-      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3'] },
+      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3', 'btn4'] },
       btn1: { type: 'Button', props: { label: 'Rebuild', variant: 'primary', icon: 'ph:arrows-clockwise' } },
       btn2: { type: 'Button', props: { label: 'Open', variant: 'secondary', icon: 'ph:arrow-square-out' } },
       btn3: { type: 'Button', props: { label: 'Delete', variant: 'danger', icon: 'ph:trash' } },
+      /* `icon` is intentionally still set here — `loading` takes priority and replaces it with the spinner, so this also demonstrates that precedence. */
+      btn4: { type: 'Button', props: { label: 'Deploying…', variant: 'primary', icon: 'ph:rocket-launch', loading: true } },
       progress: { type: 'Progress', props: { value: 68, max: 100, label: 'Bundling' } },
       toggle: { type: 'Switch', props: { label: 'Notifications', value: '{{notifications}}' } },
       divider: { type: 'Divider', props: { label: 'Details' } },
