@@ -15,6 +15,13 @@ export interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
 }
+export interface CardProps {
+  title?: string;
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  variant?: CardVariant;
+  interactive?: boolean;
+}
 export interface CodeBlockProps {
   code?: string;
   filename?: string;

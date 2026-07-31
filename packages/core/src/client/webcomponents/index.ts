@@ -8,6 +8,7 @@ export * from './components/DockStandalone'
 export type {
   BadgeProps,
   ButtonProps,
+  CardProps,
   CodeBlockProps,
   DataTableColumn,
   DataTableProps,

@@ -1,11 +1,21 @@
-import type { RegistryComponentProps } from './types'
 import { defineComponent, h, ref } from 'vue'
 import { border, borderSolid, borderStrong, colors, surfaceMuted } from './tokens'
+import { registryProps } from './types'
+
+export type CardVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+
+export interface CardProps {
+  title?: string
+  collapsible?: boolean
+  defaultCollapsed?: boolean
+  variant?: CardVariant
+  interactive?: boolean
+}
 
 // Mirrors `ContainerCard.vue`'s (packages/ui) opt-in `variant` model: `primary`
 // (default) keeps today's fully transparent look, so existing specs render
 // unchanged; `ghost` is the same no-fill look under a more intentional name.
-const variantBackground: Record<string, string | undefined> = {
+const variantBackground: Record<CardVariant, string | undefined> = {
   primary: undefined,
   secondary: surfaceMuted,
   ghost: undefined,
@@ -14,11 +24,16 @@ const variantBackground: Record<string, string | undefined> = {
 
 export const Card = defineComponent({
   name: 'JrCard',
-  props: ['element', 'emit', 'on', 'bindings', 'loading'],
-  setup(ctx: RegistryComponentProps, { slots }) {
-    const collapsed = ref(false)
+  props: registryProps<'Card', CardProps>(),
+  setup(ctx, { slots }) {
+    const collapsed = ref(!!ctx.element.props.defaultCollapsed)
     return () => {
       const { title, collapsible, variant = 'primary', interactive = false } = ctx.element.props
+      const toggle = ctx.on('toggle')
+      const setCollapsed = (next: boolean) => {
+        collapsed.value = next
+        toggle.emit()
+      }
       return h('div', {
         class: 'jr-card',
         style: {
@@ -34,7 +49,8 @@ export const Card = defineComponent({
         onMouseenter: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = borderStrong } : undefined,
         onMouseleave: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = border } : undefined,
       }, [
-        title && h('div', {
+        // Renders without a `title` too — a collapsible card needs this as its click target.
+        (title || collapsible) && h('div', {
           class: 'jr-card-header',
           style: {
             padding: '8px 12px',
@@ -47,7 +63,7 @@ export const Card = defineComponent({
             borderBottom: collapsed.value ? 'none' : borderSolid(border),
             userSelect: 'none',
           },
-          onClick: collapsible ? () => { collapsed.value = !collapsed.value } : undefined,
+          onClick: collapsible ? () => setCollapsed(!collapsed.value) : undefined,
         }, [
           h('span', title),
           collapsible && h('span', {

@@ -30,6 +30,7 @@ export { UnsupportedComponent }
  */
 export type { BadgeProps } from './components/Badge'
 export type { ButtonProps } from './components/Button'
+export type { CardProps } from './components/Card'
 export type { CodeBlockProps } from './components/CodeBlock'
 export type { DataTableColumn, DataTableProps } from './components/DataTable'
 export type { DividerProps } from './components/Divider'
