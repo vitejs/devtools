@@ -9,6 +9,8 @@ import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtoo
 import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
+import { resolveDockIcon } from '../utils/dock-icon'
+import { getRpcConnectionOrigin } from '../utils/iframe-url'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
@@ -28,6 +30,11 @@ export async function createDocksContext(
   }
 
   const dockEntries = await useDocksEntries(rpc)
+  const connectionOrigin = getRpcConnectionOrigin(rpc)
+  const resolveEntryIcon = <T extends DevToolsDockEntry>(entry: T): T => ({
+    ...entry,
+    icon: resolveDockIcon(entry.icon, connectionOrigin),
+  })
 
   // Client-only dock registry (0.7.10 `DocksEntriesContext` API). Docks
   // registered here live in this page only, merged over the server-provided
@@ -35,7 +42,7 @@ export async function createDocksContext(
   // merge semantics of `@devframes/hub`'s own client host.
   const clientDocks = reactive(new Map<string, DevToolsDockEntry>())
   const entries = computed<DevToolsDockEntry[]>(() => {
-    const server = dockEntries.value
+    const server = dockEntries.value.map(resolveEntryIcon)
     if (clientDocks.size === 0)
       return server
     const seen = new Set<string>()
@@ -43,11 +50,11 @@ export async function createDocksContext(
     for (const entry of server) {
       seen.add(entry.id)
       // a client dock sharing a server id overrides it in the local merge
-      merged.push(clientDocks.get(entry.id) ?? entry)
+      merged.push(resolveEntryIcon(clientDocks.get(entry.id) ?? entry))
     }
     for (const [id, entry] of clientDocks) {
       if (!seen.has(id))
-        merged.push(entry)
+        merged.push(resolveEntryIcon(entry))
     }
     return merged
   })

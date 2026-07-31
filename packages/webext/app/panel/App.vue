@@ -3,7 +3,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { createDocksContext, DockStandalone } from '@vitejs/devtools/client/webcomponents'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
-import { getInspectedWindowMetadata, registerBrowserExtensionOrigin } from './inspected-window'
+import { getInspectedWindowConnection, registerBrowserExtensionOrigin } from './inspected-window'
 import { waitForRpcConnection } from './rpc-connection'
 
 const context = ref<DocksContext | null>(null)
@@ -30,11 +30,11 @@ const statusText = computed(() => {
     : 'Vite DevTools unavailable'
 })
 
-async function resolveInspectedWindowMetadata() {
+async function resolveInspectedWindowConnection() {
   for (let i = 0; i < METADATA_RETRY_COUNT; i++) {
-    const meta = await getInspectedWindowMetadata()
-    if (meta)
-      return meta
+    const connection = await getInspectedWindowConnection()
+    if (connection)
+      return connection
 
     await sleep(METADATA_RETRY_DELAY)
   }
@@ -45,20 +45,21 @@ async function initialize() {
   errorMessage.value = null
 
   try {
-    const meta = await resolveInspectedWindowMetadata()
-    if (!meta)
+    const connection = await resolveInspectedWindowConnection()
+    if (!connection)
       throw new Error('Unable to reconnect to the inspected page.')
 
-    await registerBrowserExtensionOrigin(meta.connectionMeta.baseUrl)
+    await registerBrowserExtensionOrigin(connection.metaBaseUrl)
 
     const rpc = await getDevToolsRpcClient({
-      authToken: meta.authToken,
-      baseURL: new URL('.', meta.connectionMeta.baseUrl).href,
-      connectionMeta: meta.connectionMeta,
+      connection,
     })
+
+    // Prepare shared client state while the trust handshake is still pending.
+    // This lets standalone viewers render Core's auth page for unauthorized clients.
+    const docksContext = await createDocksContext('standalone', rpc)
     await waitForRpcConnection(rpc)
 
-    const docksContext = await createDocksContext('standalone', rpc)
     context.value = docksContext
     ;(globalThis as any)[CLIENT_CONTEXT_KEY] = context.value
   }

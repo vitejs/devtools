@@ -9,6 +9,7 @@ export default defineConfig({
   deps: {
     alwaysBundle: [
       /^@vitejs\/devtools-kit(?:\/.*)?$/,
+      /^devframe(?:\/.*)?$/,
     ],
   },
   platform: 'browser',

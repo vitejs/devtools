@@ -300,6 +300,19 @@ export function docksGroupByCategories(
     if (!includeHidden && docksHidden.includes(entry.id))
       continue
 
+    // An empty group has no button to render on the collapsed dock bar. Drop
+    // it before creating its category bucket so category-only UI such as
+    // separators cannot survive after the group itself disappears.
+    if (
+      collapseGroups
+      && !includeHidden
+      && entry.type === 'group'
+      && getGroupMembers(entries, entry.id, settings, { whenContext }).length === 0
+      && !resolveGroupDefaultChild(entries, entry.id, entry.defaultChildId, whenContext)
+    ) {
+      continue
+    }
+
     // Outer bucket: the group's category for grouped members, else the entry's
     // own category. Orphans (groupId with no registered group) fall through to
     // their own `category`.

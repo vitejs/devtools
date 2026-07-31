@@ -1,5 +1,5 @@
 import type { DevframeRpcClient, DevframeRpcClientOptions } from '@devframes/hub/client'
-import { getDevframeRpcClient } from '@devframes/hub/client'
+import { getDevframeRpcClient, parseRemoteConnection } from '@devframes/hub/client'
 
 /**
  * The Vite DevTools flavour of devframe's {@link getDevframeRpcClient}. Kept as
@@ -19,6 +19,25 @@ import { getDevframeRpcClient } from '@devframes/hub/client'
 export function getDevToolsRpcClient(
   options: DevframeRpcClientOptions = {},
 ): Promise<DevframeRpcClient> {
+  const remote = options.connection ? null : parseRemoteConnection()
+  if (remote) {
+    const {
+      authToken,
+      origin,
+      v: _version,
+      ...connectionMeta
+    } = remote
+    return getDevframeRpcClient({
+      ...options,
+      connection: {
+        connectionMeta,
+        metaBaseUrl: origin,
+        authToken,
+      },
+      simpleAuth: false,
+    })
+  }
+
   return getDevframeRpcClient({
     ...options,
     simpleAuth: false,

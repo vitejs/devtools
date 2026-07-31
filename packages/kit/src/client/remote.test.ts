@@ -1,8 +1,9 @@
+import type { DevframeConnection } from 'devframe/client'
 import type { RemoteConnectionInfo } from '../types'
 import { Buffer } from 'node:buffer'
 import { REMOTE_CONNECTION_KEY } from 'devframe/constants'
 import { describe, expect, it } from 'vitest'
-import { parseRemoteConnection } from './remote'
+import { parseRemoteConnection, withRemoteConnection } from './remote'
 
 function encode(payload: Partial<RemoteConnectionInfo>): string {
   return Buffer.from(JSON.stringify(payload), 'utf8')
@@ -77,5 +78,44 @@ describe('parseRemoteConnection', () => {
     const encoded = encode(null as unknown as RemoteConnectionInfo)
     const url = `https://example.com/page#${REMOTE_CONNECTION_KEY}=${encoded}`
     expect(() => parseRemoteConnection(url)).toThrow(/must be an object/)
+  })
+})
+
+describe('withRemoteConnection', () => {
+  it('attaches a trusted connection to a dock URL', () => {
+    const connection: DevframeConnection = {
+      connectionMeta: {
+        backend: 'websocket',
+        websocket: { path: '__ws' },
+      },
+      metaBaseUrl: 'http://localhost:5173/__devtools/__connection.json',
+      authToken: 'trusted-token',
+    }
+
+    const url = withRemoteConnection(
+      'http://localhost:5173/__devtools-vite/',
+      connection,
+    )
+
+    expect(parseRemoteConnection(url)).toEqual({
+      v: 1,
+      backend: 'websocket',
+      websocket: 'ws://localhost:5173/__devtools/__ws',
+      authToken: 'trusted-token',
+      origin: 'http://localhost:5173',
+    })
+  })
+
+  it('keeps the URL unchanged until the host is trusted', () => {
+    const connection: DevframeConnection = {
+      connectionMeta: {
+        backend: 'websocket',
+        websocket: { path: '__ws' },
+      },
+      metaBaseUrl: 'http://localhost:5173/__devtools/__connection.json',
+    }
+
+    expect(withRemoteConnection('http://localhost:5173/tool/', connection))
+      .toBe('http://localhost:5173/tool/')
   })
 })

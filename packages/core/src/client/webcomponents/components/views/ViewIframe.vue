@@ -3,6 +3,7 @@ import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
+import { withRemoteConnection } from '@vitejs/devtools-kit/client'
 import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
@@ -64,7 +65,19 @@ const urlInputRef = useTemplateRef<HTMLInputElement>('urlInput')
 // Address bar state
 const currentPageOrigin = computed(() => getWindowOrigin())
 const resolvedBaseOrigin = computed(() => getDocksContextOrigin(props.context))
-const resolvedEntryUrl = computed(() => resolveDockIframeUrl(props.entry.url, resolvedBaseOrigin.value))
+const resolvedEntryUrl = computed(() => {
+  const url = resolveDockIframeUrl(props.entry.url, resolvedBaseOrigin.value)
+  if (currentPageOrigin.value === resolvedBaseOrigin.value)
+    return url
+
+  try {
+    if (new URL(url).origin === resolvedBaseOrigin.value)
+      return withRemoteConnection(url, props.context.rpc.connection)
+  }
+  catch {}
+
+  return url
+})
 const currentUrl = ref(resolvedEntryUrl.value)
 const editingUrl = ref(resolvedEntryUrl.value)
 const isEditing = ref(false)

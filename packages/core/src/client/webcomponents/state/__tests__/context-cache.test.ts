@@ -23,6 +23,10 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
   })
 
   return {
+    connectionMeta: {
+      backend: 'websocket',
+      baseUrl: 'http://localhost:5173/__devtools/__connection.json',
+    },
     client: {
       register: () => () => {},
     },
@@ -63,5 +67,20 @@ describe('dock state caches', () => {
 
     expect(entriesA1).toBe(entriesA2)
     expect(entriesA1).not.toBe(entriesB)
+  })
+
+  it('resolves server-hosted dock icons against the RPC server', async () => {
+    const rpc = createMockRpc([{
+      id: 'vite',
+      type: 'iframe',
+      title: 'Vite',
+      icon: '/__devtools-vite/favicon.svg',
+      url: '/__devtools-vite/',
+    }])
+
+    const context = await createDocksContext('standalone', rpc)
+
+    expect(context.docks.entries[0]?.icon)
+      .toBe('http://localhost:5173/__devtools-vite/favicon.svg')
   })
 })

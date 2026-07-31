@@ -1,77 +1,23 @@
-import type { ConnectionMeta } from '@vitejs/devtools-kit'
+import type { DevframeConnection } from 'devframe/client'
+import { DEVFRAME_CONNECTION_KEY } from 'devframe/constants'
 
-export interface InspectedWindowMetadata {
-  authToken?: string
-  connectionMeta: ConnectionMeta & { baseUrl: string }
-}
+export const connectionEval
+  = `window[${JSON.stringify(DEVFRAME_CONNECTION_KEY)}] || undefined`
 
-interface InspectedWindowSnapshot {
-  authToken?: string
-  connectionMeta?: ConnectionMeta
-}
-
-type InspectedWindowConnectionMeta = ConnectionMeta & { baseUrl: string }
-
-export const DEVFRAME_CONNECTION_META_KEY = '__DEVFRAME_CONNECTION_META__'
-export const DEVFRAME_CONNECTION_AUTH_TOKEN_KEY = '__DEVFRAME_CONNECTION_AUTH_TOKEN__'
-
-export const metadataEval = `
-  (() => {
-    let authToken
-    try {
-      authToken = localStorage.getItem(${JSON.stringify(DEVFRAME_CONNECTION_AUTH_TOKEN_KEY)}) || undefined
-    }
-    catch {}
-
-    const connectionMeta = window[${JSON.stringify(DEVFRAME_CONNECTION_META_KEY)}] || undefined
-    return {
-      connectionMeta,
-      authToken: window[${JSON.stringify(DEVFRAME_CONNECTION_AUTH_TOKEN_KEY)}] || authToken,
-    }
-  })()
-`
-
-function inspectWindow(): Promise<InspectedWindowSnapshot | null> {
+function inspectWindow(): Promise<DevframeConnection | null> {
   return new Promise((resolve) => {
-    chrome.devtools.inspectedWindow.eval<InspectedWindowSnapshot>(metadataEval, (snapshot, exceptionInfo) => {
-      resolve(exceptionInfo || !snapshot ? null : snapshot)
+    chrome.devtools.inspectedWindow.eval<DevframeConnection>(connectionEval, (connection, exceptionInfo) => {
+      resolve(exceptionInfo || !connection ? null : connection)
     })
   })
 }
 
-export function resolveInspectedWindowConnectionMeta(
-  connectionMeta: InspectedWindowConnectionMeta,
-): InspectedWindowConnectionMeta {
-  if (typeof connectionMeta.websocket !== 'number')
-    return connectionMeta
-
-  // Devframe resolves a numeric endpoint against the client's location. For
-  // an extension panel that location is chrome-extension://<id>, so anchor
-  // the side-car port to the inspected page's metadata URL instead.
-  const websocketUrl = new URL(connectionMeta.baseUrl)
-  websocketUrl.protocol = websocketUrl.protocol === 'https:' ? 'wss:' : 'ws:'
-  websocketUrl.port = String(connectionMeta.websocket)
-  websocketUrl.pathname = '/'
-  websocketUrl.search = ''
-  websocketUrl.hash = ''
-
-  return {
-    ...connectionMeta,
-    websocket: websocketUrl.href,
-  }
-}
-
-export async function getInspectedWindowMetadata(): Promise<InspectedWindowMetadata | null> {
-  const snapshot = await inspectWindow()
-  if (!snapshot?.connectionMeta?.baseUrl)
+export async function getInspectedWindowConnection(): Promise<DevframeConnection | null> {
+  const connection = await inspectWindow()
+  if (!connection?.connectionMeta || !connection.metaBaseUrl)
     return null
 
-  return {
-    connectionMeta: resolveInspectedWindowConnectionMeta(
-      snapshot.connectionMeta as InspectedWindowConnectionMeta,
-    ),
-    authToken: snapshot.authToken,
-  }
+  return connection
 }
 
 export async function registerBrowserExtensionOrigin(

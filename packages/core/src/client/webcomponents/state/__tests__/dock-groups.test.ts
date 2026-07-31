@@ -66,6 +66,31 @@ describe('dock groups', () => {
     expect(ids).not.toContain('nuxt:pages')
   })
 
+  it('drops an empty group before creating its category bucket', () => {
+    const grouped = docksGroupByCategories([
+      group('viteplus', { category: 'framework' }),
+      iframe('unocss', { category: 'web' }),
+    ], settings, { collapseGroups: true })
+
+    expect(grouped.map(([category]) => category)).toEqual(['web'])
+    expect(grouped.flatMap(([, items]) => items.map(i => i.id))).toEqual(['unocss'])
+  })
+
+  it('keeps an empty-looking group whose default child remains reachable', () => {
+    const grouped = docksGroupByCategories([
+      group('viteplus', {
+        category: 'framework',
+        defaultChildId: 'vite',
+      } as Partial<DevToolsDockEntry>),
+      iframe('vite', {
+        groupId: 'viteplus',
+        visibility: 'false',
+      } as Partial<DevToolsDockEntry>),
+    ], settings, { collapseGroups: true })
+
+    expect(grouped.flatMap(([, items]) => items.map(i => i.id))).toEqual(['viteplus'])
+  })
+
   it('keeps members visible when not collapsing', () => {
     const grouped = docksGroupByCategories(entries, settings)
     const ids = grouped.flatMap(([, items]) => items.map(i => i.id))

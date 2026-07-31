@@ -29,6 +29,7 @@
   "dependencies": {
     "@vitejs/devtools": "workspace:*",
     "@vitejs/devtools-kit": "workspace:*",
+    "devframe": "catalog:deps",
     "webext-bridge": "catalog:deps"
   },
   "devDependencies": {

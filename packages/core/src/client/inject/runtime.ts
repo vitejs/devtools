@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
-import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
+import { setupDevframeConnection } from 'devframe/client'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../constants'
 import { createDocksContext } from '../webcomponents/state/context'
 
@@ -16,7 +16,6 @@ export type InjectMode = 'passive' | 'normal' | 'hidden'
 // `POST { enabled }` is how the client writes that flag back when the developer
 // activates the docks (passive mode) or hides them again.
 const MODE_URL = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_MODE_FILENAME}`
-const DEVFRAME_CONNECTION_META_KEY = '__DEVFRAME_CONNECTION_META__'
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform ?? '')
 
@@ -48,49 +47,24 @@ async function persistNormalMode(enabled: boolean): Promise<void> {
   }
 }
 
-async function ensureConnectionMetadata(): Promise<void> {
-  if ((globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY])
-    return
-
-  // TODO: Devframe should expose a metadata bootstrap API so hosts can publish
-  // connection state without writing its reserved window global directly.
-  const bases = [
-    new URL(DEVTOOLS_MOUNT_PATH, window.location.href),
-    new URL(DEVTOOLS_MOUNT_PATH, import.meta.url),
-  ]
-
-  for (const base of bases) {
-    try {
-      const metaUrl = new URL(DEVTOOLS_CONNECTION_META_FILENAME, base)
-      const response = await fetch(metaUrl)
-      if (!response.ok)
-        continue
-
-      const connectionMeta = await response.json() as ConnectionMeta
-      ;(globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY] = {
-        ...connectionMeta,
-        baseUrl: response.url || metaUrl.href,
-      }
-      return
-    }
-    catch {
-      // Try the Vite module origin when the host page is served elsewhere.
-    }
-  }
+function setupConnection() {
+  return setupDevframeConnection({
+    // Prefer the host page's origin. When the page is served by another
+    // backend, fall back to the Vite origin that loaded this module.
+    baseURL: [
+      DEVTOOLS_MOUNT_PATH,
+      new URL(DEVTOOLS_MOUNT_PATH, import.meta.url).href,
+    ],
+  })
 }
 
 async function mountDock(): Promise<void> {
   if (dockEl)
     return
 
-  // Prefer the host page's origin for backwards compatibility. When the page
-  // is served by another backend, fall back to the Vite origin that loaded
-  // this module.
+  const connection = await setupConnection()
   const rpc = await getDevToolsRpcClient({
-    baseURL: [
-      DEVTOOLS_MOUNT_PATH,
-      new URL(DEVTOOLS_MOUNT_PATH, import.meta.url).href,
-    ],
+    connection,
   })
 
   const state = useLocalStorage<DockPanelStorage>(
@@ -201,7 +175,7 @@ export function startDevTools(initialMode: InjectMode): void {
   // eslint-disable-next-line no-console
   console.log('[VITE DEVTOOLS] Client injected')
 
-  const connectionMetadataReady = ensureConnectionMetadata()
+  const connectionReady = setupConnection()
 
   // Only passive mode remembers the reveal across loads; hidden is per-session.
   const persist = initialMode === 'passive'
@@ -210,8 +184,13 @@ export function startDevTools(initialMode: InjectMode): void {
     void deactivate(persist)
   })
 
-  if (initialMode === 'normal')
-    void connectionMetadataReady.then(() => mountDock())
-  else
+  if (initialMode === 'normal') {
+    void connectionReady.then(() => mountDock())
+  }
+  else {
+    // Passive/hidden mode prepares the external-viewer connection eagerly,
+    // while keeping a failed attempt retryable when the overlay is activated.
+    void connectionReady.catch(() => {})
     armPassive(persist)
+  }
 }

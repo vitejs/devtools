@@ -1,13 +1,8 @@
-import type { ConnectionMeta } from '@vitejs/devtools-kit'
+import type { DevframeConnection } from 'devframe/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getInspectedWindowMetadata, metadataEval, registerBrowserExtensionOrigin, resolveInspectedWindowConnectionMeta } from './inspected-window'
+import { connectionEval, getInspectedWindowConnection, registerBrowserExtensionOrigin } from './inspected-window'
 
-interface ChromeEvalResult {
-  authToken?: string
-  connectionMeta?: ConnectionMeta
-}
-
-function stubInspectedWindow(result: ChromeEvalResult | null) {
+function stubInspectedWindow(result: DevframeConnection | null) {
   vi.stubGlobal('chrome', {
     devtools: {
       inspectedWindow: {
@@ -23,51 +18,37 @@ describe('inspected window metadata', () => {
     vi.restoreAllMocks()
   })
 
-  it('reads the standard Devframe handoff from the inspected page', async () => {
-    const connectionMeta: ConnectionMeta = {
-      backend: 'websocket',
-      websocket: { path: '__ws' },
-      baseUrl: 'http://localhost:5173/__devtools/__connection.json',
+  it('reads the standard Devframe connection from the inspected page', async () => {
+    const connection: DevframeConnection = {
+      connectionMeta: {
+        backend: 'websocket',
+        websocket: { path: '__ws' },
+      },
+      metaBaseUrl: 'http://localhost:5173/__devtools/__connection.json',
+      authToken: 'trusted-token',
     }
+    stubInspectedWindow(connection)
+
+    await expect(getInspectedWindowConnection()).resolves.toBe(connection)
+    expect(connectionEval).toContain('__DEVFRAME_CONNECTION__')
+  })
+
+  it('returns null until the injected client publishes the connection', async () => {
+    stubInspectedWindow(null)
+
+    await expect(getInspectedWindowConnection()).resolves.toBeNull()
+  })
+
+  it('rejects an incomplete connection snapshot', async () => {
     stubInspectedWindow({
-      authToken: 'trusted-token',
-      connectionMeta,
+      connectionMeta: {
+        backend: 'websocket',
+        websocket: 7812,
+      },
+      metaBaseUrl: '',
     })
 
-    await expect(getInspectedWindowMetadata()).resolves.toEqual({
-      authToken: 'trusted-token',
-      connectionMeta,
-    })
-    expect(metadataEval).toContain('__DEVFRAME_CONNECTION_META__')
-    expect(metadataEval).toContain('__DEVFRAME_CONNECTION_AUTH_TOKEN__')
-  })
-
-  it('returns null until the injected client publishes the handoff', async () => {
-    stubInspectedWindow({})
-
-    await expect(getInspectedWindowMetadata()).resolves.toBeNull()
-  })
-
-  it('anchors a standalone WS port to the inspected page instead of the extension panel', () => {
-    expect(resolveInspectedWindowConnectionMeta({
-      backend: 'websocket',
-      websocket: 7812,
-      baseUrl: 'http://localhost:3000/__devtools/__connection.json',
-    })).toEqual({
-      backend: 'websocket',
-      websocket: 'ws://localhost:7812/',
-      baseUrl: 'http://localhost:3000/__devtools/__connection.json',
-    })
-  })
-
-  it('preserves route-bound WS metadata', () => {
-    const connectionMeta = {
-      backend: 'websocket' as const,
-      websocket: { path: '__ws' },
-      baseUrl: 'https://example.com/__devtools/__connection.json',
-    }
-
-    expect(resolveInspectedWindowConnectionMeta(connectionMeta)).toBe(connectionMeta)
+    await expect(getInspectedWindowConnection()).resolves.toBeNull()
   })
 
   it('registers the panel origin through the connection metadata endpoint', async () => {

@@ -1,6 +1,8 @@
+import { DEVFRAME_CONNECTION_KEY } from 'devframe/constants'
+
 const META_CHECK_INTERVAL = 1000
 const META_CHECK_ATTEMPTS = 10
-const META_CHECK_EVAL = 'Boolean(window.__DEVFRAME_CONNECTION_META__?.baseUrl)'
+const META_CHECK_EVAL = `Boolean(window[${JSON.stringify(DEVFRAME_CONNECTION_KEY)}]?.metaBaseUrl)`
 const PANEL_TITLE = 'Vite'
 const PANEL_ICON = 'icons/128.png'
 const PANEL_PAGE = 'dist/app/panel/devtools-panel.html'

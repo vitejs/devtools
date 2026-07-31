@@ -1,4 +1,4 @@
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DocksContext } from '@vitejs/devtools-kit/client'
 
 const ABSOLUTE_URL_RE = /^[a-z][a-z0-9+.-]*:\/\//i
 
@@ -11,8 +11,9 @@ export function getWindowOrigin(): string {
   }
 }
 
-export function getDocksContextOrigin(context: DocksContext): string {
-  const baseUrl = context.rpc.connectionMeta.baseUrl
+export function getRpcConnectionOrigin(rpc: DevToolsRpcClient): string {
+  const baseUrl = rpc.connection?.metaBaseUrl
+    ?? rpc.connectionMeta?.baseUrl
   if (baseUrl) {
     try {
       return new URL(baseUrl).origin
@@ -20,6 +21,10 @@ export function getDocksContextOrigin(context: DocksContext): string {
     catch {}
   }
   return getWindowOrigin()
+}
+
+export function getDocksContextOrigin(context: DocksContext): string {
+  return getRpcConnectionOrigin(context.rpc)
 }
 
 export function resolveDockIframeUrl(url: string, baseOrigin = getWindowOrigin()): string {

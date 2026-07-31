@@ -1,11 +1,13 @@
+import type { DevframeConnection } from 'devframe/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { startDevTools } from './runtime'
 
+const DEVFRAME_CONNECTION_KEY = '__DEVFRAME_CONNECTION__'
 const DEVFRAME_CONNECTION_META_KEY = '__DEVFRAME_CONNECTION_META__'
 
 const mocks = vi.hoisted(() => ({
   getDevToolsRpcClient: vi.fn(
-    (_options: { baseURL: string[] }) => new Promise(() => {}),
+    (_options: { connection: DevframeConnection }) => new Promise(() => {}),
   ),
 }))
 
@@ -43,6 +45,7 @@ describe('injected DevTools runtime', () => {
   })
 
   afterEach(() => {
+    delete (globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_KEY]
     delete (globalThis as Record<string, unknown>)[DEVFRAME_CONNECTION_META_KEY]
     vi.unstubAllGlobals()
     mocks.getDevToolsRpcClient.mockClear()
@@ -53,30 +56,35 @@ describe('injected DevTools runtime', () => {
     await vi.waitFor(() => expect(mocks.getDevToolsRpcClient).toHaveBeenCalled())
     const options = mocks.getDevToolsRpcClient.mock.calls[0]![0]
 
-    expect(options.baseURL).toHaveLength(2)
-    expect(options.baseURL[0]).toBe('/__devtools/')
+    expect(options.connection.metaBaseUrl).toBe(
+      'http://localhost:5173/__devtools/__connection.json',
+    )
   })
 
-  it('adds the Vite module origin as the fallback base', async () => {
+  it('passes the prepared connection to the RPC client', async () => {
     startDevTools('normal')
     await vi.waitFor(() => expect(mocks.getDevToolsRpcClient).toHaveBeenCalled())
     const options = mocks.getDevToolsRpcClient.mock.calls[0]![0]
 
-    expect(options.baseURL[1]).toBe(
-      new URL('/__devtools/', import.meta.url).href,
-    )
+    expect(options.connection.connectionMeta).toEqual({
+      backend: 'websocket',
+      websocket: { path: '__ws' },
+    })
   })
 
   it.each(['normal', 'passive', 'hidden'] as const)(
-    'publishes standard connection metadata without unnecessarily mounting the %s overlay',
+    'publishes a standard connection without unnecessarily mounting the %s overlay',
     async (mode) => {
       startDevTools(mode)
 
       await vi.waitFor(() => {
-        expect((globalThis as Record<string, any>)[DEVFRAME_CONNECTION_META_KEY]).toEqual({
-          backend: 'websocket',
-          websocket: { path: '__ws' },
-          baseUrl: 'http://localhost:5173/__devtools/__connection.json',
+        expect((globalThis as Record<string, any>)[DEVFRAME_CONNECTION_KEY]).toEqual({
+          connectionMeta: {
+            backend: 'websocket',
+            websocket: { path: '__ws' },
+          },
+          metaBaseUrl: 'http://localhost:5173/__devtools/__connection.json',
+          authToken: undefined,
         })
       })
       if (mode !== 'normal')
