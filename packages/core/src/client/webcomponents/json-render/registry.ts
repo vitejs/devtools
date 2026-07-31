@@ -10,6 +10,7 @@ import { KeyValueTable } from './components/KeyValueTable'
 import { Progress } from './components/Progress'
 import { Stack } from './components/Stack'
 import { Switch } from './components/Switch'
+import { Tabs } from './components/Tabs'
 import { Text } from './components/Text'
 import { TextInput } from './components/TextInput'
 import { Tree } from './components/Tree'
@@ -38,6 +39,7 @@ export type { IconProps } from './components/Icon'
 export type { KeyValueTableProps } from './components/KeyValueTable'
 export type { ProgressProps } from './components/Progress'
 export type { SwitchProps } from './components/Switch'
+export type { TabDescriptor, TabsProps } from './components/Tabs'
 export type { TextProps } from './components/Text'
 export type { TextInputProps } from './components/TextInput'
 export type { TreeProps } from './components/Tree'
@@ -46,6 +48,7 @@ export type { UIElement as JsonRenderElement } from '@json-render/core'
 export const devtoolsRegistry: Record<string, Component> = {
   Stack,
   Card,
+  Tabs,
   Text,
   Badge,
   Button,

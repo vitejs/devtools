@@ -18,6 +18,8 @@ export type {
   KeyValueTableProps,
   ProgressProps,
   SwitchProps,
+  TabDescriptor,
+  TabsProps,
   TextInputProps,
   TextProps,
   TreeProps,

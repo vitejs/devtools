@@ -273,6 +273,40 @@ Container with an optional title and collapsible behavior.
 }
 ```
 
+#### Tabs
+
+Switches which of its `children` is shown, one tab per entry in `tabs` (positionally matched — `children[i]` renders when `tabs[i]` is active).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tabs` | `Array<{ value: string, label: string, icon?: string, badge?: string, badgeVariant?: 'default' \| 'info' \| 'success' \| 'warning' \| 'danger' }>` | — | The tab list |
+| `value` | `string` | — | Active tab's `value` (use `$bindState` for two-way binding) |
+| `defaultValue` | `string` | first tab | Initial active tab when `value` isn't bound |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Underlined top bar vs. a left-hand rail |
+
+**Event**: `change` — fires when the active tab changes (including via arrow-key navigation).
+
+<!-- eslint-skip -->
+```ts
+{
+  root: 'root',
+  elements: {
+    root: {
+      type: 'Tabs',
+      props: {
+        tabs: [
+          { value: 'mfe', label: 'Micro-Frontends', badge: '3', badgeVariant: 'success' },
+          { value: 'gateway', label: 'Gateway' },
+        ],
+      },
+      children: ['mfe-panel', 'gateway-panel'],
+    },
+    'mfe-panel': { type: 'Text', props: { text: '3 active overrides' } },
+    'gateway-panel': { type: 'Text', props: { text: 'No overrides' } },
+  },
+}
+```
+
 #### Divider
 
 Visual separator line with an optional label.

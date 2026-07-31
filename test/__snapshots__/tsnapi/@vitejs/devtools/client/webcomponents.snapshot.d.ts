@@ -70,6 +70,19 @@ export interface SwitchProps {
   label?: string;
   disabled?: boolean;
 }
+export interface TabDescriptor {
+  value: string;
+  label: string;
+  icon?: string;
+  badge?: string;
+  badgeVariant?: 'default' | 'info' | 'success' | 'warning' | 'danger';
+}
+export interface TabsProps {
+  tabs: TabDescriptor[];
+  value?: string;
+  defaultValue?: string;
+  orientation?: 'horizontal' | 'vertical';
+}
 export interface TextInputProps {
   value?: string;
   placeholder?: string;

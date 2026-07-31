@@ -33,7 +33,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'The json-render primitive registry (`Stack`, `Card`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
+        component: 'The json-render primitive registry (`Stack`, `Card`, `Tabs`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
       },
     },
   },
@@ -120,6 +120,62 @@ export const Card: StoryObj<Meta<CardArgs>> = {
       row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t2', 'badge2'] },
       t2: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
       badge2: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+    },
+  } as unknown as Spec)),
+}
+
+/**
+ * `Tabs` switches which of its `children` renders, positionally matched to
+ * `tabs[]` — no `visible` plumbing needed in the spec. Each panel here is a
+ * `Card` of `Stack` rows (the same composition the `Card` story above uses
+ * standalone), showing that a tab panel is an ordinary element tree, not a
+ * special slot. Uncontrolled (no `value` binding), so each tab click drives
+ * Tabs' own local state; toggle `orientation` below to compare the
+ * underlined horizontal bar against the left-rail vertical layout, and use
+ * arrow keys / Home / End once a tab has focus to exercise the
+ * roving-tabindex keyboard navigation.
+ */
+interface TabsArgs {
+  orientation: 'horizontal' | 'vertical'
+}
+
+export const Tabs: StoryObj<Meta<TabsArgs>> = {
+  argTypes: {
+    orientation: { control: 'select', options: ['horizontal', 'vertical'] },
+  },
+  args: { orientation: 'horizontal' },
+  render: args => renderSpec(() => ({
+    root: 'root',
+    state: {},
+    elements: {
+      root: {
+        type: 'Tabs',
+        props: {
+          orientation: args.orientation,
+          tabs: [
+            { value: 'mfe', label: 'Micro-Frontends', badge: '2', badgeVariant: 'success' },
+            { value: 'shells', label: 'Shells' },
+            { value: 'gateway', label: 'Gateway', badge: '1', badgeVariant: 'danger' },
+          ],
+        },
+        children: ['mfeCard', 'shellsCard', 'gatewayCard'],
+      },
+      mfeCard: { type: 'Card', props: { title: 'Micro-Frontends', variant: 'secondary' }, children: ['mfeRows'] },
+      mfeRows: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['mfeRow1', 'mfeRow2'] },
+      mfeRow1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['mfeRow1Text', 'mfeRow1Badge'] },
+      mfeRow1Text: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
+      mfeRow1Badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+      mfeRow2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['mfeRow2Text', 'mfeRow2Badge'] },
+      mfeRow2Text: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
+      mfeRow2Badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+
+      shellsCard: { type: 'Card', props: { title: 'Shells', variant: 'secondary' }, children: ['shellsBody'] },
+      shellsBody: { type: 'Text', props: { text: 'No shells running locally.', variant: 'caption' } },
+
+      gatewayCard: { type: 'Card', props: { title: 'Gateway', variant: 'secondary' }, children: ['gatewayRow'] },
+      gatewayRow: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', padding: 4 }, children: ['gatewayRowText', 'gatewayRowBadge'] },
+      gatewayRowText: { type: 'Text', props: { text: 'gateway-web', variant: 'code' } },
+      gatewayRowBadge: { type: 'Badge', props: { text: 'stale override', variant: 'danger' } },
     },
   } as unknown as Spec)),
 }
