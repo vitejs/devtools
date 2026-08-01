@@ -28,29 +28,46 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
 }
 
 /**
- * The frame-nav adapter listens for `message` events on `globalThis`. These
- * tests run in the node environment (no DOM), so stub the listener registry and
- * drive it with synthetic events — this exercises the viewer wiring we own
- * (auto-attach, member materialization, the nav loop) without a DOM dependency.
+ * A `message` listener registry standing in for one window realm. Tests drive it
+ * with synthetic events instead of real `postMessage`.
  */
-function stubMessageBus() {
+function createMessageRegistry() {
   const listeners = new Set<(ev: any) => void>()
-  const origAdd = (globalThis as any).addEventListener
-  const origRemove = (globalThis as any).removeEventListener;
-  (globalThis as any).addEventListener = (type: string, cb: any) => {
-    if (type === 'message')
-      listeners.add(cb)
-  }
-  ;(globalThis as any).removeEventListener = (type: string, cb: any) => {
-    if (type === 'message')
-      listeners.delete(cb)
-  }
   return {
+    addEventListener(type: string, cb: any) {
+      if (type === 'message')
+        listeners.add(cb)
+    },
+    removeEventListener(type: string, cb: any) {
+      if (type === 'message')
+        listeners.delete(cb)
+    },
     emit(data: unknown, origin = 'http://localhost:5173') {
       for (const cb of [...listeners]) cb({ origin, data })
     },
     get size() {
       return listeners.size
+    },
+  }
+}
+
+/**
+ * The frame-nav adapter listens for `message` events on the iframe's own realm,
+ * falling back to `globalThis`. These tests run in the node environment (no DOM),
+ * so stub the global listener registry and drive it with synthetic events — this
+ * exercises the viewer wiring we own (auto-attach, member materialization, the
+ * nav loop) without a DOM dependency.
+ */
+function stubMessageBus() {
+  const registry = createMessageRegistry()
+  const origAdd = (globalThis as any).addEventListener
+  const origRemove = (globalThis as any).removeEventListener;
+  (globalThis as any).addEventListener = registry.addEventListener
+  ;(globalThis as any).removeEventListener = registry.removeEventListener
+  return {
+    emit: registry.emit,
+    get size() {
+      return registry.size
     },
     restore() {
       ;(globalThis as any).addEventListener = origAdd
@@ -59,13 +76,24 @@ function stubMessageBus() {
   }
 }
 
-function makeFakeIframe(src: string) {
+/**
+ * A window realm other than the main one — what the dock sees when it is mounted
+ * inside a Document Picture-in-Picture popup.
+ */
+function makeFakeRealm() {
+  return createMessageRegistry()
+}
+
+function makeFakeIframe(src: string, realm?: ReturnType<typeof makeFakeRealm>) {
   const posted: { msg: any, origin: string }[] = []
   const iframe = {
     src,
     contentWindow: {
       postMessage: (msg: any, origin: string) => posted.push({ msg, origin }),
     },
+    // Left undefined unless a realm is given, so the adapter falls back to
+    // `globalThis` exactly as it does for the plain single-realm tests.
+    ownerDocument: realm ? { defaultView: realm } : undefined,
   }
   return { iframe: iframe as unknown as HTMLIFrameElement, posted }
 }
@@ -232,6 +260,80 @@ describe('shared-iframe soft navigation', () => {
     expect(ids).not.toContain('nuxt:modules')
     expect(ids).not.toContain('nuxt:timeline')
     expect(context.docks.selectedId).toBeNull()
+  })
+})
+
+// Each dock shell (float, edge, popup) owns its own `IframePanes` manager and
+// creates panes in its own document. Popup mode is Document Picture-in-Picture,
+// so the anchor iframe lives in the popup's realm and its shim posts the ready
+// handshake there — an adapter listening on the main window never hears it, and
+// the group renders with no members.
+describe('frame-nav across window realms', () => {
+  let bus: ReturnType<typeof stubMessageBus> | undefined
+
+  afterEach(() => {
+    bus?.restore()
+    bus = undefined
+  })
+
+  it('listens on the iframe\'s own realm, not the main window', async () => {
+    bus = stubMessageBus()
+    const popup = makeFakeRealm()
+    const context = await createDocksContext('embedded', createMockRpc([anchorEntry()]))
+    const { iframe } = makeFakeIframe(ANCHOR_URL, popup)
+
+    context.docks.getStateById('nuxt')!.domElements.iframe = iframe
+    await nextTick()
+
+    expect(popup.size).toBe(1)
+    expect(bus.size).toBe(0)
+
+    // The main window hearing the manifest must change nothing.
+    bus.emit(frameMessage('ready', { tabs: READY_TABS, current: 'modules' }))
+    expect(context.docks.entries.map(e => e.id)).not.toContain('nuxt:modules')
+
+    popup.emit(frameMessage('ready', { tabs: READY_TABS, current: 'modules' }))
+
+    const ids = context.docks.entries.map(e => e.id)
+    expect(ids).toContain('nuxt:modules')
+    expect(ids).toContain('nuxt:timeline')
+    expect(context.docks.selectedId).toBe('nuxt:modules')
+  })
+
+  it('re-attaches to the new iframe when the dock remounts in another realm', async () => {
+    bus = stubMessageBus()
+    const first = makeFakeRealm()
+    const context = await createDocksContext('embedded', createMockRpc([anchorEntry()]))
+    const { iframe: iframe1, posted: posted1 } = makeFakeIframe(ANCHOR_URL, first)
+
+    const state = context.docks.getStateById('nuxt')!
+    state.domElements.iframe = iframe1
+    await nextTick()
+    first.emit(frameMessage('ready', { tabs: READY_TABS, current: 'modules' }))
+    expect(context.docks.selectedId).toBe('nuxt:modules')
+
+    // Switching shells mounts a brand-new iframe element in a different document.
+    const second = makeFakeRealm()
+    const { iframe: iframe2, posted: posted2 } = makeFakeIframe(ANCHOR_URL, second)
+    posted1.length = 0
+    state.domElements.iframe = iframe2
+    await nextTick()
+
+    // The stale adapter is torn down and a fresh handshake runs against iframe #2.
+    expect(first.size).toBe(0)
+    expect(second.size).toBe(1)
+    expect(posted2.some(p => p.msg.type === 'hello')).toBe(true)
+
+    second.emit(frameMessage('ready', { tabs: READY_TABS, current: 'modules' }))
+    posted1.length = 0
+    posted2.length = 0
+    await context.docks.switchEntry('nuxt:timeline')
+
+    // Nav goes to the live iframe, not the unmounted one.
+    const navigate = posted2.find(p => p.msg.type === 'navigate')
+    expect(navigate).toBeDefined()
+    expect(navigate!.msg.tabId).toBe('timeline')
+    expect(posted1.some(p => p.msg.type === 'navigate')).toBe(false)
   })
 })
 

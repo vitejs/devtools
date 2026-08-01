@@ -244,25 +244,39 @@ export async function createDocksContext(
   // Our shell runs its own dock machinery instead of hub's `createDevframeClientHost`,
   // so we replicate the host's `maybeAttachFrameNav`: one adapter per `frameId`,
   // torn down when the anchor is removed.
-  const frameNavAdapters = new Map<string, () => void>()
+  //
+  // The adapter is bound to a *mounted iframe element*, not just to the `frameId`.
+  // Each dock shell (float, edge, popup) owns its own `IframePanes` manager and
+  // creates panes in its own document, so switching shells hands us a different
+  // iframe in a different realm — the old adapter is disposed and a fresh one
+  // attached. For the same reason the adapter must listen on the iframe's own
+  // window: in popup mode the frame lives in a Document-PiP document and posts
+  // its handshake to *that* window, not to the main one.
+  const frameNavAdapters = new Map<string, { iframe: HTMLIFrameElement, dispose: () => void }>()
   const frameNavAnchors = new Map<string, string>()
 
   const attachFrameNav = (anchor: DevToolsViewIframe, state: DockEntryState) => {
     const frameId = anchor.frameId ?? anchor.id
     const start = (iframe: HTMLIFrameElement) => {
-      if (frameNavAdapters.has(frameId))
-        return
+      const existing = frameNavAdapters.get(frameId)
+      if (existing) {
+        if (existing.iframe === iframe)
+          return
+        existing.dispose()
+        frameNavAdapters.delete(frameId)
+      }
       const adapter = attachDevToolsFrameNav({
         frameId,
         anchor,
         iframe,
+        window: iframe.ownerDocument?.defaultView ?? globalThis,
         docks: {
           register: registerClientDock,
           switchEntry,
           getStateById: (id: string) => dockEntryStateMap.get(id),
         },
       })
-      frameNavAdapters.set(frameId, adapter.dispose)
+      frameNavAdapters.set(frameId, { iframe, dispose: adapter.dispose })
     }
     if (state.domElements.iframe)
       start(state.domElements.iframe)
@@ -291,7 +305,7 @@ export async function createDocksContext(
         if (seen.has(anchorId))
           continue
         frameNavAnchors.delete(anchorId)
-        frameNavAdapters.get(frameId)?.()
+        frameNavAdapters.get(frameId)?.dispose()
         frameNavAdapters.delete(frameId)
       }
     },
