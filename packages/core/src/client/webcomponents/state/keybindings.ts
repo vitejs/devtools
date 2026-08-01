@@ -1,4 +1,6 @@
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
+import type { WhenContext } from 'devframe/utils/when'
+import { evaluateWhen } from 'devframe/utils/when'
 
 export type { WhenContext } from 'devframe/utils/when'
 export { evaluateWhen, resolveContextValue } from 'devframe/utils/when'
@@ -55,6 +57,38 @@ export function isKeybindingOverrideDifferentFromDefault(
   defaults: DevToolsCommandKeybinding[] | undefined,
 ): boolean {
   return override !== undefined && !areKeybindingsEqual(override, defaults)
+}
+
+/**
+ * Drop the commands whose `when` clause does not hold in the current context,
+ * children included — `when` is documented to control palette visibility, but
+ * nothing evaluated it for nested entries.
+ *
+ * A parent that survives is shallow-cloned so its `children` can be narrowed
+ * without mutating the registry. Callers therefore get fresh parent objects on
+ * every call: match entries by `id`, never by reference.
+ */
+export function filterCommandsByWhen(
+  commands: DevToolsCommandEntry[],
+  ctx: WhenContext,
+): DevToolsCommandEntry[] {
+  const isAvailable = (cmd: { when?: string }) => !cmd.when || evaluateWhen(cmd.when, ctx)
+
+  const result: DevToolsCommandEntry[] = []
+  for (const cmd of commands) {
+    if (!isAvailable(cmd))
+      continue
+    if (!cmd.children) {
+      result.push(cmd)
+      continue
+    }
+    // `children` is typed `Server[] | Client[]` rather than `(Server | Client)[]`,
+    // so filtering it in place widens the element type — same cast the other
+    // child-walking call sites use.
+    const children = (cmd.children as DevToolsCommandEntry[]).filter(isAvailable)
+    result.push({ ...cmd, children } as DevToolsCommandEntry)
+  }
+  return result
 }
 
 export function collectAllKeybindings(

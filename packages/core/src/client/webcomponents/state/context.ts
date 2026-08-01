@@ -13,7 +13,7 @@ import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
-import { registerMainFrameDockActionHandler, triggerMainFrameDockAction } from './popup'
+import { registerMainFrameDockActionHandler, triggerMainFrameDockAction, useIsDockPopupOpen } from './popup'
 import { createDockRenderers } from './renderers'
 import { executeSetupScript } from './setup-script'
 
@@ -131,11 +131,13 @@ export async function createDocksContext(
 
   // Shared when-context provider — used by both commands and docks
   let commandsContext: CommandsContext
+  const isDockPopupOpen = useIsDockPopupOpen()
   const getWhenContext = (): WhenContext => ({
     clientType,
     dockOpen: panelStore.value.open,
     paletteOpen: commandsContext?.paletteOpen ?? false,
     dockSelectedId: selectedId.value ?? '',
+    popupOpen: isDockPopupOpen.value,
   })
 
   // Tracks the shared frame's current member tab, keyed by `frameId`. A
@@ -387,13 +389,19 @@ export async function createDocksContext(
       source: 'client',
       title: 'Dock Mode',
       icon: 'ph:layout-duotone',
-      when: clientType === 'embedded' ? 'clientType == embedded' : undefined,
+      // While the popup is open the embedded shell is unmounted and the popup
+      // renders the standalone layout, so neither mode is observable — mirrors
+      // the Appearance settings hiding its own dock-mode control.
+      when: clientType === 'embedded' ? 'clientType == embedded && !popupOpen' : undefined,
       children: [
         {
           id: 'devtools:dock-mode:float',
           source: 'client',
           title: 'Float Mode',
           icon: 'ph:cards-three-duotone',
+          // Repeated per child: shortcut dispatch reads the matched command's
+          // own `when` and does not inherit the parent's.
+          when: '!popupOpen',
           action: () => {
             panelStore.value.mode = 'float'
           },
@@ -403,6 +411,7 @@ export async function createDocksContext(
           source: 'client',
           title: 'Edge Mode',
           icon: 'ph:square-half-bottom-duotone',
+          when: '!popupOpen',
           action: () => {
             panelStore.value.mode = 'edge'
           },
