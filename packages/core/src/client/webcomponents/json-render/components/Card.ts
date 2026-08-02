@@ -1,25 +1,13 @@
 import { defineComponent, h, ref } from 'vue'
-import { border, borderSolid, borderStrong, colors, surfaceMuted } from './tokens'
+import { border, borderSolid, variantSurface } from './tokens'
 import { registryProps } from './types'
-
-export type CardVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 export interface CardProps {
   title?: string
   collapsible?: boolean
   defaultCollapsed?: boolean
-  variant?: CardVariant
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning'
   interactive?: boolean
-}
-
-// Mirrors `ContainerCard.vue`'s (packages/ui) opt-in `variant` model: `primary`
-// (default) keeps today's fully transparent look, so existing specs render
-// unchanged; `ghost` is the same no-fill look under a more intentional name.
-const variantBackground: Record<CardVariant, string | undefined> = {
-  primary: undefined,
-  secondary: surfaceMuted,
-  ghost: undefined,
-  danger: colors.danger.bg,
 }
 
 export const Card = defineComponent({
@@ -34,20 +22,22 @@ export const Card = defineComponent({
         collapsed.value = next
         toggle.emit()
       }
+      const surface = variantSurface(variant)
+      const borderColor = surface.border ?? border
       return h('div', {
         class: 'jr-card',
         style: {
-          border: borderSolid(border),
+          border: borderSolid(borderColor),
           borderRadius: '6px',
           overflow: 'hidden',
-          backgroundColor: variantBackground[variant],
+          backgroundColor: surface.background,
           transition: interactive ? 'border-color 0.15s ease' : undefined,
         },
         // `interactive` strengthens the border on hover rather than tinting
         // the background (already set by `variant`) — same transition timing
         // as Stack's row hover, just on `border-color` instead of `background`.
-        onMouseenter: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = borderStrong } : undefined,
-        onMouseleave: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = border } : undefined,
+        onMouseenter: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = surface.hoverBorder ?? borderColor } : undefined,
+        onMouseleave: interactive ? (e: MouseEvent) => { (e.currentTarget as HTMLElement).style.borderColor = borderColor } : undefined,
       }, [
         // Renders without a `title` too — a collapsible card needs this as its click target.
         (title || collapsible) && h('div', {
@@ -60,7 +50,8 @@ export const Card = defineComponent({
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: collapsible ? 'pointer' : undefined,
-            borderBottom: collapsed.value ? 'none' : borderSolid(border),
+            borderBottom: collapsed.value ? 'none' : borderSolid(borderColor),
+            backgroundColor: surface.headerBackground,
             userSelect: 'none',
           },
           onClick: collapsible ? () => setCollapsed(!collapsed.value) : undefined,
