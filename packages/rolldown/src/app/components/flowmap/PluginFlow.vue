@@ -100,7 +100,7 @@ function toggleShowType() {
 <template>
   <div class="p2 h-full w-full">
     <div class="flex border border-base rounded-2 h-full relative of-hidden">
-      <div v-if="expanded" class="of-hidden border-r border-base">
+      <div v-if="expanded" class="of-hidden border-r border-base shrink-0">
         <FlowmapPluginFlowTimeline
           :session="session"
           :build-metrics="buildMetrics"
@@ -114,7 +114,7 @@ function toggleShowType() {
           </template>
         </FlowmapPluginFlowTimeline>
       </div>
-      <div class="flex-1 h-full min-h-0 flex flex-col">
+      <div class="flex-1 h-full min-w-0 min-h-0 flex flex-col">
         <div class="flex items-center justify-between border-b border-base px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap">
           <div class="flex items-center h-full">
             <button v-if="!expanded" class="w8 h8 rounded-full cursor-pointer mr1 hover:bg-active flex items-center justify-center" @click="toggleExpanded(true)">
@@ -137,7 +137,7 @@ function toggleShowType() {
             </button>
           </div>
         </div>
-        <div class="flex-1 min-h-0 overscroll-contain">
+        <div class="flex-1 min-h-0 of-x-auto overscroll-contain">
           <DataPluginDetailsTable
             :session="session"
             :build-metrics="buildMetrics"
