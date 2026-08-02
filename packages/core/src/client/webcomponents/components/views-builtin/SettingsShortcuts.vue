@@ -3,7 +3,7 @@ import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/de
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed, nextTick, ref, watch } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
-import { formatKeybinding, isKeybindingOverrideDifferentFromDefault, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
+import { filterCommandsByWhen, formatKeybinding, isKeybindingOverrideDifferentFromDefault, isMac, KNOWN_BROWSER_SHORTCUTS } from '../../state/keybindings'
 import KeybindingBadge from '../command-palette/KeybindingBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
@@ -22,9 +22,14 @@ interface ShortcutRow {
   indent: boolean
 }
 
+// Only offer to bind commands that are actually reachable right now — binding a
+// key to something the current context rules out (e.g. the dock-mode commands
+// while the dock is detached into a popup) would silently do nothing.
+const availableCommands = computed(() => filterCommandsByWhen(commandsCtx.commands, props.context.when.context))
+
 const shortcutRows = computed<ShortcutRow[]>(() => {
   const rows: ShortcutRow[] = []
-  for (const cmd of commandsCtx.commands) {
+  for (const cmd of availableCommands.value) {
     rows.push({ command: cmd, indent: false })
     if (cmd.children) {
       for (const child of cmd.children) {
