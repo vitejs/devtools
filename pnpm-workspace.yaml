@@ -116,6 +116,7 @@ catalogs:
     bumpp: ^12.1.1
     chokidar: ^5.0.0
     eslint: ^10.8.0
+    knip: ^6.31.0
     nano-staged: ^1.0.2
     oxfmt: ^0.60.0
     oxlint: ^1.76.0

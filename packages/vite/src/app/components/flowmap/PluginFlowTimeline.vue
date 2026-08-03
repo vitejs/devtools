@@ -49,9 +49,9 @@ const endTime = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col h-full min-h-0">
     <slot name="header" />
-    <div class="select-none h-full of-auto ws-nowrap w-auto of-visible p4 flex flex-col">
+    <div class="select-none flex-1 min-h-0 of-x-hidden of-y-auto ws-nowrap w-auto p4 flex flex-col" style="scrollbar-gutter: stable">
       <div class="flex">
         <FlowmapNode
           :active="false"
