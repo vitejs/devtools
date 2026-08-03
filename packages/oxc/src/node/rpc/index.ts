@@ -9,6 +9,7 @@ import { oxlintGetConfigFile } from './functions/oxlint-get-config-file'
 import { oxfmtGetConfigFile } from './functions/oxfmt-get-config-file'
 import { openInEditor } from './functions/open-in-editor'
 import { getConfigFiles } from './functions/get-config-files'
+import { oxlintInstall, oxlintMigrate, oxlintWaitForSetup } from './functions/oxlint-migrate'
 
 export const rpcFunctions = [
   oxlintRun,
@@ -20,6 +21,9 @@ export const rpcFunctions = [
   oxlintGetConfigFile,
   oxfmtGetConfigFile,
   getConfigFiles,
+  oxlintMigrate,
+  oxlintInstall,
+  oxlintWaitForSetup,
   openInEditor,
 ] as const
 

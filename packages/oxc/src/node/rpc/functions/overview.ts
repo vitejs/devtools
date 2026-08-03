@@ -1,6 +1,7 @@
 import { defineOxcRpc } from '../_define'
 import { x } from 'tinyexec'
 import { getVitePlusVersions, isVitePlusInstalled } from '../../utils/vite-plus'
+import { needsOxlintMigration } from './oxlint-migrate'
 
 type Package = {
   installed: boolean
@@ -50,6 +51,9 @@ export const overview = defineOxcRpc({
         } else {
           try {
             const { stdout } = await x('oxlint', ['--version'], { nodeOptions: { cwd: ctx.cwd } })
+            if (!stdout) {
+              throw new Error('Not installed')
+            }
             oxlint.installed = true
             oxlint.version = stdout.split(' ')[1]?.trim().replaceAll('\n', '') ?? undefined
             oxlint.latest = oxlint.version === oxlintData.version
@@ -59,6 +63,9 @@ export const overview = defineOxcRpc({
           }
           try {
             const { stdout } = await x('oxfmt', ['--version'], { nodeOptions: { cwd: ctx.cwd } })
+            if (!stdout) {
+              throw new Error('Not installed')
+            }
             oxfmt.installed = true
             oxfmt.version = stdout.split(' ')[1]?.trim().replaceAll('\n', '') ?? undefined
             oxfmt.latest = oxfmt.version === oxfmtData.version
@@ -71,6 +78,7 @@ export const overview = defineOxcRpc({
           oxlint,
           oxfmt,
           vitePlus: vitePlusVersions?.vitePlus,
+          needsOxlintMigration: needsOxlintMigration(ctx.cwd),
         }
       },
     }

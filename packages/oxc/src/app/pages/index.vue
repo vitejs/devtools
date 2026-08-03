@@ -1,39 +1,66 @@
 <script setup lang="ts">
 import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools.vue'
+import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
 import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { useAsyncState } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { createOverview } from '../utils/overview'
 import { useRpc } from '#imports'
 
 const rpc = useRpc()
 const vitePlusDarkLogo = '/__devtools-oxc/viteplus-dark.svg'
 const vitePlusLightLogo = '/__devtools-oxc/viteplus-light.svg'
 
-const { state: overview, isLoading } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:overview'),
-  {
-    oxlint: {
-      installed: false,
-      version: undefined,
-      latest: true,
-      npmxLink: undefined,
-    },
-    oxfmt: {
-      installed: false,
-      version: undefined,
-      latest: true,
-      npmxLink: undefined,
-    },
-    vitePlus: undefined,
-  },
-)
+const {
+  state: overview,
+  isLoading,
+  execute: refreshOverview,
+} = useAsyncState(() => rpc.value.call('devtools-oxc:overview'), createOverview())
 
-const { state: configFiles } = useAsyncState(
+const { state: configFiles, execute: refreshConfigFiles } = useAsyncState(
   () => rpc.value.call('devtools-oxc:get-config-files'),
   [],
 )
+
+const isMigrating = ref(false)
+const migrationError = ref<string>()
+const migrationSessionId = ref<string>()
+
+async function migrateOxlint() {
+  await runOxlintSetup('devtools-oxc:migrate-eslint')
+}
+
+async function installOxlint() {
+  await runOxlintSetup('devtools-oxc:install-oxlint')
+}
+
+async function runOxlintSetup(
+  action: 'devtools-oxc:migrate-eslint' | 'devtools-oxc:install-oxlint',
+) {
+  isMigrating.value = true
+  migrationError.value = undefined
+  migrationSessionId.value = undefined
+  try {
+    const { sessionId } = await rpc.value.call(action)
+    migrationSessionId.value = sessionId
+    await rpc.value.call('devtools-oxc:wait-for-setup')
+    await Promise.all([refreshOverview(), refreshConfigFiles()])
+  } catch (error) {
+    migrationError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isMigrating.value = false
+  }
+}
+
+async function viewMigrationInTerminal() {
+  if (!migrationSessionId.value) return
+  await rpc.value.call('hub:docks:activate', {
+    dockId: DEVTOOLS_TERMINALS_DOCK_ID,
+    params: { sessionId: migrationSessionId.value },
+  })
+}
 
 interface ToolView {
   title: string
@@ -106,12 +133,23 @@ const tools = computed(() => {
       <div
         v-for="tool in tools"
         :key="tool.id"
-        class="border border-base rounded p2 flex-1 min-w-max"
+        class="border border-base rounded p-4 flex-1 min-w-120 min-h-56"
       >
-        <div class="p4 flex flex-col gap-4 h-full">
-          <div class="text-2xl font-semibold">{{ tool.name }}</div>
+        <div class="flex flex-col gap-4 h-full justify-between">
+          <div class="flex items-end justify-between gap-2">
+            <div class="text-2xl font-semibold">{{ tool.name }}</div>
+            <DisplayBadge
+              v-if="!tool.info.installed"
+              text="Not installed"
+              :color="false"
+              class="badge-color-gray"
+            />
+          </div>
 
-          <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
+          <div
+            v-if="tool.info.installed"
+            class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center"
+          >
             <div class="i-ph-tag-duotone op-fade" />
             <span class="op-fade">Version</span>
             <div class="flex items-center gap-2 w-full">
@@ -123,7 +161,6 @@ const tools = computed(() => {
               >
                 v{{ tool.info.version }}
               </a>
-              <span v-else class="op-fade">Not installed</span>
               <a
                 v-if="tool.info.installed"
                 :href="
@@ -165,6 +202,26 @@ const tools = computed(() => {
           </div>
 
           <div class="flex gap-2">
+            <button
+              v-if="tool.id === 'oxlint' && overview.needsOxlintMigration"
+              type="button"
+              class="btn-action flex flex-col flex-1 min-w-max p4 !px4 whitespace-nowrap"
+              :disabled="isMigrating"
+              @click="migrateOxlint"
+            >
+              <div class="i-simple-icons:eslint text-2xl" />
+              {{ isMigrating ? 'Migrating…' : 'Migrate from ESLint' }}
+            </button>
+            <button
+              v-if="tool.id === 'oxlint' && !tool.info.installed && !overview.needsOxlintMigration"
+              type="button"
+              class="btn-action flex flex-col flex-1 min-w-40 p4 !px4 whitespace-nowrap"
+              :disabled="isMigrating"
+              @click="installOxlint"
+            >
+              <div class="i-ph-rocket-launch-duotone text-2xl" />
+              {{ isMigrating ? 'Installing…' : 'Install Oxlint' }}
+            </button>
             <NuxtLink
               v-for="view in tool.views"
               :key="view.title"
@@ -175,6 +232,18 @@ const tools = computed(() => {
               {{ view.title }}
             </NuxtLink>
           </div>
+          <button
+            v-if="tool.id === 'oxlint' && isMigrating && migrationSessionId"
+            type="button"
+            class="btn-action flex items-center gap-2 self-start px3 py2 text-sm"
+            @click="viewMigrationInTerminal"
+          >
+            <div class="i-ph-terminal-window-duotone" />
+            View in terminals
+          </button>
+          <p v-if="tool.id === 'oxlint' && migrationError" class="text-sm text-red">
+            {{ migrationError }}
+          </p>
         </div>
       </div>
     </div>

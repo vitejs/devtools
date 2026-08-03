@@ -78,3 +78,4 @@ Emitted by `@vitejs/devtools-oxc`.
 | [OXDT0002](./OXDT0002) | error | Invalid Lint Result ID |
 | [OXDT0003](./OXDT0003) | error | Failed to Delete Lint Result |
 | [OXDT0004](./OXDT0004) | error | Oxlint Config Inspection Failed |
+| [OXDT0005](./OXDT0005) | error | Oxlint Setup Failed |
