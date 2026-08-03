@@ -40,6 +40,11 @@ jobs:
       - name: Typecheck
         run: nr typecheck
 
+      # Non-blocking until the existing findings are triaged; see knip.jsonc.
+      - name: Knip
+        run: nr knip
+        continue-on-error: true
+
   test:
     runs-on: ${{ matrix.os }}
     strategy:
