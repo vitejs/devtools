@@ -100,7 +100,7 @@ function toggleShowType() {
 <template>
   <div class="p2 h-full w-full">
     <div class="flex border border-base rounded-2 h-full relative of-hidden">
-      <div v-if="expanded" class="of-hidden border-r border-base shrink-0">
+      <div v-if="expanded" class="of-hidden border-r border-base shrink-0 h-full min-h-0 flex flex-col">
         <FlowmapPluginFlowTimeline
           :session="session"
           :build-metrics="buildMetrics"
