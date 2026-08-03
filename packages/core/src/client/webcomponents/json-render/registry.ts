@@ -7,7 +7,9 @@ import { DataTable } from './components/DataTable'
 import { Divider } from './components/Divider'
 import { Icon } from './components/Icon'
 import { KeyValueTable } from './components/KeyValueTable'
+import { Link } from './components/Link'
 import { Progress } from './components/Progress'
+import { Select } from './components/Select'
 import { Stack } from './components/Stack'
 import { Switch } from './components/Switch'
 import { Tabs } from './components/Tabs'
@@ -37,7 +39,9 @@ export type { DataTableColumn, DataTableProps } from './components/DataTable'
 export type { DividerProps } from './components/Divider'
 export type { IconProps } from './components/Icon'
 export type { KeyValueTableProps } from './components/KeyValueTable'
+export type { LinkProps } from './components/Link'
 export type { ProgressProps } from './components/Progress'
+export type { SelectOption, SelectProps } from './components/Select'
 export type { StackProps } from './components/Stack'
 export type { SwitchProps } from './components/Switch'
 export type { TabDescriptor, TabsProps } from './components/Tabs'
@@ -53,9 +57,11 @@ export const devtoolsRegistry: Record<string, Component> = {
   Text,
   Badge,
   Button,
+  Link,
   Icon,
   Divider,
   TextInput,
+  Select,
   Switch,
   KeyValueTable,
   DataTable,

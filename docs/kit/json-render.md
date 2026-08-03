@@ -414,6 +414,22 @@ Clickable button that triggers an action via the `press` event.
 { type: 'Button', props: { icon: 'ph:plus', variant: 'ghost' }, on: { press: { action: 'my-plugin:add' } } }
 ```
 
+#### Link
+
+Links to `http`, `https` and `mailto` targets — anything else falls back to rendering `label` as plain text.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `href` | `string` | — | Link target |
+| `label` | `string` | — | Link text (defaults to `href`) |
+| `icon` | `string` | — | Iconify icon name |
+| `external` | `boolean` | `true` for `http(s)` | Open in a new tab |
+
+<!-- eslint-skip -->
+```ts
+{ type: 'Link', props: { href: 'https://vite.dev', label: 'Vite docs', icon: 'ph:arrow-square-out' } }
+```
+
 #### TextInput
 
 Text input field with optional two-way state binding.
@@ -435,6 +451,38 @@ Text input field with optional two-way state binding.
     placeholder: 'Search modules...',
     value: { $bindState: '/query' },
   },
+}
+```
+
+#### Select
+
+Dropdown choosing one value from a fixed set of options, with optional two-way state binding.
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | — | Current value (use `$bindState` for two-way binding) |
+| `options` | `(string \| { value, label?, icon?, description? })[]` | — | Available choices |
+| `placeholder` | `string` | — | Shown while `value` is unset |
+| `label` | `string` | — | Label shown above the select |
+| `disabled` | `boolean` | `false` | Disable interaction |
+| `searchable` | `boolean` | `false` | Add a substring filter box to the panel |
+
+**Event**: `change` — fires when the selected value changes.
+
+<!-- eslint-skip -->
+```ts
+{
+  type: 'Select',
+  props: {
+    label: 'Environment',
+    value: { $bindState: '/env' },
+    options: [
+      { value: 'dev', label: 'Development' },
+      { value: 'staging', label: 'Staging' },
+      { value: 'prod', label: 'Production', description: 'Live traffic' },
+    ],
+  },
+  on: { change: { action: 'my-plugin:switch-env' } },
 }
 ```
 
