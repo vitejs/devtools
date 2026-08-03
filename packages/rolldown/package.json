@@ -61,6 +61,7 @@
     "idb-keyval": "catalog:frontend",
     "modern-monaco": "catalog:frontend",
     "nanovis": "catalog:frontend",
+    "nuxt": "catalog:build",
     "splitpanes": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "tsdown": "catalog:build",

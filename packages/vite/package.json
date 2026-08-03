@@ -62,6 +62,7 @@
     "fuse.js": "catalog:frontend",
     "modern-monaco": "catalog:frontend",
     "nanovis": "catalog:frontend",
+    "nuxt": "catalog:build",
     "splitpanes": "catalog:frontend",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
