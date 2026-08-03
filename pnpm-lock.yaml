@@ -1155,6 +1155,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@floating-ui/dom':
+        specifier: '*'
+        version: 1.8.0
       '@vueuse/core':
         specifier: '*'
         version: 14.3.0(vue@3.5.40(typescript@6.0.3))
