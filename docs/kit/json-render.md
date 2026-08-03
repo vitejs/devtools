@@ -232,6 +232,8 @@ Flex layout container. Arranges children vertically or horizontally.
 | `wrap` | `boolean` | `false` | Allow children to wrap onto multiple lines |
 | `flex` | `number \| string` | — | `flex` shorthand for the container |
 | `padding` | `number` | — | Padding in pixels |
+| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'info' \| 'success' \| 'warning'` | `'primary'` | Background tint (`danger`/`info`/`success`/`warning` also draw a matching border) |
+| `interactive` | `boolean` | `false` | Tint the background on hover — useful for clickable-looking rows |
 
 <!-- eslint-skip -->
 ```ts
@@ -259,9 +261,11 @@ Container with an optional title and collapsible behavior.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `title` | `string` | — | Header title |
+| `title` | `string` | — | Header title. A collapsible card still shows its (empty) header without one — otherwise there'd be nothing to click |
 | `collapsible` | `boolean` | `false` | Whether the card can be collapsed |
 | `defaultCollapsed` | `boolean` | `false` | Start collapsed (when `collapsible`) |
+| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'danger' \| 'info' \| 'success' \| 'warning'` | `'primary'` | A light background tint on the body, a stronger same-hue tint on the header bar, and a matching border (`danger`/`info`/`success`/`warning`) |
+| `interactive` | `boolean` | `false` | Brighten the border on hover |
 | `loading` | `boolean` | `false` | Show a loading state |
 
 <!-- eslint-skip -->
@@ -270,6 +274,40 @@ Container with an optional title and collapsible behavior.
   type: 'Card',
   props: { title: 'Build Info', collapsible: true },
   children: ['info-table'],
+}
+```
+
+#### Tabs
+
+Switches which of its `children` is shown, one tab per entry in `tabs` (positionally matched — `children[i]` renders when `tabs[i]` is active).
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tabs` | `Array<{ value: string, label: string, icon?: string, badge?: string, badgeVariant?: 'default' \| 'info' \| 'success' \| 'warning' \| 'danger' }>` | — | The tab list |
+| `value` | `string` | — | Active tab's `value` (use `$bindState` for two-way binding) |
+| `defaultValue` | `string` | first tab | Initial active tab when `value` isn't bound |
+| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Underlined top bar vs. a left-hand rail |
+
+**Event**: `change` — fires when the active tab changes (including via arrow-key navigation).
+
+<!-- eslint-skip -->
+```ts
+{
+  root: 'root',
+  elements: {
+    root: {
+      type: 'Tabs',
+      props: {
+        tabs: [
+          { value: 'mfe', label: 'Micro-Frontends', badge: '3', badgeVariant: 'success' },
+          { value: 'gateway', label: 'Gateway' },
+        ],
+      },
+      children: ['mfe-panel', 'gateway-panel'],
+    },
+    'mfe-panel': { type: 'Text', props: { text: '3 active overrides' } },
+    'gateway-panel': { type: 'Text', props: { text: 'No overrides' } },
+  },
 }
 ```
 

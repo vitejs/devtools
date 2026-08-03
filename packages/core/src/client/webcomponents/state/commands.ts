@@ -6,8 +6,8 @@ import type { ShallowRef } from 'vue'
 import { evaluateWhen } from 'devframe/utils/when'
 import { computed, markRaw, reactive, ref, watch } from 'vue'
 import { sharedStateToRef } from './docks'
-import { collectAllKeybindings, normalizeKeyEvent } from './keybindings'
-import { useDockPopupWindow } from './popup'
+import { collectAllKeybindings, filterCommandsByWhen, normalizeKeyEvent } from './keybindings'
+import { useDockPopupWindow, useIsDockPopupOpen } from './popup'
 
 export { formatKeybinding, isMac, normalizeKeyEvent } from './keybindings'
 
@@ -35,6 +35,7 @@ export async function createCommandsContext(
   const shortcutOverrides = computed(() => settings.value.commandShortcuts ?? {})
 
   const paletteOpen = ref(false)
+  const isDockPopupOpen = useIsDockPopupOpen()
 
   const getWhenContext = (): WhenContext => {
     if (whenContextProvider)
@@ -44,6 +45,7 @@ export async function createCommandsContext(
       dockOpen: false,
       paletteOpen: paletteOpen.value,
       dockSelectedId: '',
+      popupOpen: isDockPopupOpen.value,
     }
   }
 
@@ -55,13 +57,8 @@ export async function createCommandsContext(
 
   const paletteCommands = computed<DevToolsCommandEntry[]>(() => {
     const ctx = getWhenContext()
-    return commands.value.filter((cmd) => {
-      if (cmd.showInPalette === false)
-        return false
-      if (cmd.when && !evaluateWhen(cmd.when, ctx))
-        return false
-      return true
-    })
+    const available = filterCommandsByWhen(commands.value, ctx)
+    return available.filter(cmd => cmd.showInPalette !== false)
   })
 
   function register(cmd: DevToolsClientCommand | DevToolsClientCommand[]): () => void {

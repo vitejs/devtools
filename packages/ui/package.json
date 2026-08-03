@@ -69,6 +69,7 @@
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "peerDependencies": {
+    "@floating-ui/dom": "*",
     "@vueuse/core": "*",
     "d3-hierarchy": "*",
     "d3-shape": "*",

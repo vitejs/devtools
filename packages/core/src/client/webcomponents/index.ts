@@ -9,6 +9,7 @@ export * from './components/DockStandalone'
 export type {
   BadgeProps,
   ButtonProps,
+  CardProps,
   CodeBlockProps,
   DataTableColumn,
   DataTableProps,
@@ -17,7 +18,10 @@ export type {
   JsonRenderElement,
   KeyValueTableProps,
   ProgressProps,
+  StackProps,
   SwitchProps,
+  TabDescriptor,
+  TabsProps,
   TextInputProps,
   TextProps,
   TreeProps,

@@ -16,6 +16,7 @@ export const bg = 'var(--jr-bg, inherit)'
 
 // --- Semantic palette ---
 
+/** Badge's pill fill. Card/Stack use their own lighter tints below — a badge-strength fill would read as a heavy block over a whole card. */
 export const colors = {
   info: { bg: 'rgba(59,130,246,0.15)', fg: 'rgb(59,130,246)' },
   success: { bg: 'rgba(34,197,94,0.15)', fg: 'rgb(34,197,94)' },
@@ -40,4 +41,37 @@ export const syntaxNumber = '#dcdcaa'
 
 export function borderSolid(token = border) {
   return `1px solid ${token}`
+}
+
+/** Resting/hover background + border a `variant` resolves to on Card/Stack. */
+export interface VariantSurface {
+  background?: string
+  /** Card-only — its header bar reads a step stronger than the body it sits above, so a titled card is a two-tone surface rather than one flat tint. */
+  headerBackground?: string
+  border?: string
+  hoverBackground?: string
+  hoverBorder?: string
+}
+
+/** No semantic hue — border stays unset, hover stays a neutral grey. */
+const neutralSurfaces: Record<'primary' | 'secondary' | 'ghost', VariantSurface> = {
+  primary: { hoverBackground: surfaceSubtle, hoverBorder: borderStrong },
+  secondary: { background: surfaceMuted, hoverBackground: surfaceSubtle, hoverBorder: borderStrong },
+  ghost: { hoverBackground: surfaceSubtle, hoverBorder: borderStrong },
+}
+
+const semanticSurfaces: Record<'info' | 'success' | 'warning' | 'danger', Required<Pick<VariantSurface, 'background' | 'headerBackground' | 'border' | 'hoverBackground' | 'hoverBorder'>>> = {
+  info: { background: 'rgba(59,130,246,0.08)', headerBackground: 'rgba(59,130,246,0.18)', border: 'rgba(59,130,246,0.25)', hoverBackground: 'rgba(59,130,246,0.25)', hoverBorder: 'rgba(59,130,246,0.6)' },
+  success: { background: 'rgba(34,197,94,0.08)', headerBackground: 'rgba(34,197,94,0.18)', border: 'rgba(34,197,94,0.25)', hoverBackground: 'rgba(34,197,94,0.25)', hoverBorder: 'rgba(34,197,94,0.6)' },
+  warning: { background: 'rgba(234,179,8,0.08)', headerBackground: 'rgba(234,179,8,0.18)', border: 'rgba(234,179,8,0.25)', hoverBackground: 'rgba(234,179,8,0.25)', hoverBorder: 'rgba(234,179,8,0.6)' },
+  danger: { background: 'rgba(239,68,68,0.08)', headerBackground: 'rgba(239,68,68,0.18)', border: 'rgba(239,68,68,0.25)', hoverBackground: 'rgba(239,68,68,0.25)', hoverBorder: 'rgba(239,68,68,0.6)' },
+}
+
+/** Resolves a `variant` prop to the surface Card and Stack render at rest and on hover. */
+export function variantSurface(variant: string): VariantSurface {
+  if (variant in neutralSurfaces)
+    return neutralSurfaces[variant as keyof typeof neutralSurfaces]
+  if (variant in semanticSurfaces)
+    return semanticSurfaces[variant as keyof typeof semanticSurfaces]
+  return neutralSurfaces.primary
 }

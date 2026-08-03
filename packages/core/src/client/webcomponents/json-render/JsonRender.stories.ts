@@ -33,7 +33,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'The json-render primitive registry (`Stack`, `Card`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
+        component: 'The json-render primitive registry (`Stack`, `Card`, `Tabs`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
       },
     },
   },
@@ -55,10 +55,12 @@ export const Gallery: Story = {
       b2: { type: 'Badge', props: { text: '3 warnings', variant: 'warning' } },
       b3: { type: 'Badge', props: { text: '1 error', variant: 'danger' } },
       b4: { type: 'Badge', props: { text: 'v0.3.4', variant: 'default' } },
-      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3'] },
+      buttons: { type: 'Stack', props: { direction: 'row', gap: 8 }, children: ['btn1', 'btn2', 'btn3', 'btn4'] },
       btn1: { type: 'Button', props: { label: 'Rebuild', variant: 'primary', icon: 'ph:arrows-clockwise' } },
       btn2: { type: 'Button', props: { label: 'Open', variant: 'secondary', icon: 'ph:arrow-square-out' } },
       btn3: { type: 'Button', props: { label: 'Delete', variant: 'danger', icon: 'ph:trash' } },
+      /* `icon` is intentionally still set here — `loading` takes priority and replaces it with the spinner, so this also demonstrates that precedence. */
+      btn4: { type: 'Button', props: { label: 'Deploying…', variant: 'primary', icon: 'ph:rocket-launch', loading: true } },
       progress: { type: 'Progress', props: { value: 68, max: 100, label: 'Bundling' } },
       toggle: { type: 'Switch', props: { label: 'Notifications', value: '{{notifications}}' } },
       divider: { type: 'Divider', props: { label: 'Details' } },
@@ -82,36 +84,102 @@ export const Gallery: Story = {
 }
 
 /**
- * A `Card` grouping content under a titled, bordered surface. Toggle the
- * Controls below to compare today's default (`primary`, non-`interactive` —
- * unchanged from before this fix) against the new opt-in look: `variant`
- * tints the background (`secondary`/`danger`) or leaves it untouched
- * (`primary`/`ghost`); `interactive` strengthens the Card's border on hover
- * and tints each row's (`Stack`) background on hover.
+ * A `Card` grouping content under a titled, bordered surface. `secondary`
+ * tints the background with no border; `ghost` and `primary` are untinted.
+ * `info`/`success`/`warning`/`danger` each draw a light body tint, a
+ * stronger same-hue header bar, and a matching border. `interactive`
+ * strengthens the border on hover (same hue for the four semantic variants)
+ * and tints each row's (`Stack`) background. `collapsible` + `defaultCollapsed`
+ * control the initial collapse state; clear `title` to confirm the header
+ * (and its chevron) still renders without one.
  */
 interface CardArgs {
-  variant: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning'
+  rowVariant: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning'
   interactive: boolean
+  title: string
+  collapsible: boolean
+  defaultCollapsed: boolean
 }
 
 export const Card: StoryObj<Meta<CardArgs>> = {
   argTypes: {
-    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'info', 'success', 'warning'] },
+    rowVariant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger', 'info', 'success', 'warning'] },
     interactive: { control: 'boolean' },
+    title: { control: 'text' },
+    collapsible: { control: 'boolean' },
+    defaultCollapsed: { control: 'boolean' },
   },
-  args: { variant: 'primary', interactive: false },
+  args: { variant: 'primary', rowVariant: 'ghost', interactive: false, title: 'Plugin', collapsible: true, defaultCollapsed: false },
   render: args => renderSpec(() => ({
     root: 'root',
     state: {},
     elements: {
-      root: { type: 'Card', props: { title: 'Plugin', collapsible: false, variant: args.variant, interactive: args.interactive }, children: ['body'] },
+      root: { type: 'Card', props: { title: args.title, collapsible: args.collapsible, defaultCollapsed: args.defaultCollapsed, variant: args.variant, interactive: args.interactive }, children: ['body'] },
       body: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['row1', 'row2'] },
-      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t', 'badge'] },
+      row1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', variant: args.rowVariant, interactive: args.interactive }, children: ['t', 'badge'] },
       t: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
       badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
-      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', interactive: args.interactive }, children: ['t2', 'badge2'] },
+      row2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', variant: args.rowVariant, interactive: args.interactive }, children: ['t2', 'badge2'] },
       t2: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
       badge2: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+    },
+  } as unknown as Spec)),
+}
+
+/**
+ * `Tabs` switches which of its `children` renders, positionally matched to
+ * `tabs[]` — no `visible` plumbing needed in the spec. Each panel here is a
+ * `Card` of `Stack` rows (the same composition the `Card` story above uses
+ * standalone), showing that a tab panel is an ordinary element tree, not a
+ * special slot. Uncontrolled (no `value` binding), so each tab click drives
+ * Tabs' own local state; toggle `orientation` below to compare the
+ * underlined horizontal bar against the left-rail vertical layout, and use
+ * arrow keys / Home / End once a tab has focus to exercise the
+ * roving-tabindex keyboard navigation.
+ */
+interface TabsArgs {
+  orientation: 'horizontal' | 'vertical'
+}
+
+export const Tabs: StoryObj<Meta<TabsArgs>> = {
+  argTypes: {
+    orientation: { control: 'select', options: ['horizontal', 'vertical'] },
+  },
+  args: { orientation: 'horizontal' },
+  render: args => renderSpec(() => ({
+    root: 'root',
+    state: {},
+    elements: {
+      root: {
+        type: 'Tabs',
+        props: {
+          orientation: args.orientation,
+          tabs: [
+            { value: 'mfe', label: 'Micro-Frontends', badge: '2', badgeVariant: 'success' },
+            { value: 'shells', label: 'Shells' },
+            { value: 'gateway', label: 'Gateway', badge: '1', badgeVariant: 'danger' },
+          ],
+        },
+        children: ['mfeCard', 'shellsCard', 'gatewayCard'],
+      },
+      mfeCard: { type: 'Card', props: { title: 'Micro-Frontends', variant: 'secondary' }, children: ['mfeRows'] },
+      mfeRows: { type: 'Stack', props: { direction: 'column', gap: 4, padding: 4 }, children: ['mfeRow1', 'mfeRow2'] },
+      mfeRow1: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['mfeRow1Text', 'mfeRow1Badge'] },
+      mfeRow1Text: { type: 'Text', props: { text: 'vite-plugin-inspect', variant: 'code' } },
+      mfeRow1Badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+      mfeRow2: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['mfeRow2Text', 'mfeRow2Badge'] },
+      mfeRow2Text: { type: 'Text', props: { text: 'vite-plugin-vue', variant: 'code' } },
+      mfeRow2Badge: { type: 'Badge', props: { text: 'enabled', variant: 'success' } },
+
+      shellsCard: { type: 'Card', props: { title: 'Shells', variant: 'secondary' }, children: ['shellsBody'] },
+      shellsBody: { type: 'Text', props: { text: 'No shells running locally.', variant: 'caption' } },
+
+      gatewayCard: { type: 'Card', props: { title: 'Gateway', variant: 'secondary' }, children: ['gatewayRow'] },
+      gatewayRow: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', padding: 4 }, children: ['gatewayRowText', 'gatewayRowBadge'] },
+      gatewayRowText: { type: 'Text', props: { text: 'gateway-web', variant: 'code' } },
+      gatewayRowBadge: { type: 'Badge', props: { text: 'stale override', variant: 'danger' } },
     },
   } as unknown as Spec)),
 }

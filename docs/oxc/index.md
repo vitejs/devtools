@@ -4,25 +4,53 @@ outline: deep
 
 # DevTools for Oxc
 
-DevTools for Oxc (`@vitejs/devtools-oxc`) is a built-in integration that inspects the [Oxc](https://oxc.rs/) toolchain — oxlint and oxfmt. It was donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) by Leo.
+DevTools for Oxc (`@vitejs/devtools-oxc`) inspects Oxlint and Oxfmt from the [Oxc](https://oxc.rs/) toolchain. It was donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) by Leo.
 
 ## What it does
 
-- **Visualize lint output** — explore oxlint results in an interactive interface.
-- **Config helper** — read oxlint and oxfmt configuration at a glance.
+- **Toolchain overview** — view installed versions and configuration files.
+- **Lint inspection** — run Oxlint and inspect diagnostics.
+- **Configuration analysis** — explore rules, plugins, and overrides.
+- **Documentation** — open the Oxlint and Oxfmt documentation.
 
 ## Getting started
 
-DevTools for Oxc ships with Vite DevTools. When its package is present it mounts via `DevToolsOxc()`; otherwise open the **Oxc** launcher in the dock to install it on demand, then restart the dev server.
+Follow [Getting Started](/guide/) to set up Vite DevTools, then open the **Oxc** launcher and install the integration. Restart the development server to activate it.
 
-```ts [vite.config.ts]
-import { DevTools } from '@vitejs/devtools'
-import { DevToolsOxc } from '@vitejs/devtools-oxc/vite'
-import { defineConfig } from 'vite'
+It can also run as a standalone CLI:
 
-export default defineConfig({
-  plugins: [DevTools(), DevToolsOxc()],
-})
+```sh
+npx @vitejs/devtools-oxc
 ```
 
-It also runs standalone from the CLI with `npx @vitejs/devtools-oxc`.
+## Features
+
+### Overview
+
+View installed versions, update status, and configuration files.
+
+![Oxc DevTools overview](/features/oxc/overview.png)
+
+### Lint Inspector
+
+Run Oxlint and inspect current and previous results.
+
+![Oxlint result history](/features/oxc/lint-list.png)
+
+View run metadata and diagnostics grouped by file.
+
+![Oxlint result details](/features/oxc/lint-detail.png)
+
+### Config Inspector
+
+Review the resolved configuration and rule summary.
+
+![Oxlint configuration overview](/features/oxc/config-overview.png)
+
+Search and filter rules by category, plugin, usage, and state.
+
+![Oxlint rule table](/features/oxc/config-rules.png)
+
+Inspect the plugins and rules applied by each file-pattern override.
+
+![Oxlint configuration overrides](/features/oxc/config-overrides.png)

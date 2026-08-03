@@ -13,6 +13,14 @@ export interface ButtonProps {
   variant?: BaseVariant;
   icon?: string;
   disabled?: boolean;
+  loading?: boolean;
+}
+export interface CardProps {
+  title?: string;
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning';
+  interactive?: boolean;
 }
 export interface CodeBlockProps {
   code?: string;
@@ -57,10 +65,34 @@ export interface ProgressProps {
   max?: number;
   label?: string;
 }
+export interface StackProps {
+  direction?: 'row' | 'column';
+  gap?: number;
+  align?: 'start' | 'center' | 'end' | 'stretch';
+  justify?: 'start' | 'center' | 'end' | 'between' | 'around';
+  padding?: number;
+  wrap?: boolean;
+  flex?: number | string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'info' | 'success' | 'warning';
+  interactive?: boolean;
+}
 export interface SwitchProps {
   value?: boolean;
   label?: string;
   disabled?: boolean;
+}
+export interface TabDescriptor {
+  value: string;
+  label: string;
+  icon?: string;
+  badge?: string;
+  badgeVariant?: 'default' | 'info' | 'success' | 'warning' | 'danger';
+}
+export interface TabsProps {
+  tabs: TabDescriptor[];
+  value?: string;
+  defaultValue?: string;
+  orientation?: 'horizontal' | 'vertical';
 }
 export interface TextInputProps {
   value?: string;

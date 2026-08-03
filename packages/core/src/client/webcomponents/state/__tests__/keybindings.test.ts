@@ -1,6 +1,7 @@
 import type { DevToolsCommandEntry, DevToolsCommandKeybinding } from '@vitejs/devtools-kit'
+import type { WhenContext } from '../keybindings'
 import { describe, expect, it } from 'vitest'
-import { areKeybindingsEqual, collectAllKeybindings, formatKeybinding, isKeybindingOverrideDifferentFromDefault, KNOWN_BROWSER_SHORTCUTS, normalizeKeyEvent } from '../keybindings'
+import { areKeybindingsEqual, collectAllKeybindings, filterCommandsByWhen, formatKeybinding, isKeybindingOverrideDifferentFromDefault, KNOWN_BROWSER_SHORTCUTS, normalizeKeyEvent } from '../keybindings'
 
 describe('formatKeybinding', () => {
   it('splits key string into parts', () => {
@@ -102,6 +103,78 @@ describe('collectAllKeybindings', () => {
     }
     const result = collectAllKeybindings(commands, () => [])
     expect(result).toHaveLength(0)
+  })
+})
+
+describe('filterCommandsByWhen', () => {
+  function makeContext(overrides: Partial<WhenContext> = {}): WhenContext {
+    return {
+      clientType: 'embedded',
+      dockOpen: false,
+      paletteOpen: false,
+      dockSelectedId: '',
+      popupOpen: false,
+      ...overrides,
+    }
+  }
+
+  function makeDockMode(): DevToolsCommandEntry[] {
+    return [
+      {
+        id: 'devtools:dock-mode',
+        source: 'client' as const,
+        title: 'Dock Mode',
+        when: 'clientType == embedded && !popupOpen',
+        children: [
+          { id: 'devtools:dock-mode:float', source: 'client' as const, title: 'Float Mode', when: '!popupOpen' },
+          { id: 'devtools:dock-mode:edge', source: 'client' as const, title: 'Edge Mode', when: '!popupOpen' },
+        ],
+      },
+    ] as DevToolsCommandEntry[]
+  }
+
+  it('passes through commands without a when clause', () => {
+    const commands = [
+      { id: 'cmd1', source: 'client' as const, title: 'Cmd 1' },
+      { id: 'cmd2', source: 'client' as const, title: 'Cmd 2' },
+    ] as DevToolsCommandEntry[]
+
+    expect(filterCommandsByWhen(commands, makeContext())).toEqual(commands)
+  })
+
+  it('drops a parent whose when clause fails, children included', () => {
+    const result = filterCommandsByWhen(makeDockMode(), makeContext({ popupOpen: true }))
+    expect(result).toHaveLength(0)
+  })
+
+  it('keeps a passing parent but removes children whose own when clause fails', () => {
+    const commands = [
+      {
+        id: 'parent',
+        source: 'client' as const,
+        title: 'Parent',
+        children: [
+          { id: 'parent:always', source: 'client' as const, title: 'Always' },
+          { id: 'parent:embedded', source: 'client' as const, title: 'Embedded only', when: 'clientType == embedded' },
+        ],
+      },
+    ] as DevToolsCommandEntry[]
+
+    const result = filterCommandsByWhen(commands, makeContext({ clientType: 'standalone' }))
+    expect(result).toHaveLength(1)
+    expect(result[0]!.children?.map(c => c.id)).toEqual(['parent:always'])
+  })
+
+  it('keeps everything when the context satisfies every clause', () => {
+    const result = filterCommandsByWhen(makeDockMode(), makeContext())
+    expect(result).toHaveLength(1)
+    expect(result[0]!.children).toHaveLength(2)
+  })
+
+  it('does not mutate the input commands', () => {
+    const commands = makeDockMode()
+    filterCommandsByWhen(commands, makeContext({ popupOpen: true }))
+    expect(commands[0]!.children).toHaveLength(2)
   })
 })
 

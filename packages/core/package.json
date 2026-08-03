@@ -102,6 +102,7 @@
     "iframe-pane": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
+    "unocss": "catalog:build",
     "unplugin-vue": "catalog:build",
     "unrun": "catalog:build",
     "vite": "catalog:build",
