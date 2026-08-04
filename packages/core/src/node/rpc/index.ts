@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockConfig, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -68,5 +68,15 @@ declare module 'devframe/types' {
     'devframe:commands': DevToolsServerCommandEntry[]
     'devframe:docks': DevToolsDockEntry[]
     'devframe:user-settings': DevToolsDocksUserSettings
+  }
+
+  // Host-level dock config (`DevToolsDockConfig`, merged from every plugin's
+  // `devtools.dock` declaration in `createDevToolsContext`) rides on
+  // `ConnectionMeta` instead of a shared-state key: it is fixed for the life
+  // of the dev server, set once from `vite.config.ts` before any client
+  // connects, so it needs none of shared state's live-broadcast machinery —
+  // just the connection handshake every client already does once.
+  interface ConnectionMeta {
+    dockConfig?: DevToolsDockConfig
   }
 }

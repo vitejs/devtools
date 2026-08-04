@@ -28,11 +28,14 @@ export const PINNED_CATEGORY_ORDER = -100000
 
 /**
  * Resolve a category's sort weight, layering the local {@link PINNED_CATEGORY}
- * override, then a caller-supplied `overrides` map (a group's own
- * {@link DevToolsViewGroup.categoryOrder}), on top of the upstream
- * {@link DEFAULT_CATEGORIES_ORDER} table. `overrides` is per-call — passing a
- * group's map only reweights that group's in-group sub-categories, never the
- * outer bar or any other group.
+ * override, then a caller-supplied `overrides` map, on top of the upstream
+ * {@link DEFAULT_CATEGORIES_ORDER} table. `overrides` is per-call — a caller
+ * that wants a plugin-declared `DevToolsDockConfig.categoryOrder` layered
+ * beneath the user's own drag-and-drop order pre-merges both into the one map
+ * it passes (e.g. `{ ...config?.categoryOrder, ...docksCategoriesOrder }`);
+ * {@link getGroupMembersGrouped} instead passes a group's own
+ * {@link DevToolsViewGroup.categoryOrder}, reweighting only that group's
+ * in-group sub-categories.
  */
 function categoryOrder(category: string, overrides?: Record<string, number>): number {
   if (category === PINNED_CATEGORY)
@@ -241,10 +244,14 @@ export function resolveGroupDefaultChild(
  * category is hidden.
  *
  * `categoryOrderOverride` reweights the categories produced by *this call*
- * (used by {@link getGroupMembersGrouped} to apply a group's own
- * {@link DevToolsViewGroup.categoryOrder} to its in-group sub-category split)
  * — it never touches the shared {@link DEFAULT_CATEGORIES_ORDER} table, so it
- * has no effect on any other call, group, or the outer bar.
+ * has no effect on any other call, group, or the outer bar. Two distinct
+ * callers use this same slot for two distinct purposes: {@link getGroupMembersGrouped}
+ * passes a group's own {@link DevToolsViewGroup.categoryOrder} to reweight its
+ * in-group sub-category split, while a top-level caller (the dock bar, the
+ * Settings management view) pre-merges a plugin-declared
+ * `DevToolsDockConfig.categoryOrder` with the user's own drag-and-drop
+ * `docksCategoriesOrder` into the map it passes here.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],

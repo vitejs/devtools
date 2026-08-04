@@ -58,6 +58,7 @@ function createMockRpc(
 
   const rpc = {
     events,
+    connectionMeta: { backend: 'websocket' },
     get isTrusted() {
       return trusted
     },

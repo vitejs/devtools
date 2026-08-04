@@ -90,11 +90,13 @@ export const DEFAULT_DOCK_LAYOUT: DockLayout = Object.freeze({
   edgeZoneHeight: 70,
 })
 
-/** Merge partial overrides over {@link DEFAULT_DOCK_LAYOUT}. */
+/** Merge partial overrides over {@link DEFAULT_DOCK_LAYOUT}. `maxVisibleItems` is clamped to `>= 1` — a whole overflow button for zero inline items has nothing to anchor to. */
 export function resolveDockLayout(overrides?: Partial<DockLayout>): DockLayout {
   if (!overrides)
     return DEFAULT_DOCK_LAYOUT
-  return { ...DEFAULT_DOCK_LAYOUT, ...overrides }
+  const merged = { ...DEFAULT_DOCK_LAYOUT, ...overrides }
+  merged.maxVisibleItems = Math.max(1, merged.maxVisibleItems)
+  return merged
 }
 
 /**

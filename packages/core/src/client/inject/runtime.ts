@@ -60,15 +60,20 @@ async function mountDock(): Promise<void> {
     ],
   })
 
+  // A plugin-declared `defaultMode`/`defaultPosition` (`ctx.docks` config,
+  // handed to us once via `rpc.connectionMeta.dockConfig`) only seeds these
+  // two defaults — `mergeDefaults` below fills them in solely for a developer
+  // with no stored preference yet, and never overwrites one who already has.
+  const dockConfig = rpc.connectionMeta.dockConfig
   const state = useLocalStorage<DockPanelStorage>(
     'vite-devtools-dock-state',
     {
-      mode: 'float',
+      mode: dockConfig?.defaultMode ?? 'float',
       width: 80,
       height: 80,
       top: 0,
       left: 0,
-      position: 'left',
+      position: dockConfig?.defaultPosition ?? 'left',
       open: false,
       inactiveTimeout: 3_000,
     },

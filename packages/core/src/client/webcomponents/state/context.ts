@@ -1,4 +1,4 @@
-import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, DevToolsViewIframe } from '@vitejs/devtools-kit'
+import type { DevToolsClientCommand, DevToolsDockConfig, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DockRegistration, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
@@ -28,6 +28,12 @@ export async function createDocksContext(
   }
 
   const dockEntries = await useDocksEntries(rpc)
+
+  // Host-level dock config, merged from every plugin's `devtools.dock`
+  // declaration by `createDevToolsContext` and handed to us once as part of
+  // the connection handshake (`rpc.connectionMeta`) — fixed for the life of
+  // the dev server, so no shared-state subscription is needed to read it.
+  const dockConfig: DevToolsDockConfig | undefined = rpc.connectionMeta.dockConfig
 
   // Client-only dock registry (0.7.10 `DocksEntriesContext` API). Docks
   // registered here live in this page only, merged over the server-provided
@@ -333,7 +339,11 @@ export async function createDocksContext(
   // Settings store, `settings`, and `getWhenContext` are established earlier
   // (right before `switchEntry`) — its group→member resolution needs them.
   const groupedEntries = computed(() => {
-    return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true })
+    // Pre-merge the plugin-declared config beneath the user's own drag order
+    // into the one `categoryOrderOverride` slot `docksGroupByCategories`
+    // already has (user wins on a key both set).
+    const categoryOrderOverride = { ...dockConfig?.categoryOrder, ...settings.value.docksCategoriesOrder }
+    return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true, categoryOrderOverride })
   })
 
   // Initialize commands context with reactive when-context

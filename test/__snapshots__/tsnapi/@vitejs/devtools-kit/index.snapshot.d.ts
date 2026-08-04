@@ -6,6 +6,12 @@ export interface CreateKitContextOptions extends CreateHubContextOptions {
   viteConfig?: ResolvedConfig;
   viteServer?: ViteDevServer;
 }
+export interface DevToolsDockConfig {
+  categoryOrder?: Record<string, number>;
+  maxVisibleItems?: number;
+  defaultMode?: 'float' | 'edge';
+  defaultPosition?: 'top' | 'right' | 'bottom' | 'left';
+}
 export interface DevToolsLaunchPayload {
   root?: string;
 }
@@ -19,6 +25,7 @@ export interface DevToolsPluginOptions {
     dev?: DevframeCapabilities | boolean;
     build?: DevframeCapabilities | boolean;
   };
+  dock?: DevToolsDockConfig;
   setup: (_: ViteDevToolsNodeContext) => void | Promise<void>;
 }
 export interface DevToolsViewJsonRender extends DevframeDockEntryBase {
@@ -48,6 +55,7 @@ export interface PluginWithDevTools extends Plugin {
 export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
+  dockConfig?: DevToolsDockConfig;
 }
 // #endregion
 

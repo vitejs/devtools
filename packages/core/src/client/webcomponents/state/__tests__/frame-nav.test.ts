@@ -13,6 +13,7 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
 
   return {
     client: { register: () => () => {} },
+    connectionMeta: { backend: 'websocket' },
     sharedState: {
       get: async (key: string) => {
         if (key === 'devframe:docks')

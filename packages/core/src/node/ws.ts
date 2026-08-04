@@ -211,6 +211,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
       // client (proxy-safe); the dedicated-port form is a bare port number.
       websocket: routeBound ? { path: DEVTOOLS_WS_ROUTE } : port!,
       jsonSerializableMethods,
+      dockConfig: context.dockConfig,
     }
   }
 

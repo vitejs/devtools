@@ -1,4 +1,4 @@
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockConfig, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
@@ -109,7 +109,11 @@ export async function createDevToolsContext(
   if (viteServer || mode === 'build')
     context.views.hostStatic('/__devtools-assets/', dirAssets)
 
-  // Scan Vite plugins for `devtools` setup hooks.
+  // Scan Vite plugins for `devtools` setup hooks, merging each plugin's
+  // `devtools.dock` config along the way (last plugin wins per scalar key;
+  // `categoryOrder` shallow-merges) — a plugin skipped for this mode's
+  // capabilities contributes nothing.
+  const dockConfig: DevToolsDockConfig = {}
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
@@ -117,6 +121,11 @@ export async function createDevToolsContext(
     if (shouldSkipSetupByCapabilities(plugin, mode)) {
       debugSetup(`skipping plugin ${JSON.stringify(plugin.name)} due to disabled capabilities in ${mode} mode`)
       continue
+    }
+    if (plugin.devtools.dock) {
+      Object.assign(dockConfig, plugin.devtools.dock, {
+        categoryOrder: { ...dockConfig.categoryOrder, ...plugin.devtools.dock.categoryOrder },
+      })
     }
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
@@ -126,6 +135,11 @@ export async function createDevToolsContext(
       throw diagnostics.DTK0014({ name: plugin.name, cause: error })
     }
   }
+  // Riding on `ConnectionMeta` rather than shared state (see the `ConnectionMeta`
+  // augmentation in `node/rpc/index.ts`) — `createWsServer`'s `getConnectionMeta`
+  // closure (`node/ws.ts`) reads it off this same context object, which is
+  // already fully built by the time that closure is created.
+  context.dockConfig = dockConfig
 
   return context
 }

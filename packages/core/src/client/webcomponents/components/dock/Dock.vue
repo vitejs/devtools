@@ -34,7 +34,17 @@ const props = defineProps<{
 // Here we directly destructure is as we don't expect context to be changed
 const context = props.context
 
-const layout = computed(() => resolveDockLayout(props.layout))
+// A plugin-declared `maxVisibleItems` (`rpc.connectionMeta.dockConfig`) sets
+// the default; an explicit `layout` prop (Storybook, embedders) still wins.
+// Only spread the config override when it's actually set — an own `undefined`
+// key would otherwise beat `DEFAULT_DOCK_LAYOUT`'s value in the merge below.
+const layout = computed(() => {
+  const configuredMaxVisibleItems = context.rpc.connectionMeta.dockConfig?.maxVisibleItems
+  return resolveDockLayout({
+    ...(configuredMaxVisibleItems !== undefined && { maxVisibleItems: configuredMaxVisibleItems }),
+    ...props.layout,
+  })
+})
 
 const isSafari = navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')
 
