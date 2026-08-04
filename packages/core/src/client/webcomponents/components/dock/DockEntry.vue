@@ -2,8 +2,9 @@
 import type { DevToolsDockEntryBase } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { useEventListener } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { setFloatingTooltip } from '../../state/floating-tooltip'
+import { accentTextStyle } from '../../utils/accent-color'
 import { openDockContextMenu } from './DockContextMenu'
 import DockIcon from './DockIcon.vue'
 
@@ -17,11 +18,16 @@ const props = withDefaults(
     isVertical?: boolean
     badge?: string
     tooltip?: boolean
+    /** A `group` entry's optional `accentColor`, applied while selected/active. */
+    accentColor?: string
   }>(),
   {
     tooltip: true,
   },
 )
+
+// Only kicks in while selected — an idle group button keeps its default look.
+const accentStyle = computed(() => (props.isSelected ? accentTextStyle(props.accentColor) : undefined))
 
 const button = useTemplateRef<HTMLButtonElement>('button')
 
@@ -78,10 +84,11 @@ useEventListener('pointerdown', () => {
     <button
       ref="button"
       :aria-label="dock.title"
+      :style="accentStyle"
       :class="[
         isVertical ? 'rotate-270' : '',
         isDimmed ? 'op50 saturate-0' : '',
-        isSelected ? 'scale-120 text-primary' : '',
+        isSelected ? (accentColor ? 'scale-120' : 'scale-120 text-primary') : '',
         isAction ? 'bg-[#8881] hover:bg-[#8882] rounded-full' : 'rounded-xl',
       ]"
       class="flex items-center justify-center p1.5 hover:bg-[#8881] hover:scale-110 transition-all duration-300 relative outline-none"
