@@ -20,6 +20,7 @@ packages:
   - examples/*
   - playgrounds/*
   - '!playgrounds/production'
+  - '!playgrounds/production-nuxt'
   - docs
   - e2e
   - storybook

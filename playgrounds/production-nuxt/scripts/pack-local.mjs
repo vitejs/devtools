@@ -2,7 +2,10 @@
 /**
  * Build the Vite DevTools packages, pack them into local tarballs, and
  * install this playground from them — the same artifacts that would be
- * published to npm, so the playground exercises the real user install path.
+ * published to npm. Nuxt DevTools v4 (`@nuxt/devtools`) depends directly on
+ * `@vitejs/devtools` and `@vitejs/devtools-kit`; `pnpm-workspace.yaml`
+ * overrides those (and every other Vite DevTools package) to these tarballs,
+ * so Nuxt DevTools runs on the build under test here.
  *
  * Every run wipes `.tarballs/` and repacks from scratch, then reinstalls with
  * `--force` so pnpm never mistakes a freshly rebuilt tarball (same stable
@@ -11,9 +14,6 @@
  * Usage:
  *   node scripts/pack-local.mjs            # build the monorepo, pack, install
  *   node scripts/pack-local.mjs --no-build # skip the build, just (re)pack + install
- *
- * The playground's package.json / pnpm-workspace.yaml point `@vitejs/devtools`
- * and every inter-package dependency at these tarballs via `pnpm.overrides`.
  */
 import { dirname, join, resolve } from 'node:path'
 import process from 'node:process'
