@@ -18,7 +18,7 @@ const items = computed<SideNavItem[]>(() => {
   <div class="w12 flex-none">
     <Teleport to="body">
       <div
-        class="border-r border-y border-base rounded-r-xl flex flex-col gap-1 p1 of-y-auto max-h-96vh bg-glass:75"
+        class="border-r border-y border-base rounded-r-xl flex flex-col gap-1 p1 of-y-auto max-h-96vh bg-glass:80"
         style="position: fixed; left: 0; top: 50%; transform: translateY(-50%); z-index: 64"
       >
         <template v-for="item in items" :key="item.title">

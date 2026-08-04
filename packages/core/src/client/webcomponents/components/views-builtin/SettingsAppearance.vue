@@ -31,7 +31,7 @@ const dockModeOptions = computed(() => {
 const currentDockMode = computed(() => panelStore.mode)
 
 const colorModeOptions = [
-  { value: 'auto', label: 'Auto', icon: 'i-ph-circle-half-tilt-duotone' },
+  { value: 'auto', label: 'Auto', icon: 'i-ph-laptop-duotone' },
   { value: 'light', label: 'Light', icon: 'i-ph-sun-duotone' },
   { value: 'dark', label: 'Dark', icon: 'i-ph-moon-duotone' },
 ] as const

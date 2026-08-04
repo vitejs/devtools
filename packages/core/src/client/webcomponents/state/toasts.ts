@@ -15,7 +15,7 @@ export function useToasts(): Reactive<ToastItem[]> {
 }
 
 export function addToast(entry: DevToolsMessageEntry): void {
-  // Dedup: update existing toast with same id
+  // Dedupe: update existing toast with same id
   const existing = toasts.find(t => t.id === entry.id)
   if (existing) {
     existing.entry = entry

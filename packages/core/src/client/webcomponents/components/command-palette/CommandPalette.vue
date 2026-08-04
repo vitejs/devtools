@@ -265,7 +265,7 @@ function getKeybindings(id: string) {
       >
         <ViteDevToolsLogo class="absolute top--32px left-5px w-60 pointer-events-none" />
         <div
-          class="w-full w-lg bg-glass:75 color-base border border-base rounded-lg shadow-xl pointer-events-auto of-hidden flex flex-col max-h-[60vh]"
+          class="w-full w-lg bg-glass:80 color-base border border-base rounded-lg shadow-xl pointer-events-auto of-hidden flex flex-col max-h-[60vh]"
         >
           <!-- Header -->
           <header class="border-b border-base flex items-center px-3">

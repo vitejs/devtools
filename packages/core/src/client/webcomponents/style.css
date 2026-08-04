@@ -69,7 +69,7 @@
 
 #vite-devtools-anchor #vite-devtools-dock {
   --uno: h-full rounded-full select-none touch-none ma;
-  --uno: "shadow text-[#333] dark:text-white  bg-glass";
+  --uno: "shadow text-[#333] dark:text-white  bg-glass:80";
   --uno: transition-all duration-500;
   height: var(--vite-devtools-dock-height, 40px);
   width: calc-size(max-content, size);
