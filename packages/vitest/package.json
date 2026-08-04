@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-vitest",
   "type": "module",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "DevTools for Vitest",
   "author": "VoidZero Inc.",
   "license": "MIT",
