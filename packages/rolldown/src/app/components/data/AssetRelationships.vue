@@ -16,7 +16,7 @@ const MAX_LINKS = 20
 const SPACING = {
   width: 400,
   height: 35,
-  padding: 4,
+  padding: 9,
   marginX: 8,
   border: 1,
   margin: 8,

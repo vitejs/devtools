@@ -211,7 +211,7 @@ const contentClass = computed(() => {
 <template>
   <div
     id="vite-devtools-edge-panel"
-    class="bg-glass:75 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
+    class="bg-glass:80 border border-base color-base shadow overflow-hidden z-floating-anchor font-sans text-[15px] box-border"
     :class="panelLayoutClass"
     :style="panelStyle"
   >

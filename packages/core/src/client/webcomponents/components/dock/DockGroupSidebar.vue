@@ -6,6 +6,7 @@ import { computed, h, ref, useTemplateRef } from 'vue'
 import { deriveSidebarCapacity, docksSplitGroupsWithCapacity, getGroupMembersGrouped } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
 import { setDocksSidebarOverflowPanel, setFloatingTooltip, useDocksSidebarOverflowPanel } from '../../state/floating-tooltip'
+import { accentActiveStyle, accentTextStyle } from '../../utils/accent-color'
 import DockGroupPopover from './DockGroupPopover.vue'
 import DockIcon from './DockIcon.vue'
 
@@ -125,6 +126,14 @@ watchDebounced(
 
 // Highlight the button when the hidden selection lives here, or while open.
 const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPanelVisible.value)
+
+// Accent styling, mirroring DockGroupPopover: falls back to the default
+// Uno classes below when the group sets no `accentColor`.
+const anchorStyle = computed(() => accentTextStyle(props.group.accentColor))
+function memberStyle(memberId: string) {
+  return props.selectedId === memberId ? accentActiveStyle(props.group.accentColor) : undefined
+}
+const moreButtonStyle = computed(() => (moreButtonActive.value ? accentActiveStyle(props.group.accentColor) : undefined))
 </script>
 
 <template>
@@ -132,6 +141,7 @@ const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPa
     <!-- Group anchor -->
     <div
       class="flex items-center justify-center w-8 h-8 op60"
+      :style="anchorStyle"
       @pointerenter="showTooltip($event, group.title)"
       @pointerleave="hideTooltip"
     >
@@ -148,7 +158,8 @@ const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPa
         :key="member.id"
         :aria-label="member.title"
         class="relative flex items-center justify-center w-8 h-8 rounded-lg transition"
-        :class="selectedId === member.id ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
+        :class="selectedId === member.id ? (group.accentColor ? '' : 'text-primary bg-active') : 'op60 hover:op100 hover:bg-active'"
+        :style="memberStyle(member.id)"
         @pointerenter="showTooltip($event, member.title)"
         @pointerleave="hideTooltip"
         @pointerdown="hideTooltip"
@@ -170,7 +181,8 @@ const moreButtonActive = computed(() => selectedInOverflow.value || isOverflowPa
       ref="moreButton"
       aria-label="Show more"
       class="relative flex items-center justify-center w-8 h-8 rounded-lg transition mt-auto flex-none"
-      :class="moreButtonActive ? 'text-primary bg-active' : 'op60 hover:op100 hover:bg-active'"
+      :class="moreButtonActive ? (group.accentColor ? '' : 'text-primary bg-active') : 'op60 hover:op100 hover:bg-active'"
+      :style="moreButtonStyle"
       @pointerenter="showTooltip($event, 'Show more')"
       @pointerleave="hideTooltip"
       @pointerdown="hideTooltip"

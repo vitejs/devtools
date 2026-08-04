@@ -1,0 +1,29 @@
+# Standalone workspace root.
+#
+# This file exists so pnpm treats `playgrounds/production-nuxt` as its own,
+# self-contained project instead of a member of the monorepo above it.
+#
+# Nuxt DevTools v4 (`@nuxt/devtools@^4.0.0-alpha.9`) embeds Vite DevTools: it
+# depends directly on `@vitejs/devtools` and `@vitejs/devtools-kit` as its own
+# engine. These overrides redirect that internal dependency — and every other
+# Vite DevTools package — to the local built dist tarballs produced by
+# `scripts/pack-local.mjs`, so Nuxt DevTools always runs on the exact Vite
+# DevTools build under test here rather than whatever version `@nuxt/devtools`
+# has pinned on npm. Everything else (nuxt, vue, ...) resolves from the public
+# registry — exactly what a real user gets.
+packages: []
+
+overrides:
+  '@vitejs/devtools': 'file:.tarballs/vitejs-devtools.tgz'
+  '@vitejs/devtools-kit': 'file:.tarballs/vitejs-devtools-kit.tgz'
+  '@vitejs/devtools-rolldown': 'file:.tarballs/vitejs-devtools-rolldown.tgz'
+  '@vitejs/devtools-vite': 'file:.tarballs/vitejs-devtools-vite.tgz'
+  '@vitejs/devtools-vitest': 'file:.tarballs/vitejs-devtools-vitest.tgz'
+  '@vitejs/devtools-oxc': 'file:.tarballs/vitejs-devtools-oxc.tgz'
+
+verifyDepsBeforeRun: false
+allowBuilds:
+  esbuild: true
+  rolldown: true
+  unrs-resolver: true
+minimumReleaseAge: 0

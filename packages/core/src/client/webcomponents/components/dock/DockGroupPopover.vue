@@ -2,6 +2,7 @@
 import type { DevToolsDockEntriesGrouped, DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { computed } from 'vue'
+import { accentActiveStyle, accentTextStyle } from '../../utils/accent-color'
 import DockIcon from './DockIcon.vue'
 
 const props = defineProps<{
@@ -17,11 +18,17 @@ const emit = defineEmits<{
 }>()
 
 const isEmpty = computed(() => props.members.every(([, items]) => items.length === 0))
+
+const headerStyle = computed(() => accentTextStyle(props.group.accentColor))
+
+function memberStyle(memberId: string) {
+  return props.selectedId === memberId ? accentActiveStyle(props.group.accentColor) : undefined
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-0.5 min-w-44 max-w-64" @mousemove.stop>
-    <div class="flex items-center gap-1.5 px4 mx--2 pt2 pb2.5 font-bold text-2.75 uppercase tracking-wide border-b border-base">
+    <div class="flex items-center gap-1.5 px4 mx--2 pt2 pb2.5 font-bold text-2.75 uppercase tracking-wide border-b border-base" :style="headerStyle">
       <DockIcon :icon="group.icon" class="w-4.5 h-4.5" />
       <span class="truncate">{{ group.title }}</span>
     </div>
@@ -32,7 +39,8 @@ const isEmpty = computed(() => props.members.every(([, items]) => items.length =
         v-for="member of items"
         :key="member.id"
         class="flex items-center gap-2 w-full px2 py1.5 rounded text-sm text-left transition"
-        :class="selectedId === member.id ? 'text-primary bg-active' : 'op80 hover:op100 hover:bg-active'"
+        :class="selectedId === member.id ? (group.accentColor ? '' : 'text-primary bg-active') : 'op80 hover:op100 hover:bg-active'"
+        :style="memberStyle(member.id)"
         @click="emit('select', member)"
       >
         <DockIcon :icon="member.icon" class="w-4.5 h-4.5 flex-none" />

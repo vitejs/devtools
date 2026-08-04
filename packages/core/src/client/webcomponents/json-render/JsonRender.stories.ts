@@ -33,7 +33,7 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component: 'The json-render primitive registry (`Stack`, `Card`, `Tabs`, `Text`, `Badge`, `Button`, `Icon`, `Divider`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
+        component: 'The json-render primitive registry (`Stack`, `Card`, `Tabs`, `Text`, `Badge`, `Button`, `Link`, `Icon`, `Divider`, `TextInput`, `Select`, `Switch`, `KeyValueTable`, `DataTable`, `CodeBlock`, `Progress`, `Tree`) rendered from a declarative spec — the same renderer plugins use to build panels without shipping Vue.',
       },
     },
   },
@@ -48,7 +48,7 @@ export const Gallery: Story = {
     root: 'root',
     state: { notifications: true },
     elements: {
-      root: { type: 'Stack', props: { direction: 'column', gap: 16, padding: 4 }, children: ['heading', 'badges', 'buttons', 'progress', 'toggle', 'divider', 'kv', 'table', 'code'] },
+      root: { type: 'Stack', props: { direction: 'column', gap: 16, padding: 4 }, children: ['heading', 'badges', 'buttons', 'progress', 'toggle', 'select', 'links', 'inputs', 'divider', 'kv', 'table', 'code'] },
       heading: { type: 'Text', props: { text: 'Build summary', variant: 'heading' } },
       badges: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center' }, children: ['b1', 'b2', 'b3', 'b4'] },
       b1: { type: 'Badge', props: { text: 'passing', variant: 'success' } },
@@ -63,6 +63,23 @@ export const Gallery: Story = {
       btn4: { type: 'Button', props: { label: 'Deploying…', variant: 'primary', icon: 'ph:rocket-launch', loading: true } },
       progress: { type: 'Progress', props: { value: 68, max: 100, label: 'Bundling' } },
       toggle: { type: 'Switch', props: { label: 'Notifications', value: '{{notifications}}' } },
+      select: { type: 'Select', props: {
+        label: 'Environment',
+        placeholder: 'Choose one…',
+        value: 'staging',
+        options: [
+          { value: 'dev', label: 'Development' },
+          { value: 'staging', label: 'Staging' },
+          { value: 'prod', label: 'Production', description: 'Live traffic', icon: 'ph:warning' },
+        ],
+      } },
+      links: { type: 'Stack', props: { direction: 'row', gap: 16 }, children: ['link', 'rejectedLink'] },
+      link: { type: 'Link', props: { href: 'https://vite.dev', label: 'Vite docs', icon: 'ph:arrow-square-out' } },
+      /* `javascript:` is not in the allowed scheme list — this must render as plain text, never as an `<a>`. */
+      rejectedLink: { type: 'Link', props: { href: 'javascript:alert(1)', label: 'Rejected href (renders as text)' } },
+      inputs: { type: 'Stack', props: { direction: 'row', gap: 16 }, children: ['search', 'loadingInput'] },
+      search: { type: 'TextInput', props: { type: 'search', placeholder: 'Filter modules…' } },
+      loadingInput: { type: 'TextInput', props: { placeholder: 'Saving…', loading: true } },
       divider: { type: 'Divider', props: { label: 'Details' } },
       kv: { type: 'KeyValueTable', props: { data: {
         Vite: '8.1.2',
@@ -180,6 +197,47 @@ export const Tabs: StoryObj<Meta<TabsArgs>> = {
       gatewayRow: { type: 'Stack', props: { direction: 'row', gap: 8, align: 'center', padding: 4 }, children: ['gatewayRowText', 'gatewayRowBadge'] },
       gatewayRowText: { type: 'Text', props: { text: 'gateway-web', variant: 'code' } },
       gatewayRowBadge: { type: 'Badge', props: { text: 'stale override', variant: 'danger' } },
+    },
+  } as unknown as Spec)),
+}
+
+/**
+ * A popover listbox (built on the shared `FloatingPopover` primitive) bound
+ * to `/region` — open it with a click or ArrowDown, move the highlight with
+ * Arrow/Home/End, commit with Enter, and Escape to close without changing
+ * the value. Toggle `searchable` to add a substring filter box to the panel.
+ */
+interface SelectArgs {
+  placeholder: string
+  disabled: boolean
+  searchable: boolean
+}
+
+export const Select: StoryObj<Meta<SelectArgs>> = {
+  argTypes: {
+    placeholder: { control: 'text' },
+    disabled: { control: 'boolean' },
+    searchable: { control: 'boolean' },
+  },
+  args: { placeholder: 'Choose a region…', disabled: false, searchable: true },
+  render: args => renderSpec(() => ({
+    root: 'root',
+    state: { region: undefined },
+    elements: {
+      root: { type: 'Select', props: {
+        label: 'Region',
+        placeholder: args.placeholder,
+        disabled: args.disabled,
+        searchable: args.searchable,
+        value: { $bindState: '/region' },
+        options: [
+          { value: 'us-east-1', label: 'US East (N. Virginia)' },
+          { value: 'us-west-2', label: 'US West (Oregon)' },
+          { value: 'eu-west-1', label: 'Europe (Ireland)' },
+          { value: 'eu-west-3', label: 'Europe (Paris)', description: 'Lowest latency from CDG' },
+          { value: 'ap-southeast-1', label: 'Asia Pacific (Singapore)' },
+        ],
+      } },
     },
   } as unknown as Spec)),
 }

@@ -1,13 +1,12 @@
 {
   "name": "playground-production",
   "type": "module",
-  "version": "0.4.10",
+  "version": "0.4.12",
   "private": true,
   "description": "Standalone workspace that installs Vite DevTools from the local built dist, to test the real user install experience.",
   "scripts": {
-    "setup": "node scripts/pack-local.mjs && pnpm install --no-frozen-lockfile",
-    "setup:no-build": "node scripts/pack-local.mjs --no-build && pnpm install --no-frozen-lockfile",
-    "pack:local": "node scripts/pack-local.mjs",
+    "setup": "node scripts/pack-local.mjs",
+    "setup:no-build": "node scripts/pack-local.mjs --no-build",
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host"

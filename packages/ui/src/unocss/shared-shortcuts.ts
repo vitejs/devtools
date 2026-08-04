@@ -15,5 +15,16 @@ export const sharedShortcuts: (StaticShortcutMap | DynamicShortcut)[] = [
     'color-active': 'color-primary-600 dark:color-primary-300',
     'border-active': 'border-primary-600/25 dark:border-primary-400/25',
   },
-  [/^bg-glass(:\d+)?$/, ([, opacity = ':50']) => `bg-white${opacity} dark:bg-#111${opacity} backdrop-blur-7`],
+  // `bg-glass` / `bg-glass:80` — translucent surface + backdrop blur.
+  [
+    /^bg-glass(?::(\d+))?$/,
+    ([, opacity = '50']) => {
+      const opInt = parseInt(opacity, 10)
+      if (Number.isNaN(opInt) || opInt < 0 || opInt > 100)
+        return
+      const op = Math.min(Math.max(opInt, 0), 100)
+      return `bg-white/${Math.min(Math.max(Math.round(opInt * 1.3), 0), 100)} dark:bg-#050505/${op} backdrop-blur-7`
+    },
+    { layer: 'shortcuts' },
+  ],
 ]

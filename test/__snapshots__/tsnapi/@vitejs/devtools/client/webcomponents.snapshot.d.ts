@@ -60,10 +60,30 @@ export interface JsonRenderElement<T extends string = string, P = Record<string,
 export interface KeyValueTableProps {
   data?: Record<string, unknown>;
 }
+export interface LinkProps {
+  href?: string;
+  label?: string;
+  icon?: string;
+  external?: boolean;
+}
 export interface ProgressProps {
   value: number;
   max?: number;
   label?: string;
+}
+export interface SelectOption {
+  value: string;
+  label?: string;
+  icon?: string;
+  description?: string;
+}
+export interface SelectProps {
+  value?: string;
+  options?: (string | SelectOption)[];
+  placeholder?: string;
+  label?: string;
+  disabled?: boolean;
+  searchable?: boolean;
 }
 export interface StackProps {
   direction?: 'row' | 'column';
@@ -98,7 +118,9 @@ export interface TextInputProps {
   value?: string;
   placeholder?: string;
   label?: string;
+  type?: 'text' | 'search' | 'number' | 'password' | 'email';
   disabled?: boolean;
+  loading?: boolean;
 }
 export interface TextProps {
   text?: string;

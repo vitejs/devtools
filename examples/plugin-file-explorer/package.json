@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-file-explorer",
   "type": "module",
-  "version": "0.4.10",
+  "version": "0.4.12",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
