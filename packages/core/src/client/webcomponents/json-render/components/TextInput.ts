@@ -1,5 +1,6 @@
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
+import DockIcon from '../../components/dock/DockIcon.vue'
 import { borderInput, borderSolid } from './tokens'
 import { registryProps } from './types'
 
@@ -8,7 +9,10 @@ export interface TextInputProps {
   value?: string
   placeholder?: string
   label?: string
+  type?: 'text' | 'search' | 'number' | 'password' | 'email'
   disabled?: boolean
+  /** Implies `disabled` and shows a spinner alongside the input. */
+  loading?: boolean
 }
 
 export const TextInput = defineComponent({
@@ -16,16 +20,16 @@ export const TextInput = defineComponent({
   props: registryProps<'TextInput', TextInputProps>(),
   setup(ctx) {
     return () => {
-      const { placeholder, label, disabled } = ctx.element.props
+      const { placeholder, label, type = 'text', disabled, loading } = ctx.element.props
       const [value, setValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
       const change = ctx.on('change')
 
       const input = h('input', {
         class: 'jr-text-input',
-        type: 'text',
+        type,
         value: value ?? '',
         placeholder,
-        disabled,
+        disabled: disabled || loading,
         style: {
           flex: '1',
           padding: '6px 10px',
@@ -44,13 +48,20 @@ export const TextInput = defineComponent({
         },
       })
 
+      const field = loading
+        ? h('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', flex: '1' } }, [
+            input,
+            h(DockIcon, { icon: 'ph:spinner-gap-duotone', class: 'w-3.5 h-3.5 animate-spin flex-none' }),
+          ])
+        : input
+
       if (label) {
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px', flex: '1' } }, [
           h('label', { style: { fontSize: '12px', fontWeight: '500' } }, label),
-          input,
+          field,
         ])
       }
-      return input
+      return field
     }
   },
 })

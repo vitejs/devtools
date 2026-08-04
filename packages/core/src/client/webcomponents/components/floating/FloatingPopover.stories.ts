@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { defineComponent, h, onMounted, ref, shallowRef } from 'vue'
+import { computed, defineComponent, h, onMounted, ref, shallowRef } from 'vue'
 import FloatingPopover from './FloatingPopover'
 
 // @unocss-include
@@ -56,6 +56,41 @@ export const MenuContent: Story = {
     ...['Overview', 'Pages', 'Components'].map(label =>
       h('button', { class: 'px2 py1.5 rounded text-sm text-left op80 hover:op100 hover:bg-active transition' }, label)),
   ]), 'Reveal menu'),
+}
+
+/**
+ * A real toggle button drives the popover (rather than the mount-time
+ * harness the other stories use), to exercise `ignore` — clicking the
+ * trigger again while open must close it once, not close-then-reopen — and
+ * `panelClass`, which replaces the default tooltip padding.
+ */
+export const ToggleTrigger: Story = {
+  render: () => defineComponent({
+    setup() {
+      const triggerEl = ref<HTMLElement | null>(null)
+      const open = ref(false)
+      const item = computed(() => (open.value && triggerEl.value)
+        ? { el: triggerEl.value, content: () => h('div', { class: 'flex flex-col gap-0.5 min-w-40' }, [
+            h('div', { class: 'px2 pt1 pb1.5 op60 text-2.75 uppercase tracking-wide font-medium' }, 'Menu'),
+            ...['Overview', 'Pages', 'Components'].map(label =>
+              h('button', { class: 'px2 py1.5 rounded text-sm text-left op80 hover:op100 hover:bg-active transition' }, label)),
+          ]) }
+        : null)
+      return () => h('div', { class: 'flex items-center justify-center p20 min-h-80 font-sans' }, [
+        h('button', {
+          ref: (el: any) => (triggerEl.value = el),
+          class: 'px3 py1.5 rounded border border-base bg-glass color-base shadow',
+          onClick: () => (open.value = !open.value),
+        }, 'Toggle menu'),
+        h(FloatingPopover, {
+          item: item.value,
+          panelClass: '!p0',
+          ignore: [triggerEl],
+          onDismiss: () => (open.value = false),
+        }),
+      ])
+    },
+  }),
 }
 
 export const CornerAnchors: Story = {
