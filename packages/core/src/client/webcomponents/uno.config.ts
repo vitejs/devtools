@@ -28,7 +28,11 @@ export default defineConfig({
   },
   presets: [
     presetWind3({
-      dark: 'media',
+      // Class-based so the settings switcher can override the OS preference.
+      // Each dock shell root wraps its content in a `.dark`/`.light` element
+      // (`ColorSchemeRoot`), so `.dark …` utilities resolve inside the shadow
+      // DOM and the light-DOM standalone page alike.
+      dark: 'class',
       variablePrefix: 'vdt-',
     }),
     presetIcons({

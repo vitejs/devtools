@@ -10,6 +10,7 @@ import CommandPalette from '../command-palette/CommandPalette.vue'
 import Confirm from '../display/Confirm.vue'
 import ToastOverlay from '../display/ToastOverlay.vue'
 import FloatingElements from '../floating/FloatingElements.vue'
+import ColorSchemeRoot from './ColorSchemeRoot.vue'
 import Dock from './Dock.vue'
 import DockEdge from './DockEdge.vue'
 import DockPanel from './DockPanel.vue'
@@ -52,26 +53,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <template v-if="!isDockPopupOpen">
-    <template v-if="isRpcTrusted && context.panel.store.mode === 'edge'">
-      <DockEdge :context />
+  <ColorSchemeRoot>
+    <template v-if="!isDockPopupOpen">
+      <template v-if="isRpcTrusted && context.panel.store.mode === 'edge'">
+        <DockEdge :context />
+      </template>
+      <template v-else>
+        <Dock :context :layout="props.layout">
+          <template #default="{ dockEl, panelMargins, selected, layout }">
+            <DockPanel
+              :context
+              :selected
+              :dock-el="dockEl!"
+              :panel-margins="panelMargins"
+              :layout="layout"
+            />
+          </template>
+        </Dock>
+      </template>
+      <FloatingElements />
     </template>
-    <template v-else>
-      <Dock :context :layout="props.layout">
-        <template #default="{ dockEl, panelMargins, selected, layout }">
-          <DockPanel
-            :context
-            :selected
-            :dock-el="dockEl!"
-            :panel-margins="panelMargins"
-            :layout="layout"
-          />
-        </template>
-      </Dock>
-    </template>
-    <FloatingElements />
-  </template>
-  <CommandPalette v-if="!isDockPopupOpen" :context />
-  <ToastOverlay :context />
-  <Confirm v-if="!isDockPopupOpen" />
+    <CommandPalette v-if="!isDockPopupOpen" :context />
+    <ToastOverlay :context />
+    <Confirm v-if="!isDockPopupOpen" />
+  </ColorSchemeRoot>
 </template>

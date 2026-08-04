@@ -1,13 +1,13 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { createEventEmitter } from 'devframe/utils/events'
-import { shallowRef } from 'vue'
+import { shallowRef, watch } from 'vue'
+import { isDark } from './color-mode'
 import { setDocksOverflowPanel } from './floating-tooltip'
 
 interface DocumentPictureInPicture {
   requestWindow: (options?: { width?: number, height?: number }) => Promise<Window>
 }
 
-type ColorMode = 'dark' | 'light'
 interface DockPopupEvents {
   'popup:open-requested': (context: DocksContext) => void
 }
@@ -48,82 +48,17 @@ function clearListeners() {
   detachColorModeSync = undefined
 }
 
-function resolveColorMode(): ColorMode {
-  const sourceWindow = window as Window & {
-    document?: {
-      documentElement?: { classList?: DOMTokenList, getAttribute?: (name: string) => string | null }
-      body?: { classList?: DOMTokenList, getAttribute?: (name: string) => string | null }
-    }
-    matchMedia?: (query: string) => { matches: boolean }
-  }
-
-  const elements = [
-    sourceWindow.document?.documentElement,
-    sourceWindow.document?.body,
-  ].filter(Boolean)
-
-  for (const element of elements) {
-    if (element?.classList?.contains('dark'))
-      return 'dark'
-    if (element?.classList?.contains('light'))
-      return 'light'
-
-    const dataTheme = element?.getAttribute?.('data-theme')
-    if (dataTheme === 'dark' || dataTheme === 'light')
-      return dataTheme
-  }
-
-  if (sourceWindow.matchMedia?.('(prefers-color-scheme: dark)').matches)
-    return 'dark'
-
-  return 'light'
-}
-
-function applyPopupColorMode(popup: Window, mode: ColorMode) {
-  popup.document.documentElement?.style.setProperty('color-scheme', mode)
-}
-
 function setupPopupColorModeSync(popup: Window): () => void {
-  const cleanups: Array<() => void> = []
-  const update = () => applyPopupColorMode(popup, resolveColorMode())
-  update()
-
-  const sourceWindow = window as Window & {
-    document?: {
-      documentElement?: Element
-      body?: Element
-    }
-    matchMedia?: (query: string) => MediaQueryList
-  }
-  const sourceDocument = sourceWindow.document
-
-  if (typeof MutationObserver !== 'undefined' && sourceDocument) {
-    const observer = new MutationObserver(update)
-    for (const element of [sourceDocument.documentElement, sourceDocument.body]) {
-      if (!element)
-        continue
-      observer.observe(element, {
-        attributes: true,
-        attributeFilter: ['class', 'data-theme', 'style'],
-      })
-    }
-    cleanups.push(() => observer.disconnect())
-  }
-
-  if (sourceWindow.matchMedia) {
-    const darkQuery = sourceWindow.matchMedia('(prefers-color-scheme: dark)')
-    const lightQuery = sourceWindow.matchMedia('(prefers-color-scheme: light)')
-    darkQuery.addEventListener('change', update)
-    lightQuery.addEventListener('change', update)
-    cleanups.push(() => {
-      darkQuery.removeEventListener('change', update)
-      lightQuery.removeEventListener('change', update)
-    })
-  }
-
-  return () => {
-    cleanups.forEach(fn => fn())
-  }
+  // Mirror the shared color-mode preference into the popup document's native
+  // `color-scheme` (scrollbars / form controls); the standalone shell inside
+  // handles its own `.dark`/`.light` class via `applyColorSchemeClass`.
+  return watch(
+    isDark,
+    (dark) => {
+      popup.document.documentElement?.style.setProperty('color-scheme', dark ? 'dark' : 'light')
+    },
+    { immediate: true },
+  )
 }
 
 function unmountPopupElement() {

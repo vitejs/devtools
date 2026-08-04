@@ -3,6 +3,7 @@ import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { computed } from 'vue'
+import { colorSchemePreference, setColorSchemePreference } from '../../state/color-mode'
 import { sharedStateToRef } from '../../state/docks'
 import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
 
@@ -29,6 +30,12 @@ const dockModeOptions = computed(() => {
 
 const currentDockMode = computed(() => panelStore.mode)
 
+const colorModeOptions = [
+  { value: 'auto', label: 'Auto', icon: 'i-ph-circle-half-tilt-duotone' },
+  { value: 'light', label: 'Light', icon: 'i-ph-sun-duotone' },
+  { value: 'dark', label: 'Dark', icon: 'i-ph-moon-duotone' },
+] as const
+
 function setDockMode(mode: string) {
   if (mode === 'popup') {
     requestDockPopupOpen(props.context)
@@ -41,6 +48,28 @@ function setDockMode(mode: string) {
 
 <template>
   <div class="flex flex-col gap-4">
+    <!-- Color mode -->
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col">
+        <span class="text-sm">Color mode</span>
+        <span class="text-xs op50">Theme for DevTools and its inner panels</span>
+      </div>
+      <div class="flex items-center gap-1 bg-gray/10 rounded-lg p1 w-fit">
+        <button
+          v-for="option of colorModeOptions"
+          :key="option.value"
+          class="flex items-center gap-1.5 px3 py1.5 rounded-md text-sm transition-all"
+          :class="colorSchemePreference === option.value
+            ? 'bg-base shadow text-primary font-medium'
+            : 'op60 hover:op100 hover:bg-gray/10'"
+          @click="setColorSchemePreference(option.value)"
+        >
+          <div :class="option.icon" class="w-4 h-4" />
+          {{ option.label }}
+        </button>
+      </div>
+    </div>
+
     <!-- Dock mode -->
     <div v-if="isEmbedded && !isDockPopupOpen" class="flex flex-col gap-2">
       <div class="flex flex-col">
