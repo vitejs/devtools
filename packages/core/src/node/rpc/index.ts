@@ -70,13 +70,8 @@ declare module 'devframe/types' {
     'devframe:user-settings': DevToolsDocksUserSettings
   }
 
-  // Host-level dock config (`DevToolsDockConfig`, merged from every plugin's
-  // `devtools.dock` declaration in `createDevToolsContext`) rides on
-  // `ConnectionMeta` instead of a shared-state key: it is fixed for the life
-  // of the dev server, set once from `vite.config.ts` before any client
-  // connects, so it needs none of shared state's live-broadcast machinery —
-  // just the connection handshake every client already does once.
   interface ConnectionMeta {
+    /** Host dock config, fixed for the life of the dev server, so it rides the handshake instead of shared state. */
     dockConfig?: DevToolsDockConfig
   }
 }

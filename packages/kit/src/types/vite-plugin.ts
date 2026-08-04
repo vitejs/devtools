@@ -3,20 +3,14 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { KitNodeContext } from '../node/context'
 
 /**
- * Host-level dock defaults a plugin can declare alongside its `setup()`. Every
- * field here is host-global rather than per-entry, so plugins share one
- * config object instead of each dock entry needing its own "which entry wins"
- * rule. Collected from every plugin's `devtools.dock` during the Vite plugin
- * scan (`createDevToolsContext`), merged (later plugins win per scalar key;
- * `categoryOrder` shallow-merges) onto {@link ViteDevToolsNodeContext.dockConfig},
- * and handed to every client once via `ConnectionMeta`.
+ * Host-wide dock defaults a plugin declares alongside its `setup()`. Collected
+ * from every plugin during the Vite plugin scan (`createDevToolsContext`, last
+ * wins per key) and handed to every client once via `ConnectionMeta`.
  */
 export interface DevToolsDockConfig {
   /**
    * Top-level category weights, lower first. Layered over
    * `DEFAULT_CATEGORIES_ORDER`, beneath the user's own drag-and-drop order.
-   * Name and shape deliberately mirror hub's own
-   * `createDevframeClientHost({ categoryOrder })` and `DevframeViewGroup.categoryOrder`.
    */
   categoryOrder?: Record<string, number>
   /** Items shown inline on the float bar before the overflow button. Defaults to 5; clamped to `>= 1`. */
@@ -48,10 +42,6 @@ export interface DevToolsPluginOptions {
 export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig
   readonly viteServer?: ViteDevServer
-  /**
-   * Dock config merged from every plugin's `devtools.dock` declaration,
-   * assigned once by `createDevToolsContext` after its plugin scan. Read by
-   * `createWsServer`'s `getConnectionMeta` to hand it to every client.
-   */
+  /** Dock config merged from every plugin's `devtools.dock`, assigned once after the plugin scan. */
   dockConfig?: DevToolsDockConfig
 }

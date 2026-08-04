@@ -109,10 +109,8 @@ export async function createDevToolsContext(
   if (viteServer || mode === 'build')
     context.views.hostStatic('/__devtools-assets/', dirAssets)
 
-  // Scan Vite plugins for `devtools` setup hooks, merging each plugin's
-  // `devtools.dock` config along the way (last plugin wins per scalar key;
-  // `categoryOrder` shallow-merges) — a plugin skipped for this mode's
-  // capabilities contributes nothing.
+  // Scan Vite plugins for `devtools` setup hooks, merging each plugin's declared
+  // dock config along the way (last wins per key; `categoryOrder` shallow-merges).
   const dockConfig: DevToolsDockConfig = {}
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
   for (const plugin of plugins) {
@@ -122,11 +120,9 @@ export async function createDevToolsContext(
       debugSetup(`skipping plugin ${JSON.stringify(plugin.name)} due to disabled capabilities in ${mode} mode`)
       continue
     }
-    if (plugin.devtools.dock) {
-      Object.assign(dockConfig, plugin.devtools.dock, {
-        categoryOrder: { ...dockConfig.categoryOrder, ...plugin.devtools.dock.categoryOrder },
-      })
-    }
+    const dock = plugin.devtools.dock
+    if (dock)
+      Object.assign(dockConfig, dock, { categoryOrder: { ...dockConfig.categoryOrder, ...dock.categoryOrder } })
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
       await plugin.devtools?.setup?.(context)
@@ -135,10 +131,6 @@ export async function createDevToolsContext(
       throw diagnostics.DTK0014({ name: plugin.name, cause: error })
     }
   }
-  // Riding on `ConnectionMeta` rather than shared state (see the `ConnectionMeta`
-  // augmentation in `node/rpc/index.ts`) — `createWsServer`'s `getConnectionMeta`
-  // closure (`node/ws.ts`) reads it off this same context object, which is
-  // already fully built by the time that closure is created.
   context.dockConfig = dockConfig
 
   return context

@@ -23,18 +23,16 @@ const settings = sharedStateToRef(props.settingsStore)
 // category containers are keyed `cat:<name>`.
 const configCategoryOrder = computed(() => props.context.rpc.connectionMeta.dockConfig?.categoryOrder)
 
-// The outer bar's `categoryOrderOverride` pre-merges the plugin-declared
-// config beneath the user's own drag order (user wins on a shared key) — the
-// same one-slot convention `dock-settings.ts` documents for `docksGroupByCategories`.
-const categoryOrderOverride = computed(() => ({ ...configCategoryOrder.value, ...settings.value.docksCategoriesOrder }))
-
-const categories = computed<DevToolsDockEntriesGrouped>(() => {
+function groupByCategories(categoryOrderOverride?: Record<string, number>): DevToolsDockEntriesGrouped {
   return docksGroupByCategories(props.context.docks.entries, settings.value, {
     includeHidden: true,
     collapseGroups: true,
-    categoryOrderOverride: categoryOrderOverride.value,
+    categoryOrderOverride,
   })
-})
+}
+
+// User drag order over the plugin-declared one.
+const categories = computed(() => groupByCategories({ ...configCategoryOrder.value, ...settings.value.docksCategoriesOrder }))
 
 function membersOf(groupId: string): DevToolsDockEntry[] {
   return getGroupMembers(props.context.docks.entries, groupId, settings.value, {
@@ -52,21 +50,33 @@ const GROUP_SUBCAT_SEPARATOR = ':::'
 const CATEGORY_CONTAINER = (category: string) => `cat:${category}`
 const GROUP_SUBCAT_CONTAINER = (groupId: string, subcategory: string) => `grp:${groupId}${GROUP_SUBCAT_SEPARATOR}${subcategory}`
 
-// The category *headers* are themselves a reorderable container, keyed by
-// this fixed id (distinct from a `cat:<name>` per-category entry container).
-// Its "items" are pseudo dock-entries — one per hideable category — whose id
-// is prefixed to keep it out of the real dock-id namespace `entryEls`/drag
-// state share with every other container (a category name could otherwise
-// collide with an actual dock id).
+// The category headers are one more reorderable container, whose items are
+// pseudo dock-entries (one per hideable category). Their ids carry a prefix so a
+// category name can never collide with a real dock id in the shared drag state.
 const CATEGORY_ORDER_CONTAINER = 'cat-order'
 const CATEGORY_ORDER_ID_PREFIX = 'cat-order:'
 const categoryOrderId = (category: string) => `${CATEGORY_ORDER_ID_PREFIX}${category}`
-const categoryFromOrderId = (id: string) => id.slice(CATEGORY_ORDER_ID_PREFIX.length)
 
-function categoryPseudoEntries(cats: DevToolsDockEntriesGrouped): DevToolsDockEntry[] {
-  return cats
+function categoryOrderItems(grouped: DevToolsDockEntriesGrouped): DevToolsDockEntry[] {
+  return grouped
     .filter(([category]) => isCategoryHideable(category))
     .map(([category]) => ({ id: categoryOrderId(category), title: getCategoryLabel(category) }) as DevToolsDockEntry)
+}
+
+/** Header rows for the template; `dragId` is absent on `~pinned`/`~builtin`, which never drag. */
+const categoryHeaders = computed(() => categories.value.map(([category, entries]) => ({
+  category,
+  entries,
+  dragId: isCategoryHideable(category) ? categoryOrderId(category) : undefined,
+})))
+
+/** Settings key an item's order index lives under — category rows drop their `cat-order:` prefix. */
+function orderKey(container: string, id: string): string {
+  return container === CATEGORY_ORDER_CONTAINER ? id.slice(CATEGORY_ORDER_ID_PREFIX.length) : id
+}
+
+function orderRecord(state: DevToolsDocksUserSettings, container: string): Record<string, number> {
+  return container === CATEGORY_ORDER_CONTAINER ? (state.docksCategoriesOrder ??= {}) : state.docksCustomOrder
 }
 
 /** Split a `grp:<id>:::<subcat>` container back into its group id + sub-category. */
@@ -81,7 +91,7 @@ function parseGroupContainer(container: string): { groupId: string, subcategory:
 
 function itemsOfContainer(container: string): DevToolsDockEntry[] {
   if (container === CATEGORY_ORDER_CONTAINER)
-    return categoryPseudoEntries(categories.value)
+    return categoryOrderItems(categories.value)
   if (container.startsWith('grp:')) {
     const { groupId, subcategory } = parseGroupContainer(container)
     return subcategoriesOf(groupId).find(([cat]) => cat === subcategory)?.[1] ?? []
@@ -91,15 +101,8 @@ function itemsOfContainer(container: string): DevToolsDockEntry[] {
 }
 
 function defaultItemsOfContainer(container: string): DevToolsDockEntry[] {
-  if (container === CATEGORY_ORDER_CONTAINER) {
-    // "Default" for the category-order container omits the user's own drag
-    // order (unlike `categories` above) — it's what dragging back to would reset to.
-    return categoryPseudoEntries(docksGroupByCategories(props.context.docks.entries, settings.value, {
-      includeHidden: true,
-      collapseGroups: true,
-      categoryOrderOverride: configCategoryOrder.value,
-    }))
-  }
+  if (container === CATEGORY_ORDER_CONTAINER)
+    return categoryOrderItems(groupByCategories(configCategoryOrder.value))
   const noCustomOrder = { ...settings.value, docksCustomOrder: {} }
   if (container.startsWith('grp:')) {
     const { groupId, subcategory } = parseGroupContainer(container)
@@ -142,25 +145,14 @@ function isInteractiveElement(el: HTMLElement | null): boolean {
 function applyOrder(container: string, items: DevToolsDockEntry[]) {
   const def = defaultItemsOfContainer(container).map(i => i.id)
   const isDefault = items.length === def.length && items.every((item, i) => item.id === def[i])
-  if (container === CATEGORY_ORDER_CONTAINER) {
-    props.settingsStore.mutate((state) => {
-      state.docksCategoriesOrder ??= {}
-      items.forEach((item, index) => {
-        const category = categoryFromOrderId(item.id)
-        if (isDefault)
-          delete state.docksCategoriesOrder![category]
-        else
-          state.docksCategoriesOrder![category] = index
-      })
-    })
-    return
-  }
   props.settingsStore.mutate((state) => {
+    const order = orderRecord(state, container)
     items.forEach((item, index) => {
+      const key = orderKey(container, item.id)
       if (isDefault)
-        delete state.docksCustomOrder[item.id]
+        delete order[key]
       else
-        state.docksCustomOrder[item.id] = index
+        order[key] = index
     })
   })
 }
@@ -322,17 +314,10 @@ function doesContainerHaveCustomOrder(container: string): boolean {
 
 function resetCustomOrderForContainer(container: string) {
   const ids = customOrderIdsForContainer(container)
-  if (container === CATEGORY_ORDER_CONTAINER) {
-    props.settingsStore.mutate((state) => {
-      ids.forEach((id) => {
-        delete state.docksCategoriesOrder?.[categoryFromOrderId(id)]
-      })
-    })
-    return
-  }
   props.settingsStore.mutate((state) => {
+    const order = orderRecord(state, container)
     ids.forEach((id) => {
-      delete state.docksCustomOrder[id]
+      delete order[orderKey(container, id)]
     })
   })
 }
@@ -347,7 +332,6 @@ function resetCustomOrderForContainer(container: string) {
     <button
       v-if="doesContainerHaveCustomOrder(CATEGORY_ORDER_CONTAINER)"
       class="flex items-center gap-1 px-2 py-1 rounded hover:bg-gray/20 transition-colors text-xs op60 shrink-0"
-      title="Reset category order"
       @click="resetCustomOrderForContainer(CATEGORY_ORDER_CONTAINER)"
     >
       <div class="i-ph-arrows-counter-clockwise-duotone" />
@@ -356,27 +340,27 @@ function resetCustomOrderForContainer(container: string) {
   </div>
 
   <div ref="sortContainer" class="flex flex-col gap-4">
-    <template v-for="[category, entries] of categories" :key="category">
+    <template v-for="{ category, entries, dragId } of categoryHeaders" :key="category">
       <div
         class="border border-base rounded-lg overflow-hidden transition-opacity"
         :class="settings.docksCategoriesHidden.includes(category) ? 'op40' : ''"
       >
         <!-- Category header -->
         <div
-          :ref="(el: any) => isCategoryHideable(category) && setEntryRef(el, categoryOrderId(category), CATEGORY_ORDER_CONTAINER)"
-          :data-dock-id="isCategoryHideable(category) ? categoryOrderId(category) : undefined"
-          :data-container="isCategoryHideable(category) ? CATEGORY_ORDER_CONTAINER : undefined"
+          :ref="(el: any) => dragId && setEntryRef(el, dragId, CATEGORY_ORDER_CONTAINER)"
+          :data-dock-id="dragId"
+          :data-container="dragId && CATEGORY_ORDER_CONTAINER"
           class="flex items-center gap-2 px-4 py-3 bg-gray/5 cursor-pointer select-none border-b border-base"
           :class="[
-            hasMoved && draggingId === categoryOrderId(category) ? 'op30 bg-gray/10' : '',
-            dragOverId === categoryOrderId(category) ? 'ring-1.5 ring-purple/50 rounded' : '',
+            hasMoved && draggingId === dragId ? 'op30 bg-gray/10' : '',
+            dragOverId === dragId ? 'ring-1.5 ring-purple/50 rounded' : '',
           ]"
         >
-          <!-- drag icon (headers of ~pinned/~builtin never carry a container, so they never drag) -->
+          <!-- drag icon -->
           <div
-            v-if="isCategoryHideable(category)"
+            v-if="dragId"
             class="i-ph-dots-six-vertical w-4 h-4 shrink-0 op25 hover:op50 transition-opacity cursor-grab"
-            :style="hasMoved && draggingId === categoryOrderId(category) ? 'cursor: grabbing' : ''"
+            :style="hasMoved && draggingId === dragId ? 'cursor: grabbing' : ''"
           />
           <button
             class="w-5 h-5 flex items-center justify-center rounded transition-colors"

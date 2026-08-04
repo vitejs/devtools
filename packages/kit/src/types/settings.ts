@@ -17,10 +17,8 @@ export interface DevToolsDocksUserSettings extends DevframeDocksUserSettings {
   showDevframeInspector?: boolean
 
   /**
-   * User drag-and-drop order for top-level dock categories, keyed by category
-   * id with lower first — the same convention as a plugin's declared
-   * `DevToolsDockConfig.categoryOrder`, which this overrides. Absent
-   * categories fall back to the declared or upstream order.
+   * User drag-and-drop order for top-level dock categories, lower first.
+   * Overrides a plugin's declared `DevToolsDockConfig.categoryOrder`.
    */
   docksCategoriesOrder?: Record<string, number>
 }
