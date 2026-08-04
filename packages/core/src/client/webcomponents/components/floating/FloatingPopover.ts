@@ -125,7 +125,7 @@ const FloatingPopoverComponent = defineComponent({
           {
             ref: 'panel',
             class: [
-              `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass color-base border border-base rounded px2 p1`,
+              `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass:80 color-base border border-base rounded px2 p1`,
               'op0 pointer-events-none',
               props.panelClass,
             ],
@@ -162,7 +162,7 @@ const FloatingPopoverComponent = defineComponent({
         {
           ref: 'panel',
           class: [
-            `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass color-base border border-base rounded px2 p1`,
+            `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass:80 color-base border border-base rounded px2 p1`,
             props.item ? 'op100' : 'op0 pointer-events-none',
             props.panelClass,
           ],

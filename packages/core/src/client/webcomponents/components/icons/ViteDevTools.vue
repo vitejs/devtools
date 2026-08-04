@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { usePreferredDark } from '@vueuse/core'
 import { computed } from 'vue'
+import { isDark } from '../../state/color-mode'
 
-const isDark = usePreferredDark()
 const theme = computed(() => isDark.value ? 'white' : 'black')
 </script>
 
