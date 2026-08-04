@@ -1,7 +1,7 @@
 import { defineOxcRpc } from '../_define'
 import { x } from 'tinyexec'
 import { getVitePlusVersions, isVitePlusInstalled } from '../../utils/vite-plus'
-import { needsOxlintMigration } from './oxlint-migrate'
+import { needsOxlintMigration } from './oxlint-setup'
 
 type Package = {
   installed: boolean

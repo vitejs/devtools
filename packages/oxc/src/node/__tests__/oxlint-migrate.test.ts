@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { needsOxlintMigration, oxlintInstall, oxlintMigrate } from '../rpc/functions/oxlint-migrate'
+import { needsOxlintMigration, oxlintInstall, oxlintMigrate } from '../rpc/functions/oxlint-setup'
 
 const fixtures: string[] = []
 

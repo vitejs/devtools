@@ -25,14 +25,6 @@ export function needsOxlintMigration(root: string): boolean {
   )
 }
 
-export const oxlintMigrate = defineOxcRpc({
-  name: 'devtools-oxc:migrate-eslint',
-  type: 'action',
-  setup: context => ({
-    handler: () => startMigration(context as ContextWithTerminals),
-  }),
-})
-
 async function startMigration(context: ContextWithTerminals): Promise<{ sessionId?: string }> {
   const root = context.cwd
   if (!needsOxlintMigration(root))
@@ -121,6 +113,14 @@ async function waitForSetup(): Promise<void> {
     })
   }
 }
+
+export const oxlintMigrate = defineOxcRpc({
+  name: 'devtools-oxc:migrate-eslint',
+  type: 'action',
+  setup: context => ({
+    handler: () => startMigration(context as ContextWithTerminals),
+  }),
+})
 
 export const oxlintInstall = defineOxcRpc({
   name: 'devtools-oxc:install-oxlint',
