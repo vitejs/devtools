@@ -2,8 +2,8 @@ import type { MaybeElementRef } from '@vueuse/core'
 import type { PropType, VNode } from 'vue'
 import type { FloatingPopoverProps } from '../../state/floating-tooltip'
 import { onClickOutside, useDebounceFn, useEventListener } from '@vueuse/core'
-import { defineComponent, h, nextTick, onMounted, onUpdated, reactive, ref, useTemplateRef, watch } from 'vue'
-import { resolveFloatingPosition } from './floating-position'
+import { defineComponent, h, nextTick, onMounted, onUpdated, reactive, ref, Teleport, useTemplateRef, watch } from 'vue'
+import { resolveFixedEscapeTarget, resolveFloatingPosition } from './floating-position'
 
 // @unocss-include
 
@@ -28,12 +28,23 @@ const FloatingPopoverComponent = defineComponent({
       type: Array as PropType<MaybeElementRef[]>,
       required: false,
     },
+    /** `menu` trades the tooltip's padding and heavy glass for a flush, fainter surface — a floating panel stacks over an already-tinted one, where tooltip-strength glass composites to near-black. */
+    surface: {
+      type: String as PropType<'tooltip' | 'menu'>,
+      default: 'tooltip',
+    },
   },
   emits: ['dismiss'],
   setup(props, { emit }) {
     const panel = useTemplateRef<HTMLDivElement>('panel')
     const el = ref(props.item?.el)
     const renderCounter = ref(0)
+    /** Resolved from the anchor rather than the panel, which may not be in the document yet. */
+    const escapeTarget = ref<HTMLElement | undefined>()
+
+    function refreshEscapeTarget(anchor: Element | undefined) {
+      escapeTarget.value = anchor ? resolveFixedEscapeTarget(anchor) : undefined
+    }
 
     const panelSize = reactive({ width: 0, height: 0 })
     // Before the first measurement, `resolveFloatingPosition` centers the panel
@@ -59,7 +70,10 @@ const FloatingPopoverComponent = defineComponent({
       })
     }
 
-    onMounted(measurePanel)
+    onMounted(() => {
+      refreshEscapeTarget(props.item?.el)
+      measurePanel()
+    })
     onUpdated(measurePanel)
 
     useEventListener(window, 'resize', () => {
@@ -97,6 +111,7 @@ const FloatingPopoverComponent = defineComponent({
             el.value = value.el
           else
             renderCounter.value++
+          refreshEscapeTarget(value.el)
         }
         else {
           clearThrottled()
@@ -107,6 +122,10 @@ const FloatingPopoverComponent = defineComponent({
     let previousContent: VNode | undefined
     let previousStyle: Record<string, string> = {}
 
+    /** Escapes the anchor's containing block when there is one, otherwise renders in place. */
+    const withEscape = (panel: VNode) =>
+      escapeTarget.value ? h(Teleport, { to: escapeTarget.value }, [panel]) : panel
+
     return () => {
       // Force re-render to update the position
       // eslint-disable-next-line ts/no-unused-expressions
@@ -116,23 +135,25 @@ const FloatingPopoverComponent = defineComponent({
         return null
 
       const transitionClass = measured.value ? 'transition-all duration-300' : 'transition-opacity duration-300'
+      // Written out per variant rather than interpolated, so UnoCSS can extract both.
+      const surfaceClass = props.surface === 'menu' ? 'bg-glass:25 border-#8883 p0' : 'bg-glass:80 border-base px2 p1'
 
       // When dismissing (item is null), keep the last known position
       // so the popover fades out in place instead of jumping
       if (!props.item) {
-        return h(
+        return withEscape(h(
           'div',
           {
             ref: 'panel',
             class: [
-              `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass:80 color-base border border-base rounded px2 p1`,
+              `fixed z-floating-tooltip text-xs ${transitionClass} w-max color-base border rounded ${surfaceClass}`,
               'op0 pointer-events-none',
               props.panelClass,
             ],
             style: previousStyle,
           },
           previousContent,
-        )
+        ))
       }
 
       const rect = el.value.getBoundingClientRect()
@@ -157,19 +178,19 @@ const FloatingPopoverComponent = defineComponent({
 
       previousContent = content
 
-      return h(
+      return withEscape(h(
         'div',
         {
           ref: 'panel',
           class: [
-            `fixed z-floating-tooltip text-xs ${transitionClass} w-max bg-glass:80 color-base border border-base rounded px2 p1`,
+            `fixed z-floating-tooltip text-xs ${transitionClass} w-max color-base border rounded ${surfaceClass}`,
             props.item ? 'op100' : 'op0 pointer-events-none',
             props.panelClass,
           ],
           style,
         },
         content,
-      )
+      ))
     }
   },
 })
