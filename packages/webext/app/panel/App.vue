@@ -2,8 +2,9 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { createDocksContext, DockStandalone } from '@vitejs/devtools/client/webcomponents'
+import { registerDevframeViewerOrigin } from 'devframe/client'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
-import { getInspectedWindowConnection, registerBrowserExtensionOrigin } from './inspected-window'
+import { getInspectedWindowConnection } from './inspected-window'
 import { waitForRpcConnection } from './rpc-connection'
 
 const context = ref<DocksContext | null>(null)
@@ -49,7 +50,7 @@ async function initialize() {
     if (!connection)
       throw new Error('Unable to reconnect to the inspected page.')
 
-    await registerBrowserExtensionOrigin(connection.metaBaseUrl)
+    await registerDevframeViewerOrigin(connection)
 
     const rpc = await getDevToolsRpcClient({
       connection,

@@ -12,12 +12,11 @@ import { DEVTOOLS_WS_PATH, DEVTOOLS_WS_ROUTE } from '@vitejs/devtools-kit/consta
 import { isAnonymousRpcMethod } from 'devframe/constants'
 import { getInternalContext } from 'devframe/node/hub-internals'
 import { createRpcServer } from 'devframe/rpc/server'
-import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
+import { attachWsRpcTransport, createWsOriginRegistry } from 'devframe/rpc/transports/ws-server'
 import { colors as c } from 'devframe/utils/colors'
 import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { getAuthHandler } from './auth-handler'
-import { registerBrowserExtensionOrigin as addBrowserExtensionOrigin } from './browser-extension-origin'
 import { MARK_INFO } from './constants'
 import { diagnostics } from './diagnostics'
 import { resolveHttpsConfig } from './https'
@@ -153,16 +152,17 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // added here isn't visible through `context.viteConfig.devtools.config` until Vite re-vendors
   // it — the same gap `vite-augment.ts` works around for `Plugin.devtools`. Read it through a
   // narrow cast rather than waiting on that.
-  // The transport keeps this array by reference. The connection-meta endpoint
-  // can add the exact origin of a browser-extension panel before that panel
-  // opens its WebSocket; RPC authentication remains a separate gate.
-  const allowedOrigins = [
-    ...((context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins ?? []),
-  ]
+  const viewerOrigins = createWsOriginRegistry({
+    allowedOrigins: (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins,
+    validateOrigin(origin) {
+      const protocol = new URL(origin).protocol
+      return protocol === 'chrome-extension:' || protocol === 'moz-extension:'
+    },
+  })
 
   attachWsRpcTransport(rpcGroup, {
     ...binding,
-    allowedOrigins,
+    allowedOrigins: viewerOrigins,
     definitions: rpcHost.definitions,
     onConnected: (peer, meta) => {
       // crossws exposes the upgrade request (with its query string + headers)
@@ -217,6 +217,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
       // client (proxy-safe); the dedicated-port form is a bare port number.
       websocket: routeBound ? { path: DEVTOOLS_WS_ROUTE } : port!,
       jsonSerializableMethods,
+      viewerOriginToken: viewerOrigins.token,
     }
   }
 
@@ -225,8 +226,6 @@ export async function createWsServer(options: CreateWsServerOptions) {
     rpc: rpcGroup,
     rpcHost,
     getConnectionMeta,
-    registerBrowserExtensionOrigin(origin: string | undefined) {
-      return addBrowserExtensionOrigin(allowedOrigins, origin)
-    },
+    viewerOrigins,
   }
 }

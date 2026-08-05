@@ -19,7 +19,7 @@ export interface DevToolsMiddleware {
 export async function createDevToolsMiddleware(options: CreateWsServerOptions): Promise<DevToolsMiddleware> {
   const h3 = new H3()
 
-  const { rpc, getConnectionMeta, registerBrowserExtensionOrigin } = await createWsServer(options)
+  const { rpc, getConnectionMeta, viewerOrigins } = await createWsServer(options)
 
   // Hand the host the live connection-meta getter so each mounted devframe's
   // `mountConnectionMeta` middleware can serve it at the devframe's own base
@@ -29,16 +29,12 @@ export async function createDevToolsMiddleware(options: CreateWsServerOptions): 
 
   h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
     const requestOrigin = event.req.headers.get('origin') ?? undefined
-    const registrationOrigin = new URL(event.req.url, 'http://localhost')
-      .searchParams
-      .get('browser-extension-origin') ?? undefined
-    // A browser extension cannot override the Origin of its own WebSocket.
-    // Its metadata bootstrap therefore sends the panel origin explicitly:
-    // extension fetches do not consistently include an Origin header. Client
-    // auth still protects every non-anonymous RPC method.
-    registerBrowserExtensionOrigin(registrationOrigin)
-    if (requestOrigin && registerBrowserExtensionOrigin(requestOrigin)) {
-      event.res.headers.set('Access-Control-Allow-Origin', requestOrigin)
+    const registeredOrigin = viewerOrigins.registerFromUrl(event.req.url)
+    const responseOrigin = requestOrigin && viewerOrigins.isAllowed(requestOrigin)
+      ? requestOrigin
+      : registeredOrigin
+    if (responseOrigin) {
+      event.res.headers.set('Access-Control-Allow-Origin', responseOrigin)
       event.res.headers.set('Vary', 'Origin')
     }
     event.res.headers.set('Cache-Control', 'no-store')

@@ -12,6 +12,7 @@ export declare const CLIENT_CONTEXT_KEY: string;
 
 // #region Other
 export { attachDevToolsFrameNav }
+export { buildRemoteDevframeUrl }
 export { CommandsContext }
 export { connectRemoteDevTools }
 export { ConnectRemoteDevToolsOptions }
@@ -48,8 +49,11 @@ export { DocksPanelContext }
 export { FRAME_NAV_CHANNEL }
 export { FRAME_NAV_VERSION }
 export { parseRemoteConnection }
+export { resolveDockIcon }
+export { resolveDockUrl }
 export { RpcClientEvents }
 export { RpcStreamingClientHost }
 export { StreamingSubscribeOptions }
+export { stripRemoteConnectionFromUrl }
 export { WhenClauseContext }
 // #endregion

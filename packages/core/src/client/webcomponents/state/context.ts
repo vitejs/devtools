@@ -4,13 +4,11 @@ import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
-import { attachDevToolsFrameNav } from '@vitejs/devtools-kit/client'
+import { attachDevToolsFrameNav, resolveDockIcon } from '@vitejs/devtools-kit/client'
 import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
-import { resolveDockIcon } from '../utils/dock-icon'
-import { getRpcConnectionOrigin } from '../utils/iframe-url'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
 import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
@@ -30,10 +28,9 @@ export async function createDocksContext(
   }
 
   const dockEntries = await useDocksEntries(rpc)
-  const connectionOrigin = getRpcConnectionOrigin(rpc)
   const resolveEntryIcon = <T extends DevToolsDockEntry>(entry: T): T => ({
     ...entry,
-    icon: resolveDockIcon(entry.icon, connectionOrigin),
+    icon: resolveDockIcon(entry.icon, rpc.connection),
   })
 
   // Client-only dock registry (0.7.10 `DocksEntriesContext` API). Docks

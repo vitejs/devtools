@@ -23,6 +23,12 @@ function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
   })
 
   return {
+    connection: {
+      connectionMeta: {
+        backend: 'websocket',
+      },
+      metaBaseUrl: 'http://localhost:5173/__devtools/__connection.json',
+    },
     connectionMeta: {
       backend: 'websocket',
       baseUrl: 'http://localhost:5173/__devtools/__connection.json',

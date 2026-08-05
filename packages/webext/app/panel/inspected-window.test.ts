@@ -1,6 +1,6 @@
 import type { DevframeConnection } from 'devframe/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { connectionEval, getInspectedWindowConnection, registerBrowserExtensionOrigin } from './inspected-window'
+import { connectionEval, getInspectedWindowConnection } from './inspected-window'
 
 function stubInspectedWindow(result: DevframeConnection | null) {
   vi.stubGlobal('chrome', {
@@ -49,34 +49,5 @@ describe('inspected window metadata', () => {
     })
 
     await expect(getInspectedWindowConnection()).resolves.toBeNull()
-  })
-
-  it('registers the panel origin through the connection metadata endpoint', async () => {
-    const fetch = vi.fn().mockResolvedValue({ ok: true })
-    vi.stubGlobal('fetch', fetch)
-
-    await registerBrowserExtensionOrigin(
-      'http://localhost:5173/__devtools/__connection.json',
-      'chrome-extension://abcdefghijklmnopabcdefghijklmnop',
-    )
-
-    expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:5173/__devtools/__connection.json?browser-extension-origin=chrome-extension%3A%2F%2Fabcdefghijklmnopabcdefghijklmnop',
-      { cache: 'no-store' },
-    )
-  })
-
-  it('surfaces a rejected browser extension origin registration', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: false,
-      status: 403,
-    }))
-
-    await expect(
-      registerBrowserExtensionOrigin(
-        'http://localhost:5173/__devtools/__connection.json',
-        'chrome-extension://abcdefghijklmnopabcdefghijklmnop',
-      ),
-    ).rejects.toThrow('Unable to register the browser extension origin (403).')
   })
 })

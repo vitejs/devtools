@@ -19,16 +19,3 @@ export async function getInspectedWindowConnection(): Promise<DevframeConnection
 
   return connection
 }
-
-export async function registerBrowserExtensionOrigin(
-  connectionMetaUrl: string,
-  extensionOrigin = globalThis.location.origin,
-): Promise<void> {
-  const registrationUrl = new URL(connectionMetaUrl)
-  registrationUrl.searchParams.set('browser-extension-origin', extensionOrigin)
-  const response = await fetch(registrationUrl.href, {
-    cache: 'no-store',
-  })
-  if (!response.ok)
-    throw new Error(`Unable to register the browser extension origin (${response.status}).`)
-}

@@ -1,6 +1,6 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { describe, expect, it } from 'vitest'
-import { getDocksContextOrigin, getRpcConnectionOrigin, resolveDockIframeUrl } from './iframe-url'
+import { getDocksContextOrigin, getRpcConnectionOrigin } from './iframe-url'
 
 function createContext(metaBaseUrl?: string, legacyBaseUrl?: string): DocksContext {
   const connectionMeta = {
@@ -26,8 +26,6 @@ describe('iframe URL resolution', () => {
 
     expect(getDocksContextOrigin(context)).toBe('http://localhost:5173')
     expect(getRpcConnectionOrigin(context.rpc)).toBe('http://localhost:5173')
-    expect(resolveDockIframeUrl('/__devtools-vite/', getDocksContextOrigin(context)))
-      .toBe('http://localhost:5173/__devtools-vite/')
   })
 
   it('supports legacy metadata carrying its source URL', () => {

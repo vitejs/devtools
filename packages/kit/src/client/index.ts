@@ -3,9 +3,11 @@ export * from './connection'
 export * from './context'
 export * from './docks'
 export * from './frame-nav'
-export * from './remote'
 
 export {
+  buildRemoteDevframeUrl,
+  connectRemoteDevframe as connectRemoteDevTools,
+  type ConnectRemoteDevframeOptions as ConnectRemoteDevToolsOptions,
   type DevframeClientRpcHost as DevToolsClientRpcHost,
   type DevframeRpcClient as DevToolsRpcClient,
   type DevframeRpcClientCall as DevToolsRpcClientCall,
@@ -14,6 +16,10 @@ export {
   type DevframeRpcClientMode as DevToolsRpcClientMode,
   type DevframeRpcClientOptions as DevToolsRpcClientOptions,
   type DevframeRpcContext as DevToolsRpcContext,
+  parseRemoteConnection,
+  resolveDockIcon,
+  resolveDockUrl,
   type RpcStreamingClientHost,
   type StreamingSubscribeOptions,
+  stripRemoteConnectionFromUrl,
 } from '@devframes/hub/client'

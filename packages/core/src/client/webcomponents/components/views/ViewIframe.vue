@@ -3,12 +3,11 @@ import type { DevToolsViewIframe } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
-import { withRemoteConnection } from '@vitejs/devtools-kit/client'
-import { REMOTE_CONNECTION_KEY } from '@vitejs/devtools-kit/constants'
+import { buildRemoteDevframeUrl, resolveDockUrl, stripRemoteConnectionFromUrl } from '@vitejs/devtools-kit/client'
 import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch, watchEffect } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { sharedStateToRef } from '../../state/docks'
-import { getDocksContextOrigin, getWindowOrigin, resolveDockIframeUrl } from '../../utils/iframe-url'
+import { getDocksContextOrigin, getWindowOrigin } from '../../utils/iframe-url'
 
 const props = defineProps<{
   context: DocksContext
@@ -16,34 +15,6 @@ const props = defineProps<{
   panes: IframePanes
   iframeStyle?: CSSProperties
 }>()
-
-function stripRemoteConnectionParam(url: string): string {
-  // Remove the remote connection descriptor so the auth token isn't exposed
-  // in the address bar (user could accidentally copy it).
-  let result = url
-
-  const hashIdx = result.indexOf('#')
-  if (hashIdx !== -1) {
-    const hash = result.slice(hashIdx + 1)
-    const filtered = hash
-      .split('&')
-      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
-      .join('&')
-    result = filtered ? `${result.slice(0, hashIdx)}#${filtered}` : result.slice(0, hashIdx)
-  }
-
-  const qIdx = result.indexOf('?')
-  if (qIdx !== -1) {
-    const query = result.slice(qIdx + 1)
-    const filtered = query
-      .split('&')
-      .filter(part => !part.startsWith(`${REMOTE_CONNECTION_KEY}=`))
-      .join('&')
-    result = filtered ? `${result.slice(0, qIdx)}?${filtered}` : result.slice(0, qIdx)
-  }
-
-  return result
-}
 
 const settings = sharedStateToRef(props.context.docks.settings)
 const showAddressBar = computed(() => settings.value.showIframeAddressBar ?? true)
@@ -66,13 +37,13 @@ const urlInputRef = useTemplateRef<HTMLInputElement>('urlInput')
 const currentPageOrigin = computed(() => getWindowOrigin())
 const resolvedBaseOrigin = computed(() => getDocksContextOrigin(props.context))
 const resolvedEntryUrl = computed(() => {
-  const url = resolveDockIframeUrl(props.entry.url, resolvedBaseOrigin.value)
+  const url = resolveDockUrl(props.entry.url, props.context.rpc.connection)
   if (currentPageOrigin.value === resolvedBaseOrigin.value)
     return url
 
   try {
     if (new URL(url).origin === resolvedBaseOrigin.value)
-      return withRemoteConnection(url, props.context.rpc.connection)
+      return buildRemoteDevframeUrl(url, props.context.rpc.connection)
   }
   catch {}
 
@@ -107,7 +78,7 @@ const isCrossOrigin = computed(() => {
 
 // Display URL - hides host if same as current page
 const displayUrl = computed(() => {
-  const sanitized = stripRemoteConnectionParam(currentUrl.value)
+  const sanitized = stripRemoteConnectionFromUrl(currentUrl.value)
   if (isCrossOrigin.value) {
     return sanitized
   }
@@ -139,7 +110,7 @@ function navigateTo(url: string) {
   if (!iframe)
     return
 
-  const normalizedUrl = resolveDockIframeUrl(url, resolvedBaseOrigin.value)
+  const normalizedUrl = resolveDockUrl(url, props.context.rpc.connection)
   if (!normalizedUrl)
     return
 
