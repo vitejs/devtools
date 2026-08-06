@@ -28,5 +28,6 @@ export type {
   TextProps,
   TreeProps,
 } from './json-render/registry'
+export type { DevToolsDocksContext } from './state/context'
 
 export * from './state/docks'

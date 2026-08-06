@@ -1,4 +1,4 @@
-import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ClientScriptEntry, DevToolsDockEntry, DevToolsHostDockConfig, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
@@ -35,14 +35,19 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export function DevToolsServer(): Plugin {
+export interface DevToolsServerOptions {
+  /** Host-wide dock defaults — see {@link DevToolsHostDockConfig}. */
+  dock?: DevToolsHostDockConfig
+}
+
+export function DevToolsServer(options: DevToolsServerOptions = {}): Plugin {
   let context: ViteDevToolsNodeContext
   return {
     name: 'vite:devtools:server',
     enforce: 'post',
     apply: 'serve',
     async configureServer(viteDevServer) {
-      context = await createDevToolsContext(viteDevServer.config, viteDevServer)
+      context = await createDevToolsContext(viteDevServer.config, viteDevServer, { dock: options.dock })
 
       const host = viteDevServer.config.server.host === true
         ? '0.0.0.0'

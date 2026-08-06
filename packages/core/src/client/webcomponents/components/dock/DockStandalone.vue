@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import { computed, useTemplateRef, watch } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { getEntryPaneKey, useIframePanes } from '../../utils/useIframePanes'
@@ -16,7 +16,7 @@ import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockGroupSidebar from './DockGroupSidebar.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
 }>()
 
 const context = props.context

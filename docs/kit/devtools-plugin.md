@@ -85,6 +85,7 @@ const plugin: Plugin = {
 | Property | Type | Description |
 |----------|------|-------------|
 | `ctx.docks` | `DocksHost` | Register and manage [dock entries](./dock-system) |
+| `ctx.dockConfig` | `SharedState<DevToolsDockConfig>` | Merged dock config — see [Dock config](#dock-config) below |
 | `ctx.views` | `ViewsHost` | Host static files for your DevTools UI |
 | `ctx.rpc` | `RpcHost` | Register [RPC functions](./rpc) and broadcast to clients |
 | `ctx.viteConfig` | `ResolvedConfig` | The resolved Vite configuration |
@@ -92,6 +93,38 @@ const plugin: Plugin = {
 | `ctx.mode` | `'dev' \| 'build'` | Current mode |
 | `ctx.cwd` | `string` | Current working directory |
 | `ctx.workspaceRoot` | `string` | Workspace root directory |
+
+### Dock config
+
+A plugin can declare `devtools.dock.categoryOrder` alongside `setup()` to weigh
+the categories its own entries fall into — it shallow-merges with every other
+plugin's declaration:
+
+```ts
+const plugin: Plugin = {
+  devtools: {
+    dock: {
+      categoryOrder: { 'my-plugin': -40 },
+    },
+    setup(ctx) {
+      // ...
+    },
+  },
+}
+```
+
+`maxVisibleItems`, `defaultMode`, and `defaultPosition` are properties of the
+one shared dock bar, not of any single plugin, so they're set once by the host
+via `DevTools({ dock })` instead (see the [Getting Started guide](/guide/#the-devtools-plugin)).
+
+The merged result is `ctx.dockConfig` — a `SharedState`, synced to every
+connected client, that a plugin can `mutate()` to reconfigure them live:
+
+```ts
+ctx.dockConfig.mutate((config) => {
+  config.maxVisibleItems = 8
+})
+```
 
 ### Example: accessing Vite config
 

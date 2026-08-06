@@ -29,7 +29,8 @@ export const PINNED_CATEGORY_ORDER = -100000
 /**
  * Resolve a category's sort weight, layering the local {@link PINNED_CATEGORY}
  * override, then a caller-supplied `overrides` map (a group's own
- * {@link DevToolsViewGroup.categoryOrder}), on top of the upstream
+ * {@link DevToolsViewGroup.categoryOrder}, or the host/plugin-declared category
+ * order merged with the user's own), on top of the upstream
  * {@link DEFAULT_CATEGORIES_ORDER} table. `overrides` is per-call — passing a
  * group's map only reweights that group's in-group sub-categories, never the
  * outer bar or any other group.
@@ -242,9 +243,11 @@ export function resolveGroupDefaultChild(
  *
  * `categoryOrderOverride` reweights the categories produced by *this call*
  * (used by {@link getGroupMembersGrouped} to apply a group's own
- * {@link DevToolsViewGroup.categoryOrder} to its in-group sub-category split)
- * — it never touches the shared {@link DEFAULT_CATEGORIES_ORDER} table, so it
- * has no effect on any other call, group, or the outer bar.
+ * {@link DevToolsViewGroup.categoryOrder} to its in-group sub-category split,
+ * and by top-level callers to layer the user's category order over the
+ * host/plugin-declared one) — it never touches the shared
+ * {@link DEFAULT_CATEGORIES_ORDER} table, so it has no effect on any other
+ * call, group, or the outer bar.
  */
 export function docksGroupByCategories(
   entries: DevToolsDockEntry[],

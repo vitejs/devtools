@@ -1,4 +1,4 @@
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from './context'
 import { createEventEmitter } from 'devframe/utils/events'
 import { shallowRef, watch } from 'vue'
 import { isDark } from './color-mode'
@@ -9,7 +9,7 @@ interface DocumentPictureInPicture {
 }
 
 interface DockPopupEvents {
-  'popup:open-requested': (context: DocksContext) => void
+  'popup:open-requested': (context: DevToolsDocksContext) => void
 }
 type MainFrameDockActionHandler = (entryId: string) => Promise<boolean> | boolean
 
@@ -26,8 +26,8 @@ const popupEvents = createEventEmitter<DockPopupEvents>()
 let detachPopupListeners: (() => void) | undefined
 let detachColorModeSync: (() => void) | undefined
 let popupDockElement: (HTMLElement & { remove: () => void }) | undefined
-let popupContext: DocksContext | undefined
-let loadDockStandalone: () => Promise<new (props: { context: DocksContext }) => HTMLElement> = async () => {
+let popupContext: DevToolsDocksContext | undefined
+let loadDockStandalone: () => Promise<new (props: { context: DevToolsDocksContext }) => HTMLElement> = async () => {
   return await import('../components/DockStandalone').then(m => m.DockStandalone)
 }
 
@@ -80,14 +80,14 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
-function syncPanelSizeFromPopup(context: DocksContext, popup: Window) {
+function syncPanelSizeFromPopup(context: DevToolsDocksContext, popup: Window) {
   if (window.innerWidth <= 0 || window.innerHeight <= 0)
     return
   context.panel.store.width = clamp(Math.round(popup.innerWidth / window.innerWidth * 100), PANEL_MIN_SIZE, PANEL_MAX_SIZE)
   context.panel.store.height = clamp(Math.round(popup.innerHeight / window.innerHeight * 100), PANEL_MIN_SIZE, PANEL_MAX_SIZE)
 }
 
-async function mountStandaloneApp(context: DocksContext, popup: Window) {
+async function mountStandaloneApp(context: DevToolsDocksContext, popup: Window) {
   const DockStandaloneElement = await loadDockStandalone()
 
   const baseStyle = popup.document.createElement('style')
@@ -179,7 +179,7 @@ export function useIsDockPopupOpen() {
   return isPopupOpen as Readonly<typeof isPopupOpen>
 }
 
-export function requestDockPopupOpen(context: DocksContext) {
+export function requestDockPopupOpen(context: DevToolsDocksContext) {
   popupEvents.emit('popup:open-requested', context)
 }
 
@@ -191,13 +191,13 @@ export function closeDockPopup() {
   popup.close()
 }
 
-export function setDockStandaloneLoaderForTest(loader?: () => Promise<new (props: { context: DocksContext }) => HTMLElement>) {
+export function setDockStandaloneLoaderForTest(loader?: () => Promise<new (props: { context: DevToolsDocksContext }) => HTMLElement>) {
   loadDockStandalone = loader || (async () => {
     return await import('../components/DockStandalone').then(m => m.DockStandalone)
   })
 }
 
-export async function openDockPopup(context: DocksContext): Promise<Window | null> {
+export async function openDockPopup(context: DevToolsDocksContext): Promise<Window | null> {
   setDocksOverflowPanel(null)
 
   const currentPopup = popupWindow.value

@@ -1,4 +1,4 @@
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsHostDockConfig, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import process from 'node:process'
 import { createDevToolsContext } from './context'
@@ -10,6 +10,8 @@ export interface StandaloneDevToolsOptions {
   config?: string
   command?: 'build' | 'serve'
   mode?: 'development' | 'production'
+  /** Host-wide dock defaults — see {@link DevToolsHostDockConfig}. */
+  dock?: DevToolsHostDockConfig
 }
 
 export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
@@ -20,6 +22,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     cwd = process.cwd(),
     command = 'build',
     mode = 'production',
+    dock,
   } = options
 
   const { resolveConfig } = await import('vite')
@@ -28,7 +31,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
       configFile: options.config,
       root: cwd,
       plugins: [
-        DevTools({ cwd }),
+        DevTools({ cwd, dock }),
       ],
     },
     command,
@@ -40,7 +43,10 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     plugin => plugin.name?.startsWith('vite:devtools'),
   )
 
-  const context = await createDevToolsContext(resolved)
+  // `resolveConfig` only resolves the `DevTools()` plugin's own hooks; it
+  // never surfaces the options it was constructed with, so `dock` is passed
+  // straight through rather than picked back out of `resolved.plugins`.
+  const context = await createDevToolsContext(resolved, undefined, { dock })
 
   return {
     config: resolved,

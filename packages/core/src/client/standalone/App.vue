@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../webcomponents/state/context'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { watchEffect } from 'vue'
 import DockStandalone from '../webcomponents/components/dock/DockStandalone.vue'
@@ -21,7 +21,7 @@ const rpc = await getDevToolsRpcClient()
 // eslint-disable-next-line no-console
 console.log('[VITE DEVTOOLS] RPC', rpc)
 
-const context: DocksContext = await createDocksContext(
+const context: DevToolsDocksContext = await createDocksContext(
   'standalone',
   rpc,
 )

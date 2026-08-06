@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsHostDockConfig, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import { colors as c } from 'devframe/utils/colors'
 import { resolve } from 'pathe'
@@ -8,6 +8,8 @@ import { MARK_NODE } from '../constants'
 
 export interface DevToolsBuildOptions {
   outDir?: string
+  /** Host-wide dock defaults — see {@link DevToolsHostDockConfig}. */
+  dock?: DevToolsHostDockConfig
 }
 
 export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
@@ -24,7 +26,7 @@ export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
 
     async buildStart() {
       const { createDevToolsContext } = await import('../context')
-      context = await createDevToolsContext(resolvedConfig)
+      context = await createDevToolsContext(resolvedConfig, undefined, { dock: options.dock })
     },
 
     async closeBundle() {

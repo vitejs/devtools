@@ -86,6 +86,12 @@ export default defineConfig({
     // For local playground only. As a user you don't install this plugin directly.
     DevTools({
       builtinDevTools: false,
+      // Host-wide dock defaults — layered over every plugin's own
+      // `categoryOrder` (the "local" plugin above declares `playground: -30`).
+      dock: {
+        categoryOrder: { web: -60, advanced: -50, app: -40 },
+        maxVisibleItems: 8,
+      },
     }),
     DevToolsRolldownUI(),
     DevToolsViteUI(),
@@ -130,6 +136,11 @@ export default defineConfig({
     {
       name: 'local',
       devtools: {
+        // Only `categoryOrder` is a plugin's own to declare — it just weighs
+        // the categories *this* plugin contributes to. `maxVisibleItems`/
+        // `defaultMode`/`defaultPosition` are host-wide and live on
+        // `DevTools({ dock })` below instead.
+        dock: { categoryOrder: { playground: -30 } },
         async setup(ctx) {
           ctx.docks.register({
             type: 'action',
@@ -294,6 +305,21 @@ export default defineConfig({
                 alert('Counter ${newState.count}')
               }`),
             })
+          })
+
+          // `ctx.dockConfig` is a live `SharedState` — mutating it reconfigures
+          // every already-connected client immediately, no reload. Try it from
+          // the command palette with the dock already open.
+          ctx.commands.register({
+            id: 'playground:toggle-dock-capacity',
+            title: 'Toggle Dock Capacity (4 / 8)',
+            icon: 'ph:arrows-out-line-horizontal-duotone',
+            category: 'playground',
+            handler: () => {
+              ctx.dockConfig.mutate((config) => {
+                config.maxVisibleItems = config.maxVisibleItems === 4 ? 8 : 4
+              })
+            },
           })
 
           // setInterval(() => {

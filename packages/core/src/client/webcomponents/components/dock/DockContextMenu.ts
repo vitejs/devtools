@@ -1,5 +1,5 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import { h } from 'vue'
 import { setDockContextMenu } from '../../state/floating-tooltip'
 import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
@@ -23,7 +23,7 @@ function renderMenuItem(item: DockMenuItem) {
   ])
 }
 
-function hideDock(context: DocksContext, entry: DevToolsDockEntry) {
+function hideDock(context: DevToolsDocksContext, entry: DevToolsDockEntry) {
   const settingsStore = context.docks.settings
   const id = entry.id
   settingsStore.mutate((state) => {
@@ -35,7 +35,7 @@ function hideDock(context: DocksContext, entry: DevToolsDockEntry) {
   setDockContextMenu(null)
 }
 
-function refreshDock(context: DocksContext, entry: DevToolsDockEntry) {
+function refreshDock(context: DevToolsDocksContext, entry: DevToolsDockEntry) {
   const state = context.docks.getStateById(entry.id)
   const iframe = state?.domElements.iframe
   if (!iframe) {
@@ -48,7 +48,7 @@ function refreshDock(context: DocksContext, entry: DevToolsDockEntry) {
   setDockContextMenu(null)
 }
 
-function canHide(context: DocksContext, entry: DevToolsDockEntry) {
+function canHide(context: DevToolsDocksContext, entry: DevToolsDockEntry) {
   if (entry.id === '~settings')
     return false
   return context.docks.entries.some(item => item.id === entry.id)
@@ -59,7 +59,7 @@ function canRefresh(entry: DevToolsDockEntry) {
 }
 
 export function openDockContextMenu(options: {
-  context: DocksContext
+  context: DevToolsDocksContext
   entry: DevToolsDockEntry
   el: HTMLElement
   gap?: number

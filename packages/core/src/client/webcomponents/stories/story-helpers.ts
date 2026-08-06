@@ -1,10 +1,10 @@
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../state/context'
 import type { CreateMockContextOptions } from './mock-context'
 import { defineComponent, h, Suspense } from 'vue'
 import { createMockDocksContext } from './mock-context'
 
 /**
- * Render a component tree that needs a live {@link DocksContext}.
+ * Render a component tree that needs a live {@link DevToolsDocksContext}.
  *
  * `createMockDocksContext` is async (it boots the real dock context over a mock
  * transport), so we resolve it inside an async `setup` wrapped in `<Suspense>`.
@@ -24,7 +24,7 @@ import { createMockDocksContext } from './mock-context'
  */
 export function mountWithContext(
   options: CreateMockContextOptions,
-  slot: (context: DocksContext) => unknown,
+  slot: (context: DevToolsDocksContext) => unknown,
 ): () => unknown {
   const Inner = defineComponent({
     name: 'MockContextProvider',

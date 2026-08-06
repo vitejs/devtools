@@ -1,4 +1,4 @@
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsDockConfig, DevToolsHostDockConfig, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
@@ -24,9 +24,15 @@ function shouldSkipSetupByCapabilities(
   return Object.values(modeCapabilities).includes(false)
 }
 
+export interface CreateDevToolsContextOptions {
+  /** Host-wide dock defaults — see {@link DevToolsHostDockConfig}. */
+  dock?: DevToolsHostDockConfig
+}
+
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
   viteServer?: ViteDevServer,
+  options: CreateDevToolsContextOptions = {},
 ): Promise<ViteDevToolsNodeContext> {
   const cwd = viteConfig.root
 
@@ -109,7 +115,12 @@ export async function createDevToolsContext(
   if (viteServer || mode === 'build')
     context.views.hostStatic('/__devtools-assets/', dirAssets)
 
-  // Scan Vite plugins for `devtools` setup hooks.
+  // Scan Vite plugins for `devtools` setup hooks, shallow-merging each
+  // plugin's declared `categoryOrder` along the way — it's the one dock
+  // setting that's meaningful per plugin. `maxVisibleItems`/`defaultMode`/
+  // `defaultPosition` are properties of the one shared dock bar, so they come
+  // only from the host's own `options.dock`, layered on top below.
+  const pluginCategoryOrder: Record<string, number> = {}
   const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
@@ -118,6 +129,7 @@ export async function createDevToolsContext(
       debugSetup(`skipping plugin ${JSON.stringify(plugin.name)} due to disabled capabilities in ${mode} mode`)
       continue
     }
+    Object.assign(pluginCategoryOrder, plugin.devtools.dock?.categoryOrder)
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
       await plugin.devtools?.setup?.(context)
@@ -126,6 +138,16 @@ export async function createDevToolsContext(
       throw diagnostics.DTK0014({ name: plugin.name, cause: error })
     }
   }
+
+  const dockConfig: DevToolsDockConfig = {
+    ...options.dock,
+    categoryOrder: { ...pluginCategoryOrder, ...options.dock?.categoryOrder },
+  }
+  // Created unconditionally, including in build mode, so the key exists in
+  // `host.keys()` and the static RPC dump picks it up for the built SPA.
+  context.dockConfig = await context.rpc.sharedState.get('devtools:dock-config', {
+    initialValue: dockConfig,
+  })
 
   return context
 }

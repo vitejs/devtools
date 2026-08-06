@@ -1,3 +1,4 @@
+import type { DevToolsHostDockConfig } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import type { DevToolsVisibility } from './injection'
 import { DevToolsBuild } from './build'
@@ -31,6 +32,14 @@ export interface DevToolsOptions {
   visibility?: DevToolsVisibility
 
   /**
+   * Host-wide dock defaults — category order, float-mode capacity, and
+   * initial window placement. A plugin may additionally declare its own
+   * `devtools.dock.categoryOrder`; this option decides the rest, and wins
+   * over a plugin's `categoryOrder` where both set the same category.
+   */
+  dock?: DevToolsHostDockConfig
+
+  /**
    * Options for building static DevTools output alongside `vite build`.
    */
   build?: {
@@ -53,15 +62,16 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
     builtinDevTools = true,
     build,
     visibility = 'normal',
+    dock,
   } = options
 
   const plugins = [
     DevToolsInjection({ visibility }),
-    DevToolsServer(),
+    DevToolsServer({ dock }),
   ]
 
   if (build?.withApp) {
-    plugins.push(DevToolsBuild({ outDir: build.outDir }))
+    plugins.push(DevToolsBuild({ outDir: build.outDir, dock }))
   }
 
   plugins.unshift(

@@ -15,4 +15,10 @@ export interface DevToolsDocksUserSettings extends DevframeDocksUserSettings {
    * dock out of the dock bar until the user opts in from Settings → Advanced.
    */
   showDevframeInspector?: boolean
+
+  /**
+   * User drag-and-drop order for top-level dock categories, lower first.
+   * Overrides the merged plugin/host `DevToolsDockConfig.categoryOrder`.
+   */
+  docksCategoriesOrder?: Record<string, number>
 }

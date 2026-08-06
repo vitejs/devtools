@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry, DevToolsViewGroup } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import { watchDebounced } from '@vueuse/core'
 import { computed, h, ref, useTemplateRef } from 'vue'
 import { getGroupMembers, getGroupMembersGrouped, resolveGroupDefaultChild } from '../../state/dock-settings'
@@ -10,7 +10,7 @@ import DockEntry from './DockEntry.vue'
 import DockGroupPopover from './DockGroupPopover.vue'
 
 const props = withDefaults(defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   group: DevToolsViewGroup
   isVertical: boolean
   selected: DevToolsDockEntry | null

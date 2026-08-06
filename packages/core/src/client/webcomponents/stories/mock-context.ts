@@ -1,5 +1,6 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
-import type { DevToolsRpcClient, DockPanelStorage, DocksContext, RpcClientEvents } from '@vitejs/devtools-kit/client'
+import type { DevToolsDockConfig, DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
+import type { DevToolsRpcClient, DockPanelStorage, RpcClientEvents } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../state/context'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { createEventEmitter } from 'devframe/utils/events'
 import { createSharedState } from 'devframe/utils/shared-state'
@@ -31,11 +32,14 @@ export interface CreateMockContextOptions {
   selectedId?: string | null
   /** Initial trust state. Defaults to `true`. */
   isTrusted?: boolean
+  /** Overrides seeded into `devtools:dock-config` (category order, `maxVisibleItems`, ...). */
+  dockConfig?: DevToolsDockConfig
 }
 
 function createMockRpc(
   entries: DevToolsDockEntry[],
   settings: Partial<DevToolsDocksUserSettings>,
+  dockConfig: DevToolsDockConfig,
   initialTrusted: boolean,
 ): MockRpcClient {
   const docksState = createSharedState({ initialValue: entries, enablePatches: false })
@@ -44,6 +48,7 @@ function createMockRpc(
     enablePatches: false,
   })
   const commandsState = createSharedState({ initialValue: [] as any[], enablePatches: false })
+  const dockConfigState = createSharedState({ initialValue: dockConfig, enablePatches: false })
   const events = createEventEmitter<RpcClientEvents>()
 
   let trusted = initialTrusted
@@ -58,6 +63,7 @@ function createMockRpc(
 
   const rpc = {
     events,
+    connectionMeta: { backend: 'websocket' },
     get isTrusted() {
       return trusted
     },
@@ -80,6 +86,8 @@ function createMockRpc(
           return settingsState
         if (key === 'devframe:commands')
           return commandsState
+        if (key === 'devtools:dock-config')
+          return dockConfigState
         throw new Error(`[mock-rpc] Unexpected shared state key: ${key}`)
       },
     },
@@ -93,7 +101,7 @@ function createMockRpc(
 }
 
 /**
- * Build a real {@link DocksContext} wired to an in-memory {@link MockRpcClient}.
+ * Build a real {@link DevToolsDocksContext} wired to an in-memory {@link MockRpcClient}.
  *
  * This is the same `createDocksContext` the client boots with, so grouping,
  * `switchEntry`, commands and when-clauses all behave exactly as they do at
@@ -102,7 +110,7 @@ function createMockRpc(
  */
 export async function createMockDocksContext(
   options: CreateMockContextOptions = {},
-): Promise<DocksContext & { rpc: MockRpcClient }> {
+): Promise<DevToolsDocksContext & { rpc: MockRpcClient }> {
   const {
     entries = [],
     clientType = 'embedded',
@@ -110,9 +118,10 @@ export async function createMockDocksContext(
     settings = {},
     selectedId = null,
     isTrusted = true,
+    dockConfig = {},
   } = options
 
-  const rpc = createMockRpc(entries, settings, isTrusted)
+  const rpc = createMockRpc(entries, settings, dockConfig, isTrusted)
   const panelStore = ref<DockPanelStorage>({ ...DEFAULT_DOCK_PANEL_STORE(), ...panel })
 
   const context = await createDocksContext(clientType, rpc, panelStore)
@@ -122,5 +131,5 @@ export async function createMockDocksContext(
     context.panel.store.open = true
   }
 
-  return context as DocksContext & { rpc: MockRpcClient }
+  return context as DevToolsDocksContext & { rpc: MockRpcClient }
 }

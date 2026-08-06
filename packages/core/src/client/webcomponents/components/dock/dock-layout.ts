@@ -94,7 +94,12 @@ export const DEFAULT_DOCK_LAYOUT: DockLayout = Object.freeze({
 export function resolveDockLayout(overrides?: Partial<DockLayout>): DockLayout {
   if (!overrides)
     return DEFAULT_DOCK_LAYOUT
-  return { ...DEFAULT_DOCK_LAYOUT, ...overrides }
+  return {
+    ...DEFAULT_DOCK_LAYOUT,
+    ...overrides,
+    // An overflow button with zero inline items has nothing to sit beside.
+    maxVisibleItems: Math.max(1, overrides.maxVisibleItems ?? DEFAULT_DOCK_LAYOUT.maxVisibleItems),
+  }
 }
 
 /**

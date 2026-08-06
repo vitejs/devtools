@@ -1,4 +1,4 @@
-import type { DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { DevToolsDockConfig, DevToolsDockEntry, DevToolsDocksUserSettings, DevToolsServerCommandEntry, RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import { commandsExecute } from './internal/commands-execute'
 import { commandsList } from './internal/commands-list'
 import { docksOnLaunch } from './internal/docks-on-launch'
@@ -68,5 +68,6 @@ declare module 'devframe/types' {
     'devframe:commands': DevToolsServerCommandEntry[]
     'devframe:docks': DevToolsDockEntry[]
     'devframe:user-settings': DevToolsDocksUserSettings
+    'devtools:dock-config': DevToolsDockConfig
   }
 }
