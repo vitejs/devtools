@@ -84,6 +84,7 @@ export interface SelectProps {
   label?: string;
   disabled?: boolean;
   searchable?: boolean;
+  native?: boolean;
 }
 export interface StackProps {
   direction?: 'row' | 'column';

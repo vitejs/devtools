@@ -1,8 +1,9 @@
+import type { VNode } from 'vue'
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h, ref, useId, useTemplateRef, watch } from 'vue'
 import DockIcon from '../../components/dock/DockIcon.vue'
 import FloatingPopover from '../../components/floating/FloatingPopover'
-import { bg, borderInput, borderSolid, surfaceSubtle } from './tokens'
+import { bg, borderInput, borderSolid, primary, surfaceBadge } from './tokens'
 import { registryProps } from './types'
 
 // @unocss-include
@@ -26,6 +27,13 @@ export interface SelectProps {
   disabled?: boolean
   /** Adds a substring filter box at the top of the panel. */
   searchable?: boolean
+  /**
+   * Renders a real `<select>` instead of the custom listbox. The browser draws its option
+   * list outside the page's layout, so it cannot be clipped or mispositioned by any
+   * ancestor — at the cost of `icon`, `description` and `searchable`, which have no
+   * native equivalent.
+   */
+  native?: boolean
 }
 
 function normalizeOption(option: string | SelectOption): SelectOption {
@@ -62,7 +70,7 @@ export const Select = defineComponent({
     })
 
     return () => {
-      const { placeholder, label, disabled, searchable } = ctx.element.props
+      const { placeholder, label, disabled, searchable, native } = ctx.element.props
       const options = (ctx.element.props.options ?? []).map(normalizeOption)
       const [value, setValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
       const change = ctx.on('change')
@@ -78,6 +86,47 @@ export const Select = defineComponent({
         setValue(option.value)
         change.emit()
         close({ refocus: true })
+      }
+
+      const withLabel = (control: VNode) => {
+        if (!label)
+          return control
+        return h('div', { style: { display: 'flex', flexDirection: 'column' as const, gap: '4px', flex: '1' } }, [
+          h('label', { style: { fontSize: '12px', fontWeight: '500' } }, label),
+          control,
+        ])
+      }
+
+      if (native) {
+        return withLabel(h('select', {
+          'value': value ?? '',
+          'disabled': disabled,
+          'aria-label': label,
+          'style': {
+            flex: '1',
+            width: '100%',
+            padding: '6px 10px',
+            border: borderSolid(borderInput),
+            borderRadius: '4px',
+            fontSize: '12px',
+            backgroundColor: bg,
+            color: 'inherit',
+            opacity: disabled ? '0.5' : '1',
+            cursor: disabled ? 'not-allowed' : 'pointer',
+          },
+          'onChange': (e: Event) => {
+            const next = (e.target as HTMLSelectElement).value
+            const option = options.find(candidate => candidate.value === next)
+            if (option)
+              commit(option)
+          },
+        }, [
+          // Only while unset, so the placeholder can't be re-selected afterwards.
+          placeholder && value === undefined
+            ? h('option', { value: '', disabled: true }, placeholder)
+            : null,
+          ...options.map(option => h('option', { value: option.value }, option.label ?? option.value)),
+        ]))
       }
 
       const moveActive = (delta: number) => {
@@ -174,7 +223,9 @@ export const Select = defineComponent({
                 borderRadius: '4px',
                 fontSize: '12px',
                 cursor: 'pointer',
-                backgroundColor: index === activeIndex.value ? surfaceSubtle : 'transparent',
+                /* The active row needs to read over the panel's own denser surface, where `surfaceSubtle` washes out. */
+                backgroundColor: index === activeIndex.value ? surfaceBadge : 'transparent',
+                color: option.value === value ? primary : 'inherit',
               },
               'onMouseenter': () => { activeIndex.value = index },
               'onClick': () => commit(option),
@@ -225,20 +276,16 @@ export const Select = defineComponent({
       const control = h('div', { style: { position: 'relative' as const, flex: '1' } }, [
         triggerButton,
         h(FloatingPopover, {
-          item: open.value && trigger.value ? { el: trigger.value, content: () => listbox, placement: 'bottom' as const } : null,
-          panelClass: ['!p0', 'overflow-hidden'],
+          /* `DEFAULT_GAP` is tooltip spacing; a menu should sit against the control it belongs to. */
+          item: open.value && trigger.value ? { el: trigger.value, content: () => listbox, placement: 'bottom' as const, gap: 4 } : null,
+          panelClass: ['overflow-hidden'],
+          surface: 'menu' as const,
           ignore: [trigger],
           onDismiss: () => close(),
         }),
       ])
 
-      if (label) {
-        return h('div', { style: { display: 'flex', flexDirection: 'column' as const, gap: '4px', flex: '1' } }, [
-          h('label', { style: { fontSize: '12px', fontWeight: '500' } }, label),
-          control,
-        ])
-      }
-      return control
+      return withLabel(control)
     }
   },
 })
