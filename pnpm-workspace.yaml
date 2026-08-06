@@ -43,7 +43,7 @@ overrides:
   vite: 'catalog:build'
 
 refs:
-  devframe: &devframe ^0.8.0
+  devframe: &devframe ^0.8.2
   nuxt: &nuxt ^4.5.1
   shiki: &shiki ^4.4.1
   storybook: &storybook ^10.5.6

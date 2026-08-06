@@ -126,7 +126,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // or open a dedicated WS server when running standalone.
   const binding: WsRpcTransportOptions = routeBound
     ? { server: viteHttpServer, path: DEVTOOLS_WS_PATH, destroyUnmatched: false }
-    : { port: options.websocket.port, host, https }
+    : { port: options.websocket.port ?? 0, host, https }
 
   // Vite's published types bundle a frozen snapshot of `DevToolsConfig` (to type
   // `ResolvedConfig.devtools` without depending on this package at runtime), so a field just
@@ -180,13 +180,13 @@ export async function createWsServer(options: CreateWsServerOptions) {
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage
 
-  await transport.ready
-
   // Standalone transports bind first, then report the port selected atomically
   // by the operating system. An explicit port still passes through unchanged.
-  const port = routeBound
-    ? undefined
-    : (transport.address() as AddressInfo).port
+  let port: number | undefined
+  if (!routeBound) {
+    await transport.ready
+    port = (transport.address() as AddressInfo).port
+  }
 
   contextInternal.wsEndpoint = {
     // Remote docks dial this absolute URL cross-origin. In route-bound mode it
