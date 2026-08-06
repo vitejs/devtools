@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
+import type { DevToolsDocksContext } from '../../state/context'
 import { computed, h, useTemplateRef } from 'vue'
 import { getEntryGroup } from '../../state/dock-settings'
 import { setEdgePositionDropdown, setFloatingTooltip, useEdgePositionDropdown } from '../../state/floating-tooltip'
@@ -11,7 +11,7 @@ import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
 }>()
 
 const context = props.context

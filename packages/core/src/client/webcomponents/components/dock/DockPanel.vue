@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
+import type { DevToolsDocksContext } from '../../state/context'
 import type { DockLayout } from './dock-layout'
 import { useElementBounding, useWindowSize } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, toRefs, useTemplateRef } from 'vue'
@@ -14,7 +14,7 @@ import DockGroupSidebar from './DockGroupSidebar.vue'
 import DockPanelResizer from './DockPanelResizer.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   selected: DevToolsDockEntry | null
   dockEl?: HTMLDivElement
   panelMargins: { left: number, top: number, right: number, bottom: number }

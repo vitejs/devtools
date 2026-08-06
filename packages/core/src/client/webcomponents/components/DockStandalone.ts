@@ -1,5 +1,5 @@
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { VueElementConstructor } from 'vue'
+import type { DevToolsDocksContext } from '../state/context'
 import { defineCustomElement } from 'vue'
 import css from '../.generated/css'
 import Component from './dock/DockStandalone.vue'
@@ -11,7 +11,7 @@ export const DockStandalone = defineCustomElement(
     styles: [css],
   },
 ) as VueElementConstructor<{
-  context: DocksContext
+  context: DevToolsDocksContext
 }>
 
 if (!customElements.get('vite-devtools-dock-standalone'))

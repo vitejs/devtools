@@ -20,12 +20,15 @@ export interface DevToolsLaunchRoot {
   label: string;
   description?: string;
 }
+export interface DevToolsPluginDockConfig {
+  categoryOrder?: Record<string, number>;
+}
 export interface DevToolsPluginOptions {
   capabilities?: {
     dev?: DevframeCapabilities | boolean;
     build?: DevframeCapabilities | boolean;
   };
-  dock?: DevToolsDockConfig;
+  dock?: DevToolsPluginDockConfig;
   setup: (_: ViteDevToolsNodeContext) => void | Promise<void>;
 }
 export interface DevToolsViewJsonRender extends DevframeDockEntryBase {
@@ -55,12 +58,13 @@ export interface PluginWithDevTools extends Plugin {
 export interface ViteDevToolsNodeContext extends KitNodeContext {
   readonly viteConfig: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
-  dockConfig?: DevToolsDockConfig;
+  dockConfig: SharedState<DevToolsDockConfig>;
 }
 // #endregion
 
 // #region Types
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory;
+export type DevToolsHostDockConfig = DevToolsDockConfig;
 export type JsonRenderElement = UIElement;
 export type JsonRenderSpec = DevframeJsonRenderSpec;
 // #endregion

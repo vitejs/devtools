@@ -68,10 +68,6 @@ declare module 'devframe/types' {
     'devframe:commands': DevToolsServerCommandEntry[]
     'devframe:docks': DevToolsDockEntry[]
     'devframe:user-settings': DevToolsDocksUserSettings
-  }
-
-  interface ConnectionMeta {
-    /** Host dock config, fixed for the life of the dev server, so it rides the handshake instead of shared state. */
-    dockConfig?: DevToolsDockConfig
+    'devtools:dock-config': DevToolsDockConfig
   }
 }

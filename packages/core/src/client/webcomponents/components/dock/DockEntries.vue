@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import { evaluateWhen } from 'devframe/utils/when'
 import { toRefs } from 'vue'
 import { getGroupMembers, resolveGroupDefaultChild } from '../../state/dock-settings'
@@ -9,7 +9,7 @@ import DockEntry from './DockEntry.vue'
 import DockGroupButton from './DockGroupButton.vue'
 
 const props = withDefaults(defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   entries: DevToolsDockEntry[]
   selected: DevToolsDockEntry | null
   isVertical: boolean

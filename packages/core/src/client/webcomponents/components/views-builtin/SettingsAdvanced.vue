@@ -46,7 +46,7 @@ async function resetDocks() {
       state.docksHidden = defaults.docksHidden
       state.docksCategoriesHidden = defaults.docksCategoriesHidden
       state.docksCustomOrder = defaults.docksCustomOrder
-      state.docksCategoriesOrder = {}
+      delete state.docksCategoriesOrder
       state.docksPinned = defaults.docksPinned
     })
   }

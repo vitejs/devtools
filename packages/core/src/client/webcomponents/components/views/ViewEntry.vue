@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { IframePanes } from 'iframe-pane'
 import type { CSSProperties } from 'vue'
+import type { DevToolsDocksContext } from '../../state/context'
 import { defineAsyncComponent } from 'vue'
 import ViewBuiltinClientAuthNotice from '../views-builtin/ViewBuiltinClientAuthNotice.vue'
 import ViewBuiltinSettings from '../views-builtin/ViewBuiltinSettings.vue'
@@ -11,7 +11,7 @@ import ViewIframe from './ViewIframe.vue'
 import ViewLauncher from './ViewLauncher.vue'
 
 defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   entry: DevToolsDockEntry
   panes: IframePanes
   iframeStyle?: CSSProperties

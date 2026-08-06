@@ -1,4 +1,4 @@
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../context'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setDocksOverflowPanel, useDocksOverflowPanel } from '../floating-tooltip'
 import { closeDockPopup, isDockPopupSupported, openDockPopup, setDockStandaloneLoaderForTest, useDockPopupWindow, useIsDockPopupOpen } from '../popup'
@@ -9,12 +9,12 @@ const {
   dockElementRemoveMock,
 } = vi.hoisted(() => {
   const dockElementRemoveMock = vi.fn()
-  const dockStandaloneCtorCalls: Array<{ context: DocksContext }> = []
+  const dockStandaloneCtorCalls: Array<{ context: DevToolsDocksContext }> = []
   class DockStandaloneElementMock {
-    context: DocksContext
+    context: DevToolsDocksContext
     remove: () => void
     style: Record<string, string>
-    constructor({ context }: { context: DocksContext }) {
+    constructor({ context }: { context: DevToolsDocksContext }) {
       this.context = context
       this.remove = dockElementRemoveMock
       this.style = {}
@@ -22,7 +22,7 @@ const {
     }
   }
   return {
-    DockStandaloneElementMock: DockStandaloneElementMock as unknown as new (props: { context: DocksContext }) => HTMLElement,
+    DockStandaloneElementMock: DockStandaloneElementMock as unknown as new (props: { context: DevToolsDocksContext }) => HTMLElement,
     dockStandaloneCtorCalls,
     dockElementRemoveMock,
   }
@@ -36,7 +36,7 @@ function createMockContext(
     width?: number
     height?: number
   } = {},
-): DocksContext {
+): DevToolsDocksContext {
   return {
     panel: {
       store: {
@@ -55,7 +55,7 @@ function createMockContext(
     rpc: {
       connectionMeta: { backend: 'ws' },
     },
-  } as unknown as DocksContext
+  } as unknown as DevToolsDocksContext
 }
 
 function createMockDocument() {

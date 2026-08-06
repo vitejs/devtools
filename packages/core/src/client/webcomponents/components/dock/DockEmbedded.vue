@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import type { DockLayout } from './dock-layout'
 import { useEventListener } from '@vueuse/core'
 import { onUnmounted } from 'vue'
@@ -16,7 +16,7 @@ import DockEdge from './DockEdge.vue'
 import DockPanel from './DockPanel.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   /** Override dock layout tunables (forwarded to the float-mode bar + panel). */
   layout?: Partial<DockLayout>
 }>()

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DevToolsViewBuiltin } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
+import type { DevToolsDocksContext } from '../../state/context'
 import { ref } from 'vue'
 import SettingsAdvanced from './SettingsAdvanced.vue'
 import SettingsAppearance from './SettingsAppearance.vue'
@@ -8,7 +8,7 @@ import SettingsDocks from './SettingsDocks.vue'
 import SettingsShortcuts from './SettingsShortcuts.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   entry: DevToolsViewBuiltin
 }>()
 

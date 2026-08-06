@@ -1,12 +1,16 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { DevToolsDockConfig } from '@vitejs/devtools-kit'
+import type { DevToolsRpcClient, DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { Ref } from 'vue'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../constants'
 import { createDocksContext } from '../webcomponents/state/context'
+
+const DOCK_STATE_STORAGE_KEY = 'vite-devtools-dock-state'
 
 export type InjectMode = 'passive' | 'normal' | 'hidden'
 
@@ -31,6 +35,40 @@ function matchesActivation(event: KeyboardEvent): boolean {
     && !event.ctrlKey
     && !event.metaKey
     && (event.code === 'KeyD' || event.key === 'd' || event.key === 'D')
+}
+
+/**
+ * Seeds `state.mode`/`.position` from the host's declared `defaultMode`/
+ * `defaultPosition`, once, for a developer with no stored preference yet.
+ *
+ * The client's `sharedState.get()` resolves immediately with just
+ * `initialValue` while the connection is still untrusted — the normal
+ * first-load case — so the declared config usually lands after `state` (and
+ * the dock) already exist. Applying it retroactively here, exactly once,
+ * avoids depending on `useLocalStorage`'s `mergeDefaults`, which would have
+ * already persisted the fallback `float`/`left` and made the seed a no-op on
+ * every later load too.
+ */
+export async function seedWindowDefaultsOnce(rpc: DevToolsRpcClient, state: Ref<DockPanelStorage>): Promise<void> {
+  const configState = await rpc.sharedState.get<DevToolsDockConfig>('devtools:dock-config', { initialValue: {} })
+
+  const applyOnce = (config: DevToolsDockConfig): boolean => {
+    if (config.defaultMode == null && config.defaultPosition == null)
+      return false
+    if (config.defaultMode != null)
+      state.value.mode = config.defaultMode
+    if (config.defaultPosition != null)
+      state.value.position = config.defaultPosition
+    return true
+  }
+
+  if (applyOnce(configState.value()))
+    return
+
+  const unsubscribe = configState.on('updated', (config) => {
+    if (applyOnce(config))
+      unsubscribe()
+  })
 }
 
 async function persistNormalMode(enabled: boolean): Promise<void> {
@@ -60,23 +98,26 @@ async function mountDock(): Promise<void> {
     ],
   })
 
-  // Plugin-declared mode/position only seed the defaults — `mergeDefaults` never
-  // overwrites a developer's stored preference.
-  const dockConfig = rpc.connectionMeta.dockConfig
+  // Read before `useLocalStorage` creates/touches the entry below — the write
+  // it does on every load would otherwise erase the "nothing stored yet"
+  // signal `seedWindowDefaultsOnce` needs.
+  const hasStoredDockState = localStorage.getItem(DOCK_STATE_STORAGE_KEY) !== null
   const state = useLocalStorage<DockPanelStorage>(
-    'vite-devtools-dock-state',
+    DOCK_STATE_STORAGE_KEY,
     {
-      mode: dockConfig?.defaultMode ?? 'float',
+      mode: 'float',
       width: 80,
       height: 80,
       top: 0,
       left: 0,
-      position: dockConfig?.defaultPosition ?? 'left',
+      position: 'left',
       open: false,
       inactiveTimeout: 3_000,
     },
     { mergeDefaults: true },
   )
+  if (!hasStoredDockState)
+    void seedWindowDefaultsOnce(rpc, state)
 
   const context = await createDocksContext(
     'embedded',

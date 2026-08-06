@@ -114,6 +114,32 @@ export default defineConfig({
 })
 ```
 
+#### Dock defaults
+
+`dock` sets host-wide dock defaults — category order, the float bar's inline
+capacity, and the initial window placement:
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools({
+      dock: {
+        categoryOrder: { web: -60, advanced: -50, app: -40 },
+        maxVisibleItems: 8,
+        defaultMode: 'edge',
+        defaultPosition: 'left',
+      },
+    }),
+  ],
+})
+```
+
+A plugin may additionally declare its own `devtools.dock.categoryOrder` to
+weigh the categories it contributes — see [Dock config](/kit/devtools-plugin#dock-config).
+
 #### Projects without an HTML entry
 
 For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. One entry per visibility mode — import whichever one you want:

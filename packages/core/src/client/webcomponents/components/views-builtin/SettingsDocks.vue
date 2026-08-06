@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
+import type { DevToolsDocksContext } from '../../state/context'
 import type { DevToolsDockEntriesGrouped, DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { useDraggable } from '@vueuse/core'
 import { computed, ref, useTemplateRef } from 'vue'
@@ -11,7 +11,7 @@ import HashBadge from '../display/HashBadge.vue'
 import DockIcon from '../dock/DockIcon.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   settingsStore: SharedState<DevToolsDocksUserSettings>
 }>()
 
@@ -21,7 +21,7 @@ const settings = sharedStateToRef(props.settingsStore)
 // group button. A group's members are split by their in-group sub-category, and
 // each sub-category is its own reorderable container (`grp:<id>:::<subcat>`);
 // category containers are keyed `cat:<name>`.
-const configCategoryOrder = computed(() => props.context.rpc.connectionMeta.dockConfig?.categoryOrder)
+const configCategoryOrder = computed(() => props.context.dockConfig.categoryOrder)
 
 function groupByCategories(categoryOrderOverride?: Record<string, number>): DevToolsDockEntriesGrouped {
   return docksGroupByCategories(props.context.docks.entries, settings.value, {
@@ -31,7 +31,7 @@ function groupByCategories(categoryOrderOverride?: Record<string, number>): DevT
   })
 }
 
-// User drag order over the plugin-declared one.
+// User drag order over the plugin/host-declared one.
 const categories = computed(() => groupByCategories({ ...configCategoryOrder.value, ...settings.value.docksCategoriesOrder }))
 
 function membersOf(groupId: string): DevToolsDockEntry[] {

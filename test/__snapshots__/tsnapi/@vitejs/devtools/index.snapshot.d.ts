@@ -15,7 +15,7 @@ export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpc
 // #endregion
 
 // #region Functions
-export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer): Promise<ViteDevToolsNodeContext>;
+export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer, _?: CreateDevToolsContextOptions): Promise<ViteDevToolsNodeContext>;
 export declare function createDevToolsMiddleware(_: CreateWsServerOptions): Promise<DevToolsMiddleware>;
 export declare function DevTools(_?: DevToolsOptions): Promise<Plugin[]>;
 // #endregion

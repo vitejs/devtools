@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { CSSProperties } from 'vue'
+import type { DevToolsDocksContext } from '../../state/context'
 import type { DockLayout } from './dock-layout'
 import { useEventListener, useScreenSafeArea, whenever } from '@vueuse/core'
 import { computed, onMounted, reactive, ref, useTemplateRef } from 'vue'
@@ -23,7 +23,7 @@ import DockEntriesWithCategories from './DockEntriesWithCategories.vue'
 import DockOverflowButton from './DockOverflowButton.vue'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   /**
    * Override individual dock layout tunables (bar height, item capacity,
    * viewport margin, snapping, ...). Merged over `DEFAULT_DOCK_LAYOUT`.
@@ -34,9 +34,9 @@ const props = defineProps<{
 // Here we directly destructure is as we don't expect context to be changed
 const context = props.context
 
-// A plugin-declared `maxVisibleItems` is the default; an explicit `layout` prop wins.
+// A plugin/host-declared `maxVisibleItems` is the default; an explicit `layout` prop wins.
 const layout = computed(() => resolveDockLayout({
-  maxVisibleItems: context.rpc.connectionMeta.dockConfig?.maxVisibleItems,
+  maxVisibleItems: context.dockConfig.maxVisibleItems,
   ...props.layout,
 }))
 

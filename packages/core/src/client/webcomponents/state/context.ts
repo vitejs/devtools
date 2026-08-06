@@ -17,20 +17,34 @@ import { registerMainFrameDockActionHandler, triggerMainFrameDockAction, useIsDo
 import { createDockRenderers } from './renderers'
 import { executeSetupScript } from './setup-script'
 
-const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
+/**
+ * `DocksContext` plus the host's dock config, synced over shared state rather
+ * than part of the upstream `devframe`/`hub` context shape. Assigned from a
+ * `ShallowRef` below; `reactive()` unwraps it as a direct property, so it
+ * reads as a plain object here — same convention as `panel.store`.
+ */
+export interface DevToolsDocksContext extends DocksContext {
+  /** Host dock config. Read-only from the client — mutate it on the node context instead. */
+  readonly dockConfig: DevToolsDockConfig
+}
+
+const docksContextByRpc = new WeakMap<DevToolsRpcClient, DevToolsDocksContext>()
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
   panelStore?: Ref<DockPanelStorage>,
-): Promise<DocksContext> {
+): Promise<DevToolsDocksContext> {
   if (docksContextByRpc.has(rpc)) {
     return docksContextByRpc.get(rpc)!
   }
 
   const dockEntries = await useDocksEntries(rpc)
 
-  /** Host dock config, handed over once in the connection handshake. */
-  const dockConfig: DevToolsDockConfig | undefined = rpc.connectionMeta.dockConfig
+  // Client's `initialValue` must stay empty — the client merges
+  // `{ ...initialValue, ...serverState }`, so anything else would leak stale
+  // keys the server deliberately omitted once the real value arrives.
+  const dockConfigState = await rpc.sharedState.get<DevToolsDockConfig>('devtools:dock-config', { initialValue: {} })
+  const dockConfig = sharedStateToRef(dockConfigState)
 
   // Client-only dock registry (0.7.10 `DocksEntriesContext` API). Docks
   // registered here live in this page only, merged over the server-provided
@@ -114,7 +128,7 @@ export async function createDocksContext(
   }
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
-  let docksContext: DocksContext
+  let docksContext: DevToolsDocksContext
 
   let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
   const getSettingsStore = async () => {
@@ -336,8 +350,8 @@ export async function createDocksContext(
   // Settings store, `settings`, and `getWhenContext` are established earlier
   // (right before `switchEntry`) — its group→member resolution needs them.
   const groupedEntries = computed(() => {
-    // User drag order over the plugin-declared one.
-    const categoryOrderOverride = { ...dockConfig?.categoryOrder, ...settings.value.docksCategoriesOrder }
+    // User drag order over the plugin/host-declared one.
+    const categoryOrderOverride = { ...dockConfig.value.categoryOrder, ...settings.value.docksCategoriesOrder }
     return docksGroupByCategories(entries.value, settings.value, { whenContext: getWhenContext(), collapseGroups: true, categoryOrderOverride })
   })
 
@@ -493,6 +507,7 @@ export async function createDocksContext(
   })
 
   docksContext = reactive({
+    dockConfig,
     panel: {
       store: panelStore,
       isDragging: false,

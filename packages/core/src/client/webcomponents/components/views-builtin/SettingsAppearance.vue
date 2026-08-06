@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
+import type { DevToolsDocksContext } from '../../state/context'
 import type { DevToolsDocksUserSettings } from '../../state/dock-settings'
 import { computed } from 'vue'
 import { colorSchemePreference, setColorSchemePreference } from '../../state/color-mode'
@@ -8,7 +8,7 @@ import { sharedStateToRef } from '../../state/docks'
 import { isDockPopupSupported, requestDockPopupOpen, useIsDockPopupOpen } from '../../state/popup'
 
 const props = defineProps<{
-  context: DocksContext
+  context: DevToolsDocksContext
   settingsStore: SharedState<DevToolsDocksUserSettings>
 }>()
 

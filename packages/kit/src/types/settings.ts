@@ -18,7 +18,7 @@ export interface DevToolsDocksUserSettings extends DevframeDocksUserSettings {
 
   /**
    * User drag-and-drop order for top-level dock categories, lower first.
-   * Overrides a plugin's declared `DevToolsDockConfig.categoryOrder`.
+   * Overrides the merged plugin/host `DevToolsDockConfig.categoryOrder`.
    */
   docksCategoriesOrder?: Record<string, number>
 }

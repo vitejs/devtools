@@ -38,6 +38,9 @@ export interface DataTableProps {
   rows?: Record<string, unknown>[];
   height?: number;
 }
+export interface DevToolsDocksContext extends DocksContext {
+  readonly dockConfig: DevToolsDockConfig;
+}
 export interface DividerProps {
   label?: string;
 }
@@ -142,9 +145,9 @@ export declare function useDocksEntries(_: DevToolsRpcClient): Promise<Ref<DevTo
 
 // #region Variables
 export declare const DockEmbedded: VueElementConstructor<{
-  context: DocksContext;
+  context: DevToolsDocksContext;
 }>;
 export declare const DockStandalone: VueElementConstructor<{
-  context: DocksContext;
+  context: DevToolsDocksContext;
 }>;
 // #endregion
