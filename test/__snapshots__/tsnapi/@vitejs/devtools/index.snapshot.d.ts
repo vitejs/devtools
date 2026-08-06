@@ -5,6 +5,7 @@
 export interface DevToolsMiddleware {
   h3: H3;
   rpc: Awaited<ReturnType<typeof createWsServer>>['rpc'];
+  close: Awaited<ReturnType<typeof createWsServer>>['close'];
   middleware: NodeHandler;
   getConnectionMeta: Awaited<ReturnType<typeof createWsServer>>['getConnectionMeta'];
 }

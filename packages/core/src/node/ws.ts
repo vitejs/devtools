@@ -154,7 +154,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // narrow cast rather than waiting on that.
   const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
 
-  attachWsRpcTransport(rpcGroup, {
+  const transport = attachWsRpcTransport(rpcGroup, {
     ...binding,
     allowedOrigins,
     definitions: rpcHost.definitions,
@@ -199,6 +199,9 @@ export async function createWsServer(options: CreateWsServerOptions) {
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage
 
+  let closePromise: Promise<void> | undefined
+  const close = () => closePromise ??= transport.close()
+
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     const jsonSerializableMethods: string[] = []
     for (const def of rpcHost.definitions.values()) {
@@ -218,6 +221,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
     port,
     rpc: rpcGroup,
     rpcHost,
+    close,
     getConnectionMeta,
   }
 }
