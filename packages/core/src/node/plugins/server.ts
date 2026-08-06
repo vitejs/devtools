@@ -37,6 +37,7 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
 
 export function DevToolsServer(): Plugin {
   let context: ViteDevToolsNodeContext
+  let close: (() => Promise<void>) | undefined
   return {
     name: 'vite:devtools:server',
     enforce: 'post',
@@ -48,13 +49,14 @@ export function DevToolsServer(): Plugin {
         ? '0.0.0.0'
         : viteDevServer.config.server.host || 'localhost'
 
-      const { middleware } = await createDevToolsMiddleware({
+      const devtools = await createDevToolsMiddleware({
         cwd: viteDevServer.config.root,
         websocket: {
           host,
         },
         context,
       })
+      close = devtools.close
       viteDevServer.middlewares.use((req, res, next) => {
         if (req.url === DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH || req.url?.startsWith(`${DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH}?`)) {
           res.statusCode = 302
@@ -65,7 +67,10 @@ export function DevToolsServer(): Plugin {
 
         next()
       })
-      viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
+      viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, devtools.middleware)
+    },
+    async closeBundle() {
+      await close?.()
     },
     resolveId(id) {
       if (id === DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID) {
