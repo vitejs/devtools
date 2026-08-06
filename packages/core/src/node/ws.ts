@@ -5,6 +5,7 @@ import type { RpcFunctionsHost } from 'devframe/node'
 import type { WsRpcTransportOptions } from 'devframe/rpc/transports/ws-server'
 import type { DevframeNodeRpcSessionMeta } from 'devframe/types'
 import type { Server as NodeHttpServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import type { DevToolsConfig } from './config'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import process from 'node:process'
@@ -14,7 +15,6 @@ import { getInternalContext } from 'devframe/node/hub-internals'
 import { createRpcServer } from 'devframe/rpc/server'
 import { attachWsRpcTransport } from 'devframe/rpc/transports/ws-server'
 import { colors as c } from 'devframe/utils/colors'
-import { getPort } from 'get-port-please'
 import { createDebug } from 'obug'
 import { getAuthHandler } from './auth-handler'
 import { MARK_INFO } from './constants'
@@ -71,31 +71,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // is a node http/https server that crossws can hook `upgrade` on.
   const viteHttpServer = (context.viteServer?.httpServer ?? undefined) as NodeHttpServer | undefined
   const routeBound = !!viteHttpServer
-  const port = routeBound ? undefined : (options.websocket.port ?? await getPort({ port: 7812, host, random: true })!)
 
   const wsClients = new Set<Peer>()
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
     diagnostics.DTK0008()
-  }
-
-  contextInternal.wsEndpoint = {
-    // Remote docks dial this absolute URL cross-origin. In route-bound mode it
-    // points at the Vite origin + the WS path; otherwise at the dedicated port.
-    url: routeBound
-      ? `${context.host.resolveOrigin().replace(/^http/, 'ws')}${DEVTOOLS_WS_PATH}`
-      : buildWsUrl({ host, port: port!, https: !!https }),
-  }
-
-  // `docks.register()` runs before the WS port is allocated, so any remote
-  // docks registered during plugin setup were projected without a connection
-  // descriptor. Now that the endpoint is resolved, re-emit their update events
-  // so the shared-state consumers pick up the enriched URLs.
-  for (const view of context.docks.views.values()) {
-    if (view.type === 'iframe' && view.remote) {
-      context.docks.events.emit('dock:entry:updated', view)
-    }
   }
 
   const asyncStorage = new AsyncLocalStorage<DevToolsNodeRpcSession>()
@@ -145,7 +126,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // or open a dedicated WS server when running standalone.
   const binding: WsRpcTransportOptions = routeBound
     ? { server: viteHttpServer, path: DEVTOOLS_WS_PATH, destroyUnmatched: false }
-    : { port: port!, host, https }
+    : { port: options.websocket.port ?? 0, host, https }
 
   // Vite's published types bundle a frozen snapshot of `DevToolsConfig` (to type
   // `ResolvedConfig.devtools` without depending on this package at runtime), so a field just
@@ -154,7 +135,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   // narrow cast rather than waiting on that.
   const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
 
-  attachWsRpcTransport(rpcGroup, {
+  const transport = attachWsRpcTransport(rpcGroup, {
     ...binding,
     allowedOrigins,
     definitions: rpcHost.definitions,
@@ -198,6 +179,32 @@ export async function createWsServer(options: CreateWsServerOptions) {
 
   rpcHost._rpcGroup = rpcGroup
   rpcHost._asyncStorage = asyncStorage
+
+  // Standalone transports bind first, then report the port selected atomically
+  // by the operating system. An explicit port still passes through unchanged.
+  let port: number | undefined
+  if (!routeBound) {
+    await transport.ready
+    port = (transport.address() as AddressInfo).port
+  }
+
+  contextInternal.wsEndpoint = {
+    // Remote docks dial this absolute URL cross-origin. In route-bound mode it
+    // points at the Vite origin + the WS path; otherwise at the dedicated port.
+    url: routeBound
+      ? `${context.host.resolveOrigin().replace(/^http/, 'ws')}${DEVTOOLS_WS_PATH}`
+      : buildWsUrl({ host, port: port!, https: !!https }),
+  }
+
+  // `docks.register()` runs before the WS port is allocated, so any remote
+  // docks registered during plugin setup were projected without a connection
+  // descriptor. Now that the endpoint is resolved, re-emit their update events
+  // so the shared-state consumers pick up the enriched URLs.
+  for (const view of context.docks.views.values()) {
+    if (view.type === 'iframe' && view.remote) {
+      context.docks.events.emit('dock:entry:updated', view)
+    }
+  }
 
   const getConnectionMeta = async (): Promise<ConnectionMeta> => {
     const jsonSerializableMethods: string[] = []
