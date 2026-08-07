@@ -23,5 +23,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
         `Failed to inspect Oxlint config "${p.configPath}": ${p.reason}`,
       fix: 'Choose a supported Oxlint config inside the workspace and ensure Oxlint can read its rules.',
     },
+    OXDT0005: {
+      why: (p: { reason: string }) => `Failed to set up Oxlint: ${p.reason}`,
+      fix: 'Check the project package manager and configuration, then try again.',
+    },
   },
 })

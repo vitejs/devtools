@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import PanelSideNav from '@vitejs/devtools-ui/components/Panel/PanelSideNav.vue'
 import { useSideNav } from '@vitejs/devtools-ui/composables/nav'
+import { useAsyncState } from '@vueuse/core'
+import { createOverview } from '../utils/overview'
+import { useRpc } from '#imports'
+
+const rpc = useRpc()
+const { state: overview } = useAsyncState(
+  () => rpc.value.call('devtools-oxc:overview'),
+  createOverview(),
+)
 
 useSideNav(() => [
   {
@@ -8,16 +17,20 @@ useSideNav(() => [
     icon: 'i-ph-house-duotone',
     to: '/',
   },
-  {
-    title: 'Lint Inspector',
-    icon: 'i-ph-magnifying-glass-duotone',
-    to: '/oxlint/lint',
-  },
-  {
-    title: 'Config Inspector',
-    icon: 'i-ph-gear-duotone',
-    to: '/oxlint/config',
-  },
+  ...(overview.value.oxlint.installed
+    ? [
+        {
+          title: 'Lint Inspector',
+          icon: 'i-ph-magnifying-glass-duotone',
+          to: '/oxlint/lint',
+        },
+        {
+          title: 'Config Inspector',
+          icon: 'i-ph-gear-duotone',
+          to: '/oxlint/config',
+        },
+      ]
+    : []),
   {
     title: 'Documents',
     icon: 'i-ph-book-open-duotone',
