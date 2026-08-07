@@ -122,6 +122,7 @@ const tools = computed(() => {
               >
                 v{{ tool.info.version }}
               </a>
+              <div v-else class="block mt-1 h-5" aria-hidden="true" />
             </div>
             <template v-if="tool.info.installed">
               <a
