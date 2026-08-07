@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools.vue'
-import { DEVTOOLS_TERMINALS_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -17,43 +16,7 @@ const {
   execute: refreshOverview,
 } = useAsyncState(() => rpc.value.call('devtools-oxc:overview'), createOverview())
 
-const isMigrating = ref(false)
-const migrationError = ref<string>()
-const migrationSessionId = ref<string>()
-
-async function migrateOxlint() {
-  await runOxlintSetup('devtools-oxc:migrate-eslint')
-}
-
-async function installOxlint() {
-  await runOxlintSetup('devtools-oxc:install-oxlint')
-}
-
-async function runOxlintSetup(
-  action: 'devtools-oxc:migrate-eslint' | 'devtools-oxc:install-oxlint',
-) {
-  isMigrating.value = true
-  migrationError.value = undefined
-  migrationSessionId.value = undefined
-  try {
-    const { sessionId } = await rpc.value.call(action)
-    migrationSessionId.value = sessionId
-    await rpc.value.call('devtools-oxc:wait-for-setup')
-    await refreshOverview()
-  } catch (error) {
-    migrationError.value = error instanceof Error ? error.message : String(error)
-  } finally {
-    isMigrating.value = false
-  }
-}
-
-async function viewMigrationInTerminal() {
-  if (!migrationSessionId.value) return
-  await rpc.value.call('hub:docks:activate', {
-    dockId: DEVTOOLS_TERMINALS_DOCK_ID,
-    params: { sessionId: migrationSessionId.value },
-  })
-}
+const setupOpen = ref(false)
 
 interface ToolView {
   title: string
@@ -180,31 +143,15 @@ const tools = computed(() => {
 
           <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">
             <button
-              v-if="tool.id === 'oxlint' && overview.needsOxlintMigration"
+              v-if="tool.id === 'oxlint' && !tool.info.installed"
               type="button"
               class="rounded-lg px-3 py-3 flex items-start gap-3 hover:bg-active transition-colors disabled:pointer-events-none disabled:op30!"
-              :disabled="isMigrating"
-              @click="migrateOxlint"
-            >
-              <div class="i-simple-icons:eslint text-2xl mt-0.5" />
-              <div class="text-left">
-                <div class="font-medium">
-                  {{ isMigrating ? 'Migrating…' : 'Migrate from ESLint' }}
-                </div>
-                <div class="text-xs op-fade mt-0.5">Migrate from ESLint flat config</div>
-              </div>
-            </button>
-            <button
-              v-if="tool.id === 'oxlint' && !tool.info.installed && !overview.needsOxlintMigration"
-              type="button"
-              class="rounded-lg px-3 py-3 flex items-start gap-3 hover:bg-active transition-colors disabled:pointer-events-none disabled:op30!"
-              :disabled="isMigrating"
-              @click="installOxlint"
+              @click="setupOpen = true"
             >
               <div class="i-ph-rocket-launch-duotone text-2xl mt-0.5" />
               <div class="text-left">
-                <div class="font-medium">{{ isMigrating ? 'Installing…' : 'Install Oxlint' }}</div>
-                <div class="text-xs op-fade mt-0.5">Install & set up Oxlint</div>
+                <div class="font-medium">Setup Oxlint</div>
+                <div class="text-xs op-fade mt-0.5">Install & setup Oxlint</div>
               </div>
             </button>
             <NuxtLink
@@ -220,20 +167,9 @@ const tools = computed(() => {
               </div>
             </NuxtLink>
           </div>
-          <p v-if="tool.id === 'oxlint' && migrationError" class="text-sm text-red">
-            {{ migrationError }}
-          </p>
         </div>
       </div>
     </div>
-    <button
-      v-if="isMigrating && migrationSessionId"
-      type="button"
-      class="btn-action flex items-center gap-2 px3 py2 text-sm"
-      @click="viewMigrationInTerminal"
-    >
-      <div class="i-ph-terminal-window-duotone" />
-      View in terminals
-    </button>
+    <SetupOxlintDialog v-model:open="setupOpen" @refresh="refreshOverview()" />
   </div>
 </template>

@@ -9,7 +9,14 @@ import { diagnostics } from '../../diagnostics'
 import { CONFIG_FILES } from '../../utils/config-files'
 import { defineOxcRpc } from '../_define'
 
-const eslintConfigFiles = ['eslint.config.js', 'eslint.config.mjs']
+const eslintConfigFiles = [
+  'eslint.config.js',
+  'eslint.config.mjs',
+  'eslint.config.cjs',
+  'eslint.config.ts',
+  'eslint.config.mts',
+  'eslint.config.cts',
+]
 
 type ContextWithTerminals = DevframeNodeContext & { terminals?: DevToolsTerminalHost }
 type MigrationSession = Awaited<ReturnType<DevToolsTerminalHost['startChildProcess']>>
@@ -21,8 +28,30 @@ let runCount = 0
 export function needsOxlintMigration(root: string): boolean {
   return (
     eslintConfigFiles.some(file => existsSync(join(root, file))) &&
-    !Object.keys(CONFIG_FILES).some(file => existsSync(join(root, file)))
+    !Object.entries(CONFIG_FILES).some(
+      ([file, config]) => config.tool === 'oxlint' && existsSync(join(root, file)),
+    )
   )
+}
+
+async function getSetupCommands(root: string, migrate: boolean): Promise<string[]> {
+  const packageManager = (await detectPackageManager(root))?.name ?? 'npm'
+  const install = addDependencyCommand(packageManager, 'oxlint@latest', { dev: true })
+  const setup = migrate
+    ? dlxCommand(packageManager, '@oxlint/migrate', { short: true })
+    : dlxCommand(packageManager, 'oxlint', { args: ['--init'], short: true })
+  return [install, setup]
+}
+
+async function isGitDirty(root: string): Promise<boolean> {
+  try {
+    const result = await x('git', ['-C', root, 'status', '--porcelain'], {
+      nodeOptions: { cwd: root },
+    })
+    return result.exitCode === 0 && Boolean(result.stdout.trim())
+  } catch {
+    return false
+  }
 }
 
 async function startMigration(context: ContextWithTerminals): Promise<{ sessionId?: string }> {
@@ -31,10 +60,7 @@ async function startMigration(context: ContextWithTerminals): Promise<{ sessionI
     throw diagnostics.OXDT0005({ reason: 'No eligible ESLint config was found.' })
 
   try {
-    const packageManager = (await detectPackageManager(root))?.name ?? 'npm'
-    const install = addDependencyCommand(packageManager, 'oxlint@latest', { dev: true })
-    const run = dlxCommand(packageManager, '@oxlint/migrate', { short: true })
-    return startSetup(context, [install, run], 'Migrate ESLint to Oxlint')
+    return startSetup(context, await getSetupCommands(root, true), 'Migrate ESLint to Oxlint')
   } catch (error) {
     if (error instanceof Diagnostic) throw error
     throw diagnostics.OXDT0005({
@@ -46,10 +72,7 @@ async function startMigration(context: ContextWithTerminals): Promise<{ sessionI
 
 async function startInstall(context: ContextWithTerminals): Promise<{ sessionId?: string }> {
   try {
-    const packageManager = (await detectPackageManager(context.cwd))?.name ?? 'npm'
-    const install = addDependencyCommand(packageManager, 'oxlint@latest', { dev: true })
-    const init = dlxCommand(packageManager, 'oxlint', { args: ['--init'], short: true })
-    return startSetup(context, [install, init], 'Install Oxlint')
+    return startSetup(context, await getSetupCommands(context.cwd, false), 'Install Oxlint')
   } catch (error) {
     if (error instanceof Diagnostic) throw error
     throw diagnostics.OXDT0005({
@@ -119,6 +142,23 @@ export const oxlintMigrate = defineOxcRpc({
   type: 'action',
   setup: context => ({
     handler: () => startMigration(context as ContextWithTerminals),
+  }),
+})
+
+export const oxlintSetupPreview = defineOxcRpc({
+  name: 'devtools-oxc:setup-preview',
+  type: 'query',
+  jsonSerializable: true,
+  setup: context => ({
+    handler: async ({ migrate }: { migrate: boolean }) => {
+      const canMigrate = needsOxlintMigration(context.cwd)
+      const command = (await getSetupCommands(context.cwd, migrate && canMigrate)).join(' && ')
+      return {
+        canMigrate,
+        command,
+        gitDirty: await isGitDirty(context.cwd),
+      }
+    },
   }),
 })
 

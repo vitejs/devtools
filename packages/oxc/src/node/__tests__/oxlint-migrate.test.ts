@@ -17,6 +17,19 @@ afterEach(async () => {
 })
 
 describe('needsOxlintMigration', () => {
+  it.each([
+    'eslint.config.js',
+    'eslint.config.mjs',
+    'eslint.config.cjs',
+    'eslint.config.ts',
+    'eslint.config.mts',
+    'eslint.config.cts',
+  ])('detects %s', async file => {
+    const cwd = await createFixture()
+    await writeFile(join(cwd, file), 'export default []')
+    expect(needsOxlintMigration(cwd)).toBe(true)
+  })
+
   it('requires a root ESLint config and no root Oxlint config', async () => {
     const cwd = await createFixture()
     await writeFile(join(cwd, 'eslint.config.mjs'), 'export default []')
@@ -24,6 +37,10 @@ describe('needsOxlintMigration', () => {
 
     await writeFile(join(cwd, 'oxlint.config.ts'), 'export default {}')
     expect(needsOxlintMigration(cwd)).toBe(false)
+
+    await rm(join(cwd, 'oxlint.config.ts'))
+    await writeFile(join(cwd, '.oxfmtrc.json'), '{}')
+    expect(needsOxlintMigration(cwd)).toBe(true)
   })
 
   it('runs installation and migration in one terminal session', async () => {
