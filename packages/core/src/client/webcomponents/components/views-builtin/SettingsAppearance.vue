@@ -127,5 +127,23 @@ function setDockMode(mode: string) {
         <span class="text-xs op50">Close the DevTools panel when clicking outside of it (embedded mode only)</span>
       </div>
     </label>
+
+    <!-- Auto-collapse edge toolbar toggle -->
+    <label class="flex items-center gap-3 cursor-pointer group">
+      <button
+        class="w-10 h-6 rounded-full transition-colors relative shrink-0"
+        :class="settings.autoCollapseEdgeToolbar ? 'bg-primary' : 'bg-gray/30'"
+        @click="settingsStore.mutate((s) => { s.autoCollapseEdgeToolbar = !s.autoCollapseEdgeToolbar })"
+      >
+        <div
+          class="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform"
+          :class="settings.autoCollapseEdgeToolbar ? 'translate-x-5' : 'translate-x-1'"
+        />
+      </button>
+      <div class="flex flex-col">
+        <span class="text-sm">Auto-collapse edge toolbar</span>
+        <span class="text-xs op50">Shrink the edge-docked toolbar to a small handle when idle and closed (edge mode only)</span>
+      </div>
+    </label>
   </div>
 </template>

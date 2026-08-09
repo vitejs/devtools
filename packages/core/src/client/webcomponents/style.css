@@ -98,6 +98,17 @@
   background-image: linear-gradient(45deg, #61d9ff, #6b84fd, #715ebd);
 }
 
+/*
+ * Edge-mode collapse (opt-in via `settings.autoCollapseEdgeToolbar`): the
+ * panel itself shrinks to a small pill (see `DockEdge.vue`'s `panelStyle`
+ * collapsed branches) rather than fading in place — this transition just
+ * animates that resize + the border-radius change.
+ */
+#vite-devtools-edge-panel {
+  --uno: transition-all duration-500;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @media print {
   #vite-devtools-anchor {
     --uno: hidden;
@@ -131,5 +142,8 @@
 @media (prefers-reduced-motion: reduce) {
   .vite-devtools-shake {
     animation: none;
+  }
+  #vite-devtools-edge-panel {
+    transition: none !important;
   }
 }

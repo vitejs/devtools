@@ -15,4 +15,12 @@ export interface DevToolsDocksUserSettings extends DevframeDocksUserSettings {
    * dock out of the dock bar until the user opts in from Settings → Advanced.
    */
   showDevframeInspector?: boolean
+  /**
+   * Auto-collapse the edge-mode toolbar to a small handle when idle (no
+   * hover or drag) and the panel content is closed, instead of permanently
+   * spanning the full edge. Off by default — an absent value preserves
+   * today's edge-mode behavior for existing users; opt in from
+   * Settings → Appearance.
+   */
+  autoCollapseEdgeToolbar?: boolean
 }

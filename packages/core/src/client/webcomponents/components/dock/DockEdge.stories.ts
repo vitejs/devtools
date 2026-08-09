@@ -64,6 +64,28 @@ export const Right: Story = edgeStory('right')
 /** Toolbar only — nothing selected, so the panel body is collapsed away. */
 export const ToolbarOnly: Story = edgeStory('bottom', false)
 
+/**
+ * Idle-collapsed: `autoCollapseEdgeToolbar` enabled with `inactiveTimeout: 0`
+ * (the same trick `Dock.stories.ts`'s own `Minimized` story uses) shrinks the
+ * toolbar down to a small corner pill immediately, with nothing selected.
+ */
+export const CollapsedIdle: Story = {
+  render: () => ({
+    setup: () => mountWithContext(
+      {
+        entries: categorizedEntries,
+        selectedId: null,
+        panel: { mode: 'edge', position: 'bottom', open: false, inactiveTimeout: 0 },
+        settings: { autoCollapseEdgeToolbar: true },
+      },
+      ctx => [
+        h(DockEdge, { context: ctx }, { view: ({ entry }: any) => body(entry) }),
+        h(FloatingElements),
+      ],
+    ),
+  }),
+}
+
 /** Edge dock hosting a group — the group rail shows inside the panel. */
 export const WithGroup: Story = {
   render: () => ({

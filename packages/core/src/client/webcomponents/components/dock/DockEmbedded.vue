@@ -56,7 +56,7 @@ onUnmounted(() => {
   <ColorSchemeRoot>
     <template v-if="!isDockPopupOpen">
       <template v-if="isRpcTrusted && context.panel.store.mode === 'edge'">
-        <DockEdge :context />
+        <DockEdge :context :layout="props.layout" />
       </template>
       <template v-else>
         <Dock :context :layout="props.layout">
