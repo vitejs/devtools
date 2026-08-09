@@ -236,12 +236,14 @@ onMounted(() => {
 })
 
 // Collapsed sizing shrinks the panel itself down to a small pill anchored at
-// the corner nearest the "Edge position"/"Float mode" buttons — mirroring
-// `Dock.vue`'s own minimize (a real size change, not just an opacity fade).
-// Safe to transition (plain percentage/px `width`/`height`, no `calc-size()`
-// needed) because `isCollapsed` already guards on `!hasPanelContent`: the
-// panel never carries a `vh`/`vw`-stretched, content-bearing size while
-// collapsing.
+// the corner nearest the entries (the start of the toolbar) — deliberately
+// away from the "Edge position"/"Float mode" buttons at the other end, so
+// hovering to reveal the toolbar doesn't leave the mouse sitting on a button
+// that drags or floats the panel. Mirrors `Dock.vue`'s own minimize (a real
+// size change, not just an opacity fade). Safe to transition (plain
+// percentage/px `width`/`height`, no `calc-size()` needed) because
+// `isCollapsed` already guards on `!hasPanelContent`: the panel never
+// carries a `vh`/`vw`-stretched, content-bearing size while collapsing.
 const COLLAPSED_SIZE = '28px'
 const COLLAPSED_INSET = '8px'
 
@@ -255,14 +257,14 @@ const panelStyle = computed(() => {
     case 'bottom':
       if (isCollapsed.value) {
         style.bottom = COLLAPSED_INSET
-        style.right = COLLAPSED_INSET
+        style.left = COLLAPSED_INSET
         style.width = COLLAPSED_SIZE
         style.height = COLLAPSED_SIZE
         style.borderRadius = '999px'
       }
       else {
         style.bottom = '0'
-        style.right = '0'
+        style.left = '0'
         style.width = '100%'
         style.borderRadius = '8px 8px 0 0'
         style.height = hasPanelContent.value ? `${store.height}vh` : 'var(--vite-devtools-dock-height, 40px)'
@@ -273,14 +275,14 @@ const panelStyle = computed(() => {
     case 'top':
       if (isCollapsed.value) {
         style.top = COLLAPSED_INSET
-        style.right = COLLAPSED_INSET
+        style.left = COLLAPSED_INSET
         style.width = COLLAPSED_SIZE
         style.height = COLLAPSED_SIZE
         style.borderRadius = '999px'
       }
       else {
         style.top = '0'
-        style.right = '0'
+        style.left = '0'
         style.width = '100%'
         style.borderRadius = '0 0 8px 8px'
         style.height = hasPanelContent.value ? `${store.height}vh` : 'var(--vite-devtools-dock-height, 40px)'
@@ -291,14 +293,14 @@ const panelStyle = computed(() => {
     case 'left':
       if (isCollapsed.value) {
         style.left = COLLAPSED_INSET
-        style.bottom = COLLAPSED_INSET
+        style.top = COLLAPSED_INSET
         style.width = COLLAPSED_SIZE
         style.height = COLLAPSED_SIZE
         style.borderRadius = '999px'
       }
       else {
         style.left = '0'
-        style.bottom = '0'
+        style.top = '0'
         style.height = '100%'
         style.borderRadius = '0 8px 8px 0'
         style.width = hasPanelContent.value ? `${store.width}vw` : 'var(--vite-devtools-dock-height, 40px)'
@@ -309,14 +311,14 @@ const panelStyle = computed(() => {
     case 'right':
       if (isCollapsed.value) {
         style.right = COLLAPSED_INSET
-        style.bottom = COLLAPSED_INSET
+        style.top = COLLAPSED_INSET
         style.width = COLLAPSED_SIZE
         style.height = COLLAPSED_SIZE
         style.borderRadius = '999px'
       }
       else {
         style.right = '0'
-        style.bottom = '0'
+        style.top = '0'
         style.height = '100%'
         style.borderRadius = '8px 0 0 8px'
         style.width = hasPanelContent.value ? `${store.width}vw` : 'var(--vite-devtools-dock-height, 40px)'
