@@ -22,10 +22,17 @@ interface ShortcutRow {
   indent: boolean
 }
 
-// Only offer to bind commands that are actually reachable right now — binding a
-// key to something the current context rules out (e.g. the dock-mode commands
-// while the dock is detached into a popup) would silently do nothing.
-const availableCommands = computed(() => filterCommandsByWhen(commandsCtx.commands, props.context.when.context))
+// This page is only reachable with the dock open and the palette closed, so `when`
+// is evaluated against that context rather than the live one. `dockOpen`/`paletteOpen`
+// are transient dispatch state — `close-panel`'s `!paletteOpen` exists to hand Escape
+// to the palette, not to say the command is unbindable — so filtering by them would
+// drop permanently bindable rows the moment Ctrl+K is pressed. `popupOpen` and
+// `clientType` stay live: those describe whether a command can exist at all, which is
+// why the dock-mode commands still vanish while the dock is detached into a popup.
+const availableCommands = computed(() => filterCommandsByWhen(
+  commandsCtx.commands,
+  { ...props.context.when.context, dockOpen: true, paletteOpen: false },
+))
 
 const shortcutRows = computed<ShortcutRow[]>(() => {
   const rows: ShortcutRow[] = []
