@@ -19,16 +19,11 @@ const toasts = useToasts()
 function openMessages(toastId: string) {
   dismissToast(toastId)
   selectMessage(toastId)
-  // Open the messages panel provided by `@devframes/plugin-messages`
-  // (its dock id is the plugin's devframe id, `PLUGIN_ID` in its `constants.ts`).
+  /** Opens the messages panel from `@devframes/plugin-messages` (dock id: its `PLUGIN_ID`, from its `constants.ts`). */
   props.context?.docks.switchEntry('devframes_plugin_messages')
 }
 
-// Mirrors the messages panel's own action dispatch (`onActivate` in
-// `@devframes/plugin-messages`'s `App.vue`): the only action kind today is
-// `activate`, which focuses a dock. Our shell handles the equivalent
-// `devframe:docks:activate` broadcast the same way (see `context.ts`), so
-// `switchEntry` is the local counterpart to that RPC call.
+/** Mirrors the messages panel's own dispatch; an unhandled kind is a silent no-op. */
 function dispatchAction(action: NonNullable<DevToolsMessageEntry['actions']>[number]) {
   if (action.kind === 'activate')
     props.context?.docks.switchEntry(action.activate.dockId)
