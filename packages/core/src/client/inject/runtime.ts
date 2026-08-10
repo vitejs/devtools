@@ -12,12 +12,9 @@ import { createDocksContext } from '../webcomponents/state/context'
 
 /**
  * `useLocalStorage`, plus mirroring the whole value into shared state under
- * the same key — so a node-side plugin (e.g. one gating a deferred reload on
- * "the panel closed") can observe it. A plain `useLocalStorage` ref never
- * reaches the server on its own; shared state already round-trips a client
- * mutation through the server before it reappears locally, so this is the
- * whole mirror. Fire-and-forget: nothing here needs the shared handle back,
- * and the local ref (returned unchanged) stays the source of truth for every
+ * the same key so a Node-side plugin can observe it too — a plain
+ * `useLocalStorage` ref never reaches the server on its own. Fire-and-forget:
+ * the local ref (returned unchanged) stays the source of truth for every
  * existing reader/writer.
  */
 export function useLocalStorageSharedState<T extends object>(
@@ -29,9 +26,7 @@ export function useLocalStorageSharedState<T extends object>(
   const state = useLocalStorage<T>(key, initialValue, options)
   void rpc.sharedState.get<T>(key, { initialValue: state.value }).then((shared) => {
     watchEffect(() => {
-      // Reading `state.value` here, synchronously, is what registers it as
-      // this effect's reactive dependency — capturing it inside `mutate`'s
-      // own (lazily-invoked) recipe instead would never re-run on a change.
+      /** Read synchronously so this effect tracks `state.value` as its dependency — capturing it inside `mutate`'s lazy recipe wouldn't. */
       const snapshot = { ...state.value }
       shared.mutate(() => snapshot)
     })
