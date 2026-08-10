@@ -48,7 +48,7 @@ export const WithAction: Story = {
           notify: true,
           autoDismiss: 10 ** 7,
           actions: [
-            { id: 'view', label: 'View', kind: 'activate', activate: { dockId: 'devframes-plugin-messages' } },
+            { id: 'view', label: 'View', kind: 'activate', activate: { dockId: 'devframes_plugin_messages' } },
           ],
         }))
       })

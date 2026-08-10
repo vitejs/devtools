@@ -20,8 +20,8 @@ function openMessages(toastId: string) {
   dismissToast(toastId)
   selectMessage(toastId)
   // Open the messages panel provided by `@devframes/plugin-messages`
-  // (its dock id is the plugin's devframe id).
-  props.context?.docks.switchEntry('devframes-plugin-messages')
+  // (its dock id is the plugin's devframe id, `PLUGIN_ID` in its `constants.ts`).
+  props.context?.docks.switchEntry('devframes_plugin_messages')
 }
 
 // Mirrors the messages panel's own action dispatch (`onActivate` in
