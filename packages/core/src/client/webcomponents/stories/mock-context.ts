@@ -1,5 +1,6 @@
 import type { DevToolsDockEntry, DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
-import type { DevToolsRpcClient, DockPanelStorage, DocksContext, RpcClientEvents } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DocksContext, RpcClientEvents } from '@vitejs/devtools-kit/client'
+import type { DevToolsDockPanelStorage } from '../state/docks'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { createEventEmitter } from 'devframe/utils/events'
 import { createSharedState } from 'devframe/utils/shared-state'
@@ -24,7 +25,7 @@ export interface CreateMockContextOptions {
   /** Which client shell the context represents. */
   clientType?: 'embedded' | 'standalone'
   /** Overrides merged over the default panel store (mode, position, open, ...). */
-  panel?: Partial<DockPanelStorage>
+  panel?: Partial<DevToolsDockPanelStorage>
   /** Overrides merged over the default user settings (hidden, pinned, order, ...). */
   settings?: Partial<DevToolsDocksUserSettings>
   /** Entry id to pre-select (also opens the panel). */
@@ -113,7 +114,7 @@ export async function createMockDocksContext(
   } = options
 
   const rpc = createMockRpc(entries, settings, isTrusted)
-  const panelStore = ref<DockPanelStorage>({ ...DEFAULT_DOCK_PANEL_STORE(), ...panel })
+  const panelStore = ref<DevToolsDockPanelStorage>({ ...DEFAULT_DOCK_PANEL_STORE(), ...panel })
 
   const context = await createDocksContext(clientType, rpc, panelStore)
 

@@ -1,28 +1,13 @@
 import type { DevToolsDockEntry } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type { Ref } from 'vue'
+import type { DevToolsDockPanelStorage } from '../docks'
 import { DEFAULT_STATE_USER_SETTINGS } from '@vitejs/devtools-kit/constants'
 import { createSharedState } from 'devframe/utils/shared-state'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'
 import { createDocksContext } from '../context'
-
-// Stands in for the real `useSessionStorage` (browser `sessionStorage`,
-// unavailable in this Node test environment) with an in-memory ref keyed the
-// same way, so tests can pre-seed "what a reload restored" and assert what
-// `createDocksContext` writes back — without touching real browser storage.
-const mocks = vi.hoisted(() => ({
-  sessionStores: new Map<string, Ref<any>>(),
-}))
-
-vi.mock('@vueuse/core', async importOriginal => ({
-  ...(await importOriginal<typeof import('@vueuse/core')>()),
-  useSessionStorage: vi.fn((key: string, defaults: unknown) => {
-    if (!mocks.sessionStores.has(key))
-      mocks.sessionStores.set(key, ref(defaults))
-    return mocks.sessionStores.get(key)
-  }),
-}))
+import { DEFAULT_DOCK_PANEL_STORE } from '../docks'
 
 function createMockRpc(entries: DevToolsDockEntry[] = []): DevToolsRpcClient {
   const docksState = createSharedState({ initialValue: entries, enablePatches: false })
@@ -53,47 +38,55 @@ function group(id: string): DevToolsDockEntry {
   return { id, type: 'group', title: id, icon: 'i' } as DevToolsDockEntry
 }
 
-function seedSession(selectedId: string | null, open = true) {
-  mocks.sessionStores.set('vite-devtools-dock-session', ref({ open, selectedId }))
+// `open`/`selectedId` are now plain fields on the same `panelStore` ref
+// `createDocksContext` is handed (`vite-devtools-dock-state`, localStorage in
+// the real client) — no separate session store to mock, seed the ref directly.
+function panelStore(selectedId: string | null, open = true): Ref<DevToolsDockPanelStorage> {
+  return ref({ ...DEFAULT_DOCK_PANEL_STORE(), open, selectedId })
 }
 
-describe('session-scoped dock state', () => {
-  afterEach(() => {
-    mocks.sessionStores.clear()
-  })
-
+describe('restored dock panel state (selectedId/open on the same panelStore ref)', () => {
   it('keeps a restored selectedId that resolves to a real leaf entry', async () => {
-    seedSession('a')
-    const context = await createDocksContext('embedded', createMockRpc([iframe('a')]))
+    expect.assertions(2)
+
+    const context = await createDocksContext('embedded', createMockRpc([iframe('a')]), panelStore('a'))
 
     expect(context.docks.selectedId).toBe('a')
     expect(context.panel.store.open).toBe(true)
   })
 
   it('keeps a restored selectedId of the ~client-auth-notice pseudo-entry', async () => {
-    seedSession('~client-auth-notice')
-    const context = await createDocksContext('embedded', createMockRpc([]))
+    expect.assertions(1)
+
+    const context = await createDocksContext('embedded', createMockRpc([]), panelStore('~client-auth-notice'))
 
     expect(context.docks.selectedId).toBe('~client-auth-notice')
   })
 
   it('clears a restored selectedId pointing at a group (not a selectable leaf)', async () => {
-    seedSession('nuxt-group')
-    const context = await createDocksContext('embedded', createMockRpc([group('nuxt-group')]))
+    expect.assertions(1)
+
+    const context = await createDocksContext('embedded', createMockRpc([group('nuxt-group')]), panelStore('nuxt-group'))
 
     expect(context.docks.selectedId).toBeNull()
   })
 
   it('clears a restored selectedId pointing at a subTabs anchor (not a selectable leaf)', async () => {
-    seedSession('nuxt')
-    const context = await createDocksContext('embedded', createMockRpc([iframe('nuxt', { subTabs: { protocol: 'postmessage' } })]))
+    expect.assertions(1)
+
+    const context = await createDocksContext(
+      'embedded',
+      createMockRpc([iframe('nuxt', { subTabs: { protocol: 'postmessage' } })]),
+      panelStore('nuxt'),
+    )
 
     expect(context.docks.selectedId).toBeNull()
   })
 
   it('clears a restored selectedId that no longer resolves to any entry, without forcing the panel open', async () => {
-    seedSession('gone', false)
-    const context = await createDocksContext('embedded', createMockRpc([iframe('a')]))
+    expect.assertions(2)
+
+    const context = await createDocksContext('embedded', createMockRpc([iframe('a')]), panelStore('gone', false))
 
     expect(context.docks.selectedId).toBeNull()
     // Clearing an invalid restored id must not route through `switchEntry`
@@ -102,29 +95,40 @@ describe('session-scoped dock state', () => {
   })
 
   it('does not clear an id `switchEntry` itself legitimately selects later (a subTabs anchor with no live member yet)', async () => {
-    const context = await createDocksContext('embedded', createMockRpc([iframe('nuxt', { subTabs: { protocol: 'postmessage' } })]))
+    expect.assertions(1)
+
+    const context = await createDocksContext(
+      'embedded',
+      createMockRpc([iframe('nuxt', { subTabs: { protocol: 'postmessage' } })]),
+    )
 
     await context.docks.switchEntry('nuxt')
 
     expect(context.docks.selectedId).toBe('nuxt')
   })
 
-  it('routes panel.store.open through the session store, not the geometry ref passed in', async () => {
-    const geometry = ref({ mode: 'float' as const, width: 80, height: 80, top: 0, left: 0, position: 'left' as const, inactiveTimeout: 3_000 })
-    const context = await createDocksContext('embedded', createMockRpc([]), geometry)
+  it('routes selectedId/open through the same panelStore ref passed in, alongside geometry', async () => {
+    expect.assertions(3)
+
+    const store = ref({ ...DEFAULT_DOCK_PANEL_STORE(), mode: 'float' as const })
+    const context = await createDocksContext('embedded', createMockRpc([]), store)
 
     context.panel.store.open = true
+    context.docks.selectedId = null
 
     expect(context.panel.store.open).toBe(true)
-    expect(geometry.value).not.toHaveProperty('open')
+    expect(store.value.open).toBe(true)
+    expect(store.value.mode).toBe('float')
   })
 
-  it('still routes panel.store geometry fields (e.g. mode) through the passed-in geometry ref', async () => {
-    const geometry = ref({ mode: 'float' as const, width: 80, height: 80, top: 0, left: 0, position: 'left' as const, inactiveTimeout: 3_000 })
-    const context = await createDocksContext('embedded', createMockRpc([]), geometry)
+  it('still routes panel.store geometry fields (e.g. mode) through the same ref', async () => {
+    expect.assertions(1)
+
+    const store = ref(DEFAULT_DOCK_PANEL_STORE())
+    const context = await createDocksContext('embedded', createMockRpc([]), store)
 
     context.panel.store.mode = 'edge'
 
-    expect(geometry.value.mode).toBe('edge')
+    expect(store.value.mode).toBe('edge')
   })
 })

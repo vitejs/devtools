@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { DevToolsDockPanelStorage } from '../webcomponents/state/docks'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
@@ -60,14 +60,13 @@ async function mountDock(): Promise<void> {
     ],
   })
 
-  // `open` is intentionally not part of this localStorage-persisted geometry
-  // — it's session-scoped (sessionStorage, per-tab) inside `createDocksContext`
-  // instead, so opening the docks in one tab no longer auto-opens them in
-  // another. Two behavior changes ship with this: (a) that cross-tab
-  // auto-open, and (b) after this change deploys, the panel starts closed on
-  // the very first load even for a user whose old `vite-devtools-dock-state`
-  // said `open: true` — the old key's `open` is simply never read again.
-  const state = useLocalStorage<Omit<DockPanelStorage, 'open'>>(
+  // `open` and (new) `selectedId` both live in this same localStorage value,
+  // alongside geometry/mode — cross-tab, like everything else already in it.
+  // A dock left open/selected in one tab shows the same way in the next; see
+  // `DevToolsDockPanelStorage`. (Defaults here are this injected client's
+  // own, deliberately different from `DEFAULT_DOCK_PANEL_STORE()`'s
+  // fallback used elsewhere — not a shared literal.)
+  const state = useLocalStorage<DevToolsDockPanelStorage>(
     'vite-devtools-dock-state',
     {
       mode: 'float',
@@ -76,7 +75,9 @@ async function mountDock(): Promise<void> {
       top: 0,
       left: 0,
       position: 'left',
+      open: false,
       inactiveTimeout: 3_000,
+      selectedId: null,
     },
     { mergeDefaults: true },
   )

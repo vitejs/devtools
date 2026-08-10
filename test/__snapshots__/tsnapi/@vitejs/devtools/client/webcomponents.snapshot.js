@@ -8,7 +8,6 @@ export var DockEmbedded /* const */
 // #region Other
 export { createDockEntryState }
 export { DEFAULT_DOCK_PANEL_STORE }
-export { DEFAULT_DOCK_SESSION_STORE }
 export { DockStandalone }
 export { sharedStateToRef }
 export { useDocksEntries }

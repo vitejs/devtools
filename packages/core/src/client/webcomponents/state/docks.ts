@@ -5,7 +5,18 @@ import type { Ref, ShallowRef } from 'vue'
 import { createEventEmitter } from 'devframe/utils/events'
 import { markRaw, reactive, shallowRef, watch } from 'vue'
 
-export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
+/**
+ * {@link DockPanelStorage} (hub's own type — geometry/mode/`open`) plus
+ * `selectedId`, which the hub has no concept of. Both persist the same way:
+ * one `vite-devtools-dock-state` localStorage value, cross-tab like
+ * everything else in it already is — a dock left open/selected in one tab
+ * shows the same way in the next, exactly as `open` already behaves today.
+ */
+export interface DevToolsDockPanelStorage extends DockPanelStorage {
+  selectedId: string | null
+}
+
+export function DEFAULT_DOCK_PANEL_STORE(): DevToolsDockPanelStorage {
   return {
     mode: 'float',
     width: 80,
@@ -15,23 +26,6 @@ export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
     position: 'bottom',
     open: false,
     inactiveTimeout: 3_000,
-  }
-}
-
-/**
- * Session-scoped dock UI state — which dock/tab is open. Unlike
- * {@link DockPanelStorage} (`vite-devtools-dock-state`, localStorage,
- * cross-tab geometry/mode), this is per-tab (sessionStorage): a reload
- * restores it, a new tab starts fresh.
- */
-export interface DockSessionStorage {
-  open: boolean
-  selectedId: string | null
-}
-
-export function DEFAULT_DOCK_SESSION_STORE(): DockSessionStorage {
-  return {
-    open: false,
     selectedId: null,
   }
 }

@@ -1,19 +1,18 @@
 import type { DevToolsClientCommand, DevToolsDockEntry, DevToolsDockUserEntry, DevToolsRpcClientFunctions, DevToolsViewIframe } from '@vitejs/devtools-kit'
-import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockPanelStorage, DockRegistration, DocksContext } from '@vitejs/devtools-kit/client'
+import type { CommandsContext, DevToolsRpcClient, DockClientScriptContext, DockEntryState, DockRegistration, DocksContext } from '@vitejs/devtools-kit/client'
 import type { SharedState } from 'devframe/utils/shared-state'
 import type { WhenContext } from 'devframe/utils/when'
 import type { Ref } from 'vue'
 import type { DevToolsDocksUserSettings } from './dock-settings'
-import type { DockSessionStorage } from './docks'
+import type { DevToolsDockPanelStorage } from './docks'
 import { attachDevToolsFrameNav } from '@vitejs/devtools-kit/client'
 import { DEFAULT_STATE_USER_SETTINGS, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import { useSessionStorage } from '@vueuse/core'
 import { computed, markRaw, reactive, ref, toRefs, watch, watchEffect } from 'vue'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../../constants'
 import { BUILTIN_ENTRIES } from '../constants'
 import { createCommandsContext } from './commands'
 import { docksGroupByCategories, getCategoryLabel, getGroupMembers, getGroupMembersGrouped, getRegisteredGroupIds, resolveCommandIcon, resolveGroupDefaultChild } from './dock-settings'
-import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, DEFAULT_DOCK_SESSION_STORE, sharedStateToRef, useDocksEntries } from './docks'
+import { createDockEntryState, DEFAULT_DOCK_PANEL_STORE, sharedStateToRef, useDocksEntries } from './docks'
 import { createClientMessagesClient } from './messages-client'
 import { registerMainFrameDockActionHandler, triggerMainFrameDockAction, useIsDockPopupOpen } from './popup'
 import { createDockRenderers } from './renderers'
@@ -23,7 +22,7 @@ const docksContextByRpc = new WeakMap<DevToolsRpcClient, DocksContext>()
 export async function createDocksContext(
   clientType: 'embedded' | 'standalone',
   rpc: DevToolsRpcClient,
-  panelStore?: Ref<Omit<DockPanelStorage, 'open'>>,
+  panelStore?: Ref<DevToolsDockPanelStorage>,
 ): Promise<DocksContext> {
   if (docksContextByRpc.has(rpc)) {
     return docksContextByRpc.get(rpc)!
@@ -54,20 +53,15 @@ export async function createDocksContext(
     return merged
   })
 
-  // Session-scoped dock UI state (`vite-devtools-dock-session`, sessionStorage)
-  // — which dock is open and selected, restored on a reload of this same tab.
-  // Unlike the panel's geometry/mode (`vite-devtools-dock-state`,
-  // localStorage), this deliberately doesn't sync across tabs: opening the
-  // docks in one tab no longer auto-opens them in another.
-  const sessionStore = useSessionStorage<DockSessionStorage>(
-    'vite-devtools-dock-session',
-    DEFAULT_DOCK_SESSION_STORE(),
-    { mergeDefaults: true },
-  )
+  panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
 
+  // `open` and `selectedId` both live in `panelStore` (`vite-devtools-dock-state`,
+  // localStorage) alongside geometry/mode — restored across a reload, and,
+  // like everything else already in that value, shared cross-tab (opening the
+  // docks in one tab shows the same way in the next; not per-tab session state).
   const selectedId = computed<string | null>({
-    get: () => sessionStore.value.selectedId,
-    set: (value) => { sessionStore.value.selectedId = value },
+    get: () => panelStore.value.selectedId,
+    set: (value) => { panelStore.value.selectedId = value },
   })
   const selected = computed(
     () => entries.value.find(entry => entry.id === selectedId.value)
@@ -75,11 +69,11 @@ export async function createDocksContext(
       ?? null,
   )
 
-  // A `selectedId` restored from `sessionStore` may point at an entry that
+  // A `selectedId` restored from `panelStore` may point at an entry that
   // isn't directly selectable — a group (no view of its own) or a `subTabs`
   // anchor (owns a shared frame, not a view). `switchEntry` resolves those on
   // click, but restoring on boot must not route through it (it would force
-  // `panel.value.open = true`, reopening a panel the user closed) — so
+  // `panelStore.value.open = true`, reopening a panel the user closed) — so
   // validate the restored id directly instead, once. `entries` starts empty
   // and fills in async via `devframe:docks`, so an empty list here just means
   // "not loaded yet"; wait for it rather than clearing a legitimate restored
@@ -163,32 +157,6 @@ export async function createDocksContext(
     clientDocks.set(entry.id, entry as DevToolsDockEntry)
   }
 
-  panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
-
-  // Merges the geometry-only `panelStore` (mode/size/position, localStorage)
-  // with the session store's `open` into the single `DockPanelStorage` shape
-  // every dock component already reads and writes through
-  // `context.panel.store` (`Dock.vue`, `DockEdge.vue`, `DockEmbedded.vue`,
-  // ...) — only `open`'s backing store moves to sessionStorage, its
-  // read/write semantics are unchanged.
-  const panel: Ref<DockPanelStorage> = ref(reactive({
-    get mode() { return panelStore.value.mode },
-    set mode(value: DockPanelStorage['mode']) { panelStore.value.mode = value },
-    get width() { return panelStore.value.width },
-    set width(value: number) { panelStore.value.width = value },
-    get height() { return panelStore.value.height },
-    set height(value: number) { panelStore.value.height = value },
-    get top() { return panelStore.value.top },
-    set top(value: number) { panelStore.value.top = value },
-    get left() { return panelStore.value.left },
-    set left(value: number) { panelStore.value.left = value },
-    get position() { return panelStore.value.position },
-    set position(value: DockPanelStorage['position']) { panelStore.value.position = value },
-    get inactiveTimeout() { return panelStore.value.inactiveTimeout },
-    set inactiveTimeout(value: number) { panelStore.value.inactiveTimeout = value },
-    get open() { return sessionStore.value.open },
-    set open(value: boolean) { sessionStore.value.open = value },
-  }))
   let docksContext: DocksContext
 
   let _settingsStorePromise: Promise<SharedState<DevToolsDocksUserSettings>> | undefined
@@ -212,7 +180,7 @@ export async function createDocksContext(
   const isDockPopupOpen = useIsDockPopupOpen()
   const getWhenContext = (): WhenContext => ({
     clientType,
-    dockOpen: panel.value.open,
+    dockOpen: panelStore.value.open,
     paletteOpen: commandsContext?.paletteOpen ?? false,
     dockSelectedId: selectedId.value ?? '',
     popupOpen: isDockPopupOpen.value,
@@ -231,12 +199,12 @@ export async function createDocksContext(
   const switchEntry = async (id: string | null = null) => {
     if (id == null) {
       selectedId.value = null
-      panel.value.open = false
+      panelStore.value.open = false
       return true
     }
     if (id === '~client-auth-notice') {
       selectedId.value = id
-      panel.value.open = true
+      panelStore.value.open = true
       return true
     }
     const entry = entries.value.find(e => e.id === id)
@@ -303,7 +271,7 @@ export async function createDocksContext(
       frameNavCurrentMember.set(entry.frameId, entry.id)
 
     selectedId.value = entry.id
-    panel.value.open = true
+    panelStore.value.open = true
     return true
   }
 
@@ -439,7 +407,7 @@ export async function createDocksContext(
       when: 'dockOpen && !paletteOpen',
       keybindings: [{ key: 'Escape' }],
       action: () => {
-        panel.value.open = false
+        panelStore.value.open = false
         selectedId.value = null
       },
     },
@@ -495,7 +463,7 @@ export async function createDocksContext(
           // own `when` and does not inherit the parent's.
           when: '!popupOpen',
           action: () => {
-            panel.value.mode = 'float'
+            panelStore.value.mode = 'float'
           },
         },
         {
@@ -505,7 +473,7 @@ export async function createDocksContext(
           icon: 'ph:square-half-bottom-duotone',
           when: '!popupOpen',
           action: () => {
-            panel.value.mode = 'edge'
+            panelStore.value.mode = 'edge'
           },
         },
       ],
@@ -567,10 +535,10 @@ export async function createDocksContext(
 
   docksContext = reactive({
     panel: {
-      store: panel,
+      store: panelStore,
       isDragging: false,
       isResizing: false,
-      isVertical: computed(() => panel.value.position === 'left' || panel.value.position === 'right'),
+      isVertical: computed(() => panelStore.value.position === 'left' || panelStore.value.position === 'right'),
     },
     docks: {
       selectedId,
