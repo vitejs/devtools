@@ -77,6 +77,7 @@ function toggleDockEntry(dock: DevToolsDockEntry) {
         :is-dimmed="dimInactive && selected ? (selected.id !== dock.id) : false"
         :is-vertical="isVertical"
         :badge="dock.badge"
+        :badge-variant="dock.badgeVariant"
         @click="toggleDockEntry(dock)"
       />
     </template>

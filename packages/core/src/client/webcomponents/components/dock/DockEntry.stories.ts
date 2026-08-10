@@ -12,6 +12,7 @@ interface EntryArgs {
   isVertical?: boolean
   isAction?: boolean
   badge?: string
+  badgeVariant?: 'default' | 'info' | 'success' | 'warning' | 'danger'
   tooltip?: boolean
 }
 
@@ -43,6 +44,7 @@ const meta = {
         isVertical: args.isVertical,
         isAction: args.isAction,
         badge: args.badge || undefined,
+        badgeVariant: args.badgeVariant,
         tooltip: args.tooltip,
       }))),
     ),
@@ -67,6 +69,9 @@ export const Action: Story = { args: { isAction: true } }
 /** A count badge in the corner (e.g. pending items). */
 export const WithBadge: Story = { args: { badge: '3' } }
 
+/** A colored badge — e.g. a staged-but-unapplied override count, warning-orange until it reloads. */
+export const WithBadgeVariant: Story = { args: { badge: '3', badgeVariant: 'warning' } }
+
 /** Rotated for a left/right edge dock. */
 export const Vertical: Story = { args: { isVertical: true } }
 
@@ -81,6 +86,8 @@ export const States: Story = {
         h(DockEntry, { context: ctx, dock: sample, isDimmed: true }),
         h(DockEntry, { context: ctx, dock: sample, isAction: true }),
         h(DockEntry, { context: ctx, dock: sample, badge: '9+' }),
+        h(DockEntry, { context: ctx, dock: sample, badge: '2', badgeVariant: 'warning' }),
+        h(DockEntry, { context: ctx, dock: sample, badge: '5', badgeVariant: 'success' }),
       ])),
     ),
   }),

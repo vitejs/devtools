@@ -43,7 +43,21 @@ declare module '@devframes/hub/types' {
   interface DevframeDockEntryRegistry {
     'json-render': DevToolsViewJsonRender
   }
+  interface DevframeDockEntryBase {
+    /**
+     * Colors {@link DevframeDockEntryBase.badge} on the dock bar itself — the same variant set
+     * json-render's own `Tabs` badge already uses ({@link DevToolsDockBadgeVariant}), applied one
+     * level up. Omitted (or `'default'`) leaves the badge at its existing neutral fill.
+     */
+    badgeVariant?: DevToolsDockBadgeVariant
+  }
 }
+
+/**
+ * Color for a dock-bar entry's badge — mirrors json-render's `TabDescriptor.badgeVariant`
+ * (`components/Tabs.ts`), so a dock can reuse the exact same variant→color mapping one level up.
+ */
+export type DevToolsDockBadgeVariant = 'default' | 'info' | 'success' | 'warning' | 'danger'
 
 /**
  * A selectable launch root offered by a launcher dock entry.

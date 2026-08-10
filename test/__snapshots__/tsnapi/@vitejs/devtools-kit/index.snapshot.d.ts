@@ -52,6 +52,7 @@ export interface ViteDevToolsNodeContext extends KitNodeContext {
 // #endregion
 
 // #region Types
+export type DevToolsDockBadgeVariant = 'default' | 'info' | 'success' | 'warning' | 'danger';
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory;
 export type JsonRenderElement = UIElement;
 export type JsonRenderSpec = DevframeJsonRenderSpec;
