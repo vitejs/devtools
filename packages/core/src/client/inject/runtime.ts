@@ -1,12 +1,43 @@
 /// <reference types="vite/client" />
 /// <reference lib="dom" />
 
-import type { DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { DevToolsRpcClient, DockPanelStorage } from '@vitejs/devtools-kit/client'
+import type { UseStorageOptions } from '@vueuse/core'
 import { CLIENT_CONTEXT_KEY, getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { useLocalStorage } from '@vueuse/core'
+import { watchEffect } from 'vue'
 import { DEVTOOLS_HIDE_EVENT, DEVTOOLS_MODE_FILENAME } from '../../constants'
 import { createDocksContext } from '../webcomponents/state/context'
+
+/**
+ * `useLocalStorage`, plus mirroring the whole value into shared state under
+ * the same key — so a node-side plugin (e.g. one gating a deferred reload on
+ * "the panel closed") can observe it. A plain `useLocalStorage` ref never
+ * reaches the server on its own; shared state already round-trips a client
+ * mutation through the server before it reappears locally, so this is the
+ * whole mirror. Fire-and-forget: nothing here needs the shared handle back,
+ * and the local ref (returned unchanged) stays the source of truth for every
+ * existing reader/writer.
+ */
+export function useLocalStorageSharedState<T extends object>(
+  rpc: DevToolsRpcClient,
+  key: string,
+  initialValue: T,
+  options?: UseStorageOptions<T>,
+) {
+  const state = useLocalStorage<T>(key, initialValue, options)
+  void rpc.sharedState.get<T>(key, { initialValue: state.value }).then((shared) => {
+    watchEffect(() => {
+      // Reading `state.value` here, synchronously, is what registers it as
+      // this effect's reactive dependency — capturing it inside `mutate`'s
+      // own (lazily-invoked) recipe instead would never re-run on a change.
+      const snapshot = { ...state.value }
+      shared.mutate(() => snapshot)
+    })
+  })
+  return state
+}
 
 export type InjectMode = 'passive' | 'normal' | 'hidden'
 
@@ -60,7 +91,8 @@ async function mountDock(): Promise<void> {
     ],
   })
 
-  const state = useLocalStorage<DockPanelStorage>(
+  const state = useLocalStorageSharedState<DockPanelStorage>(
+    rpc,
     'vite-devtools-dock-state',
     {
       mode: 'float',
