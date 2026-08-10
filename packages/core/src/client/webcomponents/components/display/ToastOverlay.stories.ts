@@ -36,3 +36,23 @@ export const Stack: Story = {
     },
   }),
 }
+
+/** A toast whose message carries an `activate` action, rendered alongside the dismiss control. */
+export const WithAction: Story = {
+  render: () => ({
+    setup() {
+      onMounted(() => {
+        addToast(message({
+          level: 'info',
+          message: 'New a11y violation detected',
+          notify: true,
+          autoDismiss: 10 ** 7,
+          actions: [
+            { id: 'view', label: 'View', kind: 'activate', activate: { dockId: 'devframes-plugin-messages' } },
+          ],
+        }))
+      })
+      return () => h(ToastOverlay)
+    },
+  }),
+}

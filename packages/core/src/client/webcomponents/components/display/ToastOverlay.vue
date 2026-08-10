@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DevToolsMessageEntry } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { selectMessage, useMessages } from '../../state/messages'
 import { dismissToast, useToasts } from '../../state/toasts'
@@ -22,6 +23,16 @@ function openMessages(toastId: string) {
   // (its dock id is the plugin's devframe id).
   props.context?.docks.switchEntry('devframes-plugin-messages')
 }
+
+// Mirrors the messages panel's own action dispatch (`onActivate` in
+// `@devframes/plugin-messages`'s `App.vue`): the only action kind today is
+// `activate`, which focuses a dock. Our shell handles the equivalent
+// `devframe:docks:activate` broadcast the same way (see `context.ts`), so
+// `switchEntry` is the local counterpart to that RPC call.
+function dispatchAction(action: NonNullable<DevToolsMessageEntry['actions']>[number]) {
+  if (action.kind === 'activate')
+    props.context?.docks.switchEntry(action.activate.dockId)
+}
 </script>
 
 <template>
@@ -43,6 +54,14 @@ function openMessages(toastId: string) {
       >
         <MessageItem :entry="toast.entry" compact class="px-3 py-2.5">
           <template #actions>
+            <button
+              v-for="action of toast.entry.actions"
+              :key="action.id"
+              class="flex-none text-xs px-1.5 py-0.5 rounded border border-base op70 hover:op100 hover:bg-active transition"
+              @click.stop="dispatchAction(action)"
+            >
+              {{ action.label }}
+            </button>
             <button
               class="flex-none op30 hover:op100 p-0.5 rounded hover:bg-active transition"
               @click.stop="dismissToast(toast.id)"
