@@ -139,6 +139,21 @@ async function addNotification(msg: string, level: DevToolsMessageLevel) {
   })
 }
 
+/** Exercises the toast `#actions` slot (`dvcol/toast-message-actions`): a `view` button that focuses the messages dock, alongside the usual dismiss ✕. */
+async function addNotificationWithAction() {
+  if (!client.value)
+    return
+  await client.value.call('devtoolskit:internal:messages:add', {
+    message: 'New a11y violation detected',
+    level: 'warn',
+    notify: true,
+    autoDismiss: 10000,
+    actions: [
+      { id: 'view', label: 'View', kind: 'activate', activate: { dockId: 'devframes_plugin_messages' } },
+    ],
+  })
+}
+
 function incrementCounter() {
   if (!client.value)
     return
@@ -187,6 +202,10 @@ function incrementCounter() {
         <button class="btn-action-sm" @click="addLoadingThenResolve()">
           <div class="i-ph-spinner-gap-duotone" />
           Loading -> Resolve
+        </button>
+        <button class="btn-action-sm" @click="addNotificationWithAction()">
+          <div class="i-ph-cursor-click-duotone" />
+          Toast: With Action
         </button>
         <button class="btn-action-sm" @click="addBatchMessages()">
           <div class="i-ph-list-plus-duotone" />
