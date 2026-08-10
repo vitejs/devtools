@@ -60,7 +60,14 @@ async function mountDock(): Promise<void> {
     ],
   })
 
-  const state = useLocalStorage<DockPanelStorage>(
+  // `open` is intentionally not part of this localStorage-persisted geometry
+  // — it's session-scoped (sessionStorage, per-tab) inside `createDocksContext`
+  // instead, so opening the docks in one tab no longer auto-opens them in
+  // another. Two behavior changes ship with this: (a) that cross-tab
+  // auto-open, and (b) after this change deploys, the panel starts closed on
+  // the very first load even for a user whose old `vite-devtools-dock-state`
+  // said `open: true` — the old key's `open` is simply never read again.
+  const state = useLocalStorage<Omit<DockPanelStorage, 'open'>>(
     'vite-devtools-dock-state',
     {
       mode: 'float',
@@ -69,7 +76,6 @@ async function mountDock(): Promise<void> {
       top: 0,
       left: 0,
       position: 'left',
-      open: false,
       inactiveTimeout: 3_000,
     },
     { mergeDefaults: true },

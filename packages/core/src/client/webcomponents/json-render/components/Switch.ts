@@ -1,5 +1,6 @@
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
+import { useUncontrolledValue } from '../composables/useUncontrolledValue'
 import { primary, surfaceSubtle } from './tokens'
 import { registryProps } from './types'
 
@@ -14,9 +15,19 @@ export const Switch = defineComponent({
   name: 'JrSwitch',
   props: registryProps<'Switch', SwitchProps>(),
   setup(ctx) {
+    /** Local, session-persisted fallback for when `value` has no `$bindState` binding — `useBoundProp`'s setter is a no-op without one. */
+    const uncontrolledValue = useUncontrolledValue(ctx, 'value', ctx.element.props.value)
+    const controlled = ctx.bindings?.value != null
+
     return () => {
       const { label, disabled } = ctx.element.props
-      const [value, setValue] = useBoundProp<boolean>(ctx.element.props.value, ctx.bindings?.value)
+      const [boundValue, setBoundValue] = useBoundProp<boolean>(ctx.element.props.value, ctx.bindings?.value)
+      const value = controlled ? boundValue : uncontrolledValue.value
+      const setValue = (next: boolean) => {
+        if (controlled)
+          setBoundValue(next)
+        else uncontrolledValue.value = next
+      }
       const change = ctx.on('change')
       const checked = !!value
 

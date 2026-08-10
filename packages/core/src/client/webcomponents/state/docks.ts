@@ -18,6 +18,24 @@ export function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage {
   }
 }
 
+/**
+ * Session-scoped dock UI state — which dock/tab is open. Unlike
+ * {@link DockPanelStorage} (`vite-devtools-dock-state`, localStorage,
+ * cross-tab geometry/mode), this is per-tab (sessionStorage): a reload
+ * restores it, a new tab starts fresh.
+ */
+export interface DockSessionStorage {
+  open: boolean
+  selectedId: string | null
+}
+
+export function DEFAULT_DOCK_SESSION_STORE(): DockSessionStorage {
+  return {
+    open: false,
+    selectedId: null,
+  }
+}
+
 export function createDockEntryState(
   entry: DevToolsDockEntry,
   selected: Ref<DevToolsDockEntry | null>,

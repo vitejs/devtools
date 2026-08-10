@@ -2,7 +2,7 @@
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import type { DockLayout } from './dock-layout'
 import { useEventListener } from '@vueuse/core'
-import { onUnmounted } from 'vue'
+import { onUnmounted, watch } from 'vue'
 import { sharedStateToRef } from '../../state/docks'
 import { closeDockPopup, useIsDockPopupOpen } from '../../state/popup'
 import { useIsRpcTrusted } from '../../utils/useIsRpcTrusted'
@@ -21,11 +21,26 @@ const props = defineProps<{
   layout?: Partial<DockLayout>
 }>()
 
+const context = props.context
+
 const isDockPopupOpen = useIsDockPopupOpen()
 const settings = sharedStateToRef(props.context.docks.settings)
 
 // Force float mode when unauthorized, regardless of store setting
 const isRpcTrusted = useIsRpcTrusted(props.context)
+
+// If the panel is open (restored from `vite-devtools-dock-session`, or
+// opened otherwise) but nothing valid is selected — e.g. the persisted
+// `selectedId` didn't resolve to a real entry — fall back to the first
+// available one, mirroring `DockStandalone`'s own boot guard.
+watch(
+  () => context.docks.entries,
+  () => {
+    if (context.panel.store.open)
+      context.docks.selectedId ||= context.docks.entries[0]?.id ?? null
+  },
+  { immediate: true },
+)
 
 // Close the dock when clicking outside of it
 useEventListener(window, 'mousedown', (e: MouseEvent) => {

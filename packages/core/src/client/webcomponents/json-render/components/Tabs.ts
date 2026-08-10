@@ -1,6 +1,7 @@
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h, ref, watchEffect } from 'vue'
 import { getIconifySvg } from '../../utils/iconify'
+import { useUncontrolledValue } from '../composables/useUncontrolledValue'
 import { colors, primary, surfaceSubtle } from './tokens'
 import { registryProps } from './types'
 
@@ -26,8 +27,8 @@ export const Tabs = defineComponent({
   name: 'JrTabs',
   props: registryProps<'Tabs', TabsProps>(),
   setup(ctx, { slots }) {
-    /** Local fallback for when `value` has no `$bindState` binding — `useBoundProp`'s setter is a no-op without one. */
-    const uncontrolledValue = ref<string | undefined>(ctx.element.props.defaultValue ?? ctx.element.props.tabs?.[0]?.value)
+    /** Local, session-persisted fallback for when `value` has no `$bindState` binding — `useBoundProp`'s setter is a no-op without one. */
+    const uncontrolledValue = useUncontrolledValue(ctx, 'value', ctx.element.props.defaultValue ?? ctx.element.props.tabs?.[0]?.value)
 
     /** Icon SVGs keyed by name, resolved like `Icon.ts` — one tab's icon changing shouldn't refetch the others. */
     const iconSvgs = ref<Record<string, string>>({})

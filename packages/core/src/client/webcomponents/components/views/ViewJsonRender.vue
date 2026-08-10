@@ -3,7 +3,9 @@ import type { Spec } from '@json-render/core'
 import type { DevToolsViewJsonRender } from '@vitejs/devtools-kit'
 import type { DocksContext } from '@vitejs/devtools-kit/client'
 import { JSONUIProvider, Renderer } from '@json-render/vue'
-import { computed, markRaw, onMounted, ref, shallowRef, watch } from 'vue'
+import { useDebounceFn, useSessionStorage } from '@vueuse/core'
+import { computed, markRaw, onMounted, provide, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { DOCK_ENTRY_ID_KEY } from '../../json-render/composables/dock-entry-id'
 import { devtoolsRegistry, UnsupportedComponent } from '../../json-render/registry'
 
 const props = defineProps<{
@@ -11,9 +13,27 @@ const props = defineProps<{
   entry: DevToolsViewJsonRender
 }>()
 
+// Descendants (e.g. `useUncontrolledValue`) `inject()` this to scope
+// session-persisted state to "this dock" — the entry's own id, stable for
+// this component instance's lifetime (`ViewEntry` re-keys on entry change).
+provide(DOCK_ENTRY_ID_KEY, props.entry.id)
+
 const spec = shallowRef<Spec | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
+
+// Restores/persists the scroll position of this dock's own view, per tab,
+// across a reload — keyed by the dock entry id so switching docks doesn't
+// bleed one dock's scroll into another's.
+const scrollContainer = useTemplateRef<HTMLElement>('scrollContainer')
+const scrollTop = useSessionStorage(`vite-devtools-scroll:${props.entry.id}`, 0)
+onMounted(() => {
+  if (scrollContainer.value)
+    scrollContainer.value.scrollTop = scrollTop.value
+})
+const persistScrollTop = useDebounceFn(() => {
+  scrollTop.value = scrollContainer.value?.scrollTop ?? 0
+}, 200)
 
 // Resolve spec from entry.ui._stateKey
 async function loadSpec() {
@@ -87,7 +107,7 @@ watch(() => props.entry.ui?._stateKey, loadSpec)
 </script>
 
 <template>
-  <div class="vite-devtools-view-json-render w-full h-full overflow-auto" style="padding: 16px; scrollbar-gutter: stable;">
+  <div ref="scrollContainer" class="vite-devtools-view-json-render w-full h-full overflow-auto" style="padding: 16px; scrollbar-gutter: stable;" @scroll="persistScrollTop">
     <div v-if="isLoading" style="display: flex; align-items: center; justify-content: center; height: 100%; opacity: 0.5; font-size: 13px;">
       Loading...
     </div>

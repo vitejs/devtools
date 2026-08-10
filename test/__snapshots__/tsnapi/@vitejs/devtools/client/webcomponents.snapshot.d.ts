@@ -41,6 +41,10 @@ export interface DataTableProps {
 export interface DividerProps {
   label?: string;
 }
+export interface DockSessionStorage {
+  open: boolean;
+  selectedId: string | null;
+}
 export interface IconProps {
   name?: string;
   size?: number;
@@ -136,6 +140,7 @@ export interface TreeProps {
 // #region Functions
 export declare function createDockEntryState(_: DevToolsDockEntry, _: Ref<DevToolsDockEntry | null>): DockEntryState;
 export declare function DEFAULT_DOCK_PANEL_STORE(): DockPanelStorage;
+export declare function DEFAULT_DOCK_SESSION_STORE(): DockSessionStorage;
 export declare function sharedStateToRef<T>(_: SharedState<T>): ShallowRef<T>;
 export declare function useDocksEntries(_: DevToolsRpcClient): Promise<Ref<DevToolsDockEntry[]>>;
 // #endregion

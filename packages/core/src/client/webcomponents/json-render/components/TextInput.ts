@@ -1,6 +1,7 @@
 import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h } from 'vue'
 import DockIcon from '../../components/dock/DockIcon.vue'
+import { useUncontrolledValue } from '../composables/useUncontrolledValue'
 import { borderInput, borderSolid } from './tokens'
 import { registryProps } from './types'
 
@@ -19,9 +20,19 @@ export const TextInput = defineComponent({
   name: 'JrTextInput',
   props: registryProps<'TextInput', TextInputProps>(),
   setup(ctx) {
+    /** Local, session-persisted fallback for when `value` has no `$bindState` binding — `useBoundProp`'s setter is a no-op without one. */
+    const uncontrolledValue = useUncontrolledValue(ctx, 'value', ctx.element.props.value)
+    const controlled = ctx.bindings?.value != null
+
     return () => {
       const { placeholder, label, type = 'text', disabled, loading } = ctx.element.props
-      const [value, setValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
+      const [boundValue, setBoundValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
+      const value = controlled ? boundValue : uncontrolledValue.value
+      const setValue = (next: string) => {
+        if (controlled)
+          setBoundValue(next)
+        else uncontrolledValue.value = next
+      }
       const change = ctx.on('change')
 
       const input = h('input', {

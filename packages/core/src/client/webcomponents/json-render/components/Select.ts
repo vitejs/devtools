@@ -2,6 +2,7 @@ import { useBoundProp } from '@json-render/vue'
 import { defineComponent, h, ref, useId, useTemplateRef, watch } from 'vue'
 import DockIcon from '../../components/dock/DockIcon.vue'
 import FloatingPopover from '../../components/floating/FloatingPopover'
+import { useUncontrolledValue } from '../composables/useUncontrolledValue'
 import { bg, borderInput, borderSolid, surfaceSubtle } from './tokens'
 import { registryProps } from './types'
 
@@ -42,6 +43,10 @@ export const Select = defineComponent({
     const activeIndex = ref(0)
     const listboxId = useId()
 
+    /** Local, session-persisted fallback for when `value` has no `$bindState` binding — `useBoundProp`'s setter is a no-op without one. */
+    const uncontrolledValue = useUncontrolledValue(ctx, 'value', ctx.element.props.value)
+    const controlled = ctx.bindings?.value != null
+
     const close = (options: { refocus?: boolean } = {}) => {
       open.value = false
       if (options.refocus)
@@ -57,14 +62,21 @@ export const Select = defineComponent({
         return
       query.value = ''
       const options = (ctx.element.props.options ?? []).map(normalizeOption)
-      const index = options.findIndex(option => option.value === ctx.element.props.value)
+      const currentValue = controlled ? ctx.element.props.value : uncontrolledValue.value
+      const index = options.findIndex(option => option.value === currentValue)
       activeIndex.value = index >= 0 ? index : 0
     })
 
     return () => {
       const { placeholder, label, disabled, searchable } = ctx.element.props
       const options = (ctx.element.props.options ?? []).map(normalizeOption)
-      const [value, setValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
+      const [boundValue, setBoundValue] = useBoundProp<string>(ctx.element.props.value, ctx.bindings?.value)
+      const value = controlled ? boundValue : uncontrolledValue.value
+      const setValue = (next: string) => {
+        if (controlled)
+          setBoundValue(next)
+        else uncontrolledValue.value = next
+      }
       const change = ctx.on('change')
 
       const filtered = searchable && query.value
