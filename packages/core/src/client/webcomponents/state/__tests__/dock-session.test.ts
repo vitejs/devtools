@@ -38,9 +38,11 @@ function group(id: string): DevToolsDockEntry {
   return { id, type: 'group', title: id, icon: 'i' } as DevToolsDockEntry
 }
 
-// `open`/`selectedId` are now plain fields on the same `panelStore` ref
-// `createDocksContext` is handed (`vite-devtools-dock-state`, localStorage in
-// the real client) — no separate session store to mock, seed the ref directly.
+/**
+ * `open`/`selectedId` are now plain fields on the same `panelStore` ref
+ * `createDocksContext` is handed (`vite-devtools-dock-state`, localStorage in
+ * the real client) — no separate session store to mock, seed the ref directly.
+ */
 function panelStore(selectedId: string | null, open = true): Ref<DevToolsDockPanelStorage> {
   return ref({ ...DEFAULT_DOCK_PANEL_STORE(), open, selectedId })
 }
@@ -89,8 +91,7 @@ describe('restored dock panel state (selectedId/open on the same panelStore ref)
     const context = await createDocksContext('embedded', createMockRpc([iframe('a')]), panelStore('gone', false))
 
     expect(context.docks.selectedId).toBeNull()
-    // Clearing an invalid restored id must not route through `switchEntry`
-    // (which would force `open = true`) — the panel stays exactly as restored.
+    /** Clearing an invalid restored id must not route through `switchEntry` (which would force `open = true`) — the panel stays exactly as restored. */
     expect(context.panel.store.open).toBe(false)
   })
 

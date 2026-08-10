@@ -13,18 +13,22 @@ const props = defineProps<{
   entry: DevToolsViewJsonRender
 }>()
 
-// Descendants (e.g. `useUncontrolledValue`) `inject()` this to scope
-// session-persisted state to "this dock" — the entry's own id, stable for
-// this component instance's lifetime (`ViewEntry` re-keys on entry change).
+/**
+ * Descendants (e.g. `useUncontrolledValue`) `inject()` this to scope
+ * session-persisted state to "this dock" — the entry's own id, stable for
+ * this component instance's lifetime (`ViewEntry` re-keys on entry change).
+ */
 provide(DOCK_ENTRY_ID_KEY, props.entry.id)
 
 const spec = shallowRef<Spec | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
-// Restores/persists the scroll position of this dock's own view, per tab,
-// across a reload — keyed by the dock entry id so switching docks doesn't
-// bleed one dock's scroll into another's.
+/**
+ * Restores/persists the scroll position of this dock's own view, per tab,
+ * across a reload — keyed by the dock entry id so switching docks doesn't
+ * bleed one dock's scroll into another's.
+ */
 const scrollContainer = useTemplateRef<HTMLElement>('scrollContainer')
 const scrollTop = useSessionStorage(`vite-devtools-scroll:${props.entry.id}`, 0)
 onMounted(() => {

@@ -7,10 +7,9 @@ import { markRaw, reactive, shallowRef, watch } from 'vue'
 
 /**
  * {@link DockPanelStorage} (hub's own type — geometry/mode/`open`) plus
- * `selectedId`, which the hub has no concept of. Both persist the same way:
- * one `vite-devtools-dock-state` localStorage value, cross-tab like
- * everything else in it already is — a dock left open/selected in one tab
- * shows the same way in the next, exactly as `open` already behaves today.
+ * `selectedId`, which the hub has no concept of. Both persist in the same
+ * `vite-devtools-dock-state` localStorage value, so both are cross-tab —
+ * a dock left open/selected in one tab shows the same way in the next.
  */
 export interface DevToolsDockPanelStorage extends DockPanelStorage {
   selectedId: string | null

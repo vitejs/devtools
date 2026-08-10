@@ -55,10 +55,10 @@ export async function createDocksContext(
 
   panelStore ||= ref(DEFAULT_DOCK_PANEL_STORE())
 
-  // `open` and `selectedId` both live in `panelStore` (`vite-devtools-dock-state`,
-  // localStorage) alongside geometry/mode — restored across a reload, and,
-  // like everything else already in that value, shared cross-tab (opening the
-  // docks in one tab shows the same way in the next; not per-tab session state).
+  /**
+   * `open`/`selectedId` both live in `panelStore` (localStorage), so both are
+   * restored across a reload and shared cross-tab, like the rest of that value.
+   */
   const selectedId = computed<string | null>({
     get: () => panelStore.value.selectedId,
     set: (value) => { panelStore.value.selectedId = value },
@@ -69,18 +69,15 @@ export async function createDocksContext(
       ?? null,
   )
 
-  // A `selectedId` restored from `panelStore` may point at an entry that
-  // isn't directly selectable — a group (no view of its own) or a `subTabs`
-  // anchor (owns a shared frame, not a view). `switchEntry` resolves those on
-  // click, but restoring on boot must not route through it (it would force
-  // `panelStore.value.open = true`, reopening a panel the user closed) — so
-  // validate the restored id directly instead, once. `entries` starts empty
-  // and fills in async via `devframe:docks`, so an empty list here just means
-  // "not loaded yet"; wait for it rather than clearing a legitimate restored
-  // selection. This is boot-only: past this point `switchEntry` itself may
-  // legitimately land `selectedId` on a group/anchor id (e.g. a `subTabs`
-  // anchor with no live member to redirect to yet) — that's not something to
-  // keep correcting.
+  /**
+   * A restored `selectedId` may point at a non-selectable entry (a group, or
+   * a `subTabs` anchor) — `switchEntry` would fix that on click, but routing
+   * through it here would force `panelStore.value.open = true`, reopening a
+   * closed panel. So validate once, on boot, directly instead — waiting for
+   * `entries` to load rather than clearing a still-legitimate selection. Past
+   * boot, `switchEntry` may itself land `selectedId` on a group/anchor
+   * (e.g. mid-redirect); that's not something to keep correcting.
+   */
   const isSelectableEntry = (id: string): boolean => {
     if (id === '~client-auth-notice')
       return true

@@ -60,12 +60,11 @@ async function mountDock(): Promise<void> {
     ],
   })
 
-  // `open` and (new) `selectedId` both live in this same localStorage value,
-  // alongside geometry/mode — cross-tab, like everything else already in it.
-  // A dock left open/selected in one tab shows the same way in the next; see
-  // `DevToolsDockPanelStorage`. (Defaults here are this injected client's
-  // own, deliberately different from `DEFAULT_DOCK_PANEL_STORE()`'s
-  // fallback used elsewhere — not a shared literal.)
+  /**
+   * Defaults here are this injected client's own — deliberately different
+   * from `DEFAULT_DOCK_PANEL_STORE()`'s fallback used elsewhere, not a shared
+   * literal. See `DevToolsDockPanelStorage` for what's persisted and why.
+   */
   const state = useLocalStorage<DevToolsDockPanelStorage>(
     'vite-devtools-dock-state',
     {

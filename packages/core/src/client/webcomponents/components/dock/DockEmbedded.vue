@@ -29,10 +29,11 @@ const settings = sharedStateToRef(props.context.docks.settings)
 // Force float mode when unauthorized, regardless of store setting
 const isRpcTrusted = useIsRpcTrusted(props.context)
 
-// If the panel is open (restored from `vite-devtools-dock-session`, or
-// opened otherwise) but nothing valid is selected — e.g. the persisted
-// `selectedId` didn't resolve to a real entry — fall back to the first
-// available one, mirroring `DockStandalone`'s own boot guard.
+/**
+ * If the panel is open but nothing valid is selected (e.g. a restored
+ * `selectedId` didn't resolve to a real entry), fall back to the first
+ * available one — mirrors `DockStandalone`'s own boot guard.
+ */
 watch(
   () => context.docks.entries,
   () => {
