@@ -69,7 +69,7 @@ export const Action: Story = { args: { isAction: true } }
 /** A count badge in the corner (e.g. pending items). */
 export const WithBadge: Story = { args: { badge: '3' } }
 
-/** A colored badge — e.g. a staged-but-unapplied override count, warning-orange until it reloads. */
+/** A colored badge, e.g. flagging a state that needs attention. */
 export const WithBadgeVariant: Story = { args: { badge: '3', badgeVariant: 'warning' } }
 
 /** Rotated for a left/right edge dock. */

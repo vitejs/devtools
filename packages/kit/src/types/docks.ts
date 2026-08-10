@@ -44,19 +44,12 @@ declare module '@devframes/hub/types' {
     'json-render': DevToolsViewJsonRender
   }
   interface DevframeDockEntryBase {
-    /**
-     * Colors {@link DevframeDockEntryBase.badge} on the dock bar itself — the same variant set
-     * json-render's own `Tabs` badge already uses ({@link DevToolsDockBadgeVariant}), applied one
-     * level up. Omitted (or `'default'`) leaves the badge at its existing neutral fill.
-     */
+    /** Colors {@link DevframeDockEntryBase.badge}. Omitted (or `'default'`) keeps the existing neutral fill. */
     badgeVariant?: DevToolsDockBadgeVariant
   }
 }
 
-/**
- * Color for a dock-bar entry's badge — mirrors json-render's `TabDescriptor.badgeVariant`
- * (`components/Tabs.ts`), so a dock can reuse the exact same variant→color mapping one level up.
- */
+/** Color for a dock-bar entry's badge — mirrors json-render's `TabDescriptor.badgeVariant`. */
 export type DevToolsDockBadgeVariant = 'default' | 'info' | 'success' | 'warning' | 'danger'
 
 /**

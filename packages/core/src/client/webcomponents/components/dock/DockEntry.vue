@@ -31,12 +31,12 @@ const props = withDefaults(
 // Only kicks in while selected — an idle group button keeps its default look.
 const accentStyle = computed(() => (props.isSelected ? accentTextStyle(props.accentColor) : undefined))
 
-/** `undefined` (the existing `bg-gray-6 text-white` utility classes below) at `'default'`/unset — every pre-existing badge consumer keeps its current look, unchanged. */
+/** `undefined` at `'default'`/unset keeps the existing `bg-gray-6 text-white` classes below. `colors[variant].bg`'s alpha is tuned for a tab badge, so it's boosted here for better contrast on the dock bar. */
 const badgeStyle = computed(() => {
   if (!props.badgeVariant || props.badgeVariant === 'default')
     return undefined
   const { bg, fg } = colors[props.badgeVariant]
-  return { backgroundColor: bg, color: fg }
+  return { backgroundColor: `rgba(from ${bg} r g b / 0.35)`, color: fg }
 })
 
 const button = useTemplateRef<HTMLButtonElement>('button')
