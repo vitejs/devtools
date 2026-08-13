@@ -4,7 +4,7 @@ import {
   DEVTOOLS_MOUNT_PATH,
   DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH,
 } from '@vitejs/devtools-kit/constants'
-import { normalizeHttpServerUrl } from 'devframe/node'
+import { normalizeHttpServerUrl } from 'devframe/internal'
 import { colors as c } from 'devframe/utils/colors'
 import { open } from 'devframe/utils/open'
 import { resolve } from 'pathe'

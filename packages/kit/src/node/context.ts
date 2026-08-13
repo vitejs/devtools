@@ -10,18 +10,10 @@ import { nanoid } from '../utils/nanoid'
  * `@devframes/hub`, plus the Vite-specific slots surfaced when kit hosts
  * the devtool inside Vite DevTools, and the kit's `createJsonRenderer`
  * factory (json-render is the opt-in `@devframes/json-render` package, so
- * the kit — not the hub — surfaces it on the context).
- *
- * `Omit<DevframeHubContext, 'createJsonRenderer'>`: hub 0.7.9 re-added its own
- * `createJsonRenderer` as a **deprecated** back-compat factory (removed in
- * 0.8) typed against the hub's own pre-0.7 `JsonRenderSpec` (whose element
- * `props` is optional). The kit's factory is typed against
- * `@devframes/json-render`'s `Spec` (`props` required) instead — the
- * currently-recommended, non-deprecated surface — so the property must be
- * omitted from the base before it's redeclared here, or the narrower
- * parameter type makes this an invalid override.
+ * the kit — not the hub — surfaces it on the context). The factory is typed
+ * against `@devframes/json-render`'s `Spec` (`props` required).
  */
-export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
+export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig
   readonly viteServer?: ViteDevServer
   /**

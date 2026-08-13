@@ -43,7 +43,7 @@ overrides:
   vite: 'catalog:build'
 
 refs:
-  devframe: &devframe ^0.8.2
+  devframe: &devframe ^0.9.0-beta.1
   nuxt: &nuxt ^4.5.2
   shiki: &shiki ^4.4.2
   storybook: &storybook ^10.5.7
@@ -85,7 +85,7 @@ catalogs:
     '@oxlint-config-inspector/core': ^1.1.1
     '@rolldown/debug': ^1.2.3
     actionspack: ^0.1.5
-    birpc: ^4.0.0
+    birpc: ^4.1.0
     cac: ^7.0.0
     devframe: *devframe
     diff: ^9.0.0

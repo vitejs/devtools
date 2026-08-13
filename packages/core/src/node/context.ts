@@ -3,7 +3,6 @@ import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
-import { isObject } from 'devframe/node'
 import { createDebug } from 'obug'
 import { dirAssets } from '../dirs'
 import { getAuthHandler } from './auth-handler'
@@ -11,6 +10,10 @@ import { diagnostics } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
 
 function shouldSkipSetupByCapabilities(
   plugin: ResolvedConfig['plugins'][number],

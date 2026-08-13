@@ -38,14 +38,19 @@ export function createDockRenderers(getContext: () => DocksContext): DockRendere
       const renderer = renderers.get(entry.type)
       if (!renderer) {
         console.warn(`[vite-devtools] no dock renderer registered for type "${entry.type}"`)
-        return () => {}
+        return { status: 'missing-renderer' }
       }
-      const instance = await renderer({
-        entry,
-        container,
-        context: getContext() as DevToolsClientContext,
-      })
-      return () => instance.dispose?.()
+      try {
+        const instance = await renderer({
+          entry,
+          container,
+          context: getContext() as DevToolsClientContext,
+        })
+        return { status: 'mounted', dispose: () => instance.dispose?.() }
+      }
+      catch (error) {
+        return { status: 'load-error', error }
+      }
     },
   }
 }

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import type { ConnectionMeta, DevToolsNodeRpcSession, DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { Peer } from 'crossws'
+import type { BirpcGroup } from 'birpc'
 import type { RpcFunctionsHost } from 'devframe/node'
-import type { WsRpcTransportOptions } from 'devframe/rpc/transports/ws-server'
+import type { DevframeRpcConnection, WsRpcTransportOptions } from 'devframe/rpc/transports/ws-server'
 import type { DevframeNodeRpcSessionMeta } from 'devframe/types'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { DevToolsConfig } from './config'
@@ -54,7 +54,14 @@ interface RpcFunctionsHostInternals {
   _emitSessionDisconnected: (meta: DevframeNodeRpcSessionMeta) => void
 }
 
-export async function createWsServer(options: CreateWsServerOptions) {
+export interface WsServerHandle {
+  port: number | undefined
+  rpc: BirpcGroup<DevToolsRpcClientFunctions, DevToolsRpcServerFunctions, false>
+  rpcHost: RpcFunctionsHost & RpcFunctionsHostInternals
+  getConnectionMeta: () => Promise<ConnectionMeta>
+}
+
+export async function createWsServer(options: CreateWsServerOptions): Promise<WsServerHandle> {
   const rpcHost = options.context.rpc as unknown as RpcFunctionsHost & RpcFunctionsHostInternals
   const host = options.websocket.host
   const https = await resolveHttpsConfig(options.websocket.https === false ? undefined : (options.websocket.https ?? options.context.viteConfig.server.https))
@@ -73,7 +80,7 @@ export async function createWsServer(options: CreateWsServerOptions) {
   const routeBound = !!viteHttpServer
   const port = routeBound ? undefined : (options.websocket.port ?? await getPort({ port: 7812, host, random: true })!)
 
-  const wsClients = new Set<Peer>()
+  const wsClients = new Set<DevframeRpcConnection>()
 
   const isClientAuthDisabled = context.mode === 'build' || context.viteConfig.devtools?.config?.clientAuth === false || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
   if (isClientAuthDisabled) {
@@ -158,12 +165,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
     ...binding,
     allowedOrigins,
     definitions: rpcHost.definitions,
-    onConnected: (peer, meta) => {
-      // crossws exposes the upgrade request (with its query string + headers)
-      // on the peer, replacing the raw `ws`/`req` pair from the old transport.
-      const url = new URL(peer.request?.url ?? '', 'http://localhost')
+    onConnected: (connection, meta) => {
+      // The transport carries the connect-time upgrade request (with its
+      // query string + headers) on the connection, transport-independent.
+      const url = new URL(connection.request?.url ?? '', 'http://localhost')
       const authToken = url.searchParams.get('devframe_auth_token') ?? undefined
-      const requestOrigin = peer.request?.headers.get('origin') ?? undefined
+      const requestOrigin = connection.request?.headers?.get('origin') ?? undefined
       if (isClientAuthDisabled) {
         meta.isTrusted = true
       }
@@ -185,12 +192,12 @@ export async function createWsServer(options: CreateWsServerOptions) {
       if (!meta.isTrusted)
         auth.printBanner()
 
-      wsClients.add(peer)
+      wsClients.add(connection)
       const color = meta.isTrusted ? c.green : c.yellow
       console.log(color`${MARK_INFO} Websocket client connected. [${meta.id}] [${meta.clientAuthToken}] (${meta.isTrusted ? 'trusted' : 'untrusted'})`)
     },
-    onDisconnected: (peer, meta) => {
-      wsClients.delete(peer)
+    onDisconnected: (connection, meta) => {
+      wsClients.delete(connection)
       rpcHost._emitSessionDisconnected(meta)
       console.log(c.red`${MARK_INFO} Websocket client disconnected. [${meta.id}]`)
     },

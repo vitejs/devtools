@@ -1,5 +1,4 @@
 import type { StartOptions } from './cli-commands'
-import { isObject } from 'devframe/node'
 
 export interface DevToolsConfig extends Partial<StartOptions> {
   enabled: boolean
@@ -45,13 +44,14 @@ export function normalizeDevToolsConfig(
   config: DevToolsConfig | boolean | undefined,
   host: string,
 ): ResolvedDevToolsConfig {
+  const resolved = typeof config === 'object' && config !== null ? config : undefined
   return {
     enabled: config === true || !!(config && config.enabled),
     config: {
-      ...(isObject(config) ? config : {}),
-      clientAuth: isObject(config) ? (config.clientAuth ?? true) : true,
-      clientAuthTokens: isObject(config) ? (config.clientAuthTokens ?? []) : [],
-      host: isObject(config) ? (config.host ?? host) : host,
+      ...(resolved ?? {}),
+      clientAuth: resolved?.clientAuth ?? true,
+      clientAuthTokens: resolved?.clientAuthTokens ?? [],
+      host: resolved?.host ?? host,
     },
   }
 }
