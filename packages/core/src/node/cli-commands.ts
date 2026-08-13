@@ -1,9 +1,6 @@
 /* eslint-disable no-console */
 
-import {
-  DEVTOOLS_MOUNT_PATH,
-  DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH,
-} from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { normalizeHttpServerUrl } from 'devframe/internal'
 import { colors as c } from 'devframe/utils/colors'
 import { open } from 'devframe/utils/open'
@@ -29,18 +26,19 @@ export async function start(options: StartOptions) {
   })
 
   const { startStandaloneDevTools } = await import('./standalone')
-  const { createDevToolsMiddleware } = await import('./server')
+  const { createDevToolsHub } = await import('./server')
 
   const devtools = await startStandaloneDevTools({
     cwd: options.root,
   })
-  const { h3 } = await createDevToolsMiddleware({
-    cwd: devtools.config.root,
-    websocket: {
-      host,
-      https: false,
-    },
+
+  // Standalone has no shared HTTP server for the WS upgrade, so the hub opens
+  // a side-car WS server (advertised in `__connection.json`). Its middleware
+  // answers the whole `/__devtools/` surface — the branded hub-ui viewer, the
+  // connection meta, and the client bundles.
+  const { middleware } = await createDevToolsHub({
     context: devtools.context,
+    host,
   })
 
   const { createServer } = await import('node:http')
@@ -52,10 +50,14 @@ export async function start(options: StartOptions) {
   for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs)
     mountStaticHandler(app, baseUrl, distDir)
 
-  app.use(DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH, h3)
   app.use('/', defineHandler(event => sendRedirect(event, DEVTOOLS_MOUNT_PATH, 302)))
 
-  const server = createServer(toNodeHandler(app))
+  const appHandler = toNodeHandler(app)
+  // Hub first (owns `/__devtools/*`); anything outside its base falls through
+  // to the sub-frame statics + the root redirect.
+  const server = createServer((req, res) => {
+    middleware(req, res, () => appHandler(req, res))
+  })
 
   server.listen(port, host, async () => {
     const url = normalizeHttpServerUrl(host, port)

@@ -13,8 +13,8 @@ import {
 } from '@vitejs/devtools-kit/constants'
 import { colors as c } from 'devframe/utils/colors'
 import { dirname, join, relative, resolve } from 'pathe'
-import { dirClientStandalone } from '../dirs'
 import { MARK_NODE } from './constants'
+import { createViteDevToolsUi } from './ui'
 
 export interface BuildStaticOptions {
   context: ViteDevToolsNodeContext
@@ -30,7 +30,20 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
 
   const devToolsRoot = join(outDir, DEVTOOLS_DIRNAME)
   await fs.mkdir(devToolsRoot, { recursive: true })
-  await fs.cp(dirClientStandalone, devToolsRoot, { recursive: true })
+
+  // Bake the branded `@devframes/hub-ui` client into the snapshot: the
+  // standalone viewer SPA, its embedded bootstrap, and the UI-owned assets
+  // (e.g. `branding.json`) — the same `ui` slot the hub serves in dev.
+  const ui = createViteDevToolsUi()
+  if (ui.viewer)
+    await fs.cp(ui.viewer.distDir, devToolsRoot, { recursive: true })
+  if (ui.embedded)
+    await fs.cp(ui.embedded.entry, join(devToolsRoot, 'embedded.js'))
+  for (const [key, getContent] of Object.entries(ui.assets ?? {})) {
+    const assetPath = join(devToolsRoot, key)
+    await fs.mkdir(dirname(assetPath), { recursive: true })
+    await fs.writeFile(assetPath, (getContent as () => string | Uint8Array)())
+  }
 
   for (const { baseUrl, distDir } of context.views.buildStaticDirs) {
     console.log(c.cyan`${MARK_NODE} Copying static files from ${distDir} to ${join(outDir, baseUrl)}`)

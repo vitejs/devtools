@@ -46,6 +46,9 @@ catalogs:
     '@devframes/hub':
       specifier: ^0.9.0-beta.1
       version: 0.9.0-beta.1
+    '@devframes/hub-ui':
+      specifier: ^0.9.0-beta.1
+      version: 0.9.0-beta.1
     '@devframes/json-render':
       specifier: ^0.9.0-beta.1
       version: 0.9.0-beta.1
@@ -79,9 +82,6 @@ catalogs:
     actionspack:
       specifier: ^0.1.5
       version: 0.1.5
-    birpc:
-      specifier: ^4.1.0
-      version: 4.1.0
     devframe:
       specifier: ^0.9.0-beta.1
       version: 0.9.0-beta.1
@@ -824,6 +824,9 @@ importers:
       '@devframes/hub':
         specifier: catalog:deps
         version: 0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))
+      '@devframes/hub-ui':
+        specifier: catalog:deps
+        version: 0.9.0-beta.1(@devframes/hub@0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(@devframes/json-render@0.9.0-beta.1(@devframes/hub@0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))
       '@devframes/plugin-inspect':
         specifier: catalog:deps
         version: 0.9.0-beta.1(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))(valibot@1.4.2(typescript@6.0.3))(vite@8.2.1)
@@ -839,9 +842,6 @@ importers:
       '@vitejs/devtools-oxc':
         specifier: workspace:^
         version: link:../oxc
-      birpc:
-        specifier: catalog:deps
-        version: 4.1.0
       cac:
         specifier: ^7.0.0
         version: 7.0.0
@@ -854,9 +854,6 @@ importers:
       local-pkg:
         specifier: catalog:deps
         version: 1.2.1
-      mlly:
-        specifier: catalog:deps
-        version: 1.8.2
       nostics:
         specifier: catalog:deps
         version: 1.2.0
@@ -1689,6 +1686,13 @@ packages:
 
   '@colordx/core@5.4.3':
     resolution: {integrity: sha512-kIxYSfA5T8HXjav55UaaH/o/cKivF6jCCGIb8eqtcsfI46wsvlSiT8jMDyrl779qLec3c2c2oHBZo4oAhvbjrQ==}
+
+  '@devframes/hub-ui@0.9.0-beta.1':
+    resolution: {integrity: sha512-8Txtm+BULzO7h4Atg8WjZPXTG4ga4gH97aPgcjtKSTwugeDJHpTFsDSISHHoZZ+Dbvsw8NVsU+uQMQVtKCsCgw==}
+    peerDependencies:
+      '@devframes/hub': 0.9.0-beta.1
+      '@devframes/json-render': 0.9.0-beta.1
+      devframe: 0.9.0-beta.1
 
   '@devframes/hub@0.7.15':
     resolution: {integrity: sha512-g2aUJZAsmBsWARqvA2nhT5F9v2usJ/uiavstsWA7FZaXU6+2LYx/OafqDlFNUa+PxGUWwEZe/qzwAuRoZjv8uA==}
@@ -10304,6 +10308,12 @@ snapshots:
   '@cloudflare/kv-asset-handler@0.4.2': {}
 
   '@colordx/core@5.4.3': {}
+
+  '@devframes/hub-ui@0.9.0-beta.1(@devframes/hub@0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(@devframes/json-render@0.9.0-beta.1(@devframes/hub@0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))':
+    dependencies:
+      '@devframes/hub': 0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))
+      '@devframes/json-render': 0.9.0-beta.1(@devframes/hub@0.9.0-beta.1(crossws@0.4.10(srvx@0.12.4))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)))(devframe@0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4))
+      devframe: 0.9.0-beta.1(cac@7.0.0)(srvx@0.12.4)
 
   '@devframes/hub@0.7.15(devframe@0.7.15(cac@7.0.0)(srvx@0.11.22)(typescript@6.0.3))':
     dependencies:

@@ -73,6 +73,7 @@ catalogs:
     vite: ^8.2.1
   deps:
     '@devframes/hub': *devframe
+    '@devframes/hub-ui': *devframe
     '@devframes/json-render': *devframe
     '@devframes/plugin-a11y': *devframe
     '@devframes/plugin-code-server': *devframe

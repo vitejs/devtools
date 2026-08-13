@@ -1,36 +1,29 @@
-import { resolveConfig } from 'vite'
+import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { describe, expect, it } from 'vitest'
 import { DevToolsInjection } from '../injection'
 
-describe('devToolsInjection', () => {
-  it('defines Vue feature flags for non-Vue hosts', async () => {
-    const config = await resolveConfig({
-      configFile: false,
-      plugins: [DevToolsInjection()],
-    }, 'serve')
+function injectedTags(plugin = DevToolsInjection()) {
+  const transform = plugin.transformIndexHtml as { handler: () => unknown }
+  return transform.handler() as Array<{ tag: string, attrs: Record<string, string>, injectTo: string }>
+}
 
-    expect(config.define).toMatchObject({
-      __VUE_OPTIONS_API__: true,
-      __VUE_PROD_DEVTOOLS__: false,
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
-    })
+describe('devToolsInjection', () => {
+  it('injects the hub-ui embedded bootstrap as one external module script', () => {
+    expect(injectedTags()).toEqual([
+      {
+        tag: 'script',
+        attrs: {
+          'type': 'module',
+          'src': `${DEVTOOLS_MOUNT_PATH}embedded.js`,
+          'data-visibility': 'normal',
+        },
+        injectTo: 'body',
+      },
+    ])
   })
 
-  it('preserves Vue feature flags defined by the host', async () => {
-    const config = await resolveConfig({
-      configFile: false,
-      define: {
-        __VUE_OPTIONS_API__: 'false',
-        __VUE_PROD_DEVTOOLS__: 'true',
-        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
-      },
-      plugins: [DevToolsInjection()],
-    }, 'serve')
-
-    expect(config.define).toMatchObject({
-      __VUE_OPTIONS_API__: 'false',
-      __VUE_PROD_DEVTOOLS__: 'true',
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true',
-    })
+  it('forwards the visibility hint to the embedded bootstrap', () => {
+    const tags = injectedTags(DevToolsInjection({ visibility: 'passive' }))
+    expect(tags[0]?.attrs['data-visibility']).toBe('passive')
   })
 })

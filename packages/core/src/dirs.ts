@@ -1,8 +1,6 @@
-import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const dirDist: string = fileURLToPath(new URL('../dist', import.meta.url))
-export const dirClientStandalone: string = join(dirDist, 'client/standalone')
 
 // Vendored integration marks (`rolldown.svg`, `vite.svg`, `vitest.svg`,
 // `oxc.svg`) served at `/__devtools-assets/`, used as the icons for the

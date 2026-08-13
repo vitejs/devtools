@@ -3,6 +3,5 @@
  */
 // #region Variables
 export var dirAssets /* const */
-export var dirClientStandalone /* const */
 export var dirDist /* const */
 // #endregion

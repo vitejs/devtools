@@ -3,6 +3,6 @@
  */
 // #region Functions
 export async function createDevToolsContext(_, _) {}
-export async function createDevToolsMiddleware(_) {}
+export async function createDevToolsHub(_) {}
 export async function DevTools(_) {}
 // #endregion

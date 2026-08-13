@@ -3,6 +3,5 @@
  */
 // #region Variables
 export declare const dirAssets: string;
-export declare const dirClientStandalone: string;
 export declare const dirDist: string;
 // #endregion

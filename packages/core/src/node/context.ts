@@ -71,7 +71,8 @@ export async function createDevToolsContext(
   // Interactive OTP auth, provided by devframe's `createInteractiveAuth`
   // recipe: registers the `anonymous:devframe:auth` / `:exchange` handshake
   // and the `devframe:auth:revoke` self-revoke. The resolver gate and the
-  // one-time-code banner are wired up in `createWsServer` (same handler).
+  // one-time-code banner are wired up by `initHub`'s `auth` option (same
+  // handler) in `createDevToolsHub`.
   for (const fn of getAuthHandler(context).rpcFunctions)
     rpcHost.register(fn)
 
@@ -101,7 +102,7 @@ export async function createDevToolsContext(
     type: 'group',
     title: 'Vite+',
     category: 'framework',
-    icon: { light: 'builtin:vite-plus-core', dark: 'builtin:vite-plus-core' },
+    icon: 'ph:lightning-duotone',
   })
 
   // Serve the vendored integration marks used by the built-in install
