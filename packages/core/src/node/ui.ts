@@ -5,6 +5,8 @@ import { join } from 'node:path'
 import { createUi } from '@devframes/hub-ui'
 import { dirAssets } from '../dirs'
 
+type BrandingLogo = NonNullable<DevframeBranding['logo']>
+
 /**
  * The Vite DevTools brand identity fed to `@devframes/hub-ui`. The reference
  * hub UI is headless about branding — it renders whatever `createUi({ branding })`
@@ -12,24 +14,28 @@ import { dirAssets } from '../dirs'
  * primary color are defined for the served client (both the injected floating
  * dock and the standalone viewer).
  *
- * The primary color mirrors `@vitejs/devtools-ui`'s `primary.DEFAULT`, and the
- * mark is the "V+" logo shipped under `assets/branding/`. The logo and favicon
- * are inlined as `data:` URIs so they resolve without a network fetch — the
- * embedded dock is injected into arbitrary host pages where a relative asset
- * URL would not resolve.
+ * The mark + wordmark are the official Vite+ brand assets
+ * (github.com/voidzero-dev/community-design-resources), inlined as `data:`
+ * URIs so they resolve without a network fetch — the embedded dock is injected
+ * into arbitrary host pages where a relative asset URL would not resolve — and
+ * shipped with per-scheme light/dark variants.
  */
 function svgDataUri(file: string): string {
   const svg = readFileSync(join(dirAssets, 'branding', file), 'utf-8')
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
 }
 
+function brandingLogo(light: string, dark: string): BrandingLogo {
+  return { light: svgDataUri(light), dark: svgDataUri(dark) }
+}
+
 export function viteDevToolsBranding(): DevframeBranding {
-  const mark = svgDataUri('vite-devtools-mark.svg')
   return {
     productName: 'Vite DevTools',
     primaryColor: '#6b84fd',
-    logo: mark,
-    favicon: mark,
+    logo: brandingLogo('vite+-icon-color-light.svg', 'vite+-icon-color-dark.svg'),
+    wordmark: brandingLogo('vite+-logo-color-light.svg', 'vite+-logo-color-dark.svg'),
+    favicon: svgDataUri('vite+-icon-color-light.svg'),
     tagline: 'Inspect and understand your Vite project.',
     windowTitle: 'Vite DevTools',
   }

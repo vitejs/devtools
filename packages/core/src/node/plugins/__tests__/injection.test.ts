@@ -4,26 +4,24 @@ import { DevToolsInjection } from '../injection'
 
 function injectedTags(plugin = DevToolsInjection()) {
   const transform = plugin.transformIndexHtml as { handler: () => unknown }
-  return transform.handler() as Array<{ tag: string, attrs: Record<string, string>, injectTo: string }>
+  return transform.handler() as Array<{ tag: string, attrs: Record<string, string>, children?: string, injectTo: string }>
 }
 
 describe('devToolsInjection', () => {
-  it('injects the hub-ui embedded bootstrap as one external module script', () => {
-    expect(injectedTags()).toEqual([
-      {
-        tag: 'script',
-        attrs: {
-          'type': 'module',
-          'src': `${DEVTOOLS_MOUNT_PATH}embedded.js`,
-          'data-visibility': 'normal',
-        },
-        injectTo: 'body',
-      },
-    ])
+  it('injects an inline module that loads the hub-ui embedded bootstrap at runtime', () => {
+    const tag = injectedTags()[0]!
+    // Inline module (no static `src`) so Vite never pre-transforms the
+    // hub-served `<base>embedded.js` through its own module pipeline.
+    expect(tag.tag).toBe('script')
+    expect(tag.attrs).toEqual({ type: 'module' })
+    expect(tag.injectTo).toBe('body')
+    expect(tag.children).toContain(`${DEVTOOLS_MOUNT_PATH}embedded.js`)
+    expect(tag.children).toContain('document.body.appendChild(s)')
+    expect(tag.children).toContain(`s.dataset.visibility = "normal"`)
   })
 
   it('forwards the visibility hint to the embedded bootstrap', () => {
-    const tags = injectedTags(DevToolsInjection({ visibility: 'passive' }))
-    expect(tags[0]?.attrs['data-visibility']).toBe('passive')
+    const tag = injectedTags(DevToolsInjection({ visibility: 'passive' }))[0]!
+    expect(tag.children).toContain(`s.dataset.visibility = "passive"`)
   })
 })
