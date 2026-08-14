@@ -21,10 +21,6 @@ export interface DevToolsPluginOptions {
   };
   setup: (_: ViteDevToolsNodeContext) => void | Promise<void>;
 }
-export interface DevToolsViewJsonRender extends DevframeDockEntryBase {
-  type: 'json-render';
-  ui: JsonRenderer;
-}
 export interface DevToolsViewLauncher extends DevframeViewLauncher {
   launcher: DevframeViewLauncher['launcher'] & {
     roots?: DevToolsLaunchRoot[];
@@ -37,7 +33,7 @@ export interface JsonRenderer {
   readonly _stateKey: string;
   readonly view: JsonRenderViewRef;
 }
-export interface KitNodeContext extends Omit<DevframeHubContext, 'createJsonRenderer'> {
+export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
   createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;
@@ -122,6 +118,7 @@ export { DevToolsViewCustomRender }
 export { DevToolsViewGroup }
 export { DevToolsViewHost }
 export { DevToolsViewIframe }
+export { DevToolsViewJsonRender }
 export { DevToolsViewLauncherStatus }
 export { EntriesToObject }
 export { EventEmitter }

@@ -46,6 +46,7 @@
     "cac": "catalog:deps",
     "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
+    "nypm": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"

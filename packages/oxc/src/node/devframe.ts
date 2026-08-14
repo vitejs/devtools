@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { defineDevframe } from 'devframe/types'
+import { defineDevframe } from 'devframe'
 import { rpcFunctions } from './rpc'
 import { clientPublicDir } from '../dirs'
 import { description, homepage, name, version } from '../../package.json'
@@ -20,7 +20,7 @@ export const OXC_DEVTOOLS_BASE = '/__devtools-oxc/'
  */
 export const oxcDevframe = defineDevframe({
   id: 'devtools-oxc',
-  name: 'Oxc',
+  name: 'Oxc Devtools',
   version,
   packageName: name,
   homepage,

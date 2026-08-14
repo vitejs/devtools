@@ -18,7 +18,6 @@ import VueRouter from 'vue-router/vite'
 import { alias } from '../../alias'
 import { GitUIPlugin } from '../../examples/plugin-git-ui/src/node'
 import { DevTools } from '../../packages/core/src'
-import { buildCSS } from '../../packages/core/src/client/webcomponents/scripts/build-css'
 import { hideDockWhenEmpty } from '../../packages/core/src/node/plugins/auto-hide'
 import { DevToolsOxc } from '../../packages/oxc/src/vite'
 // eslint-disable-next-line ts/ban-ts-comment
@@ -74,15 +73,6 @@ export default defineConfig({
     createPluginFromDevframe(createInspectDevframe(), {
       dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
     }),
-    {
-      name: 'build-css',
-      handleHotUpdate({ file }) {
-        if (file.endsWith('.vue') || file.endsWith('.css')) {
-          buildCSS().catch(console.error)
-        }
-      },
-    },
-
     // For local playground only. As a user you don't install this plugin directly.
     DevTools({
       builtinDevTools: false,

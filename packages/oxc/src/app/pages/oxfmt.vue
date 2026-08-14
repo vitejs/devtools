@@ -8,11 +8,11 @@ useSideNav(() => [
     icon: 'i-ph-house-duotone',
     to: '/',
   },
-  {
-    title: 'Config Inspector',
-    icon: 'i-ph-sliders-duotone',
-    to: '/oxfmt/config',
-  },
+  // {
+  //   title: 'Config Inspector',
+  //   icon: 'i-ph-sliders-duotone',
+  //   to: '/oxfmt/config',
+  // },
   {
     title: 'Documents',
     icon: 'i-ph-book-open-duotone',

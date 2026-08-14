@@ -1,7 +1,6 @@
 import type { DevToolsLaunchRoot, PluginWithDevTools } from '@vitejs/devtools-kit'
 import { dirname, relative, resolve } from 'node:path'
 import process from 'node:process'
-import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
 import { getPort } from 'get-port-please'
 import { isPackageExists } from 'local-pkg'
@@ -59,7 +58,7 @@ export function DevToolsVitestUI(): PluginWithDevTools {
         const launcher = createProcessLauncher({
           id: DOCK_ID,
           title: 'Vitest',
-          groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+          groupId: 'viteplus',
           icon,
           label: 'Vitest UI',
           description: hasUi

@@ -2,14 +2,14 @@ import type { ViteDevServer } from 'vite'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createDevToolsContext } from '../context'
 import { DevToolsServer } from '../plugins/server'
-import { createDevToolsMiddleware } from '../server'
+import { createDevToolsHub } from '../server'
 
 vi.mock('../context', () => ({
   createDevToolsContext: vi.fn(),
 }))
 
 vi.mock('../server', () => ({
-  createDevToolsMiddleware: vi.fn(),
+  createDevToolsHub: vi.fn(),
 }))
 
 describe('devToolsServer lifecycle', () => {
@@ -21,7 +21,7 @@ describe('devToolsServer lifecycle', () => {
     const close = vi.fn(async () => {})
     const middleware = vi.fn()
     vi.mocked(createDevToolsContext).mockResolvedValue({} as Awaited<ReturnType<typeof createDevToolsContext>>)
-    vi.mocked(createDevToolsMiddleware).mockResolvedValue({ close, middleware } as unknown as Awaited<ReturnType<typeof createDevToolsMiddleware>>)
+    vi.mocked(createDevToolsHub).mockResolvedValue({ close, middleware } as unknown as Awaited<ReturnType<typeof createDevToolsHub>>)
 
     const viteDevServer = {
       config: {

@@ -15,7 +15,7 @@ export interface ProcessLauncherOptions {
   title: string
   /** Dock + launcher icon — a served URL or an Iconify `collection:name`. */
   icon: DevframeDockEntryIcon
-  /** Dock group id, e.g. `DEVTOOLS_VITEPLUS_GROUP_ID`. */
+  /** Dock group id */
   groupId?: string
   /** Launcher card title. Defaults to {@link ProcessLauncherOptions.title}. */
   label?: string

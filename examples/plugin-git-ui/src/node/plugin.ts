@@ -131,7 +131,7 @@ export function GitUIPlugin(): PluginWithDevTools {
           title: 'Git',
           icon: 'ph:git-branch-duotone',
           category: 'app',
-          ui,
+          view: ui.view,
           badge: total > 0 ? String(total) : undefined,
         })
 
