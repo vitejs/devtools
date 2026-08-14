@@ -4,6 +4,7 @@ import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { DOCK_RENDERERS_STATE_KEY } from '@devframes/hub/constants'
+import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_DIRNAME,
@@ -54,12 +55,22 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
 
   const { renderDockImportsMap } = await import('./plugins/server')
 
-  // The hub-ui client reads the dock-renderer manifest shared state at boot.
-  // The live hub only seeds it when renderer modules are registered, so seed
-  // an empty manifest here (the built-in dock types render natively) — this
-  // ensures the static RPC dump has a match for
-  // `server-state:get(["devframe:dock-renderers"])` instead of a hard error.
-  await context.rpc.sharedState.get(DOCK_RENDERERS_STATE_KEY, { initialValue: {} })
+  // Bake the reference json-render renderer the live hub serves via
+  // `initHub({ renderers })`: copy its prebuilt module under `__renderers/`
+  // and seed the dock-renderer manifest shared state so (a) the static RPC
+  // dump has a match for `server-state:get(["devframe:dock-renderers"])`
+  // instead of a hard error, and (b) the client lazily imports it the first
+  // time a `json-render` dock mounts.
+  const rendererManifest: Record<string, { importFrom: string, importName?: string }> = {}
+  const renderersRoot = resolve(devToolsRoot, '__renderers')
+  await fs.mkdir(renderersRoot, { recursive: true })
+  for (const registration of [jsonRenderUiRenderer()]) {
+    await fs.cp(registration.file, resolve(renderersRoot, `${registration.type}.mjs`))
+    rendererManifest[registration.type] = {
+      importFrom: `${DEVTOOLS_MOUNT_PATH}__renderers/${registration.type}.mjs`,
+    }
+  }
+  ;(await context.rpc.sharedState.get(DOCK_RENDERERS_STATE_KEY, { initialValue: {} })).mutate(() => rendererManifest)
 
   await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')

@@ -18,8 +18,9 @@ export interface KitNodeContext extends DevframeHubContext {
   readonly viteServer?: ViteDevServer
   /**
    * Create a json-render handle for building declarative, server-driven
-   * panels. Register the returned handle on a `json-render` dock entry's `ui`
-   * field and call `updateSpec` / `updateState` to drive it reactively.
+   * panels. Register a `json-render` dock entry with the handle's `view` ref
+   * (`docks.register({ type: 'json-render', view: renderer.view, … })`) and
+   * call `updateSpec` / `updateState` on the handle to drive it reactively.
    */
   createJsonRenderer: (spec: JsonRenderSpec) => JsonRenderer
 }

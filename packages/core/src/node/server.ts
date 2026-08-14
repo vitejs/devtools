@@ -5,6 +5,7 @@ import type { Server as NodeHttpServer } from 'node:http'
 import type { DevToolsConfig } from './config'
 import process from 'node:process'
 import { initHub } from '@devframes/hub/initiate'
+import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { getAuthHandler } from './auth-handler'
 import { createViteDevToolsUi } from './ui'
@@ -58,6 +59,10 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     base: DEVTOOLS_MOUNT_PATH,
     context,
     ui: createViteDevToolsUi(),
+    // Serve + advertise the reference json-render frontend so `json-render`
+    // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
+    // render instead of hub-ui's missing-renderer fallback.
+    renderers: [jsonRenderUiRenderer()],
     auth: authDisabled ? false : getAuthHandler(context),
     ...(allowedOrigins ? { allowedOrigins } : {}),
     ...(options.server

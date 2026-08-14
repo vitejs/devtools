@@ -68,6 +68,7 @@
   "dependencies": {
     "@devframes/hub": "catalog:deps",
     "@devframes/hub-ui": "catalog:deps",
+    "@devframes/json-render-ui": "catalog:deps",
     "@devframes/plugin-inspect": "catalog:deps",
     "@devframes/plugin-messages": "catalog:deps",
     "@devframes/plugin-terminals": "catalog:deps",
