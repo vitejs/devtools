@@ -38,6 +38,7 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
 
 export function DevToolsServer(): Plugin {
   let context: ViteDevToolsNodeContext
+  let close: (() => Promise<void>) | undefined
   return {
     name: 'vite:devtools:server',
     enforce: 'post',
@@ -49,7 +50,7 @@ export function DevToolsServer(): Plugin {
         ? '0.0.0.0'
         : viteDevServer.config.server.host || 'localhost'
 
-      const { middleware } = await createDevToolsHub({
+      const devtools = await createDevToolsHub({
         context,
         // Share Vite's HTTP server for a route-bound WS upgrade; fall back to a
         // side-car when Vite runs in middleware mode without its own server.
@@ -58,6 +59,7 @@ export function DevToolsServer(): Plugin {
         server: (viteDevServer.httpServer ?? undefined) as NodeHttpServer | undefined,
         host,
       })
+      close = devtools.close
       viteDevServer.middlewares.use((req, res, next) => {
         if (req.url === DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH || req.url?.startsWith(`${DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH}?`)) {
           res.statusCode = 302
@@ -70,7 +72,10 @@ export function DevToolsServer(): Plugin {
       })
       // The hub middleware answers the whole `/__devtools/` surface and
       // `next()`s outside its base, so mount it at the server root.
-      viteDevServer.middlewares.use(middleware)
+      viteDevServer.middlewares.use(devtools.middleware)
+    },
+    async closeBundle() {
+      await close?.()
     },
     resolveId(id) {
       if (id === DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID) {
