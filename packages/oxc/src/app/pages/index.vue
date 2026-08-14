@@ -1,42 +1,26 @@
 <script setup lang="ts">
 import BannerOxcDevTools from '@vitejs/devtools-ui/components/Banner/BannerOxcDevTools.vue'
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
-import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
-import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { useAsyncState } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { createOverview } from '../utils/overview'
 import { useRpc } from '#imports'
 
 const rpc = useRpc()
 const vitePlusDarkLogo = '/__devtools-oxc/viteplus-dark.svg'
 const vitePlusLightLogo = '/__devtools-oxc/viteplus-light.svg'
 
-const { state: overview, isLoading } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:overview'),
-  {
-    oxlint: {
-      installed: false,
-      version: undefined,
-      latest: true,
-      npmxLink: undefined,
-    },
-    oxfmt: {
-      installed: false,
-      version: undefined,
-      latest: true,
-      npmxLink: undefined,
-    },
-    vitePlus: undefined,
-  },
-)
+const {
+  state: overview,
+  isLoading,
+  execute: refreshOverview,
+} = useAsyncState(() => rpc.value.call('devtools-oxc:overview'), createOverview())
 
-const { state: configFiles } = useAsyncState(
-  () => rpc.value.call('devtools-oxc:get-config-files'),
-  [],
-)
+const setupOpen = ref(false)
 
 interface ToolView {
   title: string
+  description: string
   icon: string
   to: string
 }
@@ -46,14 +30,34 @@ const tools = computed(() => {
   const oxlintViews: ToolView[] = [
     ...(oxlint.installed
       ? [
-          { title: 'Lint Inspector', icon: 'i-ph-magnifying-glass-duotone', to: '/oxlint/lint' },
-          { title: 'Config Inspector', icon: 'i-ph-gear-duotone', to: '/oxlint/config' },
+          {
+            title: 'Lint Inspector',
+            description: 'View diagnostics and rules',
+            icon: 'i-ph-magnifying-glass-duotone',
+            to: '/oxlint/lint',
+          },
+          {
+            title: 'Config Inspector',
+            description: 'Inspect configuration files',
+            icon: 'i-ph-gear-duotone',
+            to: '/oxlint/config',
+          },
         ]
       : []),
-    { title: 'Documents', icon: 'i-ph-book-open-duotone', to: '/oxlint/documents' },
+    {
+      title: 'Documents',
+      description: 'Guides and references',
+      icon: 'i-ph-book-open-duotone',
+      to: '/oxlint/documents',
+    },
   ]
   const oxfmtViews: ToolView[] = [
-    { title: 'Documents', icon: 'i-ph-book-open-duotone', to: '/oxfmt/documents' },
+    {
+      title: 'Documents',
+      description: 'Guides and references',
+      icon: 'i-ph-book-open-duotone',
+      to: '/oxfmt/documents',
+    },
   ]
 
   return [
@@ -61,14 +65,12 @@ const tools = computed(() => {
       id: 'oxlint',
       name: 'Oxlint',
       info: oxlint,
-      configs: configFiles.value.filter(file => file.tool === 'oxlint'),
       views: oxlintViews,
     },
     {
       id: 'oxfmt',
       name: 'Oxfmt',
       info: overview.value.oxfmt,
-      configs: configFiles.value.filter(file => file.tool === 'oxfmt'),
       views: oxfmtViews,
     },
   ]
@@ -106,26 +108,24 @@ const tools = computed(() => {
       <div
         v-for="tool in tools"
         :key="tool.id"
-        class="border border-base rounded p2 flex-1 min-w-max"
+        class="border border-base rounded-lg p-4 flex-1 min-w-120"
       >
-        <div class="p4 flex flex-col gap-4 h-full">
-          <div class="text-2xl font-semibold">{{ tool.name }}</div>
-
-          <div class="grid grid-cols-[max-content_160px_2fr] gap-2 items-center">
-            <div class="i-ph-tag-duotone op-fade" />
-            <span class="op-fade">Version</span>
-            <div class="flex items-center gap-2 w-full">
+        <div class="flex flex-col gap-6 h-full">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-2xl font-semibold">{{ tool.name }}</div>
               <a
                 v-if="tool.info.installed"
                 :href="tool.info.npmxLink"
                 target="_blank"
-                class="hover:color-active font-mono"
+                class="block mt-1 hover:color-active op-fade text-sm font-mono"
               >
                 v{{ tool.info.version }}
               </a>
-              <span v-else class="op-fade">Not installed</span>
+              <div v-else class="block mt-1 h-5" aria-hidden="true" />
+            </div>
+            <template v-if="tool.info.installed">
               <a
-                v-if="tool.info.installed"
                 :href="
                   tool.info.latest ? undefined : `https://npmx.dev/package/${tool.id}/v/latest`
                 "
@@ -138,45 +138,39 @@ const tools = computed(() => {
                   :class="tool.info.latest ? 'badge-color-green' : 'badge-color-amber'"
                 />
               </a>
-            </div>
-
-            <div class="i-ph-files-duotone op-fade" />
-            <span class="op-fade">Configs</span>
-            <VDropdown v-if="tool.configs.length" placement="bottom-start" :triggers="['hover']">
-              <DisplayNumberBadge
-                :number="tool.configs.length"
-                class="py1 rounded-full font-mono inline-block text-sm cursor-pointer hover:color-active"
-              />
-
-              <template #popper>
-                <div class="p3 min-w-60 flex flex-col gap-2 font-mono text-sm">
-                  <div
-                    v-for="config in tool.configs"
-                    :key="`${config.tool}:${config.path}`"
-                    class="flex items-center gap-2"
-                  >
-                    <DisplayFileIcon class="flex-none" :filename="config.path" />
-                    <span>{{ config.path }}</span>
-                  </div>
-                </div>
-              </template>
-            </VDropdown>
-            <span v-else class="op-fade text-sm">Not found</span>
+            </template>
+            <DisplayBadge v-else text="Not installed" :color="false" class="badge-color-gray" />
           </div>
 
-          <div class="flex gap-2">
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-2">
+            <button
+              v-if="tool.id === 'oxlint' && !tool.info.installed"
+              type="button"
+              class="rounded-lg px-3 py-3 flex items-start gap-3 hover:bg-active transition-colors disabled:pointer-events-none disabled:op30!"
+              @click="setupOpen = true"
+            >
+              <div class="i-ph-rocket-launch-duotone text-2xl mt-0.5" />
+              <div class="text-left">
+                <div class="font-medium">Setup Oxlint</div>
+                <div class="text-xs op-fade mt-0.5">Install & setup Oxlint</div>
+              </div>
+            </button>
             <NuxtLink
               v-for="view in tool.views"
               :key="view.title"
               :to="view.to"
-              class="btn-action flex flex-col flex-1 min-w-max p4 !px4 whitespace-nowrap"
+              class="rounded-lg px-3 py-3 flex items-start gap-3 hover:bg-active transition-colors"
             >
-              <div :class="[view.icon, 'text-2xl']" />
-              {{ view.title }}
+              <div :class="[view.icon, 'text-2xl mt-0.5']" />
+              <div class="text-left">
+                <div class="font-medium">{{ view.title }}</div>
+                <div class="text-xs op-fade mt-0.5">{{ view.description }}</div>
+              </div>
             </NuxtLink>
           </div>
         </div>
       </div>
     </div>
+    <SetupOxlintDialog v-model:open="setupOpen" @refresh="refreshOverview()" />
   </div>
 </template>

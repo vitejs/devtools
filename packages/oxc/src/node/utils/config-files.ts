@@ -6,7 +6,7 @@ import { promisify } from 'node:util'
 
 const execFile = promisify(execFileCallback)
 
-const CONFIG_FILES = {
+export const CONFIG_FILES = {
   '.oxlintrc.json': { tool: 'oxlint', format: 'json' },
   '.oxlintrc.jsonc': { tool: 'oxlint', format: 'jsonc' },
   'oxlint.config.js': { tool: 'oxlint', format: 'js' },

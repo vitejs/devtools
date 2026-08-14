@@ -20,7 +20,7 @@ export const OXC_DEVTOOLS_BASE = '/__devtools-oxc/'
  */
 export const oxcDevframe = defineDevframe({
   id: 'devtools-oxc',
-  name: 'Oxc',
+  name: 'Oxc Devtools',
   version,
   packageName: name,
   homepage,
