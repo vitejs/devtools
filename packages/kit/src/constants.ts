@@ -37,13 +37,6 @@ export const DEVTOOLS_WS_PATH = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_WS_ROUTE}`
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
 /**
- * Id of the built-in dock group that collects Vite Plus integrations
- * (Rolldown, etc.) under a single "Vite+" dock button. Vite DevTools seeds
- * this group; integrations join it by setting `groupId` to this value.
- */
-export const DEVTOOLS_VITEPLUS_GROUP_ID = 'viteplus'
-
-/**
  * Dock id of the built-in Devframe Inspector (mounted from
  * `@devframes/plugin-inspect`). Shared between the node side (which pins the
  * mounted devframe to this id) and the client (which gates the dock behind the

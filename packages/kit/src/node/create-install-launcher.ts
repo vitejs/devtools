@@ -18,7 +18,7 @@ export interface InstallLauncherOptions {
   title: string
   /** Dock + launcher icon — a served URL or an Iconify `collection:name`. */
   icon: DevframeDockEntryIcon
-  /** Dock group id, e.g. `DEVTOOLS_VITEPLUS_GROUP_ID`. */
+  /** Dock group id, e.g. `'viteplus'`. */
   groupId?: string
   /**
    * Friendly label for the thing being installed, used in the launcher copy.

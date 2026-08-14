@@ -91,7 +91,7 @@ export interface DevToolsViewLauncher extends DevframeViewLauncher {
 
 /**
  * The kit's dock-entry category union. Vite Plus integrations are collected
- * under a dedicated dock group (see `DEVTOOLS_VITEPLUS_GROUP_ID`) rather than
+ * under a dedicated dock group (see `'viteplus'`) rather than
  * a category, so this mirrors hub's framework-neutral set directly.
  */
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory

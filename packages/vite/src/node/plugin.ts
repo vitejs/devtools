@@ -1,6 +1,5 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import type { PluginOption } from 'vite'
-import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { clientPublicDir } from '../dirs'
 import { DevToolsViteInspect } from './inspect/plugin'
 
@@ -29,7 +28,7 @@ export function DevToolsViteUIPlugin(): PluginWithDevTools {
           id: 'vite',
           title: 'Vite',
           icon: `${VITE_DEVTOOLS_BASE}favicon.svg`,
-          groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+          groupId: 'viteplus',
           type: 'iframe',
           url: VITE_DEVTOOLS_BASE,
         })

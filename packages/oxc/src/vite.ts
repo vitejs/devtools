@@ -1,6 +1,5 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
-import { DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
 import { oxcDevframe } from './node/devframe'
 
 /**
@@ -12,7 +11,7 @@ export function DevToolsOxc(): PluginWithDevTools {
   return createPluginFromDevframe(oxcDevframe, {
     name: 'devtools-oxc',
     dock: {
-      groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+      groupId: 'viteplus',
     },
   })
 }
