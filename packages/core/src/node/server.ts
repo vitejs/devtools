@@ -3,6 +3,7 @@ import type { ConnectionMeta, ViteDevToolsNodeContext } from '@vitejs/devtools-k
 import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { DevToolsConfig } from './config'
+import type { ViteDevToolsUiOptions } from './ui'
 import process from 'node:process'
 import { initHub } from '@devframes/hub/initiate'
 import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
@@ -12,6 +13,11 @@ import { createViteDevToolsUi } from './ui'
 
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext
+  /**
+   * Reference-UI options forwarded to `createUi` — the embedded dock's
+   * reveal policy and the dock-bar rendering preferences.
+   */
+  ui?: ViteDevToolsUiOptions
   /**
    * Share this node HTTP server for the WebSocket upgrade (the embedded Vite
    * dev server). The socket binds route-bound at `<base>__ws`, so no extra
@@ -58,7 +64,7 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
   const hub = initHub({
     base: DEVTOOLS_MOUNT_PATH,
     context,
-    ui: createViteDevToolsUi(),
+    ui: createViteDevToolsUi(options.ui),
     // Serve + advertise the reference json-render frontend so `json-render`
     // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
     // render instead of hub-ui's missing-renderer fallback.

@@ -4,6 +4,7 @@
 // #region Interfaces
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext;
+  ui?: ViteDevToolsUiOptions;
   server?: Server;
   host?: string;
   wsPort?: number;

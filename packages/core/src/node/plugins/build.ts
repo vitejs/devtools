@@ -2,12 +2,15 @@
 
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
+import type { ViteDevToolsUiOptions } from '../ui'
 import { colors as c } from 'devframe/utils/colors'
 import { resolve } from 'pathe'
 import { MARK_NODE } from '../constants'
 
 export interface DevToolsBuildOptions {
   outDir?: string
+  /** Reference-UI options forwarded to the static snapshot's `createUi`. */
+  ui?: ViteDevToolsUiOptions
 }
 
 export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
@@ -35,7 +38,7 @@ export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
         : resolve(resolvedConfig.root, resolvedConfig.build.outDir)
 
       const { buildStaticDevTools } = await import('../build-static')
-      await buildStaticDevTools({ context, outDir, withApp: true })
+      await buildStaticDevTools({ context, outDir, withApp: true, ui: options.ui })
     },
   }
 }

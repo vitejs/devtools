@@ -99,7 +99,7 @@ pnpm dev
 
 Open your app in the browser; the floating docks appear in the corner.
 
-The `visibility` option sets the starting mode. The default `'normal'` shows the docks immediately. `'passive'` keeps them out of the way and prints a console hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS); revealing once is remembered in the project's `node_modules`, so later dev sessions on this machine open straight into the docks, and the "Hide DevTools" command returns to passive mode. `'hidden'` also starts hidden but never remembers — the shortcut reveals the docks for the current session only.
+The `embeddedVisibility` option sets the starting mode. The default `'normal'` shows the docks immediately. `'passive'` keeps them out of the way and prints a console hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS); revealing once persists per-origin in the browser, so later sessions on this browser open straight into the docks, and the "Hide DevTools" command returns to passive mode. `'hidden'` also starts hidden but never remembers — the shortcut reveals the docks for the current session only.
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -108,7 +108,25 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [
     DevTools({
-      visibility: 'passive',
+      embeddedVisibility: 'passive',
+    }),
+  ],
+})
+```
+
+The `dockPreferences` option seeds the dock bar's first-run layout — category ordering, the floating dock's inline-item capacity, and the default float/edge mode and position. Each is a user-overridable preference, so the visitor's own choice wins from then on.
+
+```ts [vite.config.ts] twoslash
+import { DevTools } from '@vitejs/devtools'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    DevTools({
+      dockPreferences: {
+        defaultMode: 'edge',
+        defaultPosition: 'bottom',
+      },
     }),
   ],
 })

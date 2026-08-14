@@ -55,6 +55,7 @@
     "@humanwhocodes/momoa": "catalog:frontend",
     "@nuxt/kit": "catalog:build",
     "@types/picomatch": "catalog:types",
+    "@devframes/vite": "catalog:deps",
     "@unocss/nuxt": "catalog:build",
     "@vitejs/devtools-kit": "workspace:*",
     "@vitejs/devtools-ui": "workspace:*",

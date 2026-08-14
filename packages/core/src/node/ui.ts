@@ -1,7 +1,25 @@
-import type { DevframeBranding } from '@devframes/hub-ui'
+import type { DevframeBranding, DevframeDockPreferences, EmbeddedVisibility } from '@devframes/hub-ui'
 import type { DevframeHubUi } from '@devframes/hub/initiate'
 import { createUi } from '@devframes/hub-ui'
 import { DEVTOOLS_ASSETS_BASE } from '../dirs'
+
+export interface ViteDevToolsUiOptions {
+  /**
+   * How the embedded floating dock reveals itself on a fresh page. Seeds a
+   * user-overridable preference published as
+   * `ConnectionMeta.configs.ui.embeddedVisibility`.
+   *
+   * @default 'normal'
+   */
+  embeddedVisibility?: EmbeddedVisibility
+  /**
+   * Dock-bar rendering preferences — category ordering, floating-dock
+   * inline-item capacity, and the first-run float/edge mode and position.
+   * Each seeds a user-overridable preference published as
+   * `ConnectionMeta.configs.ui.dockPreferences`.
+   */
+  dockPreferences?: DevframeDockPreferences
+}
 
 export function viteDevToolsBranding(): DevframeBranding {
   return {
@@ -24,6 +42,10 @@ export function viteDevToolsBranding(): DevframeBranding {
  * bootstrap to `initHub({ ui })` (dev serve) or is copied out by the static
  * build.
  */
-export function createViteDevToolsUi(): DevframeHubUi {
-  return createUi({ branding: viteDevToolsBranding() })
+export function createViteDevToolsUi(options: ViteDevToolsUiOptions = {}): DevframeHubUi {
+  return createUi({
+    branding: viteDevToolsBranding(),
+    embeddedVisibility: options.embeddedVisibility,
+    dockPreferences: options.dockPreferences,
+  })
 }

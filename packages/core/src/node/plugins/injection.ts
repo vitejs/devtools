@@ -1,23 +1,13 @@
 import type { Plugin } from 'vite'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 
-export type DevToolsVisibility = 'passive' | 'normal' | 'hidden'
-
-export interface DevToolsInjectionOptions {
-  /**
-   * Initial visibility of the injected overlay, forwarded to the
-   * `@devframes/hub-ui` embedded bootstrap as a `data-visibility` hint.
-   *
-   * @default 'normal'
-   */
-  visibility?: DevToolsVisibility
-}
-
 /**
  * Inject the `@devframes/hub-ui` embedded bootstrap into the host app's HTML.
  * The hub serves the prebuilt, self-contained module at `<base>embedded.js`
  * (the `ui.embedded` slot); the client bundles its own framework and styles
- * and owns its visibility policy, so the host app's build never processes it.
+ * and reads its reveal policy and dock preferences from the connection meta
+ * (`ConnectionMeta.configs.ui`, seeded by `createUi`), so the host app's build
+ * never processes it.
  *
  * The bootstrap is loaded by an **inline** module that creates the `<script>`
  * element at runtime, rather than a static `<script type="module" src=…>`.
@@ -30,8 +20,7 @@ export interface DevToolsInjectionOptions {
  * keeps `<base>embedded.js` out of Vite's graph entirely, so the browser
  * fetches it straight from the hub with its real URL intact.
  */
-export function DevToolsInjection(options: DevToolsInjectionOptions = {}): Plugin {
-  const visibility = options.visibility ?? 'normal'
+export function DevToolsInjection(): Plugin {
   const src = `${DEVTOOLS_MOUNT_PATH}embedded.js`
 
   return {
@@ -47,7 +36,7 @@ export function DevToolsInjection(options: DevToolsInjectionOptions = {}): Plugi
           {
             tag: 'script',
             attrs: { type: 'module' },
-            children: `const s = document.createElement('script'); s.type = 'module'; s.src = ${JSON.stringify(src)}; s.dataset.visibility = ${JSON.stringify(visibility)}; document.body.appendChild(s);`,
+            children: `const s = document.createElement('script'); s.type = 'module'; s.src = ${JSON.stringify(src)}; document.body.appendChild(s);`,
             injectTo: 'body',
           },
         ]
