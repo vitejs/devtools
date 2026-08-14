@@ -3,14 +3,13 @@ import process from 'node:process'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
-import { DEVTOOLS_INSPECTOR_DOCK_ID, DEVTOOLS_VITEPLUS_GROUP_ID } from '@vitejs/devtools-kit/constants'
+import { DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs/devtools-kit/constants'
 import { createInstallLauncher, createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import { isPackageExists } from 'local-pkg'
 import { resolve } from 'pathe'
 import { version } from '../../../package.json'
+import { DEVTOOLS_ASSETS_BASE } from '../../dirs'
 import { hideDockWhenEmpty } from './auto-hide'
-
-const DEVTOOLS_ASSETS_BASE = '/__devtools-assets/'
 
 interface BuiltinLauncherIntegration {
   /** Dock id, shared by the install launcher and the mounted integration. */
@@ -45,7 +44,7 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
     pkg: '@vitejs/devtools-rolldown',
     title: 'Rolldown DevTools',
     icon: `${DEVTOOLS_ASSETS_BASE}rolldown.svg`,
-    groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+    groupId: 'viteplus',
     load: () =>
       // eslint-disable-next-line ts/ban-ts-comment
       // @ts-ignore optional integration, resolved at runtime only
@@ -57,7 +56,7 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
     pkg: '@vitejs/devtools-vite',
     title: 'Vite DevTools',
     icon: `${DEVTOOLS_ASSETS_BASE}vite.svg`,
-    groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+    groupId: 'viteplus',
     load: () =>
       // eslint-disable-next-line ts/ban-ts-comment
       // @ts-ignore optional integration, resolved at runtime only
@@ -69,7 +68,7 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
     pkg: '@vitejs/devtools-vitest',
     title: 'Vitest UI',
     icon: `${DEVTOOLS_ASSETS_BASE}vitest.svg`,
-    groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+    groupId: 'viteplus',
     load: () =>
       // eslint-disable-next-line ts/ban-ts-comment
       // @ts-ignore optional integration, resolved at runtime only
@@ -84,7 +83,7 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
     pkg: '@vitejs/devtools-oxc',
     title: 'Oxc DevTools',
     icon: `${DEVTOOLS_ASSETS_BASE}oxc.svg`,
-    groupId: DEVTOOLS_VITEPLUS_GROUP_ID,
+    groupId: 'viteplus',
     load: () =>
       // eslint-disable-next-line ts/ban-ts-comment
       // @ts-ignore optional integration, resolved at runtime only

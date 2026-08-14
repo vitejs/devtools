@@ -15,5 +15,4 @@ export { DevToolsCommandsHost }
 export { DevToolsDockHost }
 export { DevToolsMessagesHost }
 export { DevToolsTerminalHost }
-export { mountDevframe }
 // #endregion

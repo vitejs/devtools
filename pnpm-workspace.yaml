@@ -43,7 +43,7 @@ overrides:
   vite: 'catalog:build'
 
 refs:
-  devframe: &devframe ^0.8.2
+  devframe: &devframe ^0.9.0-beta.2
   nuxt: &nuxt ^4.5.2
   shiki: &shiki ^4.4.2
   storybook: &storybook ^10.5.7
@@ -73,7 +73,9 @@ catalogs:
     vite: ^8.2.1
   deps:
     '@devframes/hub': *devframe
+    '@devframes/hub-ui': *devframe
     '@devframes/json-render': *devframe
+    '@devframes/json-render-ui': *devframe
     '@devframes/plugin-a11y': *devframe
     '@devframes/plugin-code-server': *devframe
     '@devframes/plugin-data-inspector': *devframe
@@ -85,7 +87,6 @@ catalogs:
     '@oxlint-config-inspector/core': ^1.1.1
     '@rolldown/debug': ^1.2.3
     actionspack: ^0.1.5
-    birpc: ^4.0.0
     cac: ^7.0.0
     devframe: *devframe
     diff: ^9.0.0

@@ -23,10 +23,10 @@ export type { JsonRenderView, JsonRenderViewRef }
  * {@link JsonRenderView} (created via `@devframes/json-render`'s
  * `createJsonRenderView`) and exposes the kit's back-compat method names.
  *
- * Its methods are defined non-enumerably so the handle stays fully
- * serializable when carried on a `json-render` dock entry's `ui` field —
- * only the plain string metadata (`_stateKey`) crosses the wire to the
- * client, which subscribes through it.
+ * Register a `json-render` dock entry with the handle's serializable
+ * {@link JsonRenderViewRef} `view` (`docks.register({ type: 'json-render',
+ * view: renderer.view, … })`); the client subscribes through its `stateKey`.
+ * Drive the panel by calling `updateSpec` / `updateState` on the handle.
  */
 export interface JsonRenderer {
   /** Replace the entire spec. */

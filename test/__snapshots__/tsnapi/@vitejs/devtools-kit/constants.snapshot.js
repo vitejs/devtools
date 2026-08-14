@@ -8,7 +8,6 @@ export var DEVTOOLS_INSPECTOR_DOCK_ID /* const */
 export var DEVTOOLS_MOUNT_PATH /* const */
 export var DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH /* const */
 export var DEVTOOLS_TERMINALS_DOCK_ID /* const */
-export var DEVTOOLS_VITEPLUS_GROUP_ID /* const */
 export var DEVTOOLS_WS_PATH /* const */
 export var DEVTOOLS_WS_ROUTE /* const */
 // #endregion

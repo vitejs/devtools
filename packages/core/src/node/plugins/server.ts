@@ -1,4 +1,5 @@
 import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { Server as NodeHttpServer } from 'node:http'
 import type { Plugin } from 'vite'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
@@ -6,7 +7,7 @@ import {
   DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH,
 } from '@vitejs/devtools-kit/constants'
 import { createDevToolsContext } from '../context'
-import { createDevToolsMiddleware } from '../server'
+import { createDevToolsHub } from '../server'
 import '../rpc'
 
 /**
@@ -48,12 +49,14 @@ export function DevToolsServer(): Plugin {
         ? '0.0.0.0'
         : viteDevServer.config.server.host || 'localhost'
 
-      const { middleware } = await createDevToolsMiddleware({
-        cwd: viteDevServer.config.root,
-        websocket: {
-          host,
-        },
+      const { middleware } = await createDevToolsHub({
         context,
+        // Share Vite's HTTP server for a route-bound WS upgrade; fall back to a
+        // side-car when Vite runs in middleware mode without its own server.
+        // Vite types `httpServer` as a broader union (incl. http2); at dev
+        // runtime it is a node http/https server crossws can hook `upgrade` on.
+        server: (viteDevServer.httpServer ?? undefined) as NodeHttpServer | undefined,
+        host,
       })
       viteDevServer.middlewares.use((req, res, next) => {
         if (req.url === DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH || req.url?.startsWith(`${DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH}?`)) {
@@ -65,7 +68,9 @@ export function DevToolsServer(): Plugin {
 
         next()
       })
-      viteDevServer.middlewares.use(DEVTOOLS_MOUNT_PATH, middleware)
+      // The hub middleware answers the whole `/__devtools/` surface and
+      // `next()`s outside its base, so mount it at the server root.
+      viteDevServer.middlewares.use(middleware)
     },
     resolveId(id) {
       if (id === DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID) {
