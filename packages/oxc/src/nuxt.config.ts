@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { viteDevBridge } from 'devframe/helpers/vite'
+import { devframeViteBridge } from '@devframes/vite/dev-spa'
 import { defineNuxtConfig } from 'nuxt/config'
 import { alias } from '../../../alias'
 import { oxcDevframe } from './node/devframe'
@@ -58,9 +58,7 @@ export default defineNuxtConfig({
   },
   vite: {
     base: BASE,
-    plugins: [
-      viteDevBridge({ ...oxcDevframe, basePath: '/' }, { base: BASE, devMiddleware: true }),
-    ],
+    plugins: [devframeViteBridge({ ...oxcDevframe, basePath: '/' }, { base: BASE })],
     optimizeDeps: {
       include: ['modern-monaco', 'floating-vue'],
     },

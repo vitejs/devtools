@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsUiOptions } from './ui'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { DOCK_RENDERERS_STATE_KEY } from '@devframes/hub/constants'
@@ -22,6 +23,8 @@ export interface BuildStaticOptions {
   context: ViteDevToolsNodeContext
   outDir: string
   withApp?: boolean
+  /** Reference-UI options forwarded to `createUi`. */
+  ui?: ViteDevToolsUiOptions
 }
 
 export async function buildStaticDevTools(options: BuildStaticOptions): Promise<void> {
@@ -36,7 +39,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   // Bake the branded `@devframes/hub-ui` client into the snapshot: the
   // standalone viewer SPA, its embedded bootstrap, and the UI-owned assets
   // (e.g. `branding.json`) — the same `ui` slot the hub serves in dev.
-  const ui = createViteDevToolsUi()
+  const ui = createViteDevToolsUi(options.ui)
   if (ui.viewer)
     await fs.cp(ui.viewer.distDir, devToolsRoot, { recursive: true })
   if (ui.embedded)
