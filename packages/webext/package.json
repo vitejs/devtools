@@ -1,7 +1,6 @@
 {
   "name": "@vitejs/devtools-webext",
   "type": "module",
-  "version": "0.4.12",
   "private": true,
   "description": "DevTools browser extension for Vite (work in progress)",
   "author": "VoidZero Inc.",
@@ -20,15 +19,28 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build:extension": "tsx scripts/build-app.ts && tsdown",
-    "watch": "tsdown --watch",
-    "prepack": "pnpm build:extension"
+    "build": "pnpm run build:scripts && pnpm run build:client",
+    "build:scripts": "tsdown",
+    "build:client": "vite build",
+    "watch": "turbo watch build --filter=@vitejs/devtools-webext",
+    "prepack": "pnpm build",
+    "release": "tsx scripts/release.ts",
+    "zip": "tsx scripts/zip.ts"
   },
   "dependencies": {
+    "devframe": "catalog:deps",
     "webext-bridge": "catalog:deps"
   },
   "devDependencies": {
+    "@clack/prompts": "catalog:inlined",
+    "@types/archiver": "catalog:types",
+    "@types/chrome": "catalog:types",
+    "@vitejs/plugin-vue": "catalog:build",
+    "archiver": "catalog:build",
     "tsdown": "catalog:build",
-    "tsx": "catalog:build"
+    "tsx": "catalog:build",
+    "unocss": "catalog:build",
+    "vite": "catalog:build",
+    "vue": "catalog:deps"
   }
 }
