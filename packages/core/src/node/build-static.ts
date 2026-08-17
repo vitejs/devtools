@@ -15,6 +15,7 @@ import {
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
 import { colors as c } from 'devframe/utils/colors'
+import { resolveStaticAssetsSource } from 'devframe/utils/remote-assets'
 import { dirname, join, relative, resolve } from 'pathe'
 import { MARK_NODE } from './constants'
 import { createViteDevToolsUi } from './ui'
@@ -50,10 +51,19 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
     await fs.writeFile(assetPath, (getContent as () => string | Uint8Array)())
   }
 
-  for (const { baseUrl, distDir } of context.views.buildStaticDirs) {
-    console.log(c.cyan`${MARK_NODE} Copying static files from ${distDir} to ${join(outDir, baseUrl)}`)
-    await fs.mkdir(join(outDir, baseUrl), { recursive: true })
-    await fs.cp(distDir, join(outDir, baseUrl), { recursive: true })
+  const projectStorageDir = context.host.getStorageDir('project')
+  for (const { baseUrl, source } of context.views.buildStaticDirs) {
+    const targetDir = join(outDir, baseUrl)
+    await fs.mkdir(targetDir, { recursive: true })
+    const resolved = resolveStaticAssetsSource(source, projectStorageDir)
+    if (typeof resolved === 'string') {
+      console.log(c.cyan`${MARK_NODE} Copying static files from ${resolved} to ${targetDir}`)
+      await fs.cp(resolved, targetDir, { recursive: true })
+    }
+    else {
+      console.log(c.cyan`${MARK_NODE} Downloading remote static files to ${targetDir}`)
+      await resolved.materialize(targetDir)
+    }
   }
 
   const { renderDockImportsMap } = await import('./plugins/server')
