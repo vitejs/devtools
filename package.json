@@ -23,11 +23,13 @@
     "play": "tsx scripts/play.ts",
     "postinstall": "simple-git-hooks && skills-npm && pnpm run build",
     "release": "bumpp -r",
+    "release:webext": "pnpm --filter @vitejs/devtools-webext run release",
     "storybook": "pnpm -C storybook run dev",
     "test:e2e": "pnpm -C e2e run test",
     "test": "vitest",
     "typecheck": "vue-tsc -b",
-    "watch": "turbo watch build"
+    "watch": "turbo watch build",
+    "zip:webext": "turbo run build --filter=@vitejs/devtools-webext && pnpm --filter @vitejs/devtools-webext run zip"
   },
   "scripts-info": {
     "actionspack": "Update pinned GitHub Actions versions",
@@ -49,11 +51,13 @@
     "play": "Run the core playground",
     "postinstall": "Set up git hooks, generate skills, and build",
     "release": "Version and publish all packages",
+    "release:webext": "Interactively version and package the browser extension",
     "storybook": "Start the Storybook dev server",
     "test:e2e": "Run end-to-end tests",
     "test": "Run unit tests with Vitest",
     "typecheck": "Type-check all packages with vue-tsc",
-    "watch": "Rebuild changed packages on file change via turbo watch"
+    "watch": "Rebuild changed packages on file change via turbo watch",
+    "zip:webext": "Build and package the browser extension as a zip file"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:devtools",
