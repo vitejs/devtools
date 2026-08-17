@@ -14,7 +14,6 @@ export default defineConfig([
       'constants': 'src/constants.ts',
       'utils/events': 'src/utils/events.ts',
       'utils/nanoid': 'src/utils/nanoid.ts',
-      'utils/human-id': 'src/utils/human-id.ts',
       'utils/when': 'src/utils/when.ts',
       'utils/shared-state': 'src/utils/shared-state.ts',
       'client': 'src/client/index.ts',

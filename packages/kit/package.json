@@ -24,7 +24,6 @@
     "./constants": "./dist/constants.js",
     "./node": "./dist/node/index.js",
     "./utils/events": "./dist/utils/events.js",
-    "./utils/human-id": "./dist/utils/human-id.js",
     "./utils/nanoid": "./dist/utils/nanoid.js",
     "./utils/shared-state": "./dist/utils/shared-state.js",
     "./utils/when": "./dist/utils/when.js",
@@ -53,12 +52,8 @@
     "nypm": "catalog:deps"
   },
   "devDependencies": {
-    "human-id": "catalog:inlined",
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
-  },
-  "inlinedDependencies": {
-    "human-id": "4.2.0"
   }
 }

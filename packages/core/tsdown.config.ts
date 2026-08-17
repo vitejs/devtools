@@ -43,6 +43,7 @@ export default defineConfig({
     'cli-commands': 'src/node/cli-commands.ts',
     'config': 'src/node/config.ts',
   },
+  exports: true,
   dts: true,
   inputOptions,
   define,

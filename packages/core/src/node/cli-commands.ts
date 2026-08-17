@@ -18,7 +18,7 @@ export interface StartOptions {
 
 export async function start(options: StartOptions) {
   const { host } = options
-  const { getPort } = await import('get-port-please')
+  const { getPort } = await import('devframe/utils/get-port')
   const port = await getPort({
     host,
     port: options.port == null ? undefined : +options.port,
@@ -42,7 +42,8 @@ export async function start(options: StartOptions) {
   })
 
   const { createServer } = await import('node:http')
-  const { defineHandler, H3, sendRedirect, toNodeHandler } = await import('h3')
+  const { defineHandler, H3, sendRedirect } = await import('h3')
+  const { toNodeHandler } = await import('h3/node')
   const { mountStaticHandler } = await import('devframe/utils/serve-static')
   const { resolveStaticAssetsSource } = await import('devframe/utils/remote-assets')
 

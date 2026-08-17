@@ -24,9 +24,6 @@
       "@vitejs/devtools-kit/utils/nanoid": [
         "./packages/kit/src/utils/nanoid.ts"
       ],
-      "@vitejs/devtools-kit/utils/human-id": [
-        "./packages/kit/src/utils/human-id.ts"
-      ],
       "@vitejs/devtools-kit/utils/when": [
         "./packages/kit/src/utils/when.ts"
       ],
