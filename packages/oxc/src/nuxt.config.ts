@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'node:url'
-import { devframeViteBridge } from '@devframes/vite/dev-spa'
+import { devframeViteBridge } from '@devframes/vite/single'
 import { defineNuxtConfig } from 'nuxt/config'
 import { alias } from '../../../alias'
 import { oxcDevframe } from './node/devframe'

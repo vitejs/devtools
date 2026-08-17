@@ -44,11 +44,13 @@ export async function start(options: StartOptions) {
   const { createServer } = await import('node:http')
   const { defineHandler, H3, sendRedirect, toNodeHandler } = await import('h3')
   const { mountStaticHandler } = await import('devframe/utils/serve-static')
+  const { resolveStaticAssetsSource } = await import('devframe/utils/remote-assets')
 
   const app = new H3()
 
-  for (const { baseUrl, distDir } of devtools.context.views.buildStaticDirs)
-    mountStaticHandler(app, baseUrl, distDir)
+  const projectStorageDir = devtools.context.host.getStorageDir('project')
+  for (const { baseUrl, source } of devtools.context.views.buildStaticDirs)
+    mountStaticHandler(app, baseUrl, resolveStaticAssetsSource(source, projectStorageDir))
 
   app.use('/', defineHandler(event => sendRedirect(event, DEVTOOLS_MOUNT_PATH, 302)))
 

@@ -77,7 +77,7 @@ export { DevToolsCommandKeybinding }
 export { DevToolsCommandShortcutOverrides }
 export { DevToolsCommandsHost }
 export { DevToolsCommandsHostEvents }
-export { DevToolsDiagnosticsDefinition }
+export { DevToolsDefineDiagnosticsOptions }
 export { DevToolsDiagnosticsHost }
 export { DevToolsDiagnosticsLogger }
 export { DevToolsDockActivation }
@@ -126,7 +126,6 @@ export { EventsMap }
 export { EventUnsubscribe }
 export { JsonRenderView }
 export { JsonRenderViewRef }
-export { PartialWithoutId }
 export { RemoteConnectionInfo }
 export { RemoteDockOptions }
 export { RpcBroadcastOptions }
