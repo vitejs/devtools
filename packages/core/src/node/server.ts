@@ -69,6 +69,15 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
     // render instead of hub-ui's missing-renderer fallback.
     renderers: [jsonRenderUiRenderer()],
+    // With a live Vite dev server, route bare-specifier dock client scripts
+    // (`ClientScriptEntry.importFrom` naming an npm module, e.g.
+    // vue-tracer's `vite-plugin-vue-tracer/client/vite-devtools`) through
+    // Vite's own `/@id/` resolution — so they load through the inspected
+    // app's module graph now that v0.9's middleware serves hub assets ahead
+    // of Vite's transform pipeline. Standalone (CLI) and build snapshots have
+    // no module graph to resolve against, so the template stays undeclared
+    // there and such scripts must ship a self-contained bundle URL instead.
+    ...(context.viteServer ? { clientModuleResolution: '/@id/{specifier}' } : {}),
     auth: authDisabled ? false : getAuthHandler(context),
     ...(allowedOrigins ? { allowedOrigins } : {}),
     ...(options.server

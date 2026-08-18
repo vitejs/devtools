@@ -45,6 +45,10 @@ describe('issue #339: static devtools build', () => {
         errors.find(e => /No dump match for "devtoolskit:internal:messages:list"/.test(e)),
         'RPC dump regression — messages:list dump missing for args [null]',
       ).toBeUndefined()
+      expect(
+        errors.find(e => /No dump match for "devframe:rpc:server-state:get".+devframe:services/.test(e)),
+        'RPC dump regression — devframe:services server-state missing (services barrier not fired at build)',
+      ).toBeUndefined()
       expect(errors, `unexpected errors:\n${errors.join('\n')}`).toHaveLength(0)
       expect(ready, 'DevTools SPA did not render').toBe(true)
     }

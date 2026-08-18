@@ -85,6 +85,14 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   }
   ;(await context.rpc.sharedState.get(DOCK_RENDERERS_STATE_KEY, { initialValue: {} })).mutate(() => rendererManifest)
 
+  // Fire the services collect-then-setup barrier `initHub` runs in dev. The
+  // live hub isn't stood up for a static snapshot, so nothing else seeds the
+  // `devframe:services` shared state the client reads on load — without this,
+  // the RPC dump has no match for `server-state:get(["devframe:services"])`
+  // and the client logs a hard error. `ready()` always publishes the state
+  // (empty when no services are installed) and is idempotent.
+  await context.services.ready()
+
   await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(context.docks.values()), 'utf-8')
