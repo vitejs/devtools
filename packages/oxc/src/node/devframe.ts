@@ -23,6 +23,7 @@ export const oxcDevframe = defineDevframe({
   name: 'Oxc Devtools',
   version,
   packageName: name,
+  importMetaUrl: import.meta.url,
   homepage,
   description,
   icon: `${OXC_DEVTOOLS_BASE}favicon.svg`,
