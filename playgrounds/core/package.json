@@ -1,7 +1,7 @@
 {
   "name": "playground-core",
   "type": "module",
-  "version": "0.5.0-beta.1",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "dev": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true vite",
