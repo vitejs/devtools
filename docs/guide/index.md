@@ -42,64 +42,37 @@ Install the required DevTools package:
 pnpm add -D @vitejs/devtools
 ```
 
-Vite DevTools has two client modes. Pick one.
+Enable Vite DevTools in `vite.config.ts`:
 
-### Standalone mode
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
 
-The DevTools client runs in a standalone window.
+export default defineConfig({
+  devtools: true,
+})
+```
 
-Configure `vite.config.ts`:
+`devtools: true` enables DevTools for both `vite dev` and `vite build`.
+
+### Limit DevTools to dev or build
+
+The default `apply` value is `'all'`. Set it to `'serve'` or `'build'` to enable DevTools for only that command:
 
 ```ts [vite.config.ts] twoslash
 import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
-    enabled: true,
+    apply: 'serve',
   },
 })
 ```
 
-Run:
+### Customize the embedded UI
 
-```bash
-pnpm build
-```
+Vite adds the embedded dock automatically during `vite dev`. To customize it, add the `DevTools()` plugin manually. The examples keep the automatic integration enabled only for build to avoid mounting the dock twice.
 
-After the build completes, open the DevTools URL printed in the terminal.
-
-### Embedded mode
-
-The DevTools client runs as a floating panel inside the user app.
-
-Configure `vite.config.ts`:
-
-```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [
-    DevTools(),
-  ],
-  build: {
-    rolldownOptions: {
-      devtools: {}, // enable devtools mode
-    },
-  }
-})
-```
-
-Run:
-
-```bash
-pnpm build
-pnpm dev
-```
-
-Open your app in the browser; the floating docks appear in the corner.
-
-The `embeddedVisibility` option sets the starting mode. The default `'normal'` shows the docks immediately. `'passive'` keeps them out of the way and prints a console hint to reveal them with <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS); revealing once persists per-origin in the browser, so later sessions on this browser open straight into the docks, and the "Hide DevTools" command returns to passive mode. `'hidden'` also starts hidden but never remembers — the shortcut reveals the docks for the current session only.
+`embeddedVisibility` controls when the dock appears. The default `'normal'` shows it immediately. `'passive'` hides it until <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS) and remembers when it has been revealed. `'hidden'` uses the same shortcut without remembering the choice.
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -111,10 +84,13 @@ export default defineConfig({
       embeddedVisibility: 'passive',
     }),
   ],
+  devtools: {
+    apply: 'build',
+  },
 })
 ```
 
-The `dockPreferences` option seeds the dock bar's first-run layout — category ordering, the floating dock's inline-item capacity, and the default float/edge mode and position. Each is a user-overridable preference, so the visitor's own choice wins from then on.
+Use `dockPreferences` to set the initial dock layout. Users can still change these settings in DevTools.
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -129,6 +105,9 @@ export default defineConfig({
       },
     }),
   ],
+  devtools: {
+    apply: 'build',
+  },
 })
 ```
 
@@ -153,9 +132,9 @@ import '@vitejs/devtools/client/inject-hidden'
 
 See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.
 
-#### Building with the app
+### Building with the app
 
-Generate a static DevTools build alongside the app build by enabling `build.withApp`:
+Set `build.withApp` to write the static DevTools files alongside the app build:
 
 ```ts [vite.config.ts] twoslash
 import { DevTools } from '@vitejs/devtools'
@@ -170,19 +149,17 @@ export default defineConfig({
       },
     }),
   ],
-  build: {
-    rolldownOptions: {
-      devtools: {},
-    },
+  devtools: {
+    apply: 'build',
   }
 })
 ```
 
-`build.withApp` writes the DevTools static output into the build directory using the same build context, so the analysis panels reflect the real build with no separate command.
+Open `/__devtools/` for the full-page UI, or load `/__devtools/embedded.js` to embed the dock in the built app.
 
 ## What's next
 
-- **Explore the built-in tools** — open the [DevTools for Rolldown](/rolldown/) panels.
+- **Explore the built-in tools** — inspect Vite development with [Vite DevTools](/vite/) and production builds with [DevTools for Rolldown](/rolldown/).
 - **Build custom integrations** — extend DevTools with the [Vite DevTools Kit](/kit/).
 - **Contribute** — see the [contributing guide](https://github.com/antfu/contribute).
 

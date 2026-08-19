@@ -39,6 +39,8 @@ export function isTransformRequestStale(request?: ViteInspectTransformRequestSta
 
 export function setupEnvironmentInvalidation(server: ViteDevServer, vite: ViteInspectViteContext): void {
   Object.values(server.environments).forEach((env) => {
+    if (!vite.isEnvironmentEnabled(env.name))
+      return
     const envContext = vite.getEnvContext(env)
     const existingState = environmentInvalidationStates.get(env)
     if (existingState) {

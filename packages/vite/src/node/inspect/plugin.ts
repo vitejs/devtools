@@ -170,7 +170,10 @@ export function DevToolsViteInspect(): PluginWithDevTools {
       }
 
       const vite = ctx.getViteContext(server.config)
-      Object.values(server.environments).forEach(env => vite.getEnvContext(env))
+      Object.values(server.environments).forEach((env) => {
+        if (vite.isEnvironmentEnabled(env.name))
+          vite.getEnvContext(env)
+      })
       setupEnvironmentInvalidation(server, vite)
 
       return () => {
@@ -180,6 +183,8 @@ export function DevToolsViteInspect(): PluginWithDevTools {
 
     hotUpdate({ modules }) {
       if (!inspectContext)
+        return
+      if (!inspectContext.getEnvContext(this.environment))
         return
 
       notifyInspectModuleUpdated(modules.map(module => module.id).filter(id => id != null))

@@ -107,7 +107,10 @@ export class ViteInspectContext {
   getEnvContext(env: Environment | undefined): ViteInspectEnvironmentContext | undefined {
     if (!env)
       return undefined
-    return this.getViteContext(env.getTopLevelConfig()).getEnvContext(env)
+    const vite = this.getViteContext(env.getTopLevelConfig())
+    if (!vite.isEnvironmentEnabled(env.name))
+      return undefined
+    return vite.getEnvContext(env)
   }
 
   queryEnv(query: ViteInspectQuery): ViteInspectEnvironmentContext {
@@ -118,6 +121,7 @@ export class ViteInspectContext {
 export class ViteInspectViteContext {
   readonly environmentNames = new Set<string>()
   readonly environments = new Map<string, ViteInspectEnvironmentContext>()
+  readonly enabledEnvironmentNames: ReadonlySet<string> | undefined
   readonly data: {
     serverMetrics: ViteInspectServerMetrics
   } = {
@@ -130,11 +134,24 @@ export class ViteInspectViteContext {
     readonly id: string,
     readonly context: ViteInspectContext,
     readonly config: ResolvedConfig,
-  ) {}
+  ) {
+    const environmentNames = (config.devtools as {
+      config?: { environments?: string[] }
+    } | undefined)?.config?.environments
+    this.enabledEnvironmentNames = environmentNames
+      ? new Set(environmentNames)
+      : undefined
+  }
+
+  isEnvironmentEnabled(name: string): boolean {
+    return this.enabledEnvironmentNames?.has(name) ?? true
+  }
 
   registerEnvironmentNames(names: Iterable<string>): void {
-    for (const name of names)
-      this.environmentNames.add(name)
+    for (const name of names) {
+      if (this.isEnvironmentEnabled(name))
+        this.environmentNames.add(name)
+    }
   }
 
   getEnvContext(env: Environment | string): ViteInspectEnvironmentContext {

@@ -54,6 +54,43 @@ async function waitFor(condition: () => boolean): Promise<void> {
 }
 
 describe('vite inspect context', () => {
+  it('only exposes and records configured environments', async () => {
+    const config = {
+      root: '/project',
+      plugins: [],
+      devtools: {
+        config: {
+          environments: ['client'],
+        },
+      },
+    } as unknown as ResolvedConfig
+    const client = {
+      name: 'client',
+      mode: 'dev',
+      getTopLevelConfig: () => config,
+    } as Environment
+    const ssr = {
+      name: 'ssr',
+      mode: 'dev',
+      getTopLevelConfig: () => config,
+    } as Environment
+    const ctx = await ViteInspectContext.create()
+    contexts.push(ctx)
+    const vite = ctx.getViteContext(config)
+
+    vite.registerEnvironmentNames(['client', 'ssr'])
+
+    expect(vite.getEnvContext(client)).toBeDefined()
+    expect(vite.isEnvironmentEnabled(ssr.name)).toBe(false)
+    expect(ctx.getEnvContext(ssr)).toBeUndefined()
+    expect(ctx.getMetadata().instances[0]).toMatchObject({
+      environments: ['client'],
+      environmentPlugins: {
+        client: [],
+      },
+    })
+  })
+
   it('records module transforms and normalizes version query by default', async () => {
     const { envCtx } = await createFixture()
 
