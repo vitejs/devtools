@@ -19,6 +19,7 @@ vi.mock('../ui', () => ({
 
 vi.mock('../auth-handler', () => ({
   getAuthHandler: () => ({ rpcFunctions: [] }),
+  isClientAuthDisabled: () => false,
 }))
 
 function fakeContext(opts: { viteServer?: boolean } = {}): ViteDevToolsNodeContext {

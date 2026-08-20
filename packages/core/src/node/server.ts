@@ -4,11 +4,10 @@ import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { DevToolsConfig } from './config'
 import type { ViteDevToolsUiOptions } from './ui'
-import process from 'node:process'
 import { initHub } from '@devframes/hub/initiate'
 import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import { getAuthHandler } from './auth-handler'
+import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
 import { createViteDevToolsUi } from './ui'
 
 export interface CreateDevToolsHubOptions {
@@ -53,9 +52,9 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
 
   // Mirror the WS trust posture the bespoke transport used: skip the OTP gate
   // in build snapshots, when the user opts out, or via the escape-hatch env.
-  const authDisabled = context.mode === 'build'
-    || context.viteConfig.devtools?.config?.clientAuth === false
-    || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
+  // Must agree with `createDevToolsContext`'s registration guard (same
+  // helper) — see `isClientAuthDisabled` for why.
+  const authDisabled = isClientAuthDisabled(context)
 
   // Vite's published types bundle a frozen `DevToolsConfig` snapshot, so a
   // field added here isn't visible through `config` until Vite re-vendors it.
