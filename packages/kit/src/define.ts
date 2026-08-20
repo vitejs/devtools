@@ -9,7 +9,7 @@ export { defineCommand, defineDockEntry } from '@devframes/hub'
  * package, whose spec is a plain `@json-render/core` `Spec`), so the kit keeps
  * the convenience helper for authoring specs with inference.
  */
-export function defineJsonRenderSpec(spec: JsonRenderSpec): JsonRenderSpec {
+export function defineJsonRenderSpec<SpecType extends JsonRenderSpec>(spec: SpecType): SpecType {
   return spec
 }
 

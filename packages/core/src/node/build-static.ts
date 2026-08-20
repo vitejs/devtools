@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ViteDevToolsUiOptions } from './ui'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
 import { DOCK_RENDERERS_STATE_KEY } from '@devframes/hub/constants'
-import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
 import {
   DEVTOOLS_CONNECTION_META_FILENAME,
   DEVTOOLS_DIRNAME,
@@ -18,11 +17,14 @@ import { colors as c } from 'devframe/utils/colors'
 import { resolveStaticAssetsSource } from 'devframe/utils/remote-assets'
 import { dirname, join, relative, resolve } from 'pathe'
 import { MARK_NODE } from './constants'
+import { resolveDockRendererRegistrations } from './renderers'
 import { createViteDevToolsUi } from './ui'
 
 export interface BuildStaticOptions {
   context: ViteDevToolsNodeContext
   outDir: string
+  /** Dock renderer modules copied into the static output, replacing built-ins by matching type. */
+  renderers?: readonly DockRendererRegistration[]
   withApp?: boolean
   /** Reference-UI options forwarded to `createUi`. */
   ui?: ViteDevToolsUiOptions
@@ -77,7 +79,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   const rendererManifest: Record<string, { importFrom: string, importName?: string }> = {}
   const renderersRoot = resolve(devToolsRoot, '__renderers')
   await fs.mkdir(renderersRoot, { recursive: true })
-  for (const registration of [jsonRenderUiRenderer()]) {
+  for (const registration of resolveDockRendererRegistrations(options.renderers)) {
     await fs.cp(registration.file, resolve(renderersRoot, `${registration.type}.mjs`))
     rendererManifest[registration.type] = {
       importFrom: `${DEVTOOLS_MOUNT_PATH}__renderers/${registration.type}.mjs`,

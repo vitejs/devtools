@@ -1,3 +1,4 @@
+import type { DockRendererRegistration } from '@vitejs/devtools-kit'
 import type { Plugin } from 'vite'
 import type { ViteDevToolsUiOptions } from '../ui'
 import { DevToolsBuild } from './build'
@@ -14,6 +15,9 @@ export interface DevToolsOptions {
    * @default true
    */
   builtinDevTools?: boolean
+
+  /** Dock renderer modules, replacing built-ins with the same type and appending new types. */
+  renderers?: readonly DockRendererRegistration[]
 
   /**
    * Override the branding handed to the DevTools client (`@devframes/hub-ui`)
@@ -85,11 +89,11 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
 
   const plugins = [
     DevToolsInjection(),
-    DevToolsServer(ui),
+    DevToolsServer(ui, options.renderers),
   ]
 
   if (build?.withApp) {
-    plugins.push(DevToolsBuild({ outDir: build.outDir, ui }))
+    plugins.push(DevToolsBuild({ outDir: build.outDir, ui, renderers: options.renderers }))
   }
 
   plugins.unshift(

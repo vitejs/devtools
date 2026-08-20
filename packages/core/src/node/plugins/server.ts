@@ -1,4 +1,4 @@
-import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ClientScriptEntry, DevToolsDockEntry, DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { Plugin } from 'vite'
 import type { ViteDevToolsUiOptions } from '../ui'
@@ -37,7 +37,10 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export function DevToolsServer(options: ViteDevToolsUiOptions = {}): Plugin {
+export function DevToolsServer(
+  options: ViteDevToolsUiOptions = {},
+  renderers?: readonly DockRendererRegistration[],
+): Plugin {
   let context: ViteDevToolsNodeContext
   let close: (() => Promise<void>) | undefined
   return {
@@ -54,6 +57,7 @@ export function DevToolsServer(options: ViteDevToolsUiOptions = {}): Plugin {
       const devtools = await createDevToolsHub({
         context,
         ui: options,
+        renderers,
         // Share Vite's HTTP server for a route-bound WS upgrade; fall back to a
         // side-car when Vite runs in middleware mode without its own server.
         // Vite types `httpServer` as a broader union (incl. http2); at dev
