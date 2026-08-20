@@ -2,7 +2,7 @@ import type { DevToolsLaunchRoot, PluginWithDevTools } from '@vitejs/devtools-ki
 import { dirname, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
-import { getPort } from 'get-port-please'
+import { getPort } from 'devframe/utils/get-port'
 import { isPackageExists } from 'local-pkg'
 import { addDependency } from 'nypm'
 import { glob } from 'tinyglobby'

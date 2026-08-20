@@ -10,10 +10,6 @@ const deps = {
     'vite',
     /^node:/,
   ],
-  // @keep-sorted
-  onlyBundle: [
-    'get-port-please',
-  ],
 }
 
 const inputOptions = {

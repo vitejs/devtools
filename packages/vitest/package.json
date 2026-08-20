@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
-    "get-port-please": "catalog:deps",
+    "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
     "nypm": "catalog:deps",
