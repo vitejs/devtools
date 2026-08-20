@@ -35,7 +35,7 @@ export interface InstallLauncherOptions {
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
-  createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;
+  createJsonRenderer: <SpecType extends JsonRenderSpec>(_: SpecType, _?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>) => JsonRenderer<SpecType>;
 }
 export interface ProcessLauncherOptions {
   id: string;

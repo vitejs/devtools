@@ -4,6 +4,7 @@
 // #region Interfaces
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext;
+  renderers?: readonly DockRendererRegistration[];
   ui?: ViteDevToolsUiOptions;
   server?: Server;
   host?: string;
