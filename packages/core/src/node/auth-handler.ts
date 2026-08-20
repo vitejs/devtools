@@ -1,4 +1,5 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import process from 'node:process'
 import { createInteractiveAuth } from 'devframe/recipes/interactive-auth'
 
 export type DevToolsAuthHandler = ReturnType<typeof createInteractiveAuth>
@@ -22,4 +23,21 @@ export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHa
     handlers.set(context, handler)
   }
   return handler
+}
+
+/**
+ * Whether the interactive OTP gate should stay off for this context — a
+ * build snapshot (nothing live to authorize against), an explicit
+ * `devtools: { clientAuth: false }`, or the `VITE_DEVTOOLS_DISABLE_CLIENT_AUTH`
+ * escape-hatch env var. Shared between `createDevToolsContext` (which must
+ * skip registering the interactive-auth RPC functions so devframe's
+ * `auth: false` auto-trust shim can register `anonymous:devframe:auth`
+ * itself) and `createDevToolsHub` (which feeds the same intent to
+ * `initHub`'s transport-level `auth` option) — both need to agree, or the
+ * client's session never gets marked trusted.
+ */
+export function isClientAuthDisabled(context: ViteDevToolsNodeContext): boolean {
+  return context.mode === 'build'
+    || context.viteConfig.devtools?.config?.clientAuth === false
+    || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
 }

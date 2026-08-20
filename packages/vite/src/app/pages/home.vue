@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BannerViteDevTools from '@vitejs/devtools-ui/components/Banner/BannerViteDevTools.vue'
+import ContainerHomeHero from '@vitejs/devtools-ui/components/Container/ContainerHomeHero.vue'
 import { useAsyncState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useRpc } from '#imports'
@@ -120,8 +121,10 @@ const metadata = computed(() => [
     v-if="isLoading"
     text="Connecting..."
   />
-  <div v-else class="p4 flex flex-col gap-4 items-center justify-center relative">
-    <BannerViteDevTools />
+  <div v-else class="px4 pb4 flex flex-col items-center relative">
+    <ContainerHomeHero>
+      <BannerViteDevTools />
+    </ContainerHomeHero>
 
     <div class="border border-base rounded p2 flex flex-col gap-4 justify-center">
       <div

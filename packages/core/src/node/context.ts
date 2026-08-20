@@ -4,7 +4,7 @@ import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { createDebug } from 'obug'
 import { DEVTOOLS_ASSETS_BASE, dirAssets } from '../dirs'
-import { getAuthHandler } from './auth-handler'
+import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
 import { diagnostics } from './diagnostics'
 import { builtinRpcDeclarations } from './rpc'
 
@@ -71,9 +71,16 @@ export async function createDevToolsContext(
   // recipe: registers the `anonymous:devframe:auth` / `:exchange` handshake
   // and the `devframe:auth:revoke` self-revoke. The resolver gate and the
   // one-time-code banner are wired up by `initHub`'s `auth` option (same
-  // handler) in `createDevToolsHub`.
-  for (const fn of getAuthHandler(context).rpcFunctions)
-    rpcHost.register(fn)
+  // handler) in `createDevToolsHub`. Skipped entirely when the client-auth
+  // gate is disabled — leaving `anonymous:devframe:auth` unregistered lets
+  // devframe's `auth: false` auto-trust shim (armed by `createDevToolsHub`
+  // passing `auth: false` to `initHub`) register its own noop handler and
+  // mark sessions trusted, instead of the interactive handler winning the
+  // race and leaving every session stuck untrusted.
+  if (!isClientAuthDisabled(context)) {
+    for (const fn of getAuthHandler(context).rpcFunctions)
+      rpcHost.register(fn)
+  }
 
   // Vite-specific built-in server commands.
   context.commands.register({

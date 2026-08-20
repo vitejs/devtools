@@ -3,6 +3,7 @@ import type { BuildInfo } from '~~/node/rolldown/logs-manager'
 import ActionButton from '@vitejs/devtools-ui/components/Action/ActionButton.vue'
 import ActionIconButton from '@vitejs/devtools-ui/components/Action/ActionIconButton.vue'
 import BannerRolldownDevTools from '@vitejs/devtools-ui/components/Banner/BannerRolldownDevTools.vue'
+import ContainerHomeHero from '@vitejs/devtools-ui/components/Container/ContainerHomeHero.vue'
 import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRpc } from '#imports'
@@ -100,8 +101,10 @@ async function deleteSession(session: BuildInfo) {
 </script>
 
 <template>
-  <div class="p4 flex flex-col gap-4 items-center relative">
-    <BannerRolldownDevTools />
+  <div class="px4 pb4 flex flex-col items-center relative">
+    <ContainerHomeHero>
+      <BannerRolldownDevTools />
+    </ContainerHomeHero>
 
     <!-- Empty state -->
     <div v-if="!sessions.length" class="flex flex-col gap-3 items-center max-w-140">

@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-vite",
   "type": "module",
-  "version": "0.5.0-beta.1",
+  "version": "0.5.1",
   "description": "DevTools for Vite (work in progress)",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -37,15 +37,14 @@
     "vite": "*"
   },
   "dependencies": {
-    "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
-    "d3-shape": "catalog:frontend",
     "envinfo": "catalog:deps",
     "nostics": "catalog:deps",
     "pathe": "catalog:deps",
     "perfect-debounce": "catalog:deps"
   },
   "devDependencies": {
+    "@floating-ui/dom": "catalog:frontend",
     "@types/d3-hierarchy": "catalog:types",
     "@types/envinfo": "catalog:types",
     "@types/splitpanes": "catalog:types",
@@ -56,6 +55,7 @@
     "@vueuse/nuxt": "catalog:build",
     "comlink": "catalog:frontend",
     "d3-hierarchy": "catalog:frontend",
+    "d3-shape": "catalog:frontend",
     "devframe": "catalog:deps",
     "diff-match-patch-es": "catalog:frontend",
     "floating-vue": "catalog:frontend",
