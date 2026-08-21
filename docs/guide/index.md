@@ -132,26 +132,6 @@ export default defineConfig({
 })
 ```
 
-The `branding` option re-skins the client — product name, logo, wordmark, primary color, tagline, favicon, and window title. Each field is merged over the built-in Vite DevTools defaults, so a host embedding Vite DevTools (such as Nuxt DevTools) can supply its own identity while inheriting anything it leaves unset. The asset fields (`logo`, `wordmark`, `favicon`) take URL strings the host serves.
-
-```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [
-    DevTools({
-      branding: {
-        productName: 'Nuxt DevTools',
-        primaryColor: '#00dc82',
-        logo: '/my-assets/nuxt-logo.svg',
-        windowTitle: 'Nuxt DevTools',
-      },
-    }),
-  ],
-})
-```
-
 #### Projects without an HTML entry
 
 For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. One entry per visibility mode — import whichever one you want:
