@@ -16,6 +16,19 @@ export interface DevToolsOptions {
   builtinDevTools?: boolean
 
   /**
+   * Override the branding handed to the DevTools client (`@devframes/hub-ui`)
+   * — product name, logo, wordmark, primary color, tagline, favicon, and
+   * window title.
+   *
+   * Each field is merged over the built-in Vite DevTools defaults, so a host
+   * embedding Vite DevTools (e.g. Nuxt DevTools) can re-skin the client while
+   * inheriting any field it leaves unset. Asset fields
+   * (`logo`/`wordmark`/`favicon`) take URL strings the host is responsible for
+   * serving.
+   */
+  branding?: ViteDevToolsUiOptions['branding']
+
+  /**
    * How the embedded floating dock reveals itself on a fresh page.
    *
    * - `'normal'` — show the docks immediately.
@@ -63,11 +76,12 @@ export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]>
   const {
     builtinDevTools = true,
     build,
+    branding,
     embeddedVisibility = 'normal',
     dockPreferences,
   } = options
 
-  const ui = { embeddedVisibility, dockPreferences }
+  const ui = { branding, embeddedVisibility, dockPreferences }
 
   const plugins = [
     DevToolsInjection(),
