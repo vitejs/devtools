@@ -3,20 +3,27 @@
  */
 // #region Interfaces
 export interface DevToolsConfig extends Partial<StartOptions> {
-  enabled: boolean;
+  enabled?: boolean;
+  apply?: DevToolsApply;
   environments?: string[];
   clientAuth?: boolean;
   clientAuthTokens?: string[];
   allowedOrigins?: string[];
 }
 export interface ResolvedDevToolsConfig {
-  config: Omit<DevToolsConfig, 'enabled'> & {
+  config: Omit<DevToolsConfig, 'enabled' | 'apply'> & {
     host: string;
   };
   enabled: boolean;
+  apply: DevToolsApply;
 }
 // #endregion
 
+// #region Types
+export type DevToolsApply = 'serve' | 'build' | 'all';
+// #endregion
+
 // #region Functions
+export declare function isDevToolsEnabled(_: ResolvedDevToolsConfig, _: 'serve' | 'build'): boolean;
 export declare function normalizeDevToolsConfig(_: DevToolsConfig | boolean | undefined, _: string): ResolvedDevToolsConfig;
 // #endregion

@@ -1,7 +1,19 @@
 import type { StartOptions } from './cli-commands'
 
+export type DevToolsApply = 'serve' | 'build' | 'all'
+
 export interface DevToolsConfig extends Partial<StartOptions> {
-  enabled: boolean
+  /**
+   * Enable Vite DevTools.
+   *
+   * @default true
+   */
+  enabled?: boolean
+  /**
+   * Limit Vite DevTools to a specific Vite command.
+   * By default, Vite DevTools applies to both serve and build.
+   */
+  apply?: DevToolsApply
   /**
    * Vite environments to enable DevTools for. Defaults to all environments.
    */
@@ -36,8 +48,9 @@ export interface DevToolsConfig extends Partial<StartOptions> {
 }
 
 export interface ResolvedDevToolsConfig {
-  config: Omit<DevToolsConfig, 'enabled'> & { host: string }
+  config: Omit<DevToolsConfig, 'enabled' | 'apply'> & { host: string }
   enabled: boolean
+  apply: DevToolsApply
 }
 
 export function normalizeDevToolsConfig(
@@ -45,13 +58,23 @@ export function normalizeDevToolsConfig(
   host: string,
 ): ResolvedDevToolsConfig {
   const resolved = typeof config === 'object' && config !== null ? config : undefined
+  const enabled = config === true || (resolved != null && (resolved.enabled ?? true))
+  const { enabled: _enabled, apply = 'all', ...options } = resolved ?? {}
   return {
-    enabled: config === true || !!(config && config.enabled),
+    enabled,
+    apply,
     config: {
-      ...(resolved ?? {}),
+      ...options,
       clientAuth: resolved?.clientAuth ?? true,
       clientAuthTokens: resolved?.clientAuthTokens ?? [],
       host: resolved?.host ?? host,
     },
   }
+}
+
+export function isDevToolsEnabled(
+  config: ResolvedDevToolsConfig,
+  command: 'serve' | 'build',
+): boolean {
+  return config.enabled && (config.apply === 'all' || config.apply === command)
 }

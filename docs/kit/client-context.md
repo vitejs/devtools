@@ -31,9 +31,9 @@ sequenceDiagram
   Page->>Page: publish client context, mount dock
 ```
 
-Injection is scoped to where the embedded client makes sense:
+Automatic injection is scoped to where the embedded client makes sense:
 
-- **Dev server only** — `vite build` uses the [standalone client](/guide/#standalone-mode) instead, which hosts the same context in its own page.
+- **Automatic HTML injection during development** — `transformIndexHtml` mounts the embedded client in the dev server. A production build can ship the same embedded bootstrap through [`build.withApp`](/guide/#building-with-the-app).
 - **Client environments only** — SSR builds and server code stay untouched.
 - **Top-level windows only** — inside an iframe (including DevTools' own iframe panels) the script logs `[VITE DEVTOOLS] Skipping in iframe` and exits, so a page never mounts a second dock.
 
@@ -106,6 +106,6 @@ if (import.meta.env.DEV)
 
 ### Other checks
 
-- **Plugin registered?** The `DevTools()` plugin from `@vitejs/devtools` must be in your Vite config's `plugins` for injection to run.
-- **Dev mode?** The embedded client is a dev-server feature. For `vite build`, use the [standalone client](/guide/#standalone-mode) (`devtools: { enabled: true }`).
+- **Integration enabled?** Use Vite's `devtools` config, or register the `DevTools()` plugin from `@vitejs/devtools` manually.
+- **Build output?** Enable build-time collection with `devtools: { apply: 'build' }`; use [`build.withApp`](/guide/#building-with-the-app) when the generated app should include the embedded client.
 - **Dock appears but asks for authorization?** That's client trust, a separate layer from injection — see [DTK0008](/errors/DTK0008) and the `devtools.clientAuth` option.
