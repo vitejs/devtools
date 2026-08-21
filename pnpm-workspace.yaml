@@ -26,6 +26,8 @@ packages:
   - storybook
 
 overrides:
+  # provenance downgrade (https://npmx.dev/package-timeline/@humanwhocodes/momoa/v/3.3.10)
+  '@humanwhocodes/momoa': 3.3.10
   '@jridgewell/sourcemap-codec': 'catalog:resolutions'
   '@nuxt/devtools': 'catalog:devtools'
   '@nuxt/kit': 'catalog:build'
@@ -41,37 +43,36 @@ overrides:
   semver: 'catalog:resolutions'
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
-
 refs:
-  devframe: &devframe ^0.9.4
+  devframe: &devframe ^0.9.5
   nuxt: &nuxt ^4.5.2
-  shiki: &shiki ^4.4.2
-  storybook: &storybook ^10.5.7
-  unocss: &unocss ^66.7.5
+  shiki: &shiki ^4.4.3
+  storybook: &storybook ^10.5.10
+  unocss: &unocss ^66.8.1
   vueuse: &vueuse ^14.4.0
 
 catalogs:
   build:
     '@antfu/ni': ^30.5.0
-    '@nuxt/icon': ^2.4.1
+    '@nuxt/icon': ^2.5.0
     '@nuxt/kit': *nuxt
     '@nuxt/vite-builder': *nuxt
     '@unocss/nuxt': *unocss
     '@vitejs/plugin-vue': ^6.0.8
     '@vueuse/nuxt': ^14.4.0
     archiver: ^7.0.1
-    esbuild: ^0.28.1
-    magic-string: ^1.1.0
+    esbuild: ^0.28.2
+    magic-string: ^1.2.2
     nitropack: ^2.13.4
     nuxt: *nuxt
-    rolldown: ^1.2.3
+    rolldown: ^1.2.5
     tsdown: ^0.22.14
-    tsx: ^4.23.9
-    turbo: ^2.10.8
+    tsx: ^4.23.12
+    turbo: ^2.10.11
     unocss: *unocss
     unplugin-vue: ^7.2.0
     unrun: ^0.3.1
-    vite: ^8.2.1
+    vite: ^8.2.2
   deps:
     '@devframes/hub': *devframe
     '@devframes/hub-ui': *devframe
@@ -87,13 +88,13 @@ catalogs:
     '@devframes/plugin-terminals': *devframe
     '@devframes/vite': *devframe
     '@oxlint-config-inspector/core': ^1.1.1
-    '@rolldown/debug': ^1.2.3
+    '@rolldown/debug': ^1.2.5
     actionspack: ^0.1.5
     cac: ^7.0.0
     devframe: *devframe
     diff: ^9.0.0
     envinfo: ^7.21.0
-    h3: ^2.0.1-rc.26
+    h3: ^2.0.1-rc.29
     local-pkg: ^1.2.1
     mlly: ^1.8.2
     mrmime: ^2.0.1
@@ -110,39 +111,39 @@ catalogs:
     webext-bridge: ^6.0.1
   devtools:
     '@antfu/eslint-config': ^9.3.0
-    '@nuxt/devtools': ^4.0.0-alpha.10
+    '@nuxt/devtools': ^4.0.0-alpha.14
     '@nuxt/eslint': ^1.17.0
-    '@typescript-eslint/utils': ^8.66.0
+    '@typescript-eslint/utils': ^8.67.0
     '@unocss/eslint-config': *unocss
     '@unocss/preset-web-fonts': *unocss
     axe-core: ^4.13.0
-    bumpp: ^12.2.0
+    bumpp: ^12.2.1
     chokidar: ^5.0.0
-    eslint: ^10.8.0
-    knip: ^6.32.0
+    eslint: ^10.9.0
+    knip: ^6.32.2
     nano-staged: ^1.0.2
     oxfmt: ^0.62.0
-    oxlint: ^1.77.0
+    oxlint: ^1.79.0
     prompts: ^2.4.2
     serve: ^14.2.6
     simple-git-hooks: ^2.13.1
     skills-npm: ^1.2.0
-    solid-js: ^1.9.14
+    solid-js: ^1.9.15
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.2
     vite-plugin-solid: ^2.11.14
-    vue-tsc: ^3.3.9
+    vue-tsc: ^3.3.11
   docs:
     '@shikijs/vitepress-twoslash': *shiki
-    '@voidzero-dev/vitepress-theme': ^5.0.5
-    mermaid: ^11.16.1
+    '@voidzero-dev/vitepress-theme': ^5.0.6
+    mermaid: ^11.17.0
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.19
     vitepress-plugin-group-icons: ^1.7.6
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.8.0
-    '@humanwhocodes/momoa': ^3.3.10
+    '@humanwhocodes/momoa': ^3.3.12
     '@json-render/core': ^0.19.0
     '@json-render/vue': ^0.19.0
     '@vueuse/components': *vueuse
@@ -152,8 +153,8 @@ catalogs:
     d3: ^7.9.0
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
-    diff-match-patch-es: ^2.0.0
-    dompurify: ^3.4.13
+    diff-match-patch-es: ^2.0.1
+    dompurify: ^3.4.14
     floating-vue: ^5.2.2
     fuse.js: ^7.5.0
     idb-keyval: ^6.3.0
@@ -169,17 +170,17 @@ catalogs:
     ua-parser-modern: ^0.1.1
     vite-hot-client: ^2.2.0
     vue-router: ^5.2.0
-    vue-virtual-scroller: ^3.0.4
+    vue-virtual-scroller: ^3.0.5
   icons:
     '@iconify-json/carbon': ^1.2.25
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.67
-    '@iconify-json/fluent': ^1.2.54
+    '@iconify-json/codicon': ^1.2.69
+    '@iconify-json/fluent': ^1.2.56
     '@iconify-json/fluent-emoji-flat': ^1.2.5
-    '@iconify-json/logos': ^1.2.12
-    '@iconify-json/lucide': ^1.2.121
+    '@iconify-json/logos': ^1.2.13
+    '@iconify-json/lucide': ^1.2.124
     '@iconify-json/material-icon-theme': ^1.2.70
-    '@iconify-json/octicon': ^1.2.31
+    '@iconify-json/octicon': ^1.2.32
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/radix-icons': ^1.2.6
     '@iconify-json/ri': ^1.2.10
@@ -188,12 +189,12 @@ catalogs:
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.38
     '@iconify-json/twemoji': ^1.2.5
-    '@iconify-json/vscode-icons': ^1.2.69
+    '@iconify-json/vscode-icons': ^1.2.74
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.7.0
   playground:
-    vite-plugin-vue-tracer: ^1.4.0
+    vite-plugin-vue-tracer: ^1.5.0
   resolutions:
     '@jridgewell/sourcemap-codec': 1.5.0
     langium: ^4.3.1
@@ -204,11 +205,11 @@ catalogs:
     storybook: *storybook
   testing:
     playwright-core: ^1.62.1
-    tsnapi: ^1.2.0
-    vitest: ^4.1.10
+    tsnapi: ^1.3.0
+    vitest: ^4.1.11
   types:
     '@types/archiver': ^7.0.0
-    '@types/chrome': ^0.2.5
+    '@types/chrome': ^0.2.7
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7

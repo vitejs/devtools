@@ -46,16 +46,16 @@
     "cac": "catalog:deps",
     "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
-    "nypm": "catalog:deps",
     "nostics": "catalog:deps",
+    "nypm": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"
   },
   "devDependencies": {
+    "@devframes/vite": "catalog:deps",
     "@humanwhocodes/momoa": "catalog:frontend",
     "@nuxt/kit": "catalog:build",
     "@types/picomatch": "catalog:types",
-    "@devframes/vite": "catalog:deps",
     "@unocss/nuxt": "catalog:build",
     "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/core": "catalog:frontend",
