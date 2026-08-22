@@ -1,4 +1,5 @@
 import type { CreateHubContextOptions, DevframeHubContext } from '@devframes/hub/node'
+import type { CreateJsonRenderViewOptions } from '@devframes/json-render/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { JsonRenderer, JsonRenderSpec } from '../types/json-render'
 import { createHubContext } from '@devframes/hub/node'
@@ -22,7 +23,10 @@ export interface KitNodeContext extends DevframeHubContext {
    * (`docks.register({ type: 'json-render', view: renderer.view, … })`) and
    * call `updateSpec` / `updateState` on the handle to drive it reactively.
    */
-  createJsonRenderer: (spec: JsonRenderSpec) => JsonRenderer
+  createJsonRenderer: <SpecType extends JsonRenderSpec>(
+    spec: SpecType,
+    options?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>,
+  ) => JsonRenderer<SpecType>
 }
 
 export interface CreateKitContextOptions extends CreateHubContextOptions {
@@ -48,7 +52,10 @@ export async function createKitContext(options: CreateKitContextOptions): Promis
     Object.defineProperty(context, 'viteServer', { value: options.viteServer, enumerable: true })
 
   Object.defineProperty(context, 'createJsonRenderer', {
-    value: (spec: JsonRenderSpec) => createJsonRenderer(context, spec),
+    value: <SpecType extends JsonRenderSpec>(
+      spec: SpecType,
+      rendererOptions?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>,
+    ) => createJsonRenderer(context, spec, rendererOptions),
     enumerable: true,
   })
 
@@ -62,17 +69,21 @@ export async function createKitContext(options: CreateKitContextOptions): Promis
  * shared-state projection walks only enumerable own keys, so the live
  * closures never reach the wire while `_stateKey` does.
  */
-function createJsonRenderer(context: KitNodeContext, spec: JsonRenderSpec): JsonRenderer {
-  const view = createJsonRenderView(context, { id: `kit-${nanoid()}`, spec })
+function createJsonRenderer<SpecType extends JsonRenderSpec>(
+  context: KitNodeContext,
+  spec: SpecType,
+  options: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'> = {},
+): JsonRenderer<SpecType> {
+  const view = createJsonRenderView(context, { id: `kit-${nanoid()}`, spec, ...options })
 
   const handle = {
     _stateKey: view.ref.stateKey,
     view: view.ref,
-  } as JsonRenderer
+  } as JsonRenderer<SpecType>
 
   Object.defineProperties(handle, {
     updateSpec: {
-      value: (next: JsonRenderSpec) => view.update(next),
+      value: (next: SpecType) => view.update(next),
       enumerable: false,
     },
     updateState: {

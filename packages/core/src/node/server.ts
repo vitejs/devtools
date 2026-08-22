@@ -1,17 +1,19 @@
 import type { HubInstance } from '@devframes/hub/initiate'
-import type { ConnectionMeta, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ConnectionMeta, DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { DevToolsConfig } from './config'
 import type { ViteDevToolsUiOptions } from './ui'
 import { initHub } from '@devframes/hub/initiate'
-import { jsonRenderUiRenderer } from '@devframes/json-render-ui/hub'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
+import { resolveDockRendererRegistrations } from './renderers'
 import { createViteDevToolsUi } from './ui'
 
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext
+  /** Dock renderer modules served by the hub, replacing built-ins by matching type. */
+  renderers?: readonly DockRendererRegistration[]
   /**
    * Reference-UI options forwarded to `createUi` — the embedded dock's
    * reveal policy and the dock-bar rendering preferences.
@@ -67,7 +69,7 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     // Serve + advertise the reference json-render frontend so `json-render`
     // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
     // render instead of hub-ui's missing-renderer fallback.
-    renderers: [jsonRenderUiRenderer()],
+    renderers: resolveDockRendererRegistrations(options.renderers),
     // With a live Vite dev server, route bare-specifier dock client scripts
     // (`ClientScriptEntry.importFrom` naming an npm module, e.g.
     // vue-tracer's `vite-plugin-vue-tracer/client/vite-devtools`) through

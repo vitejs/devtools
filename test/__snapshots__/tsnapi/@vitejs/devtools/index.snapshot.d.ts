@@ -4,6 +4,7 @@
 // #region Interfaces
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext;
+  renderers?: readonly DockRendererRegistration[];
   ui?: ViteDevToolsUiOptions;
   server?: Server;
   host?: string;
@@ -31,6 +32,7 @@ export declare function DevTools(_?: DevToolsOptions): Promise<Plugin[]>;
 interface DevToolsOptions {
   cwd?: string;
   builtinDevTools?: boolean;
+  renderers?: readonly DockRendererRegistration[];
   branding?: ViteDevToolsUiOptions['branding'];
   embeddedVisibility?: ViteDevToolsUiOptions['embeddedVisibility'];
   dockPreferences?: ViteDevToolsUiOptions['dockPreferences'];
