@@ -79,6 +79,29 @@ export declare function createSimpleClientScript(_: string | ((_: any) => void))
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): ViteDevToolsHost;
 // #endregion
 
+// #region Referenced (internal)
+type Awaitable<T> = T | Promise<T>;
+interface DevToolsLaunchPayload {
+  root?: string;
+}
+interface DevToolsLaunchRoot {
+  value: string;
+  label: string;
+  description?: string;
+}
+interface JsonRenderer {
+  updateSpec: (_: JsonRenderSpec) => void;
+  updateState: (_: Record<string, unknown>) => void;
+  dispose: () => void;
+  readonly _stateKey: string;
+  readonly view: JsonRenderViewRef;
+}
+type JsonRenderSpec = DevframeJsonRenderSpec;
+interface PluginWithDevTools extends Plugin {
+  devtools?: DevToolsPluginOptions;
+}
+// #endregion
+
 // #region Other
 export { DevToolsCommandsHost }
 export { DevToolsDockHost }
