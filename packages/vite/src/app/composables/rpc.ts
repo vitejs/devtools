@@ -11,12 +11,16 @@ export interface InspectModuleUpdatedPayload {
   ids?: string[]
 }
 
+type InspectStatus = 'checking' | 'available' | 'unavailable'
+
 export const rpcConnectionState = reactive<{
   connected: boolean
   error: Error | null
+  inspectStatus: InspectStatus
 }>({
   connected: false,
   error: null,
+  inspectStatus: 'checking',
 })
 
 const rpc = shallowRef<DevToolsRpcClient>(undefined!)
@@ -50,6 +54,10 @@ async function subscribeInspectModuleUpdates(client: DevToolsRpcClient) {
 
 export async function connect() {
   const runtimeConfig = useRuntimeConfig()
+
+  rpcConnectionState.connected = false
+  rpcConnectionState.error = null
+  rpcConnectionState.inspectStatus = 'checking'
   try {
     rpc.value = await getDevToolsRpcClient({
       baseURL: [
@@ -61,6 +69,7 @@ export async function connect() {
       wsOptions: {
         onConnected: () => {
           rpcConnectionState.connected = true
+          rpcConnectionState.error = null
         },
         onError: (e) => {
           rpcConnectionState.error = e
@@ -72,24 +81,30 @@ export async function connect() {
       rpcOptions: {
         onGeneralError: (e, name) => {
           rpcConnectionState.error = e
-          console.error(`[vite-devtools] RPC error on executing "${name}":`)
+          console.error(`[vite-devtools] RPC error on executing "${name}":`, e)
         },
         onFunctionError: (e, name) => {
           rpcConnectionState.error = e
-          console.error(`[vite-devtools] RPC error on executing "${name}":`)
+          console.error(`[vite-devtools] RPC error on executing "${name}":`, e)
         },
       },
     })
-    await subscribeInspectModuleUpdates(rpc.value)
 
     const functions = await rpc.value.call('devtoolskit:internal:rpc:server:list')
+    rpcConnectionState.inspectStatus = 'vite:inspect:get-metadata' in functions
+      ? 'available'
+      : 'unavailable'
     rpc.value.cacheManager.updateOptions({
       functions: Object.keys(functions).filter(name => functions[name]?.cacheable),
     })
 
+    if (rpcConnectionState.inspectStatus === 'available')
+      await subscribeInspectModuleUpdates(rpc.value)
+
     rpcConnectionState.connected = true
   }
   catch (e) {
+    rpcConnectionState.connected = false
     rpcConnectionState.error = e as Error
   }
 }

@@ -43,9 +43,17 @@ useSideNav(() => {
     {{ rpcConnectionState.error }}
   </div>
   <VisualLoading
-    v-else-if="!rpcConnectionState.connected"
+    v-else-if="!rpcConnectionState.connected || rpcConnectionState.inspectStatus === 'checking'"
     text="Connecting..."
   />
+  <div
+    v-else-if="rpcConnectionState.inspectStatus === 'unavailable'"
+    class="h-screen flex items-center justify-center p8"
+  >
+    <p class="text-base op50">
+      Vite DevTools is only available in dev mode.
+    </p>
+  </div>
   <div v-else class="grid grid-cols-[max-content_1fr] h-screen w-screen max-w-screen max-h-screen of-hidden">
     <PanelSideNav />
     <div class="of-auto h-screen max-h-screen relative">
