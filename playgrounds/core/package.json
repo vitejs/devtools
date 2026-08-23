@@ -4,9 +4,9 @@
   "version": "0.6.0",
   "private": true,
   "scripts": {
-    "dev": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true vite",
+    "dev": "DEBUG='vite:devtools:*' VITE_CONFIG_NATIVE_IGNORE_WARNING=true VITE_DEVTOOLS_LOCAL_DEV=true vite",
     "dev:standalone": "DEBUG='vite:devtools:*' VITE_DEVTOOLS_LOCAL_DEV=true tsx ../../packages/core/src/node/cli.ts",
-    "build": "vite build && vite-devtools"
+    "build": "VITE_CONFIG_NATIVE_IGNORE_WARNING=true vite build && VITE_CONFIG_NATIVE_IGNORE_WARNING=true vite-devtools"
   },
   "dependencies": {
     "@devframes/plugin-a11y": "catalog:deps",
