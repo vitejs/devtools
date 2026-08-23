@@ -1,7 +1,7 @@
 {
   "name": "example-plugin-git-ui",
   "type": "module",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "private": true,
   "exports": {
     ".": "./dist/index.mjs",
