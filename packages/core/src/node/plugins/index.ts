@@ -8,6 +8,28 @@ import { DevToolsServer } from './server'
 
 export type { DevToolsOptions } from '../plugin-options'
 
+export function resolveDevToolsPluginOptions(
+  config: ResolvedDevToolsConfig,
+  cwd: string,
+): DevToolsOptions {
+  const {
+    branding,
+    build,
+    builtinDevTools,
+    dockPreferences,
+    embeddedVisibility,
+  } = config.config
+
+  return {
+    branding,
+    build,
+    builtinDevTools,
+    cwd,
+    dockPreferences,
+    embeddedVisibility,
+  }
+}
+
 export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
   return [
     { name: 'vite:devtools' },

@@ -1,8 +1,7 @@
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
 import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
-import type { DevToolsOptions } from '../plugin-options'
 import { isDevToolsEnabled, normalizeDevToolsConfig } from '../config'
-import { createDevToolsPlugins } from './index'
+import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './index'
 
 type DevToolsEnvironment = ResolvedConfig['environments'][string]
 
@@ -43,8 +42,11 @@ export async function runDevTools(
     return
   for (const _environment of getDevToolsEnvironments(config, devtoolsConfig)) {
     try {
-      const { start } = await import('../cli-commands')
-      await start(devtoolsConfig.config)
+      const { startDevTools } = await import('../start')
+      await startDevTools({
+        ...devtoolsConfig.config,
+        root: devtoolsConfig.config.root ?? config.root,
+      }, devtoolsConfig)
     }
     catch (error: any) {
       config.logger.error(
@@ -79,21 +81,7 @@ export async function DevToolsIntegration(options: DevToolsIntegrationOptions): 
     return []
   }
 
-  const {
-    branding,
-    build,
-    builtinDevTools,
-    dockPreferences,
-    embeddedVisibility,
-  } = devtoolsConfig.config
-  const pluginOptions: DevToolsOptions = {
-    branding,
-    build,
-    builtinDevTools,
-    cwd: config.root,
-    dockPreferences,
-    embeddedVisibility,
-  }
+  const pluginOptions = resolveDevToolsPluginOptions(devtoolsConfig, config.root)
   if (config.command === 'serve') {
     return createDevToolsPlugins(pluginOptions, devtoolsConfig)
   }

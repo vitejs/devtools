@@ -1,12 +1,20 @@
 import type { Plugin, ResolvedConfig } from 'vite'
-import { describe, expect, it } from 'vitest'
-import { DevToolsIntegration } from '../plugins/integration'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { DevToolsIntegration, runDevTools } from '../plugins/integration'
+import { startDevTools } from '../start'
 
-function createConfig(command: 'serve' | 'build'): ResolvedConfig {
+vi.mock('../start', () => ({
+  startDevTools: vi.fn(),
+}))
+
+function createConfig(
+  command: 'serve' | 'build',
+  environments: ResolvedConfig['environments'] = {},
+): ResolvedConfig {
   return {
     command,
     root: '/vite-devtools-test-project',
-    environments: {},
+    environments,
     plugins: [],
   } as unknown as ResolvedConfig
 }
@@ -19,6 +27,10 @@ function createDevToolsConfig(apply: 'serve' | 'build' | 'all') {
 }
 
 describe('devToolsIntegration', () => {
+  beforeEach(() => {
+    vi.mocked(startDevTools).mockClear()
+  })
+
   it('returns the existing DevTools plugins for serve', async () => {
     const plugins = await DevToolsIntegration({
       config: createConfig('serve'),
@@ -79,6 +91,38 @@ describe('devToolsIntegration', () => {
     })
 
     expect(plugins).toEqual([])
+  })
+
+  it('passes the resolved config to standalone DevTools', async () => {
+    const config = createConfig('build', { client: {} as never })
+
+    await runDevTools({ config }, {
+      host: 'dev.example.com',
+      options: {
+        allowedOrigins: ['https://dev.example.com'],
+        builtinDevTools: false,
+        clientAuthTokens: ['trusted-token'],
+      },
+    })
+
+    const resolvedConfig = {
+      apply: 'all',
+      config: expect.objectContaining({
+        allowedOrigins: ['https://dev.example.com'],
+        builtinDevTools: false,
+        clientAuth: true,
+        clientAuthTokens: ['trusted-token'],
+        host: 'dev.example.com',
+      }),
+      enabled: true,
+    }
+    expect(startDevTools).toHaveBeenCalledWith(
+      expect.objectContaining({
+        host: 'dev.example.com',
+        root: '/vite-devtools-test-project',
+      }),
+      resolvedConfig,
+    )
   })
 
   it('enables Rolldown DevTools for selected build environments', async () => {
