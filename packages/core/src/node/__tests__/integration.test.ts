@@ -27,7 +27,6 @@ describe('devToolsIntegration', () => {
 
     expect((plugins as Plugin[]).map(plugin => plugin.name)).toEqual([
       'vite:devtools:builtin',
-      'vite:devtools',
       'vite:devtools:injection',
       'vite:devtools:server',
     ])
@@ -55,6 +54,7 @@ describe('devToolsIntegration', () => {
     })
 
     expect(plugins.map(plugin => plugin.name)).toContain('vite:devtools:build')
+    expect(plugins.map(plugin => plugin.name)).not.toContain('vite:devtools')
   })
 
   it.each([

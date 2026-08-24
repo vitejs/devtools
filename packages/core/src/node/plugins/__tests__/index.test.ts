@@ -1,13 +1,21 @@
 import { isPackageExists } from 'local-pkg'
 import { resolve } from 'pathe'
 import { describe, expect, it, vi } from 'vitest'
-import { DevTools } from '../index'
+import { createDevToolsPlugins, DevTools } from '../index'
 
 vi.mock('local-pkg', () => ({
   isPackageExists: vi.fn(() => false),
 }))
 
 describe('devTools', () => {
+  it('marks only the public manual plugin entry', async () => {
+    const manualPlugins = await DevTools({ builtinDevTools: false })
+    const internalPlugins = await createDevToolsPlugins({ builtinDevTools: false })
+
+    expect(manualPlugins.map(plugin => plugin.name)).toContain('vite:devtools')
+    expect(internalPlugins.map(plugin => plugin.name)).not.toContain('vite:devtools')
+  })
+
   it('resolves optional integrations from the configured project directory', async () => {
     const cwd = 'project/root'
     const resolvedCwd = resolve(cwd)

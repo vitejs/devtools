@@ -8,8 +8,11 @@ import { DevToolsServer } from './server'
 
 export type { DevToolsOptions } from '../plugin-options'
 
-export function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
-  return createDevToolsPlugins(options)
+export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
+  return [
+    { name: 'vite:devtools' },
+    ...await createDevToolsPlugins(options),
+  ]
 }
 
 export async function createDevToolsPlugins(
@@ -27,7 +30,6 @@ export async function createDevToolsPlugins(
   const ui = { branding, embeddedVisibility, dockPreferences }
 
   const plugins = [
-    { name: 'vite:devtools' },
     DevToolsInjection(),
     DevToolsServer(ui, resolvedConfig),
   ]

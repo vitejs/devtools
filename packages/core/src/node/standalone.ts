@@ -2,7 +2,7 @@ import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import process from 'node:process'
 import { createDevToolsContext } from './context'
-import { DevTools } from './plugins'
+import { createDevToolsPlugins } from './plugins'
 
 export interface StandaloneDevToolsOptions {
   cwd?: string
@@ -28,7 +28,7 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
       configFile: options.config,
       root: cwd,
       plugins: [
-        DevTools({ cwd }),
+        createDevToolsPlugins({ cwd }),
       ],
     },
     command,
