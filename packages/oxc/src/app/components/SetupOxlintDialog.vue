@@ -83,7 +83,6 @@ async function viewInTerminal() {
       params: { sessionId: sessionId.value },
     })
   }
-  open.value = false
 }
 </script>
 
