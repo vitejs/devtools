@@ -1,4 +1,5 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DevToolsConfig } from './config'
 import process from 'node:process'
 import { createInteractiveAuth } from 'devframe/recipes/interactive-auth'
 
@@ -17,8 +18,10 @@ const handlers = new WeakMap<ViteDevToolsNodeContext, DevToolsAuthHandler>()
 export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHandler {
   let handler = handlers.get(context)
   if (!handler) {
+    const config = context.viteConfig.devtools?.config as DevToolsConfig | undefined
     handler = createInteractiveAuth(context, {
-      clientAuthTokens: context.viteConfig.devtools?.config?.clientAuthTokens,
+      clientAuthTokens: config?.clientAuthTokens,
+      banner: config?.banner,
     })
     handlers.set(context, handler)
   }

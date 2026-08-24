@@ -8,6 +8,7 @@ export interface DevToolsConfig extends Partial<StartOptions> {
   environments?: string[];
   clientAuth?: boolean;
   clientAuthTokens?: string[];
+  banner?: CreateInteractiveAuthOptions['banner'];
   allowedOrigins?: string[];
 }
 export interface ResolvedDevToolsConfig {
