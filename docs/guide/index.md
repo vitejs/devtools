@@ -70,22 +70,16 @@ export default defineConfig({
 
 ### Customize the embedded UI
 
-Vite adds the embedded dock automatically during `vite dev`. To customize it, add the `DevTools()` plugin manually. The examples keep the automatic integration enabled only for build to avoid mounting the dock twice.
+Vite adds the embedded dock automatically during `vite dev`. Configure its UI through the core `devtools` option.
 
 `embeddedVisibility` controls when the dock appears. The default `'normal'` shows it immediately. `'passive'` hides it until <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>D</kbd> (<kbd>⇧</kbd> <kbd>⌥</kbd> <kbd>D</kbd> on macOS) and remembers when it has been revealed. `'hidden'` uses the same shortcut without remembering the choice.
 
 ```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    DevTools({
-      embeddedVisibility: 'passive',
-    }),
-  ],
   devtools: {
-    apply: 'build',
+    embeddedVisibility: 'passive',
   },
 })
 ```
@@ -93,20 +87,14 @@ export default defineConfig({
 Use `dockPreferences` to set the initial dock layout. Users can still change these settings in DevTools.
 
 ```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    DevTools({
-      dockPreferences: {
-        defaultMode: 'edge',
-        defaultPosition: 'bottom',
-      },
-    }),
-  ],
   devtools: {
-    apply: 'build',
+    dockPreferences: {
+      defaultMode: 'edge',
+      defaultPosition: 'bottom',
+    },
   },
 })
 ```
@@ -137,21 +125,16 @@ See [Client Script & Context](/kit/client-context#client-script-not-injected) fo
 Set `build.withApp` to write the static DevTools files alongside the app build:
 
 ```ts [vite.config.ts] twoslash
-import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    DevTools({
-      build: {
-        withApp: true, // generate DevTools output during `vite build`
-        // outDir: 'custom-dir', // optional, defaults to Vite's build.outDir
-      },
-    }),
-  ],
   devtools: {
     apply: 'build',
-  }
+    build: {
+      withApp: true, // generate DevTools output during `vite build`
+      // outDir: 'custom-dir', // optional, defaults to Vite's build.outDir
+    },
+  },
 })
 ```
 

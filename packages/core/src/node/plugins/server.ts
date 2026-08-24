@@ -1,6 +1,7 @@
 import type { ClientScriptEntry, DevToolsDockEntry, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { Plugin } from 'vite'
+import type { ResolvedDevToolsConfig } from '../config'
 import type { ViteDevToolsUiOptions } from '../ui'
 import {
   DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID,
@@ -37,7 +38,10 @@ export function renderDockImportsMap(docks: Iterable<DevToolsDockEntry>): string
   ].join('\n')
 }
 
-export function DevToolsServer(options: ViteDevToolsUiOptions = {}): Plugin {
+export function DevToolsServer(
+  options: ViteDevToolsUiOptions = {},
+  devtoolsConfig?: ResolvedDevToolsConfig,
+): Plugin {
   let context: ViteDevToolsNodeContext
   let close: (() => Promise<void>) | undefined
   return {
@@ -45,7 +49,11 @@ export function DevToolsServer(options: ViteDevToolsUiOptions = {}): Plugin {
     enforce: 'post',
     apply: 'serve',
     async configureServer(viteDevServer) {
-      context = await createDevToolsContext(viteDevServer.config, viteDevServer)
+      context = await createDevToolsContext(
+        viteDevServer.config,
+        viteDevServer,
+        devtoolsConfig,
+      )
 
       const host = viteDevServer.config.server.host === true
         ? '0.0.0.0'

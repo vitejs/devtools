@@ -1,8 +1,9 @@
 import type { StartOptions } from './cli-commands'
+import type { DevToolsUserOptions } from './plugin-options'
 
 export type DevToolsApply = 'serve' | 'build' | 'all'
 
-export interface DevToolsConfig extends Partial<StartOptions> {
+export interface DevToolsConfig extends Partial<StartOptions>, DevToolsUserOptions {
   /**
    * Enable Vite DevTools.
    *

@@ -1,37 +1,10 @@
-import type { DevframeBranding, DevframeDockPreferences, EmbeddedVisibility } from '@devframes/hub-ui'
+import type { DevframeBranding } from '@devframes/hub-ui'
 import type { DevframeHubUi } from '@devframes/hub/initiate'
+import type { DevToolsBranding, ViteDevToolsUiOptions } from './plugin-options'
 import { createUi } from '@devframes/hub-ui'
 import { DEVTOOLS_ASSETS_BASE } from '../dirs'
 
-export interface ViteDevToolsUiOptions {
-  /**
-   * Override the Vite DevTools branding handed to `@devframes/hub-ui`
-   * (`ConnectionMeta.configs.ui.branding`) — product name, logo, wordmark,
-   * primary color, tagline, favicon, and window title.
-   *
-   * Each field is merged over the built-in Vite DevTools defaults
-   * ({@link viteDevToolsBranding}), so a host such as Nuxt DevTools can
-   * re-skin the client while inheriting any field it leaves unset. Asset
-   * fields (`logo`/`wordmark`/`favicon`) take URL strings; a host serving its
-   * own marks is responsible for hosting them.
-   */
-  branding?: DevframeBranding
-  /**
-   * How the embedded floating dock reveals itself on a fresh page. Seeds a
-   * user-overridable preference published as
-   * `ConnectionMeta.configs.ui.embeddedVisibility`.
-   *
-   * @default 'normal'
-   */
-  embeddedVisibility?: EmbeddedVisibility
-  /**
-   * Dock-bar rendering preferences — category ordering, floating-dock
-   * inline-item capacity, and the first-run float/edge mode and position.
-   * Each seeds a user-overridable preference published as
-   * `ConnectionMeta.configs.ui.dockPreferences`.
-   */
-  dockPreferences?: DevframeDockPreferences
-}
+export type { ViteDevToolsUiOptions } from './plugin-options'
 
 export function viteDevToolsBranding(): DevframeBranding {
   return {
@@ -71,7 +44,7 @@ export function createViteDevToolsUi(options: ViteDevToolsUiOptions = {}): Devfr
  * the host actually sets win; an explicit `undefined` is ignored so a partial
  * override never clobbers a default with a hole.
  */
-function resolveBranding(overrides?: DevframeBranding): DevframeBranding {
+function resolveBranding(overrides?: DevToolsBranding): DevframeBranding {
   const branding = viteDevToolsBranding()
   if (!overrides) {
     return branding

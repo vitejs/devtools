@@ -1,6 +1,7 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import process from 'node:process'
 import { createInteractiveAuth } from 'devframe/recipes/interactive-auth'
+import { getResolvedDevToolsConfig } from './resolved-config'
 
 export type DevToolsAuthHandler = ReturnType<typeof createInteractiveAuth>
 
@@ -18,7 +19,7 @@ export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHa
   let handler = handlers.get(context)
   if (!handler) {
     handler = createInteractiveAuth(context, {
-      clientAuthTokens: context.viteConfig.devtools?.config?.clientAuthTokens,
+      clientAuthTokens: getResolvedDevToolsConfig(context).config.clientAuthTokens,
     })
     handlers.set(context, handler)
   }
@@ -38,6 +39,6 @@ export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHa
  */
 export function isClientAuthDisabled(context: ViteDevToolsNodeContext): boolean {
   return context.mode === 'build'
-    || context.viteConfig.devtools?.config?.clientAuth === false
+    || getResolvedDevToolsConfig(context).config.clientAuth === false
     || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
 }
