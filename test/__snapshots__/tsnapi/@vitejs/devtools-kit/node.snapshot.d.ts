@@ -35,7 +35,7 @@ export interface InstallLauncherOptions {
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
-  createJsonRenderer: (_: JsonRenderSpec) => JsonRenderer;
+  createJsonRenderer: <SpecType extends JsonRenderSpec>(_: SpecType, _?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>) => JsonRenderer<SpecType>;
 }
 export interface ProcessLauncherOptions {
   id: string;
@@ -89,14 +89,14 @@ interface DevToolsLaunchRoot {
   label: string;
   description?: string;
 }
-interface JsonRenderer {
-  updateSpec: (_: JsonRenderSpec) => void;
+interface JsonRenderer<SpecType extends JsonRenderSpec = JsonRenderSpec> {
+  updateSpec: (_: SpecType) => void;
   updateState: (_: Record<string, unknown>) => void;
   dispose: () => void;
   readonly _stateKey: string;
-  readonly view: JsonRenderViewRef;
+  readonly view: JsonRenderViewRef<SpecType>;
 }
-type JsonRenderSpec = DevframeJsonRenderSpec;
+type JsonRenderSpec<Element extends UIElement = UIElement> = DevframeJsonRenderSpec<Element>;
 interface PluginWithDevTools extends Plugin {
   devtools?: DevToolsPluginOptions;
 }

@@ -1,5 +1,7 @@
 import type { DevframeDockEntryCategory, DevframeViewLauncher } from '@devframes/hub/types'
 
+export type { DockRendererRegistration } from '@devframes/hub/initiate'
+
 export type {
   ClientScriptEntry,
   DevframeDockActivation as DevToolsDockActivation,
