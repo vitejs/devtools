@@ -22,10 +22,12 @@ const gitDirty = ref(false)
 const commandLine = ref('')
 const sessionId = ref<string>()
 const errorMessage = ref<string>()
+const isLoading = ref(false)
 let previewRequest = 0
 
 async function loadPreview() {
   const request = ++previewRequest
+  isLoading.value = true
   try {
     const preview = await rpc.value.call('devtools-oxc:oxfmt-setup-preview', {
       migrate: migrate.value,
@@ -39,6 +41,8 @@ async function loadPreview() {
   } catch (error) {
     if (request !== previewRequest) return
     errorMessage.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    if (request === previewRequest) isLoading.value = false
   }
 }
 
@@ -121,7 +125,7 @@ async function viewInTerminal() {
         </p>
 
         <div class="flex-auto" />
-        <div class="flex items-center justify-between gap-2">
+        <div v-if="!isLoading" class="flex items-center justify-between gap-2">
           <FormCheckbox v-if="canMigrate" v-model="migrate">
             <span class="text-sm"
               >Migrate from {{ migration === 'prettier' ? 'Prettier' : 'Biome' }}</span
