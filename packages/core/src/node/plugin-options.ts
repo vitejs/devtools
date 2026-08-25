@@ -19,6 +19,12 @@ export interface DevToolsDockPreferences {
   defaultPosition?: 'left' | 'right' | 'top' | 'bottom'
 }
 
+export interface DevToolsDockRendererRegistration {
+  type: string
+  file: string
+  importName?: string
+}
+
 export type DevToolsEmbeddedVisibility = 'normal' | 'passive' | 'hidden'
 
 export interface ViteDevToolsUiOptions {
@@ -34,6 +40,8 @@ export interface DevToolsUserOptions {
    * @default true
    */
   builtinDevTools?: boolean
+  /** Dock renderer modules, replacing built-ins with the same type and appending new types. */
+  renderers?: readonly DevToolsDockRendererRegistration[]
   /** Override the branding handed to the DevTools client. */
   branding?: ViteDevToolsUiOptions['branding']
   /** Control how the embedded floating dock reveals itself. */

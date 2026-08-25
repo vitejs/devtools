@@ -12,10 +12,12 @@ const open = defineModel<boolean>('open', { default: false })
 const rpc = useRpc()
 
 type Stage = 'confirm' | 'running' | 'error'
+type Migration = 'prettier' | 'biome'
 
 const stage = ref<Stage>('confirm')
 const canMigrate = ref(false)
 const migrate = ref(true)
+const migration = ref<Migration>()
 const gitDirty = ref(false)
 const commandLine = ref('')
 const sessionId = ref<string>()
@@ -27,11 +29,12 @@ async function loadPreview() {
   const request = ++previewRequest
   isLoading.value = true
   try {
-    const preview = await rpc.value.call('devtools-oxc:setup-preview', {
+    const preview = await rpc.value.call('devtools-oxc:oxfmt-setup-preview', {
       migrate: migrate.value,
     })
     if (request !== previewRequest) return
     canMigrate.value = preview.canMigrate
+    migration.value = preview.migration
     if (!preview.canMigrate) migrate.value = false
     commandLine.value = preview.command
     gitDirty.value = preview.gitDirty
@@ -48,6 +51,7 @@ watch(open, async isOpen => {
   stage.value = 'confirm'
   canMigrate.value = false
   migrate.value = true
+  migration.value = undefined
   gitDirty.value = false
   commandLine.value = ''
   sessionId.value = undefined
@@ -63,11 +67,9 @@ async function confirmSetup() {
   stage.value = 'running'
   errorMessage.value = undefined
   try {
-    const action =
-      migrate.value && canMigrate.value
-        ? 'devtools-oxc:migrate-eslint'
-        : 'devtools-oxc:install-oxlint'
-    const result = await rpc.value.call(action)
+    const result = await rpc.value.call('devtools-oxc:setup-oxfmt', {
+      migrate: migrate.value,
+    })
     sessionId.value = result.sessionId
     await rpc.value.call('devtools-oxc:wait-for-setup')
     if (!open.value) return
@@ -92,26 +94,18 @@ async function viewInTerminal() {
 
 <template>
   <OverlayModal v-model:open="open">
-    <template #title> Setup Oxlint with devtools</template>
+    <template #title> Setup Oxfmt with devtools</template>
 
     <div class="flex flex-col gap-4 w-140 max-w-full min-h-64">
       <template v-if="stage === 'confirm'">
         <p class="m0 op70 text-sm">
           <template v-if="canMigrate && migrate">
-            Oxlint will be installed as a development dependency, and
-            <a
-              href="https://github.com/oxc-project/oxlint-migrate"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="color-active hover:underline"
-            >
-              oxlint-migrate
-            </a>
-            will convert your ESLint flat config into an Oxlint configuration.
+            Oxfmt will be installed as a development dependency and migrate your
+            {{ migration === 'prettier' ? 'Prettier' : 'Biome' }} configuration.
           </template>
           <template v-else>
-            Oxlint will be installed as a development dependency and create a starter configuration
-            with <code>oxlint --init</code>.
+            Oxfmt will be installed as a development dependency and create a starter configuration
+            with <code>oxfmt --init</code>.
           </template>
         </p>
 
@@ -133,7 +127,9 @@ async function viewInTerminal() {
         <div class="flex-auto" />
         <div v-if="!isLoading" class="flex items-center justify-between gap-2">
           <FormCheckbox v-if="canMigrate" v-model="migrate">
-            <span class="text-sm">Migrate from ESLint</span>
+            <span class="text-sm"
+              >Migrate from {{ migration === 'prettier' ? 'Prettier' : 'Biome' }}</span
+            >
           </FormCheckbox>
           <div class="flex gap-2">
             <ActionButton @click="open = false"> Cancel </ActionButton>
@@ -142,14 +138,14 @@ async function viewInTerminal() {
               icon="i-ph-rocket-launch-duotone"
               @click="confirmSetup()"
             >
-              Setup Oxlint
+              Setup Oxfmt
             </ActionButton>
           </div>
         </div>
       </template>
 
       <template v-else-if="stage === 'running'">
-        <VisualLoading class="flex-auto" text="Setting up Oxlint…" />
+        <VisualLoading class="flex-auto" text="Setting up Oxfmt…" />
         <div class="flex justify-end gap-2">
           <ActionButton @click="open = false"> Dismiss </ActionButton>
           <ActionButton
@@ -166,7 +162,7 @@ async function viewInTerminal() {
       <template v-else>
         <div class="flex gap-2 items-center text-red">
           <span class="i-ph-x-circle-duotone" />
-          Oxlint setup failed.
+          Oxfmt setup failed.
         </div>
         <p v-if="errorMessage" class="m0 op70 text-sm">
           {{ errorMessage }}

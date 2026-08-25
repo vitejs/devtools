@@ -34,6 +34,7 @@ export async function startDevTools(
   const { middleware } = await createDevToolsHub({
     context: devtools.context,
     host,
+    renderers: resolvedConfig?.config.renderers,
     ui: resolvedConfig?.config,
   })
 

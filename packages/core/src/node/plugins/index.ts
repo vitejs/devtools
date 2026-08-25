@@ -18,6 +18,7 @@ export function resolveDevToolsPluginOptions(
     builtinDevTools,
     dockPreferences,
     embeddedVisibility,
+    renderers,
   } = config.config
 
   return {
@@ -27,6 +28,7 @@ export function resolveDevToolsPluginOptions(
     cwd,
     dockPreferences,
     embeddedVisibility,
+    renderers,
   }
 }
 
@@ -47,18 +49,20 @@ export async function createDevToolsPlugins(
     branding,
     embeddedVisibility = 'normal',
     dockPreferences,
+    renderers,
   } = options
 
   const ui = { branding, embeddedVisibility, dockPreferences }
 
   const plugins = [
     DevToolsInjection(),
-    DevToolsServer(ui, resolvedConfig),
+    DevToolsServer(ui, resolvedConfig, renderers),
   ]
 
   if (build?.withApp) {
     plugins.push(DevToolsBuild({
       outDir: build.outDir,
+      renderers,
       resolvedConfig,
       ui,
     }))

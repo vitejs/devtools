@@ -4,6 +4,7 @@
 // #region Interfaces
 export interface CreateDevToolsHubOptions {
   context: ViteDevToolsNodeContext;
+  renderers?: readonly DockRendererRegistration[];
   ui?: ViteDevToolsUiOptions;
   server?: Server;
   host?: string;
@@ -22,28 +23,9 @@ export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpc
 // #endregion
 
 // #region Functions
-export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer): Promise<ViteDevToolsNodeContext>;
+export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer, _?: ResolvedDevToolsConfig): Promise<ViteDevToolsNodeContext>;
 export declare function createDevToolsHub(_: CreateDevToolsHubOptions): Promise<DevToolsHub>;
 export declare function DevTools(_?: DevToolsOptions): Promise<Plugin[]>;
-// #endregion
-
-// #region Referenced (internal)
-interface DevToolsOptions {
-  cwd?: string;
-  builtinDevTools?: boolean;
-  branding?: ViteDevToolsUiOptions['branding'];
-  embeddedVisibility?: ViteDevToolsUiOptions['embeddedVisibility'];
-  dockPreferences?: ViteDevToolsUiOptions['dockPreferences'];
-  build?: {
-    withApp?: boolean;
-    outDir?: string;
-  };
-}
-interface ViteDevToolsUiOptions {
-  branding?: DevframeBranding;
-  embeddedVisibility?: EmbeddedVisibility;
-  dockPreferences?: DevframeDockPreferences;
-}
 // #endregion
 
 // #region Other

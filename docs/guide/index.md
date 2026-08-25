@@ -79,6 +79,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    apply: 'serve',
     embeddedVisibility: 'passive',
   },
 })
@@ -91,6 +92,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    apply: 'serve',
     dockPreferences: {
       defaultMode: 'edge',
       defaultPosition: 'bottom',

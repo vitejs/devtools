@@ -18,8 +18,10 @@ const handlers = new WeakMap<ViteDevToolsNodeContext, DevToolsAuthHandler>()
 export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHandler {
   let handler = handlers.get(context)
   if (!handler) {
+    const config = getResolvedDevToolsConfig(context).config
     handler = createInteractiveAuth(context, {
-      clientAuthTokens: getResolvedDevToolsConfig(context).config.clientAuthTokens,
+      clientAuthTokens: config.clientAuthTokens,
+      banner: config.banner,
     })
     handlers.set(context, handler)
   }

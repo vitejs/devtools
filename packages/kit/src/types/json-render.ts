@@ -11,7 +11,7 @@ import type {
 // `@devframes/json-render` package.
 
 /** A json-render spec — the declarative UI description a plugin authors. */
-export type JsonRenderSpec = DevframeJsonRenderSpec
+export type JsonRenderSpec<Element extends UIElement = UIElement> = DevframeJsonRenderSpec<Element>
 
 /** A single element within a spec's `elements` map. */
 export type JsonRenderElement = UIElement
@@ -28,9 +28,9 @@ export type { JsonRenderView, JsonRenderViewRef }
  * view: renderer.view, … })`); the client subscribes through its `stateKey`.
  * Drive the panel by calling `updateSpec` / `updateState` on the handle.
  */
-export interface JsonRenderer {
+export interface JsonRenderer<SpecType extends JsonRenderSpec = JsonRenderSpec> {
   /** Replace the entire spec. */
-  updateSpec: (spec: JsonRenderSpec) => void
+  updateSpec: (spec: SpecType) => void
   /** Shallow-merge values into the view's `state`. */
   updateState: (state: Record<string, unknown>) => void
   /** Unregister the underlying view's shared state and listeners. */
@@ -38,5 +38,5 @@ export interface JsonRenderer {
   /** Shared-state key the client subscribes to for the live spec + state. */
   readonly _stateKey: string
   /** The serializable reference to the underlying view. */
-  readonly view: JsonRenderViewRef
+  readonly view: JsonRenderViewRef<SpecType>
 }

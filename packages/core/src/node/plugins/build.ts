@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
 import type { ResolvedDevToolsConfig } from '../config'
 import type { ViteDevToolsUiOptions } from '../ui'
@@ -11,6 +11,7 @@ import { MARK_NODE } from '../constants'
 export interface DevToolsBuildOptions {
   resolvedConfig?: ResolvedDevToolsConfig
   outDir?: string
+  renderers?: readonly DockRendererRegistration[]
   /** Reference-UI options forwarded to the static snapshot's `createUi`. */
   ui?: ViteDevToolsUiOptions
 }
@@ -44,7 +45,7 @@ export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
         : resolve(resolvedConfig.root, resolvedConfig.build.outDir)
 
       const { buildStaticDevTools } = await import('../build-static')
-      await buildStaticDevTools({ context, outDir, withApp: true, ui: options.ui })
+      await buildStaticDevTools({ context, outDir, withApp: true, ui: options.ui, renderers: options.renderers })
     },
   }
 }

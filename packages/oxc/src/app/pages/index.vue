@@ -17,6 +17,7 @@ const {
 } = useAsyncState(() => rpc.value.call('devtools-oxc:overview'), createOverview())
 
 const setupOpen = ref(false)
+const oxfmtSetupOpen = ref(false)
 
 interface ToolView {
   title: string
@@ -155,6 +156,18 @@ const tools = computed(() => {
                 <div class="text-xs op-fade mt-0.5">Install & setup Oxlint</div>
               </div>
             </button>
+            <button
+              v-if="tool.id === 'oxfmt' && !tool.info.installed"
+              type="button"
+              class="rounded-lg px-3 py-3 flex items-start gap-3 hover:bg-active transition-colors disabled:pointer-events-none disabled:op30!"
+              @click="oxfmtSetupOpen = true"
+            >
+              <div class="i-ph-rocket-launch-duotone text-2xl mt-0.5" />
+              <div class="text-left">
+                <div class="font-medium">Setup Oxfmt</div>
+                <div class="text-xs op-fade mt-0.5">Install & setup Oxfmt</div>
+              </div>
+            </button>
             <NuxtLink
               v-for="view in tool.views"
               :key="view.title"
@@ -172,5 +185,6 @@ const tools = computed(() => {
       </div>
     </div>
     <SetupOxlintDialog v-model:open="setupOpen" @refresh="refreshOverview()" />
+    <SetupOxfmtDialog v-model:open="oxfmtSetupOpen" @refresh="refreshOverview()" />
   </div>
 </template>

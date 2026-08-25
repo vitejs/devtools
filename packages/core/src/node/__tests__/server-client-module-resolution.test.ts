@@ -10,7 +10,7 @@ vi.mock('@devframes/hub/initiate', () => ({
 }))
 
 vi.mock('@devframes/json-render-ui/hub', () => ({
-  jsonRenderUiRenderer: () => ({}),
+  jsonRenderUiRenderer: () => ({ type: 'json-render', file: '/builtin-json-render.mjs' }),
 }))
 
 vi.mock('../ui', () => ({
@@ -56,5 +56,30 @@ describe('createDevToolsHub client module resolution', () => {
 
     expect(initHub).toHaveBeenCalledOnce()
     expect(initHub.mock.calls[0]![0]).not.toHaveProperty('clientModuleResolution')
+  })
+
+  it('uses the built-in renderer list by default', async () => {
+    expect.assertions(1)
+    await createDevToolsHub({ context: fakeContext() })
+
+    expect(initHub.mock.calls[0]![0].renderers).toEqual([
+      { type: 'json-render', file: '/builtin-json-render.mjs' },
+    ])
+  })
+
+  it('replaces matching built-ins and appends new configured renderers', async () => {
+    expect.assertions(1)
+    await createDevToolsHub({
+      context: fakeContext(),
+      renderers: [
+        { type: 'json-render', file: '/replacement.mjs' },
+        { type: 'custom-render', file: '/custom.mjs' },
+      ],
+    })
+
+    expect(initHub.mock.calls[0]![0].renderers).toEqual([
+      { type: 'json-render', file: '/replacement.mjs' },
+      { type: 'custom-render', file: '/custom.mjs' },
+    ])
   })
 })

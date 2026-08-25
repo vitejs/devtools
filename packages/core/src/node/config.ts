@@ -37,6 +37,13 @@ export interface DevToolsConfig extends Partial<StartOptions>, DevToolsUserOptio
    */
   clientAuthTokens?: string[]
   /**
+   * Print the one-time code and magic-link URL somewhere other than stdout.
+   *
+   * The default banner is a boxed `console.log` from inside the dev server.
+   * Supply this to surface the code in the host's own chrome instead.
+   */
+  banner?: (info: { code: string, url: string }) => void
+  /**
    * Origins allowed to open the DevTools WebSocket connection, in addition to the built-in
    * loopback allowlist (`localhost`, `127.0.0.1`, etc).
    *
