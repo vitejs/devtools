@@ -5,7 +5,8 @@ import {
 } from './node/plugins/integration'
 
 export interface DevToolsIntegrationOptions {
-  config: unknown
+  command: 'serve' | 'build'
+  root: string
   devtools: DevToolsIntegrationConfig
 }
 

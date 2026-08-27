@@ -7,7 +7,7 @@ vi.mock('../start', () => ({
   startDevTools: vi.fn(),
 }))
 
-function createConfig(
+function createResolvedConfig(
   command: 'serve' | 'build',
   environments: ResolvedConfig['environments'] = {},
 ): ResolvedConfig {
@@ -17,6 +17,17 @@ function createConfig(
     environments,
     plugins: [],
   } as unknown as ResolvedConfig
+}
+
+function createIntegrationOptions(
+  command: 'serve' | 'build',
+  devtools = createDevToolsConfig(command),
+) {
+  return {
+    command,
+    devtools,
+    root: '/vite-devtools-test-project',
+  } as const
 }
 
 function createDevToolsConfig(apply: 'serve' | 'build' | 'all') {
@@ -33,11 +44,12 @@ describe('devToolsIntegration', () => {
 
   it('returns the existing DevTools plugins for serve', async () => {
     const plugins = await DevToolsIntegration({
-      config: createConfig('serve'),
+      ...createIntegrationOptions('serve'),
       devtools: createDevToolsConfig('serve'),
     })
 
     expect((plugins as Plugin[]).map(plugin => plugin.name)).toEqual([
+      'vite:devtools:config',
       'vite:devtools:builtin',
       'vite:devtools:injection',
       'vite:devtools:server',
@@ -45,10 +57,11 @@ describe('devToolsIntegration', () => {
   })
 
   it('returns the build integration plugin for build', async () => {
-    const [plugin] = await DevToolsIntegration({
-      config: createConfig('build'),
+    const plugins = await DevToolsIntegration({
+      ...createIntegrationOptions('build'),
       devtools: createDevToolsConfig('build'),
     })
+    const plugin = plugins.find(plugin => plugin.name === 'vite:devtools:integration')
 
     expect(plugin).toMatchObject({
       name: 'vite:devtools:integration',
@@ -58,7 +71,7 @@ describe('devToolsIntegration', () => {
 
   it('creates the static build plugin from the core config', async () => {
     const plugins = await DevToolsIntegration({
-      config: createConfig('build'),
+      ...createIntegrationOptions('build'),
       devtools: {
         host: 'localhost',
         options: { build: { withApp: true } },
@@ -74,19 +87,19 @@ describe('devToolsIntegration', () => {
     { command: 'build', expected: undefined },
   ] as const)('uses the current $command integration when apply is all', async ({ command, expected }) => {
     const plugins = await DevToolsIntegration({
-      config: createConfig(command),
+      ...createIntegrationOptions(command),
       devtools: createDevToolsConfig('all'),
     })
     const plugin = command === 'serve'
       ? plugins.find(plugin => plugin.name === 'vite:devtools:server')
-      : plugins[0]
+      : plugins.find(plugin => plugin.name === 'vite:devtools:integration')
 
     expect(plugin?.enforce).toBe(expected)
   })
 
   it('returns no plugins when apply excludes the current command', async () => {
     const plugins = await DevToolsIntegration({
-      config: createConfig('serve'),
+      ...createIntegrationOptions('serve'),
       devtools: createDevToolsConfig('build'),
     })
 
@@ -94,7 +107,7 @@ describe('devToolsIntegration', () => {
   })
 
   it('passes the resolved config to standalone DevTools', async () => {
-    const config = createConfig('build', { client: {} as never })
+    const config = createResolvedConfig('build', { client: {} as never })
 
     await runDevTools({ config }, {
       host: 'dev.example.com',
@@ -126,13 +139,14 @@ describe('devToolsIntegration', () => {
   })
 
   it('enables Rolldown DevTools for selected build environments', async () => {
-    const [plugin] = await DevToolsIntegration({
-      config: createConfig('build'),
+    const plugins = await DevToolsIntegration({
+      ...createIntegrationOptions('build'),
       devtools: {
         host: 'localhost',
         options: { environments: ['client'] },
       },
     })
+    const plugin = plugins.find(plugin => plugin.name === 'vite:devtools:integration')
     const client: { build: { rolldownOptions: { devtools?: object } } } = { build: { rolldownOptions: {} } }
     const ssr: { build: { rolldownOptions: { devtools?: object } } } = { build: { rolldownOptions: {} } }
     const config = {
@@ -146,5 +160,19 @@ describe('devToolsIntegration', () => {
 
     expect(client.build.rolldownOptions.devtools).toEqual({})
     expect(ssr.build.rolldownOptions.devtools).toBeUndefined()
+  })
+
+  it('returns a pre plugin for refreshing the resolved integration config', async () => {
+    const plugins = await DevToolsIntegration({
+      ...createIntegrationOptions('serve'),
+      devtools: createDevToolsConfig('serve'),
+    })
+    const configPlugin = plugins.find(plugin => plugin.name === 'vite:devtools:config')
+
+    expect(configPlugin).toMatchObject({
+      apply: 'serve',
+      enforce: 'pre',
+      configResolved: { order: 'pre' },
+    })
   })
 })

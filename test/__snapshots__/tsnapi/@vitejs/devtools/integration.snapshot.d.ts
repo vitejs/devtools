@@ -7,7 +7,8 @@ export interface DevToolsIntegrationConfig {
   options: boolean | DevToolsConfig | undefined;
 }
 export interface DevToolsIntegrationOptions {
-  config: unknown;
+  command: 'serve' | 'build';
+  root: string;
   devtools: DevToolsIntegrationConfig;
 }
 // #endregion

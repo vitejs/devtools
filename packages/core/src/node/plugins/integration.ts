@@ -6,7 +6,8 @@ import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './index'
 type DevToolsEnvironment = ResolvedConfig['environments'][string]
 
 export interface DevToolsIntegrationOptions {
-  config: ResolvedConfig
+  command: 'serve' | 'build'
+  root: string
   devtools: DevToolsIntegrationConfig
 }
 
@@ -73,20 +74,42 @@ function DevToolsBuildIntegration(devtoolsConfig: ResolvedDevToolsConfig): Plugi
   }
 }
 
+function DevToolsConfigIntegration(
+  devtools: DevToolsIntegrationConfig,
+  devtoolsConfig: ResolvedDevToolsConfig,
+  command: 'serve' | 'build',
+): Plugin {
+  return {
+    name: 'vite:devtools:config',
+    enforce: 'pre',
+    apply: command,
+    configResolved: {
+      order: 'pre',
+      handler() {
+        const resolved = normalizeDevToolsConfig(devtools.options, devtools.host)
+        devtoolsConfig.apply = resolved.apply
+        devtoolsConfig.config = resolved.config
+        devtoolsConfig.enabled = resolved.enabled
+      },
+    },
+  }
+}
+
 export async function DevToolsIntegration(options: DevToolsIntegrationOptions): Promise<Plugin[]> {
-  const { config, devtools } = options
+  const { command, devtools, root } = options
   const devtoolsConfig = normalizeDevToolsConfig(devtools.options, devtools.host)
-  const enabled = isDevToolsEnabled(devtoolsConfig, config.command)
+  const enabled = isDevToolsEnabled(devtoolsConfig, command)
   if (!enabled) {
     return []
   }
 
-  const pluginOptions = resolveDevToolsPluginOptions(devtoolsConfig, config.root)
-  if (config.command === 'serve') {
-    return createDevToolsPlugins(pluginOptions, devtoolsConfig)
+  const pluginOptions = resolveDevToolsPluginOptions(devtoolsConfig, root)
+  const configPlugin = DevToolsConfigIntegration(devtools, devtoolsConfig, command)
+  if (command === 'serve') {
+    return [configPlugin, ...await createDevToolsPlugins(pluginOptions, devtoolsConfig)]
   }
 
-  const plugins = [DevToolsBuildIntegration(devtoolsConfig)]
+  const plugins = [configPlugin, DevToolsBuildIntegration(devtoolsConfig)]
   if (devtoolsConfig.config.build?.withApp) {
     plugins.push(...await createDevToolsPlugins(pluginOptions, devtoolsConfig))
   }
