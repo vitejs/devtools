@@ -6,6 +6,7 @@ export * from './commands'
 export * from './docks'
 export * from './json-render'
 export * from './messages'
+export * from './rpc-augments'
 export * from './settings'
 export * from './terminals'
 export * from './vite-augment'
@@ -19,7 +20,6 @@ export type {
   DevframeHost as DevToolsHost,
   DevframeNodeRpcSession as DevToolsNodeRpcSession,
   DevframeRpcClientFunctions as DevToolsRpcClientFunctions,
-  DevframeRpcServerFunctions as DevToolsRpcServerFunctions,
   DevframeRpcSharedStates as DevToolsRpcSharedStates,
   DevframeViewHost as DevToolsViewHost,
   EventEmitter,
