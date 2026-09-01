@@ -4,8 +4,8 @@ import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { Server as NodeHttpServer } from 'node:http'
 import type { ViteDevToolsUiOptions } from './ui'
 import { initHub } from '@devframes/hub/initiate'
-import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
+import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from './auth-handler'
 import { resolveDockRendererRegistrations } from './renderers'
 import { getResolvedDevToolsConfig } from './resolved-config'
 import { createViteDevToolsUi } from './ui'
@@ -31,6 +31,9 @@ export interface CreateDevToolsHubOptions {
   wsPort?: number
 }
 
+/** Absolute path of the hub's top-level connection meta (`/__devtools/__connection.json`). */
+const CONNECTION_META_PATH = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_CONNECTION_META_FILENAME}`
+
 export interface DevToolsHub {
   hub: HubInstance
   /** Connect/Express-style middleware over the whole DevTools surface. */
@@ -52,11 +55,20 @@ export interface DevToolsHub {
 export async function createDevToolsHub(options: CreateDevToolsHubOptions): Promise<DevToolsHub> {
   const { context } = options
 
-  // Mirror the WS trust posture the bespoke transport used: skip the OTP gate
-  // in build snapshots, when the user opts out, or via the escape-hatch env.
-  // Must agree with `createDevToolsContext`'s registration guard (same
-  // helper) — see `isClientAuthDisabled` for why.
+  // Mirror the WS trust posture the context uses: fully skip the auth gate
+  // only on an explicit opt-out or the escape-hatch env. Must agree with
+  // `createDevToolsContext`'s registration guard (same helper) — see
+  // `isClientAuthDisabled` for why.
   const authDisabled = isClientAuthDisabled(context)
+
+  // Implicit build mode keeps the gate installed but trusts via an unguessable
+  // per-process capability token instead of a prompt. The token is baked into
+  // the served connection metadata's `authToken` so the same-origin build
+  // viewer presents it automatically; a cross-origin page can't read that
+  // metadata, so it never learns the token. See `isBuildCapabilityAuth`.
+  const capabilityToken = isBuildCapabilityAuth(context)
+    ? getBuildCapabilityToken(context)
+    : undefined
 
   const allowedOrigins = getResolvedDevToolsConfig(context).config.allowedOrigins
 
@@ -87,15 +99,38 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
 
   await hub.ready
 
-  const getConnectionMeta = (): ConnectionMeta => hub.connectionMeta()
+  // Bake the capability token into the emitted connection metadata so the
+  // build viewer trusts the server on connect with no prompt.
+  const getConnectionMeta = (): ConnectionMeta => (
+    capabilityToken
+      ? { ...hub.connectionMeta(), authToken: capabilityToken }
+      : hub.connectionMeta()
+  )
 
   // Hand the host the live connection-meta getter so each mounted devframe's
   // `mountConnectionMeta` middleware serves it at the devframe's own base.
   ;(context.host as ViteDevToolsHost).provideConnectionMeta?.(getConnectionMeta)
 
+  // The hub serves its own top-level `__connection.json` (the viewer's meta)
+  // from `hub.connectionMeta()`, which carries no `authToken`. In build-token
+  // mode, intercept that one route and answer with the token-augmented meta so
+  // the top-level viewer picks the token up too — everything else falls
+  // through to the hub middleware untouched.
+  const middleware: HubInstance['nodeMiddleware'] = capabilityToken
+    ? (req, res, next) => {
+        const path = req.url?.split('?', 1)[0]
+        if (path === CONNECTION_META_PATH) {
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(getConnectionMeta()))
+          return
+        }
+        hub.nodeMiddleware(req, res, next)
+      }
+    : hub.nodeMiddleware
+
   return {
     hub,
-    middleware: hub.nodeMiddleware,
+    middleware,
     getConnectionMeta,
     close: hub.close,
   }

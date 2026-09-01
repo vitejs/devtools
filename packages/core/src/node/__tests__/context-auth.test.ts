@@ -5,13 +5,10 @@ import { normalizeDevToolsConfig } from '../config'
 import { createDevToolsContext } from '../context'
 import '@vitejs/devtools-kit'
 
-function createConfig(options: {
-  command?: 'serve' | 'build'
-  clientAuth?: boolean
-} = {}): ResolvedConfig {
+function createConfig(command: 'serve' | 'build' = 'serve'): ResolvedConfig {
   return {
     root: process.cwd(),
-    command: options.command ?? 'serve',
+    command,
     plugins: [],
   } as unknown as ResolvedConfig
 }
@@ -38,22 +35,31 @@ describe('createDevToolsContext auth registration', () => {
     expect(ctx.rpc.definitions.has('anonymous:devframe:auth')).toBe(true)
   })
 
-  it('skips the interactive-auth handshake in build mode (regression #539)', async () => {
+  it('registers the interactive-auth handshake in build mode for capability-token trust (#552)', async () => {
     const ctx = await createDevToolsContext(
-      createConfig({ command: 'build' }),
+      createConfig('build'),
       undefined,
       createDevToolsConfig(),
     )
 
-    // Left unregistered so devframe's `auth: false` auto-trust shim (armed
-    // by `createDevToolsHub`) can install its own noop handler and mark the
-    // session trusted — see `isClientAuthDisabled`.
+    // Build mode keeps the gate installed and trusts via a per-process
+    // capability token rather than a prompt — see `isBuildCapabilityAuth`.
+    expect(ctx.rpc.definitions.has('anonymous:devframe:auth')).toBe(true)
+  })
+
+  it('skips the interactive-auth handshake in build mode when clientAuth is explicitly false', async () => {
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      createDevToolsConfig(false),
+    )
+
     expect(ctx.rpc.definitions.has('anonymous:devframe:auth')).toBe(false)
   })
 
   it('skips the interactive-auth handshake when `devtools.clientAuth` is false (regression #539)', async () => {
     const ctx = await createDevToolsContext(
-      createConfig({ clientAuth: false }),
+      createConfig(),
       undefined,
       createDevToolsConfig(false),
     )

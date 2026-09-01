@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import archiver from 'archiver'
+import { ZipArchive } from 'archiver'
 
 type ManifestFileCollection = string[] | Record<string, string>
 
@@ -41,7 +41,7 @@ fs.rmSync(outFile, { force: true })
 fs.mkdirSync(outDir, { recursive: true })
 
 const output = fs.createWriteStream(outFile)
-const archive = archiver('zip', { zlib: { level: 9 } })
+const archive = new ZipArchive({ zlib: { level: 9 } })
 const entries = new Set<string>()
 
 const done = new Promise<void>((resolve, reject) => {

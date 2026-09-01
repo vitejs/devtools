@@ -49,7 +49,7 @@ function resolveBranding(overrides?: DevToolsBranding): DevframeBranding {
   if (!overrides) {
     return branding
   }
-  for (const key of Object.keys(overrides) as (keyof DevframeBranding)[]) {
+  for (const key of Object.keys(overrides) as (keyof DevToolsBranding)[]) {
     const value = overrides[key]
     if (value !== undefined) {
       branding[key] = value as never

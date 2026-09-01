@@ -1,5 +1,22 @@
 import type { DevframeRpcClient, DevframeRpcClientOptions } from '@devframes/hub/client'
+import type { DevframeRpcClientFunctions } from '@devframes/hub/types'
+import type { BirpcReturn } from 'devframe/rpc'
+import type { DevToolsRpcServerFunctions } from '../types/rpc-augments'
 import { getDevframeRpcClient } from '@devframes/hub/client'
+
+export type DevToolsRpcClientCall = BirpcReturn<DevToolsRpcServerFunctions, DevframeRpcClientFunctions>['$call']
+export type DevToolsRpcClientCallEvent = BirpcReturn<DevToolsRpcServerFunctions, DevframeRpcClientFunctions>['$callEvent']
+export type DevToolsRpcClientCallOptional = BirpcReturn<DevToolsRpcServerFunctions, DevframeRpcClientFunctions>['$callOptional']
+export type DevToolsRpcClientOptions = DevframeRpcClientOptions
+
+export interface DevToolsRpcClient extends Omit<
+  DevframeRpcClient,
+  'call' | 'callEvent' | 'callOptional'
+> {
+  call: DevToolsRpcClientCall
+  callEvent: DevToolsRpcClientCallEvent
+  callOptional: DevToolsRpcClientCallOptional
+}
 
 /**
  * The Vite DevTools flavour of devframe's {@link getDevframeRpcClient}. Kept as
@@ -17,10 +34,10 @@ import { getDevframeRpcClient } from '@devframes/hub/client'
  * devframe's native browser-prompt fallback for every kit-managed connection.
  */
 export function getDevToolsRpcClient(
-  options: DevframeRpcClientOptions = {},
-): Promise<DevframeRpcClient> {
+  options: DevToolsRpcClientOptions = {},
+): Promise<DevToolsRpcClient> {
   return getDevframeRpcClient({
     ...options,
     simpleAuth: false,
-  })
+  }) as Promise<DevToolsRpcClient>
 }
