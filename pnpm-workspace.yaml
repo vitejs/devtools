@@ -44,11 +44,11 @@ overrides:
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
 refs:
-  devframe: &devframe ^0.9.7
+  devframe: &devframe ^0.9.8
   nuxt: &nuxt ^4.5.2
   shiki: &shiki ^4.4.3
   storybook: &storybook ^10.5.10
-  unocss: &unocss ^66.8.1
+  unocss: &unocss ^66.9.1
   vueuse: &vueuse ^14.4.0
 
 catalogs:
@@ -67,7 +67,7 @@ catalogs:
     nuxt: *nuxt
     rolldown: ^1.2.6
     tsdown: ^0.22.14
-    tsx: ^4.23.12
+    tsx: ^4.23.13
     turbo: ^2.10.12
     unocss: *unocss
     unplugin-vue: ^7.2.0
@@ -101,7 +101,7 @@ catalogs:
     nostics: ^1.2.0
     nypm: ^0.6.9
     obug: ^2.1.4
-    p-limit: ^7.3.1
+    p-limit: ^7.3.2
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
     tinyexec: ^1.3.0
@@ -113,20 +113,20 @@ catalogs:
     '@antfu/eslint-config': ^9.3.0
     '@nuxt/devtools': ^4.0.0-alpha.15
     '@nuxt/eslint': ^1.17.0
-    '@typescript-eslint/utils': ^8.68.0
+    '@typescript-eslint/utils': ^8.69.0
     '@unocss/eslint-config': *unocss
     '@unocss/preset-web-fonts': *unocss
     axe-core: ^4.13.0
     bumpp: ^12.2.2
     chokidar: ^5.0.0
     eslint: ^10.9.1
-    knip: ^6.32.3
+    knip: ^6.34.0
     nano-staged: ^1.0.2
     oxfmt: ^0.65.0
     oxlint: ^1.80.0
     prompts: ^2.4.2
     serve: ^14.2.6
-    simple-git-hooks: ^2.13.1
+    simple-git-hooks: ^2.14.0
     skills-npm: ^1.2.0
     solid-js: ^1.9.15
     typescript: ^6.0.3
@@ -169,27 +169,27 @@ catalogs:
     theme-vitesse: ^1.0.0
     ua-parser-modern: ^0.1.1
     vite-hot-client: ^2.2.0
-    vue-router: ^5.2.0
+    vue-router: ^5.3.0
     vue-virtual-scroller: ^3.0.5
   icons:
-    '@iconify-json/carbon': ^1.2.25
+    '@iconify-json/carbon': ^1.2.26
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.70
+    '@iconify-json/codicon': ^1.2.71
     '@iconify-json/fluent': ^1.2.57
     '@iconify-json/fluent-emoji-flat': ^1.2.6
     '@iconify-json/logos': ^1.2.13
-    '@iconify-json/lucide': ^1.2.126
+    '@iconify-json/lucide': ^1.2.128
     '@iconify-json/material-icon-theme': ^1.2.70
     '@iconify-json/octicon': ^1.2.32
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/radix-icons': ^1.2.6
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.93
+    '@iconify-json/simple-icons': ^1.2.94
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.38
     '@iconify-json/twemoji': ^1.2.5
-    '@iconify-json/vscode-icons': ^1.2.75
+    '@iconify-json/vscode-icons': ^1.2.76
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.7.0
