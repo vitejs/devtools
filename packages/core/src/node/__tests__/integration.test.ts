@@ -1,5 +1,6 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { normalizeDevToolsConfig } from '../config'
 import { DevToolsIntegration, runDevTools } from '../plugins/integration'
 import { startDevTools } from '../start'
 
@@ -13,9 +14,11 @@ function createResolvedConfig(
 ): ResolvedConfig {
   return {
     command,
+    devtools: false,
     root: '/vite-devtools-test-project',
     environments,
     plugins: [],
+    server: { host: 'localhost' },
   } as unknown as ResolvedConfig
 }
 
@@ -49,7 +52,7 @@ describe('devToolsIntegration', () => {
     })
 
     expect((plugins as Plugin[]).map(plugin => plugin.name)).toEqual([
-      'vite:devtools:config',
+      'vite:devtools',
       'vite:devtools:builtin',
       'vite:devtools:injection',
       'vite:devtools:server',
@@ -79,7 +82,7 @@ describe('devToolsIntegration', () => {
     })
 
     expect(plugins.map(plugin => plugin.name)).toContain('vite:devtools:build')
-    expect(plugins.map(plugin => plugin.name)).not.toContain('vite:devtools')
+    expect(plugins.filter(plugin => plugin.name === 'vite:devtools')).toHaveLength(1)
   })
 
   it.each([
@@ -108,15 +111,29 @@ describe('devToolsIntegration', () => {
 
   it('passes the resolved config to standalone DevTools', async () => {
     const config = createResolvedConfig('build', { client: {} as never })
-
-    await runDevTools({ config }, {
-      host: 'dev.example.com',
-      options: {
-        allowedOrigins: ['https://dev.example.com'],
-        builtinDevTools: false,
-        clientAuthTokens: ['trusted-token'],
+    const plugins = await DevToolsIntegration({
+      command: 'build',
+      devtools: {
+        host: 'dev.example.com',
+        options: {
+          allowedOrigins: ['https://dev.example.com'],
+          builtinDevTools: false,
+          clientAuthTokens: ['trusted-token'],
+        },
       },
+      root: config.root,
     })
+    Object.assign(config, {
+      plugins,
+      server: { host: 'dev.example.com' },
+    })
+    const configPlugin = plugins.find(plugin => plugin.name === 'vite:devtools')
+    const configResolved = configPlugin?.configResolved
+    if (typeof configResolved !== 'object')
+      throw new TypeError('Expected an object configResolved hook')
+    await configResolved.handler.call({} as never, config)
+
+    await runDevTools({ config })
 
     const resolvedConfig = {
       apply: 'all',
@@ -136,6 +153,18 @@ describe('devToolsIntegration', () => {
       }),
       resolvedConfig,
     )
+  })
+
+  it('does not run standalone DevTools for a manual plugin config', async () => {
+    const config = createResolvedConfig('build', { client: {} as never })
+    Object.assign(config, {
+      devtools: normalizeDevToolsConfig(true, 'localhost'),
+      plugins: [{ name: 'vite:devtools' }],
+    })
+
+    await runDevTools({ config })
+
+    expect(startDevTools).not.toHaveBeenCalled()
   })
 
   it('enables Rolldown DevTools for selected build environments', async () => {
@@ -167,7 +196,7 @@ describe('devToolsIntegration', () => {
       ...createIntegrationOptions('serve'),
       devtools: createDevToolsConfig('serve'),
     })
-    const configPlugin = plugins.find(plugin => plugin.name === 'vite:devtools:config')
+    const configPlugin = plugins.find(plugin => plugin.name === 'vite:devtools')
 
     expect(configPlugin).toMatchObject({
       apply: 'serve',

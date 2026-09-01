@@ -19,9 +19,6 @@ export function DevToolsIntegration(options: DevToolsIntegrationOptions): Promis
   return _DevToolsIntegration(options)
 }
 
-export function runDevTools(
-  builder: unknown,
-  devtools: DevToolsIntegrationConfig,
-): Promise<void> {
-  return _runDevTools(builder, devtools)
+export function runDevTools(builder: unknown): Promise<void> {
+  return _runDevTools(builder)
 }

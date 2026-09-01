@@ -44,5 +44,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { file: string }) => `Failed to persist the DevTools mode flag at "${p.file}"`,
       fix: 'Ensure the project\'s node_modules directory is writable.',
     },
+    DTK0034: {
+      why: 'Vite DevTools has been registered multiple times.',
+      fix: 'Remove the duplicate Vite DevTools registration.',
+    },
   },
 })

@@ -1,8 +1,10 @@
 import type { Plugin } from 'vite'
-import type { ResolvedDevToolsConfig } from '../config'
+import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
 import type { DevToolsOptions } from '../plugin-options'
+import { normalizeDevToolsConfig } from '../config'
 import { DevToolsBuild } from './build'
 import { DevToolsBuiltin } from './builtin'
+import { DevToolsConfigPlugin } from './config'
 import { DevToolsInjection } from './injection'
 import { DevToolsServer } from './server'
 
@@ -33,9 +35,12 @@ export function resolveDevToolsPluginOptions(
 }
 
 export async function DevTools(options: DevToolsOptions = {}): Promise<Plugin[]> {
+  const { cwd: _cwd, ...configOptions } = options
+  const config: DevToolsConfig = { ...configOptions, enabled: true }
+  const resolvedConfig = normalizeDevToolsConfig(config, 'localhost')
   return [
-    { name: 'vite:devtools' },
-    ...await createDevToolsPlugins(options),
+    DevToolsConfigPlugin(config, resolvedConfig),
+    ...await createDevToolsPlugins(options, resolvedConfig),
   ]
 }
 

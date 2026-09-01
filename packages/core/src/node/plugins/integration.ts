@@ -1,9 +1,11 @@
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
 import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
 import { isDevToolsEnabled, normalizeDevToolsConfig } from '../config'
+import { DevToolsConfigPlugin } from './config'
 import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './index'
 
 type DevToolsEnvironment = ResolvedConfig['environments'][string]
+const DEVTOOLS_BUILD_INTEGRATION_NAME = 'vite:devtools:integration'
 
 export interface DevToolsIntegrationOptions {
   command: 'serve' | 'build'
@@ -35,10 +37,15 @@ function getDevToolsEnvironments(
 
 export async function runDevTools(
   builder: unknown,
-  devtools: DevToolsIntegrationConfig,
 ) {
   const config = (builder as ViteBuilder).config
-  const devtoolsConfig = normalizeDevToolsConfig(devtools.options, devtools.host)
+  if (!config.plugins.some(plugin => plugin.name === DEVTOOLS_BUILD_INTEGRATION_NAME))
+    return
+
+  const devtoolsConfig = config.devtools as unknown as ResolvedDevToolsConfig | false
+  if (!devtoolsConfig)
+    return
+
   if (!isDevToolsEnabled(devtoolsConfig, config.command))
     return
   for (const _environment of getDevToolsEnvironments(config, devtoolsConfig)) {
@@ -60,7 +67,7 @@ export async function runDevTools(
 
 function DevToolsBuildIntegration(devtoolsConfig: ResolvedDevToolsConfig): Plugin {
   return {
-    name: 'vite:devtools:integration',
+    name: DEVTOOLS_BUILD_INTEGRATION_NAME,
     apply: 'build',
     configResolved: {
       order: 'post',
@@ -69,27 +76,6 @@ function DevToolsBuildIntegration(devtoolsConfig: ResolvedDevToolsConfig): Plugi
         for (const environment of getDevToolsEnvironments(config, devtoolsConfig)) {
           environment.build.rolldownOptions.devtools ??= {}
         }
-      },
-    },
-  }
-}
-
-function DevToolsConfigIntegration(
-  devtools: DevToolsIntegrationConfig,
-  devtoolsConfig: ResolvedDevToolsConfig,
-  command: 'serve' | 'build',
-): Plugin {
-  return {
-    name: 'vite:devtools:config',
-    enforce: 'pre',
-    apply: command,
-    configResolved: {
-      order: 'pre',
-      handler() {
-        const resolved = normalizeDevToolsConfig(devtools.options, devtools.host)
-        devtoolsConfig.apply = resolved.apply
-        devtoolsConfig.config = resolved.config
-        devtoolsConfig.enabled = resolved.enabled
       },
     },
   }
@@ -104,7 +90,7 @@ export async function DevToolsIntegration(options: DevToolsIntegrationOptions): 
   }
 
   const pluginOptions = resolveDevToolsPluginOptions(devtoolsConfig, root)
-  const configPlugin = DevToolsConfigIntegration(devtools, devtoolsConfig, command)
+  const configPlugin = DevToolsConfigPlugin(devtools.options, devtoolsConfig, command)
   if (command === 'serve') {
     return [configPlugin, ...await createDevToolsPlugins(pluginOptions, devtoolsConfig)]
   }

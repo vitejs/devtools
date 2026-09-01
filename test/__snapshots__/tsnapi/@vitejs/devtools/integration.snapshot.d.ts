@@ -17,5 +17,5 @@ export interface DevToolsIntegrationOptions {
 export declare function DevToolsIntegration(_: DevToolsIntegrationOptions): Promise<{
   name: string;
 }[]>;
-export declare function runDevTools(_: unknown, _: DevToolsIntegrationConfig): Promise<void>;
+export declare function runDevTools(_: unknown): Promise<void>;
 // #endregion
