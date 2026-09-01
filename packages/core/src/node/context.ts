@@ -71,12 +71,15 @@ export async function createDevToolsContext(
   // recipe: registers the `anonymous:devframe:auth` / `:exchange` handshake
   // and the `devframe:auth:revoke` self-revoke. The resolver gate and the
   // one-time-code banner are wired up by `initHub`'s `auth` option (same
-  // handler) in `createDevToolsHub`. Skipped entirely when the client-auth
-  // gate is disabled — leaving `anonymous:devframe:auth` unregistered lets
-  // devframe's `auth: false` auto-trust shim (armed by `createDevToolsHub`
-  // passing `auth: false` to `initHub`) register its own noop handler and
-  // mark sessions trusted, instead of the interactive handler winning the
-  // race and leaving every session stuck untrusted.
+  // handler) in `createDevToolsHub`. This also covers implicit build mode,
+  // where the same handler additionally trusts the per-process capability
+  // token (its banner suppressed) — see `getAuthHandler` /
+  // `isBuildCapabilityAuth`. Skipped only when the gate is fully disabled
+  // (`isClientAuthDisabled`) — leaving `anonymous:devframe:auth` unregistered
+  // lets devframe's `auth: false` auto-trust shim (armed by `createDevToolsHub`
+  // passing `auth: false` to `initHub`) register its own noop handler and mark
+  // sessions trusted, instead of the interactive handler winning the race and
+  // leaving every session stuck untrusted.
   if (!isClientAuthDisabled(context)) {
     for (const fn of getAuthHandler(context).rpcFunctions)
       rpcHost.register(fn)
