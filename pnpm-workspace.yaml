@@ -60,7 +60,7 @@ catalogs:
     '@unocss/nuxt': *unocss
     '@vitejs/plugin-vue': ^6.0.8
     '@vueuse/nuxt': ^14.4.0
-    archiver: ^7.0.1
+    archiver: ^8.0.0
     esbuild: ^0.28.2
     magic-string: ^1.2.3
     nitropack: ^2.13.4
@@ -208,7 +208,7 @@ catalogs:
     tsnapi: ^1.4.0
     vitest: ^4.1.11
   types:
-    '@types/archiver': ^7.0.0
+    '@types/archiver': ^8.0.0
     '@types/chrome': ^0.2.7
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
