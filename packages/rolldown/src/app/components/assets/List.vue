@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RolldownAssetInfo } from '~~/shared/types'
-import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
 
 withDefaults(defineProps<{
   assets: RolldownAssetInfo[]
@@ -15,7 +15,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <div p4>
+  <div class="p4">
     <DataVirtualList
       :items="assets"
       key-prop="filename"
@@ -24,7 +24,7 @@ withDefaults(defineProps<{
       :scroller="scroller"
     >
       <template #default="{ item }">
-        <div h-10 flex>
+        <div class="h-10 flex">
           <AssetsListItem :asset="item" />
         </div>
       </template>

@@ -39,18 +39,12 @@ function select(node: ModuleDest) {
 <template>
   <details :open="open" @toggle="e => open = (e.target as HTMLDetailsElement)?.open">
     <summary
-      cursor-default
-      select-none
-      text-sm
-      truncate
+      class="cursor-default select-none text-sm truncate flex gap-1 px2 py1 rounded hover:bg-active"
       :style="{ paddingLeft: `${padding + 0.5}rem` }"
-      flex="~ gap-1"
-      px2 py1 rounded
-      hover="bg-active "
     >
       <div class="i-ph-caret-right-duotone transition op50" :class="open ? 'rotate-90' : ''" />
-      <div :class="open ? iconOpen || icon : icon" inline-block vertical-text-bottom />
-      <div font-mono>
+      <div :class="open ? iconOpen || icon : icon" class="inline-block vertical-text-bottom" />
+      <div class="font-mono">
         <DisplayHighlightedPath :path="node.name || ''" />
       </div>
     </summary>
@@ -71,16 +65,12 @@ function select(node: ModuleDest) {
         <component
           :is="link ? NuxtLink : 'div'"
           :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, [linkQueryKey]: i.full }, hash: location.hash }) : undefined"
-          text-sm
-          ws-nowrap
-          flex="~ gap-1"
-          px2 py1 rounded
-          hover="bg-active"
+          class="text-sm ws-nowrap flex gap-1 px2 py1 rounded hover:bg-active"
           :style="{ paddingLeft: `${padding + 2.7}rem` }"
           @click="select(i)"
         >
           <DisplayFileIcon :filename="i.full" />
-          <div font-mono>
+          <div class="font-mono">
             <DisplayHighlightedPath :path="i.path.split('/').pop() || ''" />
             <slot name="extra" :node="i" />
           </div>

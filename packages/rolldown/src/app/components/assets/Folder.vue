@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ModuleDest, RolldownAssetInfo, SessionContext } from '~~/shared/types'
+import { toTree } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { toTree } from '../../utils/format'
 import DisplayVirtualTree from '../display/VirtualTree.vue'
 
 const props = defineProps<{
@@ -39,7 +39,7 @@ const assetTreeRoots = computed(() => [
     link-query-key="asset"
   >
     <template #extra="{ node }">
-      <span op50>
+      <span class="op50">
         ({{ assetsMap.get(node.full)?.chunk?.name?.replace(/[\[\]]/g, '') }})
       </span>
     </template>

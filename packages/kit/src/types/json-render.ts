@@ -1,5 +1,42 @@
-export type {
-  JsonRenderElement,
-  JsonRenderer,
-  JsonRenderSpec,
-} from '@devframes/hub/types'
+import type {
+  DevframeJsonRenderSpec,
+  JsonRenderView,
+  JsonRenderViewRef,
+  UIElement,
+} from '@devframes/json-render'
+
+// A Devframes json-render spec is an `@json-render/core` `Spec` (flat `root`
+// + `elements` map, plus optional initial `state`). These aliases keep the
+// kit's historical `JsonRender*` names pointing at the extracted
+// `@devframes/json-render` package.
+
+/** A json-render spec — the declarative UI description a plugin authors. */
+export type JsonRenderSpec<Element extends UIElement = UIElement> = DevframeJsonRenderSpec<Element>
+
+/** A single element within a spec's `elements` map. */
+export type JsonRenderElement = UIElement
+
+export type { JsonRenderView, JsonRenderViewRef }
+
+/**
+ * The handle returned by `ctx.createJsonRenderer()`. It wraps a devframe
+ * {@link JsonRenderView} (created via `@devframes/json-render`'s
+ * `createJsonRenderView`) and exposes the kit's back-compat method names.
+ *
+ * Register a `json-render` dock entry with the handle's serializable
+ * {@link JsonRenderViewRef} `view` (`docks.register({ type: 'json-render',
+ * view: renderer.view, … })`); the client subscribes through its `stateKey`.
+ * Drive the panel by calling `updateSpec` / `updateState` on the handle.
+ */
+export interface JsonRenderer<SpecType extends JsonRenderSpec = JsonRenderSpec> {
+  /** Replace the entire spec. */
+  updateSpec: (spec: SpecType) => void
+  /** Shallow-merge values into the view's `state`. */
+  updateState: (state: Record<string, unknown>) => void
+  /** Unregister the underlying view's shared state and listeners. */
+  dispose: () => void
+  /** Shared-state key the client subscribes to for the live spec + state. */
+  readonly _stateKey: string
+  /** The serializable reference to the underlying view. */
+  readonly view: JsonRenderViewRef<SpecType>
+}

@@ -1,5 +1,7 @@
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
 import type { ResolvedDevToolsConfig } from '../config'
+import { isDevToolsEnabled } from '../config'
+import { DevTools } from './index'
 
 type DevToolsEnvironment = ResolvedConfig['environments'][string]
 
@@ -24,6 +26,8 @@ function getDevToolsEnvironments(config: ResolvedConfig): DevToolsEnvironment[] 
 
 export async function runDevTools(builder: unknown) {
   const config = (builder as ViteBuilder).config
+  if (!isDevToolsEnabled(config.devtools as ResolvedDevToolsConfig, config.command))
+    return
   for (const _environment of getDevToolsEnvironments(config)) {
     try {
       const { start } = await import('../cli-commands')
@@ -38,7 +42,7 @@ export async function runDevTools(builder: unknown) {
   }
 }
 
-export function DevToolsIntegration(_options: DevToolsIntegrationOptions): Plugin {
+function DevToolsBuildIntegration(): Plugin {
   return {
     name: 'vite:devtools:integration',
     apply: 'build',
@@ -52,4 +56,13 @@ export function DevToolsIntegration(_options: DevToolsIntegrationOptions): Plugi
       },
     },
   }
+}
+
+export async function DevToolsIntegration(options: DevToolsIntegrationOptions): Promise<Plugin[]> {
+  const config = options.config
+  if (!isDevToolsEnabled(config.devtools as ResolvedDevToolsConfig, config.command))
+    return []
+  return options.config.command === 'serve'
+    ? DevTools({ cwd: options.config.root })
+    : [DevToolsBuildIntegration()]
 }

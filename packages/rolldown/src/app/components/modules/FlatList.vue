@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
-import DataVirtualList from '@vitejs/devtools-ui/components/DataVirtualList.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
 
 withDefaults(defineProps<{
   session: SessionContext
@@ -23,7 +23,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div flex="~ col gap-2" p4>
+  <div class="flex flex-col gap-2 p4">
     <DataVirtualList
       :items="modules"
       key-prop="id"
@@ -32,12 +32,11 @@ const emit = defineEmits<{
       :scroller="scroller"
     >
       <template #default="{ item }">
-        <div flex pb2 @click="emit('select', item)">
+        <div class="flex pb2" @click="emit('select', item)">
           <DisplayModuleId
             :id="item.id"
             :session
-            hover="bg-active" block px2 p1 w-full
-            border="~ base rounded"
+            class="hover:bg-active block px2 p1 w-full border border-base rounded"
             :link="link"
             :disable-tooltip="disableTooltip"
           />

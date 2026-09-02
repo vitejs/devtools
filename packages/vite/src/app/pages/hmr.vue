@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HmrUpdate } from '../../shared/types'
-import HighlightedPath from '@vitejs/devtools-ui/components/HighlightedPath.vue'
+import HighlightedPath from '@vitejs/devtools-ui/components/Display/DisplayHighlightedPath'
 import { useAsyncState, useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRpc } from '#imports'

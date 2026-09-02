@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { bytesToHumanSize } from '~/utils/format'
 
 const props = withDefaults(defineProps<{
   value: number
@@ -58,7 +58,7 @@ const formatted = computed(() => {
 </script>
 
 <template>
-  <span font-mono ws-nowrap :class="colorClass">
-    {{ sign }}{{ formatted.amount }}<span v-if="formatted.unit" text-xs op75 ml-0.5>{{ formatted.unit }}</span>
+  <span class="font-mono ws-nowrap" :class="colorClass">
+    {{ sign }}{{ formatted.amount }}<span v-if="formatted.unit" class="text-xs op75 ml-0.5">{{ formatted.unit }}</span>
   </span>
 </template>

@@ -56,6 +56,6 @@ Existing DevTools integrations worth reading:
 
 - **[UnoCSS Inspector](https://github.com/unocss/unocss/blob/25c0dd737132dc20b257c276ee2bc3ccc05e2974/packages-integrations/inspector/src/index.ts#L140-L150)** — a small iframe dock entry.
 - **[vite-plugin-vue-tracer](https://github.com/antfu/vite-plugin-vue-tracer)** — an action button that triggers a DOM inspector. See the [plugin hook](https://github.com/antfu/vite-plugin-vue-tracer/blob/9f86fe723543405eea5d30588fe783796193bfd8/src/plugin.ts#L139-L157) and the [client script](https://github.com/antfu/vite-plugin-vue-tracer/blob/main/src/client/vite-devtools.ts).
-- **[Oxc Inspector](https://github.com/yuyinws/oxc-inspector/blob/main/src/vite.ts)** — an iframe dock entry with custom RPC functions.
+- **[`@vitejs/devtools-oxc`](https://github.com/vitejs/devtools/blob/main/packages/oxc/src/vite.ts)** — the first-party Oxc inspector: an iframe dock entry with custom RPC functions.
 
 PRs to improve coverage are welcome.

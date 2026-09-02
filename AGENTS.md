@@ -6,7 +6,7 @@ Three layers, one mental model:
 
 - **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`).
 - **`@devframes/hub`** — *the framework-neutral hub layer on top of devframe.* Owns docks, terminals, messages, commands, the `mountDevframe` primitive, and the json-render factory — anything that only matters once a host wants to combine multiple devframes into one UI. External project, same repo as devframe; consumed via npm.
-- **`@vitejs/devtools-kit`** — *the Vite-flavored skin over `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `~viteplus` dock category), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
+- **`@vitejs/devtools-kit`** — *the Vite-flavored skin over `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `viteplus` dock group), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
 
 When deciding where something belongs: if a single-app standalone CLI would still need it, it belongs upstream in devframe; if it only matters once a host combines multiple integrations, it belongs in `@devframes/hub` (or in `@vitejs/devtools-kit` if it's Vite-specific).
 
@@ -18,13 +18,16 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/kit` | `@vitejs/devtools-kit` | Vite-flavored skin over `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. |
+| `packages/kit` | `@vitejs/devtools-kit` | Vite-flavored skin over `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. `createInstallLauncher` builds a discovery/install-launcher dock for an optional integration (detect via `local-pkg`, install missing packages via `nypm`, prompt a restart). |
 | `packages/core` | `@vitejs/devtools` | Vite plugin + CLI + standalone/webcomponents client for Vite DevTools itself. Calls kit's `createKitContext`, scans Vite plugins for `.devtools.setup`, and serves the dock UI. |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-rolldown/`. |
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
-| `packages/self-inspect` | `@vitejs/devtools-self-inspect` | Meta-introspection — DevTools for the DevTools. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-self-inspect/`. |
+| `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Advertised by core as a built-in install launcher in the `viteplus` group (installed on demand), mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once present, plus a standalone CLI/client. Its Nuxt client is on the shared stack — UnoCSS via `presetDevToolsUI` and `@vitejs/devtools-ui` components (an oxc-cyan `primary` scale derived from the `BannerOxcDevTools` accent) — and is wired into the turbo build, `vue-tsc` typecheck (own `src/tsconfig.json` reference) and export-snapshot gates. It dogfoods its own oxlint/oxfmt on itself (run `pnpm -C packages/oxc lint`), whose formatting conflicts with the repo-wide antfu ESLint config, so it stays out of the shared ESLint run. |
+| `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
+
+Meta-introspection ("DevTools for the DevTools") is provided by the official upstream `@devframes/plugin-inspect`, mounted as a built-in via `createPluginFromDevframe` (replaces the former `packages/self-inspect`).
 
 Other top-level directories:
 - `docs/` — VitePress docs; guides in `docs/guide/`
@@ -35,29 +38,31 @@ flowchart TD
   hub --> devframe
   kit --> hub
   core --> kit
-  core --> rolldown & vite & self-inspect
+  core --> rolldown & vite & vitest
   rolldown --> kit & ui
   vite --> kit & ui
-  self-inspect --> kit
+  vitest --> kit
   webext --> core
 ```
 
 ## Dep Boundary
 
-`devframe` and `@devframes/hub` are external packages consumed via `catalog:deps` — contribute upstream at [github.com/devframes/devframe](https://github.com/devframes/devframe). `packages/kit` and above build on top of them. Features that require multi-integration awareness (docks, terminals, messages, commands) belong upstream in `@devframes/hub`. Features that only matter to Vite — `ViteDevToolsNodeContext`, `PluginWithDevTools`, the `~viteplus` category, the kit-pinned `/__devtools/` mount path, the `vite:open-in-editor`/`vite:open-in-finder` commands — stay in `@vitejs/devtools-kit` and `@vitejs/devtools`.
+`devframe` and `@devframes/hub` are external packages consumed via `catalog:deps` — contribute upstream at [github.com/devframes/devframe](https://github.com/devframes/devframe). `packages/kit` and above build on top of them. Features that require multi-integration awareness (docks, terminals, messages, commands) belong upstream in `@devframes/hub`. Features that only matter to Vite — `ViteDevToolsNodeContext`, `PluginWithDevTools`, the `viteplus` group, the kit-pinned `/__devtools/` mount path, the `vite:open-in-editor`/`vite:open-in-finder` commands — stay in `@vitejs/devtools-kit` and `@vitejs/devtools`.
 
 `devframe/node/hub-internals` is a marked-public-but-low-level subpath exposing a small set of helpers (`getInternalContext`, `resolveBasePath`) for first-party adapters reaching into devframe's hub-side machinery — kit's adapters use `getInternalContext` for remote-dock token allocation and WS-endpoint metadata. End users should not import it.
 
 ## Architecture
 
 - **Devframe context** (external — see [devfra.me](https://devfra.me)): `createHostContext` returns a `DevframeNodeContext` carrying `rpc`, `views` (HTTP file-serving via `hostStatic`), `diagnostics`, `agent`, plus `cwd`/`workspaceRoot`/`mode`/`host`. No docks, no terminals, no json-render.
-- **Hub context** (external `@devframes/hub/node`): `createHubContext` wraps `createHostContext` and attaches the four hub hosts — `docks`, `terminals`, `messages`, `commands` — plus the `createJsonRenderer` factory. Wires the `'devframe:docks'` / `'devframe:commands'` shared-state sync and seeds the built-in `~terminals` / `~messages` / `~settings` docks. Also ships `mountDevframe(ctx, def)` — the framework-neutral primitive that registers any `DevframeDefinition` as a dock.
+- **Hub context** (external `@devframes/hub/node`): `createHubContext` wraps `createHostContext` and attaches the four hub hosts — `docks`, `terminals`, `messages`, `commands` — plus the `createJsonRenderer` factory. Wires the `'devframe:docks'` / `'devframe:commands'` shared-state syn.
 - **Kit context** (`packages/kit/src/node/context.ts`): `createKitContext` wraps `createHubContext` and surfaces Vite-specific `viteConfig`/`viteServer` slots when mounted inside Vite DevTools. `KitNodeContext` extends `DevframeHubContext` so all the hub hosts come along for free.
 - **Bridge** (`packages/kit/src/node/create-plugin-from-devframe.ts`): `createPluginFromDevframe(d, opts?)` returns `PluginWithDevTools`; in its `setup`, delegates to `mountDevframe(ctx, d, opts)` to mount the SPA, register the auto-derived iframe dock entry, and run `d.setup(ctx)`, then runs `opts.setup?.(ctx)` for kit-only extensions.
 - **Vite DevTools entry** (`packages/core/src/node/context.ts`): `createDevToolsContext` calls `createKitContext`, registers Vite-specific commands (`vite:open-in-editor`, `vite:open-in-finder`), then scans Vite plugins for `.devtools.setup` hooks (which now receive the kit-augmented context).
 - **Client context**: webcomponents/Nuxt UI state (`packages/core/src/client/webcomponents/state/*`) — dock entries, panels, RPC client. Two modes: `embedded` (overlay in host app) and `standalone` (independent page).
 - **WS server** (`packages/core/src/node/ws.ts`): RPC via `devframe/rpc/transports/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
-- **Hub-mounted Nuxt UI plugins** (rolldown, vite, self-inspect): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
+- **Hub-mounted Nuxt UI plugins** (rolldown, vite): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
+- **Built-in devframe plugins** (`@devframes/plugin-inspect` today; `@devframes/plugin-terminals` / `@devframes/plugin-messages`): official portable `DevframeDefinition`s mounted as built-ins by `DevTools()` via kit's `createPluginFromDevframe` (gated by `builtinDevTools`).
+- **Built-in install launchers** (`packages/core/src/node/plugins/index.ts` + kit's `createInstallLauncher`): keeps core dependency-light. For each optional integration (Rolldown / Vite / Vitest / Oxc) `DevTools()` mounts the real plugin when its package is installed, else registers a discovery launcher that installs it on demand (`nypm`) and prompts a restart. The `@vitejs/devtools-*` packages are declared as optional peer deps; their marks are vendored in `packages/core/assets` and served at `/__devtools-assets/` so a launcher icon renders before its package exists.
 
 ## Development
 
@@ -78,8 +83,9 @@ pnpm -C docs run docs                 # docs dev server
 - Use workspace aliases from `alias.ts`.
 - RPC functions must use `defineRpcFunction` from kit; always namespace IDs (`my-plugin:fn-name`).
 - Shared state via `devframe/utils/shared-state`; keep values serializable.
-- Nuxt UI base paths: `/__devtools-rolldown/`, `/__devtools-vite/`, `/__devtools-self-inspect/`.
+- Nuxt UI base paths: `/__devtools-rolldown/`, `/__devtools-vite/`.
 - Shared UI components/preset in `packages/ui`; use `presetDevToolsUI` from `@vitejs/devtools-ui/unocss`.
+- `packages/ui` components live in PascalCase category folders with folder-prefixed filenames (`Display/DisplayBadge.vue`, `Flowmap/FlowmapNode.vue`), mirroring [`antfu/design`](https://github.com/antfu/design). Add a component shared by both analyzers to `packages/ui` directly (imported explicitly, or via a `.ts` re-export shim in each app to keep the Nuxt auto-import tag) rather than copying it per app. Give presentational primitives a colocated `*.stories.ts` in the `storybook/` workspace.
 - Currently focused on Rolldown build-mode analysis; dev-mode support is deferred.
 
 Devframe's internal design principles (single-integration scope, headless-by-default, mount-path / SPA-basePath conventions, CLI flag composition) live in its own AGENTS.md upstream. Read them at [github.com/devframes/devframe/blob/main/AGENTS.md](https://github.com/devframes/devframe/blob/main/AGENTS.md) before contributing patches.
@@ -102,11 +108,13 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 |--------|-----------|-----------------|
 | `DTK` | `packages/kit` + `packages/core` (shared codespace, Vite-side) | `packages/kit/src/node/diagnostics.ts`, `packages/core/src/node/diagnostics.ts` |
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
-| `VDT` | `packages/vite` (reserved) | — |
+| `VDT` | `packages/vite` | `packages/vite/src/node/diagnostics.ts` |
+| `VTDT` | `packages/vitest` | `packages/vitest/src/node/diagnostics.ts` |
+| `OXDT` | `packages/oxc` | `packages/oxc/src/node/diagnostics.ts` |
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).
 
-`DTK` is shared between core and kit because they're sibling layers of Vite DevTools. Coordinate code numbers across both files: kit reserves `DTK0050+` for Vite-specific kit codes; core's existing codes top out below that. The hub-domain DTK codes (DTK0050–DTK0057) retired when their conditions moved upstream to `DF8100`–`DF8403`.
+`DTK` is shared between core and kit because they're sibling layers of Vite DevTools. Coordinate code numbers across both files: kit uses the `DTK0050+` range for kit-only codes (`DTK0050` = integration install failed); core's existing codes top out below that. The former hub-domain DTK codes (DTK0050–DTK0057) retired when their conditions moved upstream to `DF8100`–`DF8403`, freeing the range.
 
 Codes are sequential 4-digit numbers per prefix (e.g. `DTK0033`, `RDDT0003`). Check the existing diagnostics file to find the next available number.
 

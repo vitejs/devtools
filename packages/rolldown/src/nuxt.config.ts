@@ -139,6 +139,13 @@ export default defineNuxtConfig({
       compilerOptions: {
         types: ['chrome'], // for devtools-webext package
       },
+      exclude: [
+        // Sibling Nuxt apps are typechecked by their own project references
+        // (see the root tsconfig); keep them out of rolldown's
+        // workspace-wide Nuxt typecheck so they resolve under their own aliases.
+        '../../../vite/**/*',
+        '../../../oxc/**/*',
+      ],
     },
     // Temporary disable type check for nuxt, rely on CI for now
     // typeCheck: true,

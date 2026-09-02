@@ -3,6 +3,7 @@
  */
 // #region Functions
 export function getDevToolsClientContext() {}
+export function getDevToolsRpcClient(_) {}
 // #endregion
 
 // #region Variables
@@ -10,7 +11,9 @@ export var CLIENT_CONTEXT_KEY /* const */
 // #endregion
 
 // #region Other
+export { attachDevToolsFrameNav }
 export { connectRemoteDevTools }
-export { getDevToolsRpcClient }
+export { FRAME_NAV_CHANNEL }
+export { FRAME_NAV_VERSION }
 export { parseRemoteConnection }
 // #endregion

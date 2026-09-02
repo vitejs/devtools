@@ -1,4 +1,4 @@
-import type { HmrTracker } from '../..//hmr/tracker'
+import type { HmrTracker } from '../../hmr/tracker'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 /** Clears the recorded HMR update history. */

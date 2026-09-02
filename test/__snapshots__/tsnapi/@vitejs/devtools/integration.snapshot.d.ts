@@ -8,8 +8,8 @@ export interface DevToolsIntegrationOptions {
 // #endregion
 
 // #region Functions
-export declare function DevToolsIntegration(_: DevToolsIntegrationOptions): {
+export declare function DevToolsIntegration(_: DevToolsIntegrationOptions): Promise<{
   name: string;
-};
+}[]>;
 export declare function runDevTools(_: unknown): Promise<void>;
 // #endregion

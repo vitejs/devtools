@@ -1,15 +1,32 @@
 import type { CreateHubContextOptions, DevframeHubContext } from '@devframes/hub/node'
+import type { CreateJsonRenderViewOptions } from '@devframes/json-render/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { JsonRenderer, JsonRenderSpec } from '../types/json-render'
 import { createHubContext } from '@devframes/hub/node'
+import { createJsonRenderView } from '@devframes/json-render/node'
+import { nanoid } from '../utils/nanoid'
 
 /**
  * Kit-augmented node context — the framework-neutral hub context from
  * `@devframes/hub`, plus the Vite-specific slots surfaced when kit hosts
- * the devtool inside Vite DevTools.
+ * the devtool inside Vite DevTools, and the kit's `createJsonRenderer`
+ * factory (json-render is the opt-in `@devframes/json-render` package, so
+ * the kit — not the hub — surfaces it on the context). The factory is typed
+ * against `@devframes/json-render`'s `Spec` (`props` required).
  */
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig
   readonly viteServer?: ViteDevServer
+  /**
+   * Create a json-render handle for building declarative, server-driven
+   * panels. Register a `json-render` dock entry with the handle's `view` ref
+   * (`docks.register({ type: 'json-render', view: renderer.view, … })`) and
+   * call `updateSpec` / `updateState` on the handle to drive it reactively.
+   */
+  createJsonRenderer: <SpecType extends JsonRenderSpec>(
+    spec: SpecType,
+    options?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>,
+  ) => JsonRenderer<SpecType>
 }
 
 export interface CreateKitContextOptions extends CreateHubContextOptions {
@@ -22,9 +39,9 @@ export interface CreateKitContextOptions extends CreateHubContextOptions {
 /**
  * Create a kit-level node context: wraps `@devframes/hub`'s
  * `createHubContext` (which itself wraps devframe's `createHostContext`)
- * and attaches the Vite-specific slots. The hub layer owns the
- * docks/terminals/messages/commands subsystems and seeds the shared-state
- * sync the unified client UI consumes.
+ * and attaches the Vite-specific slots plus the `createJsonRenderer`
+ * factory. The hub layer owns the docks/terminals/messages/commands
+ * subsystems and seeds the shared-state sync the unified client UI consumes.
  */
 export async function createKitContext(options: CreateKitContextOptions): Promise<KitNodeContext> {
   const context = await createHubContext(options) as KitNodeContext
@@ -34,5 +51,54 @@ export async function createKitContext(options: CreateKitContextOptions): Promis
   if (options.viteServer)
     Object.defineProperty(context, 'viteServer', { value: options.viteServer, enumerable: true })
 
+  Object.defineProperty(context, 'createJsonRenderer', {
+    value: <SpecType extends JsonRenderSpec>(
+      spec: SpecType,
+      rendererOptions?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>,
+    ) => createJsonRenderer(context, spec, rendererOptions),
+    enumerable: true,
+  })
+
   return context
+}
+
+/**
+ * Build a kit {@link JsonRenderer} handle over a devframe json-render view.
+ * The handle's methods are defined non-enumerably so the whole object stays
+ * serializable when carried on a dock entry's `ui` field — the docks
+ * shared-state projection walks only enumerable own keys, so the live
+ * closures never reach the wire while `_stateKey` does.
+ */
+function createJsonRenderer<SpecType extends JsonRenderSpec>(
+  context: KitNodeContext,
+  spec: SpecType,
+  options: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'> = {},
+): JsonRenderer<SpecType> {
+  const view = createJsonRenderView(context, { id: `kit-${nanoid()}`, spec, ...options })
+
+  const handle = {
+    _stateKey: view.ref.stateKey,
+    view: view.ref,
+  } as JsonRenderer<SpecType>
+
+  Object.defineProperties(handle, {
+    updateSpec: {
+      value: (next: SpecType) => view.update(next),
+      enumerable: false,
+    },
+    updateState: {
+      value: (state: Record<string, unknown>) => {
+        view.patchState(
+          Object.entries(state).map(([key, value]) => ({ op: 'add' as const, path: `/${key}`, value })),
+        )
+      },
+      enumerable: false,
+    },
+    dispose: {
+      value: () => view.dispose(),
+      enumerable: false,
+    },
+  })
+
+  return handle
 }

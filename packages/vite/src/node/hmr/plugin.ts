@@ -4,7 +4,7 @@ import type { HmrTracker } from './tracker'
 import { isAbsolute, relative } from 'pathe'
 import { searchForWorkspaceRoot } from 'vite'
 
-export function createHmrTrackerPlugin(tracker: HmrTracker): Plugin {
+export function createHmrTrackerPlugin(tracker: HmrTracker) {
   let root: string
   return {
     name: 'vite:devtools:hmr-tracker',
@@ -89,5 +89,5 @@ export function createHmrTrackerPlugin(tracker: HmrTracker): Plugin {
         graph: { nodes: [...graphNodes.values()], edges: graphEdges },
       })
     },
-  }
+  } satisfies Plugin
 }

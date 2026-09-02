@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.6.3",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -23,8 +23,6 @@
     ".": "./dist/index.js",
     "./cli": "./dist/cli.js",
     "./cli-commands": "./dist/cli-commands.js",
-    "./client/inject": "./dist/client/inject.js",
-    "./client/webcomponents": "./dist/client/webcomponents.js",
     "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",
     "./integration": "./dist/integration.js",
@@ -36,76 +34,71 @@
     "vite-devtools": "./bin.js"
   },
   "files": [
+    "assets",
     "bin.js",
     "dist"
   ],
   "scripts": {
-    "build": "pnpm build:js && pnpm build:standalone",
-    "build:js": "tsdown --config-loader=unrun",
-    "build:standalone": "cd src/client/standalone && vite build",
+    "build": "tsdown --config-loader=unrun",
     "watch": "tsdown --watch --config-loader=unrun",
-    "dev:standalone": "cd src/client/standalone && vite dev",
     "prepack": "pnpm build",
-    "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
-    "play:debug": "pnpm -C playground run dev:debug",
-    "play:standalone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
-    "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
-    "play:build": "pnpm -C playground run build"
+    "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts"
   },
   "peerDependencies": {
+    "@vitejs/devtools-oxc": "workspace:^",
+    "@vitejs/devtools-rolldown": "workspace:^",
+    "@vitejs/devtools-vite": "workspace:^",
+    "@vitejs/devtools-vitest": "workspace:^",
     "vite": "*"
+  },
+  "peerDependenciesMeta": {
+    "@vitejs/devtools-oxc": {
+      "optional": true
+    },
+    "@vitejs/devtools-rolldown": {
+      "optional": true
+    },
+    "@vitejs/devtools-vite": {
+      "optional": true
+    },
+    "@vitejs/devtools-vitest": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
+    "@devframes/hub-ui": "catalog:deps",
+    "@devframes/json-render-ui": "catalog:deps",
+    "@devframes/plugin-inspect": "catalog:deps",
+    "@devframes/plugin-messages": "catalog:deps",
+    "@devframes/plugin-terminals": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rolldown": "workspace:*",
-    "birpc": "catalog:deps",
     "cac": "catalog:deps",
     "devframe": "catalog:deps",
     "h3": "catalog:deps",
-    "mlly": "catalog:deps",
+    "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
     "obug": "catalog:deps",
-    "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "tinyexec": "catalog:deps",
-    "vue": "catalog:deps",
-    "ws": "catalog:deps"
+    "pathe": "catalog:deps"
   },
   "devDependencies": {
     "@clack/prompts": "catalog:inlined",
     "@vitejs/devtools-rolldown": "workspace:*",
+    "@vitejs/devtools-ui": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/devtools-vitest": "workspace:*",
     "@vitejs/plugin-vue": "catalog:build",
-    "@xterm/addon-fit": "catalog:frontend",
-    "@xterm/xterm": "catalog:frontend",
     "dompurify": "catalog:frontend",
     "fuse.js": "catalog:frontend",
-    "human-id": "catalog:inlined",
+    "iframe-pane": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
+    "unocss": "catalog:build",
     "unplugin-vue": "catalog:build",
     "unrun": "catalog:build",
     "vite": "catalog:build",
     "vue": "catalog:deps",
-    "vue-router": "catalog:playground",
+    "vue-router": "catalog:frontend",
     "vue-tsc": "catalog:devtools"
-  },
-  "inlinedDependencies": {
-    "@clack/core": "1.3.1",
-    "@clack/prompts": "1.4.0",
-    "@json-render/core": "0.13.0",
-    "@json-render/vue": "0.13.0",
-    "@vueuse/core": "14.3.0",
-    "@vueuse/shared": "14.3.0",
-    "@xterm/addon-fit": "0.11.0",
-    "@xterm/xterm": "6.0.0",
-    "dompurify": "3.4.3",
-    "fast-string-truncated-width": "3.0.3",
-    "fast-string-width": "3.0.2",
-    "fast-wrap-ansi": "0.2.0",
-    "fuse.js": "7.3.0",
-    "get-port-please": "3.2.0",
-    "sisteransi": "1.0.5",
-    "zod": "4.3.6"
   }
 }

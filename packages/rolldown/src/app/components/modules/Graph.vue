@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
+import DisplayModuleGraph from '@vitejs/devtools-ui/components/Display/DisplayModuleGraph.vue'
+import { createModuleGraph, getModuleGraphSize } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, nextTick, unref } from 'vue'
-import { createModuleGraph, getModuleGraphSize } from '~/composables/module-graph'
 
 const props = defineProps<{
   modules: ModuleListItem[]
@@ -171,7 +172,6 @@ createModuleGraph<ModuleListItem, ModuleImport>({
 
 <template>
   <DisplayModuleGraph
-    :session="session"
     :modules="modules"
   >
     <template #default="{ node, nodesRefMap }">
@@ -181,7 +181,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
         :link="true"
         :session="session"
         :minimal="true"
-        flex="1"
+        class="flex-1"
       />
     </template>
     <template #link="{ link, d, linkClass }">

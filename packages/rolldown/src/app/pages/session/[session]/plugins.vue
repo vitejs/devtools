@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types'
 import { clearUndefined, toArray } from '@antfu/utils'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import PluginsFlatList from '@vitejs/devtools-ui/components/Plugins/PluginsFlatList.vue'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
@@ -76,15 +78,15 @@ watchDebounced(
 </script>
 
 <template>
-  <div relative min-h-screen>
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div class="relative min-h-screen">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes" />
     </div>
     <PluginsFlatList :plugins="searched ?? []" scroller="window" />
     <div
-      fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
     >
-      <span op50>{{ searched.length }} of {{ session?.meta?.plugins?.length || 0 }}</span>
+      <span class="op50">{{ searched.length }} of {{ session?.meta?.plugins?.length || 0 }}</span>
     </div>
   </div>
 </template>

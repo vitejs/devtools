@@ -4,10 +4,10 @@ import type { GitState } from './git'
 const statusMeta: Record<string, { label: string, title: string, variant: string }> = {
   'M': { label: 'M', title: 'Modified', variant: 'warning' },
   'A': { label: 'A', title: 'Added', variant: 'success' },
-  'D': { label: 'D', title: 'Deleted', variant: 'error' },
+  'D': { label: 'D', title: 'Deleted', variant: 'danger' },
   'R': { label: 'R', title: 'Renamed', variant: 'info' },
   'C': { label: 'C', title: 'Copied', variant: 'info' },
-  'U': { label: 'U', title: 'Unmerged', variant: 'error' },
+  'U': { label: 'U', title: 'Unmerged', variant: 'danger' },
   '?': { label: '?', title: 'Untracked', variant: 'default' },
 }
 
@@ -41,7 +41,7 @@ function buildFileRows(
       rowChildren.push(spacerId, btnId)
       elements[spacerId] = {
         type: 'Stack',
-        props: { direction: 'horizontal', flex: 1 },
+        props: { direction: 'row', flex: 1 },
       }
       elements[btnId] = {
         type: 'Button',
@@ -52,7 +52,7 @@ function buildFileRows(
 
     elements[rowId] = {
       type: 'Stack',
-      props: { direction: 'horizontal', gap: 8, align: 'center' },
+      props: { direction: 'row', gap: 8, align: 'center' },
       children: rowChildren,
     }
     elements[statusId] = {
@@ -61,12 +61,12 @@ function buildFileRows(
         text: meta.label,
         title: meta.title,
         variant: meta.variant,
-        minWidth: '24px',
+        minWidth: 24,
       },
     }
     elements[fileId] = {
       type: 'Text',
-      props: { content: file, variant: 'code' },
+      props: { text: file, variant: 'code' },
     }
   }
 
@@ -80,28 +80,29 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
 
   const rootChildren = ['header', 'branch-info']
   if (interactive)
-    rootChildren.push('commit-section')
+    rootChildren.push('commit-section', 'amend-switch')
   rootChildren.push('divider1', 'staged-card', 'unstaged-card', 'commits-card')
 
   return {
     root: 'root',
     state: {
       commitMessage: '',
+      amend: false,
     },
     elements: {
       'root': {
         type: 'Stack',
-        props: { direction: 'vertical', gap: 12, padding: 4 },
+        props: { direction: 'column', gap: 12, padding: 4 },
         children: rootChildren,
       },
       'header': {
         type: 'Stack',
-        props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
+        props: { direction: 'row', gap: 8, align: 'center', justify: 'between' },
         children: interactive ? ['title', 'refresh-btn'] : ['title'],
       },
       'title': {
         type: 'Text',
-        props: { content: 'Git', variant: 'heading' },
+        props: { text: 'Git', variant: 'heading' },
       },
       'refresh-btn': {
         type: 'Button',
@@ -110,7 +111,7 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'branch-info': {
         type: 'Stack',
-        props: { direction: 'horizontal', gap: 8, align: 'center' },
+        props: { direction: 'row', gap: 8, align: 'center' },
         children: ['branch-icon', 'branch-text', 'changes-badge'],
       },
       'branch-icon': {
@@ -119,7 +120,7 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'branch-text': {
         type: 'Text',
-        props: { content: gitState.branch || '(detached)', variant: 'code' },
+        props: { text: gitState.branch || '(detached)', variant: 'code' },
       },
       'changes-badge': {
         type: 'Badge',
@@ -130,8 +131,15 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'commit-section': {
         type: 'Stack',
-        props: { direction: 'horizontal', gap: 8 },
+        props: { direction: 'row', gap: 8 },
         children: ['commit-input', 'commit-btn'],
+      },
+      'amend-switch': {
+        type: 'Switch',
+        props: {
+          label: 'Amend last commit',
+          value: { $bindState: '/amend' },
+        },
       },
       'commit-input': {
         type: 'TextInput',
@@ -146,7 +154,10 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
         on: {
           press: {
             action: 'git-ui:commit',
-            params: { message: { $state: '/commitMessage' } },
+            params: {
+              message: { $state: '/commitMessage' },
+              amend: { $state: '/amend' },
+            },
           },
         },
       },
@@ -163,13 +174,13 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'staged-files': {
         type: 'Stack',
-        props: { direction: 'vertical', gap: 4 },
+        props: { direction: 'column', gap: 4 },
         children: stagedRows.children,
       },
       ...stagedRows.elements,
       'staged-empty': {
         type: 'Text',
-        props: { content: 'No staged files', variant: 'caption' },
+        props: { text: 'No staged files', variant: 'caption' },
       },
 
       // Unstaged files
@@ -182,7 +193,7 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'unstaged-header': {
         type: 'Stack',
-        props: { direction: 'horizontal', justify: 'end' },
+        props: { direction: 'row', justify: 'end' },
         children: ['stage-all-btn'],
       },
       'stage-all-btn': {
@@ -192,13 +203,13 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
       },
       'unstaged-files': {
         type: 'Stack',
-        props: { direction: 'vertical', gap: 4 },
+        props: { direction: 'column', gap: 4 },
         children: unstagedRows.children,
       },
       ...unstagedRows.elements,
       'unstaged-empty': {
         type: 'Text',
-        props: { content: 'No unstaged files', variant: 'caption' },
+        props: { text: 'No unstaged files', variant: 'caption' },
       },
 
       // Commits
@@ -217,7 +228,7 @@ export function buildSpec(gitState: GitState, options?: { interactive?: boolean 
             { key: 'date', label: 'Date', width: '100px' },
           ],
           rows: gitState.commits,
-          maxHeight: '300px',
+          height: 300,
         },
       },
     },

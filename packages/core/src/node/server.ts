@@ -1,108 +1,139 @@
-import type { NodeHandler } from 'h3'
-import type { CreateWsServerOptions } from './ws'
-import { DEVTOOLS_CONNECTION_META_FILENAME } from '@vitejs/devtools-kit/constants'
-import { consumeTempAuthToken } from 'devframe/node/auth'
-import { getInternalContext } from 'devframe/node/hub-internals'
-import { mountStaticHandler } from 'devframe/utils/serve-static'
-import { defineHandler, getQuery, H3, toNodeHandler } from 'h3'
-import { dirClientStandalone } from '../dirs'
-import { createWsServer } from './ws'
+import type { HubInstance } from '@devframes/hub/initiate'
+import type { ConnectionMeta, DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
+import type { Server as NodeHttpServer } from 'node:http'
+import type { DevToolsConfig } from './config'
+import type { ViteDevToolsUiOptions } from './ui'
+import { initHub } from '@devframes/hub/initiate'
+import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from './auth-handler'
+import { resolveDockRendererRegistrations } from './renderers'
+import { createViteDevToolsUi } from './ui'
 
-export interface DevToolsMiddleware {
-  h3: H3
-  rpc: Awaited<ReturnType<typeof createWsServer>>['rpc']
-  middleware: NodeHandler
-  getConnectionMeta: Awaited<ReturnType<typeof createWsServer>>['getConnectionMeta']
+export interface CreateDevToolsHubOptions {
+  context: ViteDevToolsNodeContext
+  /** Dock renderer modules served by the hub, replacing built-ins by matching type. */
+  renderers?: readonly DockRendererRegistration[]
+  /**
+   * Reference-UI options forwarded to `createUi` — the embedded dock's
+   * reveal policy and the dock-bar rendering preferences.
+   */
+  ui?: ViteDevToolsUiOptions
+  /**
+   * Share this node HTTP server for the WebSocket upgrade (the embedded Vite
+   * dev server). The socket binds route-bound at `<base>__ws`, so no extra
+   * port opens — proxy-friendly. When absent, a side-car WS server is used.
+   */
+  server?: NodeHttpServer
+  /** Bind host for a dedicated side-car WS server (standalone, no shared server). */
+  host?: string
+  /** Pin the side-car WS port (standalone); auto-allocated when omitted. */
+  wsPort?: number
 }
 
-function generateAuthPageHtml(): string {
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <title>Vite DevTools Authorization</title>
-  <style>
-    html { font-family: system-ui, sans-serif; padding: 2rem; }
-    body { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; }
-    #message { font-size: 1.2rem; }
-    @media (prefers-color-scheme: dark) { html { background: #1a1a1a; color: #e0e0e0; } }
-  </style>
-</head>
-<body>
-  <div id="message">Verifying...</div>
-  <script>
-    const query = new URLSearchParams(location.search)
-    const id = query.get('id')
-    const el = document.getElementById('message')
+/** Absolute path of the hub's top-level connection meta (`/__devtools/__connection.json`). */
+const CONNECTION_META_PATH = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_CONNECTION_META_FILENAME}`
 
-    if (!id) {
-      el.textContent = '\\u26a0\\ufe0f No auth token found. Please check your URL.'
-      el.style.color = '#df513f'
-    } else {
-      fetch(location.pathname.replace(/\\/$/, '') + '-verify?id=' + encodeURIComponent(id))
-        .then(async (r) => {
-          if (r.status !== 200) throw new Error(await r.text())
-          const data = await r.json()
-          const authToken = data.authToken
-
-          localStorage.setItem('__DEVFRAME_CONNECTION_AUTH_TOKEN__', authToken)
-
-          try {
-            const bc = new BroadcastChannel('devframe-auth')
-            bc.postMessage({ type: 'auth-update', authToken: authToken })
-          } catch {}
-
-          el.textContent = '\\u2705 Authorized! You can close this window now.'
-          window.close()
-        })
-        .catch((err) => {
-          el.textContent = '\\u26a0\\ufe0f Failed to authorize: ' + err.message
-          el.style.color = '#df513f'
-        })
-    }
-  </script>
-</body>
-</html>`
+export interface DevToolsHub {
+  hub: HubInstance
+  /** Connect/Express-style middleware over the whole DevTools surface. */
+  middleware: HubInstance['nodeMiddleware']
+  getConnectionMeta: () => ConnectionMeta
+  close: () => Promise<void>
 }
 
-export async function createDevToolsMiddleware(options: CreateWsServerOptions): Promise<DevToolsMiddleware> {
-  const h3 = new H3()
-  const contextInternal = getInternalContext(options.context)
+/**
+ * Stand up the DevTools client + RPC surface as a devframe hub instance
+ * (`initHub`). The hub serves the branded `@devframes/hub-ui` viewer and its
+ * embedded bootstrap (the `ui` slot), the RPC connection meta, and the shared
+ * WebSocket transport — all under the kit-pinned `/__devtools/` base. Vite
+ * DevTools supplies its own already-assembled kit context, so the hub runs in
+ * "bring your own context" mode and only owns the hub-level endpoints; each
+ * mounted devframe (Rolldown, Vite, …) keeps serving its own SPA at its own
+ * base and gets its `__connection.json` from {@link provideConnectionMeta}.
+ */
+export async function createDevToolsHub(options: CreateDevToolsHubOptions): Promise<DevToolsHub> {
+  const { context } = options
 
-  const { rpc, getConnectionMeta } = await createWsServer(options)
+  // Mirror the WS trust posture the context uses: fully skip the auth gate
+  // only on an explicit opt-out or the escape-hatch env. Must agree with
+  // `createDevToolsContext`'s registration guard (same helper) — see
+  // `isClientAuthDisabled` for why.
+  const authDisabled = isClientAuthDisabled(context)
 
-  h3.use(`/${DEVTOOLS_CONNECTION_META_FILENAME}`, defineHandler(async (event) => {
-    event.res.headers.set('Content-Type', 'application/json')
-    return JSON.stringify(await getConnectionMeta())
-  }))
+  // Implicit build mode keeps the gate installed but trusts via an unguessable
+  // per-process capability token instead of a prompt. The token is baked into
+  // the served connection metadata's `authToken` so the same-origin build
+  // viewer presents it automatically; a cross-origin page can't read that
+  // metadata, so it never learns the token. See `isBuildCapabilityAuth`.
+  const capabilityToken = isBuildCapabilityAuth(context)
+    ? getBuildCapabilityToken(context)
+    : undefined
 
-  h3.use('/auth-verify', defineHandler((event) => {
-    const { id } = getQuery(event) as { id?: string }
-    if (!id) {
-      event.res.status = 400
-      return 'Missing id parameter'
-    }
+  // Vite's published types bundle a frozen `DevToolsConfig` snapshot, so a
+  // field added here isn't visible through `config` until Vite re-vendors it.
+  const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
 
-    const clientAuthToken = consumeTempAuthToken(id, contextInternal.storage.auth)
-    if (!clientAuthToken) {
-      event.res.status = 403
-      return 'Invalid or expired auth token'
-    }
+  const hub = initHub({
+    base: DEVTOOLS_MOUNT_PATH,
+    context,
+    ui: createViteDevToolsUi(options.ui),
+    // Serve + advertise the reference json-render frontend so `json-render`
+    // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
+    // render instead of hub-ui's missing-renderer fallback.
+    renderers: resolveDockRendererRegistrations(options.renderers),
+    // With a live Vite dev server, route bare-specifier dock client scripts
+    // (`ClientScriptEntry.importFrom` naming an npm module, e.g.
+    // vue-tracer's `vite-plugin-vue-tracer/client/vite-devtools`) through
+    // Vite's own `/@id/` resolution — so they load through the inspected
+    // app's module graph now that v0.9's middleware serves hub assets ahead
+    // of Vite's transform pipeline. Standalone (CLI) and build snapshots have
+    // no module graph to resolve against, so the template stays undeclared
+    // there and such scripts must ship a self-contained bundle URL instead.
+    ...(context.viteServer ? { clientModuleResolution: '/@id/{specifier}' } : {}),
+    auth: authDisabled ? false : getAuthHandler(context),
+    ...(allowedOrigins ? { allowedOrigins } : {}),
+    ...(options.server
+      ? { server: options.server }
+      : { ws: options.wsPort != null ? { port: options.wsPort } : { sidecar: true } }),
+    ...(options.host ? { host: options.host } : {}),
+  })
 
-    event.res.headers.set('Content-Type', 'application/json')
-    return JSON.stringify({ authToken: clientAuthToken })
-  }))
+  await hub.ready
 
-  h3.use('/auth', defineHandler((event) => {
-    event.res.headers.set('Content-Type', 'text/html; charset=utf-8')
-    return generateAuthPageHtml()
-  }))
+  // Bake the capability token into the emitted connection metadata so the
+  // build viewer trusts the server on connect with no prompt.
+  const getConnectionMeta = (): ConnectionMeta => (
+    capabilityToken
+      ? { ...hub.connectionMeta(), authToken: capabilityToken }
+      : hub.connectionMeta()
+  )
 
-  mountStaticHandler(h3, '', dirClientStandalone)
+  // Hand the host the live connection-meta getter so each mounted devframe's
+  // `mountConnectionMeta` middleware serves it at the devframe's own base.
+  ;(context.host as ViteDevToolsHost).provideConnectionMeta?.(getConnectionMeta)
+
+  // The hub serves its own top-level `__connection.json` (the viewer's meta)
+  // from `hub.connectionMeta()`, which carries no `authToken`. In build-token
+  // mode, intercept that one route and answer with the token-augmented meta so
+  // the top-level viewer picks the token up too — everything else falls
+  // through to the hub middleware untouched.
+  const middleware: HubInstance['nodeMiddleware'] = capabilityToken
+    ? (req, res, next) => {
+        const path = req.url?.split('?', 1)[0]
+        if (path === CONNECTION_META_PATH) {
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(getConnectionMeta()))
+          return
+        }
+        hub.nodeMiddleware(req, res, next)
+      }
+    : hub.nodeMiddleware
 
   return {
-    h3,
-    rpc,
-    middleware: toNodeHandler(h3),
+    hub,
+    middleware,
     getConnectionMeta,
+    close: hub.close,
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { SessionContext } from '~~/shared/types/data'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/DisplayCloseButton.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import { useAsyncState } from '@vueuse/core'
 import { useRpc } from '#imports'
 
@@ -31,7 +31,7 @@ const { state, isLoading } = useAsyncState(
 <template>
   <VisualLoading v-if="isLoading" />
 
-  <div v-if="state" p4 relative h-full w-full of-auto z-panel-content>
+  <div v-if="state" class="p4 relative h-full w-full of-auto z-panel-content">
     <DataChunkDetails :session="session" :chunk="state">
       <DisplayCloseButton
         @click="emit('close')"

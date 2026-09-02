@@ -1,8 +1,6 @@
-import FloatingVue from 'floating-vue'
+import { installFloatingVue } from '@vitejs/devtools-ui/plugins/floating-vue'
 import { defineNuxtPlugin } from '#app/nuxt'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.use(FloatingVue, {
-    overflowPadding: 20,
-  })
+  installFloatingVue(nuxtApp.vueApp)
 })

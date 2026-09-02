@@ -91,6 +91,19 @@ export default defineNuxtConfig({
       cssMinify: false,
     },
     optimizeDeps: {
+      include: [
+        '@vueuse/core',
+        '@floating-ui/dom',
+        'd3-hierarchy',
+        'd3-shape',
+        'fuse.js',
+        'modern-monaco',
+        'comlink',
+        'floating-vue',
+        'splitpanes',
+        'vue-virtual-scroller',
+        'nanovis',
+      ],
       exclude: [
         'structured-clone-es',
         'birpc',
@@ -104,10 +117,6 @@ export default defineNuxtConfig({
 
   devtools: {
     enabled: false,
-  },
-
-  typescript: {
-    includeWorkspace: true,
   },
 
   workspaceDir: '../../',

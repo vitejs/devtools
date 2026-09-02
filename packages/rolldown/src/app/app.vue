@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { useHead } from '#app/composables/head'
+import { applyDarkClassToHtml } from '@vitejs/devtools-ui/composables/dark'
+import { useSeoMeta } from '#app/composables/head'
 
 import { connect, connectionState } from './composables/rpc'
 import 'floating-vue/dist/style.css'
 import './styles/cm.css'
 import './styles/splitpanes.css'
 import './styles/global.css'
-import '@vitejs/devtools-ui/composables/dark'
 
-useHead({
+applyDarkClassToHtml()
+
+useSeoMeta({
   title: 'Rolldown DevTools',
 })
 
@@ -16,14 +18,14 @@ connect()
 </script>
 
 <template>
-  <div v-if="connectionState.error" text-red>
+  <div v-if="connectionState.error" class="text-red">
     {{ connectionState.error }}
   </div>
   <VisualLoading
     v-else-if="!connectionState.connected"
     text="Connecting..."
   />
-  <div v-else h-vh>
+  <div v-else class="h-vh">
     <NuxtPage />
   </div>
 </template>

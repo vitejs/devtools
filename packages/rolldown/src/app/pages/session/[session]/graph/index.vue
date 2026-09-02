@@ -2,11 +2,13 @@
 import type { ModuleListItem, SessionContext } from '~~/shared/types'
 import type { ClientSettings } from '~/state/settings'
 import { clearUndefined, toArray } from '@antfu/utils'
+import DataPathSelector from '@vitejs/devtools-ui/components/Data/DataPathSelector.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import { useGraphPathManager } from '@vitejs/devtools-ui/composables/graph-path-selector'
 import { computedWithControl, watchDebounced } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from '#app/composables/router'
-import { useGraphPathManager } from '~/composables/graph-path-selector'
 import { settings } from '~/state/settings'
 import { parseReadablePath } from '~/utils/filepath'
 import { getFileTypeFromModuleId, ModuleTypeRules } from '~/utils/icon'
@@ -134,11 +136,11 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
 </script>
 
 <template>
-  <div relative :class="{ 'max-h-screen of-hidden': settings.moduleGraphViewType === 'graph' }">
-    <div sticky left-4 right-4 top-4 z-panel-nav p-4>
+  <div class="relative" :class="{ 'max-h-screen of-hidden': settings.moduleGraphViewType === 'graph' }">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
-          <DataPathSelector :session="session" :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
+          <DataPathSelector :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
             <template #list="{ select, data }">
               <ModulesFlatList
                 v-if="data?.length"
@@ -153,7 +155,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
               <DisplayModuleId
                 :id="id"
                 :session="session"
-                block text-nowrap
+                class="block text-nowrap"
                 :link="false"
                 :disable-tooltip="true"
               />
@@ -161,21 +163,20 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
           </DataPathSelector>
         </template>
         <template #search-end>
-          <div v-if="settings.moduleGraphViewType === 'graph'" h10 mr2 flex="~ items-center">
+          <div v-if="settings.moduleGraphViewType === 'graph'" class="h10 mr2 flex items-center">
             <button
-              w-8 h-8 rounded-full flex items-center justify-center
-              hover="bg-active op100" op50 title="Graph Path Selector" @click="togglePathSelector(true)"
+              class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-active hover:op100 op50" title="Graph Path Selector" @click="togglePathSelector(true)"
             >
-              <i i-ri:route-line flex />
+              <i class="i-ri:route-line flex" />
             </button>
           </div>
         </template>
-        <div flex="~ wrap gap-2 items-center" p2 border="t base">
-          <span op50 pl2 text-sm>View as</span>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
           <button
             v-for="viewType of moduleViewTypes"
             :key="viewType.value"
-            btn-action
+            class="btn-action"
             :class="settings.moduleGraphViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
             @click="toggleDisplay(viewType.value)"
           >
@@ -209,9 +210,9 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
     />
     <div
       v-if="settings.moduleGraphViewType === 'list' || settings.moduleGraphViewType === 'detailed-list'"
-      fixed bottom-4 py-1 px-2 bg-glass left="1/2" translate-x="-1/2" border="~ base rounded-full" text="center xs"
+      class="fixed bottom-4 py-1 px-2 bg-glass left-1/2 translate-x--1/2 border border-base rounded-full text-center text-xs"
     >
-      <span op50>{{ searched.length }} of {{ session.modulesList.length }}</span>
+      <span class="op50">{{ searched.length }} of {{ session.modulesList.length }}</span>
     </div>
   </div>
 </template>

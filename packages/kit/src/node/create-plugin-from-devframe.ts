@@ -2,7 +2,6 @@ import type { DevframeCapabilities, DevframeViewIframe } from '@devframes/hub/ty
 import type { DevframeDefinition } from 'devframe/types'
 import type { PluginWithDevTools } from '../types/vite-augment'
 import type { KitNodeContext } from './context'
-import { mountDevframe } from '@devframes/hub/node'
 
 export interface CreatePluginFromDevframeOptions {
   /**
@@ -40,7 +39,7 @@ export interface CreatePluginFromDevframeOptions {
  * Wrap a {@link DevframeDefinition} as a Vite plugin that mounts inside
  * `@vitejs/devtools` (Vite DevTools). Delegates the mount work
  * (serving the SPA, registering the iframe dock entry, calling
- * `d.setup(ctx)`) to `@devframes/hub`'s `mountDevframe`, then runs the
+ * `d.setup(ctx)`) to the hub context's `ctx.install`, then runs the
  * optional kit-only `options.setup` hook.
  */
 export function createPluginFromDevframe(
@@ -53,7 +52,7 @@ export function createPluginFromDevframe(
       capabilities: options.capabilities ?? (d.capabilities as any),
       async setup(rawCtx) {
         const ctx = rawCtx as KitNodeContext
-        await mountDevframe(ctx, d, {
+        await ctx.install(d, {
           base: options.base,
           dock: options.dock,
         })

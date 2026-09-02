@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-rolldown",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.6.3",
   "description": "DevTools for Rolldown",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -34,31 +34,17 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
-    "@floating-ui/dom": "catalog:frontend",
     "@rolldown/debug": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
-    "birpc": "catalog:deps",
-    "cac": "catalog:deps",
-    "d3-shape": "catalog:frontend",
-    "devframe": "catalog:deps",
     "diff": "catalog:deps",
-    "get-port-please": "catalog:deps",
-    "h3": "catalog:deps",
-    "mlly": "catalog:deps",
-    "mrmime": "catalog:deps",
     "nostics": "catalog:deps",
-    "p-limit": "catalog:deps",
-    "pathe": "catalog:deps",
-    "publint": "catalog:deps",
-    "tinyglobby": "catalog:deps",
-    "unconfig": "catalog:deps",
-    "unstorage": "catalog:deps",
-    "vue-virtual-scroller": "catalog:frontend",
-    "ws": "catalog:deps"
+    "pathe": "catalog:deps"
   },
   "devDependencies": {
+    "@floating-ui/dom": "catalog:frontend",
     "@types/splitpanes": "catalog:types",
     "@unocss/nuxt": "catalog:build",
+    "@vitejs/devtools-ui": "workspace:*",
     "@vueuse/components": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",
@@ -66,16 +52,20 @@
     "comlink": "catalog:frontend",
     "d3": "catalog:frontend",
     "d3-hierarchy": "catalog:frontend",
+    "d3-shape": "catalog:frontend",
+    "devframe": "catalog:deps",
     "diff-match-patch-es": "catalog:frontend",
     "floating-vue": "catalog:frontend",
     "fuse.js": "catalog:frontend",
     "idb-keyval": "catalog:frontend",
     "modern-monaco": "catalog:frontend",
     "nanovis": "catalog:frontend",
+    "nuxt": "catalog:build",
     "splitpanes": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "tsdown": "catalog:build",
     "unocss": "catalog:build",
-    "vite-hot-client": "catalog:frontend"
+    "vite-hot-client": "catalog:frontend",
+    "vue-virtual-scroller": "catalog:frontend"
   }
 }

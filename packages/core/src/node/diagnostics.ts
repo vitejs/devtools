@@ -40,5 +40,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
     DTK0032: {
       why: (p: { id: string }) => `Error launching dock entry "${p.id}"`,
     },
+    DTK0033: {
+      why: (p: { file: string }) => `Failed to persist the DevTools mode flag at "${p.file}"`,
+      fix: 'Ensure the project\'s node_modules directory is writable.',
+    },
   },
 })

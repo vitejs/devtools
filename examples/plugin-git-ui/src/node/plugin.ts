@@ -89,14 +89,17 @@ function createRpcFunctions(gitRoot: string, getUi: () => JsonRenderer, interact
       name: 'git-ui:commit',
       type: 'action',
       setup: ctx => ({
-        handler: async (params: { message?: string }) => {
+        handler: async (params: { message?: string, amend?: boolean }) => {
           const message = params?.message
           if (!message) {
             ctx.messages.add({ message: 'Commit message is empty', level: 'warn', category: 'git-ui', notify: true })
             return
           }
 
-          const result = await git(['commit', '-m', message], gitRoot)
+          const args = ['commit', '-m', message]
+          if (params?.amend)
+            args.push('--amend')
+          const result = await git(args, gitRoot)
           if (result.ok) {
             ctx.messages.add({ message: `Committed: ${message}`, level: 'info', category: 'git-ui', notify: true })
           }
@@ -128,7 +131,7 @@ export function GitUIPlugin(): PluginWithDevTools {
           title: 'Git',
           icon: 'ph:git-branch-duotone',
           category: 'app',
-          ui,
+          view: ui.view,
           badge: total > 0 ? String(total) : undefined,
         })
 

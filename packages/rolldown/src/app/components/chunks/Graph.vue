@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { ChunkImport } from '@rolldown/debug'
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
-import DisplayBadge from '@vitejs/devtools-ui/components/DisplayBadge.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayModuleGraph from '@vitejs/devtools-ui/components/Display/DisplayModuleGraph.vue'
+import { createModuleGraph, getModuleGraphSize } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, unref } from 'vue'
 import { useRoute } from '#app/composables/router'
-import { createModuleGraph, getModuleGraphSize } from '~/composables/module-graph'
 
 type ChunkInfo = RolldownChunkInfo & {
   id: string
@@ -196,21 +197,20 @@ createModuleGraph<ChunkInfo, ChunkImport>({
 
 <template>
   <DisplayModuleGraph
-    :session="session"
     :modules="chunks"
     :expand-controls="false"
   >
     <template #default="{ node }">
       <NuxtLink class="flex items-center" :to="{ path: route.path, query: { chunk: node.data.module.chunk_id } }">
-        <span op50 font-mono w12>#{{ node.data.module.id }}</span>
-        <div flex="~ gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
+        <span class="op50 font-mono w12">#{{ node.data.module.id }}</span>
+        <div class="flex gap-2 items-center" :title="`Chunk #${node.data.module.id}`">
           <div>{{ node.data.module.name || '[unnamed]' }}</div>
           <DisplayBadge :text="node.data.module.reason" />
           <DisplayBadge v-if="node.data.module.is_initial" text="initial" />
         </div>
-        <div flex-auto />
-        <div flex="~ gap-1 items-center">
-          <div i-ph-package-duotone />
+        <div class="flex-auto" />
+        <div class="flex gap-1 items-center">
+          <div class="i-ph-package-duotone" />
           {{ node.data.module.modules.length }}
         </div>
       </NuxtLink>

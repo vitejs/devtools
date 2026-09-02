@@ -7,7 +7,7 @@ export interface DevToolsIntegrationOptions {
   config: unknown
 }
 
-export function DevToolsIntegration(options: DevToolsIntegrationOptions): { name: string } {
+export function DevToolsIntegration(options: DevToolsIntegrationOptions): Promise<{ name: string }[]> {
   return _DevToolsIntegration(options as Parameters<typeof _DevToolsIntegration>[0])
 }
 

@@ -1,0 +1,7 @@
+node_modules
+dist
+.output
+.nuxt
+.tarballs
+pnpm-lock.yaml
+*.local

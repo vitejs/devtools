@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.3.3",
+  "version": "0.6.3",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -24,7 +24,6 @@
     "./constants": "./dist/constants.js",
     "./node": "./dist/node/index.js",
     "./utils/events": "./dist/utils/events.js",
-    "./utils/human-id": "./dist/utils/human-id.js",
     "./utils/nanoid": "./dist/utils/nanoid.js",
     "./utils/shared-state": "./dist/utils/shared-state.js",
     "./utils/when": "./dist/utils/when.js",
@@ -45,16 +44,14 @@
   },
   "dependencies": {
     "@devframes/hub": "catalog:deps",
-    "birpc": "catalog:deps",
+    "@devframes/json-render": "catalog:deps",
     "devframe": "catalog:deps",
+    "local-pkg": "catalog:deps",
     "mlly": "catalog:deps",
     "nostics": "catalog:deps",
-    "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "tinyexec": "catalog:deps"
+    "nypm": "catalog:deps"
   },
   "devDependencies": {
-    "human-id": "catalog:inlined",
     "tsdown": "catalog:build",
     "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"

@@ -25,7 +25,7 @@ const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
   { text: 'Dock System', link: '/kit/dock-system' },
-  { text: 'Remote Client', link: '/kit/remote-client' },
+  { text: 'Client Script & Context', link: '/kit/client-context' },
   { text: 'RPC', link: '/kit/rpc' },
   { text: 'Shared State', link: '/kit/shared-state' },
   { text: 'Streaming', link: '/kit/streaming' },
@@ -34,7 +34,15 @@ const DevToolsKitNav = [
   { text: 'Messages & Notifications', link: '/kit/messages' },
   { text: 'Structured Diagnostics', link: '/kit/diagnostics' },
   { text: 'Terminals & Processes', link: '/kit/terminals' },
+  { text: 'Remote Client', link: '/kit/remote-client' },
   { text: 'Examples', link: '/kit/examples' },
+]
+
+const BuiltinDevToolsNav = [
+  { text: 'DevTools for Rolldown', link: '/rolldown/' },
+  { text: 'DevTools for Vite', link: '/vite/' },
+  { text: 'DevTools for Vitest', link: '/vitest/' },
+  { text: 'DevTools for Oxc', link: '/oxc/' },
 ]
 
 const SocialLinks = [
@@ -82,9 +90,7 @@ export default extendConfig(withMermaid(defineConfig({
       { text: 'Guide', link: '/guide/' },
       {
         text: 'Builtin DevTools',
-        items: [
-          { text: 'DevTools for Rolldown', link: '/rolldown/' },
-        ],
+        items: BuiltinDevToolsNav,
       },
       {
         text: 'DevTools Kit',
@@ -109,10 +115,12 @@ export default extendConfig(withMermaid(defineConfig({
           ],
         },
         {
-          text: 'DevTools for Rolldown',
+          text: 'Builtin DevTools',
           items: [
-            { text: 'Introduction', link: '/rolldown/' },
-            { text: 'Features', link: '/rolldown/features' },
+            { text: 'DevTools for Rolldown', link: '/rolldown/' },
+            { text: 'DevTools for Vite', link: '/vite/' },
+            { text: 'DevTools for Vitest', link: '/vitest/' },
+            { text: 'DevTools for Oxc', link: '/oxc/' },
           ],
         },
         {
@@ -121,7 +129,7 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'Introduction', link: '/kit/' },
             { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
             { text: 'Dock System', link: '/kit/dock-system' },
-            { text: 'Remote Client', link: '/kit/remote-client' },
+            { text: 'Client Script & Context', link: '/kit/client-context' },
             { text: 'RPC', link: '/kit/rpc' },
             { text: 'Shared State', link: '/kit/shared-state' },
             { text: 'Streaming', link: '/kit/streaming' },
@@ -131,6 +139,7 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'Diagnostics', link: '/kit/diagnostics' },
             { text: 'JSON Render', link: '/kit/json-render' },
             { text: 'Terminals', link: '/kit/terminals' },
+            { text: 'Remote Client', link: '/kit/remote-client' },
             { text: 'Examples', link: '/kit/examples' },
           ],
         },
@@ -188,9 +197,7 @@ export default extendConfig(withMermaid(defineConfig({
         },
         {
           title: 'Builtin DevTools',
-          items: [
-            { text: 'DevTools for Rolldown', link: '/rolldown/' },
-          ],
+          items: BuiltinDevToolsNav,
         },
       ],
       social: SocialLinks,

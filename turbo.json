@@ -21,14 +21,16 @@
         "dist/**"
       ]
     },
-    "@vitejs/devtools-rolldown#build": {
+    "@vitejs/devtools-oxc#build": {
       "outputLogs": "new-only",
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**"
       ]
     },
-    "@vitejs/devtools-self-inspect#build": {
+    "@vitejs/devtools-rolldown#build": {
       "outputLogs": "new-only",
+      "dependsOn": ["^build"],
       "outputs": [
         "dist/**"
       ]
@@ -41,12 +43,22 @@
     },
     "@vitejs/devtools-vite#build": {
       "outputLogs": "new-only",
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@vitejs/devtools-vitest#build": {
+      "outputLogs": "new-only",
       "outputs": [
         "dist/**"
       ]
     },
     "@vitejs/devtools-webext#build": {
       "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": [
         "dist/**"
       ]

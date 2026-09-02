@@ -25,6 +25,11 @@ export async function buildPluginFixture(fixtureDir: string): Promise<string> {
 export async function buildCliFixture(fixtureDir: string, outDir = '.vite-devtools'): Promise<string> {
   const result = await x('node', [cliBin, 'build', '--root', fixtureDir, '--outDir', outDir], {
     throwOnError: true,
+    // The CLI process should exit as soon as the build finishes. Without a
+    // bound here, a hang in the child process (e.g. an open handle that
+    // prevents the event loop from draining) silently burns the whole test
+    // timeout with no indication of where it got stuck.
+    timeout: 60_000,
   })
   if (result.exitCode !== 0)
     throw new Error(`vite-devtools build failed:\n${result.stderr}`)
@@ -75,6 +80,18 @@ export async function serveStatic(dir: string): Promise<StaticServer> {
 
 export async function launchBrowser(): Promise<Browser> {
   return chromium.launch({ headless: true })
+}
+
+/**
+ * Opens a page that ignores HTTPS certificate errors.
+ *
+ * Sandboxed CI/dev environments route egress through a MITM proxy, so any
+ * runtime `https://` fetch a page makes (e.g. the Iconify API fallback) fails
+ * with `net::ERR_CERT_AUTHORITY_INVALID` unless certificate errors are
+ * ignored for that browsing context.
+ */
+export async function newPage(browser: Browser): ReturnType<Browser['newPage']> {
+  return browser.newPage({ ignoreHTTPSErrors: true })
 }
 
 export interface PageErrors {

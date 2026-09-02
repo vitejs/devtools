@@ -1,4 +1,4 @@
-import type { Browser } from 'playwright-core'
+import type { Browser, Page } from 'playwright-core'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'pathe'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
@@ -7,6 +7,7 @@ import {
   buildPluginFixture,
   collectPageErrors,
   launchBrowser,
+  newPage,
   serveStatic,
   waitForDockReady,
 } from '../src/harness'
@@ -28,8 +29,9 @@ describe('issue #339: static devtools build', () => {
   it('plugin path (`vite build`) emits a working static SPA', async () => {
     const outDir = await buildPluginFixture(fixtureDir)
     const server = await serveStatic(outDir)
+    let page: Page | undefined
     try {
-      const page = await browser.newPage()
+      page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/__devtools/`, { waitUntil: 'domcontentloaded' })
@@ -43,10 +45,15 @@ describe('issue #339: static devtools build', () => {
         errors.find(e => /No dump match for "devtoolskit:internal:messages:list"/.test(e)),
         'RPC dump regression — messages:list dump missing for args [null]',
       ).toBeUndefined()
+      expect(
+        errors.find(e => /No dump match for "devframe:rpc:server-state:get".+devframe:services/.test(e)),
+        'RPC dump regression — devframe:services server-state missing (services barrier not fired at build)',
+      ).toBeUndefined()
       expect(errors, `unexpected errors:\n${errors.join('\n')}`).toHaveLength(0)
       expect(ready, 'DevTools SPA did not render').toBe(true)
     }
     finally {
+      await page?.close()
       await server.close()
     }
   })
@@ -54,8 +61,9 @@ describe('issue #339: static devtools build', () => {
   it('cli path (`vite-devtools build`) emits a working static SPA', async () => {
     const outDir = await buildCliFixture(fixtureDir)
     const server = await serveStatic(outDir)
+    let page: Page | undefined
     try {
-      const page = await browser.newPage()
+      page = await newPage(browser)
       const { errors } = collectPageErrors(page)
 
       await page.goto(`${server.url}/`, { waitUntil: 'domcontentloaded' })
@@ -65,6 +73,7 @@ describe('issue #339: static devtools build', () => {
       expect(ready, 'DevTools SPA did not render').toBe(true)
     }
     finally {
+      await page?.close()
       await server.close()
     }
   })
