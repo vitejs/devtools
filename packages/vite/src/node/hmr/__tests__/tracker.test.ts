@@ -1,16 +1,29 @@
 import { describe, expect, it } from 'vitest'
 import { createHmrTracker } from '../tracker'
 
+function update(overrides = {}) {
+  return {
+    timestamp: 1000,
+    type: 'update' as const,
+    files: ['a.ts'],
+    modules: [],
+    boundaries: [],
+    graph: { nodes: [], edges: [] },
+    ...overrides,
+  }
+}
+
 describe('createHmrTracker', () => {
   it('should store updates newest first', () => {
     const tracker = createHmrTracker()
 
-    tracker.record({ timestamp: 1000, type: 'update', files: ['a.ts'], modules: [] })
-    tracker.record({ timestamp: 2000, type: 'update', files: ['b.ts'], modules: [] })
+    tracker.record(update({ files: ['a.ts'] }))
+    tracker.record(update({ timestamp: 2000, files: ['b.ts'], boundaries: ['b.ts'] }))
 
     const updates = tracker.getUpdates()
     expect(updates).toHaveLength(2)
     expect(updates[0]?.files[0]).toBe('b.ts')
+    expect(updates[0]?.boundaries).toEqual(['b.ts'])
     expect(updates[1]?.files[0]).toBe('a.ts')
   })
 
@@ -18,7 +31,7 @@ describe('createHmrTracker', () => {
     const tracker = createHmrTracker()
 
     for (let i = 0; i < 210; i++) {
-      tracker.record({ timestamp: i, type: 'update', files: [`file-${i}.ts`], modules: [] })
+      tracker.record(update({ timestamp: i, files: [`file-${i}.ts`] }))
     }
 
     const updates = tracker.getUpdates()
@@ -30,8 +43,8 @@ describe('createHmrTracker', () => {
   it('should clear all updates', () => {
     const tracker = createHmrTracker()
 
-    tracker.record({ timestamp: 1000, type: 'update', files: ['a.ts'], modules: [] })
-    tracker.record({ timestamp: 2000, type: 'update', files: ['b.ts'], modules: [] })
+    tracker.record(update())
+    tracker.record(update({ timestamp: 2000, files: ['b.ts'] }))
 
     tracker.clear()
     expect(tracker.getUpdates()).toHaveLength(0)

@@ -1,5 +1,6 @@
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
 import { DevToolsServer } from '../../../core/src/node/plugins/server'
+import { createHmrTrackerPlugin } from '../node/hmr/plugin'
 import { createHmrTracker } from '../node/hmr/tracker'
 import { rpcFunctions } from '../node/rpc'
 
@@ -23,19 +24,7 @@ export default defineNuxtModule({
       },
     })
 
-    addVitePlugin({
-      name: 'vite:devtools:hmr-tracker',
-      hotUpdate({ file, modules, timestamp }) {
-        if (modules.length > 0) {
-          hmrTracker.record({
-            timestamp,
-            type: 'update',
-            files: [file],
-            modules: modules.map(m => m.id ?? m.url),
-          })
-        }
-      },
-    })
+    addVitePlugin(createHmrTrackerPlugin(hmrTracker))
 
     addVitePlugin(DevToolsServer())
   },

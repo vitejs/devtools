@@ -35,8 +35,10 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "@dagrejs/dagre": "catalog:frontend",
     "@floating-ui/dom": "catalog:frontend",
     "@vitejs/devtools-kit": "workspace:*",
+    "@vue-flow/core": "catalog:frontend",
     "birpc": "catalog:deps",
     "devframe": "catalog:deps",
     "envinfo": "catalog:deps",

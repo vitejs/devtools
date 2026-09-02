@@ -111,10 +111,12 @@ catalogs:
     vitepress-plugin-group-icons: ^1.7.5
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
+    '@dagrejs/dagre': ^3.0.0
     '@floating-ui/dom': ^1.7.6
     '@json-render/core': 0.13.0
     '@json-render/vue': 0.13.0
     '@visual-json/vue': ^0.4.0
+    '@vue-flow/core': ^1.48.2
     '@vueuse/components': ^14.3.0
     '@vueuse/core': ^14.3.0
     '@vueuse/router': ^14.3.0
