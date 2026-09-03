@@ -1,7 +1,7 @@
 {
   "name": "playground-production-nuxt",
   "type": "module",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "Standalone workspace that installs a Nuxt 5 app with Nuxt DevTools 4 from npm, overriding its internal Vite DevTools dependency to the local built dist, to test the real Nuxt-DevTools-embeds-Vite-DevTools install path.",
   "scripts": {
