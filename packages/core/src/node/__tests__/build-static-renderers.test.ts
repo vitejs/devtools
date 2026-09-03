@@ -66,4 +66,24 @@ describe('buildStaticDevTools renderers', () => {
       'custom-render': { importFrom: '/__devtools/__renderers/custom-render.mjs' },
     })
   })
+
+  it('prefixes the deploy base onto renderer imports and the root redirect', async () => {
+    const temporaryDirectory = await mkdtemp(join(tmpdir(), 'vite-devtools-renderers-base-'))
+    const replacementFile = join(temporaryDirectory, 'replacement.mjs')
+    const outputDirectory = join(temporaryDirectory, 'output')
+    await writeFile(replacementFile, 'export const replacement = true')
+
+    await buildStaticDevTools({
+      context: fakeContext(),
+      outDir: outputDirectory,
+      base: '/ci-build-123456/',
+      renderers: [{ type: 'json-render', file: replacementFile }],
+    })
+
+    expect(mutateRendererManifest.mock.calls[0]![0]({})).toEqual({
+      'json-render': { importFrom: '/ci-build-123456/__devtools/__renderers/json-render.mjs' },
+    })
+    expect(await readFile(join(outputDirectory, 'index.html'), 'utf8'))
+      .toContain('location.replace("/ci-build-123456/__devtools/")')
+  })
 })

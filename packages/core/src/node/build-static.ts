@@ -23,6 +23,13 @@ import { createViteDevToolsUi } from './ui'
 export interface BuildStaticOptions {
   context: ViteDevToolsNodeContext
   outDir: string
+  /**
+   * Absolute path the snapshot is deployed under (e.g. `/ci-build-123456/`).
+   * Prefixes the root-relative URLs baked into the output — the root redirect
+   * and the dock-renderer import specifiers — so the snapshot works when hosted
+   * below the domain root. Defaults to `/`.
+   */
+  base?: string
   /** Dock renderer modules copied into the static output, replacing built-ins by matching type. */
   renderers?: readonly DockRendererRegistration[]
   withApp?: boolean
@@ -30,8 +37,19 @@ export interface BuildStaticOptions {
   ui?: ViteDevToolsUiOptions
 }
 
+/**
+ * Join the deploy `base` with the kit-pinned `/__devtools/` mount so absolute
+ * URLs in the snapshot point at the right place when hosted below the domain
+ * root. `/` (the default) collapses to the bare mount path.
+ */
+function resolveMountPath(base: string): string {
+  const prefix = base.replace(/\/+$/, '')
+  return prefix ? `${prefix}${DEVTOOLS_MOUNT_PATH}` : DEVTOOLS_MOUNT_PATH
+}
+
 export async function buildStaticDevTools(options: BuildStaticOptions): Promise<void> {
   const { context, outDir, withApp } = options
+  const mountPath = resolveMountPath(options.base ?? '/')
 
   if (!withApp && existsSync(outDir))
     await fs.rm(outDir, { recursive: true })
@@ -82,7 +100,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   for (const registration of resolveDockRendererRegistrations(options.renderers)) {
     await fs.cp(registration.file, resolve(renderersRoot, `${registration.type}.mjs`))
     rendererManifest[registration.type] = {
-      importFrom: `${DEVTOOLS_MOUNT_PATH}__renderers/${registration.type}.mjs`,
+      importFrom: `${mountPath}__renderers/${registration.type}.mjs`,
     }
   }
   ;(await context.rpc.sharedState.get(DOCK_RENDERERS_STATE_KEY, { initialValue: {} })).mutate(() => rendererManifest)
@@ -121,10 +139,10 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
         '  <meta charset="UTF-8">',
         '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
         '  <title>Vite DevTools</title>',
-        `  <meta http-equiv="refresh" content="0; url=${DEVTOOLS_MOUNT_PATH}">`,
+        `  <meta http-equiv="refresh" content="0; url=${mountPath}">`,
         '</head>',
         '<body>',
-        `  <script>location.replace(${JSON.stringify(DEVTOOLS_MOUNT_PATH)})</script>`,
+        `  <script>location.replace(${JSON.stringify(mountPath)})</script>`,
         '</body>',
         '</html>',
       ].join('\n'),

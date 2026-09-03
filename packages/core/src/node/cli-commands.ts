@@ -40,6 +40,7 @@ export async function build(options: BuildOptions) {
   await buildStaticDevTools({
     context: devtools.context,
     outDir,
+    base: options.base,
   })
 
   diagnostics.DTK0010()
