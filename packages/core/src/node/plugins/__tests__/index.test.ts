@@ -66,6 +66,20 @@ describe('devTools', () => {
     expect(observedDevTools).toBe(config.devtools)
   })
 
+  it('keeps the resolved DevTools host local when the Vite server host is true', async () => {
+    const plugins = await DevTools({ builtinDevTools: false })
+    const config = await resolveConfig({
+      configFile: false,
+      plugins: [plugins],
+      server: { host: true },
+    }, 'serve')
+
+    expect(config.devtools).toMatchObject({
+      config: { host: 'localhost' },
+      enabled: true,
+    })
+  })
+
   it('uses the explicitly registered manual plugin when auto integration is disabled', async () => {
     const config = await resolveConfig({
       configFile: false,

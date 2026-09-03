@@ -18,10 +18,10 @@ export function DevToolsConfigPlugin(
         if (viteConfig.plugins.filter(plugin => plugin.name === 'vite:devtools').length > 1)
           throw diagnostics.DTK0034()
 
-        const host = viteConfig.server.host === true
-          ? '0.0.0.0'
-          : viteConfig.server.host || 'localhost'
-        Object.assign(resolvedConfig, normalizeDevToolsConfig(config, host))
+        Object.assign(
+          resolvedConfig,
+          normalizeDevToolsConfig(config, viteConfig.server.host),
+        )
         Object.assign(viteConfig, { devtools: resolvedConfig })
       },
     },

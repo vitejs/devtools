@@ -7,6 +7,12 @@ export interface DevToolsBranding {
   logo?: DevToolsBrandingLogo
   wordmark?: DevToolsBrandingLogo
   primaryColor?: string
+  background?:
+    | DevToolsBrandingLogo
+    | {
+      standalone: DevToolsBrandingLogo
+      iframe?: DevToolsBrandingLogo
+    }
   tagline?: string
   favicon?: string
   windowTitle?: string

@@ -53,6 +53,20 @@ describe('normalizeDevToolsConfig', () => {
     expect(normalizeDevToolsConfig({ host: 'dev.example.com' }, true).config.host).toBe('dev.example.com')
   })
 
+  it('keeps the branding background option', () => {
+    const background = {
+      standalone: { light: '#fff', dark: '#111' },
+      iframe: 'transparent',
+    }
+
+    const config = normalizeDevToolsConfig(
+      { branding: { background } },
+      'localhost',
+    )
+
+    expect(config.config.branding?.background).toEqual(background)
+  })
+
   it.each([
     { apply: 'all', command: 'serve', enabled: true },
     { apply: 'all', command: 'build', enabled: true },
