@@ -26,7 +26,7 @@ async function getSetupCommands(root: string, migrate: boolean): Promise<string[
   return [install, dlxCommand(packageManager, 'oxfmt', { args, short: true })]
 }
 
-async function isGitDirty(root: string): Promise<boolean> {
+export async function isGitDirty(root: string): Promise<boolean> {
   try {
     const result = await x('git', ['-C', root, 'status', '--porcelain'], {
       nodeOptions: { cwd: root },

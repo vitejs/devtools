@@ -31,5 +31,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { reason: string }) => `Failed to set up Oxfmt: ${p.reason}`,
       fix: 'Check the project package manager and configuration, then try again.',
     },
+    OXDT0007: {
+      why: (p: { reason: string }) => `Failed to run Oxfmt: ${p.reason}`,
+      fix: 'Check that Oxfmt is installed and its configuration is valid, then try again.',
+    },
   },
 })

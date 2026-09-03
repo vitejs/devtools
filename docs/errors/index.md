@@ -80,3 +80,4 @@ Emitted by `@vitejs/devtools-oxc`.
 | [OXDT0004](./OXDT0004) | error | Oxlint Config Inspection Failed |
 | [OXDT0005](./OXDT0005) | error | Oxlint Setup Failed |
 | [OXDT0006](./OXDT0006) | error | Oxfmt Setup Failed |
+| [OXDT0007](./OXDT0007) | error | Failed to Run Oxfmt |

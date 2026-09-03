@@ -14,6 +14,11 @@ useSideNav(() => [
   //   to: '/oxfmt/config',
   // },
   {
+    title: 'Format Inspector',
+    icon: 'i-ph-paint-brush-duotone',
+    to: '/oxfmt/format',
+  },
+  {
     title: 'Documents',
     icon: 'i-ph-book-open-duotone',
     to: '/oxfmt/documents',

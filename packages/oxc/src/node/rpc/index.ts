@@ -16,6 +16,7 @@ import {
   oxlintWaitForSetup,
 } from './functions/oxlint-setup'
 import { oxfmtSetup, oxfmtSetupPreview } from './functions/oxfmt-setup'
+import { oxfmtFormatPreview, oxfmtRun } from './functions/oxfmt-run'
 
 export const rpcFunctions = [
   oxlintRun,
@@ -33,6 +34,8 @@ export const rpcFunctions = [
   oxlintWaitForSetup,
   oxfmtSetup,
   oxfmtSetupPreview,
+  oxfmtFormatPreview,
+  oxfmtRun,
   openInEditor,
 ] as const
 

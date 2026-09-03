@@ -54,6 +54,12 @@ const tools = computed(() => {
   ]
   const oxfmtViews: ToolView[] = [
     {
+      title: 'Format Inspector',
+      description: 'Run and inspect formatting',
+      icon: 'i-ph-paint-brush-duotone',
+      to: '/oxfmt/format',
+    },
+    {
       title: 'Documents',
       description: 'Guides and references',
       icon: 'i-ph-book-open-duotone',
