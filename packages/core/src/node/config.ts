@@ -61,9 +61,18 @@ export interface ResolvedDevToolsConfig {
   apply: DevToolsApply
 }
 
+export function resolveHost(
+  host: string | boolean | undefined,
+): string {
+  if (host === undefined || typeof host === 'boolean') {
+    return 'localhost'
+  }
+  return host
+}
+
 export function normalizeDevToolsConfig(
   config: DevToolsConfig | boolean | undefined,
-  host: string,
+  host: string | boolean | undefined,
 ): ResolvedDevToolsConfig {
   const resolved = typeof config === 'object' && config !== null ? config : undefined
   const enabled = config === true || (resolved != null && (resolved.enabled ?? true))
@@ -75,7 +84,7 @@ export function normalizeDevToolsConfig(
       ...options,
       clientAuth: resolved?.clientAuth ?? true,
       clientAuthTokens: resolved?.clientAuthTokens ?? [],
-      host: resolved?.host ?? host,
+      host: resolved?.host ?? resolveHost(host),
     },
   }
 }

@@ -7,4 +7,5 @@ export { DevToolsConfig }
 export { isDevToolsEnabled }
 export { normalizeDevToolsConfig }
 export { ResolvedDevToolsConfig }
+export { resolveHost }
 // #endregion

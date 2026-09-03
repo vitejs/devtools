@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { isDevToolsEnabled, normalizeDevToolsConfig } from '../config'
+import { isDevToolsEnabled, normalizeDevToolsConfig, resolveHost } from '../config'
+
+describe('resolveHost', () => {
+  it.each([
+    { host: undefined, expected: 'localhost' },
+    { host: false, expected: 'localhost' },
+    { host: true, expected: 'localhost' },
+    { host: '0.0.0.0', expected: '0.0.0.0' },
+    { host: 'dev.example.com', expected: 'dev.example.com' },
+  ] as const)('resolves $host to $expected', ({ host, expected }) => {
+    expect(resolveHost(host)).toBe(expected)
+  })
+})
 
 describe('normalizeDevToolsConfig', () => {
   it.each([
@@ -29,6 +41,16 @@ describe('normalizeDevToolsConfig', () => {
 
   it('normalizes an omitted apply option to all', () => {
     expect(normalizeDevToolsConfig(true, 'localhost').apply).toBe('all')
+  })
+
+  it('resolves the fallback host from the Vite server option', () => {
+    expect(normalizeDevToolsConfig(true, undefined).config.host).toBe('localhost')
+    expect(normalizeDevToolsConfig(true, true).config.host).toBe('localhost')
+    expect(normalizeDevToolsConfig(true, '0.0.0.0').config.host).toBe('0.0.0.0')
+  })
+
+  it('prefers the DevTools host over the Vite server option', () => {
+    expect(normalizeDevToolsConfig({ host: 'dev.example.com' }, true).config.host).toBe('dev.example.com')
   })
 
   it.each([
