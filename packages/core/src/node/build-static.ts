@@ -10,7 +10,6 @@ import {
   DEVTOOLS_DIRNAME,
   DEVTOOLS_DOCK_IMPORTS_FILENAME,
   DEVTOOLS_MOUNT_PATH,
-  DEVTOOLS_RPC_DUMP_DIRNAME,
   DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
 } from '@vitejs/devtools-kit/constants'
 import { colors as c } from 'devframe/utils/colors'
@@ -95,22 +94,21 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   // (empty when no services are installed) and is idempotent.
   await context.services.ready()
 
-  await fs.mkdir(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_DIRNAME), { recursive: true })
-  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static' }, null, 2), 'utf-8')
+  // Mirror devframe's `createBuild` / hub `buildHub` connection meta: the
+  // `backend: 'static'` marker plus the JSON-serializable method allow-list
+  // the client uses to pick a wire encoder.
+  const jsonSerializableMethods: string[] = []
+  for (const def of context.rpc.definitions.values()) {
+    if (def.jsonSerializable === true)
+      jsonSerializableMethods.push(def.name)
+  }
+  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static', jsonSerializableMethods }, null, 2), 'utf-8')
   await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(context.docks.values()), 'utf-8')
 
   console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
-  const { collectStaticRpcDump } = await import('devframe/rpc/dump')
-  const dump = await collectStaticRpcDump(
-    context.rpc.definitions.values(),
-    context,
-  )
-  for (const [filepath, data] of Object.entries(dump.files)) {
-    const fullpath = resolve(devToolsRoot, filepath)
-    await fs.mkdir(dirname(fullpath), { recursive: true })
-    await fs.writeFile(fullpath, JSON.stringify(data, null, 2), 'utf-8')
-  }
-  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME), JSON.stringify(dump.manifest, null, 2), 'utf-8')
+  const { collectStaticRpcDump, writeStaticRpcDump } = await import('devframe/rpc/dump')
+  const dump = await collectStaticRpcDump(context.rpc.definitions.values(), context)
+  await writeStaticRpcDump(dump, devToolsRoot)
   if (!existsSync(resolve(outDir, 'index.html'))) {
     await fs.writeFile(
       resolve(outDir, 'index.html'),
