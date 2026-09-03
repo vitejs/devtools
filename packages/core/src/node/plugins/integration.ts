@@ -1,5 +1,6 @@
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
 import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
+import process from 'node:process'
 import { isDevToolsEnabled, normalizeDevToolsConfig } from '../config'
 import { DevToolsConfigPlugin } from './config'
 import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './index'
@@ -9,12 +10,12 @@ const DEVTOOLS_BUILD_INTEGRATION_NAME = 'vite:devtools:integration'
 
 export interface DevToolsIntegrationOptions {
   command: 'serve' | 'build'
-  root: string
+  root?: string
   devtools: DevToolsIntegrationConfig
 }
 
 export interface DevToolsIntegrationConfig {
-  host: string
+  host?: string | boolean
   options: boolean | DevToolsConfig | undefined
 }
 
@@ -82,7 +83,7 @@ function DevToolsBuildIntegration(devtoolsConfig: ResolvedDevToolsConfig): Plugi
 }
 
 export async function DevToolsIntegration(options: DevToolsIntegrationOptions): Promise<Plugin[]> {
-  const { command, devtools, root } = options
+  const { command, devtools, root = process.cwd() } = options
   const devtoolsConfig = normalizeDevToolsConfig(devtools.options, devtools.host)
   const enabled = isDevToolsEnabled(devtoolsConfig, command)
   if (!enabled) {

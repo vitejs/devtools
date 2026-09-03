@@ -5,13 +5,13 @@ import {
 } from './node/plugins/integration'
 
 export interface DevToolsIntegrationConfig {
-  host: string
+  host?: string | boolean
   options: boolean | DevToolsConfig | undefined
 }
 
 export interface DevToolsIntegrationOptions {
   command: 'serve' | 'build'
-  root: string
+  root?: string
   devtools: DevToolsIntegrationConfig
 }
 
