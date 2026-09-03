@@ -2,12 +2,14 @@
 
 import type { DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
+import type { ResolvedDevToolsConfig } from '../config'
 import type { ViteDevToolsUiOptions } from '../ui'
 import { colors as c } from 'devframe/utils/colors'
 import { resolve } from 'pathe'
 import { MARK_NODE } from '../constants'
 
 export interface DevToolsBuildOptions {
+  resolvedConfig?: ResolvedDevToolsConfig
   outDir?: string
   renderers?: readonly DockRendererRegistration[]
   /** Reference-UI options forwarded to the static snapshot's `createUi`. */
@@ -28,7 +30,11 @@ export function DevToolsBuild(options: DevToolsBuildOptions = {}): Plugin {
 
     async buildStart() {
       const { createDevToolsContext } = await import('../context')
-      context = await createDevToolsContext(resolvedConfig)
+      context = await createDevToolsContext(
+        resolvedConfig,
+        undefined,
+        options.resolvedConfig,
+      )
     },
 
     async closeBundle() {

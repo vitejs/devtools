@@ -1,25 +1,28 @@
 import type { ResolvedConfig } from 'vite'
-import type { DevToolsConfig } from '../config'
 import process from 'node:process'
 import { describe, expect, it, vi } from 'vitest'
 import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from '../auth-handler'
+import { normalizeDevToolsConfig } from '../config'
 import { createDevToolsContext } from '../context'
 import '@vitejs/devtools-kit'
 
-function createConfig(config?: Partial<DevToolsConfig>, command: 'serve' | 'build' = 'serve'): ResolvedConfig {
+function createConfig(command: 'serve' | 'build' = 'serve'): ResolvedConfig {
   return {
     root: process.cwd(),
     command,
     plugins: [],
     server: { port: 5173 },
-    devtools: config === undefined ? undefined : { config },
   } as unknown as ResolvedConfig
 }
 
 describe('getAuthHandler banner', () => {
   it('forwards a configured banner to the interactive auth handler', async () => {
     const banner = vi.fn()
-    const ctx = await createDevToolsContext(createConfig({ banner }))
+    const ctx = await createDevToolsContext(
+      createConfig(),
+      undefined,
+      normalizeDevToolsConfig({ banner }, 'localhost'),
+    )
 
     getAuthHandler(ctx).printBanner()
 
@@ -31,7 +34,11 @@ describe('getAuthHandler banner', () => {
 
   it('falls back to the default stdout banner when unset', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const ctx = await createDevToolsContext(createConfig())
+    const ctx = await createDevToolsContext(
+      createConfig(),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
 
     try {
       getAuthHandler(ctx).printBanner()
@@ -44,7 +51,11 @@ describe('getAuthHandler banner', () => {
 
   it('suppresses the OTP banner in implicit build mode (trust is token-based)', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const ctx = await createDevToolsContext(createConfig(undefined, 'build'))
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
 
     try {
       getAuthHandler(ctx).printBanner()
@@ -58,34 +69,54 @@ describe('getAuthHandler banner', () => {
 
 describe('build-mode capability token', () => {
   it('flags implicit build mode as capability-token auth, not disabled', async () => {
-    const ctx = await createDevToolsContext(createConfig(undefined, 'build'))
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
 
     expect(isBuildCapabilityAuth(ctx)).toBe(true)
     expect(isClientAuthDisabled(ctx)).toBe(false)
   })
 
   it('is not capability-token auth in dev mode', async () => {
-    const ctx = await createDevToolsContext(createConfig())
+    const ctx = await createDevToolsContext(
+      createConfig(),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
 
     expect(isBuildCapabilityAuth(ctx)).toBe(false)
   })
 
   it('leaves an explicit clientAuth:false opt-out fully disabled in build mode', async () => {
-    const ctx = await createDevToolsContext(createConfig({ clientAuth: false }, 'build'))
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig({ clientAuth: false }, 'localhost'),
+    )
 
     expect(isClientAuthDisabled(ctx)).toBe(true)
     expect(isBuildCapabilityAuth(ctx)).toBe(false)
   })
 
   it('mints a stable, unguessable token per context', async () => {
-    const ctx = await createDevToolsContext(createConfig(undefined, 'build'))
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
 
     const token = getBuildCapabilityToken(ctx)
     expect(token).toMatch(/^[\w-]{20,}$/)
     // Memoized: the same context always yields the same token.
     expect(getBuildCapabilityToken(ctx)).toBe(token)
 
-    const other = await createDevToolsContext(createConfig(undefined, 'build'))
+    const other = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig(true, 'localhost'),
+    )
     expect(getBuildCapabilityToken(other)).not.toBe(token)
   })
 })

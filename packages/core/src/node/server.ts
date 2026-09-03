@@ -2,12 +2,12 @@ import type { HubInstance } from '@devframes/hub/initiate'
 import type { ConnectionMeta, DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { ViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import type { Server as NodeHttpServer } from 'node:http'
-import type { DevToolsConfig } from './config'
 import type { ViteDevToolsUiOptions } from './ui'
 import { initHub } from '@devframes/hub/initiate'
 import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from './auth-handler'
 import { resolveDockRendererRegistrations } from './renderers'
+import { getResolvedDevToolsConfig } from './resolved-config'
 import { createViteDevToolsUi } from './ui'
 
 export interface CreateDevToolsHubOptions {
@@ -70,9 +70,7 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     ? getBuildCapabilityToken(context)
     : undefined
 
-  // Vite's published types bundle a frozen `DevToolsConfig` snapshot, so a
-  // field added here isn't visible through `config` until Vite re-vendors it.
-  const allowedOrigins = (context.viteConfig.devtools?.config as DevToolsConfig | undefined)?.allowedOrigins
+  const allowedOrigins = getResolvedDevToolsConfig(context).config.allowedOrigins
 
   const hub = initHub({
     base: DEVTOOLS_MOUNT_PATH,
