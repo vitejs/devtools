@@ -44,7 +44,7 @@ overrides:
   twoslash: 'catalog:docs'
   vite: 'catalog:build'
 refs:
-  devframe: &devframe ^0.9.10
+  devframe: &devframe ^0.9.11
   nuxt: &nuxt ^4.5.2
   shiki: &shiki ^4.4.3
   storybook: &storybook ^10.5.10
