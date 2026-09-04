@@ -71,10 +71,14 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   }
 
   const projectStorageDir = context.host.getStorageDir('project')
-  for (const { baseUrl, source } of context.views.buildStaticDirs) {
+  for (const { baseUrl, source, resolveFrom } of context.views.buildStaticDirs) {
     const targetDir = join(outDir, baseUrl)
     await fs.mkdir(targetDir, { recursive: true })
-    const resolved = resolveStaticAssetsSource(source, projectStorageDir)
+    // Re-resolve each source from the base it was mounted with, mirroring the
+    // hub's `buildHub`: a plugin's remote `--assets` bundle must resolve against
+    // that plugin's dependency graph (its `importMetaUrl`) to hit the
+    // locally-installed copy, not core's back-proxy CDN cache (a stale SPA).
+    const resolved = resolveStaticAssetsSource(source, projectStorageDir, resolveFrom)
     if (typeof resolved === 'string') {
       console.log(c.cyan`${MARK_NODE} Copying static files from ${resolved} to ${targetDir}`)
       await fs.cp(resolved, targetDir, { recursive: true })
