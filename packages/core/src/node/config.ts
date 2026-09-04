@@ -1,3 +1,4 @@
+import type { McpSetting } from 'devframe/types'
 import type { StartOptions } from './cli-commands'
 import type { DevToolsUserOptions } from './plugin-options'
 
@@ -53,6 +54,16 @@ export interface DevToolsConfig extends Partial<StartOptions>, DevToolsUserOptio
    * hostnames here explicitly.
    */
   allowedOrigins?: string[]
+  /**
+   * Expose the aggregate MCP endpoint at `<base>__mcp`, a Streamable-HTTP
+   * server over the whole tool registry of every mounted devframe.
+   *
+   * Defaults to `'auto'`: the route mounts once any agent-flagged surface
+   * exists. Pass `false` to keep it off (e.g. when MCP is bridged elsewhere),
+   * `true` to mount it unconditionally behind the loopback origin gate, or an
+   * object to opt into an identity check.
+   */
+  mcp?: McpSetting
 }
 
 export interface ResolvedDevToolsConfig {

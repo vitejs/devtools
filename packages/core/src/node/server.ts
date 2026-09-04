@@ -70,7 +70,9 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     ? getBuildCapabilityToken(context)
     : undefined
 
-  const allowedOrigins = getResolvedDevToolsConfig(context).config.allowedOrigins
+  const resolvedConfig = getResolvedDevToolsConfig(context).config
+  const allowedOrigins = resolvedConfig.allowedOrigins
+  const mcp = resolvedConfig.mcp
 
   const hub = initHub({
     base: DEVTOOLS_MOUNT_PATH,
@@ -91,6 +93,7 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     ...(context.viteServer ? { clientModuleResolution: '/@id/{specifier}' } : {}),
     auth: authDisabled ? false : getAuthHandler(context),
     ...(allowedOrigins ? { allowedOrigins } : {}),
+    ...(mcp !== undefined ? { mcp } : {}),
     ...(options.server
       ? { server: options.server }
       : { ws: options.wsPort != null ? { port: options.wsPort } : { sidecar: true } }),
