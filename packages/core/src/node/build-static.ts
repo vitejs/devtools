@@ -4,17 +4,10 @@ import type { DockRendererRegistration, ViteDevToolsNodeContext } from '@vitejs/
 import type { ViteDevToolsUiOptions } from './ui'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
-import { DOCK_RENDERERS_STATE_KEY } from '@devframes/hub/constants'
-import {
-  DEVTOOLS_CONNECTION_META_FILENAME,
-  DEVTOOLS_DIRNAME,
-  DEVTOOLS_DOCK_IMPORTS_FILENAME,
-  DEVTOOLS_MOUNT_PATH,
-  DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME,
-} from '@vitejs/devtools-kit/constants'
+import { buildHub } from '@devframes/hub/build'
+import { DEVTOOLS_DIRNAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { colors as c } from 'devframe/utils/colors'
-import { resolveStaticAssetsSource } from 'devframe/utils/remote-assets'
-import { dirname, join, relative, resolve } from 'pathe'
+import { join, relative, resolve } from 'pathe'
 import { MARK_NODE } from './constants'
 import { resolveDockRendererRegistrations } from './renderers'
 import { createViteDevToolsUi } from './ui'
@@ -25,8 +18,9 @@ export interface BuildStaticOptions {
   /**
    * Absolute path the snapshot is deployed under (e.g. `/ci-build-123456/`).
    * Prefixes the root-relative URLs baked into the output — the root redirect
-   * and the dock-renderer import specifiers — so the snapshot works when hosted
-   * below the domain root. Defaults to `/`.
+   * and the hub's own absolute specifiers (renderer imports, per-frame meta
+   * pointers) — so the snapshot works when hosted below the domain root.
+   * Defaults to `/`.
    */
   base?: string
   /** Dock renderer modules copied into the static output, replacing built-ins by matching type. */
@@ -53,80 +47,33 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
   if (!withApp && existsSync(outDir))
     await fs.rm(outDir, { recursive: true })
 
-  const devToolsRoot = join(outDir, DEVTOOLS_DIRNAME)
-  await fs.mkdir(devToolsRoot, { recursive: true })
-
-  // Bake the branded `@devframes/hub-ui` client into the snapshot: the
-  // standalone viewer SPA, its embedded bootstrap, and the UI-owned assets
-  // (e.g. `branding.json`) — the same `ui` slot the hub serves in dev.
-  const ui = createViteDevToolsUi(options.ui)
-  if (ui.viewer)
-    await fs.cp(ui.viewer.distDir, devToolsRoot, { recursive: true })
-  if (ui.embedded)
-    await fs.cp(ui.embedded.entry, join(devToolsRoot, 'embedded.js'))
-  for (const [key, getContent] of Object.entries(ui.assets ?? {})) {
-    const assetPath = join(devToolsRoot, key)
-    await fs.mkdir(dirname(assetPath), { recursive: true })
-    await fs.writeFile(assetPath, (getContent as () => string | Uint8Array)())
-  }
-
-  const projectStorageDir = context.host.getStorageDir('project')
-  for (const { baseUrl, source } of context.views.buildStaticDirs) {
-    const targetDir = join(outDir, baseUrl)
-    await fs.mkdir(targetDir, { recursive: true })
-    const resolved = resolveStaticAssetsSource(source, projectStorageDir)
-    if (typeof resolved === 'string') {
-      console.log(c.cyan`${MARK_NODE} Copying static files from ${resolved} to ${targetDir}`)
-      await fs.cp(resolved, targetDir, { recursive: true })
-    }
-    else {
-      console.log(c.cyan`${MARK_NODE} Downloading remote static files to ${targetDir}`)
-      await resolved.materialize(targetDir)
-    }
-  }
-
-  const { renderDockImportsMap } = await import('./plugins/server')
-
-  // Bake the reference json-render renderer the live hub serves via
-  // `initHub({ renderers })`: copy its prebuilt module under `__renderers/`
-  // and seed the dock-renderer manifest shared state so (a) the static RPC
-  // dump has a match for `server-state:get(["devframe:dock-renderers"])`
-  // instead of a hard error, and (b) the client lazily imports it the first
-  // time a `json-render` dock mounts.
-  const rendererManifest: Record<string, { importFrom: string, importName?: string }> = {}
-  const renderersRoot = resolve(devToolsRoot, '__renderers')
-  await fs.mkdir(renderersRoot, { recursive: true })
-  for (const registration of resolveDockRendererRegistrations(options.renderers)) {
-    await fs.cp(registration.file, resolve(renderersRoot, `${registration.type}.mjs`))
-    rendererManifest[registration.type] = {
-      importFrom: `${mountPath}__renderers/${registration.type}.mjs`,
-    }
-  }
-  ;(await context.rpc.sharedState.get(DOCK_RENDERERS_STATE_KEY, { initialValue: {} })).mutate(() => rendererManifest)
-
-  // Fire the services collect-then-setup barrier `initHub` runs in dev. The
-  // live hub isn't stood up for a static snapshot, so nothing else seeds the
-  // `devframe:services` shared state the client reads on load — without this,
-  // the RPC dump has no match for `server-state:get(["devframe:services"])`
-  // and the client logs a hard error. `ready()` always publishes the state
-  // (empty when no services are installed) and is idempotent.
+  // Fire the services collect-then-setup barrier `initHub` runs in dev, so the
+  // `devframe:services` shared state the client reads on load is seeded (empty
+  // when none are installed) before `buildHub` bakes the RPC dump. Idempotent.
   await context.services.ready()
 
-  // Mirror devframe's `createBuild` / hub `buildHub` connection meta: the
-  // `backend: 'static'` marker plus the JSON-serializable method allow-list
-  // the client uses to pick a wire encoder.
-  const jsonSerializableMethods: string[] = []
-  for (const def of context.rpc.definitions.values()) {
-    if (def.jsonSerializable === true)
-      jsonSerializableMethods.push(def.name)
-  }
-  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_CONNECTION_META_FILENAME), JSON.stringify({ backend: 'static', jsonSerializableMethods }, null, 2), 'utf-8')
-  await fs.writeFile(resolve(devToolsRoot, DEVTOOLS_DOCK_IMPORTS_FILENAME), renderDockImportsMap(context.docks.values()), 'utf-8')
+  // Bake through the hub's own static builder — the `buildHub` counterpart of
+  // the live `initHub` in `createDevToolsHub`. It reuses our already-mounted
+  // kit context and emits the whole snapshot: the branded `ui` slot's viewer +
+  // `embedded.js`, each devframe SPA and the vendored assets from
+  // `context.views.buildStaticDirs`, the dock renderers, the discovery
+  // documents (`__index.json`, `__client-imports.js`), the `backend: 'static'`
+  // connection metas (hub + per-frame), and the RPC dump. The hub subtree lands
+  // at `<outDir>/__devtools/`; the devframe SPAs and assets are root-level
+  // siblings, resolved against the deploy root (`buildHub`'s `outDir` parent).
+  await buildHub({
+    context,
+    outDir: join(outDir, DEVTOOLS_DIRNAME),
+    base: mountPath,
+    ui: createViteDevToolsUi(options.ui),
+    renderers: resolveDockRendererRegistrations(options.renderers),
+    // We own the deploy-root lifecycle (the `!withApp` wipe above); leave any
+    // sibling app output in place.
+    clean: false,
+  })
 
-  console.log(c.cyan`${MARK_NODE} Writing RPC dump to ${resolve(devToolsRoot, DEVTOOLS_RPC_DUMP_MANIFEST_FILENAME)}`)
-  const { collectStaticRpcDump, writeStaticRpcDump } = await import('devframe/rpc/dump')
-  const dump = await collectStaticRpcDump(context.rpc.definitions.values(), context)
-  await writeStaticRpcDump(dump, devToolsRoot)
+  // Vite DevTools' standalone entry: a root redirect into the hub mount so the
+  // deploy root opens the viewer. Skipped when an app already owns index.html.
   if (!existsSync(resolve(outDir, 'index.html'))) {
     await fs.writeFile(
       resolve(outDir, 'index.html'),
