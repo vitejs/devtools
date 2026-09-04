@@ -1,5 +1,5 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { EnvironmentModuleNode, ResolvedConfig, ViteDevServer } from 'vite'
 import type { ViteInspectModuleUpdatedState } from '../rpc/inspect-module-updated'
 import { EventEmitter } from 'node:events'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -16,6 +16,45 @@ describe('vite:inspect:module-updated notifications', () => {
     if (cleanupCtx)
       await getViteInspectContext(cleanupCtx).close()
     cleanupCtx = undefined
+  })
+
+  it('registers HMR RPCs backed by the inspector hot-update hook', async () => {
+    const plugin = DevToolsViteInspect()
+    await Reflect.apply(plugin.configResolved as (config: ResolvedConfig) => void | Promise<void>, {}, [{
+      root: process.cwd(),
+      command: 'build',
+    } as ResolvedConfig])
+    const register = vi.fn()
+    const ctx = {
+      diagnostics: { register: vi.fn() },
+      rpc: { register },
+    } as unknown as ViteDevToolsNodeContext
+    await plugin.devtools!.setup!(ctx)
+
+    const id = `${process.cwd()}/src/hmr-example.ts`
+    await Reflect.apply(plugin.hotUpdate as (options: unknown) => unknown, {}, [{
+      type: 'update',
+      file: id,
+      timestamp: 1000,
+      modules: [{
+        id,
+        url: '/src/hmr-example.ts',
+        type: 'js',
+        isSelfAccepting: true,
+        importers: new Set(),
+        acceptedHmrDeps: new Set(),
+      } as EnvironmentModuleNode],
+    }])
+
+    const definitions = register.mock.calls.map(([definition]) => definition)
+    const updates = definitions.find(definition => definition.name === 'vite:hmr-updates').setup(ctx)
+    const clear = definitions.find(definition => definition.name === 'vite:hmr-clear').setup(ctx)
+    expect(await updates.handler()).toMatchObject([{
+      timestamp: 1000,
+      boundaries: ['src/hmr-example.ts'],
+    }])
+    await clear.handler()
+    expect(await updates.handler()).toEqual([])
   })
 
   it('notifies subscribers on watcher events and requests', async () => {

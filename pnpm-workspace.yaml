@@ -142,10 +142,12 @@ catalogs:
     vitepress-plugin-group-icons: ^1.7.6
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
+    '@dagrejs/dagre': ^3.0.0
     '@floating-ui/dom': ^1.8.0
     '@humanwhocodes/momoa': ^3.3.12
     '@json-render/core': ^0.20.0
     '@json-render/vue': ^0.20.0
+    '@vue-flow/core': ^1.48.2
     '@vueuse/components': *vueuse
     '@vueuse/core': *vueuse
     '@vueuse/router': *vueuse

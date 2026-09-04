@@ -5,6 +5,8 @@ import { rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { debounce } from 'perfect-debounce'
 import { diagnostics } from '../diagnostics'
+import { createHmrTrackerPlugin } from '../hmr/plugin'
+import { createHmrTracker } from '../hmr/tracker'
 import { inspectRpcFunctions, viteRpcFunctions } from '../rpc'
 import {
   getViteInspectModuleUpdatedState,
@@ -20,6 +22,8 @@ import {
 } from './server'
 
 export function DevToolsViteInspect(): PluginWithDevTools {
+  const hmrTracker = createHmrTracker()
+  const hmrPlugin = createHmrTrackerPlugin(hmrTracker)
   let inspectContext: ViteInspectContext | undefined
   let inspectContextPromise: Promise<ViteInspectContext> | undefined
   let closingInspectContext: Promise<void> | undefined
@@ -86,6 +90,7 @@ export function DevToolsViteInspect(): PluginWithDevTools {
 
     devtools: {
       async setup(ctx) {
+        ;(ctx as any).__hmrTracker = hmrTracker
         ctx.diagnostics.register(diagnostics)
 
         for (const fn of viteRpcFunctions)
@@ -116,6 +121,7 @@ export function DevToolsViteInspect(): PluginWithDevTools {
     },
 
     async configResolved(config) {
+      hmrPlugin.configResolved.call(this, config)
       const ctx = await ensureInspectContext(config)
       if (!ctx)
         return
@@ -181,7 +187,9 @@ export function DevToolsViteInspect(): PluginWithDevTools {
       }
     },
 
-    hotUpdate({ modules }) {
+    hotUpdate(options) {
+      hmrPlugin.hotUpdate.call(this, options)
+      const { modules } = options
       if (!inspectContext)
         return
       if (!inspectContext.getEnvContext(this.environment))

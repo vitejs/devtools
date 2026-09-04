@@ -8,6 +8,8 @@ import { viteGetModulesList } from './functions/vite-get-modules-list'
 import { viteGetPluginDetails } from './functions/vite-get-plugin-details'
 import { viteGetPluginMetrics } from './functions/vite-get-plugin-metrics'
 import { viteGetServerMetrics } from './functions/vite-get-server-metrics'
+import { viteHmrClear } from './functions/vite-hmr-clear'
+import { viteHmrUpdates } from './functions/vite-hmr-updates'
 import { viteMetaInfo } from './functions/vite-meta-info'
 import { viteResolveId } from './functions/vite-resolve-id'
 import '@vitejs/devtools-kit'
@@ -20,6 +22,8 @@ export {
 export const viteRpcFunctions = [
   viteMetaInfo,
   viteEnvInfo,
+  viteHmrUpdates,
+  viteHmrClear,
 ] as const
 
 export const inspectRpcFunctions = [

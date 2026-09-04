@@ -44,12 +44,14 @@
     "perfect-debounce": "catalog:deps"
   },
   "devDependencies": {
+    "@dagrejs/dagre": "catalog:frontend",
     "@floating-ui/dom": "catalog:frontend",
     "@types/d3-hierarchy": "catalog:types",
     "@types/envinfo": "catalog:types",
     "@types/splitpanes": "catalog:types",
     "@unocss/nuxt": "catalog:build",
     "@vitejs/devtools-ui": "workspace:*",
+    "@vue-flow/core": "catalog:frontend",
     "@vueuse/components": "catalog:frontend",
     "@vueuse/core": "catalog:frontend",
     "@vueuse/nuxt": "catalog:build",

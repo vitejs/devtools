@@ -25,6 +25,11 @@ useSideNav(() => {
       to: '/home',
     },
     {
+      title: 'HMR Inspector',
+      icon: 'i-ph-lightning-duotone',
+      to: '/hmr',
+    },
+    {
       title: 'Modules Graph',
       icon: 'i-ph-graph-duotone',
       to: '/graph',
