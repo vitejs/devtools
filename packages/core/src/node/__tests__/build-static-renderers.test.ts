@@ -13,6 +13,7 @@ vi.mock('@devframes/json-render-ui/hub', () => ({
 
 vi.mock('devframe/rpc/dump', () => ({
   collectStaticRpcDump: () => ({ files: {}, manifest: {} }),
+  writeStaticRpcDump: vi.fn(),
 }))
 
 vi.mock('../ui', () => ({
