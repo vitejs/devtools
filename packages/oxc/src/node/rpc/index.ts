@@ -18,6 +18,7 @@ import {
 import { oxfmtSetup, oxfmtSetupPreview } from './functions/oxfmt-setup'
 import { oxfmtFormatPreview, oxfmtRun } from './functions/oxfmt-run'
 import { oxfmtListResults } from './functions/oxfmt-list-results'
+import { oxfmtDeleteResult } from './functions/oxfmt-delete-result'
 
 export const rpcFunctions = [
   oxlintRun,
@@ -38,6 +39,7 @@ export const rpcFunctions = [
   oxfmtFormatPreview,
   oxfmtRun,
   oxfmtListResults,
+  oxfmtDeleteResult,
   openInEditor,
 ] as const
 

@@ -3,6 +3,7 @@ import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCar
 import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
 import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
+import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
 import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import { groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
 import { useAsyncState } from '@vueuse/core'
@@ -12,6 +13,28 @@ import { useRpc } from '#imports'
 const rpc = useRpc()
 const runFormatOpen = ref(false)
 const expandedResults = ref<Record<number, boolean>>({})
+const deleteOpen = ref(false)
+const selectedResultId = ref('')
+const deleteError = ref('')
+const isDeleting = ref(false)
+function requestDelete(timestamp: number) {
+  selectedResultId.value = String(timestamp)
+  deleteError.value = ''
+  deleteOpen.value = true
+}
+async function deleteResult() {
+  isDeleting.value = true
+  deleteError.value = ''
+  try {
+    await rpc.value.call('devtools-oxc:delete-format-result', { resultId: selectedResultId.value })
+    deleteOpen.value = false
+    await reloadResults()
+  } catch (error) {
+    deleteError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isDeleting.value = false
+  }
+}
 const { state: formatResults, execute: reloadResults } = useAsyncState(
   () => rpc.value.call('devtools-oxc:list-format-results'),
   [],
@@ -68,9 +91,12 @@ function toggleGroup(group: { key: string }, open: boolean) {
             class="min-h-24 flex flex-col px4 py3"
           >
             <div class="flex items-center justify-between gap-2">
-              <div class="flex gap-1 items-center font-mono op50 text-sm">
-                <div class="i-ph-hash-duotone" />
-                {{ result.timestamp }}
+              <div class="flex gap-2 items-center">
+                <div class="flex gap-1 items-center font-mono op50 text-sm">
+                  <div class="i-ph-hash-duotone" />
+                  {{ result.timestamp }}
+                </div>
+                <DisplayBadge :text="result.mode" :color="false" class="badge-color-gray" />
               </div>
               <DisplayBadge
                 :as="result.files.length ? 'button' : 'span'"
@@ -103,7 +129,9 @@ function toggleGroup(group: { key: string }, open: boolean) {
                 />
                 {{
                   result.status === 'clean'
-                    ? 'Passed'
+                    ? result.mode === 'write'
+                      ? 'Formatted'
+                      : 'Passed'
                     : result.status === 'issues'
                       ? `${result.files.length} files`
                       : 'Failed'
@@ -132,10 +160,20 @@ function toggleGroup(group: { key: string }, open: boolean) {
             </ul>
             <div class="mt-auto flex flex-wrap items-center justify-between gap-2 pt2 text-xs op50">
               <DisplayTimestamp :timestamp="result.timestamp" />
-              <span>
-                {{ result.summary.durationMs }}ms · {{ result.summary.fileCount }} files ·
-                {{ result.summary.threadCount }} threads
-              </span>
+              <div class="flex flex-wrap items-center gap-3">
+                <span>
+                  {{ result.summary.durationMs }}ms · {{ result.summary.fileCount }} files ·
+                  {{ result.summary.threadCount }} threads
+                </span>
+                <button
+                  type="button"
+                  class="flex items-center gap-1 hover:text-red"
+                  @click="requestDelete(result.timestamp)"
+                >
+                  <div class="i-ph-trash-duotone" />
+                  Delete
+                </button>
+              </div>
             </div>
           </ContainerCard>
         </div>
@@ -154,5 +192,23 @@ function toggleGroup(group: { key: string }, open: boolean) {
     </VisualEmptyState>
 
     <RunOxfmtDialog v-model:open="runFormatOpen" @refresh="reloadResults()" />
+    <OverlayModal v-model:open="deleteOpen">
+      <template #title> Delete format result </template>
+      <div class="flex flex-col gap-4 min-w-80">
+        <p>Delete format result {{ selectedResultId }}?</p>
+        <p class="text-sm op70">
+          Only the saved log will be deleted. Formatted files stay unchanged.
+        </p>
+        <p v-if="deleteError" role="alert" class="text-sm text-red">{{ deleteError }}</p>
+        <div class="flex justify-end gap-2">
+          <button class="btn-action" :disabled="isDeleting" @click="deleteOpen = false">
+            Cancel
+          </button>
+          <button class="btn-action text-red" :disabled="isDeleting" @click="deleteResult()">
+            {{ isDeleting ? 'Deleting…' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </OverlayModal>
   </div>
 </template>

@@ -52,9 +52,9 @@ async function confirmRun() {
   errorMessage.value = ''
   try {
     const { exitCode } = await rpc.value.call('devtools-oxc:run-format', { write: write.value })
+    emit('refresh')
     if (!open.value) return
     if (!write.value) {
-      emit('refresh')
       open.value = false
       return
     }

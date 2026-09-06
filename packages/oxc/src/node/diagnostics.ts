@@ -5,6 +5,11 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
   reporters: [/* #__PURE__ */ createConsoleReporter()],
   codes: {
+    OXDT0008: {
+      why: (p: { resultId: string; reason: string }) =>
+        `Failed to delete format result "${p.resultId}": ${p.reason}`,
+      fix: 'Use a numeric ID from the format result list and check that the result exists and the project directory is writable.',
+    },
     OXDT0001: {
       why: (p: { reason: string }) => `Failed to create a lint result: ${p.reason}`,
       fix: 'Check that oxlint is installed, its configuration is valid, and the project directory is writable.',

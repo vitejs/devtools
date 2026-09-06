@@ -11,16 +11,17 @@ import { isGitDirty } from './oxfmt-setup'
 
 type OxfmtCommand = { command: string; args: string[] }
 
-export type OxfmtCheckLog = {
+export type OxfmtFormatLog = {
+  mode: 'check' | 'write'
   status: 'clean' | 'issues' | 'error'
   files: { path: string; durationMs: number }[]
   summary: { durationMs: number; fileCount: number; threadCount: number }
   stdout: string
 }
 
-export type OxfmtCheckResult = OxfmtCheckLog & { timestamp: number }
+export type OxfmtFormatResult = OxfmtFormatLog & { timestamp: number }
 
-export async function saveOxfmtCheckResult(root: string, log: OxfmtCheckLog) {
+export async function saveOxfmtFormatResult(root: string, log: OxfmtFormatLog) {
   const timestamp = Date.now()
   const dir = resolve(root, '.devtools-oxc', 'fmt', String(timestamp))
   await ensureOxcGitignored(root)
@@ -28,7 +29,7 @@ export async function saveOxfmtCheckResult(root: string, log: OxfmtCheckLog) {
   await writeFile(resolve(dir, 'log.json'), JSON.stringify({ timestamp, ...log }, null, 2), 'utf-8')
 }
 
-export async function listOxfmtCheckResults(root: string): Promise<OxfmtCheckResult[]> {
+export async function listOxfmtFormatResults(root: string): Promise<OxfmtFormatResult[]> {
   const dir = resolve(root, '.devtools-oxc', 'fmt')
   if (!existsSync(dir)) return []
 
@@ -38,9 +39,11 @@ export async function listOxfmtCheckResults(root: string): Promise<OxfmtCheckRes
       .sort((a, b) => Number(b.name) - Number(a.name))
       .map(async entry => {
         try {
-          return JSON.parse(
+          const result = JSON.parse(
             await readFile(resolve(dir, entry.name, 'log.json'), 'utf-8'),
-          ) as OxfmtCheckResult
+          ) as OxfmtFormatResult
+          result.mode ??= 'check'
+          return result
         } catch {
           return null
         }
@@ -49,18 +52,28 @@ export async function listOxfmtCheckResults(root: string): Promise<OxfmtCheckRes
   return results.filter(result => result !== null)
 }
 
-export function parseOxfmtCheckOutput(stdout: string): OxfmtCheckLog {
-  const status = stdout.includes('All matched files use the correct format.')
-    ? 'clean'
-    : /Format issues found in above \d+ files\./.test(stdout)
-      ? 'issues'
-      : 'error'
+export function parseOxfmtFormatOutput(
+  stdout: string,
+  mode: OxfmtFormatLog['mode'] = 'check',
+  exitCode = 0,
+): OxfmtFormatLog {
+  const status =
+    mode === 'write'
+      ? exitCode === 0
+        ? 'clean'
+        : 'error'
+      : stdout.includes('All matched files use the correct format.')
+        ? 'clean'
+        : /Format issues found in above \d+ files\./.test(stdout)
+          ? 'issues'
+          : 'error'
   const summary = stdout.match(/Finished in (\d+(?:\.\d+)?)ms on (\d+) files using (\d+) threads\./)
 
   return {
+    mode,
     status,
     files: [...stdout.matchAll(/^(.+) \((\d+(?:\.\d+)?)ms\)$/gm)].map(([, path, durationMs]) => ({
-      path,
+      path: path!,
       durationMs: Number(durationMs),
     })),
     summary: {
@@ -106,7 +119,10 @@ export const oxfmtRun = defineOxcRpc({
         const result = await x(command.command, command.args, {
           nodeOptions: { cwd: context.cwd, env: { FORCE_COLOR: '0', NO_COLOR: '1' } },
         })
-        if (!write) await saveOxfmtCheckResult(context.cwd, parseOxfmtCheckOutput(result.stdout))
+        await saveOxfmtFormatResult(
+          context.cwd,
+          parseOxfmtFormatOutput(result.stdout, write ? 'write' : 'check', result.exitCode),
+        )
         return { exitCode: result.exitCode }
       } catch (error) {
         if (error instanceof Diagnostic) throw error
