@@ -1,9 +1,10 @@
-import type { CreateInteractiveAuthOptions } from 'devframe/recipes/interactive-auth'
+import type { McpSetting } from 'devframe/types'
 import type { StartOptions } from './cli-commands'
+import type { DevToolsUserOptions } from './plugin-options'
 
 export type DevToolsApply = 'serve' | 'build' | 'all'
 
-export interface DevToolsConfig extends Partial<StartOptions> {
+export interface DevToolsConfig extends Partial<StartOptions>, DevToolsUserOptions {
   /**
    * Enable Vite DevTools.
    *
@@ -42,7 +43,7 @@ export interface DevToolsConfig extends Partial<StartOptions> {
    * The default banner is a boxed `console.log` from inside the dev server.
    * Supply this to surface the code in the host's own chrome instead.
    */
-  banner?: CreateInteractiveAuthOptions['banner']
+  banner?: (info: { code: string, url: string }) => void
   /**
    * Origins allowed to open the DevTools WebSocket connection, in addition to the built-in
    * loopback allowlist (`localhost`, `127.0.0.1`, etc).
@@ -53,6 +54,16 @@ export interface DevToolsConfig extends Partial<StartOptions> {
    * hostnames here explicitly.
    */
   allowedOrigins?: string[]
+  /**
+   * Expose the aggregate MCP endpoint at `<base>__mcp`, a Streamable-HTTP
+   * server over the whole tool registry of every mounted devframe.
+   *
+   * Defaults to `'auto'`: the route mounts once any agent-flagged surface
+   * exists. Pass `false` to keep it off (e.g. when MCP is bridged elsewhere),
+   * `true` to mount it unconditionally behind the loopback origin gate, or an
+   * object to opt into an identity check.
+   */
+  mcp?: McpSetting
 }
 
 export interface ResolvedDevToolsConfig {
@@ -61,9 +72,18 @@ export interface ResolvedDevToolsConfig {
   apply: DevToolsApply
 }
 
+export function resolveHost(
+  host: string | boolean | undefined,
+): string {
+  if (host === undefined || typeof host === 'boolean') {
+    return 'localhost'
+  }
+  return host
+}
+
 export function normalizeDevToolsConfig(
   config: DevToolsConfig | boolean | undefined,
-  host: string,
+  host: string | boolean | undefined,
 ): ResolvedDevToolsConfig {
   const resolved = typeof config === 'object' && config !== null ? config : undefined
   const enabled = config === true || (resolved != null && (resolved.enabled ?? true))
@@ -75,7 +95,7 @@ export function normalizeDevToolsConfig(
       ...options,
       clientAuth: resolved?.clientAuth ?? true,
       clientAuthTokens: resolved?.clientAuthTokens ?? [],
-      host: resolved?.host ?? host,
+      host: resolved?.host ?? resolveHost(host),
     },
   }
 }

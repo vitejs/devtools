@@ -1,8 +1,8 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
-import type { DevToolsConfig } from './config'
 import { randomBytes } from 'node:crypto'
 import process from 'node:process'
 import { createInteractiveAuth } from 'devframe/recipes/interactive-auth'
+import { getResolvedDevToolsConfig } from './resolved-config'
 
 export type DevToolsAuthHandler = ReturnType<typeof createInteractiveAuth>
 
@@ -44,16 +44,16 @@ export function getBuildCapabilityToken(context: ViteDevToolsNodeContext): strin
 export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHandler {
   let handler = handlers.get(context)
   if (!handler) {
-    const config = context.viteConfig.devtools?.config as DevToolsConfig | undefined
+    const config = getResolvedDevToolsConfig(context).config
     const buildCapability = isBuildCapabilityAuth(context)
-    const clientAuthTokens = config?.clientAuthTokens ? [...config.clientAuthTokens] : []
+    const clientAuthTokens = config.clientAuthTokens ? [...config.clientAuthTokens] : []
     if (buildCapability)
       clientAuthTokens.push(getBuildCapabilityToken(context))
     handler = createInteractiveAuth(context, {
       clientAuthTokens,
       // Build mode trusts purely via the per-process capability token baked
       // into the served connection meta, so silence the OTP console banner.
-      banner: buildCapability ? () => {} : config?.banner,
+      banner: buildCapability ? () => {} : config.banner,
     })
     handlers.set(context, handler)
   }
@@ -76,7 +76,7 @@ export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHa
  * {@link isBuildCapabilityAuth}.
  */
 export function isClientAuthDisabled(context: ViteDevToolsNodeContext): boolean {
-  return context.viteConfig.devtools?.config?.clientAuth === false
+  return getResolvedDevToolsConfig(context).config.clientAuth === false
     || process.env.VITE_DEVTOOLS_DISABLE_CLIENT_AUTH === 'true'
 }
 

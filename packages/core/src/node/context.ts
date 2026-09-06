@@ -1,11 +1,16 @@
 import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { ResolvedDevToolsConfig } from './config'
 import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { createDebug } from 'obug'
 import { DEVTOOLS_ASSETS_BASE, dirAssets } from '../dirs'
 import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
 import { diagnostics } from './diagnostics'
+import {
+  defaultResolvedDevToolsConfig,
+  setResolvedDevToolsConfig,
+} from './resolved-config'
 import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
@@ -29,6 +34,7 @@ function shouldSkipSetupByCapabilities(
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
   viteServer?: ViteDevServer,
+  devtoolsConfig?: ResolvedDevToolsConfig,
 ): Promise<ViteDevToolsNodeContext> {
   const cwd = viteConfig.root
 
@@ -45,6 +51,11 @@ export async function createDevToolsContext(
     viteConfig,
     viteServer,
   })) as ViteDevToolsNodeContext
+
+  setResolvedDevToolsConfig(
+    context,
+    devtoolsConfig ?? defaultResolvedDevToolsConfig,
+  )
 
   // Fold the core (Vite) diagnostics into the shared host logger so plugin
   // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.

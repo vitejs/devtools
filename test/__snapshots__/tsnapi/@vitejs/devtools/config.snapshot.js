@@ -4,4 +4,5 @@
 // #region Functions
 export function isDevToolsEnabled(_, _) {}
 export function normalizeDevToolsConfig(_, _) {}
+export function resolveHost(_) {}
 // #endregion
