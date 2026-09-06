@@ -17,6 +17,7 @@ import {
 } from './functions/oxlint-setup'
 import { oxfmtSetup, oxfmtSetupPreview } from './functions/oxfmt-setup'
 import { oxfmtFormatPreview, oxfmtRun } from './functions/oxfmt-run'
+import { oxfmtListResults } from './functions/oxfmt-list-results'
 
 export const rpcFunctions = [
   oxlintRun,
@@ -36,6 +37,7 @@ export const rpcFunctions = [
   oxfmtSetupPreview,
   oxfmtFormatPreview,
   oxfmtRun,
+  oxfmtListResults,
   openInEditor,
 ] as const
 

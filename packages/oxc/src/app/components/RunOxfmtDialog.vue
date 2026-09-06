@@ -7,9 +7,10 @@ import { ref, watch } from 'vue'
 import { useRpc } from '#imports'
 
 const open = defineModel<boolean>('open', { default: false })
+const emit = defineEmits<{ refresh: [] }>()
 const rpc = useRpc()
 
-type Stage = 'confirm' | 'running' | 'success' | 'checked' | 'error'
+type Stage = 'confirm' | 'running' | 'success' | 'error'
 const stage = ref<Stage>('confirm')
 const write = ref(false)
 const commandLine = ref('')
@@ -52,7 +53,12 @@ async function confirmRun() {
   try {
     const { exitCode } = await rpc.value.call('devtools-oxc:run-format', { write: write.value })
     if (!open.value) return
-    stage.value = exitCode === 0 ? 'success' : write.value ? 'error' : 'checked'
+    if (!write.value) {
+      emit('refresh')
+      open.value = false
+      return
+    }
+    stage.value = exitCode === 0 ? 'success' : 'error'
     if (exitCode !== 0) errorMessage.value = `Oxfmt exited with code ${exitCode}.`
   } catch (error) {
     if (!open.value) return
@@ -104,27 +110,13 @@ async function confirmRun() {
 
       <template v-else>
         <div
-          :class="
-            stage === 'success' ? 'text-green' : stage === 'checked' ? 'text-amber' : 'text-red'
-          "
+          :class="stage === 'success' ? 'text-green' : 'text-red'"
           class="flex gap-2 items-center"
         >
           <span
-            :class="
-              stage === 'success'
-                ? 'i-ph-check-circle-duotone'
-                : stage === 'checked'
-                  ? 'i-ph-warning-duotone'
-                  : 'i-ph-x-circle-duotone'
-            "
+            :class="stage === 'success' ? 'i-ph-check-circle-duotone' : 'i-ph-x-circle-duotone'"
           />
-          {{
-            stage === 'success'
-              ? 'Formatting finished successfully.'
-              : stage === 'checked'
-                ? 'Some files need formatting.'
-                : 'Formatting failed.'
-          }}
+          {{ stage === 'success' ? 'Formatting finished successfully.' : 'Formatting failed.' }}
         </div>
         <p v-if="errorMessage" class="m0 op70 text-sm">{{ errorMessage }}</p>
         <div class="flex-auto" />
