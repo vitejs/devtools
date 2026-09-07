@@ -43,6 +43,9 @@ const formatResultGroups = computed(() =>
   groupByDate(formatResults.value, result => result.timestamp),
 )
 const openOverrides = reactive<Record<string, boolean>>({})
+function openInEditor(path: string) {
+  rpc.value.call('devtools-oxc:open-in-editor', path)
+}
 function isGroupOpen(group: { key: string; defaultOpen: boolean }) {
   return openOverrides[group.key] ?? group.defaultOpen
 }
@@ -154,7 +157,13 @@ function toggleGroup(group: { key: string }, open: boolean) {
             >
               <li v-for="file in result.files" :key="file.path" class="flex items-start gap-3 py2">
                 <DisplayFileIcon :filename="file.path" class="mt0.5" />
-                <span class="min-w-0 flex-1 break-all">{{ file.path }}</span>
+                <button
+                  type="button"
+                  class="min-w-0 flex-1 break-all text-left hover:underline"
+                  @click="openInEditor(file.path)"
+                >
+                  {{ file.path }}
+                </button>
                 <span class="shrink-0 op50 tabular-nums">{{ file.durationMs }}ms</span>
               </li>
             </ul>
