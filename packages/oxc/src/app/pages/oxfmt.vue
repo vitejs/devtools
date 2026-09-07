@@ -15,7 +15,7 @@ useSideNav(() => [
   // },
   {
     title: 'Format Inspector',
-    icon: 'i-ph-paint-brush-duotone',
+    icon: 'i-ph-magnifying-glass-duotone',
     to: '/oxfmt/format',
   },
   {

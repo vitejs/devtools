@@ -56,7 +56,7 @@ const tools = computed(() => {
     {
       title: 'Format Inspector',
       description: 'Run and inspect formatting',
-      icon: 'i-ph-paint-brush-duotone',
+      icon: 'i-ph-magnifying-glass-duotone',
       to: '/oxfmt/format',
     },
     {
