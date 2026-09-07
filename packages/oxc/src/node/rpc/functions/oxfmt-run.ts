@@ -72,10 +72,9 @@ export function parseOxfmtFormatOutput(
   return {
     mode,
     status,
-    files: [...stdout.matchAll(/^(.+) \((\d+(?:\.\d+)?)ms\)$/gm)].map(([, path, durationMs]) => ({
-      path: path!,
-      durationMs: Number(durationMs),
-    })),
+    files: [...stdout.matchAll(/^(.+) \((\d+(?:\.\d+)?)ms\)$/gm)]
+      .map(([, path, durationMs]) => ({ path: path!, durationMs: Number(durationMs) }))
+      .sort((a, b) => b.durationMs - a.durationMs),
     summary: {
       durationMs: Number(summary?.[1] ?? 0),
       fileCount: Number(summary?.[2] ?? 0),
@@ -89,6 +88,10 @@ export function getOxfmtFormatCommand(write: boolean, vitePlus: boolean): OxfmtC
   const option = write ? '--write' : '--check'
   if (vitePlus) return { command: 'vp', args: ['fmt', option] }
   return { command: 'oxfmt', args: [option] }
+}
+
+export function getOxfmtRunError(stderr: string) {
+  return stderr.trim() || undefined
 }
 
 async function getPreview(root: string, write: boolean) {
@@ -119,6 +122,12 @@ export const oxfmtRun = defineOxcRpc({
         const result = await x(command.command, command.args, {
           nodeOptions: { cwd: context.cwd, env: { FORCE_COLOR: '0', NO_COLOR: '1' } },
         })
+        const reason = getOxfmtRunError(result.stderr)
+        if (reason) {
+          throw diagnostics.OXDT0007({
+            reason,
+          })
+        }
         await saveOxfmtFormatResult(
           context.cwd,
           parseOxfmtFormatOutput(result.stdout, write ? 'write' : 'check', result.exitCode),

@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   getOxfmtFormatCommand,
+  getOxfmtRunError,
   listOxfmtFormatResults,
   parseOxfmtFormatOutput,
   saveOxfmtFormatResult,
@@ -31,6 +32,11 @@ describe('getOxfmtFormatCommand', () => {
       command: 'oxfmt',
       args: ['--write'],
     })
+  })
+
+  it('returns Oxfmt diagnostics without whitespace', () => {
+    expect(getOxfmtRunError('  Invalid config.\n')).toBe('Invalid config.')
+    expect(getOxfmtRunError(' \n')).toBeUndefined()
   })
 
   it('persists each parsed check under its timestamp directory', async () => {
@@ -77,20 +83,20 @@ describe('parseOxfmtFormatOutput', () => {
     expect(
       parseOxfmtFormatOutput(`Checking formatting...
 index.html (103ms)
-src/main.js (0ms)
+src/main.js (200ms)
 Format issues found in above 2 files. Run without \`--check\` to fix.
 Finished in 113ms on 11 files using 8 threads.`),
     ).toEqual({
       mode: 'check',
       status: 'issues',
       files: [
+        { path: 'src/main.js', durationMs: 200 },
         { path: 'index.html', durationMs: 103 },
-        { path: 'src/main.js', durationMs: 0 },
       ],
       summary: { durationMs: 113, fileCount: 11, threadCount: 8 },
       stdout: `Checking formatting...
 index.html (103ms)
-src/main.js (0ms)
+src/main.js (200ms)
 Format issues found in above 2 files. Run without \`--check\` to fix.
 Finished in 113ms on 11 files using 8 threads.`,
     })
