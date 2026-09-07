@@ -43,6 +43,7 @@ export async function listOxfmtFormatResults(root: string): Promise<OxfmtFormatR
             await readFile(resolve(dir, entry.name, 'log.json'), 'utf-8'),
           ) as OxfmtFormatResult
           result.mode ??= 'check'
+          result.files.sort((a, b) => b.durationMs - a.durationMs)
           return result
         } catch {
           return null

@@ -70,13 +70,33 @@ describe('parseOxfmtFormatOutput', () => {
     await expect(listOxfmtFormatResults(cwd)).resolves.toMatchObject([log])
   })
 
-  it('treats legacy logs without a mode as checks', async () => {
+  it('treats legacy logs as checks and sorts their files by duration', async () => {
     const cwd = await createFixture()
     const dir = join(cwd, '.devtools-oxc', 'fmt', '1')
     await mkdir(dir, { recursive: true })
     const { mode: _mode, ...legacy } = parseOxfmtFormatOutput('')
-    await writeFile(join(dir, 'log.json'), JSON.stringify({ timestamp: 1, ...legacy }))
-    await expect(listOxfmtFormatResults(cwd)).resolves.toMatchObject([{ mode: 'check' }])
+    await writeFile(
+      join(dir, 'log.json'),
+      JSON.stringify({
+        timestamp: 1,
+        ...legacy,
+        files: [
+          { path: 'eslint.config.js', durationMs: 1 },
+          { path: 'index.html', durationMs: 115 },
+          { path: 'vite.config.js', durationMs: 2 },
+        ],
+      }),
+    )
+    await expect(listOxfmtFormatResults(cwd)).resolves.toMatchObject([
+      {
+        mode: 'check',
+        files: [
+          { path: 'index.html', durationMs: 115 },
+          { path: 'vite.config.js', durationMs: 2 },
+          { path: 'eslint.config.js', durationMs: 1 },
+        ],
+      },
+    ])
   })
 
   it('parses files and summary when formatting is needed', () => {

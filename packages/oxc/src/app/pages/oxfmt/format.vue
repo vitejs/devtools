@@ -17,6 +17,12 @@ const deleteOpen = ref(false)
 const selectedResultId = ref('')
 const deleteError = ref('')
 const isDeleting = ref(false)
+async function handleFormatComplete(write: boolean) {
+  await reloadResults()
+  if (write) return
+  const [latestResult] = formatResults.value
+  if (latestResult?.files.length) expandedResults.value = { [latestResult.timestamp]: true }
+}
 function requestDelete(timestamp: number) {
   selectedResultId.value = String(timestamp)
   deleteError.value = ''
@@ -40,7 +46,22 @@ const { state: formatResults, execute: reloadResults } = useAsyncState(
   [],
 )
 const formatResultGroups = computed(() =>
-  groupByDate(formatResults.value, result => result.timestamp),
+  groupByDate(formatResults.value, result => result.timestamp).map(group =>
+    Object.assign({}, group, {
+      items: group.items.map(result => {
+        const maxDurationMs = Math.max(0, ...result.files.map(file => file.durationMs))
+        const totalDurationMs = result.files.reduce((total, file) => total + file.durationMs, 0)
+        return Object.assign({}, result, {
+          files: result.files.map(file =>
+            Object.assign({}, file, {
+              barWidth: maxDurationMs > 0 ? `${(file.durationMs / maxDurationMs) * 100}%` : '0%',
+              percentage: totalDurationMs > 0 ? (file.durationMs / totalDurationMs) * 100 : 0,
+            }),
+          ),
+        })
+      }),
+    }),
+  ),
 )
 const openOverrides = reactive<Record<string, boolean>>({})
 function openInEditor(path: string) {
@@ -151,20 +172,31 @@ function toggleGroup(group: { key: string }, open: boolean) {
               v-if="result.files.length"
               v-show="expandedResults[result.timestamp]"
               :id="`format-files-${result.timestamp}`"
-              class="my3 max-h-64 overflow-y-auto text-sm font-mono"
+              class="my3 max-h-64 space-y-1 overflow-y-auto text-sm font-mono"
               aria-label="Format file results"
               tabindex="0"
             >
-              <li v-for="file in result.files" :key="file.path" class="flex items-start gap-3 py2">
-                <DisplayFileIcon :filename="file.path" class="mt0.5" />
+              <li
+                v-for="file in result.files"
+                :key="file.path"
+                class="relative flex items-start gap-3 overflow-hidden border border-base rounded px2 py1"
+              >
+                <div
+                  class="absolute inset-y-0 left-0 bg-primary-500/15"
+                  :style="{ width: file.barWidth }"
+                />
+                <DisplayFileIcon :filename="file.path" class="relative mt0.5" />
                 <button
                   type="button"
-                  class="min-w-0 flex-1 break-all text-left hover:underline"
+                  class="relative min-w-0 flex-1 break-all text-left hover:underline"
                   @click="openInEditor(file.path)"
                 >
                   {{ file.path }}
                 </button>
-                <span class="shrink-0 op50 tabular-nums">{{ file.durationMs }}ms</span>
+                <span class="relative shrink-0 op50 tabular-nums"
+                  >{{ file.percentage.toFixed(1) }}%</span
+                >
+                <span class="relative shrink-0 op50 tabular-nums">{{ file.durationMs }}ms</span>
               </li>
             </ul>
             <div class="mt-auto flex flex-wrap items-center justify-between gap-2 pt2 text-xs op50">
@@ -200,7 +232,7 @@ function toggleGroup(group: { key: string }, open: boolean) {
       </template>
     </VisualEmptyState>
 
-    <RunOxfmtDialog v-model:open="runFormatOpen" @refresh="reloadResults()" />
+    <RunOxfmtDialog v-model:open="runFormatOpen" @complete="handleFormatComplete" />
     <OverlayModal v-model:open="deleteOpen">
       <template #title> Delete format result </template>
       <div class="flex flex-col gap-4 min-w-80">

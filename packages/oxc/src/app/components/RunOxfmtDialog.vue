@@ -7,7 +7,7 @@ import { ref, watch } from 'vue'
 import { useRpc } from '#imports'
 
 const open = defineModel<boolean>('open', { default: false })
-const emit = defineEmits<{ refresh: [] }>()
+const emit = defineEmits<{ complete: [write: boolean] }>()
 const rpc = useRpc()
 
 type Stage = 'confirm' | 'running' | 'success' | 'error'
@@ -52,7 +52,7 @@ async function confirmRun() {
   errorMessage.value = ''
   try {
     const { exitCode } = await rpc.value.call('devtools-oxc:run-format', { write: write.value })
-    emit('refresh')
+    emit('complete', write.value)
     if (!open.value) return
     if (!write.value) {
       open.value = false
