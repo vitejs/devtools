@@ -53,12 +53,16 @@ const tools = computed(() => {
     },
   ]
   const oxfmtViews: ToolView[] = [
-    {
-      title: 'Format Inspector',
-      description: 'Run and inspect formatting',
-      icon: 'i-ph-magnifying-glass-duotone',
-      to: '/oxfmt/format',
-    },
+    ...(overview.value.oxfmt.installed
+      ? [
+          {
+            title: 'Format Inspector',
+            description: 'Run and inspect formatting',
+            icon: 'i-ph-magnifying-glass-duotone',
+            to: '/oxfmt/format',
+          },
+        ]
+      : []),
     {
       title: 'Documents',
       description: 'Guides and references',
