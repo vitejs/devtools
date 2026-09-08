@@ -23,8 +23,6 @@ A growing set of integrations already build on Vite DevTools Kit:
 
 ## Installation
 
-Vite DevTools is in early preview. Build from source, or install the preview release with the following steps.
-
 Install or upgrade Vite to version 8:
 
 <!-- eslint-skip -->

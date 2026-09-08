@@ -4,9 +4,6 @@ outline: deep
 
 # DevTools Kit
 
-> [!WARNING] Experimental
-> The API is still in development and may change in any release. Pin the package version and let your users know they're on an experimental surface.
-
 DevTools Kit is the integration hub for Vite DevTools. It owns the dock, the command palette, terminal aggregation, cross-tool toasts, and the `Plugin.devtools.setup` hook that any Vite plugin can implement to surface a UI inside DevTools.
 
 For a fresh Vite-specific integration, reach for `Plugin.devtools.setup` directly — that's where docks, terminals, the palette, and custom renderers live. Kit is built on [Devframe](https://devfra.me/guide/), the framework-neutral foundation; tools that already have a portable Devframe definition drop into the hub via `createPluginFromDevframe`, and standalone single-tool deployments can build on Devframe directly.
