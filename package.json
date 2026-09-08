@@ -19,7 +19,7 @@
     "knip": "knip",
     "lint": "pnpm -C packages/oxc run lint && eslint --cache",
     "play:debug": "pnpm -C packages/core run play:debug",
-    "play:standalone": "pnpm -C packages/core run play:standalone",
+    "play:standalone": "pnpm -C playgrounds/core run dev:standalone",
     "play": "tsx scripts/play.ts",
     "postinstall": "simple-git-hooks && skills-npm && pnpm run build",
     "release": "bumpp -r",
