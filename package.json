@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.7.2",
   "private": true,
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@12.3.4",
   "scripts": {
     "actionspack": "actionspack update",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -17,7 +17,7 @@
     "docs": "pnpm -C docs run docs",
     "example:plugin-file-explorer": "pnpm -C examples/plugin-file-explorer run play:dev",
     "knip": "knip",
-    "lint": "eslint --cache && pnpm -C packages/oxc run lint",
+    "lint": "pnpm -C packages/oxc run lint && eslint --cache",
     "play:debug": "pnpm -C packages/core run play:debug",
     "play:standalone": "pnpm -C packages/core run play:standalone",
     "play": "tsx scripts/play.ts",
