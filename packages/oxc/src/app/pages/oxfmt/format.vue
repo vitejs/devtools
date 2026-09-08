@@ -1,0 +1,255 @@
+<script setup lang="ts">
+import ContainerCard from '@vitejs/devtools-ui/components/Container/ContainerCard.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayFileIcon from '@vitejs/devtools-ui/components/Display/DisplayFileIcon.vue'
+import DisplayTimestamp from '@vitejs/devtools-ui/components/Display/DisplayTimestamp.vue'
+import OverlayModal from '@vitejs/devtools-ui/components/Overlay/OverlayModal.vue'
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
+import { groupByDate } from '@vitejs/devtools-ui/utils/date-groups'
+import { useAsyncState } from '@vueuse/core'
+import { computed, reactive, ref } from 'vue'
+import { useRpc } from '#imports'
+
+const rpc = useRpc()
+const runFormatOpen = ref(false)
+const expandedResults = ref<Record<number, boolean>>({})
+const deleteOpen = ref(false)
+const selectedResultId = ref('')
+const deleteError = ref('')
+const isDeleting = ref(false)
+async function handleFormatComplete(write: boolean) {
+  await reloadResults()
+  if (write) return
+  const [latestResult] = formatResults.value
+  if (latestResult?.files.length) expandedResults.value = { [latestResult.timestamp]: true }
+}
+function requestDelete(timestamp: number) {
+  selectedResultId.value = String(timestamp)
+  deleteError.value = ''
+  deleteOpen.value = true
+}
+async function deleteResult() {
+  isDeleting.value = true
+  deleteError.value = ''
+  try {
+    await rpc.value.call('devtools-oxc:delete-format-result', { resultId: selectedResultId.value })
+    deleteOpen.value = false
+    await reloadResults()
+  } catch (error) {
+    deleteError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    isDeleting.value = false
+  }
+}
+const { state: formatResults, execute: reloadResults } = useAsyncState(
+  () => rpc.value.call('devtools-oxc:list-format-results'),
+  [],
+)
+const formatResultGroups = computed(() =>
+  groupByDate(formatResults.value, result => result.timestamp).map(group =>
+    Object.assign({}, group, {
+      items: group.items.map(result => {
+        const maxDurationMs = Math.max(0, ...result.files.map(file => file.durationMs))
+        const totalDurationMs = result.files.reduce((total, file) => total + file.durationMs, 0)
+        return Object.assign({}, result, {
+          files: result.files.map(file =>
+            Object.assign({}, file, {
+              barWidth: maxDurationMs > 0 ? `${(file.durationMs / maxDurationMs) * 100}%` : '0%',
+              percentage: totalDurationMs > 0 ? (file.durationMs / totalDurationMs) * 100 : 0,
+            }),
+          ),
+        })
+      }),
+    }),
+  ),
+)
+const openOverrides = reactive<Record<string, boolean>>({})
+function openInEditor(path: string) {
+  rpc.value.call('devtools-oxc:open-in-editor', path)
+}
+function isGroupOpen(group: { key: string; defaultOpen: boolean }) {
+  return openOverrides[group.key] ?? group.defaultOpen
+}
+function toggleGroup(group: { key: string }, open: boolean) {
+  openOverrides[group.key] = open
+}
+</script>
+
+<template>
+  <div class="flex flex-col gap-4 max-w-180 mx-auto p6">
+    <div class="flex justify-between items-start w-full">
+      <Back to="/" />
+      <div class="flex items-center gap-3">
+        <button class="btn-action-sm" @click="runFormatOpen = true">
+          <div class="i-ph-play-duotone" />
+          Run Format
+        </button>
+        <button class="btn-action-sm cursor-pointer" @click="reloadResults()">
+          <div class="i-lucide-refresh-cw" />
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <template v-if="formatResultGroups.length">
+      <details
+        v-for="group of formatResultGroups"
+        :key="group.key"
+        :open="isGroupOpen(group)"
+        @toggle="e => toggleGroup(group, (e.target as HTMLDetailsElement).open)"
+      >
+        <summary
+          class="cursor-default select-none flex gap-1 items-center px1 py1 rounded hover:bg-active"
+        >
+          <div
+            class="i-ph-caret-right-duotone transition op50"
+            :class="isGroupOpen(group) ? 'rotate-90' : ''"
+          />
+          <span class="op70 text-sm">{{ group.label }}</span>
+          <span class="op40 text-xs font-mono">{{ group.items.length }}</span>
+        </summary>
+        <div class="flex flex-col gap-2 pt2">
+          <ContainerCard
+            v-for="result in group.items"
+            :key="result.timestamp"
+            class="min-h-24 flex flex-col px4 py3"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex gap-2 items-center">
+                <div class="flex gap-1 items-center font-mono op50 text-sm">
+                  <div class="i-ph-hash-duotone" />
+                  {{ result.timestamp }}
+                </div>
+                <DisplayBadge :text="result.mode" :color="false" class="badge-color-gray" />
+              </div>
+              <DisplayBadge
+                :as="result.files.length ? 'button' : 'span'"
+                :type="result.files.length ? 'button' : undefined"
+                :aria-expanded="
+                  result.files.length ? !!expandedResults[result.timestamp] : undefined
+                "
+                :aria-controls="
+                  result.files.length ? `format-files-${result.timestamp}` : undefined
+                "
+                :color="false"
+                :class="
+                  result.status === 'clean'
+                    ? 'badge-color-green'
+                    : result.status === 'issues'
+                      ? 'badge-color-amber'
+                      : 'badge-color-red'
+                "
+                class="inline-flex items-center gap-1"
+                @click="expandedResults[result.timestamp] = !expandedResults[result.timestamp]"
+              >
+                <div
+                  :class="
+                    result.status === 'clean'
+                      ? 'i-ph-check-circle-duotone'
+                      : result.status === 'issues'
+                        ? 'i-ph-warning-duotone'
+                        : 'i-ph-x-circle-duotone'
+                  "
+                />
+                {{
+                  result.status === 'clean'
+                    ? result.mode === 'write'
+                      ? 'Formatted'
+                      : 'Passed'
+                    : result.status === 'issues'
+                      ? `${result.files.length} files`
+                      : 'Failed'
+                }}
+                <div
+                  v-if="result.files.length"
+                  class="i-ph-caret-down transition-transform"
+                  :class="{ 'rotate-180': expandedResults[result.timestamp] }"
+                  aria-hidden="true"
+                />
+              </DisplayBadge>
+            </div>
+            <ul
+              v-if="result.files.length"
+              v-show="expandedResults[result.timestamp]"
+              :id="`format-files-${result.timestamp}`"
+              class="my3 max-h-64 space-y-1 overflow-y-auto text-sm font-mono"
+              aria-label="Format file results"
+              tabindex="0"
+            >
+              <li
+                v-for="file in result.files"
+                :key="file.path"
+                class="relative flex items-start gap-3 overflow-hidden border border-base rounded px2 py1"
+              >
+                <div
+                  class="absolute inset-y-0 left-0 bg-primary-500/15"
+                  :style="{ width: file.barWidth }"
+                />
+                <DisplayFileIcon :filename="file.path" class="relative mt0.5" />
+                <button
+                  type="button"
+                  class="relative min-w-0 flex-1 break-all text-left hover:underline"
+                  @click="openInEditor(file.path)"
+                >
+                  {{ file.path }}
+                </button>
+                <span class="relative shrink-0 op50 tabular-nums"
+                  >{{ file.percentage.toFixed(1) }}%</span
+                >
+                <span class="relative shrink-0 op50 tabular-nums">{{ file.durationMs }}ms</span>
+              </li>
+            </ul>
+            <div class="mt-auto flex flex-wrap items-center justify-between gap-2 pt2 text-xs op50">
+              <DisplayTimestamp :timestamp="result.timestamp" />
+              <div class="flex flex-wrap items-center gap-3">
+                <span>
+                  {{ result.summary.durationMs }}ms · {{ result.summary.fileCount }} files ·
+                  {{ result.summary.threadCount }} threads
+                </span>
+                <button
+                  type="button"
+                  class="flex items-center gap-1 hover:text-red"
+                  @click="requestDelete(result.timestamp)"
+                >
+                  <div class="i-ph-trash-duotone" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </ContainerCard>
+        </div>
+      </details>
+    </template>
+
+    <VisualEmptyState
+      v-else
+      class="w-full mt4 border border-base rounded-lg border-dashed"
+      title="No format results found"
+      icon="i-ph-folder-simple-duotone"
+    >
+      <template #description>
+        <div class="text-sm op-fade leading-7">Run format to check the project files.</div>
+      </template>
+    </VisualEmptyState>
+
+    <RunOxfmtDialog v-model:open="runFormatOpen" @complete="handleFormatComplete" />
+    <OverlayModal v-model:open="deleteOpen">
+      <template #title> Delete format result </template>
+      <div class="flex flex-col gap-4 min-w-80">
+        <p>Delete format result {{ selectedResultId }}?</p>
+        <p class="text-sm op70">
+          Only the saved log will be deleted. Formatted files stay unchanged.
+        </p>
+        <p v-if="deleteError" role="alert" class="text-sm text-red">{{ deleteError }}</p>
+        <div class="flex justify-end gap-2">
+          <button class="btn-action" :disabled="isDeleting" @click="deleteOpen = false">
+            Cancel
+          </button>
+          <button class="btn-action text-red" :disabled="isDeleting" @click="deleteResult()">
+            {{ isDeleting ? 'Deleting…' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </OverlayModal>
+  </div>
+</template>
