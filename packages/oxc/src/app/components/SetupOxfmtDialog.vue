@@ -131,7 +131,7 @@ async function viewInTerminal() {
               >Migrate from {{ migration === 'prettier' ? 'Prettier' : 'Biome' }}</span
             >
           </FormCheckbox>
-          <div class="flex gap-2">
+          <div class="flex gap-2 ml-auto">
             <ActionButton @click="open = false"> Cancel </ActionButton>
             <ActionButton
               variant="primary"

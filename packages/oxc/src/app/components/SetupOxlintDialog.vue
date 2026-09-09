@@ -135,7 +135,7 @@ async function viewInTerminal() {
           <FormCheckbox v-if="canMigrate" v-model="migrate">
             <span class="text-sm">Migrate from ESLint</span>
           </FormCheckbox>
-          <div class="flex gap-2">
+          <div class="flex gap-2 ml-auto">
             <ActionButton @click="open = false"> Cancel </ActionButton>
             <ActionButton
               variant="primary"
