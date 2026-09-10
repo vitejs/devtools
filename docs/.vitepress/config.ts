@@ -186,6 +186,7 @@ export default extendConfig(withMermaid(defineConfig({
           title: 'Vite DevTools',
           items: [
             { text: 'Guide', link: '/guide/' },
+            { text: 'Browser Extension Privacy Policy', link: '/privacy' },
             { text: 'DevTools for Rolldown', link: '/rolldown/' },
             { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
             { text: 'Contributing', link: 'https://github.com/vitejs/devtools/blob/main/CONTRIBUTING.md' },
