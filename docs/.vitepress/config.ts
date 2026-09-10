@@ -228,6 +228,12 @@ export default extendConfig(withMermaid(defineConfig({
     plugins: [
       groupIconVitePlugin(),
     ],
+    optimizeDeps: {
+      include: [
+        'fastdom',
+        'fastdom/extensions/fastdom-promised.js',
+      ],
+    },
   },
   mermaid: {
     theme: 'base',
