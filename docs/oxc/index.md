@@ -8,10 +8,12 @@ DevTools for Oxc (`@vitejs/devtools-oxc`) inspects Oxlint and Oxfmt from the [Ox
 
 ## What it does
 
-- **Toolchain overview** — view installed versions and configuration files.
+Tools for working with the Oxc toolchain:
+
+- **Toolchain setup** — install Oxlint and Oxfmt, or migrate existing ESLint, Prettier, and Biome configurations.
 - **Lint inspection** — run Oxlint and inspect diagnostics.
-- **Configuration analysis** — explore rules, plugins, and overrides.
-- **Documentation** — open the Oxlint and Oxfmt documentation.
+- **Configuration analysis** — explore Oxlint rules, plugins, and overrides.
+- **Format inspection** — run Oxfmt and inspect formatting results.
 
 ## Getting started
 
@@ -23,13 +25,19 @@ It can also run as a standalone CLI:
 npx @vitejs/devtools-oxc
 ```
 
-## Features
+## Overview
 
-### Overview
-
-View installed versions, update status, and configuration files.
+View installed versions and configuration files. Set up Oxlint and Oxfmt from the launcher.
 
 ![Oxc DevTools overview](/features/oxc/overview.png)
+
+### Vite Plus
+
+When [Vite Plus](https://viteplus.dev/) is detected, DevTools uses its bundled Oxc toolchain and runs Oxlint and Oxfmt commands through `vp`.
+
+![Oxc DevTools overview](/features/oxc/vp-overview.png)
+
+## Oxlint
 
 ### Lint Inspector
 
@@ -54,3 +62,11 @@ Search and filter rules by category, plugin, usage, and state.
 Inspect the plugins and rules applied by each file-pattern override.
 
 ![Oxlint configuration overrides](/features/oxc/config-overrides.png)
+
+## Oxfmt
+
+### Oxfmt Inspector
+
+Run Oxfmt in check or write mode and inspect formatting results.
+
+![Oxfmt inspector](/features/oxc/fmt-inspector.png)
