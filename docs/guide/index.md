@@ -61,6 +61,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
   },
 })
@@ -77,6 +78,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
     embeddedVisibility: 'passive',
   },
@@ -90,6 +92,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
     dockPreferences: {
       defaultMode: 'edge',
@@ -105,16 +108,19 @@ For apps where Vite doesn't serve the HTML (JS-only entries, backend integration
 
 ```ts twoslash
 // Normal: docks shown immediately
+// @ts-expect-error TODO: Remove when this entry has type declarations.
 import '@vitejs/devtools/client/inject'
 ```
 
 ```ts twoslash
 // Passive: docks hidden until Shift+Alt+D, then remembered
+// @ts-expect-error TODO: Remove when this entry has type declarations.
 import '@vitejs/devtools/client/inject-passive'
 ```
 
 ```ts twoslash
 // Hidden: docks hidden until Shift+Alt+D, every session
+// @ts-expect-error TODO: Remove when this entry has type declarations.
 import '@vitejs/devtools/client/inject-hidden'
 ```
 
@@ -129,6 +135,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
+    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'build',
     build: {
       withApp: true, // generate DevTools output during `vite build`
