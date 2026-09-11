@@ -53,5 +53,5 @@ pnpm run setup:no-build
 ## Layout
 
 - `scripts/pack-local.mjs` — build + pack the published packages into `.tarballs/`, then install
-- `vite.config.ts` — a plain user config importing `DevTools` from `@vitejs/devtools`
+- `vite.config.ts` — a plain user config enabling the built-in `devtools` option
 - `src/` — a minimal Vue app so the panels have real build/module data

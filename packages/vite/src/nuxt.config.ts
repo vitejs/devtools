@@ -109,7 +109,6 @@ export default defineNuxtConfig({
         'birpc',
       ],
     },
-    // @ts-expect-error skip type check
     devtools: {
       clientAuth: false,
     },

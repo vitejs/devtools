@@ -17,7 +17,6 @@ import Tracer from 'vite-plugin-vue-tracer'
 import VueRouter from 'vue-router/vite'
 import { alias } from '../../alias'
 import { GitUIPlugin } from '../../examples/plugin-git-ui/src/node'
-import { DevTools } from '../../packages/core/src'
 import { hideDockWhenEmpty } from '../../packages/core/src/node/plugins/auto-hide'
 import { DevToolsOxc } from '../../packages/oxc/src/vite'
 // eslint-disable-next-line ts/ban-ts-comment
@@ -43,6 +42,9 @@ export default defineConfig({
     'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': JSON.stringify(process.env.VITE_DEVTOOLS_LOCAL_DEV),
   },
   base: './',
+  devtools: {
+    builtinDevTools: false,
+  },
   resolve: {
     alias,
   },
@@ -72,10 +74,6 @@ export default defineConfig({
     })(),
     createPluginFromDevframe(createInspectDevframe(), {
       dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
-    }),
-    // For local playground only. As a user you don't install this plugin directly.
-    DevTools({
-      builtinDevTools: false,
     }),
     DevToolsRolldownUI(),
     DevToolsViteUI(),

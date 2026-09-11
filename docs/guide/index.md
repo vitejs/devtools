@@ -23,13 +23,13 @@ A growing set of integrations already build on Vite DevTools Kit:
 
 ## Installation
 
-Install or upgrade Vite to version 8:
+Install or upgrade Vite to version 8.3+:
 
 <!-- eslint-skip -->
 ```json [package.json]
 {
   "dependencies": {
-    "vite": "^8.0.0"
+    "vite": "^8.3.0"
   }
 }
 ```
@@ -61,7 +61,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
-    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
   },
 })
@@ -78,7 +77,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
-    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
     embeddedVisibility: 'passive',
   },
@@ -92,7 +90,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
-    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'serve',
     dockPreferences: {
       defaultMode: 'edge',
@@ -135,7 +132,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   devtools: {
-    // @ts-expect-error TODO: Remove after upgrading to Vite 8.3.
     apply: 'build',
     build: {
       withApp: true, // generate DevTools output during `vite build`
