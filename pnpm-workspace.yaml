@@ -29,14 +29,13 @@ packages:
 overrides:
   # provenance downgrade (https://npmx.dev/package-timeline/@humanwhocodes/momoa/v/3.3.10)
   '@humanwhocodes/momoa': 3.3.10
-  '@jridgewell/sourcemap-codec': 'catalog:resolutions'
-  '@nuxt/devtools': &nuxt-devtools ^4.0.0-alpha.17
+  '@nuxt/devtools': &nuxt-devtools ^4.0.0-alpha.18
   '@nuxt/kit': &nuxt ^4.5.2
   '@nuxt/vite-builder': *nuxt
   '@rolldown/debug': 'catalog:deps'
   cac: 'catalog:deps'
   chokidar: 'catalog:devtools'
-  devframe: &devframe ^0.9.16
+  devframe: &devframe ^0.9.18
   esbuild: 'catalog:build'
   langium: 'catalog:resolutions'
   nitropack: 'catalog:build'
@@ -46,7 +45,7 @@ overrides:
   shiki: &shiki ^4.4.3
   storybook: &storybook ^10.6.0
   twoslash: 'catalog:docs'
-  unocss: &unocss ^66.10.0
+  unocss: &unocss ^66.10.2
   vite: 'catalog:build'
   vueuse: &vueuse ^14.4.0
 
@@ -68,10 +67,10 @@ catalogs:
     '@vueuse/nuxt': ^14.4.0
     archiver: ^8.0.0
     esbuild: ^0.28.2
-    magic-string: ^1.2.3
+    magic-string: ^1.3.1
     nitropack: ^2.13.4
     nuxt: *nuxt
-    rolldown: ^1.2.7
+    rolldown: ^1.2.8
     tsdown: ^0.23.0
     tsx: ^4.23.13
     turbo: ^2.10.12
@@ -94,7 +93,7 @@ catalogs:
     '@devframes/plugin-terminals': *devframe
     '@devframes/vite': *devframe
     '@oxlint-config-inspector/core': ^1.1.1
-    '@rolldown/debug': ^1.2.7
+    '@rolldown/debug': ^1.2.8
     actionspack: ^0.1.5
     cac: ^7.0.0
     devframe: *devframe
@@ -105,8 +104,8 @@ catalogs:
     mlly: ^1.8.2
     mrmime: ^2.0.1
     nostics: ^1.2.0
-    nypm: ^0.6.9
-    obug: ^2.1.4
+    nypm: ^0.6.10
+    obug: ^3.0.0
     p-limit: ^7.3.2
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
@@ -126,7 +125,7 @@ catalogs:
     bumpp: ^12.3.0
     chokidar: ^5.0.0
     eslint: ^10.10.0
-    knip: ^6.34.0
+    knip: ^6.35.1
     nano-staged: ^1.0.2
     oxfmt: ^0.67.0
     oxlint: ^1.82.0
@@ -142,7 +141,7 @@ catalogs:
   docs:
     '@shikijs/vitepress-twoslash': *shiki
     '@voidzero-dev/vitepress-theme': ^5.0.7
-    mermaid: ^11.17.2
+    mermaid: ^12.0.0
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.20
     vitepress-plugin-group-icons: ^1.7.6
@@ -161,15 +160,15 @@ catalogs:
     d3-shape: ^3.2.0
     diff-match-patch-es: ^2.0.1
     dompurify: ^3.4.15
-    floating-vue: ^5.2.2
+    floating-vue: ^5.4.0
     fuse.js: ^7.5.0
     idb-keyval: ^6.3.0
     iframe-pane: ^1.1.0
     modern-monaco: ^0.4.2
     nanovis: ^1.1.0
     picomatch: ^4.0.7
-    react: ^19.2.8
-    react-dom: ^19.2.8
+    react: ^19.3.0
+    react-dom: ^19.3.0
     shiki: *shiki
     splitpanes: ^4.1.2
     theme-vitesse: ^1.0.0
@@ -178,15 +177,15 @@ catalogs:
     vue-router: ^5.3.1
     vue-virtual-scroller: ^3.0.5
   icons:
-    '@iconify-json/carbon': ^1.2.26
+    '@iconify-json/carbon': ^1.2.27
     '@iconify-json/catppuccin': ^1.2.17
     '@iconify-json/codicon': ^1.2.72
     '@iconify-json/fluent': ^1.2.57
     '@iconify-json/fluent-emoji-flat': ^1.2.6
     '@iconify-json/logos': ^1.2.14
-    '@iconify-json/lucide': ^1.2.130
+    '@iconify-json/lucide': ^1.2.131
     '@iconify-json/material-icon-theme': ^1.2.70
-    '@iconify-json/octicon': ^1.2.33
+    '@iconify-json/octicon': ^1.2.34
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/radix-icons': ^1.2.6
     '@iconify-json/ri': ^1.2.10
@@ -202,8 +201,7 @@ catalogs:
   playground:
     vite-plugin-vue-tracer: ^1.5.0
   resolutions:
-    '@jridgewell/sourcemap-codec': 1.5.0
-    langium: ^4.3.1
+    langium: ^4.4.0
     semver: ^7.8.5
   storybook:
     '@storybook/addon-docs': *storybook
@@ -222,7 +220,7 @@ catalogs:
     '@types/envinfo': ^7.8.4
     '@types/picomatch': ^4.0.3
     '@types/prompts': ^2.4.9
-    '@types/react': ^19.2.18
-    '@types/react-dom': ^19.2.7
+    '@types/react': ^19.3.0
+    '@types/react-dom': ^19.3.0
     '@types/splitpanes': ^2.2.6
     '@types/ws': ^8.18.1
