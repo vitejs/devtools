@@ -28,11 +28,11 @@ export const oxcDevframe = defineDevframe({
   description,
   icon: `${OXC_DEVTOOLS_BASE}favicon.svg`,
   basePath: OXC_DEVTOOLS_BASE,
+  // Serve the prebuilt Nuxt SPA when it exists (packaged builds); in client
+  // dev mode the Nuxt dev server owns the UI, so leave it unset.
+  clientAssets: existsSync(clientPublicDir) ? clientPublicDir : undefined,
   cli: {
     command: 'oxc-devtools',
-    // Serve the prebuilt Nuxt SPA when it exists (packaged builds); in client
-    // dev mode the Nuxt dev server owns the UI, so leave it unset.
-    distDir: existsSync(clientPublicDir) ? clientPublicDir : undefined,
     // Single-user localhost tool — skip the RPC trust handshake.
     auth: false,
   },

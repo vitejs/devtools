@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { a11yAgentBundlePath, createA11yDevframe } from '@devframes/plugin-a11y'
+import { a11yClientScriptBundlePath, createA11yDevframe } from '@devframes/plugin-a11y'
 import { createCodeServerDevframe } from '@devframes/plugin-code-server'
 import { createDataInspectorDevframe } from '@devframes/plugin-data-inspector'
 import { createGitDevframe } from '@devframes/plugin-git'
@@ -93,7 +93,7 @@ export default defineConfig({
         // The panel scans the host page itself, so it needs its agent
         // injected as a client script — see the `@devframes/plugin-a11y`
         // README's "How it works" section.
-        clientScript: { importFrom: `/@fs/${normalize(a11yAgentBundlePath)}` },
+        clientScript: { importFrom: `/@fs/${normalize(a11yClientScriptBundlePath)}` },
       },
     }),
     createPluginFromDevframe(createGitDevframe({
