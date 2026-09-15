@@ -45,7 +45,6 @@
     "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
     "package-manager-detector": "catalog:deps",
-    "tinyexec": "catalog:deps",
     "tinyglobby": "catalog:deps"
   },
   "devDependencies": {
