@@ -68,12 +68,12 @@ function incrementVersion(version: string, releaseType: ReleaseType): string {
   return `${major}.${minor}.${patch + 1}`
 }
 
-function promptValue<T>(value: T | symbol): T {
+function promptValue<T>(value: T): Exclude<T, symbol> {
   if (isCancel(value)) {
     cancel('Release cancelled.')
     process.exit(0)
   }
-  return value as T
+  return value as Exclude<T, symbol>
 }
 
 function runCommand(command: string, args: string[]): Promise<void> {

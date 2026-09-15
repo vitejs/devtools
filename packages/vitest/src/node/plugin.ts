@@ -1,10 +1,11 @@
-import type { DevToolsLaunchRoot, PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { DevToolsChildProcessTerminalSession, DevToolsLaunchRoot, PluginWithDevTools } from '@vitejs/devtools-kit'
 import { dirname, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
 import { getPort } from 'devframe/utils/get-port'
 import { isPackageExists } from 'local-pkg'
-import { addDependency } from 'nypm'
+import { resolveCommand } from 'package-manager-detector/commands'
+import { detect } from 'package-manager-detector/detect'
 import { glob } from 'tinyglobby'
 import { clientPublicDir } from '../dirs'
 import { diagnostics } from './diagnostics'
@@ -14,6 +15,8 @@ const VITEST_DEVTOOLS_BASE = '/__devtools-vitest/'
 const VITEST_UI_PATH = '__vitest__/'
 /** Fixed terminal-session id so re-launches are idempotent. */
 const SESSION_ID = 'vitest:ui'
+/** Terminal-session id for the on-demand `@vitest/ui` install. */
+const INSTALL_SESSION_ID = 'vitest:install'
 const DOCK_ID = 'vitest'
 const PREFERRED_PORT = 51204
 const READY_TIMEOUT = 30_000
@@ -54,6 +57,9 @@ export function DevToolsVitestUI(): PluginWithDevTools {
 
         // The chosen URL, shared between the spawn spec and the readiness probe.
         let url: string
+        // Tracks the on-demand install run so a retry can drop it before
+        // spawning a fresh session under the same id.
+        let installSession: DevToolsChildProcessTerminalSession | undefined
 
         const launcher = createProcessLauncher({
           id: DOCK_ID,
@@ -77,12 +83,29 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             // renders blank, so use a terminal icon the SPA ships.
             icon: 'ph:terminal-window-duotone',
           },
-          // Install `@vitest/ui` on demand (devDependency) when missing, at
-          // the workspace root.
+          // Install `@vitest/ui` on demand (devDependency) when missing, at the
+          // workspace root, as a tracked terminal session so its progress
+          // streams into DevTools.
           prepare: async () => {
             if (!isPackageExists('@vitest/ui', { paths: [installRoot] })) {
               try {
-                await addDependency('@vitest/ui', { cwd: installRoot, dev: true })
+                // Drop a prior (failed) install so the id is free to reuse.
+                if (installSession)
+                  await installSession.terminate().catch(() => {})
+                installSession = undefined
+                ctx.terminals.sessions.delete(INSTALL_SESSION_ID)
+
+                const agent = (await detect({ cwd: installRoot }))?.agent ?? 'npm'
+                // Every supported agent defines an `add` command, so this always resolves.
+                const { command, args } = resolveCommand(agent, 'add', ['-D', '@vitest/ui'])!
+
+                installSession = await ctx.terminals.startChildProcess(
+                  { command, args, cwd: installRoot },
+                  { id: INSTALL_SESSION_ID, title: 'Install @vitest/ui', icon: 'ph:terminal-window-duotone' },
+                )
+                const result = await installSession.getResult()
+                if (result.exitCode !== 0)
+                  throw new Error(`\`${command} ${args.join(' ')}\` exited with code ${result.exitCode ?? 'null'}.`)
               }
               catch (error) {
                 throw diagnostics.VTDT0001({ error: error instanceof Error ? error.message : String(error) })

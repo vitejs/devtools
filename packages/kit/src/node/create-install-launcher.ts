@@ -5,7 +5,8 @@ import type { PluginWithDevTools } from '../types/vite-augment'
 import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import process from 'node:process'
 import { isPackageExists } from 'local-pkg'
-import { addDependencyCommand, detectPackageManager } from 'nypm'
+import { resolveCommand } from 'package-manager-detector/commands'
+import { detect } from 'package-manager-detector/detect'
 import { diagnostics } from './diagnostics'
 
 export interface InstallLauncherOptions {
@@ -155,9 +156,11 @@ export function createInstallLauncher(options: InstallLauncherOptions): PluginWi
             try {
               await disposeSession()
 
-              const packageManager = await detectPackageManager(installRoot)
-              const commandLine = addDependencyCommand(packageManager?.name ?? 'npm', missing, { dev })
-              const [command = packageManager?.command ?? 'npm', ...args] = commandLine.split(' ')
+              const agent = (await detect({ cwd: installRoot }))?.agent ?? 'npm'
+              const addArgs = dev ? ['-D', ...missing] : missing
+              // Every supported agent defines an `add` command, so this always resolves.
+              const { command, args } = resolveCommand(agent, 'add', addArgs)!
+              const commandLine = [command, ...args].join(' ')
 
               ctx.docks.update(entry('loading', { tracking: true, progress: 'Installing…' }))
 

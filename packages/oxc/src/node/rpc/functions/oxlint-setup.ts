@@ -1,12 +1,12 @@
 import type { DevToolsTerminalHost } from '@vitejs/devtools-kit'
 import type { DevframeNodeContext } from 'devframe/types'
 import { existsSync } from 'node:fs'
-import { addDependencyCommand, detectPackageManager, dlxCommand } from 'nypm'
 import { Diagnostic } from 'nostics'
 import { join } from 'pathe'
 import { x } from 'tinyexec'
 import { diagnostics } from '../../diagnostics'
 import { CONFIG_FILES } from '../../utils/config-files'
+import { commandLine, detectAgent } from '../../utils/package-manager'
 import { defineOxcRpc } from '../_define'
 import { startSetup, waitForSetup } from './setup'
 
@@ -30,11 +30,11 @@ export function needsOxlintMigration(root: string): boolean {
 }
 
 async function getSetupCommands(root: string, migrate: boolean): Promise<string[]> {
-  const packageManager = (await detectPackageManager(root))?.name ?? 'npm'
-  const install = addDependencyCommand(packageManager, 'oxlint@latest', { dev: true })
+  const agent = await detectAgent(root)
+  const install = commandLine(agent, 'add', ['-D', 'oxlint@latest'])
   const setup = migrate
-    ? dlxCommand(packageManager, '@oxlint/migrate', { short: true })
-    : dlxCommand(packageManager, 'oxlint', { args: ['--init'], short: true })
+    ? commandLine(agent, 'execute', ['@oxlint/migrate'])
+    : commandLine(agent, 'execute', ['oxlint', '--init'])
   return [install, setup]
 }
 
