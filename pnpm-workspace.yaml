@@ -35,7 +35,27 @@ overrides:
   '@rolldown/debug': 'catalog:deps'
   cac: 'catalog:deps'
   chokidar: 'catalog:devtools'
-  devframe: &devframe ^0.9.18
+  devframe: &devframe ^0.10.0
+  # Keep the whole devframe family on one lockstep version. @nuxt/devtools
+  # still pins @devframes/*@^0.9, so without these the plugins it drags in
+  # bind against devframe 0.10 and crash on APIs 0.10 removed.
+  '@devframes/agentic': *devframe
+  '@devframes/hub': *devframe
+  '@devframes/hub-ui': *devframe
+  '@devframes/json-render': *devframe
+  '@devframes/json-render-ui': *devframe
+  '@devframes/plugin-a11y': *devframe
+  '@devframes/plugin-code-server': *devframe
+  '@devframes/plugin-data-inspector': *devframe
+  '@devframes/plugin-git': *devframe
+  '@devframes/plugin-inspect': *devframe
+  '@devframes/plugin-messages': *devframe
+  '@devframes/plugin-og': *devframe
+  '@devframes/plugin-terminals': *devframe
+  '@devframes/service-git': *devframe
+  '@devframes/service-open': *devframe
+  '@devframes/service-shiki': *devframe
+  '@devframes/vite': *devframe
   esbuild: 'catalog:build'
   langium: 'catalog:resolutions'
   nitropack: 'catalog:build'
@@ -79,6 +99,7 @@ catalogs:
     unrun: ^0.3.1
     vite: ^8.3.0
   deps:
+    '@devframes/agentic': *devframe
     '@devframes/hub': *devframe
     '@devframes/hub-ui': *devframe
     '@devframes/json-render': *devframe
