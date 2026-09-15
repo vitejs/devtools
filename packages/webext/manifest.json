@@ -26,6 +26,8 @@
     "<all_urls>"
   ],
   "manifest_version": 3,
+  "message_serialization": "structured_clone",
+  "minimum_chrome_version": "148",
   "name": "Vite DevTools",
   "permissions": [
     "scripting"
