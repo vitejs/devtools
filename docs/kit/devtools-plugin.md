@@ -68,7 +68,7 @@ export default function myPlugin(): Plugin {
 | `ctx.views` | `ViewsHost` | Host static files for your UI (`hostStatic`) |
 | `ctx.docks` | `DocksHost` | Register [dock entries](./dock-system) |
 
-The context also carries the framework-neutral subsystems from the hub: `ctx.rpc`, `ctx.state`, `ctx.terminals`, `ctx.commands`, and `ctx.messages`. Their APIs are documented in the Devframe guide — [RPC](https://devfra.me/guide/rpc), [shared state](https://devfra.me/guide/shared-state), and the [hub subsystems](https://devfra.me/guide/hub).
+The context also carries the subsystems from the hub: [`ctx.rpc`](./rpc), [`ctx.rpc.sharedState`](./shared-state), [`ctx.terminals`](./terminals), [`ctx.commands`](./commands), [`ctx.messages`](./messages), and [`ctx.diagnostics`](./diagnostics).
 
 ```ts
 const plugin: Plugin = {
@@ -157,7 +157,7 @@ export default function myAnalyzerPlugin(): Plugin {
 }
 ```
 
-RPC function shapes, schema validation, and the client-side call API live in the [Devframe RPC guide](https://devfra.me/guide/rpc).
+RPC function shapes and the client-side call API are covered in [RPC](./rpc).
 
 ## Debugging with the inspector
 
@@ -166,4 +166,5 @@ Vite DevTools ships the official `@devframes/plugin-inspect` inspector as a buil
 ## Next steps
 
 - **[Dock System](./dock-system)** — dock entry types and install launchers.
+- **[RPC](./rpc)** and **[Shared State](./shared-state)** — server ↔ client communication.
 - **[Create Plugin from Devframe](./create-plugin-from-devframe)** — mount a portable devframe.

@@ -26,6 +26,14 @@ const DevToolsKitNav = [
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
   { text: 'Dock System', link: '/kit/dock-system' },
   { text: 'Create Plugin from Devframe', link: '/kit/create-plugin-from-devframe' },
+  { text: 'Client Script & Context', link: '/kit/client-context' },
+  { text: 'RPC', link: '/kit/rpc' },
+  { text: 'Shared State', link: '/kit/shared-state' },
+  { text: 'Commands', link: '/kit/commands' },
+  { text: 'Messages & Notifications', link: '/kit/messages' },
+  { text: 'Structured Diagnostics', link: '/kit/diagnostics' },
+  { text: 'Terminals & Processes', link: '/kit/terminals' },
+  { text: 'Examples', link: '/kit/examples' },
 ]
 
 const BuiltinDevToolsNav = [

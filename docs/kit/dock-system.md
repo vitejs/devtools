@@ -79,4 +79,4 @@ The launcher installs at the workspace root — these are devtools for the whole
 
 ## Talking to the server
 
-Action scripts and iframe UIs communicate with the Node side over [RPC](https://devfra.me/guide/rpc), and share reactive data through [shared state](https://devfra.me/guide/shared-state). The `action`, `custom-render`, and `json-render` entry types, along with visibility `when` clauses, are documented in the [Devframe hub docs](https://devfra.me/guide/hub).
+Action scripts and iframe UIs communicate with the Node side over [RPC](./rpc), and share reactive data through [shared state](./shared-state). The `action`, `custom-render`, and `json-render` entry types, along with visibility `when` clauses, are documented in the [Devframe hub docs](https://devfra.me/guide/hub).

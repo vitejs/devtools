@@ -52,10 +52,26 @@ export default {
 
 ## Pages
 
+Getting an integration on screen:
+
 - **[DevTools Plugin](./devtools-plugin)** — the `devtools.setup` hook, the Vite-augmented context, and hosting a static UI.
 - **[Dock System](./dock-system)** — registering dock entries and adding on-demand install launchers.
 - **[Create Plugin from Devframe](./create-plugin-from-devframe)** — mount a portable devframe as a Vite plugin.
 
-For the mechanics shared with every host framework — RPC, shared state, streaming, json-render, when clauses, and the hub subsystems — see the [Devframe docs](https://devfra.me/guide/).
+Talking between server and client:
+
+- **[Client Script & Context](./client-context)** — the injected client script and the client-side context object.
+- **[RPC](./rpc)** — type-safe, bidirectional calls between Node and the browser.
+- **[Shared State](./shared-state)** — reactive state synced across every connected client.
+
+Composing with the hub:
+
+- **[Commands](./commands)** — the shared command palette.
+- **[Messages & Notifications](./messages)** — structured entries and toasts in the Messages panel.
+- **[Structured Diagnostics](./diagnostics)** — coded errors and warnings.
+- **[Terminals & Processes](./terminals)** — spawn and stream child processes.
+- **[Examples](./examples)** — reference plugins and real-world integrations.
+
+These pages cover the Vite-plugin usage. For the deeper mechanics shared with every host framework — including [streaming](https://devfra.me/guide/streaming), [json-render](https://devfra.me/guide/json-render), and [when clauses](https://devfra.me/references/when-clauses) — see the [Devframe docs](https://devfra.me/guide/).
 
 If you're shipping something on Kit, tag the repo with `vite-devtools` on GitHub so we can see what folks are building.
