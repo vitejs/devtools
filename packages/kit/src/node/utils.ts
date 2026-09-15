@@ -1,5 +1,9 @@
 import type { ClientScriptEntry } from '../types/docks'
-import { toDataURL } from 'mlly'
+import { Buffer } from 'node:buffer'
+
+function toDataURL(code: string) {
+  return `data:text/javascript;base64,${Buffer.from(code).toString('base64')}`
+}
 
 /**
  * Create a quick `ClientScriptEntry` from an inline function or

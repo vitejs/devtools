@@ -101,7 +101,6 @@ catalogs:
     envinfo: ^7.21.0
     h3: ^2.0.1-rc.31
     local-pkg: ^1.2.1
-    mlly: ^1.8.2
     mrmime: ^2.0.1
     nostics: ^1.2.0
     nypm: ^0.6.10
