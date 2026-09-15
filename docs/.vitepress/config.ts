@@ -9,7 +9,9 @@ import {
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
 import { withMermaid } from 'vitepress-plugin-mermaid'
-import { version } from '../../package.json'
+import packageJson from '../../package.json' with { type: 'json' }
+
+const { version } = packageJson
 
 const repoRoot = resolve(fileURLToPath(new URL('.', import.meta.url)), '../..')
 
@@ -112,6 +114,7 @@ export default extendConfig(withMermaid(defineConfig({
           text: 'Guide',
           items: [
             { text: 'Getting Started', link: '/guide/' },
+            { text: 'Chrome Extension', link: '/guide/chrome-extension' },
           ],
         },
         {
@@ -186,6 +189,7 @@ export default extendConfig(withMermaid(defineConfig({
           title: 'Vite DevTools',
           items: [
             { text: 'Guide', link: '/guide/' },
+            { text: 'Chrome Extension', link: '/guide/chrome-extension' },
             { text: 'Browser Extension Privacy Policy', link: '/privacy' },
             { text: 'DevTools for Rolldown', link: '/rolldown/' },
             { text: 'Release Notes', link: 'https://github.com/vitejs/devtools/releases' },
@@ -229,10 +233,7 @@ export default extendConfig(withMermaid(defineConfig({
       groupIconVitePlugin(),
     ],
     optimizeDeps: {
-      include: [
-        'fastdom',
-        'fastdom/extensions/fastdom-promised.js',
-      ],
+      entries: ['docs/**/*.md'],
     },
   },
   mermaid: {

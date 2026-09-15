@@ -1,5 +1,6 @@
 # @vitejs/devtools-webext
 
-Browser extension scaffolding for Vite DevTools. Work in progress.
+Chrome Extension for Vite DevTools.
 
-📖 [Documentation](https://devtools.vite.dev/)
+- 🧩 [Installation](https://chromewebstore.google.com/detail/vite-devtools/cibgffbjdnahlfohfhmjciehiihlgmdo)
+- 📖 [Documentation](https://devtools.vite.dev/guide/chrome-extension)

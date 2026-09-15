@@ -2,7 +2,7 @@
   "name": "@vitejs/devtools-webext",
   "type": "module",
   "private": true,
-  "description": "DevTools browser extension for Vite (work in progress)",
+  "description": "Chrome Extension for Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
   "homepage": "https://github.com/vitejs/devtools#readme",
