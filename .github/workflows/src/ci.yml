@@ -43,6 +43,11 @@ jobs:
       - name: Typecheck
         run: nr typecheck
 
+      # Fail the build when the docs site breaks, so the deployed site never
+      # silently goes stale (a broken build keeps the last good Netlify deploy).
+      - name: Docs build
+        run: pnpm -C docs run docs:build
+
       # Non-blocking until the existing findings are triaged; see knip.jsonc.
       - name: Knip
         run: nr knip

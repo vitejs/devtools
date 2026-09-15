@@ -4,7 +4,7 @@ outline: deep
 
 # Dock System
 
-Dock entries are how users open your DevTools integration — clickable items in the dock, similar to the macOS Dock.
+Dock entries are how users open your DevTools integration — clickable items in the dock, similar to the macOS Dock. The dock is a [`@devframes/hub`](https://devfra.me/guide/hub) feature surfaced through the kit context.
 
 ## Entry types
 

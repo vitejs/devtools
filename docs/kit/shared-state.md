@@ -4,7 +4,7 @@ outline: deep
 
 # Shared State
 
-DevTools Kit's shared-state system synchronizes data between server and clients. Changes on either side propagate to every connected party.
+DevTools Kit's shared-state system synchronizes data between server and clients. Changes on either side propagate to every connected party. It surfaces [Devframe's shared state](https://devfra.me/guide/shared-state) through the kit context.
 
 ## Overview
 

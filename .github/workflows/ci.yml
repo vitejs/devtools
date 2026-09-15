@@ -44,6 +44,9 @@ jobs:
       - name: Typecheck
         run: nr typecheck
 
+      - name: Docs build
+        run: pnpm -C docs run docs:build
+
       - name: Knip
         run: nr knip
         continue-on-error: true

@@ -1,6 +1,6 @@
 # Structured Diagnostics
 
-`ctx.diagnostics` is a thin layer over [`nostics`](https://github.com/vercel-labs/nostics) that lets DevTools plugins register coded errors and warnings into a shared registry without depending on `nostics` directly. Use it for author-defined coded diagnostics — errors, warnings, deprecations — that carry a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](./messages).
+`ctx.diagnostics` is a thin layer over [`nostics`](https://github.com/vercel-labs/nostics) that lets DevTools plugins register coded errors and warnings into a shared registry without depending on `nostics` directly. It surfaces [Devframe's diagnostics](https://devfra.me/guide/diagnostics) through the kit context. Use it for author-defined coded diagnostics — errors, warnings, deprecations — that carry a stable code, a documentation URL, and a structured payload. For free-form runtime output that should appear in the DevTools UI, use [`ctx.messages`](./messages).
 
 | Surface | Purpose | Example |
 |---------|---------|---------|
