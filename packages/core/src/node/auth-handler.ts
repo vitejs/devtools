@@ -52,8 +52,10 @@ export function getAuthHandler(context: ViteDevToolsNodeContext): DevToolsAuthHa
     handler = createInteractiveAuth(context, {
       clientAuthTokens,
       // Build mode trusts purely via the per-process capability token baked
-      // into the served connection meta, so silence the OTP console banner.
+      // into the served connection meta, so silence the OTP console banner
+      // and skip `onTrusted` — no code exchange ever happens to fire it.
       banner: buildCapability ? () => {} : config.banner,
+      onTrusted: buildCapability ? undefined : config.onTrusted,
     })
     handlers.set(context, handler)
   }

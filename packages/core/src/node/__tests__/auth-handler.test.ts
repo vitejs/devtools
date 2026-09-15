@@ -1,10 +1,16 @@
 import type { ResolvedConfig } from 'vite'
 import process from 'node:process'
+import { createInteractiveAuth } from 'devframe/recipes/interactive-auth'
 import { describe, expect, it, vi } from 'vitest'
 import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from '../auth-handler'
 import { normalizeDevToolsConfig } from '../config'
 import { createDevToolsContext } from '../context'
 import '@vitejs/devtools-kit'
+
+vi.mock('devframe/recipes/interactive-auth', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('devframe/recipes/interactive-auth')>()
+  return { ...actual, createInteractiveAuth: vi.fn(actual.createInteractiveAuth) }
+})
 
 function createConfig(command: 'serve' | 'build' = 'serve'): ResolvedConfig {
   return {
@@ -64,6 +70,34 @@ describe('getAuthHandler banner', () => {
     finally {
       log.mockRestore()
     }
+  })
+})
+
+describe('getAuthHandler onTrusted', () => {
+  it('forwards a configured onTrusted to the interactive auth handler', async () => {
+    const onTrusted = vi.fn()
+    const ctx = await createDevToolsContext(
+      createConfig(),
+      undefined,
+      normalizeDevToolsConfig({ onTrusted }, 'localhost'),
+    )
+
+    getAuthHandler(ctx)
+
+    expect(vi.mocked(createInteractiveAuth).mock.lastCall?.[1]).toMatchObject({ onTrusted })
+  })
+
+  it('skips onTrusted in implicit build mode (trust is token-based, no code exchange)', async () => {
+    const onTrusted = vi.fn()
+    const ctx = await createDevToolsContext(
+      createConfig('build'),
+      undefined,
+      normalizeDevToolsConfig({ onTrusted }, 'localhost'),
+    )
+
+    getAuthHandler(ctx)
+
+    expect(vi.mocked(createInteractiveAuth).mock.lastCall?.[1]?.onTrusted).toBeUndefined()
   })
 })
 
