@@ -6,7 +6,7 @@ outline: deep
 
 When clauses are conditional expressions that control visibility and activation of commands and dock entries. The expression language matches [VS Code's when-clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts), evaluated against a reactive context object.
 
-The evaluator is [`whenexpr`](https://github.com/antfu/whenexpr), which also provides the `WhenExpression<Ctx, S>` type helper used by `defineCommand` / `defineDockEntry` for compile-time validation — see [Type-safe `when` clauses](#type-safe-when-clauses).
+The evaluator is [`whenexpr`](https://github.com/antfu/whenexpr), which also provides the `WhenExpression<Ctx, S>` type helper used by `defineCommand` / `defineDockEntry` for compile-time validation — see [Type-safe `when` clauses](#type-safe-when-clauses). For the framework-neutral reference, see [Devframe's when clauses](https://devfra.me/references/when-clauses).
 
 ## Usage
 

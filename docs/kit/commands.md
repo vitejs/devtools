@@ -4,7 +4,7 @@ outline: deep
 
 # Commands & Command Palette
 
-DevTools Kit's commands system lets plugins register executable commands on the server and client. Users discover and run them through the built-in command palette, and rebind keyboard shortcuts to taste.
+DevTools Kit's commands system lets plugins register executable commands on the server and client. Users discover and run them through the built-in command palette, and rebind keyboard shortcuts to taste. The palette is a [`@devframes/hub`](https://devfra.me/guide/hub) feature surfaced through the kit context.
 
 ## Overview
 

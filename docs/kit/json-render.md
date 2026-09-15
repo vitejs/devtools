@@ -4,7 +4,7 @@ outline: deep
 
 # JSON Render
 
-JSON render panels build DevTools UIs from server-side TypeScript alone. You describe the UI as a JSON spec; the DevTools client renders it with the built-in component library.
+JSON render panels build DevTools UIs from server-side TypeScript alone. You describe the UI as a JSON spec; the DevTools client renders it with the built-in component library. It builds on [Devframe's JSON-Render](https://devfra.me/guide/json-render).
 
 ## Getting started
 

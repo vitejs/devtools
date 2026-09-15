@@ -4,7 +4,7 @@ outline: deep
 
 # Remote Procedure Calls (RPC)
 
-DevTools Kit's RPC layer is type-safe, bidirectional, and works between your Node.js server and any connected browser client.
+DevTools Kit's RPC layer is type-safe, bidirectional, and works between your Node.js server and any connected browser client. It surfaces [Devframe's RPC](https://devfra.me/guide/rpc) through the kit-augmented context, so these patterns carry over to any Devframe host.
 
 ## Overview
 
