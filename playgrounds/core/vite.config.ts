@@ -83,7 +83,7 @@ export default defineConfig({
     Tracer({
       viteDevtools: true,
     }),
-    // Kit-pattern json-render demo — see docs/kit/examples.md.
+    // Kit-pattern json-render demo.
     GitUIPlugin(),
 
     // Official @devframes/plugin-* dashboards.

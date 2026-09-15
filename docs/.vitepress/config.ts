@@ -25,17 +25,7 @@ const DevToolsKitNav = [
   { text: 'Introduction', link: '/kit/' },
   { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
   { text: 'Dock System', link: '/kit/dock-system' },
-  { text: 'Client Script & Context', link: '/kit/client-context' },
-  { text: 'RPC', link: '/kit/rpc' },
-  { text: 'Shared State', link: '/kit/shared-state' },
-  { text: 'Streaming', link: '/kit/streaming' },
-  { text: 'Commands', link: '/kit/commands' },
-  { text: 'When Clauses', link: '/kit/when-clauses' },
-  { text: 'Messages & Notifications', link: '/kit/messages' },
-  { text: 'Structured Diagnostics', link: '/kit/diagnostics' },
-  { text: 'Terminals & Processes', link: '/kit/terminals' },
-  { text: 'Remote Client', link: '/kit/remote-client' },
-  { text: 'Examples', link: '/kit/examples' },
+  { text: 'Create Plugin from Devframe', link: '/kit/create-plugin-from-devframe' },
 ]
 
 const BuiltinDevToolsNav = [
@@ -125,23 +115,7 @@ export default extendConfig(withMermaid(defineConfig({
         },
         {
           text: 'DevTools Kit',
-          items: [
-            { text: 'Introduction', link: '/kit/' },
-            { text: 'DevTools Plugin', link: '/kit/devtools-plugin' },
-            { text: 'Dock System', link: '/kit/dock-system' },
-            { text: 'Client Script & Context', link: '/kit/client-context' },
-            { text: 'RPC', link: '/kit/rpc' },
-            { text: 'Shared State', link: '/kit/shared-state' },
-            { text: 'Streaming', link: '/kit/streaming' },
-            { text: 'Commands', link: '/kit/commands' },
-            { text: 'When Clauses', link: '/kit/when-clauses' },
-            { text: 'Messages', link: '/kit/messages' },
-            { text: 'Diagnostics', link: '/kit/diagnostics' },
-            { text: 'JSON Render', link: '/kit/json-render' },
-            { text: 'Terminals', link: '/kit/terminals' },
-            { text: 'Remote Client', link: '/kit/remote-client' },
-            { text: 'Examples', link: '/kit/examples' },
-          ],
+          items: DevToolsKitNav,
         },
         {
           text: 'Error Reference',

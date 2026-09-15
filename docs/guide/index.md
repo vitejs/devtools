@@ -121,7 +121,7 @@ import '@vitejs/devtools/client/inject-passive'
 import '@vitejs/devtools/client/inject-hidden'
 ```
 
-See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.
+See the [Devframe client guide](https://devfra.me/guide/client) for how injection and the browser RPC client work.
 
 ### Building with the app
 

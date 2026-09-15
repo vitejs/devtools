@@ -48,6 +48,33 @@ jobs:
         run: nr knip
         continue-on-error: true
 
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
+        with:
+          install: false
+
+      - name: Set node
+        uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      # Mirrors the Netlify build command so a broken docs build is caught in
+      # CI instead of silently leaving the published site on a stale deploy.
+      - name: Build docs
+        run: nr docs:build
+
   test:
     runs-on: ${{ matrix.os }}
 

@@ -175,7 +175,7 @@ ctx.docks.register({
 
 1. Your plugin registers an iframe dock with `remote: true` pointing at this page.
 2. The DevTools core allocates a session-only auth token and appends the connection descriptor to the iframe URL: `#vite-devtools-kit-connection=…`
-3. When this page loads, [`parseRemoteConnection()`](./remote-client#connect-from-the-hosted-page) reads the descriptor, and [`connectRemoteDevTools()`](./remote-client#connect-from-the-hosted-page) opens a WebSocket back to the local dev server.
+3. When this page loads, `parseRemoteConnection()` reads the descriptor, and `connectRemoteDevTools()` opens a WebSocket back to the local dev server.
 4. The live "dock registry" list above subscribes to the `devframe:docks` shared state — it re-renders on every registration change.
 
-See the [Remote Client guide](./remote-client) for the full API and the underlying security model.
+Both helpers are exported from `@vitejs/devtools-kit/client`. See the [Devframe client guide](https://devfra.me/guide/client) for the browser RPC client it builds on.

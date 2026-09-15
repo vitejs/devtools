@@ -4,9 +4,9 @@ outline: deep
 
 # DevTools Plugin
 
-A DevTools plugin is a Vite plugin with one extra hook: `devtools.setup(ctx)`. The hook receives the kit-augmented context (`KitNodeContext`) — RPC, views, and the four hub subsystems Kit owns: `docks`, `terminals`, `messages`, `commands`.
+A DevTools plugin is a Vite plugin with one extra hook: `devtools.setup(ctx)`. It runs once during Vite server initialization, only when DevTools is enabled, and receives the Vite-augmented context — RPC, views, shared state, and the hub subsystems (`docks`, `terminals`, `messages`, `commands`) — plus Vite's own `viteConfig` and `viteServer`.
 
-This page covers the direct hook approach. To bring in a portable [Devframe](https://devfra.me/guide/) app instead, see [`createPluginFromDevframe`](https://devfra.me/guide/adapters#kit) — Kit auto-mounts the SPA, derives the iframe dock entry from `id` / `name` / `icon` / `basePath`, then runs an optional kit-only `setup` for hub features.
+To bring in a portable [Devframe](https://devfra.me/guide/) app instead of writing the hook by hand, see [Create Plugin from Devframe](./create-plugin-from-devframe).
 
 ## Installation
 
@@ -30,7 +30,7 @@ yarn add -D @vitejs/devtools-kit
 
 ## Basic setup
 
-Add the triple-slash reference to augment Vite's `Plugin` interface with the `devtools` property:
+Add the triple-slash reference to augment Vite's `Plugin` interface with the `devtools` property, then register a dock entry in `setup`:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -39,18 +39,8 @@ import type { Plugin } from 'vite'
 export default function myPlugin(): Plugin {
   return {
     name: 'my-plugin',
-
-    // Regular Vite plugin hooks
-    configResolved(config) {
-      // ...
-    },
-
-    // DevTools setup - only called when DevTools is enabled
     devtools: {
       setup(ctx) {
-        console.log('DevTools setup for my-plugin')
-
-        // Register dock entries, RPC functions, etc.
         ctx.docks.register({
           id: 'my-plugin',
           title: 'My Plugin',
@@ -64,55 +54,38 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-`devtools.setup` runs once during Vite server initialization, when DevTools is enabled.
+## The context
 
-## DevTools context
-
-The `setup` function receives a `ViteDevToolsNodeContext` providing access to every DevTools API:
-
-```ts
-const plugin: Plugin = {
-  devtools: {
-    setup(ctx) {
-    // ctx contains everything you need
-    }
-  }
-}
-```
-
-### Available properties
+`setup` receives a `ViteDevToolsNodeContext`. The Vite-specific slots are:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `ctx.docks` | `DocksHost` | Register and manage [dock entries](./dock-system) |
-| `ctx.views` | `ViewsHost` | Host static files for your DevTools UI |
-| `ctx.rpc` | `RpcHost` | Register [RPC functions](./rpc) and broadcast to clients |
 | `ctx.viteConfig` | `ResolvedConfig` | The resolved Vite configuration |
-| `ctx.viteServer` | `ViteDevServer \| undefined` | Vite dev server instance, present in dev mode |
+| `ctx.viteServer` | `ViteDevServer \| undefined` | The dev server instance, present in dev mode |
 | `ctx.mode` | `'dev' \| 'build'` | Current mode |
 | `ctx.cwd` | `string` | Current working directory |
 | `ctx.workspaceRoot` | `string` | Workspace root directory |
+| `ctx.views` | `ViewsHost` | Host static files for your UI (`hostStatic`) |
+| `ctx.docks` | `DocksHost` | Register [dock entries](./dock-system) |
 
-### Example: accessing Vite config
+The context also carries the framework-neutral subsystems from the hub: `ctx.rpc`, `ctx.state`, `ctx.terminals`, `ctx.commands`, and `ctx.messages`. Their APIs are documented in the Devframe guide — [RPC](https://devfra.me/guide/rpc), [shared state](https://devfra.me/guide/shared-state), and the [hub subsystems](https://devfra.me/guide/hub).
 
 ```ts
 const plugin: Plugin = {
   devtools: {
     setup(ctx) {
       console.log('Root:', ctx.viteConfig.root)
-      console.log('Mode:', ctx.mode)
-
       if (ctx.viteServer) {
         console.log('Dev server is running')
       }
-    }
-  }
+    },
+  },
 }
 ```
 
-## Hosting static files
+## Hosting a static UI
 
-For a pre-built UI (Vue/React SPA, etc.), serve it with `ctx.views.hostStatic()`:
+For a pre-built SPA (Vue/React/Svelte/etc.), serve it with `ctx.views.hostStatic()` and point an iframe dock entry at the same route. DevTools handles dev-server middleware and copies the files into the build output at build time.
 
 ```ts
 import { fileURLToPath } from 'node:url'
@@ -120,15 +93,9 @@ import { fileURLToPath } from 'node:url'
 const plugin: Plugin = {
   devtools: {
     setup(ctx) {
-    // Resolve path to your built client files
-      const clientPath = fileURLToPath(
-        new URL('../dist/client', import.meta.url)
-      )
-
-      // Host at a specific route
+      const clientPath = fileURLToPath(new URL('../dist/client', import.meta.url))
       ctx.views.hostStatic('/__my-plugin/', clientPath)
 
-      // Register as a dock entry
       ctx.docks.register({
         id: 'my-plugin',
         title: 'My Plugin',
@@ -136,16 +103,14 @@ const plugin: Plugin = {
         type: 'iframe',
         url: '/__my-plugin/',
       })
-    }
-  }
+    },
+  },
 }
 ```
 
-DevTools handles dev-server middleware and copies the static files into the output directory at build time.
-
 ## Complete example
 
-A plugin with a dock entry and an RPC function that exposes module data:
+A plugin that hosts a UI, exposes module data over RPC, and surfaces a dock entry:
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -154,28 +119,20 @@ import { fileURLToPath } from 'node:url'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export default function myAnalyzerPlugin(): Plugin {
-  const analyzedModules = new Map<string, { size: number, imports: string[] }>()
+  const analyzedModules = new Map<string, { size: number }>()
 
   return {
     name: 'my-analyzer',
 
-    // Collect data during transforms
     transform(code, id) {
-      analyzedModules.set(id, {
-        size: code.length,
-        imports: [], // Parse imports here
-      })
+      analyzedModules.set(id, { size: code.length })
     },
 
     devtools: {
       setup(ctx) {
-        // Host the UI
-        const clientPath = fileURLToPath(
-          new URL('../dist/client', import.meta.url)
-        )
+        const clientPath = fileURLToPath(new URL('../dist/client', import.meta.url))
         ctx.views.hostStatic('/__my-analyzer/', clientPath)
 
-        // Register dock entry
         ctx.docks.register({
           id: 'my-analyzer',
           title: 'Module Analyzer',
@@ -184,19 +141,15 @@ export default function myAnalyzerPlugin(): Plugin {
           url: '/__my-analyzer/',
         })
 
-        // Register RPC function to fetch data
         ctx.rpc.register(
           defineRpcFunction({
             name: 'my-analyzer:get-modules',
             type: 'query',
             setup: () => ({
-              handler: async () => {
-                return Array.from(analyzedModules.entries()).map(
-                  ([id, data]) => ({ id, ...data })
-                )
-              },
+              handler: async () =>
+                Array.from(analyzedModules, ([id, data]) => ({ id, ...data })),
             }),
-          })
+          }),
         )
       },
     },
@@ -204,12 +157,13 @@ export default function myAnalyzerPlugin(): Plugin {
 }
 ```
 
+RPC function shapes, schema validation, and the client-side call API live in the [Devframe RPC guide](https://devfra.me/guide/rpc).
+
 ## Debugging with the inspector
 
-Vite DevTools ships the official `@devframes/plugin-inspect` inspector as a built-in panel, enabled by default with `builtinDevTools`. It shows registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins — handy when verifying that everything you registered actually shows up. Open the "Inspect" dock; no extra install needed.
+Vite DevTools ships the official `@devframes/plugin-inspect` inspector as a built-in panel (enabled by default with `builtinDevTools`). It shows registered RPC functions, dock entries, client scripts, and DevTools-enabled plugins — handy for verifying that what you registered actually shows up. Open the **Inspect** dock; no extra install needed.
 
 ## Next steps
 
-- **[Dock System](./dock-system)** — iframe panels, action buttons, custom renderers, launchers, json-render specs.
-- **[RPC](./rpc)** — bidirectional server-client communication.
-- **[Shared State](./shared-state)** — patch-synced state across every connected client.
+- **[Dock System](./dock-system)** — dock entry types and install launchers.
+- **[Create Plugin from Devframe](./create-plugin-from-devframe)** — mount a portable devframe.

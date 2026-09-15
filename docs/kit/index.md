@@ -4,62 +4,17 @@ outline: deep
 
 # DevTools Kit
 
-DevTools Kit is the integration hub for Vite DevTools. It owns the dock, the command palette, terminal aggregation, cross-tool toasts, and the `Plugin.devtools.setup` hook that any Vite plugin can implement to surface a UI inside DevTools.
+`@vitejs/devtools-kit` is the Vite-flavored layer for building integrations that appear inside Vite DevTools. It gives a Vite plugin one extra hook — `devtools.setup(ctx)` — and a context wired with everything an integration needs: a dock to surface UI, RPC, shared state, terminals, commands, and messages.
 
-For a fresh Vite-specific integration, reach for `Plugin.devtools.setup` directly — that's where docks, terminals, the palette, and custom renderers live. Kit is built on [Devframe](https://devfra.me/guide/), the framework-neutral foundation; tools that already have a portable Devframe definition drop into the hub via `createPluginFromDevframe`, and standalone single-tool deployments can build on Devframe directly.
+Kit is a thin skin over [Devframe](https://devfra.me/guide/) and its hub layer. Devframe is the framework-neutral foundation that owns the mechanics — [RPC](https://devfra.me/guide/rpc), [shared state](https://devfra.me/guide/shared-state), [json-render](https://devfra.me/guide/json-render), [streaming](https://devfra.me/guide/streaming), [when clauses](https://devfra.me/references/when-clauses), and the hub's [docks, commands, messages, and terminals](https://devfra.me/guide/hub). Kit re-exports those under Vite-friendly names and adds the Vite-specific pieces: the `devtools.setup` hook, the `viteConfig` / `viteServer` context slots, the `/__devtools/` mount path, and the bridge that drops a portable devframe into Vite DevTools.
 
 ![DevTools Kit Vision](/assets/vision-devtools-kit.jpg)
 
 For background, see [Anthony Fu's ViteConf 2025 talk](https://www.youtube.com/watch?v=tVd0JeSr8kg).
 
-## What DevTools Kit provides
+## Two ways to build
 
-Kit owns the hub-level surface — the things that only matter once multiple integrations share a UI:
-
-| Feature | Description |
-|---------|-------------|
-| **[DevTools Plugin](./devtools-plugin)** | The `Plugin.devtools.setup` hook, plus `createPluginFromDevframe` for porting Devframe apps into the hub. |
-| **[Dock System](./dock-system)** | The unified dock — iframe / action / custom / launcher / json-render entries — with categories, when-clauses, and remote dock support. |
-| **[Commands](./commands)** | The shared command palette: keybindings, children, when-gating across every integration. |
-| **[Messages](./messages)** | Cross-tool toast notifications and the unified messages dock. |
-| **[Terminals](./terminals)** | Aggregate terminal output from any integration into one Terminals panel. |
-| **[RPC](./rpc)** | Type-safe bidirectional RPC backed by Devframe's birpc + valibot. |
-| **[Shared State](./shared-state)** | Patch-synced state that bridges server ↔ client across every integration. |
-| **Isomorphic Views** | Deploy your UI as embedded panels, browser extensions, or standalone webpages. |
-
-## Architecture Overview
-
-```mermaid
-flowchart TB
-  subgraph Browser["Browser (Client)"]
-    direction TB
-    subgraph DockEntries["Dock Entries"]
-      Iframe["Iframe Panel"]
-      Action["Action Button"]
-      Custom["Custom Renderer"]
-    end
-    RpcClient["RPC Client"]
-    DockEntries --> RpcClient
-  end
-
-  RpcClient <-->|WebSocket| RpcServer
-
-  subgraph Server["Node.js (Server)"]
-    direction TB
-    RpcServer["RPC Server"]
-    subgraph Context["DevTools Node Context"]
-      Docks["Docks Host"]
-      Views["Views Host"]
-      Rpc["RPC Host"]
-      State["State Host"]
-    end
-    RpcServer --> Context
-  end
-```
-
-## Quick example
-
-Authoring a Vite plugin? Add a `devtools.setup` hook and register a dock entry:
+**Author a Vite plugin.** Add a `devtools.setup` hook to any Vite plugin and register a dock entry. This is the shortest path for a Vite-only integration.
 
 ```ts
 /// <reference types="@vitejs/devtools-kit" />
@@ -70,13 +25,12 @@ export default function myPlugin(): Plugin {
     name: 'my-plugin',
     devtools: {
       setup(ctx) {
-        // ctx is the kit-augmented context: rpc + docks + terminals + messages + commands
         ctx.docks.register({
           id: 'my-plugin',
           title: 'My Plugin',
-          icon: 'https://example.com/icon.svg',
+          icon: 'ph:puzzle-piece-duotone',
           type: 'iframe',
-          url: 'https://example.com/devtools',
+          url: '/__my-plugin/',
         })
       },
     },
@@ -84,7 +38,7 @@ export default function myPlugin(): Plugin {
 }
 ```
 
-Already have a portable Devframe app? Wrap it once and Kit synthesises the iframe dock entry from the definition's `id` / `name` / `icon` / `basePath`:
+**Bring a portable devframe.** If your tool is a [Devframe definition](https://devfra.me/guide/devframe-definition) — so it also runs standalone, as a CLI, or through a coding agent — wrap it once and Kit synthesizes the iframe dock entry for you.
 
 ```ts
 // vite.config.ts
@@ -92,26 +46,16 @@ import { createPluginFromDevframe } from '@vitejs/devtools-kit/node'
 import devtool from './my-devtool'
 
 export default {
-  plugins: [
-    createPluginFromDevframe(devtool, {
-      // Optional kit-only setup for hub features:
-      setup(ctx) {
-        ctx.commands.register({
-          id: 'my-devtool:clear-cache',
-          title: 'Clear Cache',
-          handler: () => { /* ... */ },
-        })
-      },
-    }),
-  ],
+  plugins: [createPluginFromDevframe(devtool)],
 }
 ```
 
-## Getting started
+## Pages
 
-1. **[DevTools Plugin](./devtools-plugin)** — register a hub plugin and walk the kit-augmented context.
-2. **[Dock System](./dock-system)** — iframe panels, action buttons, custom renderers, launchers, json-render specs.
-3. **[RPC](./rpc)** — bidirectional, type-safe communication between server and client.
-4. **[Shared State](./shared-state)** — patch-synced state that bridges every integration.
+- **[DevTools Plugin](./devtools-plugin)** — the `devtools.setup` hook, the Vite-augmented context, and hosting a static UI.
+- **[Dock System](./dock-system)** — registering dock entries and adding on-demand install launchers.
+- **[Create Plugin from Devframe](./create-plugin-from-devframe)** — mount a portable devframe as a Vite plugin.
+
+For the mechanics shared with every host framework — RPC, shared state, streaming, json-render, when clauses, and the hub subsystems — see the [Devframe docs](https://devfra.me/guide/).
 
 If you're shipping something on Kit, tag the repo with `vite-devtools` on GitHub so we can see what folks are building.
