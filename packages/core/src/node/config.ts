@@ -1,3 +1,4 @@
+import type { CreateInteractiveAuthOptions } from 'devframe/recipes/interactive-auth'
 import type { McpSetting } from 'devframe/types'
 import type { StartOptions } from './cli-commands'
 import type { DevToolsUserOptions } from './plugin-options'
@@ -44,6 +45,12 @@ export interface DevToolsConfig extends Partial<StartOptions>, DevToolsUserOptio
    * Supply this to surface the code in the host's own chrome instead.
    */
   banner?: (info: { code: string, url: string }) => void
+  /**
+   * Called once a code exchange succeeds, so a host rendering its own
+   * `banner` can retract it. Not called for connect-time trust from a
+   * static `clientAuthTokens` entry, since no code exchange happens.
+   */
+  onTrusted?: CreateInteractiveAuthOptions['onTrusted']
   /**
    * Origins allowed to open the DevTools WebSocket connection, in addition to the built-in
    * loopback allowlist (`localhost`, `127.0.0.1`, etc).
