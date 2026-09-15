@@ -2,11 +2,11 @@ import type { DevToolsTerminalHost } from '@vitejs/devtools-kit'
 import type { DevframeNodeContext } from 'devframe/types'
 import { existsSync } from 'node:fs'
 import { isPackageExists } from 'local-pkg'
-import { addDependencyCommand, detectPackageManager, dlxCommand } from 'nypm'
 import { Diagnostic } from 'nostics'
 import { join } from 'pathe'
 import { x } from 'tinyexec'
 import { diagnostics } from '../../diagnostics'
+import { commandLine, detectAgent } from '../../utils/package-manager'
 import { defineOxcRpc } from '../_define'
 import { startSetup } from './setup'
 
@@ -19,11 +19,11 @@ export function getOxfmtMigration(root: string): OxfmtMigration | undefined {
 }
 
 async function getSetupCommands(root: string, migrate: boolean): Promise<string[]> {
-  const packageManager = (await detectPackageManager(root))?.name ?? 'npm'
-  const install = addDependencyCommand(packageManager, 'oxfmt@latest', { dev: true })
+  const agent = await detectAgent(root)
+  const install = commandLine(agent, 'add', ['-D', 'oxfmt@latest'])
   const migration = migrate ? getOxfmtMigration(root) : undefined
   const args = migration ? [`--migrate=${migration}`] : ['--init']
-  return [install, dlxCommand(packageManager, 'oxfmt', { args, short: true })]
+  return [install, commandLine(agent, 'execute', ['oxfmt', ...args])]
 }
 
 export async function isGitDirty(root: string): Promise<boolean> {

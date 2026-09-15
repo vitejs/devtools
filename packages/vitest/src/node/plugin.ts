@@ -4,7 +4,9 @@ import process from 'node:process'
 import { createProcessLauncher } from '@vitejs/devtools-kit/node'
 import { getPort } from 'devframe/utils/get-port'
 import { isPackageExists } from 'local-pkg'
-import { addDependency } from 'nypm'
+import { resolveCommand } from 'package-manager-detector/commands'
+import { detect } from 'package-manager-detector/detect'
+import { x } from 'tinyexec'
 import { glob } from 'tinyglobby'
 import { clientPublicDir } from '../dirs'
 import { diagnostics } from './diagnostics'
@@ -82,7 +84,12 @@ export function DevToolsVitestUI(): PluginWithDevTools {
           prepare: async () => {
             if (!isPackageExists('@vitest/ui', { paths: [installRoot] })) {
               try {
-                await addDependency('@vitest/ui', { cwd: installRoot, dev: true })
+                const agent = (await detect({ cwd: installRoot }))?.agent ?? 'npm'
+                // Every supported agent defines an `add` command, so this always resolves.
+                const { command, args } = resolveCommand(agent, 'add', ['-D', '@vitest/ui'])!
+                const result = await x(command, args, { nodeOptions: { cwd: installRoot } })
+                if (result.exitCode !== 0)
+                  throw new Error(result.stderr.trim() || `\`${command} ${args.join(' ')}\` exited with code ${result.exitCode ?? 'null'}.`)
               }
               catch (error) {
                 throw diagnostics.VTDT0001({ error: error instanceof Error ? error.message : String(error) })

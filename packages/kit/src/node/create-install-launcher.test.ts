@@ -2,14 +2,15 @@ import type { ViteDevToolsNodeContext } from '../types/vite-plugin'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createInstallLauncher } from './create-install-launcher'
 
-const { isPackageExists, detectPackageManager, addDependencyCommand } = vi.hoisted(() => ({
+const { isPackageExists, detect, resolveCommand } = vi.hoisted(() => ({
   isPackageExists: vi.fn(),
-  detectPackageManager: vi.fn(),
-  addDependencyCommand: vi.fn(),
+  detect: vi.fn(),
+  resolveCommand: vi.fn(),
 }))
 
 vi.mock('local-pkg', () => ({ isPackageExists }))
-vi.mock('nypm', () => ({ detectPackageManager, addDependencyCommand }))
+vi.mock('package-manager-detector/detect', () => ({ detect }))
+vi.mock('package-manager-detector/commands', () => ({ resolveCommand }))
 
 interface FakeDock { id: string, type: string, launcher?: any, [k: string]: any }
 
@@ -78,10 +79,10 @@ const baseOptions = {
 
 beforeEach(() => {
   isPackageExists.mockReset()
-  detectPackageManager.mockReset()
-  addDependencyCommand.mockReset()
-  detectPackageManager.mockResolvedValue({ name: 'pnpm' })
-  addDependencyCommand.mockReturnValue('pnpm add --dev @vitejs/devtools-rolldown@^0.4.1')
+  detect.mockReset()
+  resolveCommand.mockReset()
+  detect.mockResolvedValue({ name: 'pnpm', agent: 'pnpm' })
+  resolveCommand.mockReturnValue({ command: 'pnpm', args: ['add', '-D', '@vitejs/devtools-rolldown@^0.4.1'] })
 })
 
 describe('createInstallLauncher', () => {
@@ -127,7 +128,7 @@ describe('createInstallLauncher', () => {
     const { ctx, startChildProcess } = fakeCtx({ viteServer: true })
     // `vitest` already present; the two devtools packages are missing.
     isPackageExists.mockImplementation((name: string) => name === 'vitest')
-    addDependencyCommand.mockReturnValue('pnpm add --dev @vitejs/devtools-vitest@^0.4.1 @vitest/ui')
+    resolveCommand.mockReturnValue({ command: 'pnpm', args: ['add', '-D', '@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'] })
 
     await mount(ctx, {
       ...baseOptions,
@@ -139,16 +140,17 @@ describe('createInstallLauncher', () => {
 
     await ctx.commands.execute('vite:devtools:install:vitest')
 
-    expect(addDependencyCommand).toHaveBeenCalledTimes(1)
-    expect(addDependencyCommand).toHaveBeenCalledWith(
+    expect(resolveCommand).toHaveBeenCalledTimes(1)
+    // Only the missing specs are installed, as devDependencies.
+    expect(resolveCommand).toHaveBeenCalledWith(
       'pnpm',
-      ['@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'],
-      { dev: true },
+      'add',
+      ['-D', '@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'],
     )
     expect(startChildProcess).toHaveBeenCalledTimes(1)
     // Installs at the workspace root, not the nested project `cwd`.
     expect(startChildProcess).toHaveBeenCalledWith(
-      { command: 'pnpm', args: ['add', '--dev', '@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'], cwd: '/project' },
+      { command: 'pnpm', args: ['add', '-D', '@vitejs/devtools-vitest@^0.4.1', '@vitest/ui'], cwd: '/project' },
       expect.objectContaining({ id: 'vitest:install' }),
     )
   })

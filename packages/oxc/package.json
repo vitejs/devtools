@@ -47,7 +47,7 @@
     "devframe": "catalog:deps",
     "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
-    "nypm": "catalog:deps",
+    "package-manager-detector": "catalog:deps",
     "pathe": "catalog:deps",
     "tinyexec": "catalog:deps"
   },
