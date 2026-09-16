@@ -60,7 +60,7 @@ export async function createDevToolsPlugins(
   const ui = { branding, embeddedVisibility, dockPreferences }
 
   const plugins = [
-    DevToolsInjection(),
+    DevToolsInjection(build),
     DevToolsServer(ui, resolvedConfig, renderers),
   ]
 

@@ -1,5 +1,7 @@
 import type { Plugin } from 'vite'
+import type { DevToolsUserOptions } from '../plugin-options'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
+import { diagnostics } from '../diagnostics'
 
 /**
  * Inject the `@devframes/hub-ui` embedded bootstrap into the host app's HTML.
@@ -20,14 +22,21 @@ import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
  * keeps `<base>embedded.js` out of Vite's graph entirely, so the browser
  * fetches it straight from the hub with its real URL intact.
  */
-export function DevToolsInjection(): Plugin {
-  const src = `${DEVTOOLS_MOUNT_PATH}embedded.js`
+export function DevToolsInjection(build?: DevToolsUserOptions['build']): Plugin {
+  let src = `${DEVTOOLS_MOUNT_PATH}embedded.js`
 
   return {
     name: 'vite:devtools:injection',
     enforce: 'post',
     apply(_config, env) {
-      return env.command === 'serve' && !env.isSsrBuild
+      return !env.isSsrBuild && (env.command === 'serve' || build?.injection === true)
+    },
+    configResolved(config) {
+      if (config.command === 'build') {
+        if (!build?.withApp)
+          throw diagnostics.DTK0035({})
+        src = `${config.base.replace(/\/+$/, '')}${DEVTOOLS_MOUNT_PATH}embedded.js`
+      }
     },
     transformIndexHtml: {
       order: 'pre',

@@ -61,6 +61,12 @@ export interface DevToolsUserOptions {
      * @default false
      */
     withApp?: boolean
+    /**
+     * Inject the dock into the built app. Requires `withApp: true`.
+     * Ensure the DevTools assets are served under Vite's `base` when deployed.
+     * @default false
+     */
+    injection?: boolean
     /** Output directory relative to root. Defaults to Vite's `build.outDir`. */
     outDir?: string
   }
