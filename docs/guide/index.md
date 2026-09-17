@@ -143,6 +143,21 @@ export default defineConfig({
 
 Open `/__devtools/` for the full-page UI, or load `/__devtools/embedded.js` to embed the dock in the built app.
 
+To show the dock in the built app, enable `build.injection`:
+
+```ts
+export default defineConfig({
+  devtools: {
+    build: {
+      withApp: true,
+      injection: true,
+    },
+  },
+})
+```
+
+Injection defaults to `false` and requires `build.withApp: true`. Ensure the DevTools assets are served under Vite's `base` when deployed.
+
 ## What's next
 
 - **Explore the built-in tools** — inspect Vite development with [Vite DevTools](/vite/) and production builds with [DevTools for Rolldown](/rolldown/).
