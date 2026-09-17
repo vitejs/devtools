@@ -82,6 +82,15 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     // docks (kit's `createJsonRenderer`, the git/data-inspector devframes)
     // render instead of hub-ui's missing-renderer fallback.
     renderers: resolveDockRendererRegistrations(options.renderers),
+    ...(context.viteServer
+      ? {
+          register: {
+            id: 'vite-devtools',
+            name: 'Vite DevTools',
+            rootDir: context.cwd,
+          },
+        }
+      : {}),
     // With a live Vite dev server, route bare-specifier dock client scripts
     // (`ClientScriptEntry.importFrom` naming an npm module, e.g.
     // vue-tracer's `vite-plugin-vue-tracer/client/vite-devtools`) through
