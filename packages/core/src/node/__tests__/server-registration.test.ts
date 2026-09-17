@@ -2,7 +2,7 @@ import type { ViteDevServer } from 'vite'
 import { mkdtemp, readdir, readFile, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { createServer } from 'vite'
+import { createServer, normalizePath } from 'vite'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { normalizeDevToolsConfig } from '../config'
 import { DevToolsServer } from '../plugins/server'
@@ -60,7 +60,7 @@ describe('hub discovery', () => {
       name: 'Vite DevTools',
       origin,
       port: Number(new URL(origin).port),
-      rootDir: root,
+      rootDir: normalizePath(root),
       basePath: '/__devtools/',
       mcp: { path: '/__devtools/__mcp' },
     })
