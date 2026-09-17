@@ -1,4 +1,5 @@
 import { launchEditor } from 'devframe/utils/launch-editor'
+import { resolve } from 'pathe'
 import { defineOxcRpc } from '../_define'
 
 /**
@@ -10,10 +11,10 @@ import { defineOxcRpc } from '../_define'
 export const openInEditor = defineOxcRpc({
   name: 'devtools-oxc:open-in-editor',
   type: 'action',
-  setup: () => {
+  setup: context => {
     return {
       handler: async (target: string) => {
-        launchEditor(target)
+        launchEditor(resolve(context.cwd, target))
       },
     }
   },
