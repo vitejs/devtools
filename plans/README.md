@@ -14,36 +14,23 @@ self-contained — it does not assume you saw the audit or the other plans.
 |------|-------|----------|--------|------------|--------|
 | 001 | Split `vitest run` (CI/one-shot) from watch mode | P1 | S | — | TODO |
 | 002 | Reject path traversal in the Rolldown `session` RPC argument | P1 | S | — | TODO |
-| 003 | Characterization tests for the WS auth/trust boundary | P1 | M | 001 | TODO |
-| 004 | Harden WS trust checks (own-property + constant-time compare) | P1 | S | 003 | TODO |
-| 005 | Enforce an Origin allow-list on the WS handshake | P2 | M | 003 | TODO |
-| 006 | Fix `getLogsManager` memoization (missing `weakMap.set`) | P1 | S | — | TODO |
-| 007 | Remove the unused umbrella `d3` dependency | P2 | S | — | TODO |
-| 008 | Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups | P2 | S | — | TODO |
-| 009 | Fix stale `CONTRIBUTING.md` (removed `packages/rpc`, wrong kit paths) | P2 | S | — | TODO |
-| 010 | Reset the message-client flush latch on reconnect | P2 | S | — | TODO |
-| 011 | Fix multi-client removal pruning in `messages:list` | P2 | M | — | TODO |
-| 012 | Split the Rolldown `get-session-summary` payload | P2 | M | — | TODO |
-| 013 | Triage the dependency-audit advisories in the Nuxt UI toolchain | P2 | M | — | TODO |
-| 014 | Characterization tests for `events-reader` + `log-cache` | P2 | M–L | 001 | TODO |
-| 015 | Consolidate triplicated `color`/`format`/`filepath` utils into `packages/ui` | P3 | S–M | 001 | DONE |
-| 016 | Break up the `RolldownEventsReader` god class | P3 | L | 014 | TODO |
-| 017 | Deduplicate the parallel Rolldown/Vite Nuxt apps into `packages/ui` | P3 | L | 015 | DONE (shared surface promoted; ~18 analyzer-data-model-coupled components left app-local per STOP condition) |
-| 018 | Migrate the oxc DevTools UI onto `@vitejs/devtools-ui` + UnoCSS | P3 | L | — | DONE (PR B: `Card`/`Modal`/`Checkbox`/`EmptyState` upstreamed; PR C: `@nuxt/ui`→UnoCSS swap, oxc-cyan primary, build+typecheck+export-snapshot gates wired; lint kept on oxc's own oxlint/oxfmt per STOP — antfu ESLint conflicts with dogfooded oxfmt) |
+| 003 | Fix `getLogsManager` memoization (missing `weakMap.set`) | P1 | S | — | TODO |
+| 004 | Remove the unused umbrella `d3` dependency | P2 | S | — | TODO |
+| 005 | Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups | P2 | S | — | TODO |
+| 006 | Fix multi-client removal pruning in `messages:list` | P2 | M | — | TODO |
+| 007 | Split the Rolldown `get-session-summary` payload | P2 | M | — | TODO |
+| 008 | Triage the dependency-audit advisories in the Nuxt UI toolchain | P2 | M | — | TODO |
+| 009 | Characterization tests for `events-reader` + `log-cache` | P2 | M–L | 001 | TODO |
+| 010 | Break up the `RolldownEventsReader` god class | P3 | L | 009 | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
 ## Dependency notes
 
-- **001 unblocks every test-writing plan** (003, 014). Until `pnpm test` terminates,
-  an executor cannot use the test suite as a verification gate; land 001 first.
-- **003 before 004 and 005**: the WS auth boundary (`ws.ts`) is the highest-churn
-  node file and has zero direct coverage. Characterize it *before* changing the
-  trust logic so the hardening plans have a regression net.
-- **014 before 016**: `events-reader.ts` is a 1365-line god class with almost no
-  tests. Do not refactor it (016) until characterization tests (014) exist.
-- **015 before 017**: consolidating the shared *utilities* is the low-risk first
-  step of the larger app-deduplication (017); do the utils first, then components.
+- **001 unblocks test-writing plan 009**. Until `pnpm test` terminates, an
+  executor cannot use the test suite as a verification gate; land 001 first.
+- **009 before 010**: `events-reader.ts` is a 1365-line god class with almost no
+  tests. Do not refactor it (010) until characterization tests (009) exist.
 
 ## Findings considered and rejected (do not re-audit)
 
@@ -53,11 +40,11 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
 - **Global `keydown` listener without teardown** (`packages/core/src/client/webcomponents/state/commands.ts:131`):
   leak is masked by the per-RPC-context singleton (WeakMap); no observed impact today.
 - **Middleware-timing concurrency** (`packages/vite/src/node/inspect/server.ts:42-56`):
-  per-URL shared array races under concurrent requests. Confined to the WIP `vite`
-  package's perf panel; fold into the 012/vite-parity work rather than a standalone plan.
+  per-URL shared array races under concurrent requests. Confined to the `vite`
+  package's perf panel; fold into the 007/vite-parity work rather than a standalone plan.
 - **`resolveId` stores raw `Error`** (`packages/vite/src/node/inspect/hijack.ts:174,183`):
   inconsistent with transform/load `parseError`. Minor; fix opportunistically when
   next touching that file.
 - **`pnpm audit` advisories inside Vite's own dep tree** (`@devframes/plugin-inspect > vite`):
-  resolve upstream when Vite bumps its deps; not actionable in this repo (see 013 for
+  resolve upstream when Vite bumps its deps; not actionable in this repo (see 008 for
   the actionable subset).

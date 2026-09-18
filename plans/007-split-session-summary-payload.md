@@ -1,4 +1,4 @@
-# Plan 012: Split the Rolldown `get-session-summary` payload
+# Plan 007: Split the Rolldown `get-session-summary` payload
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.
@@ -15,7 +15,7 @@
 - **Priority**: P2
 - **Effort**: M
 - **Risk**: MED
-- **Depends on**: none (but coordinate with 008/014 which touch the same package)
+- **Depends on**: none (but coordinate with 005/009 which touch the same package)
 - **Category**: perf
 - **Planned at**: commit `ae9555f`, 2026-07-09
 
@@ -125,8 +125,8 @@ available) confirm the session list still renders and module detail still loads.
 ### Step 5: Node test for the trimmed shape
 
 Add a test asserting the summary handler returns `modules` with only the light fields
-(no `build_metrics`), given a stub reader. Reuse the fake-reader approach from plan 008 /
-plan 014's fixtures if available.
+(no `build_metrics`), given a stub reader. Reuse the fake-reader approach from plan 005 /
+plan 009's fixtures if available.
 
 **Verify**: `pnpm -C packages/rolldown exec vitest run session-summary` → pass.
 

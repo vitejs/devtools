@@ -1,4 +1,4 @@
-# Plan 011: Fix multi-client removal pruning in `messages:list`
+# Plan 006: Fix multi-client removal pruning in `messages:list`
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.

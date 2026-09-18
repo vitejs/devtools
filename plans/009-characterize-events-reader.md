@@ -1,4 +1,4 @@
-# Plan 014: Characterization tests for `events-reader` + `log-cache`
+# Plan 009: Characterization tests for `events-reader` + `log-cache`
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.
@@ -25,7 +25,7 @@ with byte accounting, and summary/package hydration — plus the 546-line `log-c
 dedupe). A parser off-by-one (line offsets, `\r\n` handling, a line split across read
 chunks) or a cache-eviction bug produces silently wrong build metrics. This plan builds a
 fixture-driven characterization net so the parser and cache can be changed safely — and it
-is a **prerequisite for plan 016** (breaking up the god class).
+is a **prerequisite for plan 010** (breaking up the god class).
 
 ## Current state
 
@@ -62,7 +62,7 @@ is a **prerequisite for plan 016** (breaking up the god class).
 - Any change to `events-reader.ts` / `log-cache.ts` source. If you find a bug while writing
   tests, **assert the current behavior** and note the suspected bug in the PR — do not fix it
   here (that risks turning a characterization test into a false green). Fixes belong in a
-  separate plan (e.g. 016).
+  separate plan (e.g. 010).
 
 ## Git workflow
 
@@ -128,14 +128,14 @@ ALL must hold:
 Stop and report if:
 - The parser's line/offset logic makes a faithful on-disk fixture test impractical without
   refactoring — in that case cover as much as feasible via `handleEvent`-level tests and
-  report what could not be characterized (this bounds plan 016's risk).
+  report what could not be characterized (this bounds plan 010's risk).
 - `@rolldown/debug` `Event` shapes differ so much from the existing test's example that
   building fixtures requires guessing field names — inspect the installed type first; if
   still unclear, report.
 
 ## Maintenance notes
 
-- These tests are the safety net for plan 016 (god-class breakup). Keep them at the public
+- These tests are the safety net for plan 010 (god-class breakup). Keep them at the public
   API level (`read`, `readSummary`, `manager.*`) so an internal refactor doesn't require
   rewriting them.
 - Reviewer: confirm the tests assert *current* behavior and don't encode a "should be" that

@@ -1,4 +1,4 @@
-# Plan 016: Break up the `RolldownEventsReader` god class
+# Plan 010: Break up the `RolldownEventsReader` god class
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.
@@ -6,7 +6,7 @@
 > **Drift check (run first)**: `git diff --stat ae9555f..HEAD -- packages/rolldown/src/node/rolldown/events-reader.ts`
 > Compare "Current state" against live code first.
 >
-> **Prerequisite gate**: plan 014 (characterization tests for events-reader/log-cache)
+> **Prerequisite gate**: plan 009 (characterization tests for events-reader/log-cache)
 > MUST be landed. If those tests do not exist, STOP — do not refactor this file without them.
 
 ## Status
@@ -14,7 +14,7 @@
 - **Priority**: P3
 - **Effort**: L
 - **Risk**: MED
-- **Depends on**: plans/014 (characterization net)
+- **Depends on**: plans/009 (characterization net)
 - **Category**: tech-debt / architecture
 - **Planned at**: commit `ae9555f`, 2026-07-09
 
@@ -26,10 +26,10 @@ methods spanning line reading/indexing, string-ref resolution, module-metrics ca
 byte accounting, asset hydration, package-summary computation, and plugin-metrics
 summarization, alongside ~16 free functions in the same file. It is the hottest node-side
 path (parsing rolldown debug logs) and the natural home for perf bugs (it hosts the
-concurrency issue characterized by the existing test and the payload issue in plan 012).
+concurrency issue characterized by the existing test and the payload issue in plan 007).
 Its size makes it hard to test in isolation and high-risk to change. This plan extracts
 cohesive collaborators behind narrow interfaces, leaving `RolldownEventsReader` a thin
-orchestrator — **without changing observable behavior** (the plan 014 tests are the gate).
+orchestrator — **without changing observable behavior** (the plan 009 tests are the gate).
 
 ## Current state
 
@@ -42,7 +42,7 @@ orchestrator — **without changing observable behavior** (the plan 014 tests ar
   `pruneReaders`).
 - Consumers depend only on the **public API** above (via `logs-manager.ts` and the RPC functions).
   The internal caches/index maps are private.
-- After plan 014, `__tests__/events-reader.test.ts` (extended) + `__tests__/log-cache.test.ts`
+- After plan 009, `__tests__/events-reader.test.ts` (extended) + `__tests__/log-cache.test.ts`
   pin the public behavior.
 
 ## Commands you will need
@@ -80,7 +80,7 @@ orchestrator — **without changing observable behavior** (the plan 014 tests ar
 ### Step 0: Confirm the characterization net exists
 
 Run `pnpm -C packages/rolldown exec vitest run events-reader log-cache`. If those tests are
-absent or failing on the untouched tree, STOP (plan 014 is the prerequisite).
+absent or failing on the untouched tree, STOP (plan 009 is the prerequisite).
 
 ### Step 1: Identify seams
 
@@ -117,20 +117,20 @@ are the payoff of the refactor.
 ### Step 4: Confirm the orchestrator shrank and behavior held
 
 `wc -l` the resulting files: `events-reader.ts` should be materially smaller, with logic in
-named collaborators. The plan 014 characterization tests must still pass unchanged.
+named collaborators. The plan 009 characterization tests must still pass unchanged.
 
 **Verify**: `pnpm -C packages/rolldown build` → exit 0; full suite green.
 
 ## Test plan
 
-- Plan 014's characterization tests are the regression gate (must pass unchanged at every commit).
+- Plan 009's characterization tests are the regression gate (must pass unchanged at every commit).
 - New per-collaborator unit tests from Step 3.
 - Verification: `pnpm -C packages/rolldown exec vitest run` → all pass; `pnpm build` exits 0.
 
 ## Done criteria
 
 ALL must hold:
-- [ ] Plan 014 tests pass unchanged throughout (no edits to them to accommodate the refactor)
+- [ ] Plan 009 tests pass unchanged throughout (no edits to them to accommodate the refactor)
 - [ ] At least the line-reader, metrics-cache, and one other collaborator extracted into their own files
 - [ ] `RolldownEventsReader` public API (methods + behavior) unchanged; consumers untouched
 - [ ] New unit tests for the extracted collaborators pass
@@ -140,7 +140,7 @@ ALL must hold:
 ## STOP conditions
 
 Stop and report if:
-- Plan 014's tests are absent or red on the untouched tree.
+- Plan 009's tests are absent or red on the untouched tree.
 - An extraction can't preserve behavior without changing the public API — STOP and rescope
   (a public-API change needs its own plan + consumer updates).
 - The characterization tests go red after an extraction and a reasonable fix doesn't restore
@@ -150,5 +150,5 @@ Stop and report if:
 
 - Keep the collaborators' interfaces narrow; the goal is testability and navigability, not
   maximal decomposition.
-- This unblocks safer perf work (plan 012 and the concurrency hazards) inside a smaller surface.
+- This unblocks safer perf work (plan 007 and the concurrency hazards) inside a smaller surface.
 - Reviewer: review commit-by-commit; each should be a behavior-preserving move with green tests.

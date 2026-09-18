@@ -10,7 +10,7 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## Setup
 
-Requires `pnpm@11.x`.
+Requires pnpm.
 
 ```bash
 pnpm install
@@ -50,14 +50,14 @@ Main entry point and core functionality.
 
 ### `packages/kit` - `@vitejs/devtools-kit`
 
-Utility library for integration authors.
+Vite APIs on top of `@devframes/hub` for integration authors.
 
-- TypeScript types and interfaces for docks, views, panels
-- `defineRpcFunction` and shared state utilities
-- Event system utilities
-- RPC client helpers
+- Vite-augmented context (`createKitContext`) and `createPluginFromDevframe`
+- Hub hosts re-exported under `DevTools*` aliases (docks, terminals, messages, commands)
+- `defineRpcFunction` (RPC lives in the external `devframe/rpc` package)
+- Shared-state and when-clause utilities
 
-**Key files**: `src/index.ts`, `src/client.ts`, `src/utils/`
+**Key files**: `src/node/` (context + `createPluginFromDevframe`), `src/client/`, `src/define.ts`, `src/types/`
 
 ---
 
@@ -78,32 +78,39 @@ Built-in UI panel for Rolldown integration.
 
 ### `packages/vite` - `@vitejs/devtools-vite`
 
-UI for Vite DevTools (WIP).
+UI for inspecting the Vite dev server's plugin pipeline and module transforms. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`.
 
 ---
 
 ### `packages/ui` - `@vitejs/devtools-ui`
 
-Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`).
+Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published.
 
 ---
 
-### `packages/rpc` - `@vitejs/devtools-rpc`
+### `packages/oxc` - `@vitejs/devtools-oxc`
 
-Typed RPC wrapper over `birpc` with WebSocket presets.
+Oxc toolchain (oxlint/oxfmt) inspector. Advertised by core as a built-in install launcher in the `viteplus` group; mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once installed.
 
-- RPC client/server implementations
-- WebSocket presets
-- Message serialization
-- Type-safe RPC methods
+**Key files**: `src/node/` (plugin + RPC), `src/app/` (Nuxt UI)
 
-**Key files**: `src/index.ts`, `src/client.ts`, `src/server.ts`, `src/presets/ws/`
+Lint this package with `pnpm -C packages/oxc lint` — it stays out of the shared ESLint run because oxfmt conflicts with the repo-wide antfu config.
+
+---
+
+### `packages/vitest` - `@vitejs/devtools-vitest`
+
+Slim launcher for the Vitest UI in the `viteplus` dock group. A `launcher` dock (shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe.
 
 ---
 
 ### `packages/webext` - `@vitejs/devtools-webext`
 
-Browser extension (planned for future dev mode). **Not accepting contributions currently.**
+Browser extension scaffolding (ancillary).
+
+---
+
+RPC is provided by the external `devframe` package (`devframe/rpc`). Define functions with `defineRpcFunction` from `@vitejs/devtools-kit` and namespace their ids — see `AGENTS.md`.
 
 ---
 
@@ -131,5 +138,5 @@ Browser extension (planned for future dev mode). **Not accepting contributions c
 
 - **core**: CLI in `cli-commands.ts`, server in `server.ts`, components in `client/webcomponents/`
 - **kit**: Keep APIs stable, add types for public APIs, consider backward compatibility
-- **vite**: Nuxt 4 app, Vue 3 Composition API, test with `pnpm dev` after build
-- **rpc**: Keep methods type-safe, document new methods, test client/server
+- **vite** / **rolldown** / **oxc**: Nuxt 4 app, Vue 3 Composition API; RPC via `defineRpcFunction` with namespaced ids
+- **oxc**: Lint and format with the package's own oxlint/oxfmt (`pnpm -C packages/oxc lint`)

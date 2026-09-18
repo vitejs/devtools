@@ -1,4 +1,4 @@
-# Plan 007: Remove the unused umbrella `d3` dependency
+# Plan 004: Remove the unused umbrella `d3` dependency
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.

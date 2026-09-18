@@ -1,4 +1,4 @@
-# Plan 006: Fix `getLogsManager` memoization (missing `weakMap.set`)
+# Plan 003: Fix `getLogsManager` memoization (missing `weakMap.set`)
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.

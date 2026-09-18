@@ -6,7 +6,7 @@ Three layers, one mental model:
 
 - **`devframe`** — *the container for one devtool integration, portable across viewers.* External project; lives at [`github.com/devframes/devframe`](https://github.com/devframes/devframe), docs at [`devfra.me`](https://devfra.me). Consumed here as an npm dependency (`catalog:deps`).
 - **`@devframes/hub`** — *the framework-neutral hub layer on top of devframe.* Owns docks, terminals, messages, commands, the `mountDevframe` primitive, and the json-render factory — anything that only matters once a host wants to combine multiple devframes into one UI. External project, same repo as devframe; consumed via npm.
-- **`@vitejs/devtools-kit`** — *the Vite-flavored skin over `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `viteplus` dock group), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
+- **`@vitejs/devtools-kit`** — *the Vite APIs on top of `@devframes/hub`.* Re-exports hub's hosts and primitives under the kit's `DevTools*` names, adds the Vite-specific extensions (`ViteDevToolsNodeContext`, `PluginWithDevTools`, `DevToolsPluginOptions`, `createViteDevToolsHost`, the `viteplus` dock group), pins the kit-side mount path at `/__devtools/`, and ships `createPluginFromDevframe` to drop a portable devframe into Vite DevTools as a Vite plugin.
 
 When deciding where something belongs: if a single-app standalone CLI would still need it, it belongs upstream in devframe; if it only matters once a host combines multiple integrations, it belongs in `@devframes/hub` (or in `@vitejs/devtools-kit` if it's Vite-specific).
 
@@ -18,11 +18,11 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 
 | Package | npm | Description |
 |---------|-----|-------------|
-| `packages/kit` | `@vitejs/devtools-kit` | Vite-flavored skin over `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. `createInstallLauncher` builds a discovery/install-launcher dock for an optional integration (detect via `local-pkg`, resolve the install command via `package-manager-detector` and run it as a tracked terminal session, prompt a restart). |
+| `packages/kit` | `@vitejs/devtools-kit` | Vite APIs on top of `@devframes/hub`. `createKitContext` wraps hub's `createHubContext` and surfaces the Vite-augmented context type (`viteConfig`/`viteServer`); hub hosts (`docks` / `terminals` / `messages` / `commands`) and the `mountDevframe` primitive are re-exported under the kit's `DevTools*` aliases. `createPluginFromDevframe` delegates to `mountDevframe` and wraps it in a `Plugin.devtools.setup` Vite plugin shell. `createInstallLauncher` builds a discovery/install-launcher dock for an optional integration (detect via `local-pkg`, resolve the install command via `package-manager-detector` and run it as a tracked terminal session, prompt a restart). |
 | `packages/core` | `@vitejs/devtools` | Vite plugin + CLI + standalone/webcomponents client for Vite DevTools itself. Calls kit's `createKitContext`, scans Vite plugins for `.devtools.setup`, and serves the dock UI. |
 | `packages/ui` | `@vitejs/devtools-ui` | Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published. |
 | `packages/rolldown` | `@vitejs/devtools-rolldown` | Nuxt UI for Rolldown build data. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-rolldown/`. |
-| `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for Vite DevTools (WIP). Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
+| `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for the Vite dev server's plugin pipeline and module transforms. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
 | `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Advertised by core as a built-in install launcher in the `viteplus` group (installed on demand), mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once present, plus a standalone CLI/client. Its Nuxt client is on the shared stack — UnoCSS via `presetDevToolsUI` and `@vitejs/devtools-ui` components (an oxc-cyan `primary` scale derived from the `BannerOxcDevTools` accent) — and is wired into the turbo build, `vue-tsc` typecheck (own `src/tsconfig.json` reference) and export-snapshot gates. It dogfoods its own oxlint/oxfmt on itself (run `pnpm -C packages/oxc lint`), whose formatting conflicts with the repo-wide antfu ESLint config, so it stays out of the shared ESLint run. |
 | `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
@@ -174,7 +174,7 @@ The sidebar in `docs/.vitepress/config.ts` globs the `errors/` directory by pref
 
 ### Scope
 
-- **Node-side only**: `packages/rpc`, `packages/core/src/node`, `packages/rolldown/src/node`.
+- **Node-side only**: `packages/kit/src/node`, `packages/core/src/node`, `packages/rolldown/src/node`, `packages/vite/src/node`, `packages/vitest/src/node`, `packages/oxc/src/node`.
 - **Client-side excluded**: Vue components, webcomponents, and browser-only code keep using `console.*` / `throw`.
 
 ## Before PRs
