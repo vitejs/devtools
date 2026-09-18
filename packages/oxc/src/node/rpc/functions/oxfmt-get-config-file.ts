@@ -6,10 +6,10 @@ export const oxfmtGetConfigFile = defineOxcRpc({
   type: 'query',
   jsonSerializable: true,
   cacheable: true,
-  setup: () => {
+  setup: context => {
     return {
       handler: async () => {
-        const config = await getOxfmtConfig()
+        const config = await getOxfmtConfig(context.cwd)
         return config
       },
     }
