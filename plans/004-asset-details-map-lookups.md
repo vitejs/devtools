@@ -1,4 +1,4 @@
-# Plan 005: Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups
+# Plan 004: Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.
@@ -142,7 +142,7 @@ Stop and report if:
   that the assumption is false before proceeding.
 - Building a faithful fake reader proves disproportionately heavy — in that case ship the
   Map refactor (it is a mechanical, type-checked, behavior-preserving change) and note in
-  the PR that a unit test was deferred because the reader fixture is covered by plan 009.
+  the PR that a unit test was deferred because the reader fixture is covered by plan 008.
 
 ## Maintenance notes
 

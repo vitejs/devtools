@@ -15,22 +15,21 @@ self-contained — it does not assume you saw the audit or the other plans.
 | 001 | Split `vitest run` (CI/one-shot) from watch mode | P1 | S | — | TODO |
 | 002 | Reject path traversal in the Rolldown `session` RPC argument | P1 | S | — | TODO |
 | 003 | Fix `getLogsManager` memoization (missing `weakMap.set`) | P1 | S | — | TODO |
-| 004 | Remove the unused umbrella `d3` dependency | P2 | S | — | TODO |
-| 005 | Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups | P2 | S | — | TODO |
-| 006 | Fix multi-client removal pruning in `messages:list` | P2 | M | — | TODO |
-| 007 | Split the Rolldown `get-session-summary` payload | P2 | M | — | TODO |
-| 008 | Triage the dependency-audit advisories in the Nuxt UI toolchain | P2 | M | — | TODO |
-| 009 | Characterization tests for `events-reader` + `log-cache` | P2 | M–L | 001 | TODO |
-| 010 | Break up the `RolldownEventsReader` god class | P3 | L | 009 | TODO |
+| 004 | Replace quadratic `find`/`filter` in `get-asset-details` with Map lookups | P2 | S | — | TODO |
+| 005 | Fix multi-client removal pruning in `messages:list` | P2 | M | — | TODO |
+| 006 | Split the Rolldown `get-session-summary` payload | P2 | M | — | TODO |
+| 007 | Triage the dependency-audit advisories in the Nuxt UI toolchain | P2 | M | — | TODO |
+| 008 | Characterization tests for `events-reader` + `log-cache` | P2 | M–L | 001 | TODO |
+| 009 | Break up the `RolldownEventsReader` god class | P3 | L | 008 | TODO |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED (one-line rationale)
 
 ## Dependency notes
 
-- **001 unblocks test-writing plan 009**. Until `pnpm test` terminates, an
+- **001 unblocks test-writing plan 008**. Until `pnpm test` terminates, an
   executor cannot use the test suite as a verification gate; land 001 first.
-- **009 before 010**: `events-reader.ts` is a 1365-line god class with almost no
-  tests. Do not refactor it (010) until characterization tests (009) exist.
+- **008 before 009**: `events-reader.ts` is a 1365-line god class with almost no
+  tests. Do not refactor it (009) until characterization tests (008) exist.
 
 ## Findings considered and rejected (do not re-audit)
 
@@ -41,10 +40,10 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (one-line reason) | REJECTED 
   leak is masked by the per-RPC-context singleton (WeakMap); no observed impact today.
 - **Middleware-timing concurrency** (`packages/vite/src/node/inspect/server.ts:42-56`):
   per-URL shared array races under concurrent requests. Confined to the `vite`
-  package's perf panel; fold into the 007/vite-parity work rather than a standalone plan.
+  package's perf panel; fold into the 006/vite-parity work rather than a standalone plan.
 - **`resolveId` stores raw `Error`** (`packages/vite/src/node/inspect/hijack.ts:174,183`):
   inconsistent with transform/load `parseError`. Minor; fix opportunistically when
   next touching that file.
 - **`pnpm audit` advisories inside Vite's own dep tree** (`@devframes/plugin-inspect > vite`):
-  resolve upstream when Vite bumps its deps; not actionable in this repo (see 008 for
+  resolve upstream when Vite bumps its deps; not actionable in this repo (see 007 for
   the actionable subset).

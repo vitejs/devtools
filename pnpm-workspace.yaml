@@ -175,7 +175,6 @@ catalogs:
     '@vueuse/core': *vueuse
     '@vueuse/router': *vueuse
     comlink: ^4.4.2
-    d3: ^7.9.0
     d3-hierarchy: ^3.1.2
     d3-shape: ^3.2.0
     diff-match-patch-es: ^2.0.1

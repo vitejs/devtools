@@ -1,4 +1,4 @@
-# Plan 008: Triage the dependency-audit advisories in the Nuxt UI toolchain
+# Plan 007: Triage the dependency-audit advisories in the Nuxt UI toolchain
 
 > **Executor instructions**: Follow step by step; verify each step. Honor STOP
 > conditions. Update this plan's row in `plans/README.md` when done.
