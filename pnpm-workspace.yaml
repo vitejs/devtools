@@ -29,7 +29,7 @@ packages:
 overrides:
   # provenance downgrade (https://npmx.dev/package-timeline/@humanwhocodes/momoa/v/3.3.10)
   '@humanwhocodes/momoa': 3.3.10
-  '@nuxt/devtools': &nuxt-devtools ^4.0.0-alpha.20
+  '@nuxt/devtools': &nuxt-devtools ^4.0.0-beta.1
   '@nuxt/kit': &nuxt ^4.5.2
   '@nuxt/vite-builder': *nuxt
   '@rolldown/debug': 'catalog:deps'
@@ -65,9 +65,9 @@ overrides:
   shiki: &shiki ^4.4.3
   storybook: &storybook ^10.6.0
   twoslash: 'catalog:docs'
-  unocss: &unocss ^66.10.4
+  unocss: &unocss ^66.10.5
   vite: 'catalog:build'
-  vueuse: &vueuse ^14.4.0
+  vueuse: &vueuse ^15.0.0
 
 allowBuilds:
   '@parcel/watcher': true
@@ -84,18 +84,18 @@ catalogs:
     '@nuxt/kit': *nuxt
     '@unocss/nuxt': *unocss
     '@vitejs/plugin-vue': ^6.0.9
-    '@vueuse/nuxt': ^14.4.0
+    '@vueuse/nuxt': *vueuse
     archiver: ^8.0.0
     esbuild: ^0.28.2
     magic-string: ^1.4.1
     nitropack: ^2.13.4
     nuxt: *nuxt
-    rolldown: ^1.2.8
+    rolldown: ^1.2.9
     tsdown: ^0.23.0
     tsx: ^4.23.13
-    turbo: ^2.10.13
+    turbo: ^2.11.2
     unocss: *unocss
-    unplugin-vue: ^7.2.0
+    unplugin-vue: ^8.0.0
     unrun: ^0.3.1
     vite: ^8.3.0
   deps:
@@ -113,8 +113,8 @@ catalogs:
     '@devframes/plugin-og': *devframe
     '@devframes/plugin-terminals': *devframe
     '@devframes/vite': *devframe
-    '@oxlint-config-inspector/core': ^1.1.1
-    '@rolldown/debug': ^1.2.8
+    '@oxlint-config-inspector/core': ^1.1.3
+    '@rolldown/debug': ^1.2.9
     actionspack: ^0.1.5
     cac: ^7.0.0
     devframe: *devframe
@@ -125,14 +125,14 @@ catalogs:
     mrmime: ^2.0.1
     nostics: ^1.2.0
     obug: ^3.0.0
-    p-limit: ^7.3.2
+    p-limit: ^7.3.3
     package-manager-detector: ^1.8.0
     pathe: ^2.0.3
     perfect-debounce: ^2.1.0
     tinyexec: ^1.3.1
     tinyglobby: ^0.2.17
     unstorage: ^1.17.5
-    vue: ^3.5.42
+    vue: ^3.5.43
     webext-bridge: ^6.0.1
   devtools:
     '@antfu/eslint-config': ^9.5.1
@@ -144,8 +144,8 @@ catalogs:
     axe-core: ^4.13.0
     bumpp: ^12.3.0
     chokidar: ^5.0.0
-    eslint: ^10.10.0
-    knip: ^6.35.1
+    eslint: ^10.11.0
+    knip: ^6.37.0
     nano-staged: ^1.0.2
     oxfmt: ^0.68.0
     oxlint: ^1.83.0
@@ -169,8 +169,8 @@ catalogs:
   frontend:
     '@floating-ui/dom': ^1.8.0
     '@humanwhocodes/momoa': ^3.3.13
-    '@json-render/core': ^0.20.0
-    '@json-render/vue': ^0.20.0
+    '@json-render/core': ^0.21.0
+    '@json-render/vue': ^0.21.0
     '@vueuse/components': *vueuse
     '@vueuse/core': *vueuse
     '@vueuse/router': *vueuse
@@ -198,11 +198,11 @@ catalogs:
   icons:
     '@iconify-json/carbon': ^1.2.27
     '@iconify-json/catppuccin': ^1.2.17
-    '@iconify-json/codicon': ^1.2.72
+    '@iconify-json/codicon': ^1.2.73
     '@iconify-json/fluent': ^1.2.58
     '@iconify-json/fluent-emoji-flat': ^1.2.6
     '@iconify-json/logos': ^1.2.14
-    '@iconify-json/lucide': ^1.2.132
+    '@iconify-json/lucide': ^1.2.134
     '@iconify-json/material-icon-theme': ^1.2.70
     '@iconify-json/octicon': ^1.2.35
     '@iconify-json/ph': ^1.2.2
@@ -213,7 +213,7 @@ catalogs:
     '@iconify-json/system-uicons': ^1.2.4
     '@iconify-json/tabler': ^1.2.38
     '@iconify-json/twemoji': ^1.2.5
-    '@iconify-json/vscode-icons': ^1.2.77
+    '@iconify-json/vscode-icons': ^1.2.78
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.8.1
