@@ -9,6 +9,7 @@ import { detect } from 'package-manager-detector/detect'
 import { glob } from 'tinyglobby'
 import { clientPublicDir } from '../dirs'
 import { diagnostics } from './diagnostics'
+import { waitForVitestUi } from './ui-url'
 
 const VITEST_DEVTOOLS_BASE = '/__devtools-vitest/'
 /** Path Vitest's own UI server serves its app under. */
@@ -130,10 +131,14 @@ export function DevToolsVitestUI(): PluginWithDevTools {
             }
           },
           serve: {
-            onReady: async () => {
-              if (!(await waitForServer(url, READY_TIMEOUT)))
+            onReady: async (session) => {
+              // Vitest 5 gates its UI behind the API token it prints on
+              // startup; embed the tokenized URL so the iframe gets the UI
+              // rather than the `403` auth page.
+              const ready = await waitForVitestUi(url, READY_TIMEOUT, () => session.buffer?.join('') ?? '')
+              if (!ready)
                 throw diagnostics.VTDT0002({ url, timeout: READY_TIMEOUT })
-              return url
+              return ready
             },
           },
         })
@@ -187,20 +192,4 @@ async function discoverRoots(cwd: string, workspaceRoot: string): Promise<DevToo
   }
 
   return [...roots.values()]
-}
-
-async function waitForServer(url: string, timeout: number): Promise<boolean> {
-  const start = Date.now()
-  while (Date.now() - start < timeout) {
-    try {
-      const res = await fetch(url)
-      if (res.status < 500)
-        return true
-    }
-    catch {
-      // server not up yet
-    }
-    await new Promise(resolve => setTimeout(resolve, 300))
-  }
-  return false
 }
