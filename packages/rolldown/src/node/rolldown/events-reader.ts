@@ -5,6 +5,7 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import { parseToEvent } from '@rolldown/debug'
+import { dirname } from 'pathe'
 import { diagnostics } from '../diagnostics'
 import { getContentByteSize } from '../utils/format'
 import { getContentRef, RolldownEventsManager } from './events-manager'
@@ -195,11 +196,13 @@ function summarizePluginCalls(calls: PluginBuildMetrics['calls']): Pick<PluginBu
 }
 
 function pruneReaders(current: RolldownEventsReader) {
+  // Log, metadata, and package-summary readers share a session directory.
+  const currentSession = dirname(current.filepath)
   let bytes = Array.from(readers.values()).reduce((total, reader) => total + reader.logBytes, 0)
   for (const [key, reader] of readers) {
     if (readers.size <= MAX_READERS && bytes <= MAX_READER_LOG_BYTES)
       break
-    if (reader === current || reader.hasPendingRead())
+    if (dirname(reader.filepath) === currentSession || reader.hasPendingRead())
       continue
 
     // RPC handlers may still hold this reader after its read has completed.
