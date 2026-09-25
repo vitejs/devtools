@@ -5,6 +5,7 @@ import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs'
 import { parseToEvent } from '@rolldown/debug'
+import { dirname } from 'pathe'
 import { diagnostics } from '../diagnostics'
 import { getContentByteSize } from '../utils/format'
 import { getContentRef, RolldownEventsManager } from './events-manager'
@@ -12,6 +13,8 @@ import { RolldownLogCache } from './log-cache'
 
 const readers: Map<string, RolldownEventsReader> = new Map()
 const MAX_READERS = 32
+// Source log size is a cache weight, not a measurement of retained heap.
+const MAX_READER_LOG_BYTES = 256 * 1024 * 1024
 const MAX_MODULE_METRICS_CACHE = 32
 const MAX_MODULE_METRICS_CACHE_BYTES = 64 * 1024 * 1024
 const READ_STREAM_HIGH_WATER_MARK = 1024 * 1024
@@ -192,20 +195,25 @@ function summarizePluginCalls(calls: PluginBuildMetrics['calls']): Pick<PluginBu
   return summary
 }
 
-function pruneReaders() {
-  if (readers.size <= MAX_READERS)
-    return
+function pruneReaders(current: RolldownEventsReader) {
+  // Log, metadata, and package-summary readers share a session directory.
+  const currentSession = dirname(current.filepath)
+  let bytes = Array.from(readers.values()).reduce((total, reader) => total + reader.logBytes, 0)
+  for (const [key, reader] of readers) {
+    if (readers.size <= MAX_READERS && bytes <= MAX_READER_LOG_BYTES)
+      break
+    if (dirname(reader.filepath) === currentSession || reader.hasPendingRead())
+      continue
 
-  for (const reader of Array.from(readers.values())) {
-    if (readers.size <= MAX_READERS)
-      return
-    if (!reader.hasPendingRead()) {
-      reader.dispose()
-    }
+    // RPC handlers may still hold this reader after its read has completed.
+    // Drop cache ownership without clearing data used by those handlers.
+    readers.delete(key)
+    bytes -= reader.logBytes
   }
 }
 
 export class RolldownEventsReader {
+  logBytes: number = 0
   lastBytes: number = 0
   lastTimestamp: number = 0
   manager = new RolldownEventsManager()
@@ -242,11 +250,12 @@ export class RolldownEventsReader {
       const reader = readers.get(cacheKey)!
       readers.delete(cacheKey)
       readers.set(cacheKey, reader)
+      pruneReaders(reader)
       return reader
     }
     const reader = new RolldownEventsReader(filepath, cacheKey)
     readers.set(cacheKey, reader)
-    pruneReaders()
+    pruneReaders(reader)
     return reader
   }
 
@@ -264,6 +273,7 @@ export class RolldownEventsReader {
 
     this.pendingRead = this.readChanges().finally(() => {
       this.pendingRead = undefined
+      pruneReaders(this)
     })
     return this.pendingRead
   }
@@ -277,12 +287,15 @@ export class RolldownEventsReader {
 
     this.pendingSummaryRead = this.readSummaryChanges().finally(() => {
       this.pendingSummaryRead = undefined
+      pruneReaders(this)
     })
     return this.pendingSummaryRead
   }
 
   private async readChanges() {
     const stat = await fs.promises.stat(this.filepath)
+    this.logBytes = stat.size
+    pruneReaders(this)
     const mtime = stat.mtime.getTime()
 
     if (this.summaryOnly || this.packageSummaryOnly)
@@ -329,6 +342,8 @@ export class RolldownEventsReader {
 
   private async readSummaryChanges() {
     const stat = await fs.promises.stat(this.filepath)
+    this.logBytes = stat.size
+    pruneReaders(this)
     const mtime = stat.mtime.getTime()
 
     if (this.manager.eventCount && mtime <= this.lastTimestamp) {
@@ -548,6 +563,7 @@ export class RolldownEventsReader {
 
     this.pendingPackageSummaryRead = this.readPackageSummaryChanges().finally(() => {
       this.pendingPackageSummaryRead = undefined
+      pruneReaders(this)
     })
     return this.pendingPackageSummaryRead
   }
@@ -582,6 +598,8 @@ export class RolldownEventsReader {
 
   private async readPackageSummaryChanges() {
     const stat = await fs.promises.stat(this.filepath)
+    this.logBytes = stat.size
+    pruneReaders(this)
     const mtime = stat.mtime.getTime()
     if (mtime <= this.packageSummaryTimestamp) {
       if (this.packageSummaryOnly && this.logCache.shouldWritePackageSummary())
@@ -1332,7 +1350,8 @@ export class RolldownEventsReader {
   }
 
   dispose() {
-    readers.delete(this.cacheKey)
+    if (readers.get(this.cacheKey) === this)
+      readers.delete(this.cacheKey)
     this.disposeData()
   }
 
