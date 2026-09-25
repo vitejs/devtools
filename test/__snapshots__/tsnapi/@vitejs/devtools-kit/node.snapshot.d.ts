@@ -77,6 +77,7 @@ export declare function createPluginFromDevframe(_: DevframeDefinition, _?: Crea
 export declare function createProcessLauncher(_: ProcessLauncherOptions): PluginWithDevTools;
 export declare function createSimpleClientScript(_: string | ((_: any) => void)): ClientScriptEntry;
 export declare function createViteDevToolsHost(_: CreateViteDevToolsHostOptions): ViteDevToolsHost;
+export declare function isVitePlusInstalled(_: string): boolean;
 // #endregion
 
 // #region Referenced (internal)
