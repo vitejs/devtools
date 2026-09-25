@@ -103,6 +103,7 @@ export async function createDevToolsContext(
     icon: 'ph:pencil-duotone',
     category: 'editor',
     showInPalette: false,
+    allowShortcuts: false,
     handler: (path: string) => rpcHost.invokeLocal('vite:core:open-in-editor', path),
   })
   context.commands.register({
@@ -111,6 +112,7 @@ export async function createDevToolsContext(
     icon: 'ph:folder-open-duotone',
     category: 'editor',
     showInPalette: false,
+    allowShortcuts: false,
     handler: (path: string) => rpcHost.invokeLocal('vite:core:open-in-finder', path),
   })
 
