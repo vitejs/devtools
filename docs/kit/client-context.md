@@ -8,7 +8,7 @@ In embedded mode, Vite DevTools injects a small **client script** into your app'
 
 ## The client script
 
-The client script is the browser entry of Vite DevTools (published as `@vitejs/devtools/client/inject`). When it runs in the host page it:
+The client script is the browser entry of Vite DevTools, served by the dev server at `/__devtools/embedded.js`. When it runs in the host page it:
 
 1. Connects an RPC client to the DevTools server at `/__devtools/` (WebSocket in dev mode).
 2. Builds the `DevToolsClientContext` — dock entries, panel state, commands, when-clauses — on top of that RPC client.
@@ -17,7 +17,7 @@ The client script is the browser entry of Vite DevTools (published as `@vitejs/d
 
 ### How injection works
 
-The `DevTools()` plugin injects the script through Vite's `transformIndexHtml` hook. During `vite dev`, every HTML page served by Vite receives a module script that imports the injection virtual module, which in turn loads the client entry. The plugin picks the entry from the project's resolved visibility: `@vitejs/devtools/client/inject` (docks shown immediately) by default, `@vitejs/devtools/client/inject-passive` (docks hidden until <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd>, then remembered) for passive mode, or `@vitejs/devtools/client/inject-hidden` (revealed per session, never remembered) for hidden mode:
+The `DevTools()` plugin injects the script through Vite's `transformIndexHtml` hook. During `vite dev`, every HTML page served by Vite receives a small inline module script that appends a `<script type="module">` pointing at `/__devtools/embedded.js`. The client reads the project's resolved `embeddedVisibility` from the DevTools server, so the same script shows the docks immediately by default, hides them until <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>D</kbd> (then remembers) in passive mode, or reveals them per session in hidden mode:
 
 ```mermaid
 sequenceDiagram
@@ -25,8 +25,8 @@ sequenceDiagram
   participant Page as Host Page
   participant Server as DevTools Server
 
-  Vite->>Page: transformIndexHtml appends<br/>import "virtual:vite-devtools-injection"
-  Page->>Page: loads @vitejs/devtools/client/inject
+  Vite->>Page: transformIndexHtml appends<br/>an inline module script
+  Page->>Server: loads /__devtools/embedded.js
   Page->>Server: RPC connect (/__devtools/)
   Page->>Page: publish client context, mount dock
 ```
@@ -35,7 +35,7 @@ Automatic injection is scoped to where the embedded client makes sense:
 
 - **Automatic HTML injection during development** — `transformIndexHtml` mounts the embedded client in the dev server. A production build can ship the same embedded bootstrap through [`build.withApp`](/guide/#building-with-the-app).
 - **Client environments only** — SSR builds and server code stay untouched.
-- **Top-level windows only** — inside an iframe (including DevTools' own iframe panels) the script logs `[VITE DEVTOOLS] Skipping in iframe` and exits, so a page never mounts a second dock.
+- **Top-level windows only** — inside an iframe (including DevTools' own iframe panels) the script exits without mounting, so a page never mounts a second dock.
 
 ## The client context
 
@@ -83,7 +83,7 @@ Iframe panels run in their own document, so they create their own RPC client wit
 
 ### Client script not injected
 
-Symptoms: the dock never appears, `getDevToolsClientContext()` always returns `undefined`, and the browser console has no `[VITE DEVTOOLS] Client injected` log.
+Symptoms: the dock never appears, `getDevToolsClientContext()` always returns `undefined`, and the browser's network panel shows no request for `/__devtools/embedded.js`.
 
 Injection rides on Vite's `transformIndexHtml` hook, so it requires an HTML page that Vite itself serves and transforms. Setups where the HTML comes from elsewhere skip it:
 
@@ -91,18 +91,18 @@ Injection rides on Vite's `transformIndexHtml` hook, so it requires an HTML page
 - **Middleware mode** — an app framework embedding Vite's dev server without serving `index.html` through it.
 - **JS-only entries** — projects whose entry point is a script rather than an HTML file.
 
-The fix is to import the client injector manually from a browser entry (`main.ts`, `entry.client.ts`):
+The fix is to load the client script manually from a browser entry (`main.ts`, `entry.client.ts`). The script is served by the Vite dev server, so build its URL from the dev server's origin, and guard it so it stays out of production bundles:
 
 ```ts
-import '@vitejs/devtools/client/inject'
+if (import.meta.env.DEV) {
+  const script = document.createElement('script')
+  script.type = 'module'
+  script.src = `${new URL(import.meta.url).origin}/__devtools/embedded.js`
+  document.body.appendChild(script)
+}
 ```
 
-Keep the import out of server-only and shared SSR files, and use it only when HTML injection doesn't happen — combining both mounts the client twice. To keep the client out of production bundles, guard it as a dev-only dynamic import:
-
-```ts
-if (import.meta.env.DEV)
-  import('@vitejs/devtools/client/inject')
-```
+Keep this out of server-only and shared SSR files, and use it only when HTML injection doesn't happen.
 
 ### Other checks
 
