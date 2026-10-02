@@ -34,10 +34,10 @@ pnpm play:dev
 
 Then open the app URL, open Vite DevTools, and click the **Git** dock entry.
 
-You can also test it from the core playground:
+From the repository root, you can also run the core playground:
 
 ```bash
-pnpm -C packages/core run play
+pnpm -C playgrounds/core run dev
 ```
 
 ## Components Used
