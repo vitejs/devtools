@@ -45,7 +45,14 @@ export function getBuildCommand(context: ViteDevToolsNodeContext): DevToolsChild
     command: isVitePlusInstalled(cwd) ? 'vp' : 'vite',
     args: ['build'],
     cwd,
-    env: { [ROLLDOWN_DEVTOOLS_ENV]: 'true' },
+    env: {
+      // The child inherits the dev server's env, where Vite has set
+      // `NODE_ENV=development`. `vite build` keeps an already-set `NODE_ENV`,
+      // which would keep every library's dev-only branches in the bundle, so
+      // pin what a plain `vite build` resolves to.
+      NODE_ENV: 'production',
+      [ROLLDOWN_DEVTOOLS_ENV]: 'true',
+    },
   }
 }
 
