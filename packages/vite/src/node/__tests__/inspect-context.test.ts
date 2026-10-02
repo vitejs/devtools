@@ -896,6 +896,63 @@ describe('vite inspect context', () => {
     })
   })
 
+  it.each([
+    { label: 'undefined', result: undefined },
+    { label: 'null', result: null },
+    { label: 'unchanged code', result: 'export const value = 1' },
+    { label: 'changed code', result: 'export const value = 2' },
+    { label: 'empty code', result: '' },
+  ])('counts transform time when the result is $label', async ({ result }) => {
+    const { envCtx, vite } = await createFixture()
+    const source = 'export const value = 1'
+    const output = 'export const value = 3'
+    const id = '/src/timing.ts'
+
+    envCtx.recordLoad(id, {
+      name: 'vite:load-fallback',
+      result: source,
+      start: 0,
+      end: 2,
+    }, vite.config.plugins[0])
+    envCtx.recordTransform(id, {
+      name: 'plugin-a',
+      result,
+      start: 10,
+      end: 1210,
+    }, source, vite.config.plugins[1])
+    envCtx.recordTransform(id, {
+      name: 'plugin-b',
+      result: output,
+      start: 1210,
+      end: 1213,
+    }, result ?? source, vite.config.plugins[2])
+
+    await expect(envCtx.getModulesList()).resolves.toMatchObject([
+      {
+        id,
+        plugins: [
+          { name: 'vite:load-fallback', transform: 2 },
+          { name: 'plugin-a', transform: 1200 },
+          { name: 'plugin-b', transform: 3 },
+        ],
+        totalTime: 1205,
+        virtual: false,
+        sourceSize: source.length,
+        distSize: output.length,
+      },
+    ])
+    await expect(envCtx.getPluginDetails(1)).resolves.toMatchObject({
+      transformMetrics: [{ duration: 1200 }],
+    })
+    await expect(envCtx.getModuleTransformInfo(id)).resolves.toMatchObject({
+      transforms: [
+        { name: 'vite:load-fallback', result: source },
+        { name: 'plugin-a', result: result ?? undefined },
+        { name: 'plugin-b', result: output },
+      ],
+    })
+  })
+
   it('keeps empty string transform results in module metrics', async () => {
     const { envCtx, vite } = await createFixture()
     const pluginA = vite.config.plugins[1]!
