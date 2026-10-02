@@ -29,13 +29,13 @@ packages:
 overrides:
   # provenance downgrade (https://npmx.dev/package-timeline/@humanwhocodes/momoa/v/3.3.10)
   '@humanwhocodes/momoa': 3.3.10
-  '@nuxt/devtools': &nuxt-devtools ^4.0.0-beta.2
+  '@nuxt/devtools': &nuxt-devtools ^4.0.0-beta.3
   '@nuxt/kit': &nuxt ^4.5.2
   '@nuxt/vite-builder': *nuxt
   '@rolldown/debug': 'catalog:deps'
   cac: 'catalog:deps'
   chokidar: 'catalog:devtools'
-  devframe: &devframe ^1.0.0
+  devframe: &devframe ^1.2.0
   # Keep the whole devframe family on one lockstep version. @nuxt/devtools
   # still pins @devframes/*@^0.9, so without these the plugins it drags in
   # bind against devframe 0.10 and crash on APIs 0.10 removed.
@@ -62,8 +62,8 @@ overrides:
   nuxt: *nuxt
   rolldown: 'catalog:build'
   semver: 'catalog:resolutions'
-  shiki: &shiki ^4.4.3
-  storybook: &storybook ^10.6.0
+  shiki: &shiki ^4.5.0
+  storybook: &storybook ^10.6.1
   twoslash: 'catalog:docs'
   unocss: &unocss ^66.10.5
   vite: 'catalog:build'
@@ -90,14 +90,14 @@ catalogs:
     magic-string: ^1.4.2
     nitropack: ^2.13.4
     nuxt: *nuxt
-    rolldown: ^1.2.11
+    rolldown: ^1.2.12
     tsdown: ^0.23.0
     tsx: ^4.23.15
-    turbo: ^2.11.4
+    turbo: ^2.11.6
     unocss: *unocss
     unplugin-vue: ^8.0.0
     unrun: ^0.3.1
-    vite: ^8.3.1
+    vite: ^8.3.2
   deps:
     '@devframes/agentic': *devframe
     '@devframes/hub': *devframe
@@ -113,8 +113,8 @@ catalogs:
     '@devframes/plugin-og': *devframe
     '@devframes/plugin-terminals': *devframe
     '@devframes/vite': *devframe
-    '@oxlint-config-inspector/core': ^1.1.4
-    '@rolldown/debug': ^1.2.11
+    '@oxlint-config-inspector/core': ^1.1.5
+    '@rolldown/debug': ^1.2.12
     actionspack: ^0.1.5
     cac: ^7.0.0
     devframe: *devframe
@@ -138,17 +138,17 @@ catalogs:
     '@antfu/eslint-config': ^9.5.1
     '@nuxt/devtools': *nuxt-devtools
     '@nuxt/eslint': ^1.17.0
-    '@typescript-eslint/utils': ^8.70.1
+    '@typescript-eslint/utils': ^8.71.0
     '@unocss/eslint-config': *unocss
     '@unocss/preset-web-fonts': *unocss
     axe-core: ^4.13.0
     bumpp: ^12.3.0
     chokidar: ^5.0.0
     eslint: ^10.11.0
-    knip: ^6.38.0
+    knip: ^6.39.0
     nano-staged: ^1.0.2
-    oxfmt: ^0.70.0
-    oxlint: ^1.85.0
+    oxfmt: ^0.71.0
+    oxlint: ^1.86.0
     prompts: ^2.4.2
     serve: ^14.2.6
     simple-git-hooks: ^2.14.0
@@ -157,11 +157,11 @@ catalogs:
     typescript: ^6.0.3
     vite-plugin-inspect: ^12.0.2
     vite-plugin-solid: ^2.11.14
-    vue-tsc: ^3.3.11
+    vue-tsc: ^3.3.12
   docs:
     '@shikijs/vitepress-twoslash': *shiki
     '@voidzero-dev/vitepress-theme': ^5.0.7
-    mermaid: ^12.0.0
+    mermaid: ^12.1.0
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.20
     vitepress-plugin-group-icons: ^1.7.6
@@ -196,24 +196,24 @@ catalogs:
     vue-router: ^5.3.1
     vue-virtual-scroller: ^3.0.5
   icons:
-    '@iconify-json/carbon': ^1.2.27
+    '@iconify-json/carbon': ^1.2.28
     '@iconify-json/catppuccin': ^1.2.17
     '@iconify-json/codicon': ^1.2.73
-    '@iconify-json/fluent': ^1.2.58
+    '@iconify-json/fluent': ^1.2.59
     '@iconify-json/fluent-emoji-flat': ^1.2.6
-    '@iconify-json/logos': ^1.2.14
-    '@iconify-json/lucide': ^1.2.136
+    '@iconify-json/logos': ^1.2.15
+    '@iconify-json/lucide': ^1.2.138
     '@iconify-json/material-icon-theme': ^1.2.70
     '@iconify-json/octicon': ^1.2.36
     '@iconify-json/ph': ^1.2.2
     '@iconify-json/radix-icons': ^1.2.6
     '@iconify-json/ri': ^1.2.10
-    '@iconify-json/simple-icons': ^1.2.97
+    '@iconify-json/simple-icons': ^1.2.98
     '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/system-uicons': ^1.2.4
-    '@iconify-json/tabler': ^1.2.40
+    '@iconify-json/tabler': ^1.2.41
     '@iconify-json/twemoji': ^1.2.5
-    '@iconify-json/vscode-icons': ^1.2.81
+    '@iconify-json/vscode-icons': ^1.2.83
   inlined:
     '@antfu/utils': ^9.3.0
     '@clack/prompts': ^1.8.1
@@ -229,10 +229,10 @@ catalogs:
   testing:
     playwright-core: ^1.63.0
     tsnapi: ^1.5.0
-    vitest: ^5.0.1
+    vitest: ^5.0.3
   types:
     '@types/archiver': ^8.0.0
-    '@types/chrome': ^0.3.0
+    '@types/chrome': ^0.3.4
     '@types/connect': ^3.4.38
     '@types/d3': ^7.4.3
     '@types/d3-hierarchy': ^3.1.7
@@ -242,4 +242,4 @@ catalogs:
     '@types/react': ^19.3.0
     '@types/react-dom': ^19.3.0
     '@types/splitpanes': ^2.2.6
-    '@types/ws': ^8.18.1
+    '@types/ws': ^8.18.2
