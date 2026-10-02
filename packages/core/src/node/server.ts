@@ -6,6 +6,7 @@ import type { ViteDevToolsUiOptions } from './ui'
 import { initHub } from '@devframes/hub/initiate'
 import { DEVTOOLS_CONNECTION_META_FILENAME, DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { getAuthHandler, getBuildCapabilityToken, isBuildCapabilityAuth, isClientAuthDisabled } from './auth-handler'
+import { DEVTOOLS_CLIENT_MODULE_RESOLUTION } from './constants'
 import { resolveDockRendererRegistrations } from './renderers'
 import { getResolvedDevToolsConfig } from './resolved-config'
 import { createViteDevToolsUi } from './ui'
@@ -99,7 +100,9 @@ export async function createDevToolsHub(options: CreateDevToolsHubOptions): Prom
     // of Vite's transform pipeline. Standalone (CLI) and build snapshots have
     // no module graph to resolve against, so the template stays undeclared
     // there and such scripts must ship a self-contained bundle URL instead.
-    ...(context.viteServer ? { clientModuleResolution: '/@id/{specifier}' } : {}),
+    // `createDevToolsContext` already declares it ahead of the plugin setup
+    // hooks; repeating it here covers a context assembled elsewhere.
+    ...(context.viteServer ? { clientModuleResolution: DEVTOOLS_CLIENT_MODULE_RESOLUTION } : {}),
     auth: authDisabled ? false : getAuthHandler(context),
     ...(allowedOrigins ? { allowedOrigins } : {}),
     ...(mcp !== undefined ? { mcp } : {}),

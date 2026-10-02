@@ -1,9 +1,4 @@
-import { isPackageExists } from 'local-pkg'
 import { x } from 'tinyexec'
-
-export function isVitePlusInstalled(cwd: string) {
-  return isPackageExists('vite-plus', { paths: [cwd] })
-}
 
 export function parseVitePlusVersions(output: string) {
   const vitePlus = /^\s*vite-plus\s+v(\S+)\s*$/m.exec(output)?.[1]

@@ -6,6 +6,7 @@ import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/n
 import { createDebug } from 'obug'
 import { DEVTOOLS_ASSETS_BASE, dirAssets } from '../dirs'
 import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
+import { DEVTOOLS_CLIENT_MODULE_RESOLUTION } from './constants'
 import { diagnostics } from './diagnostics'
 import {
   defaultResolvedDevToolsConfig,
@@ -60,6 +61,18 @@ export async function createDevToolsContext(
   // Fold the core (Vite) diagnostics into the shared host logger so plugin
   // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
   context.diagnostics.register(diagnostics)
+
+  // Declare Vite's bare-specifier resolution before any dock registers. The hub
+  // checks for it inside `docks.register()`, so a plugin `setup()` hook naming
+  // an npm module in `importFrom` would otherwise warn DF8111 about a script
+  // that loads fine once `initHub` (in `createDevToolsHub`) declares the same
+  // template. Live dev server only — see `createDevToolsHub` for why.
+  if (viteServer) {
+    context.staticConfig.dock = {
+      ...context.staticConfig.dock,
+      clientModuleResolution: DEVTOOLS_CLIENT_MODULE_RESOLUTION,
+    }
+  }
 
   // The hub no longer synthesizes built-in docks — Vite DevTools, as the
   // high-level integration, registers the viewer's native views it wants. The
