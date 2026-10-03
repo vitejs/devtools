@@ -1,26 +1,18 @@
 <script setup lang="ts">
-import type { ModuleBuildMetrics } from '~~/shared/types'
+import type { ViteModuleBuildMetrics } from '~/types/modules'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import { formatDuration } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { formatDuration } from '~/utils/format'
 
 const props = defineProps<{
-  metrics: ModuleBuildMetrics
+  metrics: ViteModuleBuildMetrics
 }>()
 
 const durations = computed(() => {
   const data = props.metrics
-  const _resolveIds = data?.resolve_ids.reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
-  const _loads = data?.loads?.reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
-  const _transforms = data?.transforms.reduce((t, node) => {
-    t += node.duration
-    return t
-  }, 0)
+  const _resolveIds = data.resolve_ids.reduce((t, node) => t + node.duration, 0)
+  const _loads = data.loads.reduce((t, node) => t + node.duration, 0)
+  const _transforms = data.transforms.reduce((t, node) => t + node.duration, 0)
   const total = _resolveIds + _loads + _transforms
   return {
     resolveIds: _resolveIds,
@@ -30,55 +22,48 @@ const durations = computed(() => {
   }
 })
 
-const sourceCodeSize = computed(() => {
-  const data = props.metrics?.transforms
-  return data?.[0]?.source_code_size
-})
+const sourceCodeSize = computed(() => props.metrics.transforms[0]?.source_code_size)
 
 const transformedCodeSize = computed(() => {
-  const data = props.metrics?.transforms.filter(t => t.transformed_code_size)
-  return data?.[data.length - 1]?.transformed_code_size
+  const data = props.metrics.transforms.filter(t => t.transformed_code_size)
+  return data.at(-1)?.transformed_code_size
 })
 </script>
 
 <template>
-  <div text-xs font-mono flex="~ items-center gap-3" ml2>
+  <div class="text-xs font-mono flex items-center gap-3 ml2">
     <DisplayDuration
-      :duration="durations.resolveIds" flex="~ gap-1 items-center"
+      :duration="durations.resolveIds" class="flex gap-1 items-center"
       :title="`Resolve Id hooks cost: ${formatDuration(durations.resolveIds, true)}`"
     >
-      <span i-ph-magnifying-glass-duotone inline-block />
+      <span class="i-ph-magnifying-glass-duotone inline-block" />
     </DisplayDuration>
     <DisplayDuration
-      :duration="durations.loads" flex="~ gap-1 items-center"
+      :duration="durations.loads" class="flex gap-1 items-center"
       :title="`Load hooks cost: ${formatDuration(durations.loads, true)}`"
     >
-      <span i-ph-upload-simple-duotone inline-block />
+      <span class="i-ph-upload-simple-duotone inline-block" />
     </DisplayDuration>
     <DisplayDuration
-      :duration="durations.transforms" flex="~ gap-1 items-center"
+      :duration="durations.transforms" class="flex gap-1 items-center"
       :title="`Transform hooks cost: ${formatDuration(durations.transforms, true)}`"
     >
-      <span i-ph-magic-wand-duotone inline-block />
+      <span class="i-ph-magic-wand-duotone inline-block" />
     </DisplayDuration>
-    <span op40>|</span>
+    <span class="op40">|</span>
     <DisplayDuration
-      :duration="durations.total" flex="~ gap-1 items-center"
+      :duration="durations.total" class="flex gap-1 items-center"
       :title="`Total build cost: ${formatDuration(durations.total, true)}`"
     >
-      <span i-ph-clock-duotone inline-block />
+      <span class="i-ph-clock-duotone inline-block" />
     </DisplayDuration>
     <template v-if="sourceCodeSize && transformedCodeSize">
-      <span op40>|</span>
-      <div flex="~ gap-1 items-center">
+      <span class="op40">|</span>
+      <div class="flex gap-1 items-center">
         <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
-        <span i-ph-arrow-right-duotone op50 />
+        <span class="i-ph-arrow-right-duotone op50" />
         <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
       </div>
     </template>
   </div>
 </template>
-
-<style scoped>
-
-</style>

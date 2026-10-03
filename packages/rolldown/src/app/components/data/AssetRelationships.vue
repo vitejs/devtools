@@ -1,0 +1,227 @@
+<script setup lang="ts">
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
+import type { HierarchyNode } from 'd3-hierarchy'
+import type { RolldownAssetInfo } from '~~/shared/types'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '@vitejs/devtools-ui/composables/module-graph'
+import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
+
+const props = defineProps<{
+  importers?: RolldownAssetInfo[]
+  imports?: RolldownAssetInfo[]
+}>()
+
+type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
+
+const MAX_LINKS = 20
+const SPACING = {
+  width: 400,
+  height: 35,
+  padding: 9,
+  marginX: 8,
+  border: 1,
+  margin: 8,
+  dot: 16,
+  dotOffset: 80,
+}
+
+const container = useTemplateRef<HTMLDivElement>('container')
+const links = shallowRef<ModuleGraphLink<RolldownAssetInfo, RolldownAssetInfo>[]>([])
+
+const normalizedMaxLinks = computed(() => {
+  return Math.min(Math.max(props.importers?.length || 0, props.imports?.length || 0), MAX_LINKS)
+})
+
+const importersMaxLength = computed(() => Math.min(props.importers?.length || 0, MAX_LINKS))
+const importsMaxLength = computed(() => Math.min(props.imports?.length || 0, MAX_LINKS))
+const nodesHeight = computed(() => SPACING.height * normalizedMaxLinks.value + SPACING.padding * (normalizedMaxLinks.value + 1) + SPACING.border * 2)
+
+const importersVerticalOffset = computed(() => {
+  const diff = Math.max(0, importsMaxLength.value - importersMaxLength.value)
+  const offset = (diff * (SPACING.height + SPACING.padding)) / 2
+  return Math.min(offset, nodesHeight.value / 2)
+})
+
+const importsVerticalOffset = computed(() => {
+  const diff = Math.max(0, importersMaxLength.value - importsMaxLength.value)
+  const offset = (diff * (SPACING.height + SPACING.padding)) / 2
+  return Math.min(offset, nodesHeight.value / 2)
+})
+
+const dotNodeMargin = computed(() => `${nodesHeight.value / 2 - SPACING.dot / 2}px ${SPACING.dotOffset}px 0  ${props.importers?.length ? SPACING.dotOffset : 0}px`)
+const linkStartX = computed(() => props.importers?.length ? SPACING.width + SPACING.marginX : SPACING.marginX)
+const dotStartX = computed(() => props.importers?.length ? linkStartX.value + SPACING.dotOffset : linkStartX.value)
+const dotStartY = computed(() => (SPACING.height * normalizedMaxLinks.value + ((normalizedMaxLinks.value + 1) * SPACING.padding)) / 2)
+
+function calculateLinkX(type: LinkPoint) {
+  switch (type) {
+    case 'importer-start':
+      return linkStartX.value
+    case 'importer-end':
+      return dotStartX.value
+    case 'import-start':
+      return dotStartX.value + SPACING.dot
+    case 'import-end':
+      return props.importers?.length ? linkStartX.value + SPACING.dotOffset * 2 + SPACING.dot : linkStartX.value + SPACING.dotOffset + SPACING.dot
+  }
+}
+
+function calculateLinkY(type: LinkPoint, i?: number) {
+  switch (type) {
+    case 'importer-start':
+      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importersVerticalOffset.value
+    case 'import-end':
+      return ((SPACING.height + SPACING.padding) * i!) + (SPACING.height / 2 + SPACING.padding) + importsVerticalOffset.value
+    case 'importer-end':
+    case 'import-start':
+      return dotStartY.value
+  }
+}
+
+function generateLinks() {
+  links.value = []
+
+  // importers (left -> current asset)
+  if (props.importers?.length) {
+    const _importersLinks = Array.from({ length: importersMaxLength.value }, (_, i) => {
+      return {
+        id: `importer-${i}`,
+        source: {
+          x: calculateLinkX('importer-start'),
+          y: calculateLinkY('importer-start', i),
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
+        target: {
+          x: calculateLinkX('importer-end'),
+          y: calculateLinkY('importer-end'),
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
+      }
+    })
+    links.value.push(..._importersLinks)
+  }
+
+  // imports (current asset -> right)
+  if (props.imports?.length) {
+    const _importsLinks = Array.from({ length: importsMaxLength.value }, (_, i) => {
+      return {
+        id: `import-${i}`,
+        source: {
+          x: calculateLinkX('import-start'),
+          y: calculateLinkY('import-start'),
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
+        target: {
+          x: calculateLinkX('import-end'),
+          y: calculateLinkY('import-end', i),
+        } as HierarchyNode<ModuleGraphNode<RolldownAssetInfo, RolldownAssetInfo>>,
+      }
+    })
+    links.value.push(..._importsLinks)
+  }
+}
+
+onMounted(() => {
+  watch(
+    () => [props.importers, props.imports],
+    generateLinks,
+    { immediate: true },
+  )
+})
+</script>
+
+<template>
+  <div
+    v-if="importers?.length || imports?.length"
+    ref="container"
+    class="w-full relative select-none"
+  >
+    <!-- nodes -->
+    <div class="flex px2">
+      <!-- importers -->
+      <div
+        v-if="importers?.length"
+        class="py1"
+        :style="{
+          width: `${SPACING.width}px`,
+          marginTop: `${importersVerticalOffset}px`,
+        }"
+      >
+        <template v-for="(importer, i) of importers" :key="importer.filename">
+          <NuxtLink
+            :to="{ query: { asset: importer.filename } }"
+            class="hover:bg-active block px2 p1 bg-base z-graph-node border border-base rounded font-mono text-sm"
+            :style="{
+              width: `${SPACING.width}px`,
+              height: `${SPACING.height}px`,
+              overflow: 'hidden',
+              marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+            }"
+          >
+            <DisplayFileIcon :filename="importer.filename" />
+            <span class="overflow-hidden text-ellipsis">
+              {{ importer.filename }}
+            </span>
+          </NuxtLink>
+        </template>
+      </div>
+
+      <!-- dot: current asset -->
+      <div
+        class="bg-base rounded-full border-3 font-mono border-active flex-shrink-0" :style="{
+          margin: dotNodeMargin,
+          width: `${SPACING.dot}px`,
+          height: `${SPACING.dot}px`,
+        }"
+      />
+
+      <!-- imports -->
+      <div
+        v-if="imports?.length"
+        class="py1"
+        :style="{
+          width: `${SPACING.width}px`,
+          marginTop: `${importsVerticalOffset}px`,
+        }"
+      >
+        <template v-for="(_import, i) of imports" :key="_import.filename">
+          <NuxtLink
+            :to="{ query: { asset: _import.filename } }"
+            class="hover:bg-active block px2 p1 bg-base z-graph-node border border-base rounded font-mono text-sm"
+            :style="{
+              width: `${SPACING.width}px`,
+              height: `${SPACING.height}px`,
+              overflow: 'hidden',
+              marginBottom: `${i === imports!.length - 1 ? 0 : SPACING.padding}px`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+            }"
+          >
+            <DisplayFileIcon :filename="_import.filename" />
+            <span class="overflow-hidden text-ellipsis">
+              {{ _import.filename }}
+            </span>
+          </NuxtLink>
+        </template>
+      </div>
+    </div>
+
+    <!-- links -->
+    <svg
+      class="pointer-events-none absolute left-0 top-0 z-graph-link w-full"
+      :style="{
+        height: `${nodesHeight}px`,
+      }"
+    >
+      <g>
+        <path
+          v-for="link of links"
+          :key="link.id"
+          :d="generateModuleGraphLink<RolldownAssetInfo, RolldownAssetInfo>(link)!"
+          :class="getModuleGraphLinkColor<RolldownAssetInfo, RolldownAssetInfo>(link)"
+          fill="none"
+        />
+      </g>
+    </svg>
+  </div>
+</template>

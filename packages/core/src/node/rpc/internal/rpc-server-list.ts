@@ -1,8 +1,9 @@
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 export const rpcServerList = defineRpcFunction({
-  name: 'vite:internal:rpc:server:list',
+  name: 'devtoolskit:internal:rpc:server:list',
   type: 'static',
+  jsonSerializable: true,
   setup: (context) => {
     return {
       async handler() {
@@ -11,6 +12,7 @@ export const rpcServerList = defineRpcFunction({
           Array.from(context.rpc.definitions.entries())
             .map(([name, fn]) => [name, {
               type: fn.type,
+              cacheable: fn.cacheable || false,
             }]),
         )
       },

@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
+        with:
+          install: false
+
+      - name: Set node
+        uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Lint
+        run: nr lint
+
+      - name: Build
+        run: nr build
+
+      - name: Typecheck
+        run: nr typecheck
+
+      # Fail the build when the docs site breaks, so the deployed site never
+      # silently goes stale (a broken build keeps the last good Netlify deploy).
+      - name: Docs build
+        run: pnpm -C docs run docs:build
+
+      # Non-blocking until the existing findings are triaged; see knip.jsonc.
+      - name: Knip
+        run: nr knip
+        continue-on-error: true
+
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node: [lts/*]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
+        with:
+          install: false
+
+      - name: Set node ${{ matrix.node }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Build
+        run: nr build
+
+      - name: Test
+        run: nr test
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b
+        with:
+          install: false
+
+      - name: Set node
+        uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Build
+        run: nr build
+
+      - name: Install Chromium
+        run: pnpm -C e2e exec playwright-core install --with-deps chromium
+
+      - name: E2E
+        run: nr test:e2e

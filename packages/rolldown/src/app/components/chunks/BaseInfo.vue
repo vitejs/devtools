@@ -1,0 +1,51 @@
+<script setup lang="ts">
+import type { RolldownChunkImport, RolldownChunkInfo } from '~~/shared/types/data'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { NuxtLink } from '#components'
+
+const props = withDefaults(defineProps<{
+  chunk: RolldownChunkInfo | RolldownChunkImport
+  link?: boolean
+  basic?: boolean
+}>(), {
+  link: false,
+  basic: false,
+})
+const route = useRoute()
+const normalizedImports = computed(() => Array.isArray(props.chunk.imports) ? props.chunk.imports.length : props.chunk.imports)
+const normalizedModules = computed(() => Array.isArray(props.chunk.modules) ? props.chunk.modules.length : props.chunk.modules)
+</script>
+
+<template>
+  <component
+    :is="link ? NuxtLink : 'div'"
+    :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { chunk: chunk.chunk_id } }) : undefined"
+    class="flex gap-3 items-center"
+  >
+    <div class="flex gap-2 items-center" :title="`Chunk #${chunk.chunk_id}`">
+      <slot name="icon">
+        <div class="i-ph-shapes-duotone" />
+      </slot>
+      <div>{{ chunk.name || '[unnamed]' }}</div>
+      <DisplayBadge :text="chunk.reason" />
+      <slot name="left-after" />
+    </div>
+
+    <div class="flex-auto" />
+
+    <div v-if="!basic" class="flex items-center gap-2">
+      <span class="op50 font-mono">#{{ chunk.chunk_id }}</span>
+      <div class="flex gap-1 items-center" :title="`${normalizedImports} imports`">
+        <div class="i-ph-file-arrow-up-duotone" />
+        {{ normalizedImports }}
+      </div>
+      <div class="flex gap-1 items-center" :title="`${normalizedModules} modules`">
+        <div class="i-ph-package-duotone" />
+        {{ normalizedModules }}
+      </div>
+    </div>
+    <slot />
+  </component>
+</template>

@@ -1,0 +1,359 @@
+<script setup lang="ts">
+import type { RolldownChunkInfo, SessionContext } from '~~/shared/types/data'
+import type { ClientSettings } from '~/state/settings'
+import type { ChunkChartInfo, ChunkChartNode } from '~/types/chart'
+import ChartNavBreadcrumb from '@vitejs/devtools-ui/components/Chart/ChartNavBreadcrumb.vue'
+import DataPathSelector from '@vitejs/devtools-ui/components/Data/DataPathSelector.vue'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import DataVirtualList from '@vitejs/devtools-ui/components/Data/DataVirtualList.vue'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import { useGraphPathManager } from '@vitejs/devtools-ui/composables/graph-path-selector'
+import { computedWithControl, useAsyncState, useMouse } from '@vueuse/core'
+import Fuse from 'fuse.js'
+import { Flamegraph, Sunburst, Treemap } from 'nanovis'
+import { computed, reactive, ref, watch } from 'vue'
+import { useRpc } from '#imports'
+import ChartTreemap from '~/components/chart/Treemap.vue'
+import { useChartGraph } from '~/composables/chart'
+import { settings } from '~/state/settings'
+
+const props = defineProps<{
+  session: SessionContext
+}>()
+
+const mouse = reactive(useMouse())
+
+const chunkViewTypes = [
+  {
+    label: 'List',
+    value: 'list',
+    icon: 'i-ph-list-bullets-duotone',
+  },
+  {
+    label: 'Detailed List',
+    value: 'detailed-list',
+    icon: 'i-ph-list-magnifying-glass-duotone',
+  },
+  {
+    label: 'Graph',
+    value: 'graph',
+    icon: 'i-ph-graph-duotone',
+  },
+  {
+    label: 'Treemap',
+    value: 'treemap',
+    icon: 'i-ph-checkerboard-duotone',
+  },
+  {
+    label: 'Sunburst',
+    value: 'sunburst',
+    icon: 'i-ph-chart-donut-duotone',
+  },
+  {
+    label: 'Flamegraph',
+    value: 'flamegraph',
+    icon: 'i-ph-chart-bar-horizontal-duotone',
+  },
+] as const
+
+const searchValue = ref<{ search: string | false }>({
+  search: '',
+})
+
+const rpc = useRpc()
+const { state: chunks, isLoading } = useAsyncState(
+  async () => {
+    return await rpc.value.call(
+      'vite:rolldown:get-chunks-graph',
+      { session: props.session.id },
+    )
+  },
+  null,
+)
+
+const chunksMap = computed(() => {
+  const map = new Map<string, RolldownChunkInfo>()
+  chunks.value?.forEach((c) => {
+    map.set(`${c.chunk_id}`, c)
+  })
+  return map
+})
+
+const normalizedChunks = computed(() => chunks.value?.map(x => ({
+  ...x,
+  id: `${x.chunk_id}`,
+})) ?? [])
+
+const fuse = computedWithControl(
+  () => normalizedChunks.value,
+  () => new Fuse(normalizedChunks.value!, {
+    includeScore: true,
+    keys: ['name'],
+    ignoreLocation: true,
+    threshold: 0.4,
+  }),
+)
+
+const searched = computed<Array<RolldownChunkInfo & { id: string }>>(() => {
+  if (!searchValue.value.search) {
+    return normalizedChunks.value!
+  }
+  return fuse.value
+    .search(searchValue.value.search)
+    .map(r => r.item)
+})
+
+const { pathSelectorVisible, pathNodes, selectPathNodes, togglePathSelector, normalizedGraph } = useGraphPathManager<RolldownChunkInfo & { id: string }>({
+  onToggle: (visible) => {
+    searchValue.value.search = visible ? false : ''
+  },
+  dataMap: computed(() => chunksMap.value),
+  list: computed(() => searched.value),
+  importIdKey: 'chunk_id',
+})
+
+function toggleDisplay(type: ClientSettings['chunkViewType']) {
+  settings.value.chunkViewType = type
+}
+
+// Calculate chunk size from modules
+const modulesMap = computed(() => {
+  const map = new Map()
+  for (const module of props.session.modulesList) {
+    map.set(module.id, module)
+  }
+  return map
+})
+
+function getChunkSize(chunk: RolldownChunkInfo): number {
+  // First try to use asset size if available
+  if (chunk.asset?.size) {
+    return chunk.asset.size
+  }
+
+  // Otherwise, calculate from module transforms
+  return chunk.modules.reduce((total, id) => {
+    const moduleInfo = modulesMap.value.get(id)
+    if (!moduleInfo || !moduleInfo.buildMetrics?.transforms?.length)
+      return total
+
+    const transforms = moduleInfo.buildMetrics.transforms
+    return total + transforms.at(-1)!.transformed_code_size
+  }, 0)
+}
+
+// Normalize chunks with size for chart visualization
+const chunksWithSize = computed(() => {
+  return searched.value.map(chunk => ({
+    ...chunk,
+    filename: chunk.name || `chunk-${chunk.chunk_id}`,
+    size: getChunkSize(chunk),
+  }))
+})
+
+// Chart graph setup for nanovis visualizations
+const { tree, chartOptions, graph, nodeHover, nodeSelected, selectedNode, selectNode, buildGraph } = useChartGraph<
+  Omit<RolldownChunkInfo, 'type'>,
+  ChunkChartInfo,
+  ChunkChartNode
+>({
+  data: chunksWithSize,
+  nameKey: 'filename',
+  sizeKey: 'size',
+  rootText: 'Chunks',
+  nodeType: 'chunk',
+  graphOptions: {
+    onClick(node) {
+      if (node)
+        nodeHover.value = node
+    },
+    onHover(node) {
+      if (node)
+        nodeHover.value = node
+      if (node === null)
+        nodeHover.value = undefined
+    },
+    onLeave() {
+      nodeHover.value = undefined
+    },
+    onSelect(node) {
+      nodeSelected.value = node || tree.value.root
+      selectedNode.value = node?.meta
+    },
+  },
+  onUpdate() {
+    switch (settings.value.chunkViewType) {
+      case 'sunburst':
+        graph.value = new Sunburst(tree.value.root, chartOptions.value)
+        break
+      case 'treemap':
+        graph.value = new Treemap(tree.value.root, {
+          ...chartOptions.value,
+          selectedPaddingRatio: 0,
+        })
+        break
+      case 'flamegraph':
+        graph.value = new Flamegraph(tree.value.root, chartOptions.value)
+        break
+    }
+  },
+})
+
+watch(() => settings.value.chunkViewType, () => {
+  if (['treemap', 'sunburst', 'flamegraph'].includes(settings.value.chunkViewType)) {
+    buildGraph()
+  }
+})
+</script>
+
+<template>
+  <VisualLoading v-if="isLoading" />
+  <div v-else class="relative" :class="{ 'max-h-screen of-hidden': settings.chunkViewType === 'graph' }">
+    <div class="sticky left-4 right-4 top-4 z-panel-nav p-4">
+      <DataSearchPanel v-model="searchValue" :rules="[]">
+        <template v-if="pathSelectorVisible" #search>
+          <DataPathSelector :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
+            <template #list="{ select, data }">
+              <ChunksFlatList
+                :session="session"
+                :chunks="data"
+                :link="false"
+                :basic="true"
+                @select="select"
+              />
+            </template>
+            <template #item="{ id }">
+              {{ chunksMap.get(id)?.name || '[unnamed]' }}
+            </template>
+          </DataPathSelector>
+        </template>
+        <template #search-end>
+          <div
+            v-if="settings.chunkViewType === 'graph'"
+            class="h10 mr2 flex items-center"
+          >
+            <button
+              class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-active hover:op100 op50" title="Graph Path Selector" @click="togglePathSelector(true)"
+            >
+              <i class="i-ri:route-line flex" />
+            </button>
+          </div>
+        </template>
+        <div class="flex flex-wrap gap-2 items-center p2 border-t border-base">
+          <span class="op50 pl2 text-sm">View as</span>
+          <button
+            v-for="viewType of chunkViewTypes"
+            :key="viewType.value"
+            class="btn-action"
+            :class="settings.chunkViewType === viewType.value ? 'bg-active' : 'grayscale op50'"
+            @click="toggleDisplay(viewType.value)"
+          >
+            <div :class="viewType.icon" />
+            {{ viewType.label }}
+          </button>
+        </div>
+      </DataSearchPanel>
+    </div>
+    <div
+      v-if="settings.chunkViewType === 'list'"
+      class="px5 pt-4 flex flex-col gap-4"
+    >
+      <ChunksFlatList
+        :session="session"
+        :chunks="searched"
+        scroller="window"
+      />
+    </div>
+    <div
+      v-else-if="settings.chunkViewType === 'detailed-list'"
+      class="px5 pt-4 flex flex-col gap-4"
+    >
+      <DataVirtualList
+        :items="searched"
+        key-prop="id"
+        scroller="window"
+        :min-item-size="220"
+      >
+        <template #default="{ item }">
+          <div class="pb4">
+            <DataChunkDetails
+              class="border border-base rounded-lg p3"
+              :chunk="item"
+              :chunks="searched"
+              :session="session"
+            />
+          </div>
+        </template>
+      </DataVirtualList>
+    </div>
+    <ChunksGraph
+      v-else-if="settings.chunkViewType === 'graph'"
+      class="pt32"
+      :session="session"
+      :chunks="normalizedGraph"
+      :entry-id="pathNodes.start"
+    />
+    <div
+      v-else-if="settings.chunkViewType === 'treemap'"
+      class="flex flex-col gap-2"
+    >
+      <ChartTreemap
+        v-if="graph"
+        :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
+      >
+        <template #default="{ selected, options, onSelect }">
+          <ChartNavBreadcrumb
+            class="border-b border-base py2 min-h-10"
+            :selected="selected"
+            :options="options"
+            @select="onSelect"
+          />
+        </template>
+      </ChartTreemap>
+    </div>
+    <div
+      v-else-if="settings.chunkViewType === 'sunburst'"
+      class="flex flex-col gap-2 pt-4"
+    >
+      <ChunksSunburst
+        v-if="graph"
+        :graph="graph"
+        :selected="nodeSelected"
+        @select="x => selectNode(x)"
+      />
+    </div>
+    <div
+      v-else-if="settings.chunkViewType === 'flamegraph'"
+      class="flex flex-col gap-2 pt-4"
+    >
+      <ChunksFlamegraph
+        v-if="graph" :graph="graph"
+      />
+    </div>
+
+    <DisplayGraphHoverView :hover-x="mouse.x" :hover-y="mouse.y">
+      <div
+        v-if="nodeHover?.meta"
+        class="border border-base rounded-lg bg-base p2 flex flex-col gap-2 min-w-50 shadow-lg"
+      >
+        <div class="flex gap-2 items-center">
+          <i class="i-ph-shapes-duotone flex-none" />
+          <span class="truncate">{{ nodeHover.meta.name || '[unnamed]' }}</span>
+        </div>
+        <div class="flex gap-2 items-center">
+          <span class="op50 text-xs">Size:</span>
+          <DisplayFileSizeBadge :bytes="nodeHover.meta.size" class="text-xs" />
+        </div>
+        <div v-if="nodeHover.meta.modules?.length" class="flex gap-2 items-center">
+          <span class="op50 text-xs">Modules:</span>
+          <span class="text-xs">{{ nodeHover.meta.modules?.length }}</span>
+        </div>
+        <div v-if="nodeHover.meta.is_initial" class="flex gap-2 items-center">
+          <DisplayBadge text="initial" />
+        </div>
+      </div>
+    </DisplayGraphHoverView>
+  </div>
+</template>

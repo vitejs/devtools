@@ -1,0 +1,1 @@
+export { GitUIPlugin } from './plugin'

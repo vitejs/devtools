@@ -81,7 +81,7 @@ describe('registration Safety Integration Tests', () => {
           icon: 'icon',
           url: 'http://localhost:3000',
         })
-      expect(updateNonexistentDock).toThrow(/nonexistent-panel.*not registered.*Use register\(\)/)
+      expect(updateNonexistentDock).toThrow(/nonexistent-panel.*not registered/)
     })
 
     it('should successfully update existing dock', async () => {

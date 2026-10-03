@@ -10,13 +10,23 @@ You can check the [TODO list](https://github.com/vitejs/devtools/issues/9) (excl
 
 ## Setup
 
+Requires pnpm.
+
 ```bash
 pnpm install
-pnpm build  # Required: generates Rolldown meta under ./packages/vite/node_modules/.rolldown
-pnpm dev    # Start dev server
+pnpm build  # Required: generates Rolldown meta under ./packages/rolldown/node_modules/.rolldown
+
+# Start Rolldown devtools UI
+pnpm dev:rolldown
+# Start Vite devtools UI
+pnpm dev:vite
+# Core playground (host app with DevTools overlay)
+pnpm play
+# Standalone client dev
+pnpm play:standalone
 ```
 
-**Note**: After pulling latest commits, remove `./packages/vite/node_modules/.rolldown` and rebuild to get the latest data format.
+**Note**: After pulling latest commits, remove `./packages/rolldown/node_modules/.rolldown` and rebuild to get the latest data format.
 
 ## Project Structure
 
@@ -40,20 +50,20 @@ Main entry point and core functionality.
 
 ### `packages/kit` - `@vitejs/devtools-kit`
 
-Utility library for integration authors.
+Vite APIs on top of `@devframes/hub` for integration authors.
 
-- TypeScript types and interfaces
-- Utilities for custom docks, views, panels
-- Event system utilities
-- RPC client helpers
+- Vite-augmented context (`createKitContext`) and `createPluginFromDevframe`
+- Hub hosts re-exported under `DevTools*` aliases (docks, terminals, messages, commands)
+- `defineRpcFunction` (RPC lives in the external `devframe/rpc` package)
+- Shared-state and when-clause utilities
 
-**Key files**: `src/index.ts`, `src/client.ts`, `src/utils/`
+**Key files**: `src/node/` (context + `createPluginFromDevframe`), `src/client/`, `src/define.ts`, `src/types/`
 
 ---
 
-### `packages/vite` - `@vitejs/devtools-vite`
+### `packages/rolldown` - `@vitejs/devtools-rolldown`
 
-Built-in UI panel for Vite/Rolldown integration.
+Built-in UI panel for Rolldown integration.
 
 - Vite plugin (enabled by default)
 - Nuxt-based UI for build visualization
@@ -66,35 +76,56 @@ Built-in UI panel for Vite/Rolldown integration.
 
 ---
 
-### `packages/rpc` - `@vitejs/devtools-rpc`
+### `packages/vite` - `@vitejs/devtools-vite`
 
-RPC layer for component communication.
+UI for inspecting the Vite dev server's plugin pipeline and module transforms. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`.
 
-- RPC client/server implementations
-- WebSocket presets
-- Message serialization
-- Type-safe RPC methods
+---
 
-**Key files**: `src/index.ts`, `src/client.ts`, `src/server.ts`, `src/presets/ws/`
+### `packages/ui` - `@vitejs/devtools-ui`
+
+Shared UI components, composables, and UnoCSS preset (`presetDevToolsUI`). Private, not published.
+
+---
+
+### `packages/oxc` - `@vitejs/devtools-oxc`
+
+Oxc toolchain (oxlint/oxfmt) inspector. Advertised by core as a built-in install launcher in the `viteplus` group; mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once installed.
+
+**Key files**: `src/node/` (plugin + RPC), `src/app/` (Nuxt UI)
+
+Lint this package with `pnpm -C packages/oxc lint` — it stays out of the shared ESLint run because oxfmt conflicts with the repo-wide antfu config.
+
+---
+
+### `packages/vitest` - `@vitejs/devtools-vitest`
+
+Slim launcher for the Vitest UI in the `viteplus` dock group. A `launcher` dock (shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe.
 
 ---
 
 ### `packages/webext` - `@vitejs/devtools-webext`
 
-Browser extension (planned for future dev mode). **Not accepting contributions currently.**
+Browser extension scaffolding (ancillary).
+
+---
+
+RPC is provided by the external `devframe` package (`devframe/rpc`). Define functions with `defineRpcFunction` from `@vitejs/devtools-kit` and namespace their ids — see `AGENTS.md`.
 
 ---
 
 ## Scripts
 
-- `pnpm build` - Build all packages
-- `pnpm watch` - Watch mode
-- `pnpm dev` - Dev server
-- `pnpm lint` - ESLint
+- `pnpm build` - Build all packages (via turbo)
+- `pnpm watch` - Watch mode for all packages
+- `pnpm play` - Core playground (host app with DevTools overlay)
+- `pnpm play:standalone` - Standalone client dev
+- `pnpm dev:rolldown` - Rolldown UI dev server
+- `pnpm dev:vite` - Vite UI dev server
+- `pnpm docs` - VitePress docs dev server
+- `pnpm lint` - ESLint (pass `--fix` to auto-fix)
 - `pnpm test` - Vitest
-- `pnpm typecheck` - Type check
-
-Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/vite run dev`
+- `pnpm typecheck` - vue-tsc type check
 
 ## Workflow
 
@@ -107,5 +138,5 @@ Package-specific: `pnpm -C packages/core run cli`, `pnpm -C packages/vite run de
 
 - **core**: CLI in `cli-commands.ts`, server in `server.ts`, components in `client/webcomponents/`
 - **kit**: Keep APIs stable, add types for public APIs, consider backward compatibility
-- **vite**: Nuxt 3 app, Vue 3 Composition API, test with `pnpm dev` after build
-- **rpc**: Keep methods type-safe, document new methods, test client/server
+- **vite** / **rolldown** / **oxc**: Nuxt 4 app, Vue 3 Composition API; RPC via `defineRpcFunction` with namespaced ids
+- **oxc**: Lint and format with the package's own oxlint/oxfmt (`pnpm -C packages/oxc lint`)

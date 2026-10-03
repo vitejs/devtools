@@ -1,11 +1,11 @@
 import process from 'node:process'
 import { defineNuxtConfig } from 'nuxt/config'
-import Inspect from 'vite-plugin-inspect'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const BASE = '/.devtools-vite/'
+const BASE = '/__devtools-vite/'
+const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({
   ssr: false,
@@ -14,7 +14,6 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@unocss/nuxt',
     '@nuxt/eslint',
-    'nuxt-eslint-auto-explicit-import',
     './modules/rpc',
   ],
 
@@ -32,6 +31,7 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
     clientNodeCompat: true,
+    viteEnvironmentApi: true,
   },
 
   features: {
@@ -56,7 +56,6 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        // headers,
       },
     },
     sourceMap: false,
@@ -83,40 +82,22 @@ export default defineNuxtConfig({
     },
   },
 
-  // Disable Nuxt's internal debugging
   debug: false,
 
   vite: {
-    base: BASE,
+    base: VITE_BASE,
     build: {
-      rolldownOptions: {
-        devtools: {},
-      },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
     },
     optimizeDeps: {
       include: [
-        '@antfu/utils',
         '@vueuse/core',
         '@floating-ui/dom',
         'd3-hierarchy',
         'd3-shape',
         'fuse.js',
-        'codemirror',
-        'codemirror/addon/dialog/dialog',
-        'codemirror/addon/display/placeholder',
-        'codemirror/addon/search/jump-to-line',
-        'codemirror/addon/search/search',
-        'codemirror/mode/css/css',
-        'codemirror/mode/handlebars/handlebars',
-        'codemirror/mode/htmlmixed/htmlmixed',
-        'codemirror/mode/javascript/javascript',
-        'codemirror/mode/markdown/markdown',
-        'codemirror/mode/pug/pug',
-        'codemirror/mode/sass/sass',
-        'codemirror/mode/vue/vue',
-        'codemirror/mode/xml/xml',
+        'modern-monaco',
         'comlink',
         'floating-vue',
         'splitpanes',
@@ -131,24 +112,10 @@ export default defineNuxtConfig({
     devtools: {
       clientAuth: false,
     },
-    plugins: [
-      NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
-    ],
   },
 
   devtools: {
     enabled: false,
-  },
-
-  typescript: {
-    tsConfig: {
-      compilerOptions: {
-        types: ['chrome'], // for devtools-webext package
-      },
-    },
-    // Temporary disable type check for nuxt, rely on CI for now
-    // typeCheck: true,
-    includeWorkspace: true,
   },
 
   workspaceDir: '../../',

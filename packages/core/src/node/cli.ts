@@ -1,6 +1,5 @@
 import process from 'node:process'
 import cac from 'cac'
-import { build, start } from './cli-commands'
 
 const cli = cac('vite-devtools')
 
@@ -16,7 +15,16 @@ cli
   .option('--base <baseURL>', 'Base URL for deployment', { default: '/' })
   .option('--outDir <dir>', 'Output directory', { default: '.vite-devtools' })
   // Action
-  .action(build)
+  .action(async (options) => {
+    const { build } = await import('./cli-commands')
+    await build(options)
+    // A static build has no long-lived work left once it returns. Exiting
+    // explicitly makes termination independent of whatever a `devtools.setup()`
+    // hook (ours or a third-party plugin's) may have left open — a stray timer,
+    // socket, or watcher would otherwise hang the process indefinitely instead
+    // of a build that should just finish and exit.
+    process.exit(0)
+  })
 
 cli
   .command('', 'Start devtools')
@@ -27,7 +35,10 @@ cli
   .option('--port <port>', 'Port', { default: process.env.PORT || 9999 })
   .option('--open', 'Open browser', { default: true })
   // Action
-  .action(start)
+  .action(async (options) => {
+    const { start } = await import('./cli-commands')
+    return await start(options)
+  })
 
 cli.help()
 cli.parse()

@@ -1,104 +1,85 @@
-import type { EventEmitter } from './events'
+import type { DevframeDockEntryCategory, DevframeViewLauncher } from '@devframes/hub/types'
 
-export interface DevToolsDockHost {
-  readonly views: Map<string, DevToolsDockUserEntry>
-  readonly events: EventEmitter<{
-    'dock:entry:updated': (entry: DevToolsDockUserEntry) => void
-  }>
+export type { DockRendererRegistration } from '@devframes/hub/initiate'
 
-  register: <T extends DevToolsDockUserEntry>(entry: T, force?: boolean) => {
-    update: (patch: Partial<T>) => void
-  }
-  update: (entry: DevToolsDockUserEntry) => void
-  values: (options?: { includeBuiltin?: boolean }) => DevToolsDockEntry[]
+export type {
+  ClientScriptEntry,
+  DevframeDockActivation as DevToolsDockActivation,
+  DevframeDockEntriesGrouped as DevToolsDockEntriesGrouped,
+  DevframeDockEntry as DevToolsDockEntry,
+  DevframeDockEntryBase as DevToolsDockEntryBase,
+  DevframeDockEntryIcon as DevToolsDockEntryIcon,
+  DevframeDocksHost as DevToolsDockHost,
+  DevframeDocksActiveState as DevToolsDocksActiveState,
+  DevframeDockUserEntry as DevToolsDockUserEntry,
+  FrameSubTabsConfig as DevToolsFrameSubTabsConfig,
+  NavTarget as DevToolsNavTarget,
+  DevframeViewAction as DevToolsViewAction,
+  DevframeViewBuiltin as DevToolsViewBuiltin,
+  DevframeViewCustomRender as DevToolsViewCustomRender,
+  DevframeViewGroup as DevToolsViewGroup,
+  DevframeViewIframe as DevToolsViewIframe,
+  DevframeViewLauncherStatus as DevToolsViewLauncherStatus,
+  RemoteConnectionInfo,
+  RemoteDockOptions,
+} from '@devframes/hub/types'
+
+// `json-render` is the opt-in `@devframes/json-render` integration, which
+// contributes the `'json-render'` variant to the hub's open dock union (its
+// entry carries a serializable `view` ref). Re-export that entry type under
+// the kit's `DevTools*` naming; the type-only re-export also pulls in the
+// module augmentation so `docks.register({ type: 'json-render' })` resolves
+// for kit consumers. The `@devframes/json-render-ui` renderer, mounted by
+// Vite DevTools via `initHub({ renderers })`, reads `entry.view`.
+export type { DevframeJsonRenderDockEntry as DevToolsViewJsonRender } from '@devframes/json-render/hub'
+
+/**
+ * A selectable launch root offered by a launcher dock entry.
+ *
+ * When a launcher supplies {@link DevToolsViewLauncher.launcher.roots}, the
+ * viewer renders a picker above the launch button. The selected root's
+ * {@link DevToolsLaunchRoot.value} is forwarded to the launch as `{ root }`,
+ * where a `createProcessLauncher` uses it as the spawned process's `cwd`.
+ */
+export interface DevToolsLaunchRoot {
+  /** Absolute path forwarded as the spawn `cwd` when this root is selected. */
+  value: string
+  /** Human-friendly label shown in the picker (e.g. `Workspace root`). */
+  label: string
+  /** Optional secondary line, e.g. the path itself. */
+  description?: string
 }
 
-// TODO: refine categories more clearly
-export type DevToolsDockEntryCategory = 'app' | 'framework' | 'web' | 'advanced' | 'default' | 'builtin'
-
-export type DevToolsDockEntryIcon = string | { light: string, dark: string }
-
-export interface DevToolsDockEntryBase {
-  id: string
-  title: string
-  icon: DevToolsDockEntryIcon
-  /**
-   * The default order of the entry in the dock.
-   * The higher the number the earlier it appears.
-   * @default 0
-   */
-  defaultOrder?: number
-  /**
-   * The category of the entry
-   * @default 'default'
-   */
-  category?: DevToolsDockEntryCategory
-  /**
-   * Whether the entry should be hidden from the user.
-   * @default false
-   */
-  isHidden?: boolean
+/**
+ * Payload carried from the client launch action to the bound launch command.
+ */
+export interface DevToolsLaunchPayload {
+  /** The {@link DevToolsLaunchRoot.value} of the root the user selected. */
+  root?: string
 }
 
-export interface ClientScriptEntry {
-  /**
-   * The filepath or module name to import from
-   */
-  importFrom: string
-  /**
-   * The name to import the module as
-   *
-   * @default 'default'
-   */
-  importName?: string
-}
-
-export interface DevToolsViewIframe extends DevToolsDockEntryBase {
-  type: 'iframe'
-  url: string
-  /**
-   * The id of the iframe, if multiple tabs is assigned with the same id, the iframe will be shared.
-   *
-   * When not provided, it would be treated as a unique frame.
-   */
-  frameId?: string
-  /**
-   * Optional client script to import into the iframe
-   */
-  clientScript?: ClientScriptEntry
-}
-
-export type DevToolsViewLauncherStatus = 'idle' | 'loading' | 'success' | 'error'
-
-export interface DevToolsViewLauncher extends DevToolsDockEntryBase {
-  type: 'launcher'
-  launcher: {
-    icon?: DevToolsDockEntryIcon
-    title: string
-    status?: DevToolsViewLauncherStatus
-    error?: string
-    description?: string
-    buttonStart?: string
-    buttonLoading?: string
-    onLaunch: () => Promise<void>
+/**
+ * Kit augmentation of hub's launcher entry: adds optional selectable launch
+ * {@link DevToolsViewLauncher.launcher.roots | roots}.
+ *
+ * Docks belong to `@devframes/hub`; this extends the upstream launcher shape
+ * locally until the field lands there. Since `roots` is optional, a plain hub
+ * `DevframeViewLauncher` remains assignable to this type.
+ */
+export interface DevToolsViewLauncher extends DevframeViewLauncher {
+  launcher: DevframeViewLauncher['launcher'] & {
+    /**
+     * Selectable launch roots, owner-populated via `docks.update()`. When
+     * present the viewer renders a picker; the chosen root's `value` is
+     * forwarded to the launch command as {@link DevToolsLaunchPayload}.
+     */
+    roots?: DevToolsLaunchRoot[]
   }
 }
 
-export interface DevToolsViewAction extends DevToolsDockEntryBase {
-  type: 'action'
-  action: ClientScriptEntry
-}
-
-export interface DevToolsViewCustomRender extends DevToolsDockEntryBase {
-  type: 'custom-render'
-  renderer: ClientScriptEntry
-}
-
-export interface DevToolsViewBuiltin extends DevToolsDockEntryBase {
-  type: '~builtin'
-  id: '~terminals' | '~logs' | '~client-auth-notice' | '~settings'
-}
-
-export type DevToolsDockUserEntry = DevToolsViewIframe | DevToolsViewAction | DevToolsViewCustomRender | DevToolsViewLauncher
-
-export type DevToolsDockEntry = DevToolsDockUserEntry | DevToolsViewBuiltin
+/**
+ * The kit's dock-entry category union. Vite Plus integrations are collected
+ * under a dedicated dock group (see `'viteplus'`) rather than
+ * a category, so this mirrors hub's framework-neutral set directly.
+ */
+export type DevToolsDockEntryCategory = DevframeDockEntryCategory

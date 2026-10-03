@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.0.0-alpha.24",
+  "version": "0.7.6",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -14,6 +14,7 @@
   "bugs": "https://github.com/vitejs/devtools/issues",
   "keywords": [
     "vite",
+    "vite-plugin",
     "devtools",
     "rpc"
   ],
@@ -22,9 +23,10 @@
     ".": "./dist/index.js",
     "./cli": "./dist/cli.js",
     "./cli-commands": "./dist/cli-commands.js",
-    "./client/inject": "./dist/client/inject.js",
-    "./client/webcomponents": "./dist/client/webcomponents.js",
+    "./config": "./dist/config.js",
     "./dirs": "./dist/dirs.js",
+    "./integration": "./dist/integration.js",
+    "./internal": "./dist/internal.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -32,56 +34,72 @@
     "vite-devtools": "./bin.js"
   },
   "files": [
+    "assets",
     "bin.js",
     "dist"
   ],
   "scripts": {
-    "build": "pnpm build:js && pnpm build:standalone",
-    "build:js": "tsdown --config-loader=tsx",
-    "build:standalone": "cd src/client/standalone && vite build",
-    "watch": "tsdown --watch --config-loader=tsx",
-    "dev:standalone": "cd src/client/standalone && vite dev",
+    "build": "tsdown --config-loader=unrun",
+    "watch": "tsdown --watch --config-loader=unrun",
     "prepack": "pnpm build",
-    "play": "DEBUG='vite:devtools:*' pnpm -C playground run dev",
-    "play:standalone": "DEBUG='vite:devtools:*' pnpm -C playground run dev:standalone",
-    "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts",
-    "play:build": "pnpm -C playground run build"
+    "cli": "DEBUG='vite:devtools:*' tsx src/node/cli.ts"
   },
   "peerDependencies": {
+    "@vitejs/devtools-oxc": "workspace:^",
+    "@vitejs/devtools-rolldown": "workspace:^",
+    "@vitejs/devtools-vite": "workspace:^",
+    "@vitejs/devtools-vitest": "workspace:^",
     "vite": "*"
   },
+  "peerDependenciesMeta": {
+    "@vitejs/devtools-oxc": {
+      "optional": true
+    },
+    "@vitejs/devtools-rolldown": {
+      "optional": true
+    },
+    "@vitejs/devtools-vite": {
+      "optional": true
+    },
+    "@vitejs/devtools-vitest": {
+      "optional": true
+    }
+  },
   "dependencies": {
+    "@devframes/agentic": "catalog:deps",
+    "@devframes/hub": "catalog:deps",
+    "@devframes/hub-ui": "catalog:deps",
+    "@devframes/json-render-ui": "catalog:deps",
+    "@devframes/plugin-inspect": "catalog:deps",
+    "@devframes/plugin-messages": "catalog:deps",
+    "@devframes/plugin-terminals": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
-    "@vitejs/devtools-rpc": "workspace:*",
-    "@vitejs/devtools-vite": "workspace:*",
-    "birpc": "catalog:deps",
-    "birpc-x": "catalog:deps",
     "cac": "catalog:deps",
-    "immer": "catalog:deps",
-    "launch-editor": "catalog:deps",
-    "mlly": "catalog:deps",
+    "devframe": "catalog:deps",
+    "h3": "catalog:deps",
+    "local-pkg": "catalog:deps",
+    "nostics": "catalog:deps",
     "obug": "catalog:deps",
-    "open": "catalog:deps",
-    "pathe": "catalog:deps",
-    "perfect-debounce": "catalog:deps",
-    "sirv": "catalog:deps",
-    "tinyexec": "catalog:deps",
-    "ws": "catalog:deps"
+    "pathe": "catalog:deps"
   },
   "devDependencies": {
     "@clack/prompts": "catalog:inlined",
+    "@vitejs/devtools-rolldown": "workspace:*",
+    "@vitejs/devtools-ui": "workspace:*",
     "@vitejs/devtools-vite": "workspace:*",
+    "@vitejs/devtools-vitest": "workspace:*",
     "@vitejs/plugin-vue": "catalog:build",
-    "@xterm/addon-fit": "catalog:frontend",
-    "@xterm/xterm": "catalog:frontend",
     "dompurify": "catalog:frontend",
+    "fuse.js": "catalog:frontend",
+    "iframe-pane": "catalog:frontend",
     "tsdown": "catalog:build",
     "typescript": "catalog:devtools",
+    "unocss": "catalog:build",
     "unplugin-vue": "catalog:build",
-    "unplugin-vue-router": "catalog:playground",
+    "unrun": "catalog:build",
     "vite": "catalog:build",
-    "vue": "catalog:frontend",
-    "vue-router": "catalog:playground",
+    "vue": "catalog:deps",
+    "vue-router": "catalog:frontend",
     "vue-tsc": "catalog:devtools"
   }
 }

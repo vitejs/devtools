@@ -1,0 +1,152 @@
+<script setup lang="ts">
+import type { RolldownAssetInfo, RolldownChunkInfo, SessionContext } from '~~/shared/types'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
+import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
+import { useAsyncState } from '@vueuse/core'
+import { computed, ref } from 'vue'
+import { settings } from '~~/app/state/settings'
+import { useRoute } from '#app/composables/router'
+import { useRpc } from '#imports'
+
+const props = withDefaults(defineProps<{
+  session: SessionContext
+  asset: RolldownAssetInfo
+  chunks?: RolldownChunkInfo[]
+  importers?: RolldownAssetInfo[]
+  imports?: RolldownAssetInfo[]
+  lazy?: boolean
+}>(), {
+  lazy: false,
+})
+
+const rpc = useRpc()
+const route = useRoute()
+const showSource = ref(false)
+const { state } = useAsyncState(
+  async () => {
+    if (!props.lazy)
+      return
+
+    const res = await rpc.value.call(
+      'vite:rolldown:get-asset-details',
+      {
+        session: props.session.id,
+        id: props.asset.filename,
+      },
+    )
+    if ('chunk' in res) {
+      return {
+        chunks: [{ ...res?.chunk, type: 'chunk' }],
+        importers: res?.importers,
+        imports: res?.imports,
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
+      }
+    }
+    else {
+      return {
+        chunks: [],
+        importers: [],
+        imports: [],
+      } as {
+        chunks: RolldownChunkInfo[]
+        importers: RolldownAssetInfo[]
+        imports: RolldownAssetInfo[]
+      }
+    }
+  },
+  null,
+)
+const assetChunks = computed(() => props.lazy ? state.value?.chunks : props.chunks?.filter(c => c.chunk_id === props.asset.chunk_id))
+const _importers = computed(() => props.lazy ? state.value?.importers : props.importers)
+const _imports = computed(() => props.lazy ? state.value?.imports : props.imports)
+
+function openInEditor() {
+  rpc.value.call(
+    'vite:core:open-in-editor',
+    `${props.session.meta.dir}/${props.asset.filename}`,
+  )
+}
+</script>
+
+<template>
+  <div class="flex flex-col gap-3">
+    <div class="flex gap-4 items-center flex-wrap">
+      <AssetsBaseInfo :asset="asset" />
+      <div class="flex-auto" />
+      <div class="flex gap-2">
+        <button class="btn-action" @click="openInEditor">
+          <div class="i-ph-arrow-square-out-duotone" />
+          Open in editor
+        </button>
+        <button class="btn-action" @click="showSource = true">
+          <div class="i-ph-file-text" />
+          View source
+        </button>
+        <slot />
+      </div>
+    </div>
+
+    <template v-if="showSource">
+      <div class="flex gap-2 items-center">
+        <div class="op50">
+          Source
+        </div>
+        <span class="flex-auto" />
+        <DisplayIconButton
+          title="Line Wrapping"
+          class-icon="i-ph-arrow-u-down-left-duotone"
+          :active="settings.codeviewerLineWrap"
+          @click="settings.codeviewerLineWrap = !settings.codeviewerLineWrap"
+        />
+        <DisplayCloseButton @click="showSource = false" />
+      </div>
+      <div class="w-full of-auto px2 py1 border border-base rounded-lg">
+        <CodeViewer
+          :code="asset.content!"
+        />
+      </div>
+    </template>
+
+    <div v-if="assetChunks && assetChunks.length > 0" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-2">
+        <div class="op50">
+          Chunks
+        </div>
+        <NuxtLink
+          v-for="chunk of assetChunks" :key="chunk.chunk_id" class="border border-base rounded-lg px2 py1 min-w-fit"
+          :to="{ path: route.path, query: { chunk: chunk.chunk_id } }"
+        >
+          <DataChunkDetails
+            :chunk="chunk"
+            :session="session"
+            :show-details="false"
+          />
+        </NuxtLink>
+      </div>
+      <template v-if="_importers?.length || _imports?.length">
+        <div class="flex flex-col gap-2">
+          <div class="op50">
+            Asset Relationships
+          </div>
+          <DataAssetRelationships
+            :importers="_importers"
+            :imports="_imports"
+          />
+        </div>
+      </template>
+    </div>
+    <div v-else class="flex flex-col gap-1">
+      <!-- For other situation -->
+      <div class="op50">
+        [Non-Module Asset]
+      </div>
+      <div v-if="asset.filename.endsWith('.map')" class="flex items-center gap-2">
+        <span class="op50">Source Map for</span> <DisplayBadge :text="JSON.parse(asset.content!).file" />
+      </div>
+    </div>
+  </div>
+</template>

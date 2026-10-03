@@ -9,20 +9,14 @@
     "module": "esnext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@vitejs/devtools-rpc/presets/ws/server": [
-        "./packages/rpc/src/presets/ws/server.ts"
-      ],
-      "@vitejs/devtools-rpc/presets/ws/client": [
-        "./packages/rpc/src/presets/ws/client.ts"
-      ],
-      "@vitejs/devtools-rpc/presets": [
-        "./packages/rpc/src/presets/index.ts"
-      ],
-      "@vitejs/devtools-rpc": [
-        "./packages/rpc/src"
+      "@vitejs/devtools-kit/node": [
+        "./packages/kit/src/node/index.ts"
       ],
       "@vitejs/devtools-kit/client": [
         "./packages/kit/src/client/index.ts"
+      ],
+      "@vitejs/devtools-kit/constants": [
+        "./packages/kit/src/constants.ts"
       ],
       "@vitejs/devtools-kit/utils/events": [
         "./packages/kit/src/utils/events.ts"
@@ -30,23 +24,53 @@
       "@vitejs/devtools-kit/utils/nanoid": [
         "./packages/kit/src/utils/nanoid.ts"
       ],
+      "@vitejs/devtools-kit/utils/when": [
+        "./packages/kit/src/utils/when.ts"
+      ],
       "@vitejs/devtools-kit/utils/shared-state": [
         "./packages/kit/src/utils/shared-state.ts"
       ],
       "@vitejs/devtools-kit": [
         "./packages/kit/src/index.ts"
       ],
+      "@vitejs/devtools-rolldown": [
+        "./packages/rolldown/src/index.ts"
+      ],
       "@vitejs/devtools-vite": [
         "./packages/vite/src/index.ts"
       ],
+      "@vitejs/devtools-vitest": [
+        "./packages/vitest/src/index.ts"
+      ],
+      "@vitejs/devtools/internal": [
+        "./packages/core/src/internal.ts"
+      ],
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"
+      ],
+      "@vitejs/devtools/client/inject-passive": [
+        "./packages/core/src/client/inject-passive/index.ts"
+      ],
+      "@vitejs/devtools/client/inject-hidden": [
+        "./packages/core/src/client/inject-hidden/index.ts"
       ],
       "@vitejs/devtools/client/webcomponents": [
         "./packages/core/src/client/webcomponents/index.ts"
       ],
       "@vitejs/devtools": [
         "./packages/core/src/index.ts"
+      ],
+      "@vitejs/devtools-ui/unocss": [
+        "./packages/ui/src/unocss/index.ts"
+      ],
+      "@vitejs/devtools-ui/components": [
+        "./packages/ui/src/components"
+      ],
+      "@vitejs/devtools-ui/composables": [
+        "./packages/ui/src/composables"
+      ],
+      "@vitejs/devtools-ui/utils": [
+        "./packages/ui/src/utils"
       ]
     },
     "resolveJsonModule": true,

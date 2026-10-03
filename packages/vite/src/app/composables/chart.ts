@@ -1,10 +1,10 @@
 import type { GraphBase, GraphBaseOptions, TreeNode } from 'nanovis'
 import type { ComputedRef, MaybeRef } from 'vue'
+import { isDark } from '@vitejs/devtools-ui/composables/dark'
+import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { createColorGetterSpectrum } from 'nanovis'
 import { computed, nextTick, onUnmounted, ref, shallowRef, unref, watch } from 'vue'
 import { settings } from '~/state/settings'
-import { bytesToHumanSize } from '~/utils/format'
-import { isDark } from './dark'
 
 export interface ChartGraphOptions<T, I, N> {
   data: ComputedRef<T[]> | MaybeRef<T[]>
@@ -30,9 +30,9 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
   let dispose: () => void | undefined
 
   const tree = computed(() => {
-    if (options.tree) {
+    if (options.tree)
       return options.tree.value
-    }
+
     const _data = unref(data)
     const map = new Map<string, N>()
     let maxDepth = 0
@@ -55,19 +55,17 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
     const macrosTasks: (() => void)[] = []
 
     macrosTasks.unshift(() => {
-      root.size += root.children.reduce((acc, i) => acc + i.size, 0)
+      root.size += root.children.reduce((acc, item) => acc + item.size, 0)
       root.subtext = bytesToHumanSize(root.size).join(' ')
       root.children.sort((a, b) => b.size - a.size || a.id.localeCompare(b.id))
     })
 
     function dataToNode(data: T, path: string, name: string, parent: N, depth: number): N {
-      if (map.has(path)) {
+      if (map.has(path))
         return map.get(path)!
-      }
 
-      if (depth > maxDepth) {
+      if (depth > maxDepth)
         maxDepth = depth
-      }
 
       const node = {
         id: path,
@@ -88,7 +86,7 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
 
       macrosTasks.unshift(() => {
         const selfSize = node.sizeSelf
-        node.size += node.children.reduce((acc, i) => acc + i.size, 0)
+        node.size += node.children.reduce((acc, item) => acc + item.size, 0)
         node.subtext = bytesToHumanSize(node.size).join(' ')
 
         if (node.children.length && selfSize / node.size > 0.1) {
@@ -149,7 +147,6 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
     }
 
     _data.forEach(processData)
-
     macrosTasks.forEach(fn => fn())
 
     return {
@@ -190,7 +187,6 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
     dispose?.()
 
     nodeSelected.value = tree.value.root
-
     onUpdate?.()
 
     nextTick(() => {
@@ -227,8 +223,8 @@ export function useChartGraph<T extends Record<string, any>, I extends T & Recor
 
   return {
     tree,
-    graph,
     chartOptions,
+    graph,
     nodeHover,
     nodeSelected,
     selectedNode,

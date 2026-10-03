@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import type { SessionContext } from '~~/shared/types/data'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
+import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
+import { useAsyncState } from '@vueuse/core'
+import { computed } from 'vue'
+import { useRpc } from '#imports'
+
+const props = defineProps<{
+  session: SessionContext
+  package: string
+}>()
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+const rpc = useRpc()
+const { state, isLoading } = useAsyncState(
+  async () => {
+    return await rpc.value.call(
+      'vite:rolldown:get-package-details',
+      {
+        session: props.session.id,
+        id: props.package,
+      },
+    )
+  },
+  null,
+)
+
+const normalizedBundledFiles = computed(() => state.value?.files?.filter(f => !!f.transformedCodeSize) ?? [])
+const packageName = computed(() => state.value?.name ?? props.package)
+
+const importers = computed(() => {
+  const pathMap = new Map()
+  state.value?.files.filter(f => !!f.importers).flatMap(f => f.importers).filter(i => !i.path.startsWith(state.value?.dir ?? '')).forEach((importer) => {
+    pathMap.set(importer.path, importer)
+  })
+  return Array.from(pathMap.values())
+})
+
+function openInNpm() {
+  const url = `https://www.npmjs.com/package/${packageName.value}`
+  window.open(url, '_blank')
+}
+</script>
+
+<template>
+  <VisualLoading v-if="isLoading" />
+
+  <div v-if="state" class="p4 relative h-full w-full of-auto z-panel-content">
+    <div class="flex flex-col gap-3">
+      <div class="flex gap-3 items-center" :title="package">
+        <div class="flex items-center gap-1">
+          <div>
+            <DisplayHighlightedPackageName :name="packageName" />
+          </div>
+          <DisplayFileSizeBadge :bytes="state.transformedCodeSize" />
+        </div>
+        <div class="flex-auto" />
+        <button class="btn-action flex items-center" @click="openInNpm">
+          <div class="i-ph-arrow-square-out-duotone" />
+          Open in npm
+        </button>
+        <DisplayCloseButton
+          @click="emit('close')"
+        />
+      </div>
+
+      <details open="true">
+        <summary class="op50">
+          <span>Bundled Files ({{ normalizedBundledFiles.length }})</span>
+        </summary>
+        <DisplayExpandableContainer class="flex flex-col gap-1 mt2 ws-nowrap" :list="normalizedBundledFiles">
+          <template #default="{ items }">
+            <div v-for="file of items" :key="file.path" class="flex flex-row gap-1 items-center flex-nowrap hover:bg-active border border-base rounded px2 py1 w-full">
+              <DisplayModuleId :id="file.path" :session="session" class="ws-nowrap flex-1" disable-tooltip link :cwd="state.dir" />
+              <span class="inline-flex">
+                <DisplayFileSizeBadge :bytes="file.transformedCodeSize" class="text-xs" />
+              </span>
+            </div>
+          </template>
+        </DisplayExpandableContainer>
+      </details>
+
+      <details open="true">
+        <summary class="op50">
+          <span>Importers ({{ importers.length }})</span>
+        </summary>
+        <DisplayExpandableContainer class="flex flex-col gap-1 mt2 ws-nowrap" :list="importers">
+          <template #default="{ items }">
+            <div v-for="importer of items" :key="importer.path" class="flex flex-row gap-1 items-center flex-nowrap hover:bg-active border border-base rounded px2 py1 w-full">
+              <DisplayModuleId :id="importer.path" :session="session" class="ws-nowrap flex-1" disable-tooltip link />
+              <DisplayBadge v-if="importer.version" :text="`v${importer.version}`" as="span" />
+            </div>
+          </template>
+        </DisplayExpandableContainer>
+      </details>
+    </div>
+  </div>
+</template>

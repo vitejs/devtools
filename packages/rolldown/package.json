@@ -1,0 +1,70 @@
+{
+  "name": "@vitejs/devtools-rolldown",
+  "type": "module",
+  "version": "0.7.6",
+  "description": "DevTools for Rolldown",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/rolldown",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "rolldown",
+    "devtools"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./dirs": "./dist/dirs.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm dev:prepare && ROLLDOWN_OPTIONS_VALIDATION=loose nuxi build src && tsdown",
+    "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
+    "dev": "DEBUG='rolldown:devtools:*' ROLLDOWN_OPTIONS_VALIDATION=loose nuxi dev src",
+    "dev:prepare": "nuxi prepare src",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@rolldown/debug": "catalog:deps",
+    "@vitejs/devtools-kit": "workspace:*",
+    "diff": "catalog:deps",
+    "nostics": "catalog:deps",
+    "pathe": "catalog:deps"
+  },
+  "devDependencies": {
+    "@floating-ui/dom": "catalog:frontend",
+    "@types/splitpanes": "catalog:types",
+    "@unocss/nuxt": "catalog:build",
+    "@vitejs/devtools-ui": "workspace:*",
+    "@vueuse/components": "catalog:frontend",
+    "@vueuse/core": "catalog:frontend",
+    "@vueuse/nuxt": "catalog:build",
+    "@vueuse/router": "catalog:frontend",
+    "comlink": "catalog:frontend",
+    "d3-hierarchy": "catalog:frontend",
+    "d3-shape": "catalog:frontend",
+    "devframe": "catalog:deps",
+    "diff-match-patch-es": "catalog:frontend",
+    "floating-vue": "catalog:frontend",
+    "fuse.js": "catalog:frontend",
+    "idb-keyval": "catalog:frontend",
+    "modern-monaco": "catalog:frontend",
+    "nanovis": "catalog:frontend",
+    "nuxt": "catalog:build",
+    "splitpanes": "catalog:frontend",
+    "theme-vitesse": "catalog:frontend",
+    "tsdown": "catalog:build",
+    "unocss": "catalog:build",
+    "vite-hot-client": "catalog:frontend",
+    "vue-virtual-scroller": "catalog:frontend"
+  }
+}

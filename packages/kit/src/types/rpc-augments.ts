@@ -1,14 +1,8 @@
-/**
- * To be extended
- */
-export interface DevToolsRpcClientFunctions {}
+import type { DevframeRpcServerFunctions } from '@devframes/hub/types'
 
 /**
- * To be extended
+ * Server-side RPC functions exposed by Vite DevTools integrations.
+ *
+ * Extend this interface with module augmentation to type `rpc.call()`.
  */
-export interface DevToolsRpcServerFunctions {}
-
-/**
- * To be extended
- */
-export interface DevToolsRpcSharedStates {}
+export interface DevToolsRpcServerFunctions extends DevframeRpcServerFunctions {}

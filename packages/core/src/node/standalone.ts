@@ -1,9 +1,9 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import type { Plugin, ResolvedConfig } from 'vite'
+import type { ResolvedDevToolsConfig } from './config'
 import process from 'node:process'
-import { resolveConfig } from 'vite'
 import { createDevToolsContext } from './context'
-import { DevTools } from './plugins'
+import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './plugins'
 
 export interface StandaloneDevToolsOptions {
   cwd?: string
@@ -11,11 +11,12 @@ export interface StandaloneDevToolsOptions {
   config?: string
   command?: 'build' | 'serve'
   mode?: 'development' | 'production'
+  resolvedConfig?: ResolvedDevToolsConfig
 }
 
 export async function startStandaloneDevTools(options: StandaloneDevToolsOptions = {}): Promise<{
   config: ResolvedConfig
-  context: DevToolsNodeContext
+  context: ViteDevToolsNodeContext
 }> {
   const {
     cwd = process.cwd(),
@@ -23,12 +24,16 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     mode = 'production',
   } = options
 
+  const { resolveConfig } = await import('vite')
+  const pluginOptions = options.resolvedConfig
+    ? resolveDevToolsPluginOptions(options.resolvedConfig, cwd)
+    : { cwd }
   const resolved = await resolveConfig(
     {
       configFile: options.config,
       root: cwd,
       plugins: [
-        DevTools(),
+        createDevToolsPlugins(pluginOptions, options.resolvedConfig),
       ],
     },
     command,
@@ -40,7 +45,11 @@ export async function startStandaloneDevTools(options: StandaloneDevToolsOptions
     plugin => plugin.name?.startsWith('vite:devtools'),
   )
 
-  const context = await createDevToolsContext(resolved)
+  const context = await createDevToolsContext(
+    resolved,
+    undefined,
+    options.resolvedConfig,
+  )
 
   return {
     config: resolved,

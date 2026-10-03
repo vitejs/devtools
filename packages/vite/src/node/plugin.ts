@@ -1,27 +1,36 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { PluginOption } from 'vite'
 import { clientPublicDir } from '../dirs'
-import { rpcFunctions } from './rpc/index'
+import { DevToolsViteInspect } from './inspect/plugin'
 
-export function DevToolsViteUI(): PluginWithDevTools {
+const VITE_DEVTOOLS_BASE = '/__devtools-vite/'
+
+export function DevToolsViteUI(): PluginOption {
+  return [
+    DevToolsViteInspect(),
+    DevToolsViteUIPlugin(),
+  ]
+}
+
+export function DevToolsViteUIPlugin(): PluginWithDevTools {
   return {
     name: 'vite:devtools:vite-ui',
+    enforce: 'pre',
+
     devtools: {
       setup(ctx) {
-        for (const fn of rpcFunctions) {
-          ctx.rpc.register(fn)
-        }
-
         ctx.views.hostStatic(
-          '/.devtools-vite/',
+          VITE_DEVTOOLS_BASE,
           clientPublicDir,
         )
 
         ctx.docks.register({
           id: 'vite',
           title: 'Vite',
-          icon: 'https://vite.dev/logo.svg',
+          icon: `${VITE_DEVTOOLS_BASE}favicon.svg`,
+          groupId: 'viteplus',
           type: 'iframe',
-          url: '/.devtools-vite/',
+          url: VITE_DEVTOOLS_BASE,
         })
       },
     },

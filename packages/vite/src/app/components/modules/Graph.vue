@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import type { ModuleImport, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
+import type { ViteModuleImport, ViteModuleListItem } from '~/types/modules'
+import DisplayModuleGraph from '@vitejs/devtools-ui/components/Display/DisplayModuleGraph.vue'
+import { createModuleGraph, getModuleGraphSize } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, nextTick, unref } from 'vue'
-import { createModuleGraph } from '~/composables/module-graph'
 
 const props = defineProps<{
-  modules: ModuleListItem[]
-  session: SessionContext
+  modules: ViteModuleListItem[]
+  root: string
 }>()
 
 const modules = computed(() => props.modules)
+const DEFAULT_EXPANDED_DEPTH = 3
+const DEFAULT_EXPANDED_SIBLINGS = 10
 
-createModuleGraph<ModuleListItem, ModuleImport>({
+createModuleGraph<ViteModuleListItem, ViteModuleImport>({
   modules,
   spacing: {
     width: 400,
@@ -21,66 +24,76 @@ createModuleGraph<ModuleListItem, ModuleImport>({
     gap: 150,
   },
   generateGraph: (options) => {
-    const { isFirstCalculateGraph, scale, spacing, tree, hierarchy, collapsedNodes, container, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap, focusOn } = options
+    const { isFirstCalculateGraph, spacing, tree, hierarchy, collapsedNodes, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap, focusOn } = options
     const rootModules = computed(() => {
-      return modules.value.filter(x => x.importers.length === 0)
+      const roots = modules.value.filter((module) => {
+        return !module.importers.some(importer => modulesMap.value.has(importer))
+      })
+      return roots.length ? roots : modules.value
     })
+
+    function registerChildParent(moduleId: string, parentId: string) {
+      const existingParentId = childToParentMap.get(moduleId)
+      if (existingParentId && existingParentId !== parentId) {
+        return false
+      }
+      if (!existingParentId) {
+        childToParentMap.set(moduleId, parentId)
+      }
+      return true
+    }
+
+    function createNode(module: ViteModuleListItem, depth: number, moduleImport?: ViteModuleImport, siblingIndex = 0): ModuleGraphNode<ViteModuleListItem, ViteModuleImport> {
+      const defaultCollapsed = depth >= DEFAULT_EXPANDED_DEPTH || siblingIndex >= DEFAULT_EXPANDED_SIBLINGS
+      if (isFirstCalculateGraph.value && defaultCollapsed && module.imports.length > 0) {
+        collapsedNodes.add(module.id)
+      }
+
+      return {
+        module,
+        import: moduleImport,
+        depth,
+        expanded: !collapsedNodes.has(module.id),
+        hasChildren: false,
+      }
+    }
 
     return (focusOnFirstRootNode = true) => {
       width.value = window.innerWidth
       height.value = window.innerHeight
 
-      const seen = new Set<ModuleListItem>()
-      const root = hierarchy<ModuleGraphNode<ModuleListItem, ModuleImport>>(
+      const seen = new Set<ViteModuleListItem>()
+      const root = hierarchy<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>(
         { module: { id: '~root' } } as any,
         (parent) => {
           if (parent.module.id === '~root') {
             rootModules.value.forEach((x) => {
               seen.add(x)
-
-              if (isFirstCalculateGraph.value) {
-                childToParentMap.set(x.id, '~root')
-              }
+              registerChildParent(x.id, '~root')
             })
-            return rootModules.value.map(x => ({
-              module: x,
-              expanded: !collapsedNodes.has(x.id),
-              hasChildren: false,
-            }))
+            return rootModules.value.map((x, index) => createNode(x, 1, undefined, index))
           }
 
           if (collapsedNodes.has(parent.module.id)) {
             return []
           }
 
-          const modules = parent.module.imports
-            .map((x): ModuleGraphNode<ModuleListItem, ModuleImport> | undefined => {
-              const module = modulesMap.value.get(x.module_id)
-              if (!module)
-                return undefined
-              if (seen.has(module))
-                return undefined
+          const depth = (parent.depth ?? 0) + 1
+          const childNodes: ModuleGraphNode<ViteModuleListItem, ViteModuleImport>[] = []
+          for (const moduleImport of parent.module.imports) {
+            const module = modulesMap.value.get(moduleImport.module_id)
+            if (!module || seen.has(module))
+              continue
 
-              // Check if the module is a child of the current parent
-              if (childToParentMap.has(module.id) && childToParentMap.get(module.id) !== parent.module.id)
-                return undefined
+            // Check if the module is a child of the current parent
+            if (!registerChildParent(module.id, parent.module.id))
+              continue
 
-              seen.add(module)
+            seen.add(module)
+            childNodes.push(createNode(module, depth, moduleImport, childNodes.length))
+          }
 
-              if (isFirstCalculateGraph.value) {
-                childToParentMap.set(module.id, parent.module.id)
-              }
-
-              return {
-                module,
-                import: x,
-                expanded: !collapsedNodes.has(module.id),
-                hasChildren: false,
-              }
-            })
-            .filter(x => x !== undefined)
-
-          return modules
+          return childNodes
         },
       )
 
@@ -89,7 +102,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       }
 
       // Calculate the layout
-      const layout = tree<ModuleGraphNode<ModuleListItem, ModuleImport>>()
+      const layout = tree<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>()
         .nodeSize([unref(spacing.height), unref(spacing.width) + unref(spacing.gap)])
       layout(root)
 
@@ -101,8 +114,10 @@ createModuleGraph<ModuleListItem, ModuleImport>({
 
         if (node.data.module.imports) {
           node.data.hasChildren = node.data.module.imports
-            ?.filter(subNode => childToParentMap.get(subNode.module_id) === node.data.module.id)
-            .length > 0
+            ?.some((subNode) => {
+              const parentId = childToParentMap.get(subNode.module_id)
+              return modulesMap.value.has(subNode.module_id) && (!parentId || parentId === node.data.module.id)
+            })
         }
       }
 
@@ -127,7 +142,7 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       }
       const _links = root.links()
         .filter(x => x.source.data.module.id !== '~root')
-        .map((x): ModuleGraphLink<ModuleListItem, ModuleImport> => {
+        .map((x): ModuleGraphLink<ViteModuleListItem, ViteModuleImport> => {
           return {
             ...x,
             import: x.source.data.import,
@@ -141,9 +156,11 @@ createModuleGraph<ModuleListItem, ModuleImport>({
       }
       links.value = _links
 
+      const graphSize = getModuleGraphSize(_nodes, spacing)
+      width.value = graphSize.width
+      height.value = graphSize.height
+
       nextTick(() => {
-        width.value = (container.value!.scrollWidth / scale.value + unref(spacing.margin))
-        height.value = (container.value!.scrollHeight / scale.value + unref(spacing.margin))
         const moduleId = rootModules.value?.[0]?.id
         if (focusOnFirstRootNode && moduleId) {
           nextTick(() => {
@@ -158,7 +175,6 @@ createModuleGraph<ModuleListItem, ModuleImport>({
 
 <template>
   <DisplayModuleGraph
-    :session="session"
     :modules="modules"
   >
     <template #default="{ node, nodesRefMap }">
@@ -166,9 +182,9 @@ createModuleGraph<ModuleListItem, ModuleImport>({
         :id="node.data.module.id"
         :ref="(el: any) => nodesRefMap.set(node.data.module.id, el?.$el)"
         :link="true"
-        :session="session"
+        :cwd="root"
         :minimal="true"
-        flex="1"
+        class="flex-1"
       />
     </template>
     <template #link="{ link, d, linkClass }">

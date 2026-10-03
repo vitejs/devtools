@@ -1,83 +1,166 @@
-import type { DevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
+import type { RpcFunctionsHost } from 'devframe/node'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
+import type { ResolvedDevToolsConfig } from './config'
+import { createKitContext, createViteDevToolsHost } from '@vitejs/devtools-kit/node'
 import { createDebug } from 'obug'
-import { debounce } from 'perfect-debounce'
-import { searchForWorkspaceRoot } from 'vite'
-import { ContextUtils } from './context-utils'
-import { DevToolsDockHost } from './host-docks'
-import { RpcFunctionsHost } from './host-functions'
-import { DevToolsTerminalHost } from './host-terminals'
-import { DevToolsViewHost } from './host-views'
+import { DEVTOOLS_ASSETS_BASE, dirAssets } from '../dirs'
+import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
+import { DEVTOOLS_CLIENT_MODULE_RESOLUTION } from './constants'
+import { diagnostics } from './diagnostics'
+import {
+  defaultResolvedDevToolsConfig,
+  setResolvedDevToolsConfig,
+} from './resolved-config'
 import { builtinRpcDeclarations } from './rpc'
 
 const debugSetup = createDebug('vite:devtools:context:setup')
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function shouldSkipSetupByCapabilities(
+  plugin: ResolvedConfig['plugins'][number],
+  mode: 'dev' | 'build',
+): boolean {
+  const modeCapabilities = plugin.devtools?.capabilities?.[mode]
+  if (modeCapabilities === false)
+    return true
+  if (!isObject(modeCapabilities))
+    return false
+  return Object.values(modeCapabilities).includes(false)
+}
+
 export async function createDevToolsContext(
   viteConfig: ResolvedConfig,
   viteServer?: ViteDevServer,
-): Promise<DevToolsNodeContext> {
+  devtoolsConfig?: ResolvedDevToolsConfig,
+): Promise<ViteDevToolsNodeContext> {
   const cwd = viteConfig.root
 
-  const context: DevToolsNodeContext = {
+  const { searchForWorkspaceRoot } = await import('vite')
+  const mode = viteConfig.command === 'serve' ? 'dev' : 'build'
+  const workspaceRoot = searchForWorkspaceRoot(cwd) ?? cwd
+
+  const context = (await createKitContext({
     cwd,
-    workspaceRoot: searchForWorkspaceRoot(cwd) ?? cwd,
+    workspaceRoot,
+    mode,
+    host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
+    builtinRpcDeclarations,
     viteConfig,
     viteServer,
-    mode: viteConfig.command === 'serve' ? 'dev' : 'build',
-    rpc: undefined!,
-    docks: undefined!,
-    views: undefined!,
-    utils: ContextUtils,
-    terminals: undefined!,
+  })) as ViteDevToolsNodeContext
+
+  setResolvedDevToolsConfig(
+    context,
+    devtoolsConfig ?? defaultResolvedDevToolsConfig,
+  )
+
+  // Fold the core (Vite) diagnostics into the shared host logger so plugin
+  // setup() hooks can reference DTK codes via `ctx.diagnostics.logger`.
+  context.diagnostics.register(diagnostics)
+
+  // Declare Vite's bare-specifier resolution before any dock registers. The hub
+  // checks for it inside `docks.register()`, so a plugin `setup()` hook naming
+  // an npm module in `importFrom` would otherwise warn DF8111 about a script
+  // that loads fine once `initHub` (in `createDevToolsHub`) declares the same
+  // template. Live dev server only — see `createDevToolsHub` for why.
+  if (viteServer) {
+    context.staticConfig.dock = {
+      ...context.staticConfig.dock,
+      clientModuleResolution: DEVTOOLS_CLIENT_MODULE_RESOLUTION,
+    }
   }
-  const rpcHost = new RpcFunctionsHost(context)
-  const docksHost = new DevToolsDockHost(context)
-  const viewsHost = new DevToolsViewHost(context)
-  const terminalsHost = new DevToolsTerminalHost(context)
-  context.rpc = rpcHost
-  context.docks = docksHost
-  context.views = viewsHost
-  context.terminals = terminalsHost
 
-  // Build-in function to list all RPC functions
-  for (const fn of builtinRpcDeclarations) {
-    rpcHost.register(fn)
-  }
-
-  const docksSharedState = await rpcHost.sharedState.get('vite:internal:docks', { initialValue: [] })
-
-  // Register hosts side effects
-  docksHost.events.on('dock:entry:updated', debounce(() => {
-    docksSharedState.mutate(() => context.docks.values())
-  }, 10))
-
-  terminalsHost.events.on('terminal:session:updated', debounce(() => {
-    rpcHost.broadcast({
-      method: 'vite:internal:terminals:updated',
-      args: [],
-    })
-    docksSharedState.mutate(() => context.docks.values())
-  }, 10))
-  terminalsHost.events.on('terminal:session:stream-chunk', (data) => {
-    rpcHost.broadcast({
-      method: 'vite:internal:terminals:stream-chunk',
-      args: [data],
-    })
+  // The hub no longer synthesizes built-in docks — Vite DevTools, as the
+  // high-level integration, registers the viewer's native views it wants. The
+  // terminals + messages panels come from the official `@devframes/plugin-terminals`
+  // / `@devframes/plugin-messages` devframes (mounted in `DevTools()`), so only the
+  // Settings tab is registered here. A `~builtin` view defaults its category to
+  // `~builtin`, so this Settings tab sorts last on its own.
+  context.docks.register({
+    type: '~builtin',
+    id: '~settings',
+    category: '~builtin',
+    title: 'Settings',
+    icon: 'ph:gear-duotone',
+    defaultOrder: 1000_000,
   })
 
-  // Register plugins
-  const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
+  const rpcHost = context.rpc as RpcFunctionsHost
 
+  // Interactive OTP auth, provided by devframe's `createInteractiveAuth`
+  // recipe: registers the `anonymous:devframe:auth` / `:exchange` handshake
+  // and the `devframe:auth:revoke` self-revoke. The resolver gate and the
+  // one-time-code banner are wired up by `initHub`'s `auth` option (same
+  // handler) in `createDevToolsHub`. This also covers implicit build mode,
+  // where the same handler additionally trusts the per-process capability
+  // token (its banner suppressed) — see `getAuthHandler` /
+  // `isBuildCapabilityAuth`. Skipped only when the gate is fully disabled
+  // (`isClientAuthDisabled`) — leaving `anonymous:devframe:auth` unregistered
+  // lets devframe's `auth: false` auto-trust shim (armed by `createDevToolsHub`
+  // passing `auth: false` to `initHub`) register its own noop handler and mark
+  // sessions trusted, instead of the interactive handler winning the race and
+  // leaving every session stuck untrusted.
+  if (!isClientAuthDisabled(context)) {
+    for (const fn of getAuthHandler(context).rpcFunctions)
+      rpcHost.register(fn)
+  }
+
+  // Vite-specific built-in server commands.
+  context.commands.register({
+    id: 'vite:open-in-editor',
+    title: 'Open in Editor',
+    icon: 'ph:pencil-duotone',
+    category: 'editor',
+    showInPalette: false,
+    handler: (path: string) => rpcHost.invokeLocal('vite:core:open-in-editor', path),
+  })
+  context.commands.register({
+    id: 'vite:open-in-finder',
+    title: 'Open in Finder',
+    icon: 'ph:folder-open-duotone',
+    category: 'editor',
+    showInPalette: false,
+    handler: (path: string) => rpcHost.invokeLocal('vite:core:open-in-finder', path),
+  })
+
+  // Seed the built-in "Vite+" dock group. Integrations (Rolldown, etc.) opt in
+  // by registering their dock with `groupId: 'viteplus'`; the
+  // group stays hidden until at least one member joins it.
+  context.docks.register({
+    id: 'viteplus',
+    type: 'group',
+    title: 'Vite+',
+    category: 'framework',
+    icon: `${DEVTOOLS_ASSETS_BASE}vite-plus.svg`,
+  }, true)
+
+  // Serve the vendored integration marks used by the built-in install
+  // launchers (`DevTools()`), so a launcher icon renders before its
+  // integration package — and that package's own served favicon — exists.
+  // Dev-mode static hosting needs a live server; skip it when the context is
+  // built without one (build mode serves statics without a server).
+  if (viteServer || mode === 'build')
+    context.views.hostStatic(DEVTOOLS_ASSETS_BASE, dirAssets)
+
+  // Scan Vite plugins for `devtools` setup hooks.
+  const plugins = viteConfig.plugins.filter(plugin => 'devtools' in plugin)
   for (const plugin of plugins) {
     if (!plugin.devtools?.setup)
       continue
+    if (shouldSkipSetupByCapabilities(plugin, mode)) {
+      debugSetup(`skipping plugin ${JSON.stringify(plugin.name)} due to disabled capabilities in ${mode} mode`)
+      continue
+    }
     try {
       debugSetup(`setting up plugin ${JSON.stringify(plugin.name)}`)
       await plugin.devtools?.setup?.(context)
     }
     catch (error) {
-      console.error(`[Vite DevTools] Error setting up plugin ${plugin.name}:`, error)
-      throw error
+      throw diagnostics.DTK0014({ name: plugin.name, cause: error })
     }
   }
 

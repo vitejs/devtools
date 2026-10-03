@@ -1,0 +1,158 @@
+import process from 'node:process'
+import { fileURLToPath } from 'node:url'
+import { defineNuxtConfig } from 'nuxt/config'
+import Inspect from 'vite-plugin-inspect'
+import { alias } from '../../../alias'
+import '@nuxt/eslint'
+
+const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
+const BASE = '/__devtools-rolldown/'
+const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
+
+export default defineNuxtConfig({
+  ssr: false,
+
+  modules: [
+    '@vueuse/nuxt',
+    '@unocss/nuxt',
+    '@nuxt/eslint',
+    './modules/rpc',
+  ],
+
+  alias,
+
+  logLevel: 'verbose',
+  srcDir: 'app',
+
+  eslint: {
+    config: {
+      standalone: false,
+    },
+  },
+
+  experimental: {
+    typedPages: true,
+    clientNodeCompat: true,
+    viteEnvironmentApi: true,
+  },
+
+  features: {
+    inlineStyles: false,
+  },
+
+  nitro: {
+    minify: NUXT_DEBUG_BUILD ? false : undefined,
+    preset: 'static',
+    output: {
+      dir: '../dist',
+    },
+    routeRules: {
+      '/': {
+        prerender: true,
+      },
+      '/200.html': {
+        prerender: true,
+      },
+      '/404.html': {
+        prerender: true,
+      },
+      '/**': {
+        prerender: false,
+        // headers,
+      },
+    },
+    sourceMap: false,
+  },
+
+  unocss: {
+    configFile: fileURLToPath(new URL('./uno.config.ts', import.meta.url)),
+  },
+
+  app: {
+    baseURL: BASE,
+    head: {
+      title: 'Rolldown DevTools',
+      charset: 'utf-8',
+      viewport: 'width=device-width,initial-scale=1',
+      meta: [
+        { name: 'description', content: 'DevTools for Rolldown' },
+        { property: 'og:title', content: 'Rolldown DevTools' },
+        { property: 'og:description', content: 'DevTools for Rolldown' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg` },
+      ],
+      htmlAttrs: {
+        lang: 'en',
+        class: 'bg-dots',
+      },
+    },
+  },
+
+  // Disable Nuxt's internal debugging
+  debug: false,
+
+  vite: {
+    base: VITE_BASE,
+    build: {
+      rolldownOptions: {
+        devtools: {},
+      },
+      minify: NUXT_DEBUG_BUILD ? false : undefined,
+      cssMinify: false,
+    },
+    optimizeDeps: {
+      include: [
+        '@antfu/utils',
+        '@vueuse/core',
+        '@floating-ui/dom',
+        'd3-hierarchy',
+        'd3-shape',
+        'fuse.js',
+        'modern-monaco',
+        'comlink',
+        'floating-vue',
+        'splitpanes',
+        'vue-virtual-scroller',
+        'nanovis',
+      ],
+      exclude: [
+        'structured-clone-es',
+        'birpc',
+      ],
+    },
+    devtools: {
+      enabled: false,
+      clientAuth: false,
+    },
+    plugins: [
+      NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
+    ],
+  },
+
+  devtools: {
+    enabled: false,
+  },
+
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        types: ['chrome'], // for devtools-webext package
+      },
+      exclude: [
+        // Sibling Nuxt apps are typechecked by their own project references
+        // (see the root tsconfig); keep them out of rolldown's
+        // workspace-wide Nuxt typecheck so they resolve under their own aliases.
+        '../../../vite/**/*',
+        '../../../oxc/**/*',
+      ],
+    },
+    // Temporary disable type check for nuxt, rely on CI for now
+    // typeCheck: true,
+    includeWorkspace: true,
+  },
+
+  workspaceDir: '../../',
+
+  compatibilityDate: '2024-07-17',
+})

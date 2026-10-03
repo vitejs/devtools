@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import type { ClientSettings } from '~~/app/state/settings'
-import type { RolldownPluginBuildMetrics, SessionContext } from '~~/shared/types/data'
+import type { ClientSettings } from '~/state/settings'
+import type { ViteModuleListItem } from '~/types/modules'
+import type { VitePluginDetails } from '~/types/plugins'
+import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
+import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
+import DisplayNumberBadge from '@vitejs/devtools-ui/components/Display/DisplayNumberBadge.vue'
 import { useCycleList, useToggle } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
-import { settings } from '~~/app/state/settings'
+import { settings } from '~/state/settings'
 
 const props = defineProps<{
-  session: SessionContext
-  buildMetrics: RolldownPluginBuildMetrics
+  modules: ViteModuleListItem[]
+  buildMetrics: VitePluginDetails
+  root: string
 }>()
 
 const [expanded, toggleExpanded] = useToggle(true)
@@ -71,13 +76,13 @@ const showUnchangedInfo = computed(() => {
   if (!['load', 'transform'].includes(settings.value.pluginDetailSelectedHook))
     return false
 
-  if (!props.buildMetrics.calls?.filter(i => i.type === settings.value.pluginDetailSelectedHook).filter(i => i.unchanged).length)
+  if (!props.buildMetrics.calls?.filter(item => item.type === settings.value.pluginDetailSelectedHook).filter(item => item.unchanged).length)
     return false
   return true
 })
 const unchangedInfo = computed(() => {
-  const unchanged = props.buildMetrics.calls?.filter(i => i.type === settings.value.pluginDetailSelectedHook).filter(i => i.unchanged)
-  const unchangedDuration = unchanged.reduce((acc, i) => acc + i.duration, 0)
+  const unchanged = props.buildMetrics.calls?.filter(item => item.type === settings.value.pluginDetailSelectedHook).filter(item => item.unchanged)
+  const unchangedDuration = unchanged.reduce((acc, item) => acc + item.duration, 0)
   return {
     count: unchanged.length,
     duration: unchangedDuration,
@@ -95,51 +100,50 @@ function toggleShowType() {
 </script>
 
 <template>
-  <div p2 h-full w-full>
-    <div flex="~" border="~ base" rounded-2 h-full relative of-hidden>
-      <div v-if="expanded" of-hidden border="r base">
+  <div class="p2 h-full w-full">
+    <div class="flex border border-base rounded-2 h-full relative of-hidden">
+      <div v-if="expanded" class="of-hidden border-r border-base shrink-0 h-full min-h-0 flex flex-col">
         <FlowmapPluginFlowTimeline
-          :session="session"
           :build-metrics="buildMetrics"
         >
           <template #header>
-            <div px2 h10 border="b base" bg-base rounded-t-2 flex="~ items-center justify-end">
-              <button w8 h8 rounded-full cursor-pointer hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(false)">
-                <i i-ph-sidebar-simple-duotone inline-flex op50 />
+            <div class="px2 h10 border-b border-base bg-base rounded-t-2 flex items-center justify-end">
+              <button class="w8 h8 rounded-full cursor-pointer hover:bg-active flex items-center justify-center" @click="toggleExpanded(false)">
+                <i class="i-ph-sidebar-simple-duotone inline-flex op50" />
               </button>
             </div>
           </template>
         </FlowmapPluginFlowTimeline>
       </div>
-      <div flex-1 of-y-auto h-full flex="~ col">
-        <div flex="~ items-center justify-between" border="b base" px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap>
-          <div flex="~ items-center" h-full>
-            <button v-if="!expanded" w8 h8 rounded-full cursor-pointer mr1 hover="bg-active" flex="~ items-center justify-center" @click="toggleExpanded(true)">
-              <i i-ph-sidebar-duotone inline-flex op50 />
+      <div class="flex-1 h-full min-w-0 min-h-0 flex flex-col">
+        <div class="flex items-center justify-between border-b border-base px2 h10 bg-base rounded-t-2 of-x-auto ws-nowrap">
+          <div class="flex items-center h-full">
+            <button v-if="!expanded" class="w8 h8 rounded-full cursor-pointer mr1 hover:bg-active flex items-center justify-center" @click="toggleExpanded(true)">
+              <i class="i-ph-sidebar-duotone inline-flex op50" />
             </button>
             <DataSearchPanel
-              v-model="searchValue"
-              h-full border-none selected-container-class="px0! py1 border-none bg-none flex-nowrap! h-full"
+              v-model="searchValue" selected-container-class="px0! py1 border-none bg-none flex-nowrap! h-full"
               :rules="tableFieldFilterRules"
-              class="[&_[icon-catppuccin]]:(filter-none!)"
+              class="[&_[icon-catppuccin]]:(filter-none!) h-full border-none"
             />
           </div>
-          <div v-if="showUnchangedInfo" flex="~ items-center justify-center gap1" h-full text-xs py1>
-            <p class="op50" flex="~ items-center gap-1">
+          <div v-if="showUnchangedInfo" class="flex items-center justify-center gap1 h-full text-xs py1">
+            <p class="op50 flex items-center gap-1">
               <DisplayNumberBadge :number="unchangedInfo.count" /> module unchanged, but cost <DisplayDuration :duration="unchangedInfo.duration" />
             </p>
-            <button rounded-md px2 py1 select-none h-full border="~ base rounded-lg" hover="bg-active" :title="showTypeText" @click="toggleShowType">
+            <button class="rounded-md px2 py1 select-none h-full border border-base rounded-lg hover:bg-active" :title="showTypeText" @click="toggleShowType">
               <div class="text-xs op50">
                 {{ showTypeText }}
               </div>
             </button>
           </div>
         </div>
-        <div flex-1 of-y-auto overscroll-contain>
+        <div class="flex-1 min-h-0 of-x-auto overscroll-contain">
           <DataPluginDetailsTable
-            :session="session"
+            :modules="modules"
             :build-metrics="buildMetrics"
             :selected-fields="selectedFields"
+            :root="root"
           />
         </div>
       </div>

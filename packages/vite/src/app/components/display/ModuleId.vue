@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { ModuleImport } from '@rolldown/debug'
-import type { SessionContext } from '~~/shared/types'
-import { useRoute } from '#app/composables/router'
-import { NuxtLink } from '#components'
+import DisplayBadge from '@vitejs/devtools-ui/components/Display/DisplayBadge.vue'
 import { Tooltip } from 'floating-vue'
 import { relative } from 'pathe'
 import { computed } from 'vue'
+import { useRoute } from '#app/composables/router'
+import { NuxtLink } from '#components'
 
 const props = withDefaults(
   defineProps<{
@@ -14,8 +13,7 @@ const props = withDefaults(
     icon?: boolean
     link?: boolean | string
     minimal?: boolean
-    kind?: ModuleImport['kind']
-    session?: SessionContext
+    kind?: string
     cwd?: string
     disableTooltip?: boolean
   }>(),
@@ -26,35 +24,35 @@ const props = withDefaults(
 )
 
 const route = useRoute()
-const location = window.location
+const locationHash = typeof window === 'undefined' ? '' : window.location.hash
 
 const relativePath = computed(() => {
   if (!props.id)
     return ''
   const id = props.id.replace(/%2F/g, '/')
-  const cwd = props.cwd || props.session!.meta.cwd
+  if (id.startsWith('./') || id.startsWith('../'))
+    return id
+  const cwd = props.cwd || ''
   let relate = cwd ? relative(cwd, id) : id
   if (!relate.startsWith('.'))
     relate = `./${relate}`
   if (relate.startsWith('./'))
     return relate
-  if (relate.match(/^(?:\.\.\/){1,3}[^.]/))
+  if (/^(?:\.\.\/){1,3}[^.]/.test(relate))
     return relate
   return id
 })
 
-const containerClass = computed(() => {
-  return 'flex items-center'
-})
+const containerClass = computed(() => 'flex items-center')
 </script>
 
 <template>
   <component
     :is="link ? NuxtLink : 'div'"
-    :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: id, chunk: undefined }, hash: location.hash }) : undefined"
+    :to="link ? (typeof link === 'string' ? link : { path: route.path, query: { ...route.query, module: id, chunk: undefined }, hash: locationHash }) : undefined"
   >
     <Tooltip
-      my-auto text-sm font-mono block w-full
+      class="my-auto text-sm font-mono block w-full"
       :triggers="['hover']"
       :delay="1200"
       :disabled="disableTooltip || (props.id?.length || 0) < 30"
@@ -64,8 +62,8 @@ const containerClass = computed(() => {
         v-if="id"
         :class="containerClass"
       >
-        <DisplayFileIcon v-if="icon" :filename="id" mr1.5 />
-        <span overflow-hidden text-ellipsis break-all line-clamp-2>
+        <DisplayFileIcon v-if="icon" :filename="id" class="mr1.5" />
+        <span class="overflow-hidden text-ellipsis break-all line-clamp-2">
           <DisplayHighlightedPath :path="relativePath" :minimal="minimal" />
         </span>
         <slot />
@@ -84,7 +82,7 @@ const containerClass = computed(() => {
         <slot name="detail" />
       </div>
       <template #popper>
-        <span font-mono text-sm>
+        <span class="font-mono text-sm">
           {{ props.id }}
         </span>
       </template>

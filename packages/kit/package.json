@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-kit",
   "type": "module",
-  "version": "0.0.0-alpha.24",
+  "version": "0.7.6",
   "description": "Vite DevTools Kit",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -19,34 +19,40 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs",
-    "./client": "./dist/client.mjs",
-    "./utils/events": "./dist/utils/events.mjs",
-    "./utils/nanoid": "./dist/utils/nanoid.mjs",
-    "./utils/shared-state": "./dist/utils/shared-state.mjs",
+    ".": "./dist/index.js",
+    "./client": "./dist/client.js",
+    "./constants": "./dist/constants.js",
+    "./node": "./dist/node/index.js",
+    "./utils/events": "./dist/utils/events.js",
+    "./utils/nanoid": "./dist/utils/nanoid.js",
+    "./utils/shared-state": "./dist/utils/shared-state.js",
+    "./utils/when": "./dist/utils/when.js",
     "./package.json": "./package.json"
   },
-  "types": "./dist/index.d.mts",
+  "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "scripts": {
     "build": "tsdown",
     "watch": "tsdown --watch",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build && cp -r ../../skills ./skills"
   },
   "peerDependencies": {
     "vite": "*"
   },
   "dependencies": {
-    "@vitejs/devtools-rpc": "workspace:*",
-    "birpc": "catalog:deps",
-    "birpc-x": "catalog:deps",
-    "immer": "catalog:deps"
+    "@devframes/hub": "catalog:deps",
+    "@devframes/json-render": "catalog:deps",
+    "devframe": "catalog:deps",
+    "local-pkg": "catalog:deps",
+    "nostics": "catalog:deps",
+    "package-manager-detector": "catalog:deps"
   },
   "devDependencies": {
-    "my-ua-parser": "catalog:frontend",
     "tsdown": "catalog:build",
+    "ua-parser-modern": "catalog:frontend",
     "vite": "catalog:build"
   }
 }

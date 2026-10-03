@@ -1,0 +1,27 @@
+# Standalone workspace root.
+#
+# This file exists so pnpm treats `playgrounds/production` as its own,
+# self-contained project instead of a member of the monorepo above it.
+# It resolves `@vitejs/devtools` (and friends) from the local built dist
+# tarballs produced by `scripts/pack-local.mjs`, and every other dependency
+# (devframe, @devframes/*, vite, vue, ...) from the public registry — exactly
+# what a real user gets when they `pnpm add -D @vitejs/devtools`.
+packages: []
+
+# Resolve Vite DevTools and every inter-package dependency from the local built
+# dist tarballs produced by `scripts/pack-local.mjs`. Everything else resolves
+# from the public registry, exactly like a real user install.
+overrides:
+  '@vitejs/devtools': 'file:.tarballs/vitejs-devtools.tgz'
+  '@vitejs/devtools-kit': 'file:.tarballs/vitejs-devtools-kit.tgz'
+  '@vitejs/devtools-rolldown': 'file:.tarballs/vitejs-devtools-rolldown.tgz'
+  '@vitejs/devtools-vite': 'file:.tarballs/vitejs-devtools-vite.tgz'
+  '@vitejs/devtools-vitest': 'file:.tarballs/vitejs-devtools-vitest.tgz'
+  '@vitejs/devtools-oxc': 'file:.tarballs/vitejs-devtools-oxc.tgz'
+
+verifyDepsBeforeRun: false
+allowBuilds:
+  esbuild: true
+  rolldown: true
+  unrs-resolver: true
+minimumReleaseAge: 0

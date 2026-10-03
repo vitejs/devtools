@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import type { ModuleGraphLink, ModuleGraphNode } from '@vitejs/devtools-ui/composables/module-graph'
 import type { HierarchyNode } from 'd3-hierarchy'
-import type { ModuleImport, ModuleInfo, ModuleListItem, SessionContext } from '~~/shared/types'
-import type { ModuleGraphLink, ModuleGraphNode } from '~/composables/module-graph'
+import type { ViteModuleImport, ViteModuleListItem } from '~/types/modules'
+import { generateModuleGraphLink, getModuleGraphLinkColor } from '@vitejs/devtools-ui/composables/module-graph'
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue'
-import { generateModuleGraphLink, getModuleGraphLinkColor } from '~/composables/module-graph'
 
 const props = defineProps<{
-  module: ModuleInfo
-  session: SessionContext
+  module: ViteModuleListItem
+  modules: ViteModuleListItem[]
+  root: string
 }>()
 
 type LinkPoint = 'importer-start' | 'importer-end' | 'import-start' | 'import-end'
@@ -26,22 +27,24 @@ const SPACING = {
 }
 
 const container = useTemplateRef<HTMLDivElement>('container')
-const links = shallowRef<ModuleGraphLink<ModuleListItem, ModuleImport>[]>([])
+const links = shallowRef<ModuleGraphLink<ViteModuleListItem, ViteModuleImport>[]>([])
 
 const modulesMap = computed(() => {
-  const map = new Map<string, ModuleListItem>()
-  for (const module of props.session.modulesList) {
+  const map = new Map<string, ViteModuleListItem>()
+  for (const module of props.modules) {
     map.set(module.id, module)
   }
   return map
 })
 
 const importers = computed(() => {
-  return props.module.importers?.map(x => modulesMap.value.get(x))
+  return props.module.importers
+    ?.map(x => modulesMap.value.get(x))
+    .filter((module): module is ViteModuleListItem => !!module)
 })
 
 const normalizedMaxLinks = computed(() => {
-  return Math.min(Math.max(props.module.importers?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
+  return Math.min(Math.max(importers.value?.length || 0, props.module.imports?.length || 0), MAX_LINKS)
 })
 
 const importersMaxLength = computed(() => Math.min(importers.value?.length || 0, MAX_LINKS))
@@ -75,6 +78,7 @@ function calculateLinkX(type: LinkPoint) {
       return importers.value?.length ? linkStartX.value + SPACING.dotOffset * 2 + SPACING.dot : linkStartX.value + SPACING.dotOffset + SPACING.dot
   }
 }
+
 function calculateLinkY(type: LinkPoint, i?: number) {
   switch (type) {
     case 'importer-start':
@@ -98,11 +102,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('importer-start'),
           y: calculateLinkY('importer-start', i),
-        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
+        } as HierarchyNode<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>,
         target: {
           x: calculateLinkX('importer-end'),
           y: calculateLinkY('importer-end'),
-        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
+        } as HierarchyNode<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>,
       }
     })
     links.value.push(..._importersLinks)
@@ -115,11 +119,11 @@ function generateLinks() {
         source: {
           x: calculateLinkX('import-start'),
           y: calculateLinkY('import-start'),
-        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
+        } as HierarchyNode<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>,
         target: {
           x: calculateLinkX('import-end'),
           y: calculateLinkY('import-end', i),
-        } as HierarchyNode<ModuleGraphNode<ModuleListItem, ModuleImport>>,
+        } as HierarchyNode<ModuleGraphNode<ViteModuleListItem, ViteModuleImport>>,
       }
     })
     links.value.push(..._importsLinks)
@@ -138,91 +142,94 @@ onMounted(() => {
 <template>
   <div
     ref="container"
-    w-full relative select-none mt4
+    class="w-full relative select-none mt4"
   >
-    <!-- nodes -->
-    <div flex px2>
-      <!-- importers -->
-      <div
-        v-if="importers?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importersVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(importer, i) of importers" :key="importer!.id">
-          <DisplayModuleId
-            :id="importer!.id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-      <!-- dot: current module -->
-      <div
-        bg-base rounded-full border-3 font-mono border-active flex-shrink-0 :style="{
-          margin: dotNodeMargin,
-          width: `${SPACING.dot}px`,
-          height: `${SPACING.dot}px`,
-        }"
-      />
-      <!-- imports -->
-      <div
-        v-if="module.imports?.length"
-        py1
-        :style="{
-          width: `${SPACING.width}px`,
-          marginTop: `${importsVerticalOffset}px`,
-        }"
-      >
-        <template v-for="(_import, i) of module.imports" :key="_import.module_id">
-          <DisplayModuleId
-            :id="_import!.module_id"
-            hover="bg-active" block px2 p1 bg-base ws-nowrap
-            z-graph-node
-            border="~ base rounded"
-            :link="true"
-            :session="session"
-            :minimal="true"
-            :style="{
-              width: `${SPACING.width}px`,
-              height: `${SPACING.height}px`,
-              overflow: 'hidden',
-              marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
-            }"
-          />
-        </template>
-      </div>
-    </div>
-
-    <!-- links -->
-    <svg
-      pointer-events-none absolute left-0 top-0 z-graph-link w-full
-      :style="{
-        height: `${nodesHeight}px`,
-      }"
-    >
-      <g>
-        <path
-          v-for="link of links"
-          :key="link.id"
-          :d="generateModuleGraphLink<ModuleListItem, ModuleImport>(link)!"
-          :class="getModuleGraphLinkColor<ModuleListItem, ModuleImport>(link)"
-          :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
-          fill="none"
+    <template v-if="importers?.length || module.imports?.length">
+      <!-- nodes -->
+      <div class="flex px2">
+        <!-- importers -->
+        <div
+          v-if="importers?.length"
+          class="py1"
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importersVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(importer, i) of importers" :key="importer.id">
+            <DisplayModuleId
+              :id="importer.id"
+              class="hover:bg-active block px2 p1 bg-base ws-nowrap z-graph-node border border-base rounded"
+              :link="true"
+              :cwd="root"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === importers!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+        <!-- dot: current module -->
+        <div
+          class="bg-base rounded-full border-3 font-mono border-active flex-shrink-0" :style="{
+            margin: dotNodeMargin,
+            width: `${SPACING.dot}px`,
+            height: `${SPACING.dot}px`,
+          }"
         />
-      </g>
-    </svg>
+        <!-- imports -->
+        <div
+          v-if="module.imports?.length"
+          class="py1"
+          :style="{
+            width: `${SPACING.width}px`,
+            marginTop: `${importsVerticalOffset}px`,
+          }"
+        >
+          <template v-for="(_import, i) of module.imports" :key="_import.module_id">
+            <DisplayModuleId
+              :id="_import!.module_id"
+              class="hover:bg-active block px2 p1 bg-base ws-nowrap z-graph-node border border-base rounded"
+              :link="true"
+              :cwd="root"
+              :minimal="true"
+              :style="{
+                width: `${SPACING.width}px`,
+                height: `${SPACING.height}px`,
+                overflow: 'hidden',
+                marginBottom: `${i === module.imports!.length - 1 ? 0 : SPACING.padding}px`,
+              }"
+            />
+          </template>
+        </div>
+      </div>
+
+      <!-- links -->
+      <svg
+        class="pointer-events-none absolute left-0 top-0 z-graph-link w-full"
+        :style="{
+          height: `${nodesHeight}px`,
+        }"
+      >
+        <g>
+          <path
+            v-for="link of links"
+            :key="link.id"
+            :d="generateModuleGraphLink<ViteModuleListItem, ViteModuleImport>(link)!"
+            :class="getModuleGraphLinkColor<ViteModuleListItem, ViteModuleImport>(link)"
+            :stroke-dasharray="link.import?.kind === 'dynamic-import' ? '3 6' : undefined"
+            fill="none"
+          />
+        </g>
+      </svg>
+    </template>
+    <div v-else class="w-full h-48 flex items-center justify-center op50 italic">
+      <p>
+        No data
+      </p>
+    </div>
   </div>
 </template>

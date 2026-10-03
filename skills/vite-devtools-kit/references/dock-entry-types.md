@@ -1,0 +1,434 @@
+# Dock Entry Types
+
+Detailed configuration for each dock entry type.
+
+## Common Properties
+
+All dock entries share these properties:
+
+```ts
+interface DockEntryBase {
+  id: string // Unique identifier
+  title: string // Display title
+  icon: string // URL, data URI, or Iconify name
+  category?: string // Outer dock-bar bucket, or in-group sub-category when `groupId` resolves to a group
+  defaultOrder?: number // Sort order (higher = earlier)
+  when?: string // Conditional visibility expression — see [When Clauses](./when-clauses.md)
+  badge?: string // Badge text on dock icon (e.g., count)
+  groupId?: string // Collapse under a group's button; the group's `category` becomes the outer bucket
+}
+```
+
+## Icons
+
+<!-- eslint-skip -->
+
+```ts
+// Iconify (recommended)
+icon: 'ph:chart-bar-duotone'  // Phosphor Icons
+icon: 'carbon:analytics'       // Carbon Icons
+icon: 'mdi:view-dashboard'     // Material Design
+
+// URL
+icon: 'https://example.com/logo.svg'
+
+// Data URI
+icon: 'data:image/svg+xml,<svg>...</svg>'
+
+// Light/dark variants
+icon: {
+  light: 'https://example.com/logo-light.svg',
+  dark: 'https://example.com/logo-dark.svg',
+}
+```
+
+Browse icons at [Iconify](https://icon-sets.iconify.design/).
+
+## Iframe Entries
+
+Most common type. Displays your UI in an isolated iframe.
+
+```ts
+interface IframeEntry extends DockEntryBase {
+  type: 'iframe'
+  url: string // URL to load
+  frameId?: string // Share iframe between entries
+  clientScript?: ClientScriptEntry // Optional client script
+  remote?: boolean | RemoteDockOptions // Enable remote-hosted UI mode
+}
+
+interface RemoteDockOptions {
+  transport?: 'fragment' | 'query' // default: 'fragment'
+  originLock?: boolean // default: true
+}
+
+// Example
+ctx.docks.register({
+  id: 'my-plugin',
+  title: 'My Plugin',
+  icon: 'ph:house-duotone',
+  type: 'iframe',
+  url: '/__my-plugin/',
+})
+```
+
+### Hosting Your Own UI
+
+```ts
+import { fileURLToPath } from 'node:url'
+
+const clientDist = fileURLToPath(
+  new URL('../dist/client', import.meta.url)
+)
+
+ctx.views.hostStatic('/__my-plugin/', clientDist)
+
+ctx.docks.register({
+  id: 'my-plugin',
+  title: 'My Plugin',
+  icon: 'ph:house-duotone',
+  type: 'iframe',
+  url: '/__my-plugin/',
+})
+```
+
+### Remote-hosted UI
+
+Point a dock at a hosted website (e.g. `https://example.com/devtools`) instead of bundling a SPA. DevTools injects a session-only auth token + WS URL into the iframe `src`; the hosted page calls `connectRemoteDevTools()` to get a fully connected `DevToolsRpcClient`.
+
+```ts
+ctx.docks.register({
+  id: 'my-remote-tool',
+  title: 'My Tool',
+  icon: 'ph:cloud-duotone',
+  type: 'iframe',
+  url: 'https://example.com/devtools',
+  remote: true,
+})
+```
+
+Dev-mode only — the WS server does not exist in build mode, so remote docks are auto-hidden in build mode unless an explicit `when` clause is set. See [Remote Client Patterns](./remote-client-patterns.md) for the full flow.
+
+## Action Entries
+
+Buttons that trigger client-side scripts. Perfect for inspectors and toggles.
+
+```ts
+interface ActionEntry extends DockEntryBase {
+  type: 'action'
+  action: {
+    importFrom: string // Package export path
+    importName?: string // Export name (default: 'default')
+  }
+}
+
+// Registration
+ctx.docks.register({
+  id: 'my-inspector',
+  title: 'Inspector',
+  icon: 'ph:cursor-duotone',
+  type: 'action',
+  action: {
+    importFrom: 'my-plugin/devtools-action',
+    importName: 'default',
+  },
+})
+```
+
+### Client Script Implementation
+
+```ts
+// src/devtools-action.ts
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setup(ctx: DevToolsClientScriptContext) {
+  let overlay: HTMLElement | null = null
+
+  ctx.current.events.on('entry:activated', () => {
+    overlay = document.createElement('div')
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      cursor: crosshair;
+      z-index: 99999;
+    `
+    overlay.onclick = (e) => {
+      const target = document.elementFromPoint(e.clientX, e.clientY)
+      console.log('Selected:', target)
+    }
+    document.body.appendChild(overlay)
+  })
+
+  ctx.current.events.on('entry:deactivated', () => {
+    overlay?.remove()
+    overlay = null
+  })
+}
+```
+
+### Package Export
+
+```json
+{
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./devtools-action": "./dist/devtools-action.mjs"
+  }
+}
+```
+
+## Custom Render Entries
+
+Render directly into the DevTools panel DOM. Use when you need direct DOM access or framework mounting.
+
+```ts
+interface CustomRenderEntry extends DockEntryBase {
+  type: 'custom-render'
+  renderer: {
+    importFrom: string
+    importName?: string
+  }
+}
+
+ctx.docks.register({
+  id: 'my-custom',
+  title: 'Custom View',
+  icon: 'ph:code-duotone',
+  type: 'custom-render',
+  renderer: {
+    importFrom: 'my-plugin/devtools-renderer',
+    importName: 'default',
+  },
+})
+```
+
+### Renderer Implementation
+
+```ts
+// src/devtools-renderer.ts
+import type { DevToolsClientScriptContext } from '@vitejs/devtools-kit/client'
+
+export default function setup(ctx: DevToolsClientScriptContext) {
+  ctx.current.events.on('dom:panel:mounted', (panel) => {
+    // Vanilla JS
+    panel.innerHTML = `<div style="padding: 16px;">Hello</div>`
+
+    // Or mount Vue
+    // import { createApp } from 'vue'
+    // import App from './App.vue'
+    // createApp(App).mount(panel)
+
+    // Or mount React
+    // import { createRoot } from 'react-dom/client'
+    // createRoot(panel).render(<App />)
+  })
+}
+```
+
+## JSON Render Entries
+
+Server-side JSON specs rendered by the built-in component library. No client code needed.
+
+```ts
+interface JsonRenderEntry extends DockEntryBase {
+  type: 'json-render'
+  ui: JsonRenderer // Handle from ctx.createJsonRenderer()
+}
+
+// Registration
+const ui = ctx.createJsonRenderer({
+  root: 'root',
+  state: { query: '' },
+  elements: {
+    root: {
+      type: 'Stack',
+      props: { direction: 'vertical', gap: 12 },
+      children: ['heading', 'info'],
+    },
+    heading: {
+      type: 'Text',
+      props: { content: 'My Panel', variant: 'heading' },
+    },
+    info: {
+      type: 'KeyValueTable',
+      props: {
+        entries: [
+          { key: 'Status', value: 'Running' },
+        ],
+      },
+    },
+  },
+})
+
+ctx.docks.register({
+  id: 'my-panel',
+  title: 'My Panel',
+  icon: 'ph:chart-bar-duotone',
+  type: 'json-render',
+  ui,
+})
+```
+
+### Dynamic Updates
+
+```ts
+// Replace the entire spec
+await ui.updateSpec(buildSpec(newData))
+
+// Shallow-merge into spec.state
+await ui.updateState({ query: 'vue' })
+```
+
+### Action Handling
+
+Buttons trigger server-side RPC functions via `on.press.action`:
+
+```ts
+// In spec element
+{
+  type: 'Button',
+  props: { label: 'Refresh', icon: 'ph:arrows-clockwise' },
+  on: { press: { action: 'my-plugin:refresh' } },
+}
+
+// Matching RPC function
+ctx.rpc.register(defineRpcFunction({
+  name: 'my-plugin:refresh',
+  type: 'action',
+  setup: ctx => ({
+    handler: async () => {
+      await ui.updateSpec(buildSpec(await fetchData()))
+    },
+  }),
+}))
+```
+
+### JSON Render Use Cases
+
+- **Build reports** — Display build stats, module lists, timing data
+- **Configuration viewers** — Show resolved config with key-value tables
+- **Status dashboards** — Progress bars, badges, real-time updates
+- **Simple forms** — Text inputs with state binding + action buttons
+
+See [JSON Render Patterns](./json-render-patterns.md) for the full component library and state binding details.
+
+## Launcher Entries
+
+Actionable setup cards for running initialization tasks. Shows a card with title, description, and a launch button.
+
+```ts
+type LauncherStatus = 'idle' | 'loading' | 'success' | 'error'
+
+interface LauncherEntry extends DockEntryBase {
+  type: 'launcher'
+  launcher: {
+    title: string // Card title
+    description?: string // Card description
+    icon?: string | { light: string, dark: string } // Card icon
+    buttonStart?: string // Start button text
+    buttonLoading?: string // Loading button text
+    status?: LauncherStatus // Current status
+    error?: string // Error message when status is 'error'
+    onLaunch: () => Promise<void> // Callback when user clicks launch
+  }
+}
+
+// Registration
+const entry = ctx.docks.register({
+  id: 'my-setup',
+  title: 'My Setup',
+  icon: 'ph:rocket-launch-duotone',
+  type: 'launcher',
+  launcher: {
+    title: 'Initialize My Plugin',
+    description: 'Run the initial setup before the plugin can be used',
+    buttonStart: 'Start Setup',
+    buttonLoading: 'Setting up...',
+    onLaunch: async () => {
+      // Perform initialization
+      await runSetup()
+    },
+  },
+})
+
+// Update status after launch completes
+entry.update({
+  launcher: {
+    ...entry.launcher,
+    status: 'success',
+  },
+})
+```
+
+### Launcher Use Cases
+
+- **First-run setup** — Run initial scans or configuration before showing results
+- **Build triggers** — Start a build or analysis pass on demand
+- **Authentication** — Prompt user to connect external services
+
+## Client Script Events
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `entry:activated` | - | Entry was selected |
+| `entry:deactivated` | - | Entry was deselected |
+| `entry:updated` | `DevToolsDockUserEntry` | Entry metadata changed |
+| `dom:panel:mounted` | `HTMLDivElement` | Panel DOM ready (custom-render only) |
+| `dom:iframe:mounted` | `HTMLIFrameElement` | Iframe mounted (iframe only) |
+
+## Category Order
+
+Default category ordering (lower sorts earlier), owned upstream by `@devframes/hub` and re-exported from `@vitejs/devtools-kit/constants`:
+
+```ts
+DEFAULT_CATEGORIES_ORDER = {
+  'framework': -100, // First
+  'default': 0,
+  'app': 100,
+  'ui': 150,
+  'data': 250,
+  'web': 300,
+  'performance': 350,
+  'advanced': 400,
+  'docs': 500,
+  '~builtin': 1000, // Last
+}
+```
+
+The same table orders in-group sub-categories. (`viteplus` is a dock **group** id, not a category — join it via `groupId: DEVTOOLS_VITEPLUS_GROUP_ID`.)
+
+Use `category` to group related entries:
+
+```ts
+ctx.docks.register({
+  id: 'my-plugin',
+  title: 'My Plugin',
+  icon: 'ph:house-duotone',
+  type: 'iframe',
+  url: '/__my-plugin/',
+  category: 'framework',
+})
+```
+
+### In-group sub-categories
+
+When an entry sets a `groupId` that resolves to a registered group, its outer bucket becomes the **group's** `category`, and its own `category` becomes an **in-group sub-category** dividing the group's popover, sidebar, settings list, and palette. Unset members fall into a `default` sub-category; an orphan (unregistered `groupId`) falls back to its own `category`.
+
+```ts
+ctx.docks.register({ id: 'nuxt', title: 'Nuxt', icon: 'logos:nuxt-icon', type: 'group', category: 'framework' })
+// Outer bucket = 'framework' (the group's); 'app' is the in-group sub-category.
+ctx.docks.register({ id: 'nuxt:overview', title: 'Overview', icon: 'ph:gauge-duotone', type: 'iframe', url: '/__nuxt/overview/', groupId: 'nuxt', category: 'app' })
+```
+
+A group's `categoryOrder` (`Record<category, weight>`) overrides `DEFAULT_CATEGORIES_ORDER` for that group's own in-group sub-categories only — it never affects other groups or the outer bar. Omitted sub-categories keep their weight from the shared table:
+
+```ts
+ctx.docks.register({
+  id: 'nuxt',
+  title: 'Nuxt',
+  icon: 'logos:nuxt-icon',
+  type: 'group',
+  category: 'framework',
+  categoryOrder: { advanced: -1, app: 1 }, // 'advanced' now leads 'app' inside this group
+})
+```

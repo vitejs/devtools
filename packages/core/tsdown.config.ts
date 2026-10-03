@@ -1,47 +1,46 @@
 import { defineConfig } from 'tsdown'
-import Vue from 'unplugin-vue/rolldown'
-import { buildCSS } from './src/client/webcomponents/scripts/build-css'
 
 const define = {
   'import.meta.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
   'process.env.VITE_DEVTOOLS_LOCAL_DEV': 'false',
 }
 
-export default defineConfig({
-  exports: true,
-  plugins: [
-    Vue({
-      isProduction: true,
-    }),
-  ],
-  external: [
-    '@vitejs/devtools/client/webcomponents',
+const deps = {
+  neverBundle: [
+    'vite',
     /^node:/,
   ],
+}
+
+const inputOptions = {
+  resolve: {
+    mainFields: ['module', 'main'],
+  },
+  experimental: {
+    resolveNewUrlToAsset: false,
+  },
+}
+
+const tsconfig = '../../tsconfig.base.json'
+
+// The client is now the prebuilt `@devframes/hub-ui` package served through
+// the hub's `ui` slot, so core ships only its neutral node surface.
+export default defineConfig({
   clean: true,
   platform: 'neutral',
-  tsconfig: '../../tsconfig.base.json',
+  tsconfig,
+  deps,
   entry: {
     'index': 'src/index.ts',
+    'integration': 'src/integration.ts',
+    'internal': 'src/internal.ts',
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
     'cli-commands': 'src/node/cli-commands.ts',
-    'client/inject': 'src/client/inject/index.ts',
-    'client/webcomponents': 'src/client/webcomponents/index.ts',
+    'config': 'src/node/config.ts',
   },
+  exports: true,
   dts: true,
-  inputOptions: {
-    resolve: {
-      mainFields: ['module', 'main'],
-    },
-    experimental: {
-      resolveNewUrlToAsset: false,
-    },
-  },
+  inputOptions,
   define,
-  hooks: {
-    'build:before': async function () {
-      await buildCSS()
-    },
-  },
 })

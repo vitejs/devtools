@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { ModuleDest, ModuleListItem, SessionContext } from '~~/shared/types'
+import type { ViteModuleDest, ViteModuleListItem } from '~/types/modules'
+import { toTree } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
-import { toTree } from '../../utils/format'
 
 const props = defineProps<{
-  session: SessionContext
-  modules: ModuleListItem[]
+  root: string
+  modules: ViteModuleListItem[]
 }>()
 
 const moduleTree = computed(() => {
-  if (!props.session.modulesList.length) {
+  if (!props.modules.length) {
     return {
       workspace: {
         children: {},
@@ -25,15 +25,14 @@ const moduleTree = computed(() => {
       },
     }
   }
-  const inWorkspace: ModuleDest[] = []
-  const inNodeModules: ModuleDest[] = []
-  const inVirtual: ModuleDest[] = []
+  const inWorkspace: ViteModuleDest[] = []
+  const inNodeModules: ViteModuleDest[] = []
+  const inVirtual: ViteModuleDest[] = []
 
   props.modules.map(i => ({ full: i.id, path: i.path! })).forEach((i) => {
-    if (i.full.startsWith(props.session.meta.cwd)) {
-      if (!i.path.startsWith('../')) {
-        i.path = i.full.slice(props.session.meta.cwd.length + 1)
-      }
+    if (i.full.startsWith(props.root)) {
+      if (!i.path.startsWith('../'))
+        i.path = i.full.slice(props.root.length + 1)
 
       inWorkspace.push(i)
     }
@@ -43,7 +42,7 @@ const moduleTree = computed(() => {
         path: i.full,
       })
     }
-    else if (i.full.startsWith('virtual:')) {
+    else if (i.full.startsWith('virtual:') || i.full.startsWith('\0')) {
       inVirtual.push(i)
     }
   })
@@ -54,43 +53,40 @@ const moduleTree = computed(() => {
     virtual: toTree(inVirtual, 'Virtual Modules'),
   }
 })
+
+const moduleTreeRoots = computed(() => {
+  const tree = moduleTree.value
+  return [
+    {
+      key: 'workspace',
+      node: tree.workspace,
+      icon: 'i-catppuccin:folder-dist icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-dist-open icon-catppuccin',
+    },
+    {
+      key: 'node-modules',
+      node: tree.nodeModules,
+      icon: 'i-catppuccin:folder-node icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-node-open icon-catppuccin',
+      open: false,
+      dividerBefore: true,
+    },
+    {
+      key: 'virtual',
+      node: tree.virtual,
+      icon: 'i-catppuccin:folder-components icon-catppuccin',
+      iconOpen: 'i-catppuccin:folder-components-open icon-catppuccin',
+      open: false,
+      dividerBefore: true,
+    },
+  ]
+})
 </script>
 
 <template>
-  <div of-auto max-h-screen pt-45 relative>
-    <div flex="~ col gap-2" p4>
-      <DisplayTreeNode
-        v-if="Object.keys(moduleTree.workspace.children).length"
-        :node="moduleTree.workspace"
-        p="l3"
-        icon="i-catppuccin:folder-dist icon-catppuccin"
-        icon-open="i-catppuccin:folder-dist-open icon-catppuccin"
-        :link="true"
-      />
-
-      <template v-if="Object.keys(moduleTree.nodeModules.children).length">
-        <div w-full h-1px border="t base" />
-        <DisplayTreeNode
-          :node="moduleTree.nodeModules"
-          p="l3"
-          icon="i-catppuccin:folder-node icon-catppuccin"
-          icon-open="i-catppuccin:folder-node-open icon-catppuccin"
-          :link="true"
-          :open="false"
-        />
-      </template>
-
-      <template v-if="Object.keys(moduleTree.virtual.children).length">
-        <div w-full h-1px border="t base" />
-        <DisplayTreeNode
-          :node="moduleTree.virtual"
-          p="l3"
-          icon="i-catppuccin:folder-components icon-catppuccin"
-          icon-open="i-catppuccin:folder-components-open icon-catppuccin"
-          :link="true"
-          :open="false"
-        />
-      </template>
-    </div>
-  </div>
+  <DisplayVirtualTree
+    class="relative"
+    :roots="moduleTreeRoots"
+    :link="true"
+  />
 </template>

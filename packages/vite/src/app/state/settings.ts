@@ -6,26 +6,20 @@ import { computed } from 'vue'
 export interface ClientSettings {
   codeviewerLineWrap: boolean
   codeviewerDiffPanelSize: number
-  flowExpandResolveId: boolean
-  flowExpandTransforms: boolean
-  flowExpandLoads: boolean
-  flowExpandChunks: boolean
-  flowExpandAssets: boolean
-  flowShowAllTransforms: boolean
-  flowShowAllLoads: boolean
   moduleGraphViewType: 'list' | 'detailed-list' | 'graph' | 'folder'
-  assetViewType: 'list' | 'folder' | 'treemap' | 'sunburst' | 'flamegraph'
-  chartAnimation: boolean
   moduleDetailsViewType: 'flow' | 'charts' | 'imports'
+  chartAnimation: boolean
   pluginDetailsViewType: 'flow' | 'sunburst'
   pluginDetailsTableFields: string[] | null
   pluginDetailsModuleTypes: string[] | null
   pluginDetailsDurationSortType: string
   pluginDetailSelectedHook: string
-  chunkViewType: 'list' | 'detailed-list' | 'graph' | 'treemap' | 'sunburst' | 'flamegraph'
   pluginDetailsShowType: 'changed' | 'unchanged' | 'all'
-  packageViewType: 'table' | 'treemap' | 'duplicate-packages'
-  packageSizeSortType: string
+  flowExpandResolveId: boolean
+  flowExpandTransforms: boolean
+  flowExpandLoads: boolean
+  flowShowAllTransforms: boolean
+  flowShowAllLoads: boolean
 }
 
 export const settings = useLocalStorage<ClientSettings>(
@@ -33,26 +27,20 @@ export const settings = useLocalStorage<ClientSettings>(
   {
     codeviewerLineWrap: false,
     codeviewerDiffPanelSize: 50,
-    flowExpandResolveId: true,
-    flowExpandTransforms: true,
-    flowExpandLoads: true,
-    flowExpandChunks: true,
-    flowExpandAssets: true,
-    flowShowAllTransforms: false,
-    flowShowAllLoads: false,
     moduleGraphViewType: 'list',
-    assetViewType: 'list',
-    chartAnimation: true,
     moduleDetailsViewType: 'flow',
+    chartAnimation: true,
     pluginDetailsViewType: 'flow',
     pluginDetailsTableFields: null,
     pluginDetailsModuleTypes: null,
     pluginDetailsDurationSortType: '',
     pluginDetailSelectedHook: '',
-    chunkViewType: 'list',
     pluginDetailsShowType: 'all',
-    packageViewType: 'table',
-    packageSizeSortType: '',
+    flowExpandResolveId: true,
+    flowExpandTransforms: true,
+    flowExpandLoads: true,
+    flowShowAllTransforms: false,
+    flowShowAllLoads: false,
   },
   {
     mergeDefaults: true,

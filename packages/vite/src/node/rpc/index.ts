@@ -1,47 +1,51 @@
-import type { RpcDefinitionsFilter, RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
-import { rolldownGetAssetDetails } from './functions/rolldown-get-asset-details'
-import { rolldownGetAssetsList } from './functions/rolldown-get-assets-list'
-import { rolldownGetChunkInfo } from './functions/rolldown-get-chunk-info'
-import { rolldownGetChunksGraph } from './functions/rolldown-get-chunks-graph'
-import { rolldownGetModuleInfo } from './functions/rolldown-get-module-info'
-import { rolldownGetModuleRawEvents } from './functions/rolldown-get-module-raw-events'
-import { rolldownGetModuleTransforms } from './functions/rolldown-get-module-transforms'
-import { rolldownGetPackageDetails } from './functions/rolldown-get-package-details'
-import { rolldownGetPackages } from './functions/rolldown-get-packages'
-import { rolldownGetPluginDetails } from './functions/rolldown-get-plugin-details'
-import { rolldownGetRawEvents } from './functions/rolldown-get-raw-events'
-import { rolldownGetSessionCompareSummary } from './functions/rolldown-get-session-compare-summary'
-import { rolldownGetSessionSummary } from './functions/rolldown-get-session-summary'
-import { rolldownListSessions } from './functions/rolldown-list-sessions'
+import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
+import type { ViteInspectModuleUpdatedState } from './inspect-module-updated'
+import { viteClearModuleTransform } from './functions/vite-clear-module-transform'
+import { viteEnvInfo } from './functions/vite-env-info'
+import { viteGetMetadata } from './functions/vite-get-metadata'
+import { viteGetModuleTransformInfo } from './functions/vite-get-module-transform-info'
+import { viteGetModulesList } from './functions/vite-get-modules-list'
+import { viteGetPluginDetails } from './functions/vite-get-plugin-details'
+import { viteGetPluginMetrics } from './functions/vite-get-plugin-metrics'
+import { viteGetServerMetrics } from './functions/vite-get-server-metrics'
+import { viteMetaInfo } from './functions/vite-meta-info'
+import { viteResolveId } from './functions/vite-resolve-id'
 import '@vitejs/devtools-kit'
 
+export {
+  VITE_INSPECT_MODULE_UPDATED_STATE_KEY,
+  type ViteInspectModuleUpdatedState,
+} from './inspect-module-updated'
+
+export const viteRpcFunctions = [
+  viteMetaInfo,
+  viteEnvInfo,
+] as const
+
+export const inspectRpcFunctions = [
+  viteClearModuleTransform,
+  viteGetMetadata,
+  viteGetModulesList,
+  viteGetPluginMetrics,
+  viteGetPluginDetails,
+  viteGetModuleTransformInfo,
+  viteResolveId,
+  viteGetServerMetrics,
+] as const
+
 export const rpcFunctions = [
-  rolldownListSessions,
-  rolldownGetRawEvents,
-  rolldownGetSessionSummary,
-  rolldownGetModuleInfo,
-  rolldownGetModuleRawEvents,
-  rolldownGetModuleTransforms,
-  rolldownGetChunksGraph,
-  rolldownGetAssetsList,
-  rolldownGetAssetDetails,
-  rolldownGetPluginDetails,
-  rolldownGetSessionCompareSummary,
-  rolldownGetChunkInfo,
-  rolldownGetPackages,
-  rolldownGetPackageDetails,
+  ...viteRpcFunctions,
+  ...inspectRpcFunctions,
 ] as const
 
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
-export type ServerFunctionsStatic = RpcDefinitionsToFunctions<
-  RpcDefinitionsFilter<typeof rpcFunctions, 'static'>
->
+// devframe ≥0.7.4: augment the canonical `devframe/types` module directly
+// (renamed re-exports like the kit's `DevTools*` alias no longer merge).
+declare module 'devframe/types' {
+  interface DevframeRpcServerFunctions extends ServerFunctions {}
 
-export type ServerFunctionsDump = {
-  [K in keyof ServerFunctionsStatic]: Awaited<ReturnType<ServerFunctionsStatic[K]>>
-}
-
-declare module '@vitejs/devtools-kit' {
-  export interface DevToolsRpcServerFunctions extends ServerFunctions {}
+  interface DevframeRpcSharedStates {
+    'vite:inspect:module-updated': ViteInspectModuleUpdatedState
+  }
 }

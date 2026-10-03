@@ -1,0 +1,92 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  // Snapshot/fixture output that is intentionally unimported source — keep it
+  // in the analysis for other issue types, just don't flag it as "unused".
+  //
+  // The `packages/{oxc,rolldown,vite}/src/app/**` entries are Nuxt app trees
+  // nested under `src/` (via `srcDir: 'app'`). Knip's Nuxt plugin registers
+  // its component/composable auto-import compilers relative to the workspace
+  // root rather than the resolved `nuxt.config` location, so components and
+  // composables consumed only through Nuxt's auto-import (template tags,
+  // unimport) can't be traced back and are misreported as unused files.
+  // `src/node/**`, `src/modules/**` and `src/shared/**` are unaffected and
+  // stay covered.
+  "ignoreFiles": [
+    "test/__snapshots__/**",
+    "packages/oxc/src/app/fixtures/**",
+    "e2e/fixtures/**",
+    "packages/oxc/src/app/**",
+    "packages/rolldown/src/app/**",
+    "packages/vite/src/app/**"
+  ],
+  "workspaces": {
+    "packages/core": {
+      // The node/client build entries are already covered by `package.json`
+      // `bin`/`exports` (resolved back to source via sourcemaps). Only the
+      // standalone client dev app isn't part of `exports`.
+      "entry": ["src/client/standalone/main.ts", "src/client/standalone/vite.config.ts"],
+      "unocss": { "config": ["src/client/standalone/uno.config.ts"] }
+    },
+    // packages/kit's entries are fully covered by its `package.json#exports`.
+    "packages/oxc": {
+      "nuxt": { "config": ["src/nuxt.config.ts"] },
+      "unocss": { "config": ["src/uno.config.ts"] }
+    },
+    "packages/rolldown": {
+      "nuxt": { "config": ["src/nuxt.config.ts"] },
+      "unocss": { "config": ["src/uno.config.ts"] }
+    },
+    "packages/vite": {
+      "nuxt": { "config": ["src/nuxt.config.ts"] },
+      "unocss": { "config": ["src/uno.config.ts"] }
+    },
+    "packages/ui": {
+      // Preset/component library consumed via package.json `exports` globs
+      // (components/composables/state/worker/plugins/utils) — not a Nuxt app
+      // itself, even though it lists `nuxt`/`unocss` as peer dependencies.
+      "entry": [
+        "src/components/**/*.vue",
+        // `DisplayHighlightedPath.ts` is a `.ts` render-function component,
+        // but the `./components/*` exports glob only maps to `.vue`, so
+        // consumers importing it deeply (e.g. the rolldown/vite Nuxt apps'
+        // auto-import shims) can't be traced back to this source file.
+        "src/components/Display/DisplayHighlightedPath.ts",
+        "src/composables/*.ts",
+        "src/state/*.ts",
+        "src/worker/*.ts",
+        "src/plugins/*.ts",
+        "src/utils/*.ts",
+        "src/unocss/*.ts",
+        "src/components/**/*.stories.ts"
+      ],
+      "nuxt": false,
+      "unocss": false
+    },
+    // packages/vitest's entries are fully covered by its `package.json#exports`.
+    "packages/webext": {
+      // Built directly from every top-level `src/*.ts` file (see
+      // `tsdown.config.ts`) rather than a single index — `webext` has no
+      // `exports` map for source-mapping to pick these up automatically.
+      // `scripts/build-app.ts` is already found via the `build:extension`
+      // script in `package.json`.
+      "entry": ["src/*.ts"]
+    },
+    "examples/*": {
+      // `src/node/index.ts` is covered by `package.json#exports` already.
+      "entry": ["playground/vite.config.ts", "playground/src/main.{ts,tsx}"]
+    },
+    "examples/plugin-file-explorer": {
+      // A workspace-specific config overrides the `examples/*` wildcard
+      // entirely, so the playground entries have to be repeated here too.
+      "entry": [
+        "playground/vite.config.ts",
+        "playground/src/main.{ts,tsx}",
+        "src/ui/main.tsx",
+        "src/ui/vite.config.ts"
+      ]
+    },
+    "playgrounds/core": {
+      "entry": ["uno.config.ts", "src/oxlint.config.ts"]
+    }
+  }
+}

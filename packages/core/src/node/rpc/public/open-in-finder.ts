@@ -1,12 +1,24 @@
+import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
+import { open } from 'devframe/utils/open'
+import { diagnostics } from '../../diagnostics'
 
 export const openInFinder = defineRpcFunction({
   name: 'vite:core:open-in-finder',
   type: 'action',
-  setup: () => {
+  jsonSerializable: true,
+  setup: (context) => {
     return {
       handler: async (path: string) => {
-        await import('open').then(r => r.default(path))
+        const resolved = resolve(context.workspaceRoot, path)
+        const rel = relative(context.workspaceRoot, resolved)
+
+        // Ensure the path stays within workspace root
+        if (rel.startsWith('..') || rel.includes('\0')) {
+          throw diagnostics.DTK0029()
+        }
+
+        await open(resolved)
       },
     }
   },

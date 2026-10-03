@@ -6,19 +6,27 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const r = (path: string) => fileURLToPath(new URL(`./packages/${path}`, import.meta.url))
 
 export const alias = {
-  '@vitejs/devtools-rpc/presets/ws/server': r('rpc/src/presets/ws/server.ts'),
-  '@vitejs/devtools-rpc/presets/ws/client': r('rpc/src/presets/ws/client.ts'),
-  '@vitejs/devtools-rpc/presets': r('rpc/src/presets/index.ts'),
-  '@vitejs/devtools-rpc': r('rpc/src'),
+  '@vitejs/devtools-kit/node': r('kit/src/node/index.ts'),
   '@vitejs/devtools-kit/client': r('kit/src/client/index.ts'),
+  '@vitejs/devtools-kit/constants': r('kit/src/constants.ts'),
   '@vitejs/devtools-kit/utils/events': r('kit/src/utils/events.ts'),
   '@vitejs/devtools-kit/utils/nanoid': r('kit/src/utils/nanoid.ts'),
+  '@vitejs/devtools-kit/utils/when': r('kit/src/utils/when.ts'),
   '@vitejs/devtools-kit/utils/shared-state': r('kit/src/utils/shared-state.ts'),
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
+  '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
   '@vitejs/devtools-vite': r('vite/src/index.ts'),
+  '@vitejs/devtools-vitest': r('vitest/src/index.ts'),
+  '@vitejs/devtools/internal': r('core/src/internal.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
+  '@vitejs/devtools/client/inject-passive': r('core/src/client/inject-passive/index.ts'),
+  '@vitejs/devtools/client/inject-hidden': r('core/src/client/inject-hidden/index.ts'),
   '@vitejs/devtools/client/webcomponents': r('core/src/client/webcomponents/index.ts'),
   '@vitejs/devtools': r('core/src/index.ts'),
+  '@vitejs/devtools-ui/unocss': r('ui/src/unocss/index.ts'),
+  '@vitejs/devtools-ui/components': r('ui/src/components'),
+  '@vitejs/devtools-ui/composables': r('ui/src/composables'),
+  '@vitejs/devtools-ui/utils': r('ui/src/utils'),
 }
 
 // update tsconfig.base.json
