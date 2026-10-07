@@ -181,7 +181,7 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
         ? resultValue?.id
         : resultValue
 
-    if (result && result !== id) {
+    if (result) {
       envContext.recordResolveId(id, {
         name: plugin.name,
         result,

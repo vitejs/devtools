@@ -79,6 +79,65 @@ async function createInspectServer(
 }
 
 describe('vite inspect server invalidation', () => {
+  it.each(['string', 'object'] as const)('counts successful same-ID resolve time (%s)', async (result) => {
+    const id = '/resolve-timing.js'
+    const plugin: Plugin = {
+      name: 'test:slow-resolve',
+      enforce: 'pre',
+      async resolveId(source) {
+        if (source !== id)
+          return
+        await new Promise(resolve => setTimeout(resolve, 20))
+        return result === 'string' ? id : { id }
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map([[id, 'export const value = 1']]), [plugin])
+    await server.transformRequest(id)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    const duration = details.resolveIdMetrics.filter(call => call.module === id).reduce((sum, call) => sum + call.duration, 0)
+    expect(duration).toBeGreaterThan(0)
+    const [module] = await envContext.getModulesList()
+    expect(module!.plugins.filter(p => p.name === plugin.name).reduce((sum, p) => sum + (p.resolveId ?? 0), 0)).toBe(duration)
+    expect((await envContext.getModuleTransformInfo(id)).resolvedId).toBe(id)
+    envContext.invalidate(id)
+    expect(await envContext.getModulesList()).toEqual([])
+    expect((await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))).resolveIdMetrics.filter(call => call.module === id)).toEqual([])
+  })
+
+  it('does not assign declined resolutions by source name across importers', async () => {
+    const source = '/shared.js'
+    const plugin: Plugin = {
+      name: 'test:declined-resolve',
+      enforce: 'pre',
+      resolveId(id) {
+        if (id === source)
+          return null
+      },
+    }
+    const resolver: Plugin = {
+      name: 'test:importer-resolve',
+      resolveId(id, importer) {
+        if (id === source)
+          return importer === '/a.js' ? '/a/shared.js' : '/b/shared.js'
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map([
+      ['/a/shared.js', 'export const value = 1'],
+      ['/b/shared.js', 'export const value = 2'],
+    ]), [plugin, resolver])
+    const container = server.environments.client.pluginContainer
+    await container.resolveId(source, '/a.js')
+    await container.resolveId(source, '/b.js')
+    await server.transformRequest('/a/shared.js')
+    await server.transformRequest('/b/shared.js')
+    const modules = await envContext.getModulesList()
+    expect(modules).toHaveLength(2)
+    for (const module of modules)
+      expect(module.plugins.some(p => p.name === plugin.name)).toBe(false)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    expect(details.resolveIdMetrics.filter(call => call.module === source)).toHaveLength(2)
+  })
+
   it('completes Vite transforms without waiting for payload persistence', async () => {
     const source = new Map([
       ['/entry.js', 'export const entry = 1'],
