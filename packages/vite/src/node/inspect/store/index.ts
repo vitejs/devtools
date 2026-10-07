@@ -12,6 +12,7 @@ import type {
   PendingWrite,
   QueuedWrite,
   StoredViteInspectTransformInfo,
+  ViteInspectModuleLoadMetric,
   ViteInspectPayloadRange,
   ViteInspectPluginMetricItem,
   ViteInspectResolveIdItem,
@@ -31,6 +32,7 @@ const DEFAULT_MAX_BATCH_ITEMS = 256
 const DEFAULT_MAX_BATCH_BYTES = 8 * 1024 * 1024
 
 interface StoredModuleTransforms {
+  loadRequest?: object
   publicModuleId: string
   invokeCount: number
   items: StoredViteInspectTransformInfo[]
@@ -39,10 +41,12 @@ interface StoredModuleTransforms {
 interface ScopeData {
   transforms: Map<string, StoredModuleTransforms>
   resolveIds: Map<string, ViteInspectResolveIdItem[]>
+  declinedLoads: Map<string, Map<string, ViteInspectPluginMetricItem>>
+  pendingLoads: Map<object | undefined, Map<string, Map<string, ViteInspectPluginMetricItem>>>
 }
 
 interface PreparedWrite {
-  write: Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' }>
+  write: Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' | 'finishLoadRequest' }>
   resultIndex?: number
   sourceIndex?: number
   sourcemapIndex?: number
@@ -121,6 +125,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
     info: ViteInspectTransformInfo,
     preTransformCode: string,
     pluginCall?: ViteInspectPluginCallInfo,
+    loadRequest?: object,
   ): void {
     this.enqueue({
       operation: 'recordTransform',
@@ -130,6 +135,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       info,
       preTransformCode,
       pluginCall,
+      loadRequest,
     })
   }
 
@@ -139,6 +145,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
     publicModuleId: string,
     info: ViteInspectTransformInfo,
     pluginCall?: ViteInspectPluginCallInfo,
+    loadRequest?: object,
   ): void {
     this.enqueue({
       operation: 'recordLoad',
@@ -147,6 +154,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       publicModuleId,
       info,
       pluginCall,
+      loadRequest,
     })
   }
 
@@ -169,12 +177,17 @@ class PayloadViteInspectStore implements ViteInspectStore {
     })
   }
 
-  recordPluginCall(scope: string, info: ViteInspectPluginCallInfo): void {
+  recordPluginCall(scope: string, info: ViteInspectPluginCallInfo, loadRequest?: object): void {
     this.enqueue({
       operation: 'recordPluginCall',
       scope,
       info,
+      loadRequest,
     })
+  }
+
+  finishLoadRequest(scope: string, loadRequest: object): void {
+    this.enqueue({ operation: 'finishLoadRequest', scope, loadRequest })
   }
 
   invalidate(scope: string, moduleId: string, publicModuleId: string): void {
@@ -212,6 +225,13 @@ class PayloadViteInspectStore implements ViteInspectStore {
       }
     }
     return result
+  }
+
+  async getDeclinedLoadMetrics(scope: string): Promise<ViteInspectModuleLoadMetric[]> {
+    await this.flush()
+    return Array.from(this.scopes.get(scope)?.declinedLoads ?? []).flatMap(([publicModuleId, metrics]) =>
+      Array.from(metrics.values(), metric => ({ ...metric, publicModuleId })),
+    )
   }
 
   async getResolveIdList(scope: string): Promise<ViteInspectResolveIdItem[]> {
@@ -401,7 +421,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
   }
 
   private async writeBatch(batch: PendingWrite[]): Promise<void> {
-    let dataWrites: Array<Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' }>> = []
+    let dataWrites: Array<Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' | 'finishLoadRequest' }>> = []
     const flushDataWrites = async () => {
       if (dataWrites.length === 0)
         return
@@ -415,6 +435,10 @@ class PayloadViteInspectStore implements ViteInspectStore {
         await flushDataWrites()
         this.invalidateNow(write.scope, write.moduleId, write.publicModuleId)
       }
+      else if (write.operation === 'finishLoadRequest') {
+        await flushDataWrites()
+        this.scopes.get(write.scope)?.pendingLoads.delete(write.loadRequest)
+      }
       else if (write.operation === 'clearScope') {
         await flushDataWrites()
         this.clearScopeNow(write.scope)
@@ -427,21 +451,25 @@ class PayloadViteInspectStore implements ViteInspectStore {
   }
 
   private async writeDataBatch(
-    writes: Array<Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' }>>,
+    writes: Array<Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' | 'finishLoadRequest' }>>,
   ): Promise<void> {
     const values: Array<string | null | undefined> = []
     const prepared: PreparedWrite[] = []
     const pluginCallWrites: InspectPluginCallWrite[] = []
-    const sourceState = new Map<string, boolean>()
+    const sourceState = new Map<string, { hasSource: boolean, loadRequest?: object }>()
 
-    const hasSource = (scope: string, moduleId: string): boolean => {
+    const hasSource = (scope: string, moduleId: string, loadRequest?: object): boolean => {
       const key = scopeKey(scope, moduleId)
-      const pending = sourceState.get(key)
-      if (pending != null)
-        return pending
-      const stored = this.scopes.get(scope)?.transforms.get(moduleId)?.items.some(item => item.hasResult) ?? false
-      sourceState.set(key, stored)
-      return stored
+      let state = sourceState.get(key)
+      if (!state) {
+        const stored = this.scopes.get(scope)?.transforms.get(moduleId)
+        state = {
+          hasSource: stored?.items.some(item => item.hasResult) ?? false,
+          loadRequest: stored?.loadRequest,
+        }
+        sourceState.set(key, state)
+      }
+      return state.hasSource && (!loadRequest || state.loadRequest === loadRequest)
     }
 
     for (const write of writes) {
@@ -452,15 +480,15 @@ class PayloadViteInspectStore implements ViteInspectStore {
           info: pluginCall,
         })
       }
-      if (write.operation === 'recordPluginCall')
+      if (write.operation === 'recordPluginCall' && write.info.type !== 'load')
         continue
 
       const item: PreparedWrite = { write }
       if (write.operation === 'recordTransform') {
         const key = scopeKey(write.scope, write.moduleId)
-        if (!hasSource(write.scope, write.moduleId)) {
+        if (!hasSource(write.scope, write.moduleId, write.loadRequest)) {
           item.sourceIndex = values.push(write.preTransformCode) - 1
-          sourceState.set(key, true)
+          sourceState.set(key, { hasSource: true, loadRequest: write.loadRequest })
         }
         item.resultIndex = values.push(write.info.result) - 1
         item.sourcemapIndex = pushSerializedPayload(values, write.info.sourcemaps)
@@ -468,7 +496,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       else if (write.operation === 'recordLoad') {
         item.resultIndex = values.push(write.info.result) - 1
         item.sourcemapIndex = pushSerializedPayload(values, write.info.sourcemaps)
-        sourceState.set(scopeKey(write.scope, write.moduleId), write.info.result != null)
+        sourceState.set(scopeKey(write.scope, write.moduleId), { hasSource: write.info.result != null, loadRequest: write.loadRequest })
       }
       prepared.push(item)
     }
@@ -501,6 +529,21 @@ class PayloadViteInspectStore implements ViteInspectStore {
         rangeAt(ranges, prepared.sourcemapIndex),
       )
     }
+    else if (write.operation === 'recordPluginCall' && write.info.type === 'load') {
+      // Declined loads have timing data but must not replace the module's code.
+      const data = this.getScope(write.scope)
+      let pendingLoads = data.pendingLoads.get(write.loadRequest)
+      if (!pendingLoads) {
+        pendingLoads = new Map()
+        data.pendingLoads.set(write.loadRequest, pendingLoads)
+      }
+      let metrics = pendingLoads.get(write.info.module)
+      if (!metrics) {
+        metrics = new Map()
+        pendingLoads.set(write.info.module, metrics)
+      }
+      addMetric(metrics, write.info.plugin_id, write.info.plugin_name, write.info.duration)
+    }
     else if (write.operation === 'recordResolveId') {
       const data = this.getScope(write.scope)
       let resolveIds = data.resolveIds.get(write.sourceId)
@@ -529,16 +572,23 @@ class PayloadViteInspectStore implements ViteInspectStore {
   ): void {
     const data = this.getScope(write.scope)
     let transforms = data.transforms.get(write.moduleId)
-    if (!transforms) {
+    // A new request can reach transform through Vite's direct file read.
+    // Replace the previous snapshot even when it contains a load error result.
+    if (!transforms || (write.loadRequest && transforms.loadRequest !== write.loadRequest)) {
+      if (transforms)
+        this.payloads.reclaim(collectPayloadRanges(transforms.items))
       transforms = {
+        loadRequest: write.loadRequest,
         publicModuleId: write.publicModuleId,
-        invokeCount: 0,
+        invokeCount: transforms?.invokeCount ?? 0,
         items: [],
       }
       data.transforms.set(write.moduleId, transforms)
     }
 
     if (!transforms.items.some(item => item.hasResult)) {
+      // Vite can read files itself without a successful load hook.
+      this.commitLoadMetrics(data, write.publicModuleId, write.loadRequest)
       transforms.items.push({
         name: DUMMY_LOAD_PLUGIN_NAME,
         hasResult: true,
@@ -559,14 +609,29 @@ class PayloadViteInspectStore implements ViteInspectStore {
     sourcemaps: ViteInspectPayloadRange | undefined,
   ): void {
     const data = this.getScope(write.scope)
+    this.commitLoadMetrics(data, write.publicModuleId, write.loadRequest)
     const existing = data.transforms.get(write.moduleId)
     if (existing)
       this.payloads.reclaim(collectPayloadRanges(existing.items))
     data.transforms.set(write.moduleId, {
+      loadRequest: write.loadRequest,
       publicModuleId: write.publicModuleId,
       invokeCount: (existing?.invokeCount ?? 0) + 1,
       items: [toStoredTransformInfo(write.info, result, sourcemaps)],
     })
+  }
+
+  private commitLoadMetrics(data: ScopeData, publicModuleId: string, loadRequest?: object): void {
+    // Only this request can contribute declined loads to its code snapshot.
+    const pendingLoads = data.pendingLoads.get(loadRequest)
+    const declinedLoads = pendingLoads?.get(publicModuleId)
+    if (declinedLoads)
+      data.declinedLoads.set(publicModuleId, declinedLoads)
+    else
+      data.declinedLoads.delete(publicModuleId)
+    pendingLoads?.delete(publicModuleId)
+    if (pendingLoads?.size === 0)
+      data.pendingLoads.delete(loadRequest)
   }
 
   private invalidateNow(scope: string, moduleId: string, publicModuleId: string): void {
@@ -615,6 +680,15 @@ class PayloadViteInspectStore implements ViteInspectStore {
         data.resolveIds.set(sourceId, remaining)
       else
         data.resolveIds.delete(sourceId)
+    }
+
+    for (const id of invalidPublicIds) {
+      data.declinedLoads.delete(id)
+      for (const [request, pendingLoads] of data.pendingLoads) {
+        pendingLoads.delete(id)
+        if (pendingLoads.size === 0)
+          data.pendingLoads.delete(request)
+      }
     }
 
     this.pluginCalls.invalidate(scope, invalidPublicIds)
@@ -680,6 +754,8 @@ class PayloadViteInspectStore implements ViteInspectStore {
       data = {
         transforms: new Map(),
         resolveIds: new Map(),
+        declinedLoads: new Map(),
+        pendingLoads: new Map(),
       }
       this.scopes.set(scope, data)
     }
@@ -852,7 +928,7 @@ function positiveInteger(value: number | undefined, fallback: number): number {
 }
 
 function estimateWriteBytes(write: QueuedWrite): number {
-  const pluginCall = write.operation === 'invalidate' || write.operation === 'clearScope'
+  const pluginCall = write.operation === 'invalidate' || write.operation === 'clearScope' || write.operation === 'finishLoadRequest'
     ? undefined
     : getQueuedPluginCall(write)
   const pluginCallBytes = pluginCall
@@ -876,7 +952,7 @@ function estimateWriteBytes(write: QueuedWrite): number {
 }
 
 function getQueuedPluginCall(
-  write: Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' }>,
+  write: Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' | 'finishLoadRequest' }>,
 ): ViteInspectPluginCallInfo | undefined {
   return write.operation === 'recordPluginCall' ? write.info : write.pluginCall
 }

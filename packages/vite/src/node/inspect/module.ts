@@ -31,6 +31,13 @@ export async function getModulesList(
 
   const transformList = await ctx.inspectContext.store.getTransformList(ctx.scope)
   const resolveIdList = await ctx.inspectContext.store.getResolveIdList(ctx.scope)
+  const declinedLoads = await ctx.inspectContext.store.getDeclinedLoadMetrics(ctx.scope)
+  const declinedLoadsById = new Map<string, ViteInspectModulePluginMetric[]>()
+  for (const load of declinedLoads) {
+    const plugins = declinedLoadsById.get(load.publicModuleId) ?? []
+    plugins.push({ name: load.pluginName, transform: load.totalTime })
+    declinedLoadsById.set(load.publicModuleId, plugins)
+  }
 
   const transformsById = transformList.reduce<Record<string, typeof transformList>>((map, transform) => {
     const transforms = map[transform.moduleId] ||= []
@@ -63,7 +70,9 @@ export async function getModulesList(
       name: resolveId.name,
       resolveId: resolveId.end - resolveId.start,
     }))
-    const plugins = transformPlugins.concat(resolveIdPlugins)
+    const loadPlugins = declinedLoadsById.get(ctx.getPublicModuleId(id)) ?? []
+    totalTime += loadPlugins.reduce((sum, plugin) => sum + (plugin.transform ?? 0), 0)
+    const plugins = transformPlugins.concat(loadPlugins, resolveIdPlugins)
     const firstTransform = transforms[0]
     const lastTransform = transforms.at(-1)
 

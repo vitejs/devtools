@@ -70,6 +70,10 @@ export interface ViteInspectPluginMetricItem {
   totalTime: number
 }
 
+export interface ViteInspectModuleLoadMetric extends ViteInspectPluginMetricItem {
+  publicModuleId: string
+}
+
 export interface ViteInspectStore {
   recordTransform: (
     scope: string,
@@ -78,6 +82,7 @@ export interface ViteInspectStore {
     info: ViteInspectTransformInfo,
     preTransformCode: string,
     pluginCall?: ViteInspectPluginCallInfo,
+    loadRequest?: object,
   ) => void
   recordLoad: (
     scope: string,
@@ -85,6 +90,7 @@ export interface ViteInspectStore {
     publicModuleId: string,
     info: ViteInspectTransformInfo,
     pluginCall?: ViteInspectPluginCallInfo,
+    loadRequest?: object,
   ) => void
   recordResolveId: (
     scope: string,
@@ -97,10 +103,13 @@ export interface ViteInspectStore {
   recordPluginCall: (
     scope: string,
     info: ViteInspectPluginCallInfo,
+    loadRequest?: object,
   ) => void
+  finishLoadRequest: (scope: string, loadRequest: object) => void
   invalidate: (scope: string, moduleId: string, publicModuleId: string) => void
   clearScope: (scope: string) => void
   getTransformList: (scope: string) => Promise<ViteInspectTransformListItem[]>
+  getDeclinedLoadMetrics: (scope: string) => Promise<ViteInspectModuleLoadMetric[]>
   getResolveIdList: (scope: string) => Promise<ViteInspectResolveIdItem[]>
   getPluginTransformMetrics: (scope: string) => Promise<ViteInspectPluginMetricItem[]>
   getPluginResolveIdMetrics: (scope: string) => Promise<ViteInspectPluginMetricItem[]>
@@ -123,6 +132,7 @@ export type QueuedWrite
     info: ViteInspectTransformInfo
     preTransformCode: string
     pluginCall?: ViteInspectPluginCallInfo
+    loadRequest?: object
   }
   | {
     operation: 'recordLoad'
@@ -131,6 +141,7 @@ export type QueuedWrite
     publicModuleId: string
     info: ViteInspectTransformInfo
     pluginCall?: ViteInspectPluginCallInfo
+    loadRequest?: object
   }
   | {
     operation: 'recordResolveId'
@@ -145,6 +156,12 @@ export type QueuedWrite
     operation: 'recordPluginCall'
     scope: string
     info: ViteInspectPluginCallInfo
+    loadRequest?: object
+  }
+  | {
+    operation: 'finishLoadRequest'
+    scope: string
+    loadRequest: object
   }
   | {
     operation: 'invalidate'

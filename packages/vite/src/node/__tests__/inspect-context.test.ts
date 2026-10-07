@@ -1030,4 +1030,130 @@ describe('vite inspect context', () => {
       ],
     })
   })
+  it.each(['memory', 'disk'])('counts declined loads without replacing code (%s)', async (storage) => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-load-timing-'))
+    const { ctx, envCtx, vite } = await createFixture({ store: { filename: storage === 'disk' ? join(dir, 'payloads.bin') : ':memory:', maxBatchItems: 1 } })
+    try {
+      const id = '/src/load-timing.ts'
+      const source = 'export const value = 1'
+      const record = () => {
+        envCtx.recordLoadCall(id, { name: 'plugin-a', start: 0, end: 200 }, vite.config.plugins[1])
+        envCtx.recordLoad(id, { name: 'vite:load-fallback', result: source, start: 200, end: 202 }, vite.config.plugins[0])
+        envCtx.recordTransform(id, { name: 'plugin-b', result: source, start: 202, end: 205 }, source, vite.config.plugins[2])
+      }
+      record()
+      const assertMetrics = async (calls = 1) => {
+        const [module] = await envCtx.getModulesList()
+        expect(module).toMatchObject({ totalTime: 205, virtual: false, sourceSize: source.length, distSize: source.length })
+        expect(module!.plugins).toContainEqual({ name: 'plugin-a', transform: 200 })
+        expect((await envCtx.getModuleTransformInfo(id)).transforms.map(t => t.name)).toEqual(['vite:load-fallback', 'plugin-b'])
+        expect((await envCtx.getPluginDetails(1)).loadMetrics).toHaveLength(calls)
+      }
+      await assertMetrics()
+      record()
+      await assertMetrics(2)
+      envCtx.invalidate(id)
+      expect(await envCtx.getModulesList()).toEqual([])
+      record()
+      await assertMetrics()
+      envCtx.clearScope()
+      expect(await envCtx.getModulesList()).toEqual([])
+    }
+    finally {
+      await ctx.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['memory', 'disk'])('isolates overlapping load requests (%s)', async (storage) => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-load-requests-'))
+    const { ctx, envCtx } = await createFixture({ store: {
+      filename: storage === 'disk' ? join(dir, 'payloads.bin') : ':memory:',
+      maxBatchItems: storage === 'disk' ? 1 : undefined,
+    } })
+    try {
+      const id = '/src/load-requests.ts'
+      const source = 'export const value = 1'
+      const failedRequest = {}
+      const successfulRequest = {}
+      const recordCall = (request: object, duration: number) => {
+        ctx.store.recordPluginCall(envCtx.scope, {
+          type: 'load',
+          id: `load:${duration}`,
+          duration,
+          plugin_id: 1,
+          plugin_name: 'plugin-a',
+          module: id,
+          timestamp_start: 0,
+          timestamp_end: duration,
+          unchanged: true,
+        }, request)
+      }
+      recordCall(failedRequest, 100)
+      recordCall(successfulRequest, 20)
+      ctx.store.finishLoadRequest(envCtx.scope, failedRequest)
+      ctx.store.recordLoad(envCtx.scope, id, id, {
+        name: 'vite:load-fallback',
+        result: source,
+        start: 20,
+        end: 22,
+      }, undefined, successfulRequest)
+      ctx.store.finishLoadRequest(envCtx.scope, successfulRequest)
+
+      const [module] = await envCtx.getModulesList()
+      expect(module).toMatchObject({ totalTime: 22, sourceSize: source.length, distSize: source.length })
+      expect(module!.plugins).toContainEqual({ name: 'plugin-a', transform: 20 })
+      expect((await envCtx.getPluginDetails(1)).loadMetrics).toHaveLength(2)
+    }
+    finally {
+      await ctx.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['memory', 'disk'])('replaces a previous request source within a write batch (%s)', async (storage) => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-source-retry-'))
+    const { ctx, envCtx } = await createFixture({ store: {
+      filename: storage === 'disk' ? join(dir, 'payloads.bin') : ':memory:',
+    } })
+    try {
+      const id = '/src/source-retry.ts'
+      const source = 'export const value = 1'
+      const output = 'export const value = 2'
+      const failedRequest = {}
+      const successfulRequest = {}
+      ctx.store.recordLoad(envCtx.scope, id, id, {
+        name: 'failed-load',
+        result: '[Error]',
+        start: 0,
+        end: 80,
+      }, undefined, failedRequest)
+      ctx.store.recordTransform(envCtx.scope, id, id, {
+        name: 'plugin-a',
+        start: 80,
+        end: 83,
+      }, source, undefined, successfulRequest)
+      ctx.store.recordTransform(envCtx.scope, id, id, {
+        name: 'plugin-b',
+        result: output,
+        start: 83,
+        end: 85,
+      }, source, undefined, successfulRequest)
+      ctx.store.finishLoadRequest(envCtx.scope, failedRequest)
+      ctx.store.finishLoadRequest(envCtx.scope, successfulRequest)
+
+      expect((await envCtx.getModuleTransformInfo(id)).transforms).toMatchObject([
+        { name: '__load__', result: source },
+        { name: 'plugin-a' },
+        { name: 'plugin-b', result: output },
+      ])
+      expect(await envCtx.getModulesList()).toMatchObject([
+        { id, sourceSize: source.length, distSize: output.length, invokeCount: 2 },
+      ])
+    }
+    finally {
+      await ctx.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })
