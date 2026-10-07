@@ -4,5 +4,6 @@
 // #region Functions
 export async function createDevToolsContext(_, _, _) {}
 export async function createDevToolsHub(_) {}
+export function defineJsonRenderSpec(_) {}
 export async function DevTools(_) {}
 // #endregion

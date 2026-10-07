@@ -24,15 +24,6 @@ export type {
   RemoteDockOptions,
 } from '@devframes/hub/types'
 
-// `json-render` is the opt-in `@devframes/json-render` integration, which
-// contributes the `'json-render'` variant to the hub's open dock union (its
-// entry carries a serializable `view` ref). Re-export that entry type under
-// the kit's `DevTools*` naming; the type-only re-export also pulls in the
-// module augmentation so `docks.register({ type: 'json-render' })` resolves
-// for kit consumers. The `@devframes/json-render-ui` renderer, mounted by
-// Vite DevTools via `initHub({ renderers })`, reads `entry.view`.
-export type { DevframeJsonRenderDockEntry as DevToolsViewJsonRender } from '@devframes/json-render/hub'
-
 /**
  * A selectable launch root offered by a launcher dock entry.
  *
