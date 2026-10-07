@@ -1,3 +1,5 @@
+import type { DevToolsConfig } from './config'
+
 export type DevToolsBrandingLogo
   = | string
     | { light: string, dark: string }
@@ -72,7 +74,12 @@ export interface DevToolsUserOptions {
   }
 }
 
-export interface DevToolsOptions extends DevToolsUserOptions {
+/**
+ * Options for the `DevTools()` plugin. They are applied as the DevTools config,
+ * so everything the `devtools` Vite option accepts works here too (e.g. `clientAuth`),
+ * except `enabled` and `apply`: adding the plugin enables it, and Vite's own `apply` picks the command.
+ */
+export interface DevToolsOptions extends Omit<DevToolsConfig, 'enabled' | 'apply'> {
   /** Directory to search for installed integrations. */
   cwd?: string
 }
