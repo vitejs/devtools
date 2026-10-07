@@ -16,32 +16,19 @@ export interface DevToolsHub {
   getConnectionMeta: () => ConnectionMeta;
   close: () => Promise<void>;
 }
-export interface JsonRenderer<SpecType extends JsonRenderSpec = JsonRenderSpec> {
-  updateSpec: (_: SpecType) => void;
-  updateState: (_: Record<string, unknown>) => void;
-  dispose: () => void;
-  readonly _stateKey: string;
-  readonly view: JsonRenderViewRef<SpecType>;
-}
 // #endregion
 
 // #region Types
 export type BuiltinServerFunctions = RpcDefinitionsToFunctions<typeof builtinRpcDeclarations>;
-export type JsonRenderElement = UIElement;
-export type JsonRenderSpec<Element extends UIElement = UIElement> = DevframeJsonRenderSpec<Element>;
 // #endregion
 
 // #region Functions
 export declare function createDevToolsContext(_: ResolvedConfig, _?: ViteDevServer, _?: ResolvedDevToolsConfig): Promise<ViteDevToolsNodeContext>;
 export declare function createDevToolsHub(_: CreateDevToolsHubOptions): Promise<DevToolsHub>;
-export declare function defineJsonRenderSpec<SpecType extends JsonRenderSpec>(_: SpecType): SpecType;
 export declare function DevTools(_?: DevToolsOptions): Promise<Plugin[]>;
 // #endregion
 
 // #region Other
 export { DevToolsInternalContext }
-export { DevToolsViewJsonRender }
 export { InternalAnonymousAuthStorage }
-export { JsonRenderView }
-export { JsonRenderViewRef }
 // #endregion

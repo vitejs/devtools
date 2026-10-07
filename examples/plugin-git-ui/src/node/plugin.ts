@@ -1,5 +1,5 @@
-import type { JsonRenderer } from '@vitejs/devtools'
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { JsonRenderer } from '@vitejs/devtools/json-render'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { exec } from 'tinyexec'
 import { getGitState, git } from './git'

@@ -27,6 +27,7 @@
     "./dirs": "./dist/dirs.js",
     "./integration": "./dist/integration.js",
     "./internal": "./dist/internal.js",
+    "./json-render": "./dist/json-render.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",

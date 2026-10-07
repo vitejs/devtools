@@ -6,7 +6,7 @@ outline: deep
 
 JSON render panels build DevTools UIs from server-side TypeScript alone. You describe the UI as a JSON spec; the DevTools client renders it with the built-in component library. It builds on [Devframe's JSON-Render](https://devfra.me/guide/json-render).
 
-Vite DevTools (`@vitejs/devtools`) provides `ctx.createJsonRenderer()` and the `JsonRenderSpec` / `JsonRenderer` types, so `@vitejs/devtools-kit` stays light. Add `@vitejs/devtools` as a dev dependency to author specs with full type inference.
+Vite DevTools provides `ctx.createJsonRenderer()`; the `JsonRenderSpec` / `JsonRenderer` types and `defineJsonRenderSpec` live in `@vitejs/devtools/json-render`, so `@vitejs/devtools-kit` stays light. Add `@vitejs/devtools` as a dev dependency to author specs with full type inference.
 
 ## Getting started
 
@@ -618,8 +618,8 @@ Expandable tree view for inspecting nested objects.
 A complete panel combining layout, data display, inputs, and actions:
 
 ```ts
-import type { JsonRenderSpec } from '@vitejs/devtools'
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { JsonRenderSpec } from '@vitejs/devtools/json-render'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 function buildSpec(data: { modules: number, time: string, size: string }): JsonRenderSpec {

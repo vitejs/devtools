@@ -1,13 +1,8 @@
+// Loads the `KitNodeContext.createJsonRenderer` augmentation for anyone who
+// only imports `DevTools()`; the types themselves live under `./json-render`.
+import './json-render'
+
 export { createDevToolsContext } from './node/context'
-export { defineJsonRenderSpec } from './node/json-render'
-export type {
-  DevToolsViewJsonRender,
-  JsonRenderElement,
-  JsonRenderer,
-  JsonRenderSpec,
-  JsonRenderView,
-  JsonRenderViewRef,
-} from './node/json-render'
 export { DevTools } from './node/plugins'
 export type { BuiltinServerFunctions } from './node/rpc'
 export { createDevToolsHub } from './node/server'
