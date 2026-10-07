@@ -38,6 +38,8 @@ describe('devTools', () => {
     const plugins = await DevTools({
       builtinDevTools: false,
       embeddedVisibility: 'passive',
+      clientAuth: false,
+      clientAuthTokens: ['token'],
     })
     const config = await resolveConfig({
       configFile: false,
@@ -56,8 +58,8 @@ describe('devTools', () => {
       apply: 'all',
       config: {
         builtinDevTools: false,
-        clientAuth: true,
-        clientAuthTokens: [],
+        clientAuth: false,
+        clientAuthTokens: ['token'],
         embeddedVisibility: 'passive',
         host: 'localhost',
       },

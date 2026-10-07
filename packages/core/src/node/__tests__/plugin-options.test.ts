@@ -1,16 +1,12 @@
-import type { Plugin } from 'vite'
-import { describe, expect, it } from 'vitest'
-import { DevTools } from '../plugins'
+import type { DevToolsConfig } from '../config'
+import type { DevTools } from '../plugins'
+import { expectTypeOf, it } from 'vitest'
 
-describe('devTools() options', () => {
-  it('accepts config options such as clientAuth', async () => {
-    const plugins = await DevTools({ clientAuth: false, clientAuthTokens: ['token'] })
-    const configPlugin = plugins.find(p => p.name === 'vite:devtools') as Plugin
-    const viteConfig = { plugins, server: { host: undefined } } as any
-    const hook = configPlugin.configResolved as { handler: (config: any) => void }
-    hook.handler(viteConfig)
+it('accepts config options and an integration directory', () => {
+  type Options = Parameters<typeof DevTools>[0]
+  type Expected = (Omit<DevToolsConfig, 'enabled' | 'apply'> & { cwd?: string }) | undefined
 
-    expect(viteConfig.devtools.config.clientAuth).toBe(false)
-    expect(viteConfig.devtools.config.clientAuthTokens).toEqual(['token'])
-  })
+  expectTypeOf<keyof NonNullable<Options>>().toEqualTypeOf<keyof NonNullable<Expected>>()
+  expectTypeOf<Options>().toExtend<Expected>()
+  expectTypeOf<Expected>().toExtend<Options>()
 })
