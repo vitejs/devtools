@@ -2,8 +2,9 @@ import type { ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getBuildCommand, ROLLDOWN_DEVTOOLS_ENV, startBuild } from '../build-runner'
+import { getBuildCommand, startBuild } from '../build-runner'
 
 const fixtures: string[] = []
 
