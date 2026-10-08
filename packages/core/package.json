@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools",
   "type": "module",
-  "version": "0.7.4",
+  "version": "0.7.6",
   "description": "Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "./dirs": "./dist/dirs.js",
     "./integration": "./dist/integration.js",
     "./internal": "./dist/internal.js",
+    "./json-render": "./dist/json-render.js",
     "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
@@ -69,6 +70,7 @@
     "@devframes/agentic": "catalog:deps",
     "@devframes/hub": "catalog:deps",
     "@devframes/hub-ui": "catalog:deps",
+    "@devframes/json-render": "catalog:deps",
     "@devframes/json-render-ui": "catalog:deps",
     "@devframes/plugin-inspect": "catalog:deps",
     "@devframes/plugin-messages": "catalog:deps",

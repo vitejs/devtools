@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "skills": {
+    "add-diagnostic": {
+      "package": "nostics",
+      "skillFolder": "add-diagnostic"
+    },
+    "nostics": {
+      "package": "nostics",
+      "skillFolder": "nostics"
+    }
+  }
+}

@@ -1,6 +1,7 @@
+import { isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { defineOxcRpc } from '../_define'
 import { x } from 'tinyexec'
-import { getVitePlusVersions, isVitePlusInstalled } from '../../utils/vite-plus'
+import { getVitePlusVersions } from '../../utils/vite-plus'
 import { needsOxlintMigration } from './oxlint-setup'
 
 type Package = {

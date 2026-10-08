@@ -1,4 +1,4 @@
-import type { JsonRenderElement, JsonRenderSpec } from '@vitejs/devtools-kit'
+import type { JsonRenderElement, JsonRenderSpec } from '@vitejs/devtools/json-render'
 import type { GitState } from './git'
 
 const statusMeta: Record<string, { label: string, title: string, variant: string }> = {

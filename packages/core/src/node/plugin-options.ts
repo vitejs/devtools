@@ -1,3 +1,5 @@
+import type { DevToolsConfig } from './config'
+
 export type DevToolsBrandingLogo
   = | string
     | { light: string, dark: string }
@@ -61,12 +63,18 @@ export interface DevToolsUserOptions {
      * @default false
      */
     withApp?: boolean
+    /**
+     * Inject the dock into the built app. Requires `withApp: true`.
+     * Ensure the DevTools assets are served under Vite's `base` when deployed.
+     * @default false
+     */
+    injection?: boolean
     /** Output directory relative to root. Defaults to Vite's `build.outDir`. */
     outDir?: string
   }
 }
 
-export interface DevToolsOptions extends DevToolsUserOptions {
+export interface DevToolsOptions extends Omit<DevToolsConfig, 'enabled' | 'apply'> {
   /** Directory to search for installed integrations. */
   cwd?: string
 }

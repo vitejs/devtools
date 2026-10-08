@@ -7,6 +7,17 @@ export const rolldownGetPackageDetails = defineRpcFunction({
   type: 'query',
   jsonSerializable: true,
   cacheable: true,
+  dump: async (context) => {
+    const manager = getLogsManager(context)
+    const sessions = await manager.list()
+    const inputs: [{ session: string, id: string }][] = []
+    for (const session of sessions) {
+      const reader = await manager.loadPackageSession(session.id)
+      for (const id of getPackagesManifest(reader).keys())
+        inputs.push([{ session: session.id, id }])
+    }
+    return { inputs }
+  },
   setup: (context) => {
     const manager = getLogsManager(context)
     return {

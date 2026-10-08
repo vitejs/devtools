@@ -1,5 +1,6 @@
 import type { DevToolsChildProcessExecuteOptions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import process from 'node:process'
+import { isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { diagnostics } from '../diagnostics'
 
 /**
@@ -39,16 +40,24 @@ export interface WaitBuildResult {
  * dialog can show exactly what will run before the user commits to it.
  */
 export function getBuildCommand(context: ViteDevToolsNodeContext): DevToolsChildProcessExecuteOptions {
+  const cwd = context.cwd ?? process.cwd()
   return {
-    command: 'vite',
+    command: isVitePlusInstalled(cwd) ? 'vp' : 'vite',
     args: ['build'],
-    cwd: context.cwd ?? process.cwd(),
-    env: { [ROLLDOWN_DEVTOOLS_ENV]: 'true' },
+    cwd,
+    env: {
+      // The child inherits the dev server's env, where Vite has set
+      // `NODE_ENV=development`. `vite build` keeps an already-set `NODE_ENV`,
+      // which would keep every library's dev-only branches in the bundle, so
+      // pin what a plain `vite build` resolves to.
+      NODE_ENV: 'production',
+      [ROLLDOWN_DEVTOOLS_ENV]: 'true',
+    },
   }
 }
 
 /**
- * Spawn `vite build` with Rolldown's devtools output forced on. Returns
+ * Spawn the project’s build command with Rolldown's devtools output forced on. Returns
  * immediately once the child is spawned and its terminal session registered —
  * completion is awaited separately via {@link waitForBuild}.
  */

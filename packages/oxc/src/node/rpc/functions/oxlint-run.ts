@@ -1,10 +1,11 @@
+import { isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { Diagnostic } from 'nostics'
 import { x } from 'tinyexec'
 import { defineOxcRpc } from '../_define'
 import { diagnostics } from '../../diagnostics'
 import { getOxcConfigFiles } from '../../utils/config-files'
 import { ensureOxcGitignored, parseOxlintOutput } from '../../utils/oxlint'
-import { getVitePlusVersions, isVitePlusInstalled } from '../../utils/vite-plus'
+import { getVitePlusVersions } from '../../utils/vite-plus'
 import { getLintResultsManager } from '../utils'
 
 export const oxlintRun = defineOxcRpc({

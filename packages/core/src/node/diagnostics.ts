@@ -4,6 +4,10 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
   docsBase: 'https://devtools.vite.dev/errors',
   reporters: [createConsoleReporter()],
   codes: {
+    DTK0035: {
+      why: 'build.injection requires build.withApp: true.',
+      fix: 'Set devtools.build.withApp to true.',
+    },
     DTK0008: {
       why: 'Client authentication is disabled. Any browser can connect to the devtools and access your server and filesystem.',
     },
