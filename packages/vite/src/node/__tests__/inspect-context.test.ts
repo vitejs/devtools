@@ -1091,14 +1091,14 @@ describe('vite inspect context', () => {
       }
       recordCall(failedRequest, 100)
       recordCall(successfulRequest, 20)
-      ctx.store.finishLoadRequest(envCtx.scope, failedRequest)
+      ctx.store.clearPendingLoadMetrics(envCtx.scope, failedRequest)
       ctx.store.recordLoad(envCtx.scope, id, id, {
         name: 'vite:load-fallback',
         result: source,
         start: 20,
         end: 22,
       }, undefined, successfulRequest)
-      ctx.store.finishLoadRequest(envCtx.scope, successfulRequest)
+      ctx.store.clearPendingLoadMetrics(envCtx.scope, successfulRequest)
 
       const [module] = await envCtx.getModulesList()
       expect(module).toMatchObject({ totalTime: 22, sourceSize: source.length, distSize: source.length })
@@ -1139,8 +1139,8 @@ describe('vite inspect context', () => {
         start: 83,
         end: 85,
       }, source, undefined, successfulRequest)
-      ctx.store.finishLoadRequest(envCtx.scope, failedRequest)
-      ctx.store.finishLoadRequest(envCtx.scope, successfulRequest)
+      ctx.store.clearPendingLoadMetrics(envCtx.scope, failedRequest)
+      ctx.store.clearPendingLoadMetrics(envCtx.scope, successfulRequest)
 
       expect((await envCtx.getModuleTransformInfo(id)).transforms).toMatchObject([
         { name: '__load__', result: source },

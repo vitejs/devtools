@@ -70,7 +70,7 @@ export interface ViteInspectPluginMetricItem {
   totalTime: number
 }
 
-export interface ViteInspectModuleLoadMetric extends ViteInspectPluginMetricItem {
+export interface ViteInspectDeclinedLoadMetric extends ViteInspectPluginMetricItem {
   publicModuleId: string
 }
 
@@ -82,7 +82,7 @@ export interface ViteInspectStore {
     info: ViteInspectTransformInfo,
     preTransformCode: string,
     pluginCall?: ViteInspectPluginCallInfo,
-    loadRequest?: object,
+    transformRequest?: object,
   ) => void
   recordLoad: (
     scope: string,
@@ -90,7 +90,7 @@ export interface ViteInspectStore {
     publicModuleId: string,
     info: ViteInspectTransformInfo,
     pluginCall?: ViteInspectPluginCallInfo,
-    loadRequest?: object,
+    transformRequest?: object,
   ) => void
   recordResolveId: (
     scope: string,
@@ -103,13 +103,13 @@ export interface ViteInspectStore {
   recordPluginCall: (
     scope: string,
     info: ViteInspectPluginCallInfo,
-    loadRequest?: object,
+    transformRequest?: object,
   ) => void
-  finishLoadRequest: (scope: string, loadRequest: object) => void
+  clearPendingLoadMetrics: (scope: string, transformRequest: object) => void
   invalidate: (scope: string, moduleId: string, publicModuleId: string) => void
   clearScope: (scope: string) => void
   getTransformList: (scope: string) => Promise<ViteInspectTransformListItem[]>
-  getDeclinedLoadMetrics: (scope: string) => Promise<ViteInspectModuleLoadMetric[]>
+  getDeclinedLoadMetrics: (scope: string) => Promise<ViteInspectDeclinedLoadMetric[]>
   getResolveIdList: (scope: string) => Promise<ViteInspectResolveIdItem[]>
   getPluginTransformMetrics: (scope: string) => Promise<ViteInspectPluginMetricItem[]>
   getPluginResolveIdMetrics: (scope: string) => Promise<ViteInspectPluginMetricItem[]>
@@ -132,7 +132,7 @@ export type QueuedWrite
     info: ViteInspectTransformInfo
     preTransformCode: string
     pluginCall?: ViteInspectPluginCallInfo
-    loadRequest?: object
+    transformRequest?: object
   }
   | {
     operation: 'recordLoad'
@@ -141,7 +141,7 @@ export type QueuedWrite
     publicModuleId: string
     info: ViteInspectTransformInfo
     pluginCall?: ViteInspectPluginCallInfo
-    loadRequest?: object
+    transformRequest?: object
   }
   | {
     operation: 'recordResolveId'
@@ -156,12 +156,12 @@ export type QueuedWrite
     operation: 'recordPluginCall'
     scope: string
     info: ViteInspectPluginCallInfo
-    loadRequest?: object
+    transformRequest?: object
   }
   | {
-    operation: 'finishLoadRequest'
+    operation: 'clearPendingLoadMetrics'
     scope: string
-    loadRequest: object
+    transformRequest: object
   }
   | {
     operation: 'invalidate'

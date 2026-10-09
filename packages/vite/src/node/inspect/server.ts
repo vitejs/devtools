@@ -65,7 +65,7 @@ export function setupEnvironmentInvalidation(server: ViteDevServer, vite: ViteIn
       return transformRequestStorage.run(request, () => transformRequest.apply(this, args))
         .finally(() => {
           for (const context of state.contexts)
-            context.inspectContext.store.finishLoadRequest(context.scope, request)
+            context.inspectContext.store.clearPendingLoadMetrics(context.scope, request)
           request.active = false
           request.ids.clear()
           state.activeRequests.delete(request)
