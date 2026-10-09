@@ -1,12 +1,11 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
-import Inspect from 'vite-plugin-inspect'
 import { alias } from '../../../alias'
 import '@nuxt/eslint'
 
 const NUXT_DEBUG_BUILD = !!process.env.NUXT_DEBUG_BUILD
-const BASE = '/__devtools-rolldown/'
+const BASE = '/__devtools-vite-task/'
 const VITE_BASE = process.env.NODE_ENV === 'development' ? `${BASE}_nuxt/` : BASE
 
 export default defineNuxtConfig({
@@ -58,7 +57,6 @@ export default defineNuxtConfig({
       },
       '/**': {
         prerender: false,
-        // headers,
       },
     },
     sourceMap: false,
@@ -71,50 +69,32 @@ export default defineNuxtConfig({
   app: {
     baseURL: BASE,
     head: {
-      title: 'Rolldown DevTools',
+      title: 'Vite Task DevTools',
       charset: 'utf-8',
       viewport: 'width=device-width,initial-scale=1',
       meta: [
-        { name: 'description', content: 'DevTools for Rolldown' },
-        { property: 'og:title', content: 'Rolldown DevTools' },
-        { property: 'og:description', content: 'DevTools for Rolldown' },
+        { name: 'description', content: 'DevTools for Vite Task' },
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg` },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       ],
       htmlAttrs: {
         lang: 'en',
-        class: 'bg-dots',
       },
     },
   },
 
-  // Disable Nuxt's internal debugging
   debug: false,
 
   vite: {
     base: VITE_BASE,
     build: {
-      rolldownOptions: {
-        devtools: {},
-      },
       minify: NUXT_DEBUG_BUILD ? false : undefined,
       cssMinify: false,
     },
     optimizeDeps: {
       include: [
-        '@antfu/utils',
         '@vueuse/core',
-        '@floating-ui/dom',
-        'd3-hierarchy',
-        'd3-shape',
-        'fuse.js',
-        'modern-monaco',
-        'comlink',
-        'floating-vue',
-        'splitpanes',
-        'vue-virtual-scroller',
-        'nanovis',
       ],
       exclude: [
         'structured-clone-es',
@@ -125,9 +105,6 @@ export default defineNuxtConfig({
       enabled: false,
       clientAuth: false,
     },
-    plugins: [
-      NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,
-    ],
   },
 
   devtools: {
@@ -136,21 +113,12 @@ export default defineNuxtConfig({
 
   typescript: {
     tsConfig: {
-      compilerOptions: {
-        types: ['chrome'], // for devtools-webext package
-      },
       exclude: [
-        // Sibling Nuxt apps are typechecked by their own project references
-        // (see the root tsconfig); keep them out of rolldown's
-        // workspace-wide Nuxt typecheck so they resolve under their own aliases.
+        '../../../rolldown/**/*',
         '../../../vite/**/*',
-        '../../../vite-task/**/*',
         '../../../oxc/**/*',
       ],
     },
-    // Temporary disable type check for nuxt, rely on CI for now
-    // typeCheck: true,
-    includeWorkspace: true,
   },
 
   workspaceDir: '../../',

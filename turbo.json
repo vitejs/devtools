@@ -42,6 +42,13 @@
         "dist/**"
       ]
     },
+    "@vitejs/devtools-vite-task#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@vitejs/devtools-vite#build": {
       "outputLogs": "new-only",
       "dependsOn": ["^build"],

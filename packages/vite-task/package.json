@@ -1,0 +1,49 @@
+{
+  "name": "@vitejs/devtools-vite-task",
+  "type": "module",
+  "version": "0.7.6",
+  "description": "DevTools for Vite Task",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/vitejs/devtools#readme",
+  "repository": {
+    "directory": "packages/vite-task",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "bugs": "https://github.com/vitejs/devtools/issues",
+  "keywords": [
+    "vite-task",
+    "devtools"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./dirs": "./dist/dirs.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm dev:prepare && nuxi build src && tsdown",
+    "build:debug": "NUXT_DEBUG_BUILD=true pnpm run build",
+    "dev": "nuxi dev src",
+    "dev:prepare": "nuxi prepare src",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*"
+  },
+  "devDependencies": {
+    "@unocss/nuxt": "catalog:build",
+    "@vitejs/devtools-ui": "workspace:*",
+    "@vueuse/core": "catalog:frontend",
+    "@vueuse/nuxt": "catalog:build",
+    "devframe": "catalog:deps",
+    "nuxt": "catalog:build",
+    "tsdown": "catalog:build",
+    "unocss": "catalog:build"
+  }
+}
