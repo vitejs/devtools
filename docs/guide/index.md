@@ -101,25 +101,18 @@ export default defineConfig({
 
 #### Projects without an HTML entry
 
-For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), import the client injector from a browser entry instead. One entry per visibility mode — import whichever one you want:
+For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), load the client script that the dev server hosts at `/__devtools/embedded.js` from a browser entry instead:
 
-```ts twoslash
-// Normal: docks shown immediately
-// @ts-expect-error TODO: Remove when this entry has type declarations.
-import '@vitejs/devtools/client/inject'
+```ts [main.ts]
+if (import.meta.env.DEV) {
+  const script = document.createElement('script')
+  script.type = 'module'
+  script.src = `${new URL(import.meta.url).origin}/__devtools/embedded.js`
+  document.body.appendChild(script)
+}
 ```
 
-```ts twoslash
-// Passive: docks hidden until Shift+Alt+D, then remembered
-// @ts-expect-error TODO: Remove when this entry has type declarations.
-import '@vitejs/devtools/client/inject-passive'
-```
-
-```ts twoslash
-// Hidden: docks hidden until Shift+Alt+D, every session
-// @ts-expect-error TODO: Remove when this entry has type declarations.
-import '@vitejs/devtools/client/inject-hidden'
-```
+The script is served by the Vite dev server, so its URL uses the dev server's origin. The visibility mode follows the `embeddedVisibility` option above.
 
 See [Client Script & Context](/kit/client-context#client-script-not-injected) for how injection works and the full troubleshooting checklist.
 
