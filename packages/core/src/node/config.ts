@@ -2,6 +2,8 @@ import type { CreateInteractiveAuthOptions } from 'devframe/recipes/interactive-
 import type { McpSetting } from 'devframe/types'
 import type { StartOptions } from './cli-commands'
 import type { DevToolsUserOptions } from './plugin-options'
+import process from 'node:process'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 
 export type DevToolsApply = 'serve' | 'build' | 'all'
 
@@ -111,5 +113,9 @@ export function isDevToolsEnabled(
   config: ResolvedDevToolsConfig,
   command: 'serve' | 'build',
 ): boolean {
-  return config.enabled && (config.apply === 'all' || config.apply === command)
+  return config.enabled && (
+    config.apply === 'all'
+    || config.apply === command
+    || (command === 'build' && process.env[ROLLDOWN_DEVTOOLS_ENV] === 'true')
+  )
 }

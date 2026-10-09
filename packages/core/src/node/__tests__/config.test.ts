@@ -1,5 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { isDevToolsEnabled, normalizeDevToolsConfig, resolveHost } from '../config'
+
+afterEach(() => vi.unstubAllEnvs())
 
 describe('resolveHost', () => {
   it.each([
@@ -83,5 +86,12 @@ describe('normalizeDevToolsConfig', () => {
     const config = normalizeDevToolsConfig({ enabled: false, apply: 'all' }, 'localhost')
     expect(isDevToolsEnabled(config, 'serve')).toBe(false)
     expect(isDevToolsEnabled(config, 'build')).toBe(false)
+  })
+
+  it('allows recording builds while preserving explicit disable and serve restrictions', () => {
+    vi.stubEnv(ROLLDOWN_DEVTOOLS_ENV, 'true')
+    expect(isDevToolsEnabled(normalizeDevToolsConfig({ apply: 'serve' }, undefined), 'build')).toBe(true)
+    expect(isDevToolsEnabled(normalizeDevToolsConfig({ apply: 'build' }, undefined), 'serve')).toBe(false)
+    expect(isDevToolsEnabled(normalizeDevToolsConfig({ enabled: false }, undefined), 'build')).toBe(false)
   })
 })
