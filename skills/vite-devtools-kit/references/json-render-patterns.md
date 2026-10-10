@@ -203,7 +203,8 @@ ctx.rpc.register(defineRpcFunction({
 ## Full Example
 
 ```ts
-import type { JsonRenderSpec, PluginWithDevTools } from '@vitejs/devtools-kit'
+import type { JsonRenderSpec } from '@vitejs/devtools/json-render'
+import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 
 function buildSpec(data: { modules: number, time: string, size: string }): JsonRenderSpec {

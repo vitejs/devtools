@@ -18,6 +18,7 @@ export const alias = {
   '@vitejs/devtools-vite': r('vite/src/index.ts'),
   '@vitejs/devtools-vitest': r('vitest/src/index.ts'),
   '@vitejs/devtools/internal': r('core/src/internal.ts'),
+  '@vitejs/devtools/json-render': r('core/src/json-render.ts'),
   '@vitejs/devtools/client/inject': r('core/src/client/inject/index.ts'),
   '@vitejs/devtools/client/inject-passive': r('core/src/client/inject-passive/index.ts'),
   '@vitejs/devtools/client/inject-hidden': r('core/src/client/inject-hidden/index.ts'),

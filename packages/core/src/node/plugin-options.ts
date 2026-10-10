@@ -1,3 +1,5 @@
+import type { DevToolsConfig } from './config'
+
 export type DevToolsBrandingLogo
   = | string
     | { light: string, dark: string }
@@ -72,7 +74,7 @@ export interface DevToolsUserOptions {
   }
 }
 
-export interface DevToolsOptions extends DevToolsUserOptions {
+export interface DevToolsOptions extends Omit<DevToolsConfig, 'enabled' | 'apply'> {
   /** Directory to search for installed integrations. */
   cwd?: string
 }

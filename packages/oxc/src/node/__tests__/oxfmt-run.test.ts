@@ -1,14 +1,18 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { x } from 'tinyexec'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   getOxfmtFormatCommand,
   getOxfmtRunError,
   listOxfmtFormatResults,
+  oxfmtRun,
   parseOxfmtFormatOutput,
   saveOxfmtFormatResult,
 } from '../rpc/functions/oxfmt-run'
+
+vi.mock('tinyexec', () => ({ x: vi.fn<typeof x>() }))
 
 const fixtures: string[] = []
 
@@ -35,8 +39,8 @@ describe('getOxfmtFormatCommand', () => {
   })
 
   it('returns Oxfmt diagnostics without whitespace', () => {
-    expect(getOxfmtRunError('  Invalid config.\n')).toBe('Invalid config.')
-    expect(getOxfmtRunError(' \n')).toBeUndefined()
+    expect(getOxfmtRunError('  Invalid config.\n', 2, 'error')).toBe('Invalid config.')
+    expect(getOxfmtRunError(' \n', 0, 'clean')).toBeUndefined()
   })
 
   it('persists each parsed check under its timestamp directory', async () => {
@@ -132,5 +136,90 @@ Finished in 113ms on 11 files using 8 threads.`,
       status: 'error',
       summary: { durationMs: 0, fileCount: 0, threadCount: 0 },
     })
+  })
+})
+
+describe('oxfmtRun', () => {
+  const notice =
+    'No config found, using defaults. Please add a config file or try `oxfmt --init` if needed.'
+  const clean =
+    'All matched files use the correct format.\nFinished in 3ms on 1 files using 8 threads.'
+  const issues =
+    'sample.js (1ms)\nFormat issues found in above 1 files. Run without `--check` to fix.\nFinished in 3ms on 1 files using 8 threads.'
+
+  it.each([false, true])(
+    'saves a successful run despite stderr notices (write=%s)',
+    async write => {
+      const cwd = await createFixture()
+      vi.mocked(x).mockResolvedValue({ exitCode: 0, stdout: clean, stderr: notice })
+      const { handler } = oxfmtRun.setup!({ cwd } as any)
+
+      await expect(handler({ write })).resolves.toEqual({ exitCode: 0 })
+      await expect(listOxfmtFormatResults(cwd)).resolves.toMatchObject([
+        { mode: write ? 'write' : 'check', status: 'clean', summary: { fileCount: 1 } },
+      ])
+    },
+  )
+
+  it('saves check findings with exit code 1 despite stderr notices', async () => {
+    const cwd = await createFixture()
+    vi.mocked(x).mockResolvedValue({ exitCode: 1, stdout: issues, stderr: notice })
+    const { handler } = oxfmtRun.setup!({ cwd } as any)
+
+    await expect(handler({ write: false })).resolves.toEqual({ exitCode: 1 })
+    await expect(listOxfmtFormatResults(cwd)).resolves.toMatchObject([
+      { mode: 'check', status: 'issues', files: [{ path: 'sample.js' }] },
+    ])
+  })
+
+  it.each([
+    {
+      write: true,
+      exitCode: undefined,
+      stdout: '',
+      stderr: '',
+      reason: 'Command exited with code unknown.',
+    },
+    { write: false, exitCode: 2, stdout: '', stderr: 'Invalid config.', reason: 'Invalid config.' },
+    {
+      write: true,
+      exitCode: 1,
+      stdout: issues,
+      stderr: 'Cannot write file.',
+      reason: 'Cannot write file.',
+    },
+    { write: false, exitCode: 1, stdout: '', stderr: '', reason: 'Command exited with code 1.' },
+    {
+      write: false,
+      exitCode: 2,
+      stdout: issues,
+      stderr: '',
+      reason: 'Command exited with code 2.',
+    },
+  ])(
+    'rejects execution failures: $write/$exitCode/$reason',
+    async ({ write, reason, ...result }) => {
+      const cwd = await createFixture()
+      vi.mocked(x).mockResolvedValue(result)
+      const { handler } = oxfmtRun.setup!({ cwd } as any)
+
+      await expect(handler({ write })).rejects.toMatchObject({
+        name: 'OXDT0007',
+        message: expect.stringContaining(reason),
+      })
+      await expect(listOxfmtFormatResults(cwd)).resolves.toEqual([])
+    },
+  )
+
+  it('preserves process startup failures', async () => {
+    const cwd = await createFixture()
+    vi.mocked(x).mockRejectedValue(new Error('spawn oxfmt ENOENT'))
+    const { handler } = oxfmtRun.setup!({ cwd } as any)
+
+    await expect(handler({ write: false })).rejects.toMatchObject({
+      name: 'OXDT0007',
+      message: expect.stringContaining('spawn oxfmt ENOENT'),
+    })
+    await expect(listOxfmtFormatResults(cwd)).resolves.toEqual([])
   })
 })
