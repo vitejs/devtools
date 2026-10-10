@@ -111,6 +111,7 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 | `VDT` | `packages/vite` | `packages/vite/src/node/diagnostics.ts` |
 | `VTDT` | `packages/vitest` | `packages/vitest/src/node/diagnostics.ts` |
 | `OXDT` | `packages/oxc` | `packages/oxc/src/node/diagnostics.ts` |
+| `AGDT` | `packages/agent` | `packages/agent/src/node/diagnostics.ts` |
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).
 

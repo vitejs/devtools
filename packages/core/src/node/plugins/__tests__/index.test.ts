@@ -24,13 +24,25 @@ describe('devTools', () => {
 
     await DevTools({ cwd })
 
-    expect(vi.mocked(isPackageExists)).toHaveBeenCalledTimes(4)
+    expect(vi.mocked(isPackageExists)).toHaveBeenCalledTimes(5)
     expect(vi.mocked(isPackageExists).mock.calls).toEqual([
+      ['@vitejs/devtools-agent', { paths: [resolvedCwd] }],
       ['@vitejs/devtools-rolldown', { paths: [resolvedCwd] }],
       ['@vitejs/devtools-vite', { paths: [resolvedCwd] }],
       ['@vitejs/devtools-vitest', { paths: [resolvedCwd] }],
       ['@vitejs/devtools-oxc', { paths: [resolvedCwd] }],
     ])
+  })
+
+  it('automatically registers the installed agent integration', async () => {
+    vi.mocked(isPackageExists).mockImplementation(name => name === '@vitejs/devtools-agent')
+    try {
+      const plugins = await DevTools({ cwd: '/project' })
+      expect(plugins.filter(plugin => plugin.name === 'vite:devtools:agent')).toHaveLength(1)
+    }
+    finally {
+      vi.mocked(isPackageExists).mockImplementation(() => false)
+    }
   })
 
   it('populates the resolved config for the manual plugin', async () => {

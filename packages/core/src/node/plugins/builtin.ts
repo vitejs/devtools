@@ -110,6 +110,11 @@ export async function DevToolsBuiltin(options: {
     return []
 
   const cwd = resolve(options.cwd ?? process.cwd())
+  // Agent access is opt-in through installation and uses the existing hub MCP route.
+  if (isPackageExists('@vitejs/devtools-agent', { paths: [cwd] })) {
+    plugins.push(import('@vitejs/devtools-agent').then(m => m.DevToolsAgent()))
+  }
+
   const launchers: BuiltinLauncherIntegration[] = []
   for (const integration of BUILTIN_LAUNCHER_INTEGRATIONS) {
     if (isPackageExists(integration.pkg, { paths: [cwd] })) {

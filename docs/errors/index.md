@@ -84,3 +84,12 @@ Emitted by `@vitejs/devtools-oxc`.
 | [OXDT0006](./OXDT0006) | error | Oxfmt Setup Failed |
 | [OXDT0007](./OXDT0007) | error | Failed to Run Oxfmt |
 | [OXDT0008](./OXDT0008) | error | Failed to Delete Format Result |
+
+## Agent Integration (AGDT)
+
+Emitted by `@vitejs/devtools-agent`.
+
+| Code | Level | Title |
+|------|-------|-------|
+| [AGDT0001](./AGDT0001) | error | Rolldown Session Not Found |
+| [AGDT0002](./AGDT0002) | error | Vite Inspection Not Active |

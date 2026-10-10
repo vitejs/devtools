@@ -255,6 +255,9 @@ catalogs:
     webext-bridge:
       specifier: ^6.0.1
       version: 6.0.1
+    zod:
+      specifier: ^4.6.5
+      version: 4.6.5
   devtools:
     '@antfu/eslint-config':
       specifier: ^9.5.1
@@ -945,6 +948,31 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2(@types/node@26.5.1)(@vitejs/devtools@packages+core)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
 
+  packages/agent:
+    dependencies:
+      '@vitejs/devtools-kit':
+        specifier: workspace:*
+        version: link:../kit
+      '@vitejs/devtools-rolldown':
+        specifier: workspace:*
+        version: link:../rolldown
+      nostics:
+        specifier: catalog:deps
+        version: 1.3.0
+      zod:
+        specifier: catalog:deps
+        version: 4.6.5
+    devDependencies:
+      '@vitejs/devtools-vite':
+        specifier: workspace:*
+        version: link:../vite
+      tsdown:
+        specifier: catalog:build
+        version: 0.23.0(@vitejs/devtools@0.7.6)(@volar/typescript@2.4.28(typescript@6.0.3))(oxc-resolver@11.24.2)(tsx@4.23.15)(typescript@6.0.3)(unrun@0.3.1(synckit@0.11.13))(vue-tsc@3.3.12(typescript@6.0.3))
+      typescript:
+        specifier: catalog:devtools
+        version: 6.0.3
+
   packages/core:
     dependencies:
       '@devframes/agentic':
@@ -1002,6 +1030,9 @@ importers:
       '@clack/prompts':
         specifier: catalog:inlined
         version: 1.8.1
+      '@vitejs/devtools-agent':
+        specifier: workspace:*
+        version: link:../agent
       '@vitejs/devtools-rolldown':
         specifier: workspace:*
         version: link:../rolldown
@@ -14569,6 +14600,38 @@ snapshots:
       '@vitejs/devtools-rolldown': 0.7.6(@devframes/agentic@1.2.0)(cac@7.0.0)(crossws@0.4.12(srvx@1.0.5))(srvx@1.0.5)(vite@8.3.2)
       '@vitejs/devtools-vite': 0.7.6(@devframes/agentic@1.2.0)(cac@7.0.0)(crossws@0.4.12(srvx@1.0.5))(srvx@1.0.5)(vite@8.3.2)
       '@vitejs/devtools-vitest': 0.7.6(@devframes/agentic@1.2.0)(cac@7.0.0)(crossws@0.4.12(srvx@1.0.5))(srvx@1.0.5)(vite@8.3.2)(vitest@5.0.3)
+    transitivePeerDependencies:
+      - '@devframes/json-render'
+      - '@devframes/plugin-inspect--assets'
+      - '@devframes/plugin-messages--assets'
+      - '@devframes/plugin-terminals--assets'
+      - crossws
+      - ocache
+      - srvx
+
+  '@vitejs/devtools@0.7.6(@devframes/json-render@1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0))(@vitejs/devtools-oxc@0.7.6)(@vitejs/devtools-rolldown@packages+rolldown)(@vitejs/devtools-vite@packages+vite)(@vitejs/devtools-vitest@0.7.6)(crossws@0.4.12(srvx@0.11.22))(srvx@0.11.22)(vite@8.3.2)':
+    dependencies:
+      '@devframes/agentic': 1.2.0(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0)
+      '@devframes/hub': 1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0)
+      '@devframes/hub-ui': 1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(@devframes/json-render@1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0))(devframe@1.2.0)
+      '@devframes/json-render-ui': 1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0)
+      '@devframes/plugin-inspect': 1.2.0(devframe@1.2.0)(vite@8.3.2)
+      '@devframes/plugin-messages': 1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0)(vite@8.3.2)
+      '@devframes/plugin-terminals': 1.2.0(@devframes/hub-ui@1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(@devframes/json-render@1.2.0(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0))(devframe@1.2.0))(@devframes/hub@1.2.0(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(devframe@1.2.0))(devframe@1.2.0)(vite@8.3.2)
+      '@vitejs/devtools-kit': 0.7.6(@devframes/agentic@1.2.0)(cac@7.0.0)(crossws@0.4.12(srvx@0.11.22))(srvx@0.11.22)(vite@8.3.2)
+      cac: 7.0.0
+      devframe: 1.2.0(@devframes/agentic@1.2.0)(cac@7.0.0)(srvx@0.11.22)
+      h3: 2.0.1-rc.32(crossws@0.4.12(srvx@0.11.22))
+      local-pkg: 1.2.1
+      nostics: 1.3.0
+      obug: 3.0.0
+      pathe: 2.0.3
+      vite: 8.3.2(@types/node@26.5.1)(@vitejs/devtools@0.7.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1)
+    optionalDependencies:
+      '@vitejs/devtools-oxc': 0.7.6(@devframes/agentic@1.2.0)(crossws@0.4.12(srvx@0.11.22))(srvx@0.11.22)(vite@8.3.2)
+      '@vitejs/devtools-rolldown': link:packages/rolldown
+      '@vitejs/devtools-vite': link:packages/vite
+      '@vitejs/devtools-vitest': 0.7.6(@devframes/agentic@1.2.0)(cac@7.0.0)(crossws@0.4.12(srvx@0.11.22))(srvx@0.11.22)(vite@8.3.2)(vitest@5.0.3)
     transitivePeerDependencies:
       - '@devframes/json-render'
       - '@devframes/plugin-inspect--assets'

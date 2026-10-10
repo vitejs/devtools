@@ -33,6 +33,12 @@
       "@vitejs/devtools-kit": [
         "./packages/kit/src/index.ts"
       ],
+      "@vitejs/devtools-agent": [
+        "./packages/agent/src/index.ts"
+      ],
+      "@vitejs/devtools-rolldown/node": [
+        "./packages/rolldown/src/node/api.ts"
+      ],
       "@vitejs/devtools-rolldown": [
         "./packages/rolldown/src/index.ts"
       ],

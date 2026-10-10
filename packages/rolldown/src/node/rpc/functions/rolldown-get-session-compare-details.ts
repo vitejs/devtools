@@ -397,6 +397,36 @@ async function comparePlugins(previous: SessionCompareSource, current: SessionCo
   }))
 }
 
+export async function createSessionCompareDetails(
+  previousReader: RolldownEventsReader,
+  currentReader: RolldownEventsReader,
+): Promise<SessionCompareDetails> {
+  const previous = createCompareSource(previousReader)
+  const current = createCompareSource(currentReader)
+
+  const assets = compareAssets(previous, current)
+  const chunks = compareChunks(previous, current)
+  const packages = comparePackages(previous, current)
+  const plugins = await comparePlugins(previous, current)
+
+  return {
+    sessionStats: {
+      previous: {
+        packages: previous.packages.length,
+        duplicatedPackages: previous.packages.filter(pkg => pkg.duplicated).length,
+      },
+      current: {
+        packages: current.packages.length,
+        duplicatedPackages: current.packages.filter(pkg => pkg.duplicated).length,
+      },
+    },
+    assets,
+    chunks,
+    packages,
+    plugins,
+  }
+}
+
 export const rolldownGetSessionCompareDetails = defineRpcFunction({
   name: 'vite:rolldown:get-session-compare-details',
   type: 'query',
@@ -410,30 +440,7 @@ export const rolldownGetSessionCompareDetails = defineRpcFunction({
           manager.loadAssetSession(previousSession!),
           manager.loadAssetSession(currentSession!),
         ])
-        const previous = createCompareSource(previousReader)
-        const current = createCompareSource(currentReader)
-
-        const assets = compareAssets(previous, current)
-        const chunks = compareChunks(previous, current)
-        const packages = comparePackages(previous, current)
-        const plugins = await comparePlugins(previous, current)
-
-        return {
-          sessionStats: {
-            previous: {
-              packages: previous.packages.length,
-              duplicatedPackages: previous.packages.filter(pkg => pkg.duplicated).length,
-            },
-            current: {
-              packages: current.packages.length,
-              duplicatedPackages: current.packages.filter(pkg => pkg.duplicated).length,
-            },
-          },
-          assets,
-          chunks,
-          packages,
-          plugins,
-        }
+        return createSessionCompareDetails(previousReader, currentReader)
       },
     }
   },
