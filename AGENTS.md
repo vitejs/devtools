@@ -72,7 +72,7 @@ pnpm build                                   # turbo run build
 pnpm test                                    # Vitest
 pnpm typecheck                               # vue-tsc -b
 pnpm lint --fix                              # ESLint
-pnpm -C packages/core run play               # core playground
+pnpm -C playgrounds/core run dev             # core playground
 pnpm -C packages/rolldown run dev            # rolldown UI dev
 pnpm -C playgrounds/core run dev:standalone  # standalone client
 pnpm -C docs run docs                        # docs dev server

@@ -34,6 +34,7 @@ export default defineConfig({
     'index': 'src/index.ts',
     'integration': 'src/integration.ts',
     'internal': 'src/internal.ts',
+    'json-render': 'src/json-render.ts',
     'dirs': 'src/dirs.ts',
     'cli': 'src/node/cli.ts',
     'cli-commands': 'src/node/cli-commands.ts',

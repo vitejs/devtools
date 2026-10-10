@@ -45,6 +45,9 @@
       "@vitejs/devtools/internal": [
         "./packages/core/src/internal.ts"
       ],
+      "@vitejs/devtools/json-render": [
+        "./packages/core/src/json-render.ts"
+      ],
       "@vitejs/devtools/client/inject": [
         "./packages/core/src/client/inject/index.ts"
       ],

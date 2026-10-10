@@ -4,7 +4,6 @@ export type { CreateKitContextOptions, KitNodeContext } from '../node/context'
 
 export * from './commands'
 export * from './docks'
-export * from './json-render'
 export * from './messages'
 export * from './rpc-augments'
 export * from './settings'
