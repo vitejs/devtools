@@ -26,7 +26,10 @@ createModuleGraph<ModuleListItem, ModuleImport>({
   generateGraph: (options) => {
     const { isFirstCalculateGraph, spacing, tree, hierarchy, collapsedNodes, modulesMap, nodes, links, nodesMap, linksMap, width, height, childToParentMap, focusOn } = options
     const rootModules = computed(() => {
-      return modules.value.filter(x => x.importers.length === 0)
+      const roots = modules.value.filter((module) => {
+        return !module.importers.some(importer => modulesMap.value.has(importer))
+      })
+      return roots.length ? roots : modules.value
     })
 
     function registerChildParent(moduleId: string, parentId: string) {
