@@ -1,6 +1,9 @@
 import type { Environment, Plugin, ViteDevServer } from 'vite'
 import type { ViteInspectEnvironmentContext } from '../inspect/context'
 import type { ViteInspectStoreOptions } from '../inspect/store'
+import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { createServer } from 'vite'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ViteInspectContext } from '../inspect/context'
@@ -15,12 +18,15 @@ interface InspectServerFixture {
 }
 
 const fixtures: InspectServerFixture[] = []
+const temporaryDirs: string[] = []
 
 afterEach(async () => {
   await Promise.all(fixtures.splice(0).map(async ({ server, inspectContext }) => {
     await server.close()
     await inspectContext.close()
   }))
+  for (const dir of temporaryDirs.splice(0))
+    rmSync(dir, { recursive: true, force: true })
 })
 
 async function createInspectServer(
@@ -79,6 +85,65 @@ async function createInspectServer(
 }
 
 describe('vite inspect server invalidation', () => {
+  it.each(['string', 'object'] as const)('counts successful same-ID resolve time (%s)', async (result) => {
+    const id = '/resolve-timing.js'
+    const plugin: Plugin = {
+      name: 'test:slow-resolve',
+      enforce: 'pre',
+      async resolveId(source) {
+        if (source !== id)
+          return
+        await new Promise(resolve => setTimeout(resolve, 20))
+        return result === 'string' ? id : { id }
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map([[id, 'export const value = 1']]), [plugin])
+    await server.transformRequest(id)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    const duration = details.resolveIdMetrics.filter(call => call.module === id).reduce((sum, call) => sum + call.duration, 0)
+    expect(duration).toBeGreaterThan(0)
+    const [module] = await envContext.getModulesList()
+    expect(module!.plugins.filter(p => p.name === plugin.name).reduce((sum, p) => sum + (p.resolveId ?? 0), 0)).toBe(duration)
+    expect((await envContext.getModuleTransformInfo(id)).resolvedId).toBe(id)
+    envContext.invalidate(id)
+    expect(await envContext.getModulesList()).toEqual([])
+    expect((await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))).resolveIdMetrics.filter(call => call.module === id)).toEqual([])
+  })
+
+  it('does not assign declined resolutions by source name across importers', async () => {
+    const source = '/shared.js'
+    const plugin: Plugin = {
+      name: 'test:declined-resolve',
+      enforce: 'pre',
+      resolveId(id) {
+        if (id === source)
+          return null
+      },
+    }
+    const resolver: Plugin = {
+      name: 'test:importer-resolve',
+      resolveId(id, importer) {
+        if (id === source)
+          return importer === '/a.js' ? '/a/shared.js' : '/b/shared.js'
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map([
+      ['/a/shared.js', 'export const value = 1'],
+      ['/b/shared.js', 'export const value = 2'],
+    ]), [plugin, resolver])
+    const container = server.environments.client.pluginContainer
+    await container.resolveId(source, '/a.js')
+    await container.resolveId(source, '/b.js')
+    await server.transformRequest('/a/shared.js')
+    await server.transformRequest('/b/shared.js')
+    const modules = await envContext.getModulesList()
+    expect(modules).toHaveLength(2)
+    for (const module of modules)
+      expect(module.plugins.some(p => p.name === plugin.name)).toBe(false)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    expect(details.resolveIdMetrics.filter(call => call.module === source)).toHaveLength(2)
+  })
+
   it('completes Vite transforms without waiting for payload persistence', async () => {
     const source = new Map([
       ['/entry.js', 'export const entry = 1'],
@@ -331,5 +396,152 @@ describe('vite inspect server invalidation', () => {
     await backgroundDone
 
     expect(lateRequest).toBeUndefined()
+  })
+  it.each(['memory', 'disk'])('excludes failed loads from a successful retry (%s)', async (storage) => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-load-retry-'))
+    temporaryDirs.push(dir)
+    const id = '/load-retry.js'
+    const source = 'export const value = 1'
+    let enabled = false
+    const plugin: Plugin = {
+      name: 'test:retry-load',
+      enforce: 'pre',
+      async load(moduleId) {
+        if (moduleId !== id)
+          return
+        await new Promise(resolve => setTimeout(resolve, 20))
+      },
+    }
+    const provider: Plugin = {
+      name: 'test:retry-provider',
+      resolveId(moduleId) {
+        if (moduleId === id)
+          return id
+      },
+      load(moduleId) {
+        if (moduleId === id && enabled)
+          return source
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map(), [plugin, provider], {
+      filename: storage === 'disk' ? join(dir, 'payloads.bin') : ':memory:',
+      maxBatchItems: storage === 'disk' ? 1 : undefined,
+    })
+    await expect(server.transformRequest(id)).rejects.toThrow()
+    enabled = true
+    await server.transformRequest(id)
+
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    expect(details.loadMetrics).toHaveLength(2)
+    expect(details.loadMetrics[0]!.duration).toBeGreaterThan(0)
+    const duration = details.loadMetrics[1]!.duration
+    expect(duration).toBeGreaterThan(0)
+    const module = (await envContext.getModulesList()).find(module => module.id === id)!
+    expect(module.plugins.filter(p => p.name === plugin.name)).toEqual([{ name: plugin.name, transform: duration }])
+    expect(module.sourceSize).toBe(source.length)
+    expect((await envContext.getModuleTransformInfo(id)).transforms[0]?.result).toBe(source)
+  })
+
+  it.each(['memory', 'disk'])('replaces failed load timings when a retry reads a file (%s)', async (storage) => {
+    const dir = realpathSync(mkdtempSync(join(tmpdir(), 'vite-file-load-retry-')))
+    temporaryDirs.push(dir)
+    const id = join(dir, 'entry.js').replace(/\\/g, '/')
+    const source = 'export const value = 1'
+    writeFileSync(id, source)
+    let fail = true
+    let now = Date.now()
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    const declined: Plugin = {
+      name: 'test:declined-file-load',
+      enforce: 'pre',
+      load(moduleId) {
+        if (moduleId === id)
+          now += fail ? 80 : 5
+      },
+    }
+    const failing: Plugin = {
+      name: 'test:failing-file-load',
+      enforce: 'pre',
+      load(moduleId) {
+        if (moduleId === id && fail)
+          this.error('First load attempt failed')
+      },
+    }
+    try {
+      const { server, envContext } = await createInspectServer(new Map(), [declined, failing], {
+        filename: storage === 'disk' ? join(dir, 'payloads.bin') : ':memory:',
+        maxBatchItems: storage === 'disk' ? 1 : undefined,
+      })
+      await expect(server.transformRequest(id)).rejects.toThrow('First load attempt failed')
+      // Persist the failed snapshot before the retry starts.
+      await envContext.getModulesList()
+      fail = false
+      await server.transformRequest(id)
+
+      const details = await envContext.getPluginDetails(server.config.plugins.indexOf(declined))
+      expect(details.loadMetrics.map(call => call.duration)).toEqual([80, 5])
+      const module = (await envContext.getModulesList()).find(module => module.id === id)!
+      expect(module.plugins.filter(plugin => plugin.name === declined.name)).toEqual([
+        { name: declined.name, transform: 5 },
+      ])
+      expect(module).toMatchObject({ sourceSize: source.length, distSize: source.length, virtual: false })
+      const { transforms } = await envContext.getModuleTransformInfo(id)
+      expect(transforms[0]).toMatchObject({ name: '__load__', result: source })
+      expect(transforms.some(transform => transform.result === '[Error]')).toBe(false)
+    }
+    finally {
+      clock.mockRestore()
+    }
+  })
+
+  it.each([undefined, null, 'code'] as const)('counts load time with result %s through Vite', async (result) => {
+    const id = '/load-timing.js'
+    const source = 'export const value = 1'
+    const plugin: Plugin = {
+      name: 'test:slow-load',
+      enforce: 'pre',
+      async load(moduleId) {
+        if (moduleId !== id)
+          return
+        await new Promise(resolve => setTimeout(resolve, 20))
+        return result === 'code' ? source : result
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map([[id, source]]), [plugin])
+    await server.transformRequest(id)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    const duration = details.loadMetrics.reduce((sum, call) => sum + call.duration, 0)
+    expect(duration).toBeGreaterThan(0)
+    const [module] = await envContext.getModulesList()
+    expect(module!.plugins.filter(p => p.name === plugin.name).reduce((sum, p) => sum + (p.transform ?? 0), 0)).toBe(duration)
+    expect(module!.sourceSize).toBe(source.length)
+    expect(module!.distSize).toBe(source.length)
+  })
+
+  it.each([undefined, null])('counts declined loads before Vite reads a file (%s)', async (result) => {
+    const dir = realpathSync(mkdtempSync(join(tmpdir(), 'vite-file-load-')))
+    temporaryDirs.push(dir)
+    const id = join(dir, 'entry.js').replace(/\\/g, '/')
+    const source = 'export const value = 1'
+    writeFileSync(id, source)
+    const plugin: Plugin = {
+      name: 'test:declined-file-load',
+      enforce: 'pre',
+      async load(moduleId) {
+        if (moduleId !== id)
+          return
+        await new Promise(resolve => setTimeout(resolve, 20))
+        return result
+      },
+    }
+    const { server, envContext } = await createInspectServer(new Map(), [plugin])
+    await server.transformRequest(id)
+    const details = await envContext.getPluginDetails(server.config.plugins.indexOf(plugin))
+    const duration = details.loadMetrics.reduce((sum, call) => sum + call.duration, 0)
+    expect(duration).toBeGreaterThan(0)
+    const [module] = await envContext.getModulesList()
+    expect(module!.plugins).toContainEqual({ name: plugin.name, transform: duration })
+    expect(module!.sourceSize).toBe(source.length)
+    expect(module!.virtual).toBe(false)
   })
 })

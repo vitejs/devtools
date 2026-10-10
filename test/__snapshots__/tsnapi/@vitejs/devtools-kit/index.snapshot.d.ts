@@ -26,17 +26,9 @@ export interface DevToolsViewLauncher extends DevframeViewLauncher {
     roots?: DevToolsLaunchRoot[];
   };
 }
-export interface JsonRenderer<SpecType extends JsonRenderSpec = JsonRenderSpec> {
-  updateSpec: (_: SpecType) => void;
-  updateState: (_: Record<string, unknown>) => void;
-  dispose: () => void;
-  readonly _stateKey: string;
-  readonly view: JsonRenderViewRef<SpecType>;
-}
 export interface KitNodeContext extends DevframeHubContext {
   readonly viteConfig?: ResolvedConfig;
   readonly viteServer?: ViteDevServer;
-  createJsonRenderer: <SpecType extends JsonRenderSpec>(_: SpecType, _?: Pick<CreateJsonRenderViewOptions<SpecType>, 'schema'>) => JsonRenderer<SpecType>;
 }
 export interface PluginWithDevTools extends Plugin {
   devtools?: DevToolsPluginOptions;
@@ -49,12 +41,6 @@ export interface ViteDevToolsNodeContext extends KitNodeContext {
 
 // #region Types
 export type DevToolsDockEntryCategory = DevframeDockEntryCategory;
-export type JsonRenderElement = UIElement;
-export type JsonRenderSpec<Element extends UIElement = UIElement> = DevframeJsonRenderSpec<Element>;
-// #endregion
-
-// #region Functions
-export declare function defineJsonRenderSpec<SpecType extends JsonRenderSpec>(_: SpecType): SpecType;
 // #endregion
 
 // #region Variables
@@ -118,15 +104,12 @@ export { DevToolsViewCustomRender }
 export { DevToolsViewGroup }
 export { DevToolsViewHost }
 export { DevToolsViewIframe }
-export { DevToolsViewJsonRender }
 export { DevToolsViewLauncherStatus }
 export { DockRendererRegistration }
 export { EntriesToObject }
 export { EventEmitter }
 export { EventsMap }
 export { EventUnsubscribe }
-export { JsonRenderView }
-export { JsonRenderViewRef }
 export { RemoteConnectionInfo }
 export { RemoteDockOptions }
 export { RpcBroadcastOptions }

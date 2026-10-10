@@ -8,6 +8,7 @@ import { DEVTOOLS_ASSETS_BASE, dirAssets } from '../dirs'
 import { getAuthHandler, isClientAuthDisabled } from './auth-handler'
 import { DEVTOOLS_CLIENT_MODULE_RESOLUTION } from './constants'
 import { diagnostics } from './diagnostics'
+import { attachJsonRenderer } from './json-render'
 import {
   defaultResolvedDevToolsConfig,
   setResolvedDevToolsConfig,
@@ -52,6 +53,8 @@ export async function createDevToolsContext(
     viteConfig,
     viteServer,
   })) as ViteDevToolsNodeContext
+
+  attachJsonRenderer(context)
 
   setResolvedDevToolsConfig(
     context,

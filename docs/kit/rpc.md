@@ -115,7 +115,7 @@ const plugin: Plugin = {
 
 ### Dump feature for build mode
 
-A static DevTools build (via `vite devtools build` or the [`build.withApp`](/guide/#building-with-the-app) plugin option) has no live server. The dump feature pre-computes RPC results at build time and bakes them into the static output.
+A static DevTools build (via `vite-devtools build` or the [`build.withApp`](/guide/#building-with-the-app) plugin option) has no live server. The dump feature pre-computes RPC results at build time and bakes them into the static output.
 
 #### How it works
 

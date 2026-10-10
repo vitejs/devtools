@@ -91,8 +91,14 @@ export function getOxfmtFormatCommand(write: boolean, vitePlus: boolean): OxfmtC
   return { command: 'oxfmt', args: [option] }
 }
 
-export function getOxfmtRunError(stderr: string) {
-  return stderr.trim() || undefined
+export function getOxfmtRunError(
+  stderr: string,
+  exitCode: number | undefined,
+  status: OxfmtFormatLog['status'],
+) {
+  // Check mode uses exit code 1 for formatting findings, which are saved results.
+  if (exitCode === 0 || (exitCode === 1 && status === 'issues')) return undefined
+  return stderr.trim() || `Command exited with code ${exitCode ?? 'unknown'}.`
 }
 
 async function getPreview(root: string, write: boolean) {
@@ -123,16 +129,18 @@ export const oxfmtRun = defineOxcRpc({
         const result = await x(command.command, command.args, {
           nodeOptions: { cwd: context.cwd, env: { FORCE_COLOR: '0', NO_COLOR: '1' } },
         })
-        const reason = getOxfmtRunError(result.stderr)
+        const log = parseOxfmtFormatOutput(
+          result.stdout,
+          write ? 'write' : 'check',
+          result.exitCode,
+        )
+        const reason = getOxfmtRunError(result.stderr, result.exitCode, log.status)
         if (reason) {
           throw diagnostics.OXDT0007({
             reason,
           })
         }
-        await saveOxfmtFormatResult(
-          context.cwd,
-          parseOxfmtFormatOutput(result.stdout, write ? 'write' : 'check', result.exitCode),
-        )
+        await saveOxfmtFormatResult(context.cwd, log)
         return { exitCode: result.exitCode }
       } catch (error) {
         if (error instanceof Diagnostic) throw error
