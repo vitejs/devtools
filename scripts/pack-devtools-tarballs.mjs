@@ -34,6 +34,7 @@ export const DEVTOOLS_PACKAGES = [
   { name: '@vitejs/devtools-vite', dir: 'packages/vite', out: 'vitejs-devtools-vite.tgz' },
   { name: '@vitejs/devtools-vitest', dir: 'packages/vitest', out: 'vitejs-devtools-vitest.tgz' },
   { name: '@vitejs/devtools-oxc', dir: 'packages/oxc', out: 'vitejs-devtools-oxc.tgz' },
+  { name: '@vitejs/devtools-agent', dir: 'packages/agent', out: 'vitejs-devtools-agent.tgz' },
 ]
 
 /** @param {string} cmd @param {string} cwd */
