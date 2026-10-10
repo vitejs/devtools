@@ -114,6 +114,7 @@ export default extendConfig(withMermaid(defineConfig({
           text: 'Guide',
           items: [
             { text: 'Getting Started', link: '/guide/' },
+            { text: 'Agents', link: '/guide/agents' },
             { text: 'Chrome Extension', link: '/guide/chrome-extension' },
           ],
         },
@@ -155,6 +156,14 @@ export default extendConfig(withMermaid(defineConfig({
               text: 'DevTools Kit (DTK)',
               collapsed: true,
               items: listErrorCodes('DTK').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
+            },
+            {
+              text: 'Agent Integration (AGDT)',
+              collapsed: true,
+              items: listErrorCodes('AGDT').map(code => ({
                 text: code,
                 link: `/errors/${code}`,
               })),

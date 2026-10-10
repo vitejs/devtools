@@ -11,7 +11,7 @@ export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.json'
 export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json'
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
-const ROLLDOWN_LOG_CACHE_VERSION = 2
+const ROLLDOWN_LOG_CACHE_VERSION = 3
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 

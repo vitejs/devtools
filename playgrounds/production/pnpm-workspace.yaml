@@ -18,6 +18,7 @@ overrides:
   '@vitejs/devtools-vite': 'file:.tarballs/vitejs-devtools-vite.tgz'
   '@vitejs/devtools-vitest': 'file:.tarballs/vitejs-devtools-vitest.tgz'
   '@vitejs/devtools-oxc': 'file:.tarballs/vitejs-devtools-oxc.tgz'
+  '@vitejs/devtools-agent': 'file:.tarballs/vitejs-devtools-agent.tgz'
 
 verifyDepsBeforeRun: false
 allowBuilds:
