@@ -14,6 +14,8 @@ const readers: Map<string, RolldownEventsReader> = new Map()
 const MAX_READERS = 32
 const MAX_MODULE_METRICS_CACHE = 32
 const MAX_MODULE_METRICS_CACHE_BYTES = 64 * 1024 * 1024
+const MAX_PLUGIN_METRICS_BATCH_CALLS = 128
+const MAX_PLUGIN_METRICS_BATCH_BYTES = 1024 * 1024
 const READ_STREAM_HIGH_WATER_MARK = 1024 * 1024
 const LINE_FEED = '\n'.charCodeAt(0)
 const CARRIAGE_RETURN = '\r'.charCodeAt(0)
@@ -895,52 +897,56 @@ export class RolldownEventsReader {
     if (!transformCalls.length)
       return
 
-    const refs = new Set<string>()
-    const transformEventIndexes: Array<number | undefined> = []
-    const locations: LineLocation[] = []
+    // Release event payloads and resolved strings between groups of transforms.
+    for (let offset = 0; offset < transformCalls.length; offset += MAX_PLUGIN_METRICS_BATCH_CALLS) {
+      const batch = transformCalls.slice(offset, offset + MAX_PLUGIN_METRICS_BATCH_CALLS)
+      const refs = new Set<string>()
+      const transformEventIndexes: Array<number | undefined> = []
+      const locations: LineLocation[] = []
 
-    for (const call of transformCalls) {
-      const location = this.moduleEventIndex.get(call.module)?.transforms.get(call.id)
-      if (!location) {
-        transformEventIndexes.push(undefined)
-        continue
+      for (const call of batch) {
+        const location = this.moduleEventIndex.get(call.module)?.transforms.get(call.id)
+        if (!location) {
+          transformEventIndexes.push(undefined)
+          continue
+        }
+        transformEventIndexes.push(locations.length)
+        locations.push(location.start, location.end)
       }
-      transformEventIndexes.push(locations.length)
-      locations.push(location.start, location.end)
-    }
 
-    const events = await this.readEventsAt(locations)
-    const contents = transformCalls.map((call, index) => {
-      const eventIndex = transformEventIndexes[index]
-      if (eventIndex == null) {
+      const events = await this.readEventsAt(locations)
+      const contents = batch.map((call, index) => {
+        const eventIndex = transformEventIndexes[index]
+        if (eventIndex == null) {
+          return {
+            call,
+            content_from: undefined,
+            content_to: undefined,
+          }
+        }
+        const start = events[eventIndex]
+        const end = events[eventIndex + 1]
         return {
           call,
-          content_from: undefined,
-          content_to: undefined,
+          content_from: start?.action === 'HookTransformCallStart'
+            ? getDeferredContent(start, refs)
+            : { value: null, ref: null },
+          content_to: end?.action === 'HookTransformCallEnd'
+            ? getDeferredContent(end, refs)
+            : { value: null, ref: null },
         }
-      }
-      const start = events[eventIndex]
-      const end = events[eventIndex + 1]
-      return {
-        call,
-        content_from: start?.action === 'HookTransformCallStart'
-          ? getDeferredContent(start, refs)
-          : { value: null, ref: null },
-        content_to: end?.action === 'HookTransformCallEnd'
-          ? getDeferredContent(end, refs)
-          : { value: null, ref: null },
-      }
-    })
+      })
 
-    const refValues = await this.readStringRefs(refs)
-    for (const item of contents) {
-      if (!item.content_from || !item.content_to) {
-        item.call.unchanged = false
-        continue
+      const refValues = await this.readStringRefs(refs)
+      for (const item of contents) {
+        if (!item.content_from || !item.content_to) {
+          item.call.unchanged = false
+          continue
+        }
+        const contentFrom = resolveDeferredContent(item.content_from, refValues)
+        const contentTo = resolveDeferredContent(item.content_to, refValues)
+        item.call.unchanged = getContentHash(contentFrom) === getContentHash(contentTo)
       }
-      const contentFrom = resolveDeferredContent(item.content_from, refValues)
-      const contentTo = resolveDeferredContent(item.content_to, refValues)
-      item.call.unchanged = getContentHash(contentFrom) === getContentHash(contentTo)
     }
   }
 
@@ -1097,48 +1103,66 @@ export class RolldownEventsReader {
       location: IndexedHookCall
     }> = []
 
-    for (const [module, index] of this.moduleEventIndex) {
-      for (const [id, location] of index.resolveIds)
-        calls.push({ module, type: 'resolve', id, location })
-      for (const [id, location] of index.loads)
-        calls.push({ module, type: 'load', id, location })
-      for (const [id, location] of index.transforms)
-        calls.push({ module, type: 'transform', id, location })
-    }
-
-    const events = await this.readIndexedHookEvents(calls.map(call => [call.id, call.location]))
     const metrics: PluginBuildMetrics = {
       plugin_id: pluginId,
       plugin_name: '',
       calls: [],
     }
 
-    for (const [index, item] of events.entries()) {
-      const call = calls[index]!
-      const start = item.start
-      const end = item.end
-      if (!start || !end || !('plugin_id' in end) || end.plugin_id !== pluginId)
-        continue
+    // The index has no plugin IDs, so scan it in bounded batches and keep only
+    // the requested plugin's compact metrics. An oversized hook is read alone.
+    let bytes = 0
+    const flush = async () => {
+      if (!calls.length)
+        return
+      const events = await this.readIndexedHookEvents(calls.map(call => [call.id, call.location]))
+      for (const [index, item] of events.entries()) {
+        const call = calls[index]!
+        const start = item.start
+        const end = item.end
+        if (!start || !end || !('plugin_id' in end) || end.plugin_id !== pluginId)
+          continue
 
-      const timestamp_start = 'timestamp' in start ? +start.timestamp : 0
-      const timestamp_end = 'timestamp' in end ? +end.timestamp : 0
-      metrics.plugin_name = end.plugin_name
-      metrics.calls.push({
-        type: call.type,
-        id: call.id,
-        duration: timestamp_end - timestamp_start,
-        plugin_id: pluginId,
-        plugin_name: end.plugin_name,
-        module: call.type === 'resolve' && start.action === 'HookResolveIdCallStart'
-          ? start.module_request
-          : call.module,
-        timestamp_start,
-        timestamp_end,
-        unchanged: call.type === 'load' && end.action === 'HookLoadCallEnd'
-          ? !end.content
-          : undefined,
-      })
+        const timestamp_start = 'timestamp' in start ? +start.timestamp : 0
+        const timestamp_end = 'timestamp' in end ? +end.timestamp : 0
+        metrics.plugin_name = end.plugin_name
+        metrics.calls.push({
+          type: call.type,
+          id: call.id,
+          duration: timestamp_end - timestamp_start,
+          plugin_id: pluginId,
+          plugin_name: end.plugin_name,
+          module: call.type === 'resolve' && start.action === 'HookResolveIdCallStart'
+            ? start.module_request
+            : call.module,
+          timestamp_start,
+          timestamp_end,
+          unchanged: call.type === 'load' && end.action === 'HookLoadCallEnd'
+            ? !end.content
+            : undefined,
+        })
+      }
+
+      calls.length = 0
+      bytes = 0
     }
+
+    for (const [module, index] of this.moduleEventIndex) {
+      for (const [type, entries] of [
+        ['resolve', index.resolveIds],
+        ['load', index.loads],
+        ['transform', index.transforms],
+      ] as const) {
+        for (const [id, location] of entries) {
+          const size = location.start.length + location.end.length
+          if (calls.length && (calls.length >= MAX_PLUGIN_METRICS_BATCH_CALLS || bytes + size > MAX_PLUGIN_METRICS_BATCH_BYTES))
+            await flush()
+          calls.push({ module, type, id, location })
+          bytes += size
+        }
+      }
+    }
+    await flush()
 
     metrics.calls.sort((a, b) => a.timestamp_start - b.timestamp_start)
     return metrics.calls.length ? metrics : undefined
