@@ -1,7 +1,7 @@
 {
   "name": "@vitejs/devtools-agent",
   "type": "module",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "description": "Agent access to Vite DevTools",
   "author": "VoidZero Inc.",
   "license": "MIT",

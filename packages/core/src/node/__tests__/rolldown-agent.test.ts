@@ -2,6 +2,7 @@ import type { ViteDevServer } from 'vite'
 import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { normalize } from 'pathe'
 import { createServer } from 'vite'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DevToolsAgent } from '../../../../agent/src'
@@ -71,7 +72,7 @@ describe('rolldown agent over the Vite DevTools MCP endpoint', () => {
     const call = (suffix: string, args = {}) => rpc('tools/call', { name: tool(suffix).name, arguments: args })
     expect(tool('summary').annotations.readOnlyHint).toBe(true)
     expect(tool('summary').inputSchema.properties.arg0.properties.session.type).toBe('string')
-    expect(data(await call('project')).cwd).toBe(root)
+    expect(data(await call('project')).cwd).toBe(normalize(root))
     expect(data(await call('list-sessions', { arg0: {} }))).toMatchObject({ total: 0, items: [], hasMore: false })
     expect((await call('summary', { arg0: { session: '../other' } })).isError).toBe(true)
     expect((await call('list-sessions', { arg0: { limit: 101 } })).isError).toBe(true)

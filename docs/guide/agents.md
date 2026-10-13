@@ -105,7 +105,7 @@ Tool names use the prefix `vite:rolldown:agent:`.
 | Tool | Use it to |
 | --- | --- |
 | `project` | Confirm project and workspace directories |
-| `list-sessions` | List recorded builds, newest first |
+| `list-sessions` | List recorded builds, newest first, with their entries |
 | `summary` | Read build totals, entries and available data |
 | `assets` | Find output files by filename or initial/async/static scope |
 | `modules` | Find module ids, optionally within an output file |
@@ -118,6 +118,8 @@ Tool names use the prefix `vite:rolldown:agent:`.
 ### Select a stable build
 
 For session-based queries, omit `session` or use `latest` to begin. Use the returned session id for follow-up queries so a newly recorded build does not change the investigation. The `module` tool returns `null` when the requested module is absent. Its import list and importer list page separately.
+
+A single build command can record several sessions seconds apart, such as the client and server builds of a framework. `latest` is the newest of them, so use the entries from `list-sessions` to select the build you mean, and compare sessions that share the same entries.
 
 `compare` requires two concrete session ids. Deltas are **current minus previous**, with changed items ranked by absolute delta. Hashed filenames are matched heuristically, so renamed outputs can appear as additions and removals.
 
@@ -143,7 +145,7 @@ Trace paths report where they stop: a recorded entry, graph root, missing node, 
 | Measurement | Meaning |
 | --- | --- |
 | Asset bytes | Uncompressed emitted file size |
-| Initial JS bytes | Uncompressed size of the first emitted file for each initial chunk |
+| Initial JS bytes | Uncompressed size of the first emitted file for each initial chunk: an entry chunk and the chunks it imports statically |
 | Package bytes | Transformed code size before final output optimization |
 | Chunk comparison bytes | Emitted size where available, otherwise transformed size |
 | Plugin duration | Sum of recorded hook milliseconds; calls can overlap |

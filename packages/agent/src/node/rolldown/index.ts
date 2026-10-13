@@ -59,7 +59,7 @@ export const rolldownAgentTools = [
     type: 'query',
     args: [z.object(page)],
     returns: z.unknown(),
-    agent: { description: 'Rolldown recorded builds: discover session ids for build-output analysis and comparisons, newest first. These are existing logs; this tool does not run a build. If empty, enable Rolldown recording and generate a build.' },
+    agent: { description: 'Rolldown recorded builds: discover session ids for build-output analysis and comparisons, newest first. These are existing logs; this tool does not run a build. One build command can record several sessions seconds apart, such as client and server builds, so pick a session by its inputs instead of assuming the newest one, and compare sessions with matching inputs. If empty, enable Rolldown recording and generate a build.' },
     setup: context => ({
       handler: async ({ offset = 0, limit = 20 }) => {
         const sessions = (await (await loadRolldown(context)).getLogsManager(context).list()).sort((a, b) => b.timestamp - a.timestamp)
@@ -72,7 +72,7 @@ export const rolldownAgentTools = [
     type: 'query',
     args: [z.object({ session })],
     returns: z.unknown(),
-    agent: { description: 'Rolldown recorded build: start here to investigate output size and build composition. Returns emitted-byte totals, module/chunk counts and available data. Initial JS bytes count the first emitted file of each initial chunk. session defaults to latest; pin the returned session id for follow-up Rolldown queries.' },
+    agent: { description: 'Rolldown recorded build: start here to investigate output size and build composition. Returns emitted-byte totals, module/chunk counts and available data. Initial JS bytes count the first emitted file of each initial chunk; a chunk is initial when a user-defined entry reaches it through static imports. session defaults to latest, the newest recorded session, which in a multi-build project can be a secondary build such as a server bundle; check the returned inputs and module count, or select an id from list-sessions. Pin the returned session id for follow-up Rolldown queries.' },
     setup: context => ({
       handler: async ({ session }) => {
         const { id, reader } = await loadSession(context, session)
