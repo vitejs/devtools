@@ -1,5 +1,6 @@
 import type { Plugin, ResolvedConfig } from 'vite'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { normalizeDevToolsConfig } from '../config'
 import { DevToolsIntegration, runDevTools } from '../plugins/integration'
 import { startDevTools } from '../start'
@@ -44,6 +45,8 @@ describe('devToolsIntegration', () => {
   beforeEach(() => {
     vi.mocked(startDevTools).mockClear()
   })
+
+  afterEach(() => vi.unstubAllEnvs())
 
   it('returns the existing DevTools plugins for serve', async () => {
     const plugins = await DevToolsIntegration({
@@ -107,6 +110,17 @@ describe('devToolsIntegration', () => {
     })
 
     expect(plugins).toEqual([])
+  })
+
+  it.each(['serve', 'all'] as const)('loads the build integration without starting standalone when apply is %s', async (apply) => {
+    vi.stubEnv(ROLLDOWN_DEVTOOLS_ENV, 'true')
+    const plugins = await DevToolsIntegration(createIntegrationOptions('build', createDevToolsConfig(apply)))
+    expect(plugins.map(plugin => plugin.name)).toContain('vite:devtools:integration')
+    const config = createResolvedConfig('build', { client: {} as never })
+    Object.assign(config, { plugins, devtools: normalizeDevToolsConfig({ apply }, undefined) })
+
+    await runDevTools({ config })
+    expect(startDevTools).not.toHaveBeenCalled()
   })
 
   it('passes the resolved config to standalone DevTools', async () => {

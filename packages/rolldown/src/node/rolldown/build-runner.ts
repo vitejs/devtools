@@ -1,5 +1,6 @@
 import type { DevToolsChildProcessExecuteOptions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import process from 'node:process'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { diagnostics } from '../diagnostics'
 
@@ -9,11 +10,6 @@ import { diagnostics } from '../diagnostics'
  * reusing a fixed id would throw "Terminal session ... already registered".
  */
 const BUILD_SESSION_ID_BASE = 'vite:rolldown:build'
-/**
- * Env var the spawned build carries so the Rolldown DevTools plugin forces
- * `rolldownOptions.devtools` on for that build (see `plugin.ts`).
- */
-export const ROLLDOWN_DEVTOOLS_ENV = 'VITE_DEVTOOLS_ROLLDOWN'
 
 type BuildSession = Awaited<ReturnType<ViteDevToolsNodeContext['terminals']['startChildProcess']>>
 

@@ -10,6 +10,7 @@ export declare const DEVTOOLS_MOUNT_PATH_NO_TRAILING_SLASH: string;
 export declare const DEVTOOLS_TERMINALS_DOCK_ID: string;
 export declare const DEVTOOLS_WS_PATH: string;
 export declare const DEVTOOLS_WS_ROUTE: string;
+export declare const ROLLDOWN_DEVTOOLS_ENV: string;
 // #endregion
 
 // #region Other

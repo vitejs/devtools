@@ -1,6 +1,7 @@
 import type { Plugin, ResolvedConfig, ViteBuilder } from 'vite'
 import type { DevToolsConfig, ResolvedDevToolsConfig } from '../config'
 import process from 'node:process'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { isDevToolsEnabled, normalizeDevToolsConfig } from '../config'
 import { DevToolsConfigPlugin } from './config'
 import { createDevToolsPlugins, resolveDevToolsPluginOptions } from './index'
@@ -39,6 +40,10 @@ function getDevToolsEnvironments(
 export async function runDevTools(
   builder: unknown,
 ) {
+  // Skip the standalone server so the build process can exit.
+  if (process.env[ROLLDOWN_DEVTOOLS_ENV] === 'true')
+    return
+
   const config = (builder as ViteBuilder).config
   if (!config.plugins.some(plugin => plugin.name === DEVTOOLS_BUILD_INTEGRATION_NAME))
     return

@@ -1,7 +1,7 @@
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
 import process from 'node:process'
+import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { clientPublicDir } from '../dirs'
-import { ROLLDOWN_DEVTOOLS_ENV } from './rolldown/build-runner'
 import { rpcFunctions } from './rpc/index'
 
 const ROLLDOWN_DEVTOOLS_BASE = '/__devtools-rolldown/'
