@@ -110,7 +110,9 @@ export default defineNuxtConfig({
       ],
     },
     devtools: {
+      apply: 'serve',
       clientAuth: false,
+      builtinDevTools: false,
     },
   },
 

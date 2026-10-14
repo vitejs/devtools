@@ -32,6 +32,7 @@ import {
   getPluginDetails as getEnvironmentPluginDetails,
   getPluginMetrics as getEnvironmentPluginMetrics,
 } from './plugins'
+import { trackTransformRequestId } from './server'
 import { createViteInspectStore } from './store'
 import {
   normalizeModuleId,
@@ -215,7 +216,7 @@ export class ViteInspectEnvironmentContext {
     this.inspectContext.store.recordTransform(this.scope, id, publicModuleId, {
       ...info,
       plugin_id: pluginId,
-    }, preTransformCode, pluginCall)
+    }, preTransformCode, pluginCall, trackTransformRequestId(id))
   }
 
   recordLoad(
@@ -240,7 +241,7 @@ export class ViteInspectEnvironmentContext {
     this.inspectContext.store.recordLoad(this.scope, id, publicModuleId, {
       ...info,
       plugin_id: pluginId,
-    }, pluginCall)
+    }, pluginCall, trackTransformRequestId(id))
   }
 
   recordLoadCall(
@@ -262,7 +263,7 @@ export class ViteInspectEnvironmentContext {
     if (!pluginCall)
       return
 
-    this.inspectContext.store.recordPluginCall(this.scope, pluginCall)
+    this.inspectContext.store.recordPluginCall(this.scope, pluginCall, trackTransformRequestId(id))
   }
 
   recordResolveId(

@@ -31,6 +31,13 @@ export async function getModulesList(
 
   const transformList = await ctx.inspectContext.store.getTransformList(ctx.scope)
   const resolveIdList = await ctx.inspectContext.store.getResolveIdList(ctx.scope)
+  const declinedLoadMetrics = await ctx.inspectContext.store.getDeclinedLoadMetrics(ctx.scope)
+  const declinedLoadMetricsById = new Map<string, ViteInspectModulePluginMetric[]>()
+  for (const load of declinedLoadMetrics) {
+    const plugins = declinedLoadMetricsById.get(load.publicModuleId) ?? []
+    plugins.push({ name: load.pluginName, transform: load.totalTime })
+    declinedLoadMetricsById.set(load.publicModuleId, plugins)
+  }
 
   const transformsById = transformList.reduce<Record<string, typeof transformList>>((map, transform) => {
     const transforms = map[transform.moduleId] ||= []
@@ -49,21 +56,21 @@ export async function getModulesList(
   return Array.from(ids).sort().map((id) => {
     let totalTime = 0
     const transforms = transformsById[id] || []
-    const transformPlugins: ViteInspectModulePluginMetric[] = transforms
-      .filter(transform => transform.hasResult)
-      .map((transform) => {
-        const delta = transform.end - transform.start
-        totalTime += delta
-        return {
-          name: transform.name,
-          transform: delta,
-        }
-      })
+    const transformPlugins: ViteInspectModulePluginMetric[] = transforms.map((transform) => {
+      const delta = transform.end - transform.start
+      totalTime += delta
+      return {
+        name: transform.name,
+        transform: delta,
+      }
+    })
     const resolveIdPlugins: ViteInspectModulePluginMetric[] = (transformedIdMap[id] || []).map(resolveId => ({
       name: resolveId.name,
       resolveId: resolveId.end - resolveId.start,
     }))
-    const plugins = transformPlugins.concat(resolveIdPlugins)
+    const loadPlugins = declinedLoadMetricsById.get(ctx.getPublicModuleId(id)) ?? []
+    totalTime += loadPlugins.reduce((sum, plugin) => sum + (plugin.transform ?? 0), 0)
+    const plugins = transformPlugins.concat(loadPlugins, resolveIdPlugins)
     const firstTransform = transforms[0]
     const lastTransform = transforms.at(-1)
 

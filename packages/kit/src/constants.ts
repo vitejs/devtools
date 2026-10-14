@@ -36,6 +36,9 @@ export const DEVTOOLS_WS_ROUTE = '__ws'
 export const DEVTOOLS_WS_PATH = `${DEVTOOLS_MOUNT_PATH}${DEVTOOLS_WS_ROUTE}`
 export const DEVTOOLS_DOCK_IMPORTS_VIRTUAL_ID = '/__devtools-client-imports.js'
 
+/** Environment variable for recording Rolldown build sessions in an existing DevTools instance. */
+export const ROLLDOWN_DEVTOOLS_ENV = 'VITE_DEVTOOLS_ROLLDOWN'
+
 /**
  * Dock id of the built-in Devframe Inspector (mounted from
  * `@devframes/plugin-inspect`). Shared between the node side (which pins the

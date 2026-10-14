@@ -1,5 +1,4 @@
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
-import { DevToolsServer } from '../../../core/src/node/plugins/server'
 import { DevToolsViteInspect } from '../node/inspect/plugin'
 
 export default defineNuxtModule({
@@ -9,6 +8,5 @@ export default defineNuxtModule({
   },
   setup() {
     addVitePlugin(DevToolsViteInspect())
-    addVitePlugin(DevToolsServer())
   },
 })
