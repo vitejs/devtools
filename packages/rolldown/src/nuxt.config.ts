@@ -122,8 +122,9 @@ export default defineNuxtConfig({
       ],
     },
     devtools: {
-      enabled: false,
+      apply: 'serve',
       clientAuth: false,
+      builtinDevTools: false,
     },
     plugins: [
       NUXT_DEBUG_BUILD ? Inspect({ build: true }) : null,

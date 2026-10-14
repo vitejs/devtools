@@ -1,5 +1,4 @@
 import { addVitePlugin, defineNuxtModule } from '@nuxt/kit'
-import { DevToolsServer } from '../../../core/src/node/plugins/server'
 import { rpcFunctions } from '../node/rpc'
 
 export default defineNuxtModule({
@@ -18,7 +17,5 @@ export default defineNuxtModule({
         },
       },
     })
-
-    addVitePlugin(DevToolsServer())
   },
 })
