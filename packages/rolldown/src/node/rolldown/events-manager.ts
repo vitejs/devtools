@@ -348,6 +348,10 @@ export class RolldownEventsManager {
     this.eventCount = snapshot.eventCount
     this.lastEvent = snapshot.lastEvent
     this.chunks = new Map(snapshot.chunks)
+    // Recompute derived flags when loading caches written by older versions.
+    const initialChunkIds = getInitialChunkIds(Array.from(this.chunks.values()))
+    for (const chunk of this.chunks.values())
+      chunk.is_initial = initialChunkIds.has(chunk.chunk_id)
     this.packageGraphReady = snapshot.packageGraphReady ?? !!snapshot.packages?.length
     this.packages = new Map(snapshot.packages ?? [])
     this.assets.clear()
