@@ -20,6 +20,28 @@ function assertValidSessionId(id: string): void {
   }
 }
 
+interface SessionListCacheEntry {
+  fingerprint: string
+  sessions: BuildInfo[]
+}
+
+// Parsed session metadata, keyed by the sessions directory. Invalidated when
+// a session's meta.json or the alias file changes; directory names cannot contain NUL.
+const sessionListCache = new Map<string, SessionListCacheEntry>()
+
+function copySessions(sessions: BuildInfo[]): BuildInfo[] {
+  return sessions.map(session => ({ ...session }))
+}
+
+async function fileMtimeMs(path: string): Promise<number> {
+  try {
+    return (await fs.stat(path)).mtimeMs
+  }
+  catch {
+    return 0
+  }
+}
+
 export class RolldownLogsManager {
   constructor(
     readonly dir: string,
@@ -48,14 +70,28 @@ export class RolldownLogsManager {
     await fs.writeFile(this.aliasesPath, `${JSON.stringify(aliases, null, 2)}\n`, 'utf-8')
   }
 
+  private async sessionListFingerprint(): Promise<string> {
+    const [entries, aliasesMtimeMs] = await Promise.all([
+      fs.readdir(this.dir, { withFileTypes: true }),
+      fileMtimeMs(this.aliasesPath),
+    ])
+    const directories = entries.filter(entry => entry.isDirectory()).map(entry => entry.name).sort()
+    const metaMtimes = await Promise.all(directories.map(name => fileMtimeMs(join(this.dir, name, 'meta.json'))))
+    return `${aliasesMtimeMs}\0${directories.map((name, index) => `${name}\0${metaMtimes[index]}`).join('\0')}`
+  }
+
   async list() {
     if (!existsSync(this.dir)) {
+      sessionListCache.delete(this.dir)
       return []
     }
-    const [sessions, aliases] = await Promise.all([
-      fs.readdir(this.dir, { withFileTypes: true }),
-      this.readAliases(),
-    ])
+    const fingerprint = await this.sessionListFingerprint()
+    const cached = sessionListCache.get(this.dir)
+    if (cached?.fingerprint === fingerprint)
+      return copySessions(cached.sessions)
+
+    const aliases = await this.readAliases()
+    const sessions = await fs.readdir(this.dir, { withFileTypes: true })
     const entries = await Promise.all(sessions
       .filter(d => d.isDirectory())
       .filter(d => existsSync(join(this.dir, d.name, 'meta.json')))
@@ -75,7 +111,11 @@ export class RolldownLogsManager {
         }
       }),
     )
-    return entries.filter((entry): entry is BuildInfo => !!entry)
+    const listed = entries.filter((entry): entry is BuildInfo => !!entry)
+    const fingerprintAfter = await this.sessionListFingerprint()
+    if (fingerprintAfter === fingerprint)
+      sessionListCache.set(this.dir, { fingerprint, sessions: listed })
+    return copySessions(listed)
   }
 
   /** Set or clear a user-defined alias for a session. */
