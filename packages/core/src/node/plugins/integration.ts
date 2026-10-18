@@ -54,20 +54,23 @@ export async function runDevTools(
 
   if (!isDevToolsEnabled(devtoolsConfig, config.command))
     return
-  for (const _environment of getDevToolsEnvironments(config, devtoolsConfig)) {
-    try {
-      const { startDevTools } = await import('../start')
-      await startDevTools({
-        ...devtoolsConfig.config,
-        root: devtoolsConfig.config.root ?? config.root,
-      }, devtoolsConfig)
-    }
-    catch (error: any) {
-      config.logger.error(
-        `Failed to run Vite DevTools: ${error?.message || error?.stack || error}`,
-        { error },
-      )
-    }
+
+  // A single standalone server covers every environment, so start it once.
+  if (!getDevToolsEnvironments(config, devtoolsConfig).length)
+    return
+
+  try {
+    const { startDevTools } = await import('../start')
+    await startDevTools({
+      ...devtoolsConfig.config,
+      root: devtoolsConfig.config.root ?? config.root,
+    }, devtoolsConfig)
+  }
+  catch (error: any) {
+    config.logger.error(
+      `Failed to run Vite DevTools: ${error?.message || error?.stack || error}`,
+      { error },
+    )
   }
 }
 
