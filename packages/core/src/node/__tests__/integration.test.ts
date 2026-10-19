@@ -169,6 +169,16 @@ describe('devToolsIntegration', () => {
     )
   })
 
+  it('starts standalone DevTools once for multiple build environments', async () => {
+    const plugins = await DevToolsIntegration(createIntegrationOptions('build'))
+    const config = createResolvedConfig('build', { client: {} as never, ssr: {} as never })
+    Object.assign(config, { plugins, devtools: normalizeDevToolsConfig({ apply: 'build' }, 'localhost') })
+
+    await runDevTools({ config })
+
+    expect(startDevTools).toHaveBeenCalledTimes(1)
+  })
+
   it('does not run standalone DevTools for a manual plugin config', async () => {
     const config = createResolvedConfig('build', { client: {} as never })
     Object.assign(config, {
