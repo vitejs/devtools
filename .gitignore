@@ -28,3 +28,5 @@ storybook-static
 
 # Agent skills from npm packages (managed by skills-npm)
 **/skills/npm-*
+**/skills/add-diagnostic
+**/skills/nostics
