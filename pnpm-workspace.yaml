@@ -165,6 +165,7 @@ catalogs:
     twoslash: ^0.3.9
     vitepress: ^2.0.0-alpha.20
     vitepress-plugin-group-icons: ^1.8.1
+    vitepress-plugin-llms: ^1.14.0
     vitepress-plugin-mermaid: ^2.0.17
   frontend:
     '@floating-ui/dom': ^1.8.0
@@ -243,3 +244,11 @@ catalogs:
     '@types/react-dom': ^19.3.0
     '@types/splitpanes': ^2.2.6
     '@types/ws': ^8.18.2
+
+permissions:
+  devframe:
+    skills: true
+  nostics:
+    skills: true
+  vue-virtual-scroller:
+    skills: true
