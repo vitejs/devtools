@@ -137,11 +137,13 @@ function getChunkSize(reader: RolldownEventsReader, chunk: RolldownChunkInfo | u
 }
 
 function getChunkKey(chunk: RolldownChunkInfo) {
-  if (chunk.name)
+  // Bracketed names are guessed (`[<first module>_<module count>]`) and change whenever
+  // a module is added or removed, so match those chunks by entry or first module instead
+  if (chunk.name && !/^\[.*\]$/.test(chunk.name))
     return `name:${chunk.name}`
   if (chunk.entry_module)
     return `entry:${chunk.entry_module}`
-  return `modules:${chunk.modules.toSorted((a, b) => a.localeCompare(b)).join('\0')}`
+  return `module:${chunk.modules[0] ?? chunk.chunk_id}`
 }
 
 function getPackageImporters(pkg: { files: PackageInfo['files'] } | undefined) {
