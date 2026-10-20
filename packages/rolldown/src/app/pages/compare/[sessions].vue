@@ -36,6 +36,11 @@ const compareTabs = [
     icon: 'i-ph-shapes-duotone',
   },
   {
+    id: 'modules',
+    label: 'Modules',
+    icon: 'i-ph-graph-duotone',
+  },
+  {
     id: 'assets',
     label: 'Assets',
     icon: 'i-ph-files-duotone',
