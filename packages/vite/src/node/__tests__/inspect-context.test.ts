@@ -1286,3 +1286,26 @@ describe('vite inspect hook timing', () => {
     })
   })
 })
+
+describe('vite inspect public module ids', () => {
+  it('normalizes dependency ids relative to the current root', async () => {
+    const { envCtx, vite } = await createFixture()
+    const id = '/project/node_modules/dep/index.js?v=abc123'
+
+    expect(envCtx.getPublicModuleId(id)).toBe('./node_modules/dep/index.js')
+    expect(envCtx.getPublicModuleId(id)).toBe('./node_modules/dep/index.js')
+
+    // A cached id must follow a root change instead of returning the stale result.
+    ;(vite.config as { root: string }).root = '/project/node_modules'
+    expect(envCtx.getPublicModuleId(id)).toBe('./dep/index.js')
+  })
+
+  it('keeps returning correct ids after the cache is cleared at its size limit', async () => {
+    const { envCtx } = await createFixture()
+    for (let index = 0; index < 10_001; index++)
+      expect(envCtx.getPublicModuleId(`/project/node_modules/dep/m${index}.js`)).toBe(`./node_modules/dep/m${index}.js`)
+
+    expect(envCtx.getPublicModuleId('/project/node_modules/dep/m0.js')).toBe('./node_modules/dep/m0.js')
+    expect(envCtx.getPublicModuleId('/src/main.ts')).toBe('/src/main.ts')
+  })
+})

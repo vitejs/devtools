@@ -180,10 +180,16 @@ export class ViteInspectViteContext {
   }
 }
 
+// Ids can carry HMR timestamps, so cap the cache instead of letting it grow for the whole session.
+const MAX_PUBLIC_MODULE_ID_CACHE_SIZE = 10_000
+
 export class ViteInspectEnvironmentContext {
   readonly scope: string
   private pluginCallCount = 0
   private graphModuleIdResolver?: ReturnType<typeof createGraphModuleIdResolver>
+  // Every hook call records its module id, so the same id is normalized once per plugin per request.
+  private readonly publicModuleIds = new Map<string, string>()
+  private publicModuleIdsRoot?: string
 
   constructor(
     readonly inspectContext: ViteInspectContext,
@@ -336,7 +342,17 @@ export class ViteInspectEnvironmentContext {
   }
 
   getPublicModuleId(id: string): string {
-    return normalizeModuleId(this.normalizeId(id), this.getModuleIdBaseRoot())
+    const root = this.getModuleIdBaseRoot()
+    if (root !== this.publicModuleIdsRoot || this.publicModuleIds.size >= MAX_PUBLIC_MODULE_ID_CACHE_SIZE) {
+      this.publicModuleIds.clear()
+      this.publicModuleIdsRoot = root
+    }
+    let publicId = this.publicModuleIds.get(id)
+    if (publicId === undefined) {
+      publicId = normalizeModuleId(this.normalizeId(id), root)
+      this.publicModuleIds.set(id, publicId)
+    }
+    return publicId
   }
 
   async getModuleId(id: string): Promise<string> {
