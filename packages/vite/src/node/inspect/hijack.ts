@@ -47,6 +47,46 @@ function hijackHook(plugin: PluginWithOrder, name: 'transform' | 'load' | 'resol
   }
 }
 
+type HookSettled = (resultValue: any, error: unknown, start: number, end: number) => void
+
+// Epoch milliseconds with sub-millisecond precision, comparable with `Date.now()`.
+function now(): number {
+  return performance.timeOrigin + performance.now()
+}
+
+function isThenable(value: unknown): value is PromiseLike<unknown> {
+  return value != null && typeof (value as PromiseLike<unknown>).then === 'function'
+}
+
+// Keep sync hooks sync: only async results pay for a promise chain.
+function measureHook(fn: (...args: any[]) => any, context: any, args: any[], settled: HookSettled): any {
+  const start = now()
+  let resultValue: any
+  try {
+    resultValue = fn.apply(context, args)
+  }
+  catch (error) {
+    settled(undefined, error, start, now())
+    throw error
+  }
+
+  if (!isThenable(resultValue)) {
+    settled(resultValue, undefined, start, now())
+    return resultValue
+  }
+
+  return Promise.resolve(resultValue).then(
+    (value) => {
+      settled(value, undefined, start, now())
+      return value
+    },
+    (error) => {
+      settled(undefined, error, start, now())
+      throw error
+    },
+  )
+}
+
 const hijackedPlugins = new WeakSet<Plugin>()
 
 export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
@@ -54,154 +94,107 @@ export function hijackPlugin(plugin: Plugin, ctx: ViteInspectContext): void {
     return
   hijackedPlugins.add(plugin)
 
-  hijackHook(plugin, 'transform', async (fn, context, args, order) => {
+  hijackHook(plugin, 'transform', (fn, context, args, order) => {
     const code = args[0] as string
     const id = args[1] as string
     const transformRequest = trackTransformRequestId(id)
     const envContext = ctx.filter(id) ? ctx.getEnvContext(context?.environment) : undefined
-    let resultValue: any
-    let error: unknown
-    const start = Date.now()
+    if (!envContext)
+      return fn.apply(context, args)
 
-    try {
-      resultValue = await fn.apply(context, args)
-    }
-    catch (err) {
-      error = err
-    }
+    return measureHook(fn, context, args, (resultValue, error, start, end) => {
+      if (isTransformRequestStale(transformRequest))
+        return
 
-    const end = Date.now()
-    const result = error
-      ? '[Error]'
-      : typeof resultValue === 'string'
-        ? resultValue
-        : resultValue?.code?.toString()
+      const result = error
+        ? '[Error]'
+        : typeof resultValue === 'string'
+          ? resultValue
+          : resultValue?.code?.toString()
 
-    if (envContext && !isTransformRequestStale(transformRequest)) {
-      const sourcemaps = typeof resultValue === 'string' ? null : resultValue?.map
       envContext.recordTransform(id, {
         name: plugin.name,
         result,
         start,
         end,
         order,
-        sourcemaps,
         error: error ? parseError(error) : undefined,
       }, code, plugin)
-    }
-
-    if (error)
-      throw error
-    return resultValue
+    })
   })
 
-  hijackHook(plugin, 'load', async (fn, context, args) => {
+  hijackHook(plugin, 'load', (fn, context, args) => {
     const id = args[0] as string
     const transformRequest = trackTransformRequestId(id)
     const envContext = ctx.getEnvContext(context?.environment)
-    let resultValue: any
-    let error: unknown
-    const start = Date.now()
+    if (!envContext)
+      return fn.apply(context, args)
 
-    try {
-      resultValue = await fn.apply(context, args)
-    }
-    catch (err) {
-      error = err
-    }
+    return measureHook(fn, context, args, (resultValue, error, start, end) => {
+      if (isTransformRequestStale(transformRequest))
+        return
 
-    const end = Date.now()
-    const result = error
-      ? '[Error]'
-      : typeof resultValue === 'string'
-        ? resultValue
-        : resultValue?.code
-    const sourcemaps = typeof resultValue === 'string' ? null : resultValue?.map
+      const result = error
+        ? '[Error]'
+        : typeof resultValue === 'string'
+          ? resultValue
+          : resultValue?.code
 
-    const info = {
-      name: plugin.name,
-      result,
-      start,
-      end,
-      sourcemaps,
-      error: error ? parseError(error) : undefined,
-    }
-
-    if (result != null && envContext && !isTransformRequestStale(transformRequest)) {
-      envContext.recordLoad(id, {
-        ...info,
-        result,
-      }, plugin)
-    }
-    else if (envContext && !isTransformRequestStale(transformRequest)) {
-      envContext.recordLoadCall(id, {
-        name: plugin.name,
-        start,
-        end,
-        error: error ? parseError(error) : undefined,
-      }, plugin)
-    }
-
-    if (error)
-      throw error
-    return resultValue
+      if (result != null) {
+        envContext.recordLoad(id, {
+          name: plugin.name,
+          result,
+          start,
+          end,
+          error: error ? parseError(error) : undefined,
+        }, plugin)
+      }
+      else {
+        envContext.recordLoadCall(id, {
+          name: plugin.name,
+          start,
+          end,
+          error: error ? parseError(error) : undefined,
+        }, plugin)
+      }
+    })
   })
 
-  hijackHook(plugin, 'resolveId', async (fn, context, args) => {
+  hijackHook(plugin, 'resolveId', (fn, context, args) => {
     const id = args[0] as string
     const transformRequest = trackTransformRequestId(id)
     const envContext = ctx.filter(id) ? ctx.getEnvContext(context?.environment) : undefined
-    let resultValue: any
-    let error: unknown
-    const start = Date.now()
+    if (!envContext)
+      return fn.apply(context, args)
 
-    try {
-      resultValue = await fn.apply(context, args)
-    }
-    catch (err) {
-      error = err
-    }
+    return measureHook(fn, context, args, (resultValue, error, start, end) => {
+      if (isTransformRequestStale(transformRequest))
+        return
 
-    const end = Date.now()
-    if (!envContext) {
-      if (error)
-        throw error
-      return resultValue
-    }
+      const result = error
+        ? stringifyError(error)
+        : typeof resultValue === 'object'
+          ? resultValue?.id
+          : resultValue
 
-    if (isTransformRequestStale(transformRequest)) {
-      if (error)
-        throw error
-      return resultValue
-    }
-
-    const result = error
-      ? stringifyError(error)
-      : typeof resultValue === 'object'
-        ? resultValue?.id
-        : resultValue
-
-    if (result) {
-      envContext.recordResolveId(id, {
-        name: plugin.name,
-        result,
-        start,
-        end,
-        error,
-      }, plugin)
-    }
-    else {
-      envContext.recordResolveIdCall(id, {
-        name: plugin.name,
-        result,
-        start,
-        end,
-        error,
-      }, plugin)
-    }
-
-    if (error)
-      throw error
-    return resultValue
+      if (result) {
+        envContext.recordResolveId(id, {
+          name: plugin.name,
+          result,
+          start,
+          end,
+          error,
+        }, plugin)
+      }
+      else {
+        envContext.recordResolveIdCall(id, {
+          name: plugin.name,
+          result,
+          start,
+          end,
+          error,
+        }, plugin)
+      }
+    })
   })
 }

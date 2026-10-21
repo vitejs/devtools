@@ -14,5 +14,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { operation: string }) => `Vite inspect storage failed while ${p.operation}.`,
       fix: 'Restart the Vite dev server. If the error persists, clear the Vite cache directory and reinstall dependencies.',
     },
+    VDT0004: {
+      why: (p: { archive: string }) => `Vite inspect could not write the ${p.archive} archive to disk and now keeps new records in memory.`,
+      fix: 'Check that the Vite cache directory is writable and has free disk space, then restart the Vite dev server to resume writing to disk.',
+    },
   },
 })

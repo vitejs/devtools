@@ -56,6 +56,8 @@ class MemoryInspectPayloadStore implements InspectPayloadStore {
 class FileInspectPayloadStore implements InspectPayloadStore {
   private nextOffset = 0
   private freeRanges: ViteInspectPayloadRange[] = []
+  // Payloads keyed by offset once the archive file can no longer be written.
+  private fallback?: Map<number, Buffer>
 
   constructor(private readonly file: FileHandle) {}
 
@@ -77,13 +79,30 @@ class FileInspectPayloadStore implements InspectPayloadStore {
       if (buffer.length > 0)
         writes.push({ buffer, range })
     }
-    await this.writeAllocatedPayloads(writes)
+
+    if (!this.fallback) {
+      try {
+        await this.writeAllocatedPayloads(writes)
+        return ranges
+      }
+      catch (error) {
+        // Transform data can't be reproduced, so keep it in memory instead of dropping it.
+        this.fallback = new Map()
+        diagnostics.VDT0004({ archive: 'payload', cause: error instanceof Error ? error : new Error(String(error)) })
+      }
+    }
+    for (const { buffer, range } of writes)
+      this.fallback.set(range.offset, buffer)
     return ranges
   }
 
   async read(range: ViteInspectPayloadRange): Promise<string> {
     if (range.length === 0)
       return ''
+
+    const fallback = this.fallback?.get(range.offset)
+    if (fallback?.length === range.length)
+      return fallback.toString()
 
     const buffer = Buffer.allocUnsafe(range.length)
     let readOffset = 0
@@ -106,10 +125,13 @@ class FileInspectPayloadStore implements InspectPayloadStore {
 
   async close(): Promise<void> {
     this.freeRanges.length = 0
+    this.fallback?.clear()
     await this.file.close()
   }
 
   reclaim(ranges: ViteInspectPayloadRange[]): void {
+    for (const range of ranges)
+      this.fallback?.delete(range.offset)
     this.freeRanges.push(...ranges.filter(range => range.length > 0))
     this.mergeFreeRanges()
   }

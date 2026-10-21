@@ -449,8 +449,8 @@ describe('vite inspect server invalidation', () => {
     const source = 'export const value = 1'
     writeFileSync(id, source)
     let fail = true
-    let now = Date.now()
-    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    let now = performance.now()
+    const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
     const declined: Plugin = {
       name: 'test:declined-file-load',
       enforce: 'pre',

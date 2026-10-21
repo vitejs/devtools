@@ -463,9 +463,38 @@ class BinaryInspectPluginCallStore implements InspectPluginCallStore {
 }
 
 class FilePluginCallStorage implements PluginCallStorage {
+  // Segments at or after `start` live in memory once the archive file can no longer be written.
+  private fallback?: { start: number, storage: MemoryPluginCallStorage }
+
   constructor(private readonly file: FileHandle) {}
 
   async write(input: Buffer[], startPosition: number): Promise<void> {
+    if (!this.fallback) {
+      try {
+        await this.writeFile(input, startPosition)
+        return
+      }
+      catch (error) {
+        // The archive is append-only, so every later position belongs to the fallback.
+        this.fallback = { start: startPosition, storage: new MemoryPluginCallStorage() }
+        diagnostics.VDT0004({ archive: 'plugin call', cause: error instanceof Error ? error : new Error(String(error)) })
+      }
+    }
+    await this.fallback.storage.write(input, startPosition - this.fallback.start)
+  }
+
+  async read(position: number, length: number): Promise<Buffer> {
+    if (this.fallback && position >= this.fallback.start)
+      return this.fallback.storage.read(position - this.fallback.start, length)
+    return this.readFile(position, length)
+  }
+
+  async close(): Promise<void> {
+    await this.fallback?.storage.close()
+    await this.file.close()
+  }
+
+  private async writeFile(input: Buffer[], startPosition: number): Promise<void> {
     let buffers = input
     let position = startPosition
     while (buffers.length > 0) {
@@ -480,7 +509,7 @@ class FilePluginCallStorage implements PluginCallStorage {
     }
   }
 
-  async read(position: number, length: number): Promise<Buffer> {
+  private async readFile(position: number, length: number): Promise<Buffer> {
     const buffer = Buffer.allocUnsafe(length)
     let offset = 0
     while (offset < buffer.length) {
@@ -495,10 +524,6 @@ class FilePluginCallStorage implements PluginCallStorage {
       offset += bytesRead
     }
     return buffer.subarray(0, offset)
-  }
-
-  async close(): Promise<void> {
-    await this.file.close()
   }
 }
 

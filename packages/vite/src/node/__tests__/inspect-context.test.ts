@@ -2,6 +2,7 @@ import type { Environment, Plugin, ResolvedConfig } from 'vite'
 import type { ViteInspectStoreOptions } from '../inspect/store'
 import type { ViteInspectPluginCallInfo } from '../inspect/types'
 import { existsSync, mkdtempSync, rmSync, statSync, truncateSync } from 'node:fs'
+import { open } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -410,19 +411,11 @@ describe('vite inspect context', () => {
     const envCtx = vite.getEnvContext(env)
     const result = `export const value = '${'café'.repeat(4096)}'`
     const source = `const value = '${'source'.repeat(4096)}'`
-    const sourcemaps = {
-      version: 3,
-      sources: ['/src/main.ts'],
-      sourcesContent: [source],
-      mappings: 'AAAA;'.repeat(4096),
-    }
-
     envCtx.recordTransform('/src/main.ts', {
       name: 'plugin-a',
       result,
       start: 0,
       end: 1,
-      sourcemaps,
     }, source)
     expect(await envCtx.getModulesList()).toHaveLength(1)
     await expect(envCtx.getModuleTransformInfo('/src/main.ts')).resolves.toEqual({
@@ -433,7 +426,6 @@ describe('vite inspect context', () => {
           result: source,
           start: 0,
           end: 0,
-          sourcemaps,
         },
         {
           name: 'plugin-a',
@@ -441,7 +433,6 @@ describe('vite inspect context', () => {
           result,
           start: 0,
           end: 1,
-          sourcemaps,
         },
       ],
     })
@@ -467,32 +458,6 @@ describe('vite inspect context', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('serializes each sourcemap once before writing its payload', async () => {
-    const { ctx, envCtx, vite } = await createFixture()
-    const toJSON = vi.fn(() => ({
-      version: 3,
-      mappings: 'AAAA',
-    }))
-
-    envCtx.recordTransform('/src/serialized.ts', {
-      name: 'plugin-a',
-      result: 'export const serialized = true',
-      start: 0,
-      end: 1,
-      sourcemaps: { toJSON },
-    }, 'const serialized = true', vite.config.plugins[1])
-
-    await ctx.store.flush()
-    expect(toJSON).toHaveBeenCalledOnce()
-    await expect(envCtx.getModuleTransformInfo('/src/serialized.ts')).resolves.toMatchObject({
-      transforms: [
-        { sourcemaps: { version: 3, mappings: 'AAAA' } },
-        { sourcemaps: { version: 3, mappings: 'AAAA' } },
-      ],
-    })
-    expect(toJSON).toHaveBeenCalledOnce()
-  })
-
   it('reuses released file payload ranges after invalidation', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-reuse-'))
     const filename = join(dir, 'payloads.bin')
@@ -507,10 +472,6 @@ describe('vite inspect context', () => {
         result: `export const value = '${'result'.repeat(4096)}'`,
         start: 0,
         end: 1,
-        sourcemaps: {
-          version: 3,
-          mappings: 'AAAA;'.repeat(4096),
-        },
       }, `const value = '${'source'.repeat(4096)}'`, vite.config.plugins[1])
       await ctx.store.flush()
     }
@@ -706,11 +667,11 @@ describe('vite inspect context', () => {
     hijackPlugin(plugin, ctx)
     await ctx.close()
 
-    await expect((plugin.transform as any).call(
+    expect((plugin.transform as any).call(
       { environment: env },
       'export const value = 1',
       '/src/module.ts',
-    )).resolves.toBe('export const value = 1\n// transformed')
+    )).toBe('export const value = 1\n// transformed')
   })
 
   it('persists an oversized record without truncating it', async () => {
@@ -795,21 +756,17 @@ describe('vite inspect context', () => {
         maxBatchItems: 1,
       },
     })
-    let sourcemapRef: WeakRef<object> | undefined
+    let infoRef: WeakRef<object> | undefined
 
     await (async () => {
-      const sourcemaps = {
-        version: 3,
-        mappings: 'x'.repeat(8 * 1024 * 1024),
-      }
-      sourcemapRef = new WeakRef(sourcemaps)
-      await envCtx.recordTransform('/src/retained.ts', {
+      const info = {
         name: 'plugin-a',
-        result: 'export const retained = true',
+        result: `export const retained = '${'x'.repeat(8 * 1024 * 1024)}'`,
         start: 0,
         end: 1,
-        sourcemaps,
-      }, 'const retained = true', vite.config.plugins[1]!)
+      }
+      infoRef = new WeakRef(info)
+      await envCtx.recordTransform('/src/retained.ts', info, 'const retained = true', vite.config.plugins[1]!)
     })()
 
     await ctx.store.flush()
@@ -818,7 +775,7 @@ describe('vite inspect context', () => {
       await new Promise(resolve => setImmediate(resolve))
     }
 
-    expect(sourcemapRef?.deref()).toBeUndefined()
+    expect(infoRef?.deref()).toBeUndefined()
     expect(ctx.store.getStats()).toMatchObject({
       queuedItems: 0,
       inFlightItems: 0,
@@ -1212,5 +1169,120 @@ describe('vite inspect context', () => {
       await ctx.close()
       rmSync(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('vite inspect storage fallback', () => {
+  it('keeps records in memory after an archive write fails', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-fallback-'))
+    const handle = await open(join(dir, 'probe.bin'), 'w+')
+    const fileHandlePrototype = Object.getPrototypeOf(handle)
+    await handle.close()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { ctx, envCtx, vite } = await createFixture({
+      store: {
+        filename: join(dir, 'payloads.bin'),
+      },
+    })
+    const pluginA = vite.config.plugins[1]!
+    const record = (index: number) => {
+      envCtx.recordTransform(`/src/module-${index}.ts`, {
+        name: 'plugin-a',
+        result: `export const value = ${index}`,
+        start: index,
+        end: index + 1,
+      }, `const value = ${index}`, pluginA)
+    }
+
+    try {
+      record(0)
+      await ctx.store.flush()
+
+      const writev = vi.spyOn(fileHandlePrototype, 'writev').mockRejectedValue(new Error('ENOSPC'))
+      record(1)
+      record(2)
+      await ctx.store.flush()
+      writev.mockRestore()
+
+      for (let index = 0; index < 3; index++) {
+        await expect(envCtx.getModuleTransformInfo(`/src/module-${index}.ts`)).resolves.toMatchObject({
+          transforms: [
+            { name: '__load__', result: `const value = ${index}` },
+            { name: 'plugin-a', result: `export const value = ${index}` },
+          ],
+        })
+      }
+      expect((await envCtx.getPluginDetails(1)).calls).toHaveLength(3)
+      const warnings = warn.mock.calls.map(args => args.map(String).join(' ')).filter(message => message.includes('VDT0004'))
+      expect(warnings).toHaveLength(2)
+
+      // Released fallback payloads must not leak into reused ranges.
+      envCtx.invalidate('/src/module-1.ts')
+      record(3)
+      await ctx.store.flush()
+      await expect(envCtx.getModuleTransformInfo('/src/module-3.ts')).resolves.toMatchObject({
+        transforms: [
+          { name: '__load__', result: 'const value = 3' },
+          { name: 'plugin-a', result: 'export const value = 3' },
+        ],
+      })
+    }
+    finally {
+      warn.mockRestore()
+      await ctx.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('vite inspect hook timing', () => {
+  it('keeps sync hooks sync and still records them', async () => {
+    const { ctx, env, envCtx, vite } = await createFixture()
+    const plugin = vite.config.plugins[1]! as Plugin & {
+      transform: NonNullable<Plugin['transform']>
+    }
+    plugin.transform = code => `${code}\n// sync`
+    hijackPlugin(plugin, ctx)
+
+    const result = (plugin.transform as any).call({ environment: env }, 'const value = 1', '/src/sync.ts')
+    expect(result).toBe('const value = 1\n// sync')
+
+    await ctx.store.flush()
+    await expect(envCtx.getModuleTransformInfo('/src/sync.ts')).resolves.toMatchObject({
+      transforms: [
+        { name: '__load__', result: 'const value = 1' },
+        { name: 'plugin-a', result: 'const value = 1\n// sync' },
+      ],
+    })
+  })
+
+  it('records async hooks and rethrows sync errors', async () => {
+    const { ctx, env, envCtx, vite } = await createFixture()
+    const asyncPlugin = vite.config.plugins[1]! as Plugin & {
+      transform: NonNullable<Plugin['transform']>
+    }
+    asyncPlugin.transform = async code => `${code}\n// async`
+    hijackPlugin(asyncPlugin, ctx)
+    const failingPlugin = vite.config.plugins[2]! as Plugin & {
+      transform: NonNullable<Plugin['transform']>
+    }
+    failingPlugin.transform = () => {
+      throw new Error('sync failure')
+    }
+    hijackPlugin(failingPlugin, ctx)
+
+    const pending = (asyncPlugin.transform as any).call({ environment: env }, 'const value = 1', '/src/async.ts')
+    expect(pending).toBeInstanceOf(Promise)
+    await expect(pending).resolves.toBe('const value = 1\n// async')
+    expect(() => (failingPlugin.transform as any).call({ environment: env }, 'const value = 1', '/src/async.ts')).toThrow('sync failure')
+
+    await ctx.store.flush()
+    await expect(envCtx.getModuleTransformInfo('/src/async.ts')).resolves.toMatchObject({
+      transforms: [
+        { name: '__load__', result: 'const value = 1' },
+        { name: 'plugin-a', result: 'const value = 1\n// async' },
+        { name: 'plugin-b', result: '[Error]' },
+      ],
+    })
   })
 })
