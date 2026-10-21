@@ -87,7 +87,6 @@ export interface ViteInspectTransformInfo {
   start: number;
   end: number;
   order?: string;
-  sourcemaps?: unknown;
   error?: ViteInspectErrorInfo;
 }
 // #endregion

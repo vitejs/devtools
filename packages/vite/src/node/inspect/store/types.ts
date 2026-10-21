@@ -36,7 +36,6 @@ export interface StoredViteInspectTransformInfo {
   start: number
   end: number
   order?: string
-  sourcemaps?: ViteInspectPayloadRange
   error?: ViteInspectErrorInfo
 }
 

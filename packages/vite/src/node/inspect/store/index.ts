@@ -49,7 +49,6 @@ interface PreparedWrite {
   write: Exclude<QueuedWrite, { operation: 'invalidate' | 'clearScope' | 'clearPendingLoadMetrics' }>
   resultIndex?: number
   sourceIndex?: number
-  sourcemapIndex?: number
 }
 
 export type {
@@ -491,11 +490,9 @@ class PayloadViteInspectStore implements ViteInspectStore {
           sourceState.set(key, { hasSource: true, transformRequest: write.transformRequest })
         }
         item.resultIndex = values.push(write.info.result) - 1
-        item.sourcemapIndex = pushSerializedPayload(values, write.info.sourcemaps)
       }
       else if (write.operation === 'recordLoad') {
         item.resultIndex = values.push(write.info.result) - 1
-        item.sourcemapIndex = pushSerializedPayload(values, write.info.sourcemaps)
         sourceState.set(scopeKey(write.scope, write.moduleId), { hasSource: write.info.result != null, transformRequest: write.transformRequest })
       }
       prepared.push(item)
@@ -519,14 +516,12 @@ class PayloadViteInspectStore implements ViteInspectStore {
         write,
         rangeAt(ranges, prepared.resultIndex),
         rangeAt(ranges, prepared.sourceIndex),
-        rangeAt(ranges, prepared.sourcemapIndex),
       )
     }
     else if (write.operation === 'recordLoad') {
       this.applyLoad(
         write,
         rangeAt(ranges, prepared.resultIndex),
-        rangeAt(ranges, prepared.sourcemapIndex),
       )
     }
     else if (write.operation === 'recordPluginCall' && write.info.type === 'load') {
@@ -568,7 +563,6 @@ class PayloadViteInspectStore implements ViteInspectStore {
     write: Extract<QueuedWrite, { operation: 'recordTransform' }>,
     result: ViteInspectPayloadRange | undefined,
     source: ViteInspectPayloadRange | undefined,
-    sourcemaps: ViteInspectPayloadRange | undefined,
   ): void {
     const data = this.getScope(write.scope)
     let transforms = data.transforms.get(write.moduleId)
@@ -596,17 +590,15 @@ class PayloadViteInspectStore implements ViteInspectStore {
         resultSize: source?.length ?? 0,
         start: write.info.start,
         end: write.info.start,
-        sourcemaps,
       })
       transforms.invokeCount += 1
     }
-    transforms.items.push(toStoredTransformInfo(write.info, result, sourcemaps))
+    transforms.items.push(toStoredTransformInfo(write.info, result))
   }
 
   private applyLoad(
     write: Extract<QueuedWrite, { operation: 'recordLoad' }>,
     result: ViteInspectPayloadRange | undefined,
-    sourcemaps: ViteInspectPayloadRange | undefined,
   ): void {
     const data = this.getScope(write.scope)
     this.commitDeclinedLoadMetrics(data, write.publicModuleId, write.transformRequest)
@@ -617,7 +609,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       transformRequest: write.transformRequest,
       publicModuleId: write.publicModuleId,
       invokeCount: (existing?.invokeCount ?? 0) + 1,
-      items: [toStoredTransformInfo(write.info, result, sourcemaps)],
+      items: [toStoredTransformInfo(write.info, result)],
     })
   }
 
@@ -709,10 +701,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
   }
 
   private async restoreTransformInfo(info: StoredViteInspectTransformInfo): Promise<ViteInspectTransformInfo> {
-    const [result, sourcemaps] = await Promise.all([
-      info.result ? this.payloads.read(info.result) : undefined,
-      info.sourcemaps ? this.payloads.read(info.sourcemaps) : undefined,
-    ])
+    const result = info.result ? await this.payloads.read(info.result) : undefined
     return {
       name: info.name,
       plugin_id: info.pluginId,
@@ -720,7 +709,6 @@ class PayloadViteInspectStore implements ViteInspectStore {
       start: info.start,
       end: info.end,
       order: info.order,
-      sourcemaps: sourcemaps == null ? undefined : parsePayload(sourcemaps),
       error: info.error,
     }
   }
@@ -853,10 +841,8 @@ function matchesInvalid(
 function collectPayloadRanges(items: StoredViteInspectTransformInfo[]): ViteInspectPayloadRange[] {
   const ranges = new Map<string, ViteInspectPayloadRange>()
   for (const item of items) {
-    for (const range of [item.result, item.sourcemaps]) {
-      if (range)
-        ranges.set(`${range.offset}:${range.length}`, range)
-    }
+    if (item.result)
+      ranges.set(`${item.result.offset}:${item.result.length}`, item.result)
   }
   return Array.from(ranges.values())
 }
@@ -864,7 +850,6 @@ function collectPayloadRanges(items: StoredViteInspectTransformInfo[]): ViteInsp
 function toStoredTransformInfo(
   info: ViteInspectTransformInfo,
   result: ViteInspectPayloadRange | undefined,
-  sourcemaps: ViteInspectPayloadRange | undefined,
 ): StoredViteInspectTransformInfo {
   return {
     name: info.name,
@@ -875,38 +860,7 @@ function toStoredTransformInfo(
     start: info.start,
     end: info.end,
     order: info.order,
-    sourcemaps,
     error: info.error,
-  }
-}
-
-function pushSerializedPayload(
-  values: Array<string | null | undefined>,
-  value: unknown,
-): number | undefined {
-  const serialized = serializePayload(value)
-  if (serialized == null)
-    return undefined
-  return values.push(serialized) - 1
-}
-
-function serializePayload(value: unknown): string | undefined {
-  if (value == null)
-    return undefined
-  try {
-    return JSON.stringify(value)
-  }
-  catch {
-    return JSON.stringify(String(value))
-  }
-}
-
-function parsePayload(value: string): unknown {
-  try {
-    return JSON.parse(value)
-  }
-  catch {
-    return undefined
   }
 }
 
@@ -941,12 +895,10 @@ function estimateWriteBytes(write: QueuedWrite): number {
     return pluginCallBytes
       + estimateStringBytes(write.info.result)
       + estimateStringBytes(write.preTransformCode)
-      + estimateTopLevelSourcemapBytes(write.info.sourcemaps)
   }
   if (write.operation === 'recordLoad') {
     return pluginCallBytes
       + estimateStringBytes(write.info.result)
-      + estimateTopLevelSourcemapBytes(write.info.sourcemaps)
   }
   return pluginCallBytes
 }
@@ -959,17 +911,6 @@ function getQueuedPluginCall(
 
 function estimateStringBytes(value: unknown): number {
   return typeof value === 'string' ? value.length * 2 : 0
-}
-
-function estimateTopLevelSourcemapBytes(value: unknown): number {
-  if (value == null)
-    return 0
-  if (typeof value === 'string')
-    return value.length * 2
-  if (typeof value !== 'object')
-    return 0
-  const mappings = (value as { mappings?: unknown }).mappings
-  return estimateStringBytes(mappings)
 }
 
 function reportStorageError(operation: string, error: unknown): void {
