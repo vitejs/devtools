@@ -112,6 +112,7 @@ catalogs:
     '@devframes/plugin-messages': *devframe
     '@devframes/plugin-og': *devframe
     '@devframes/plugin-terminals': *devframe
+    '@devframes/service-shiki': *devframe
     '@devframes/vite': *devframe
     '@oxlint-config-inspector/core': ^1.1.6
     '@rolldown/debug': ^1.2.14
@@ -188,7 +189,6 @@ catalogs:
     picomatch: ^4.0.7
     react: ^19.3.1
     react-dom: ^19.3.1
-    shiki: *shiki
     splitpanes: ^4.1.2
     theme-vitesse: ^1.0.0
     ua-parser-modern: ^0.1.1

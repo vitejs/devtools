@@ -5,7 +5,7 @@ import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../../src/node/rpc'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
-import { reactive, shallowRef } from 'vue'
+import { reactive, ref, shallowRef } from 'vue'
 import { useRuntimeConfig } from '#app/nuxt'
 
 export const connectionState = reactive<{
@@ -17,6 +17,12 @@ export const connectionState = reactive<{
 })
 
 const rpc = shallowRef<DevToolsRpcClient>(undefined!)
+
+/**
+ * Bumped whenever the advertised wire services change. `rpc.services` reads
+ * are plain snapshots, so components track this to pick up late syncs.
+ */
+export const servicesRevision = ref(0)
 
 const CONNECTION_META_FILENAME = '__connection.json'
 
@@ -84,6 +90,12 @@ export async function connect() {
       },
     })
     connectionState.connected = true
+    void rpc.value.services.state().then(state => {
+      state.on('updated', () => {
+        servicesRevision.value++
+      })
+      servicesRevision.value++
+    })
   } catch (e) {
     connectionState.error = e as Error
   }

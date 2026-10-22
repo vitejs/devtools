@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { createShiki } from '~/composables/createShiki'
+import { shallowRef, watchEffect } from 'vue'
+import { servicesRevision, useRpc } from '~/composables/rpc'
 
 const props = defineProps<{
   code: string
@@ -41,15 +42,31 @@ function getLang(ext: string) {
   }
 }
 
-const code = createShiki.codeToHtml(props.code, {
-  lang: getLang(props.ext),
-  themes: {
-    light: 'vitesse-light',
-    dark: 'vitesse-dark',
-  },
+const rpc = useRpc()
+const html = shallowRef<string>()
+
+watchEffect(async onCleanup => {
+  let stale = false
+  onCleanup(() => {
+    stale = true
+  })
+  html.value = undefined
+  void servicesRevision.value
+  const shiki = rpc.value?.services.get('@devframes/service-shiki')
+  if (!shiki) return
+  try {
+    const result = await shiki.rpc.call('highlight', {
+      code: props.code,
+      lang: getLang(props.ext),
+    })
+    if (!stale) html.value = result.html
+  } catch {
+    // Keep the plain code readable if highlighting fails.
+  }
 })
 </script>
 
 <template>
-  <div v-html="code" />
+  <div v-if="html" v-html="html" />
+  <pre v-else class="shiki"><code>{{ props.code }}</code></pre>
 </template>

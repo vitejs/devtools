@@ -41,6 +41,7 @@
     "prepack": "pnpm build"
   },
   "dependencies": {
+    "@devframes/service-shiki": "catalog:deps",
     "@oxlint-config-inspector/core": "catalog:deps",
     "@vitejs/devtools-kit": "workspace:*",
     "cac": "catalog:deps",
@@ -66,7 +67,6 @@
     "oxfmt": "catalog:devtools",
     "oxlint": "catalog:devtools",
     "picomatch": "catalog:frontend",
-    "shiki": "catalog:frontend",
     "theme-vitesse": "catalog:frontend",
     "tsdown": "catalog:build",
     "tsx": "catalog:build",

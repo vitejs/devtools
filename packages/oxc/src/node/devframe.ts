@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import createShikiService from '@devframes/service-shiki'
 import { defineDevframe } from 'devframe'
 import { rpcFunctions } from './rpc'
 import { clientPublicDir } from '../dirs'
@@ -36,6 +37,13 @@ export const oxcDevframe = defineDevframe({
     // Single-user localhost tool — skip the RPC trust handshake.
     auth: false,
   },
+  // Highlight config files and diagnostics on the server, so the client
+  // bundle does not ship Shiki grammars and themes.
+  services: [
+    createShikiService({
+      langs: ['css', 'javascript', 'typescript', 'json', 'json5', 'jsonc', 'markdown', 'mdx'],
+    }),
+  ],
   setup(ctx) {
     for (const fn of rpcFunctions) {
       ctx.rpc.register(fn as any)
