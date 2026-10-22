@@ -1172,6 +1172,68 @@ describe('vite inspect context', () => {
   })
 })
 
+describe('vite inspect unchanged results', () => {
+  it('stores a result that matches its input once and reads it back for every step', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-unchanged-'))
+    const filename = join(dir, 'payloads.bin')
+    const { ctx, envCtx, vite } = await createFixture({
+      store: {
+        filename,
+      },
+    })
+    const source = `const value = '${'s'.repeat(1024)}'`
+    const transformed = `export const value = '${'t'.repeat(1024)}'`
+    const record = () => {
+      envCtx.recordTransform('/src/same.ts', {
+        name: 'plugin-a',
+        result: transformed,
+        start: 0,
+        end: 1,
+      }, source, vite.config.plugins[1])
+      // plugin-b returns its input untouched.
+      envCtx.recordTransform('/src/same.ts', {
+        name: 'plugin-b',
+        result: transformed,
+        start: 1,
+        end: 2,
+      }, transformed, vite.config.plugins[2])
+    }
+
+    try {
+      record()
+      await ctx.store.flush()
+      expect(statSync(filename).size).toBe(source.length + transformed.length)
+      await expect(envCtx.getModuleTransformInfo('/src/same.ts')).resolves.toMatchObject({
+        transforms: [
+          { name: '__load__', result: source },
+          { name: 'plugin-a', result: transformed },
+          { name: 'plugin-b', result: transformed },
+        ],
+      })
+      expect((await envCtx.getPluginDetails(2)).calls).toMatchObject([{ unchanged: true }])
+
+      // The shared payload is released once and its range is reused without corruption.
+      for (let cycle = 0; cycle < 3; cycle++) {
+        envCtx.invalidate('/src/same.ts')
+        record()
+        await ctx.store.flush()
+        expect(statSync(filename).size).toBe(source.length + transformed.length)
+      }
+      await expect(envCtx.getModuleTransformInfo('/src/same.ts')).resolves.toMatchObject({
+        transforms: [
+          { name: '__load__', result: source },
+          { name: 'plugin-a', result: transformed },
+          { name: 'plugin-b', result: transformed },
+        ],
+      })
+    }
+    finally {
+      await ctx.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('vite inspect storage fallback', () => {
   it('keeps records in memory after an archive write fails', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-fallback-'))

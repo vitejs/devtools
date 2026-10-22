@@ -456,6 +456,17 @@ class PayloadViteInspectStore implements ViteInspectStore {
     const prepared: PreparedWrite[] = []
     const pluginCallWrites: InspectPluginCallWrite[] = []
     const sourceState = new Map<string, { hasSource: boolean, transformRequest?: object }>()
+    // Latest code queued for each module in this batch, so a step that returns its input unchanged reuses that payload.
+    const latestCode = new Map<string, { value: string, index: number }>()
+    const pushCode = (key: string, value: string | null | undefined): number => {
+      const latest = latestCode.get(key)
+      if (value != null && latest?.value === value)
+        return latest.index
+      const index = values.push(value) - 1
+      if (value != null)
+        latestCode.set(key, { value, index })
+      return index
+    }
 
     const hasSource = (scope: string, moduleId: string, transformRequest?: object): boolean => {
       const key = scopeKey(scope, moduleId)
@@ -486,13 +497,16 @@ class PayloadViteInspectStore implements ViteInspectStore {
       if (write.operation === 'recordTransform') {
         const key = scopeKey(write.scope, write.moduleId)
         if (!hasSource(write.scope, write.moduleId, write.transformRequest)) {
-          item.sourceIndex = values.push(write.preTransformCode) - 1
+          latestCode.delete(key)
+          item.sourceIndex = pushCode(key, write.preTransformCode)
           sourceState.set(key, { hasSource: true, transformRequest: write.transformRequest })
         }
-        item.resultIndex = values.push(write.info.result) - 1
+        item.resultIndex = pushCode(key, write.info.result)
       }
       else if (write.operation === 'recordLoad') {
-        item.resultIndex = values.push(write.info.result) - 1
+        const key = scopeKey(write.scope, write.moduleId)
+        latestCode.delete(key)
+        item.resultIndex = pushCode(key, write.info.result)
         sourceState.set(scopeKey(write.scope, write.moduleId), { hasSource: write.info.result != null, transformRequest: write.transformRequest })
       }
       prepared.push(item)
