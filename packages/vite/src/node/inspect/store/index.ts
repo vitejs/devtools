@@ -41,6 +41,10 @@ interface StoredModuleTransforms {
 interface ScopeData {
   transforms: Map<string, StoredModuleTransforms>
   resolveIds: Map<string, ViteInspectResolveIdItem[]>
+  // Indexes for invalidation; keep them in sync through setTransforms, deleteTransforms, addResolveId and deleteResolveId.
+  transformIdsByPublicId: Map<string, Set<string>>
+  resolveIdsById: Map<string, Set<ViteInspectResolveIdItem>>
+  resolveIdsByPublicId: Map<string, Set<ViteInspectResolveIdItem>>
   declinedLoadMetrics: Map<string, Map<string, ViteInspectPluginMetricItem>>
   pendingLoadMetrics: Map<object | undefined, Map<string, Map<string, ViteInspectPluginMetricItem>>>
 }
@@ -554,13 +558,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
       addMetric(metrics, write.info.plugin_id, write.info.plugin_name, write.info.duration)
     }
     else if (write.operation === 'recordResolveId') {
-      const data = this.getScope(write.scope)
-      let resolveIds = data.resolveIds.get(write.sourceId)
-      if (!resolveIds) {
-        resolveIds = []
-        data.resolveIds.set(write.sourceId, resolveIds)
-      }
-      resolveIds.push({
+      addResolveId(this.getScope(write.scope), {
         sourceId: write.sourceId,
         sourcePublicId: write.sourcePublicId,
         result: write.info.result,
@@ -591,7 +589,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
         invokeCount: transforms?.invokeCount ?? 0,
         items: [],
       }
-      data.transforms.set(write.moduleId, transforms)
+      setTransforms(data, write.moduleId, transforms)
     }
 
     if (!transforms.items.some(item => item.hasResult)) {
@@ -619,7 +617,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
     const existing = data.transforms.get(write.moduleId)
     if (existing)
       this.payloads.reclaim(collectPayloadRanges(existing.items))
-    data.transforms.set(write.moduleId, {
+    setTransforms(data, write.moduleId, {
       transformRequest: write.transformRequest,
       publicModuleId: write.publicModuleId,
       invokeCount: (existing?.invokeCount ?? 0) + 1,
@@ -647,46 +645,59 @@ class PayloadViteInspectStore implements ViteInspectStore {
       return
     }
 
-    const invalidIds = new Set([moduleId])
-    const invalidPublicIds = new Set([publicModuleId])
-    let changed = true
-    while (changed) {
-      changed = false
-      for (const [id, transforms] of data.transforms) {
-        if (invalidIds.has(id) || invalidPublicIds.has(transforms.publicModuleId))
-          changed = addInvalidId(invalidIds, invalidPublicIds, id, transforms.publicModuleId) || changed
+    // Walk only the records linked to this module through the indexes, instead of rescanning the whole scope.
+    const invalidIds = new Set<string>()
+    const invalidPublicIds = new Set<string>()
+    const pendingIds: string[] = []
+    const pendingPublicIds: string[] = []
+    const linkedResolveIds = new Set<ViteInspectResolveIdItem>()
+    const addInvalid = (id: string, publicId: string) => {
+      if (!invalidIds.has(id)) {
+        invalidIds.add(id)
+        pendingIds.push(id)
       }
-      for (const resolveIds of data.resolveIds.values()) {
-        for (const resolveId of resolveIds) {
-          if (!matchesInvalid(resolveId.sourceId, resolveId.sourcePublicId, invalidIds, invalidPublicIds)
-            && !matchesInvalid(resolveId.result, resolveId.resultPublicId, invalidIds, invalidPublicIds)) {
-            continue
-          }
-          changed = addInvalidId(invalidIds, invalidPublicIds, resolveId.sourceId, resolveId.sourcePublicId) || changed
-          changed = addInvalidId(invalidIds, invalidPublicIds, resolveId.result, resolveId.resultPublicId) || changed
-        }
+      if (!invalidPublicIds.has(publicId)) {
+        invalidPublicIds.add(publicId)
+        pendingPublicIds.push(publicId)
       }
+    }
+    const linkResolveIds = (items: Set<ViteInspectResolveIdItem> | undefined) => {
+      for (const item of items ?? []) {
+        if (linkedResolveIds.has(item))
+          continue
+        linkedResolveIds.add(item)
+        addInvalid(item.sourceId, item.sourcePublicId)
+        addInvalid(item.result, item.resultPublicId)
+      }
+    }
+
+    addInvalid(moduleId, publicModuleId)
+    while (pendingIds.length > 0 || pendingPublicIds.length > 0) {
+      const id = pendingIds.pop()
+      if (id !== undefined) {
+        const transforms = data.transforms.get(id)
+        if (transforms)
+          addInvalid(id, transforms.publicModuleId)
+        linkResolveIds(data.resolveIdsById.get(id))
+        continue
+      }
+      const publicId = pendingPublicIds.pop()!
+      for (const transformId of data.transformIdsByPublicId.get(publicId) ?? [])
+        addInvalid(transformId, data.transforms.get(transformId)!.publicModuleId)
+      linkResolveIds(data.resolveIdsByPublicId.get(publicId))
     }
 
     const reclaimed: ViteInspectPayloadRange[] = []
-    for (const [id, transforms] of data.transforms) {
-      if (!matchesInvalid(id, transforms.publicModuleId, invalidIds, invalidPublicIds))
+    for (const id of invalidIds) {
+      const transforms = data.transforms.get(id)
+      if (!transforms)
         continue
       reclaimed.push(...collectPayloadRanges(transforms.items))
-      data.transforms.delete(id)
+      deleteTransforms(data, id)
     }
     this.payloads.reclaim(reclaimed)
 
-    for (const [sourceId, resolveIds] of data.resolveIds) {
-      const remaining = resolveIds.filter((resolveId) => {
-        return !matchesInvalid(sourceId, resolveId.sourcePublicId, invalidIds, invalidPublicIds)
-          && !matchesInvalid(resolveId.result, resolveId.resultPublicId, invalidIds, invalidPublicIds)
-      })
-      if (remaining.length > 0)
-        data.resolveIds.set(sourceId, remaining)
-      else
-        data.resolveIds.delete(sourceId)
-    }
+    deleteResolveIds(data, linkedResolveIds)
 
     for (const id of invalidPublicIds) {
       data.declinedLoadMetrics.delete(id)
@@ -756,6 +767,9 @@ class PayloadViteInspectStore implements ViteInspectStore {
       data = {
         transforms: new Map(),
         resolveIds: new Map(),
+        transformIdsByPublicId: new Map(),
+        resolveIdsById: new Map(),
+        resolveIdsByPublicId: new Map(),
         declinedLoadMetrics: new Map(),
         pendingLoadMetrics: new Map(),
       }
@@ -830,26 +844,67 @@ function addMetric(
   metric.totalTime += duration
 }
 
-function addInvalidId(
-  ids: Set<string>,
-  publicIds: Set<string>,
-  id: string,
-  publicId: string,
-): boolean {
-  const idSize = ids.size
-  const publicIdSize = publicIds.size
-  ids.add(id)
-  publicIds.add(publicId)
-  return ids.size !== idSize || publicIds.size !== publicIdSize
+function setTransforms(data: ScopeData, id: string, transforms: StoredModuleTransforms): void {
+  deleteTransforms(data, id)
+  data.transforms.set(id, transforms)
+  addToIndex(data.transformIdsByPublicId, transforms.publicModuleId, id)
 }
 
-function matchesInvalid(
-  id: string,
-  publicId: string,
-  ids: Set<string>,
-  publicIds: Set<string>,
-): boolean {
-  return ids.has(id) || publicIds.has(publicId)
+function deleteTransforms(data: ScopeData, id: string): void {
+  const existing = data.transforms.get(id)
+  if (!existing)
+    return
+  data.transforms.delete(id)
+  removeFromIndex(data.transformIdsByPublicId, existing.publicModuleId, id)
+}
+
+function addResolveId(data: ScopeData, item: ViteInspectResolveIdItem): void {
+  let items = data.resolveIds.get(item.sourceId)
+  if (!items) {
+    items = []
+    data.resolveIds.set(item.sourceId, items)
+  }
+  items.push(item)
+  addToIndex(data.resolveIdsById, item.sourceId, item)
+  addToIndex(data.resolveIdsById, item.result, item)
+  addToIndex(data.resolveIdsByPublicId, item.sourcePublicId, item)
+  addToIndex(data.resolveIdsByPublicId, item.resultPublicId, item)
+}
+
+function deleteResolveIds(data: ScopeData, items: Set<ViteInspectResolveIdItem>): void {
+  const sourceIds = new Set<string>()
+  for (const item of items) {
+    sourceIds.add(item.sourceId)
+    removeFromIndex(data.resolveIdsById, item.sourceId, item)
+    removeFromIndex(data.resolveIdsById, item.result, item)
+    removeFromIndex(data.resolveIdsByPublicId, item.sourcePublicId, item)
+    removeFromIndex(data.resolveIdsByPublicId, item.resultPublicId, item)
+  }
+  for (const sourceId of sourceIds) {
+    const remaining = data.resolveIds.get(sourceId)!.filter(item => !items.has(item))
+    if (remaining.length > 0)
+      data.resolveIds.set(sourceId, remaining)
+    else
+      data.resolveIds.delete(sourceId)
+  }
+}
+
+function addToIndex<T>(index: Map<string, Set<T>>, key: string, value: T): void {
+  let values = index.get(key)
+  if (!values) {
+    values = new Set()
+    index.set(key, values)
+  }
+  values.add(value)
+}
+
+function removeFromIndex<T>(index: Map<string, Set<T>>, key: string, value: T): void {
+  const values = index.get(key)
+  if (!values)
+    return
+  values.delete(value)
+  if (values.size === 0)
+    index.delete(key)
 }
 
 function collectPayloadRanges(items: StoredViteInspectTransformInfo[]): ViteInspectPayloadRange[] {

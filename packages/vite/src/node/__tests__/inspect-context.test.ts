@@ -1371,3 +1371,42 @@ describe('vite inspect public module ids', () => {
     expect(envCtx.getPublicModuleId('/src/main.ts')).toBe('/src/main.ts')
   })
 })
+
+describe('vite inspect invalidation', () => {
+  const info = (name: string) => ({ name, result: `export const name = '${name}'`, start: 0, end: 1 })
+
+  it('clears modules linked only through a public id and keeps unrelated modules', async () => {
+    const { ctx, envCtx } = await createFixture()
+    const scope = envCtx.scope
+    ctx.store.recordTransform(scope, '/abs/a.js', 'pub-a', info('a'), 'const a = 1')
+    ctx.store.recordTransform(scope, '/abs/b.js', 'pub-b', info('b'), 'const b = 1')
+    ctx.store.recordTransform(scope, '/abs/c.js', 'pub-c', info('c'), 'const c = 1')
+    // This resolve result shares a's public id but points at b, so a and b are linked only through `pub-a`.
+    ctx.store.recordResolveId(scope, 'spec', 'spec', { name: 'resolver', result: '/abs/b.js', start: 0, end: 1 }, 'pub-a')
+    await ctx.store.flush()
+
+    ctx.store.invalidate(scope, '/abs/a.js', 'pub-a')
+    await ctx.store.flush()
+
+    expect(await ctx.store.getModuleIds(scope)).toEqual(['/abs/c.js'])
+    expect(await ctx.store.getResolveIdList(scope)).toEqual([])
+  })
+
+  it('does not reach removed modules through stale links', async () => {
+    const { ctx, envCtx } = await createFixture()
+    const scope = envCtx.scope
+    ctx.store.recordTransform(scope, '/abs/a.js', 'pub-shared', info('a'), 'const a = 1')
+    await ctx.store.flush()
+    ctx.store.invalidate(scope, '/abs/a.js', 'pub-shared')
+    await ctx.store.flush()
+
+    // A new module takes over the public id; invalidating it must only touch the current records.
+    ctx.store.recordTransform(scope, '/abs/d.js', 'pub-shared', info('d'), 'const d = 1')
+    ctx.store.recordTransform(scope, '/abs/e.js', 'pub-e', info('e'), 'const e = 1')
+    await ctx.store.flush()
+    ctx.store.invalidate(scope, '/abs/d.js', 'pub-shared')
+    await ctx.store.flush()
+
+    expect(await ctx.store.getModuleIds(scope)).toEqual(['/abs/e.js'])
+  })
+})
