@@ -1487,3 +1487,25 @@ describe('vite inspect payload archive free space', () => {
     }
   })
 })
+
+describe('vite inspect batched writes', () => {
+  it('keeps the same module id separate across scopes in one batch', async () => {
+    const { ctx } = await createFixture()
+    const info = (result: string) => ({ name: 'plugin-a', result, start: 0, end: 1 })
+    // Both scopes are queued before the flush, so they land in the same write batch.
+    ctx.store.recordTransform('client', '/src/shared.ts', '/src/shared.ts', info('export const shared = 1'), 'const client = 1')
+    ctx.store.recordTransform('ssr', '/src/shared.ts', '/src/shared.ts', info('export const shared = 1'), 'const ssr = 1')
+    ctx.store.recordTransform('ssr', '/src/shared.ts', '/src/shared.ts', { ...info('export const shared = 1'), name: 'plugin-b' }, 'export const shared = 1')
+    await ctx.store.flush()
+
+    expect(await ctx.store.getModuleTransforms('client', '/src/shared.ts')).toMatchObject([
+      { name: '__load__', result: 'const client = 1' },
+      { name: 'plugin-a', result: 'export const shared = 1' },
+    ])
+    expect(await ctx.store.getModuleTransforms('ssr', '/src/shared.ts')).toMatchObject([
+      { name: '__load__', result: 'const ssr = 1' },
+      { name: 'plugin-a', result: 'export const shared = 1' },
+      { name: 'plugin-b', result: 'export const shared = 1' },
+    ])
+  })
+})
