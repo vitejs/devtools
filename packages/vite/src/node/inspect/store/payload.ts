@@ -4,6 +4,9 @@ import { Buffer } from 'node:buffer'
 import { open } from 'node:fs/promises'
 import { diagnostics } from '../../diagnostics'
 
+// Lengths are below 2^53, so their log2 bucket never exceeds this.
+const MAX_SIZE_BUCKET = 53
+
 export interface InspectPayloadStore {
   write: (values: Array<string | null | undefined>) => Promise<Array<ViteInspectPayloadRange | undefined>>
   read: (range: ViteInspectPayloadRange) => Promise<string>
@@ -55,7 +58,9 @@ class MemoryInspectPayloadStore implements InspectPayloadStore {
 
 class FileInspectPayloadStore implements InspectPayloadStore {
   private nextOffset = 0
+  // Free ranges sorted by offset, plus the same ranges bucketed by size so allocation doesn't scan them all.
   private freeRanges: ViteInspectPayloadRange[] = []
+  private readonly freeRangesBySize = new Map<number, Set<ViteInspectPayloadRange>>()
   // Payloads keyed by offset once the archive file can no longer be written.
   private fallback?: Map<number, Buffer>
 
@@ -125,6 +130,7 @@ class FileInspectPayloadStore implements InspectPayloadStore {
 
   async close(): Promise<void> {
     this.freeRanges.length = 0
+    this.freeRangesBySize.clear()
     this.fallback?.clear()
     await this.file.close()
   }
@@ -132,32 +138,40 @@ class FileInspectPayloadStore implements InspectPayloadStore {
   reclaim(ranges: ViteInspectPayloadRange[]): void {
     for (const range of ranges)
       this.fallback?.delete(range.offset)
-    this.freeRanges.push(...ranges.filter(range => range.length > 0))
-    this.mergeFreeRanges()
+    for (const range of ranges) {
+      if (range.length > 0)
+        this.insertFreeRange(range.offset, range.length)
+    }
   }
 
   private allocate(length: number): ViteInspectPayloadRange {
     if (length === 0)
       return { offset: this.nextOffset, length }
 
-    let bestIndex = -1
-    for (let index = 0; index < this.freeRanges.length; index++) {
-      const range = this.freeRanges[index]!
-      if (range.length < length)
-        continue
-      if (bestIndex < 0 || range.length < this.freeRanges[bestIndex]!.length)
-        bestIndex = index
+    // Best fit: the smallest free range that is large enough, the lowest offset among equal sizes.
+    let best: ViteInspectPayloadRange | undefined
+    for (let bucket = sizeBucket(length); bucket <= MAX_SIZE_BUCKET; bucket++) {
+      for (const range of this.freeRangesBySize.get(bucket) ?? []) {
+        if (range.length < length)
+          continue
+        if (!best || range.length < best.length || (range.length === best.length && range.offset < best.offset))
+          best = range
+      }
+      // Every range in a higher bucket is larger than any range in this one.
+      if (best)
+        break
     }
 
-    if (bestIndex >= 0) {
-      const range = this.freeRanges[bestIndex]!
-      const allocated = { offset: range.offset, length }
-      if (range.length === length) {
-        this.freeRanges.splice(bestIndex, 1)
+    if (best) {
+      const allocated = { offset: best.offset, length }
+      this.removeFromSizeBucket(best)
+      if (best.length === length) {
+        this.freeRanges.splice(this.findFreeRangeIndex(best.offset), 1)
       }
       else {
-        range.offset += length
-        range.length -= length
+        best.offset += length
+        best.length -= length
+        this.addToSizeBucket(best)
       }
       return allocated
     }
@@ -165,6 +179,63 @@ class FileInspectPayloadStore implements InspectPayloadStore {
     const allocated = { offset: this.nextOffset, length }
     this.nextOffset += length
     return allocated
+  }
+
+  private insertFreeRange(offset: number, length: number): void {
+    let end = offset + length
+    let index = this.findFreeRangeIndex(offset)
+    let start = offset
+    // Merge with the previous range when it touches or overlaps this one.
+    const previous = this.freeRanges[index - 1]
+    if (previous && previous.offset + previous.length >= start) {
+      index -= 1
+      start = previous.offset
+      end = Math.max(end, previous.offset + previous.length)
+    }
+    // Merge every following range that starts before this one ends.
+    let removeCount = 0
+    while (index + removeCount < this.freeRanges.length && this.freeRanges[index + removeCount]!.offset <= end) {
+      const next = this.freeRanges[index + removeCount]!
+      end = Math.max(end, next.offset + next.length)
+      removeCount += 1
+    }
+    for (let i = index; i < index + removeCount; i++)
+      this.removeFromSizeBucket(this.freeRanges[i]!)
+    const merged = { offset: start, length: end - start }
+    this.freeRanges.splice(index, removeCount, merged)
+    this.addToSizeBucket(merged)
+  }
+
+  // Index of the first free range whose offset is not below `offset`.
+  private findFreeRangeIndex(offset: number): number {
+    let low = 0
+    let high = this.freeRanges.length
+    while (low < high) {
+      const middle = (low + high) >>> 1
+      if (this.freeRanges[middle]!.offset < offset)
+        low = middle + 1
+      else
+        high = middle
+    }
+    return low
+  }
+
+  private addToSizeBucket(range: ViteInspectPayloadRange): void {
+    const bucket = sizeBucket(range.length)
+    let ranges = this.freeRangesBySize.get(bucket)
+    if (!ranges) {
+      ranges = new Set()
+      this.freeRangesBySize.set(bucket, ranges)
+    }
+    ranges.add(range)
+  }
+
+  private removeFromSizeBucket(range: ViteInspectPayloadRange): void {
+    const bucket = sizeBucket(range.length)
+    const ranges = this.freeRangesBySize.get(bucket)
+    ranges?.delete(range)
+    if (ranges?.size === 0)
+      this.freeRangesBySize.delete(bucket)
   }
 
   private async writeAllocatedPayloads(
@@ -203,23 +274,10 @@ class FileInspectPayloadStore implements InspectPayloadStore {
       offset += bytesWritten
     }
   }
+}
 
-  private mergeFreeRanges(): void {
-    this.freeRanges.sort((a, b) => a.offset - b.offset)
-    const merged: ViteInspectPayloadRange[] = []
-    for (const range of this.freeRanges) {
-      const previous = merged.at(-1)
-      if (!previous || range.offset > previous.offset + previous.length) {
-        merged.push({ ...range })
-        continue
-      }
-      previous.length = Math.max(
-        previous.length,
-        range.offset + range.length - previous.offset,
-      )
-    }
-    this.freeRanges = merged
-  }
+function sizeBucket(length: number): number {
+  return Math.floor(Math.log2(length))
 }
 
 function consumeBuffers(input: Buffer[], bytes: number): Buffer[] {

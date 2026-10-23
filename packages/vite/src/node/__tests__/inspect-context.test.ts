@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ViteInspectContext } from '../inspect/context'
 import { hijackPlugin } from '../inspect/hijack'
+import { createInspectPayloadStore } from '../inspect/store/payload'
 
 const contexts: ViteInspectContext[] = []
 
@@ -1408,5 +1409,81 @@ describe('vite inspect invalidation', () => {
     await ctx.store.flush()
 
     expect(await ctx.store.getModuleIds(scope)).toEqual(['/abs/e.js'])
+  })
+})
+
+describe('vite inspect payload archive free space', () => {
+  async function createPayloads() {
+    const dir = mkdtempSync(join(tmpdir(), 'vite-inspect-free-'))
+    const payloads = await createInspectPayloadStore(join(dir, 'payloads.bin'))
+    return {
+      payloads,
+      cleanup: async () => {
+        await payloads.close()
+        rmSync(dir, { recursive: true, force: true })
+      },
+    }
+  }
+
+  it('merges a freed range with the free ranges before and after it', async () => {
+    const { payloads, cleanup } = await createPayloads()
+    try {
+      const [a, b, c, d] = await payloads.write(['a'.repeat(10), 'b'.repeat(10), 'c'.repeat(10), 'd'.repeat(10)])
+      // b joins the free range before it.
+      payloads.reclaim([a!])
+      payloads.reclaim([b!])
+      const [ab] = await payloads.write(['m'.repeat(20)])
+      expect(ab).toEqual({ offset: 0, length: 20 })
+
+      // ab joins the free range after it.
+      payloads.reclaim([c!])
+      payloads.reclaim([ab!])
+      const [abc] = await payloads.write(['n'.repeat(30)])
+      expect(abc).toEqual({ offset: 0, length: 30 })
+
+      expect(await payloads.read(abc!)).toBe('n'.repeat(30))
+      expect(await payloads.read(d!)).toBe('d'.repeat(10))
+    }
+    finally {
+      await cleanup()
+    }
+  })
+
+  it('picks the smallest free range that fits, then the lowest offset', async () => {
+    const { payloads, cleanup } = await createPayloads()
+    try {
+      const [large, , smallFirst, , smallSecond, last] = await payloads.write([
+        'l'.repeat(50),
+        'x',
+        's'.repeat(20),
+        'y',
+        't'.repeat(20),
+        'z',
+      ])
+      payloads.reclaim([smallSecond!, large!, smallFirst!])
+
+      const [fit] = await payloads.write(['f'.repeat(15)])
+      expect(fit).toEqual({ offset: smallFirst!.offset, length: 15 })
+      // The rest of that range is still the best fit for a payload that matches its size.
+      const [rest] = await payloads.write(['r'.repeat(5)])
+      expect(rest).toEqual({ offset: smallFirst!.offset + 15, length: 5 })
+      const [big] = await payloads.write(['b'.repeat(40)])
+      expect(big).toEqual({ offset: large!.offset, length: 40 })
+
+      // Sizes in the same size class: the smaller range wins even though it sits at a higher offset.
+      const [wide, , narrow] = await payloads.write(['w'.repeat(30), 'g', 'n'.repeat(18)])
+      payloads.reclaim([wide!, narrow!])
+      const [snug] = await payloads.write(['q'.repeat(17)])
+      expect(snug).toEqual({ offset: narrow!.offset, length: 17 })
+      expect(await payloads.read(snug!)).toBe('q'.repeat(17))
+
+      expect(await payloads.read(fit!)).toBe('f'.repeat(15))
+      expect(await payloads.read(rest!)).toBe('r'.repeat(5))
+      expect(await payloads.read(big!)).toBe('b'.repeat(40))
+      expect(await payloads.read(last!)).toBe('z')
+    }
+    finally {
+      await cleanup()
+    }
   })
 })
