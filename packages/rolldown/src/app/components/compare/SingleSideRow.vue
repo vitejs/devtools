@@ -14,6 +14,7 @@ withDefaults(defineProps<{
   delta: number
   format: 'bytes' | 'duration' | 'number'
   subtitle?: string
+  link?: string
   badges?: string[]
   stats?: SingleSideDiffStat[]
 }>(), {
@@ -32,7 +33,10 @@ withDefaults(defineProps<{
           {{ sessionLabel }}
         </div>
         <div class="flex items-baseline gap-2 min-w-0 font-mono" :title="titleMeta ? `${title} (${titleMeta})` : title">
-          <span class="truncate">{{ title }}</span>
+          <NuxtLink v-if="link" :to="link" class="truncate hover:underline">
+            {{ title }}
+          </NuxtLink>
+          <span v-else class="truncate">{{ title }}</span>
           <span v-if="titleMeta" class="flex-none op50">({{ titleMeta }})</span>
         </div>
         <div v-if="subtitle" class="truncate text-xs op55 mt1" :title="subtitle">

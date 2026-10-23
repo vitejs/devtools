@@ -16,6 +16,8 @@ const props = withDefaults(defineProps<{
   currentTitleMeta?: string
   previousSubtitle?: string
   currentSubtitle?: string
+  previousLink?: string
+  currentLink?: string
   previousStats?: SplitDiffStat[]
   currentStats?: SplitDiffStat[]
   previousBadges?: string[]
@@ -62,7 +64,10 @@ const ratioClass = computed(() => {
               Session A
             </div>
             <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="previousTitleMeta ? `${previousTitle} (${previousTitleMeta})` : previousTitle">
-              <span class="truncate">{{ previousTitle }}</span>
+              <NuxtLink v-if="previousLink" :to="previousLink" class="truncate hover:underline">
+                {{ previousTitle }}
+              </NuxtLink>
+              <span v-else class="truncate">{{ previousTitle }}</span>
               <span v-if="previousTitleMeta" class="flex-none font-400 op50">({{ previousTitleMeta }})</span>
             </div>
             <div v-if="previousSubtitle" class="truncate text-xs op50 mt1" :title="previousSubtitle">
@@ -92,7 +97,10 @@ const ratioClass = computed(() => {
               Session B
             </div>
             <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="currentTitleMeta ? `${currentTitle} (${currentTitleMeta})` : currentTitle">
-              <span class="truncate">{{ currentTitle }}</span>
+              <NuxtLink v-if="currentLink" :to="currentLink" class="truncate hover:underline">
+                {{ currentTitle }}
+              </NuxtLink>
+              <span v-else class="truncate">{{ currentTitle }}</span>
               <span v-if="currentTitleMeta" class="flex-none font-400 op50">({{ currentTitleMeta }})</span>
             </div>
             <div v-if="currentSubtitle" class="truncate text-xs op50 mt1" :title="currentSubtitle">
