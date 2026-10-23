@@ -55,6 +55,11 @@ interface PreparedWrite {
   sourceIndex?: number
 }
 
+interface ModuleBatchState {
+  source?: { hasSource: boolean, transformRequest?: object }
+  latest?: { value: string, index: number }
+}
+
 export type {
   ViteInspectPluginMetricItem,
   ViteInspectResolveIdItem,
@@ -459,31 +464,38 @@ class PayloadViteInspectStore implements ViteInspectStore {
     const values: Array<string | null | undefined> = []
     const prepared: PreparedWrite[] = []
     const pluginCallWrites: InspectPluginCallWrite[] = []
-    const sourceState = new Map<string, { hasSource: boolean, transformRequest?: object }>()
-    // Latest code queued for each module in this batch, so a step that returns its input unchanged reuses that payload.
-    const latestCode = new Map<string, { value: string, index: number }>()
-    const pushCode = (key: string, value: string | null | undefined): number => {
-      const latest = latestCode.get(key)
-      if (value != null && latest?.value === value)
-        return latest.index
+    // Keyed by scope, then module id, to avoid building a composite key per write.
+    const moduleStates = new Map<string, Map<string, ModuleBatchState>>()
+    const getModuleState = (scope: string, moduleId: string): ModuleBatchState => {
+      let scoped = moduleStates.get(scope)
+      if (!scoped) {
+        scoped = new Map()
+        moduleStates.set(scope, scoped)
+      }
+      let state = scoped.get(moduleId)
+      if (!state) {
+        state = {}
+        scoped.set(moduleId, state)
+      }
+      return state
+    }
+    const pushCode = (state: ModuleBatchState, value: string | null | undefined): number => {
+      if (value != null && state.latest?.value === value)
+        return state.latest.index
       const index = values.push(value) - 1
       if (value != null)
-        latestCode.set(key, { value, index })
+        state.latest = { value, index }
       return index
     }
-
-    const hasSource = (scope: string, moduleId: string, transformRequest?: object): boolean => {
-      const key = scopeKey(scope, moduleId)
-      let state = sourceState.get(key)
-      if (!state) {
+    const hasSource = (state: ModuleBatchState, scope: string, moduleId: string, transformRequest?: object): boolean => {
+      if (!state.source) {
         const stored = this.scopes.get(scope)?.transforms.get(moduleId)
-        state = {
+        state.source = {
           hasSource: stored?.items.some(item => item.hasResult) ?? false,
           transformRequest: stored?.transformRequest,
         }
-        sourceState.set(key, state)
       }
-      return state.hasSource && (!transformRequest || state.transformRequest === transformRequest)
+      return state.source.hasSource && (!transformRequest || state.source.transformRequest === transformRequest)
     }
 
     for (const write of writes) {
@@ -499,19 +511,19 @@ class PayloadViteInspectStore implements ViteInspectStore {
 
       const item: PreparedWrite = { write }
       if (write.operation === 'recordTransform') {
-        const key = scopeKey(write.scope, write.moduleId)
-        if (!hasSource(write.scope, write.moduleId, write.transformRequest)) {
-          latestCode.delete(key)
-          item.sourceIndex = pushCode(key, write.preTransformCode)
-          sourceState.set(key, { hasSource: true, transformRequest: write.transformRequest })
+        const state = getModuleState(write.scope, write.moduleId)
+        if (!hasSource(state, write.scope, write.moduleId, write.transformRequest)) {
+          state.latest = undefined
+          item.sourceIndex = pushCode(state, write.preTransformCode)
+          state.source = { hasSource: true, transformRequest: write.transformRequest }
         }
-        item.resultIndex = pushCode(key, write.info.result)
+        item.resultIndex = pushCode(state, write.info.result)
       }
       else if (write.operation === 'recordLoad') {
-        const key = scopeKey(write.scope, write.moduleId)
-        latestCode.delete(key)
-        item.resultIndex = pushCode(key, write.info.result)
-        sourceState.set(scopeKey(write.scope, write.moduleId), { hasSource: write.info.result != null, transformRequest: write.transformRequest })
+        const state = getModuleState(write.scope, write.moduleId)
+        state.latest = undefined
+        item.resultIndex = pushCode(state, write.info.result)
+        state.source = { hasSource: write.info.result != null, transformRequest: write.transformRequest }
       }
       prepared.push(item)
     }
@@ -938,10 +950,6 @@ function rangeAt(
   index: number | undefined,
 ): ViteInspectPayloadRange | undefined {
   return index == null ? undefined : ranges[index]
-}
-
-function scopeKey(scope: string, moduleId: string): string {
-  return `${scope}\0${moduleId}`
 }
 
 function positiveInteger(value: number | undefined, fallback: number): number {
