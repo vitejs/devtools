@@ -1509,3 +1509,48 @@ describe('vite inspect batched writes', () => {
     ])
   })
 })
+
+describe('vite inspect modules list', () => {
+  it('reuses the list until a recorded change and then rebuilds it', async () => {
+    const { ctx, envCtx, vite } = await createFixture()
+    const plugin = vite.config.plugins[1]
+    const record = (id: string) => {
+      envCtx.recordTransform(id, { name: 'plugin-a', result: `export const id = '${id}'`, start: 0, end: 1 }, `const id = '${id}'`, plugin)
+    }
+
+    record('/src/a.ts')
+    const first = await envCtx.getModulesList()
+    expect(first.map(module => module.id)).toEqual(['/src/a.ts'])
+    expect(await envCtx.getModulesList()).toBe(first)
+
+    // Finishing a transform request doesn't change the recorded modules.
+    ctx.store.clearPendingLoadMetrics(envCtx.scope, {})
+    expect(await envCtx.getModulesList()).toBe(first)
+
+    record('/src/b.ts')
+    const second = await envCtx.getModulesList()
+    expect(second.map(module => module.id)).toEqual(['/src/a.ts', '/src/b.ts'])
+
+    envCtx.invalidate('/src/a.ts')
+    expect((await envCtx.getModulesList()).map(module => module.id)).toEqual(['/src/b.ts'])
+  })
+
+  it('builds the full sorted list when it takes several slices', async () => {
+    const { envCtx, vite } = await createFixture()
+    const plugin = vite.config.plugins[1]
+    const ids = Array.from({ length: 3000 }, (_, index) => `/src/m${String(index).padStart(4, '0')}.ts`)
+    for (const id of ids)
+      envCtx.recordTransform(id, { name: 'plugin-a', result: 'export {}', start: 0, end: 1 }, 'const a = 1', plugin)
+
+    // Make every module take longer than a slice, so the build yields between modules.
+    const now = vi.spyOn(performance, 'now')
+    let clock = 0
+    now.mockImplementation(() => (clock += 10))
+    try {
+      expect((await envCtx.getModulesList()).map(module => module.id)).toEqual(ids)
+    }
+    finally {
+      now.mockRestore()
+    }
+  })
+})

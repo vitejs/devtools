@@ -112,6 +112,7 @@ class PayloadViteInspectStore implements ViteInspectStore {
   private peakQueuedBytes = 0
   private writeBatches = 0
 
+  private changeVersion = 0
   private activeReaders = 0
   private readerWaiters: Array<() => void> = []
 
@@ -318,6 +319,10 @@ class PayloadViteInspectStore implements ViteInspectStore {
     return Array.from(moduleIds)
   }
 
+  getChangeVersion(): number {
+    return this.changeVersion
+  }
+
   getStats(): ViteInspectStoreStats {
     return {
       maxBatchItems: this.maxBatchItems,
@@ -354,6 +359,8 @@ class PayloadViteInspectStore implements ViteInspectStore {
   private enqueue(write: QueuedWrite): void {
     if (this.closing || this.closed || this.lastWriteError)
       return
+    if (write.operation !== 'clearPendingLoadMetrics')
+      this.changeVersion += 1
 
     const estimatedBytes = estimateWriteBytes(write)
     this.queue.push({ write, estimatedBytes })
