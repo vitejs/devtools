@@ -27,8 +27,8 @@ export type { JsonRenderView, JsonRenderViewRef }
  * The handle returned by `ctx.createJsonRenderer()`. It wraps a devframe
  * {@link JsonRenderView} and exposes the kit's method names.
  *
- * Register a `json-render` dock entry with the handle as `ui`
- * (`docks.register({ type: 'json-render', ui, … })`); the client subscribes
+ * Register a `json-render` dock entry with the handle's `view` reference
+ * (`docks.register({ type: 'json-render', view: ui.view, … })`); the client subscribes
  * through its `stateKey`. Drive the panel by calling `updateSpec` /
  * `updateState` on the handle.
  */
@@ -70,9 +70,8 @@ export function attachJsonRenderer(context: KitNodeContext): void {
   const createJsonRenderer: CreateJsonRenderer = (spec, options = {}) => {
     const view = createJsonRenderView(context, { id: `kit-${nanoid()}`, spec, ...options })
 
-    // Methods are non-enumerable so the handle stays serializable when carried
-    // on a dock entry's `ui` field — the docks shared-state projection walks
-    // only enumerable own keys, so the closures never reach the wire.
+    // Keep methods non-enumerable on the handle. Dock entries carry handle.view,
+    // the serializable reference that clients use to subscribe to the spec.
     const handle = {
       _stateKey: view.ref.stateKey,
       view: view.ref,

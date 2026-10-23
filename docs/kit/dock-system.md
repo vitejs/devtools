@@ -98,8 +98,8 @@ interface DockEntry {
     /** Author-set single line of progress/status, shown inline on the card */
     digest?: string
   }
-  /** JsonRenderer handle created by ctx.createJsonRenderer() (for type: 'json-render') */
-  ui?: JsonRenderer
+  /** Serializable view reference from ctx.createJsonRenderer() (for type: 'json-render') */
+  view?: JsonRenderViewRef
 }
 ```
 
@@ -425,7 +425,7 @@ The launcher tracks the spawned process for the life of the embed. When that pro
 
 JSON render panels describe a UI as a JSON spec on the server — the client renders it from a built-in component library. This is the shortest path to a DevTools panel: server-side TypeScript only.
 
-Create a renderer handle with `ctx.createJsonRenderer()` and pass it as `ui` when registering a `json-render` dock entry:
+Create a renderer handle with `ctx.createJsonRenderer()` and pass its `view` reference when registering a `json-render` dock entry:
 
 ```ts
 const ui = ctx.createJsonRenderer({
@@ -457,7 +457,7 @@ ctx.docks.register({
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
   type: 'json-render',
-  ui,
+  view: ui.view,
 })
 ```
 
