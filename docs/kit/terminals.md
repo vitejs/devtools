@@ -132,10 +132,10 @@ ctx.terminals.update({
 
 ## Events
 
-Subscribe to lifecycle changes (register, update, remove) via the host event emitter:
+Subscribe to lifecycle changes (register, update, remove) through the host event emitter in the Node process:
 
 ```ts
-ctx.terminals.events.on('terminal:session:updated', (session) => {
+ctx.terminals.events.on('terminals:session:updated', (session) => {
   console.log(session.id, session.status)
 })
 ```
