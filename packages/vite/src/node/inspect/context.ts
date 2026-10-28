@@ -181,12 +181,14 @@ export class ViteInspectViteContext {
 }
 
 // Ids can carry HMR timestamps, so cap the cache instead of letting it grow for the whole session.
-const MAX_PUBLIC_MODULE_ID_CACHE_SIZE = 10_000
+// Keep it well above the module count of large projects, or the cache keeps clearing and never hits.
+const MAX_PUBLIC_MODULE_ID_CACHE_SIZE = 100_000
 
 export class ViteInspectEnvironmentContext {
   readonly scope: string
   private pluginCallCount = 0
   private graphModuleIdResolver?: ReturnType<typeof createGraphModuleIdResolver>
+  private modulesList?: { version: number, modules: ViteInspectModuleInfo[] }
   // Every hook call records its module id, so the same id is normalized once per plugin per request.
   private readonly publicModuleIds = new Map<string, string>()
   private publicModuleIdsRoot?: string
@@ -405,12 +407,27 @@ export class ViteInspectEnvironmentContext {
   }
 
   async getModulesList(pluginCtx?: ModuleInfoProvider): Promise<ViteInspectModuleInfo[]> {
+    // The panel refetches the list after every edit, often twice; reuse it until something is recorded.
+    const store = this.inspectContext.store
+    await store.flush()
+    const version = store.getChangeVersion()
+    if (!pluginCtx && this.modulesList?.version === version) {
+      this.graphModuleIdResolver ??= this.createGraphModuleIdResolver(this.modulesList.modules)
+      return this.modulesList.modules
+    }
+
     const modules = await getEnvironmentModulesList(this, pluginCtx)
-    this.graphModuleIdResolver = createGraphModuleIdResolver(
+    this.graphModuleIdResolver = this.createGraphModuleIdResolver(modules)
+    if (!pluginCtx)
+      this.modulesList = { version, modules }
+    return modules
+  }
+
+  private createGraphModuleIdResolver(modules: ViteInspectModuleInfo[]): ReturnType<typeof createGraphModuleIdResolver> {
+    return createGraphModuleIdResolver(
       modules.map(module => module.id),
       this.env.getTopLevelConfig().resolve?.extensions ?? [],
     )
-    return modules
   }
 
   async getGraphModuleIdResolver(): Promise<ReturnType<typeof createGraphModuleIdResolver>> {

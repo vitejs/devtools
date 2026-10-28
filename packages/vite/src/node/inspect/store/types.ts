@@ -117,6 +117,8 @@ export interface ViteInspectStore {
   getFirstResolveResult: (scope: string, sourceId: string) => Promise<string | undefined>
   findModuleId: (scope: string, publicModuleId: string) => Promise<string | undefined>
   getModuleIds: (scope: string) => Promise<string[]>
+  /** Increases whenever a queued write can change recorded modules, so callers can reuse derived data until it changes. */
+  getChangeVersion: () => number
   getStats: () => ViteInspectStoreStats
   flush: () => Promise<void>
   close: () => Promise<void>

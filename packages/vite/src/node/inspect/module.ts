@@ -6,6 +6,8 @@ import type {
 } from './types'
 import { DUMMY_LOAD_PLUGIN_NAME } from './utils'
 
+const MODULES_LIST_SLICE_MS = 4
+
 export interface ModuleInfoProvider {
   getModuleInfo: (id: string) => {
     importedIds?: readonly string[]
@@ -53,7 +55,7 @@ export async function getModulesList(
 
   const ids = new Set(Object.keys(transformsById).concat(Object.keys(transformedIdMap)))
 
-  return Array.from(ids).sort().map((id) => {
+  const toModuleInfo = (id: string): ViteInspectModuleInfo => {
     let totalTime = 0
     const transforms = transformsById[id] || []
     const transformPlugins: ViteInspectModulePluginMetric[] = transforms.map((transform) => {
@@ -85,7 +87,19 @@ export async function getModulesList(
       sourceSize: firstTransform?.hasResult ? firstTransform.resultSize : 0,
       distSize: lastTransform?.hasResult ? lastTransform.resultSize : 0,
     }
-  })
+  }
+
+  // Large projects take tens of milliseconds here; yield so Vite can keep serving requests meanwhile.
+  const modules: ViteInspectModuleInfo[] = []
+  let sliceStart = performance.now()
+  for (const id of Array.from(ids).sort()) {
+    modules.push(toModuleInfo(id))
+    if (performance.now() - sliceStart > MODULES_LIST_SLICE_MS) {
+      await new Promise(resolve => setImmediate(resolve))
+      sliceStart = performance.now()
+    }
+  }
+  return modules
 }
 
 export async function getPublicGraphModuleIds(ctx: ViteInspectEnvironmentContext): Promise<string[]> {
