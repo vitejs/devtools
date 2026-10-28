@@ -25,6 +25,7 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for the Vite dev server's plugin pipeline and module transforms. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
 | `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Advertised by core as a built-in install launcher in the `viteplus` group (installed on demand), mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once present, plus a standalone CLI/client. Its Nuxt client is on the shared stack — UnoCSS via `presetDevToolsUI` and `@vitejs/devtools-ui` components (an oxc-cyan `primary` scale derived from the `BannerOxcDevTools` accent) — and is wired into the turbo build, `vue-tsc` typecheck (own `src/tsconfig.json` reference) and export-snapshot gates. It dogfoods its own oxlint/oxfmt on itself (run `pnpm -C packages/oxc lint`), whose formatting conflicts with the repo-wide antfu ESLint config, so it stays out of the shared ESLint run. |
 | `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
+| `packages/agent` | `@vitejs/devtools-agent` | Agent (MCP) access to Vite DevTools. `DevToolsAgent()` registers read-only RPC queries marked with `agent` metadata, exposed through the host's `/__devtools/__mcp` route: `vite:agent:*` (Vite dev-server modules, transforms and plugin activity, backed by `@vitejs/devtools-vite`'s `vite:inspect:*` RPC) and `vite:rolldown:agent:*` (recorded Rolldown builds read from `node_modules/.rolldown` through `@vitejs/devtools-rolldown/node`). Both integrations are optional peers detected with `isPackageExists` at call time; a missing package returns an install hint (`AGDT0003`). |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
 
 Meta-introspection ("DevTools for the DevTools") is provided by the official upstream `@devframes/plugin-inspect`, mounted as a built-in via `createPluginFromDevframe` (replaces the former `packages/self-inspect`).
@@ -38,10 +39,12 @@ flowchart TD
   hub --> devframe
   kit --> hub
   core --> kit
-  core --> rolldown & vite & vitest
+  core --> rolldown & vite & vitest & agent
   rolldown --> kit & ui
   vite --> kit & ui
   vitest --> kit
+  agent --> kit
+  agent -.-> rolldown & vite
   webext --> core
 ```
 
@@ -62,6 +65,7 @@ flowchart TD
 - **WS server** (`packages/core/src/node/ws.ts`): RPC via `devframe/rpc/transports/ws-server`. Auth skipped in build mode or when `devtools.clientAuth` is `false`.
 - **Hub-mounted Nuxt UI plugins** (rolldown, vite): each implements `Plugin.devtools.setup`, receives a `KitNodeContext`, registers RPC functions, hosts a static Nuxt SPA, and registers its dock entry.
 - **Built-in devframe plugins** (`@devframes/plugin-inspect` today; `@devframes/plugin-terminals` / `@devframes/plugin-messages`): official portable `DevframeDefinition`s mounted as built-ins by `DevTools()` via kit's `createPluginFromDevframe` (gated by `builtinDevTools`).
+- **Built-in agent integration** (`packages/core/src/node/plugins/builtin.ts` + `packages/agent`): when `@vitejs/devtools-agent` is installed, `DevTools()` mounts `DevToolsAgent()` (gated by `builtinDevTools`; manual registration coexists, duplicates are skipped). It has no install launcher — installing the package is the opt-in. Its Rolldown and Vite tools detect their own integration packages with `isPackageExists` rather than importing them eagerly.
 - **Built-in install launchers** (`packages/core/src/node/plugins/index.ts` + kit's `createInstallLauncher`): keeps core dependency-light. For each optional integration (Rolldown / Vite / Vitest / Oxc) `DevTools()` mounts the real plugin when its package is installed, else registers a discovery launcher that installs it on demand (via `package-manager-detector`) and prompts a restart. The `@vitejs/devtools-*` packages are declared as optional peer deps; their marks are vendored in `packages/core/assets` and served at `/__devtools-assets/` so a launcher icon renders before its package exists.
 
 ## Development
@@ -111,6 +115,7 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 | `VDT` | `packages/vite` | `packages/vite/src/node/diagnostics.ts` |
 | `VTDT` | `packages/vitest` | `packages/vitest/src/node/diagnostics.ts` |
 | `OXDT` | `packages/oxc` | `packages/oxc/src/node/diagnostics.ts` |
+| `AGDT` | `packages/agent` | `packages/agent/src/node/diagnostics.ts` |
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).
 
@@ -174,7 +179,7 @@ The sidebar in `docs/.vitepress/config.ts` globs the `errors/` directory by pref
 
 ### Scope
 
-- **Node-side only**: `packages/kit/src/node`, `packages/core/src/node`, `packages/rolldown/src/node`, `packages/vite/src/node`, `packages/vitest/src/node`, `packages/oxc/src/node`.
+- **Node-side only**: `packages/kit/src/node`, `packages/core/src/node`, `packages/rolldown/src/node`, `packages/vite/src/node`, `packages/vitest/src/node`, `packages/oxc/src/node`, `packages/agent/src/node`.
 - **Client-side excluded**: Vue components, webcomponents, and browser-only code keep using `console.*` / `throw`.
 
 ## Before PRs

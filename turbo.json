@@ -3,6 +3,11 @@
   "agentGuidance": false,
   "globalDependencies": ["pnpm-lock.yaml"],
   "tasks": {
+    "@vitejs/devtools-agent#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
     "@vitejs/devtools#build": {
       "outputLogs": "new-only",
       "dependsOn": ["^build"],

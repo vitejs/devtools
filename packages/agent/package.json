@@ -1,0 +1,50 @@
+{
+  "name": "@vitejs/devtools-agent",
+  "type": "module",
+  "version": "0.8.0",
+  "description": "Agent access to Vite DevTools",
+  "author": "VoidZero Inc.",
+  "license": "MIT",
+  "repository": {
+    "directory": "packages/agent",
+    "type": "git",
+    "url": "git+https://github.com/vitejs/devtools.git"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "pnpm build"
+  },
+  "peerDependencies": {
+    "@vitejs/devtools-rolldown": "workspace:^",
+    "@vitejs/devtools-vite": "workspace:^"
+  },
+  "peerDependenciesMeta": {
+    "@vitejs/devtools-rolldown": {
+      "optional": true
+    },
+    "@vitejs/devtools-vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@vitejs/devtools-kit": "workspace:*",
+    "local-pkg": "catalog:deps",
+    "nostics": "catalog:deps",
+    "zod": "catalog:deps"
+  },
+  "devDependencies": {
+    "@vitejs/devtools-rolldown": "workspace:*",
+    "@vitejs/devtools-vite": "workspace:*",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:devtools"
+  }
+}
