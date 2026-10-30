@@ -30,6 +30,6 @@
   "permissions": [
     "scripting"
   ],
-  "version": "0.1.0",
-  "version_name": "0.1.0"
+  "version": "0.8.0",
+  "version_name": "0.8.0"
 }
