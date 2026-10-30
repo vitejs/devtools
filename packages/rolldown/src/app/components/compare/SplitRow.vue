@@ -27,13 +27,19 @@ const props = withDefaults(defineProps<{
   delta: number
   format: 'bytes' | 'duration' | 'number'
   ratioText?: string
+  selectable?: boolean
 }>(), {
   previousStats: () => [],
   currentStats: () => [],
   previousBadges: () => [],
   currentBadges: () => [],
   ratioText: '',
+  selectable: false,
 })
+
+const emit = defineEmits<{
+  (e: 'select', side: 'previous' | 'current'): void
+}>()
 
 const ratioClass = computed(() => {
   if (props.delta > 0)
@@ -64,7 +70,10 @@ const ratioClass = computed(() => {
               Session A
             </div>
             <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="previousTitleMeta ? `${previousTitle} (${previousTitleMeta})` : previousTitle">
-              <NuxtLink v-if="previousLink" :to="previousLink" class="truncate hover:underline">
+              <button v-if="selectable" type="button" class="truncate hover:underline text-left" @click="emit('select', 'previous')">
+                {{ previousTitle }}
+              </button>
+              <NuxtLink v-else-if="previousLink" :to="previousLink" class="truncate hover:underline">
                 {{ previousTitle }}
               </NuxtLink>
               <span v-else class="truncate">{{ previousTitle }}</span>
@@ -97,7 +106,10 @@ const ratioClass = computed(() => {
               Session B
             </div>
             <div class="flex items-baseline gap-2 min-w-0 font-mono font-600" :title="currentTitleMeta ? `${currentTitle} (${currentTitleMeta})` : currentTitle">
-              <NuxtLink v-if="currentLink" :to="currentLink" class="truncate hover:underline">
+              <button v-if="selectable" type="button" class="truncate hover:underline text-left" @click="emit('select', 'current')">
+                {{ currentTitle }}
+              </button>
+              <NuxtLink v-else-if="currentLink" :to="currentLink" class="truncate hover:underline">
                 {{ currentTitle }}
               </NuxtLink>
               <span v-else class="truncate">{{ currentTitle }}</span>

@@ -62,6 +62,24 @@ const router = useRouter()
 
 const activeDiffMode = ref<DiffMode>('changed')
 const moduleSearch = ref('')
+
+const selectedModule = ref<{
+  previous?: { session: string, module: string }
+  current?: { session: string, module: string }
+  side: 'previous' | 'current'
+} | null>(null)
+
+function openModulePanel(key: string, side: 'previous' | 'current') {
+  const [sessionA, sessionB] = props.sessions
+  const diff = props.details?.modules.find(item => item.key === key)
+  if (!diff)
+    return
+  selectedModule.value = {
+    previous: diff.previousId && sessionA ? { session: sessionA.id, module: diff.previousId } : undefined,
+    current: diff.currentId && sessionB ? { session: sessionB.id, module: diff.currentId } : undefined,
+    side,
+  }
+}
 const moduleChunkFilter = computed(() => typeof route.query.chunk === 'string' ? route.query.chunk : undefined)
 const moduleChunkFilterName = computed(() => props.details?.chunks.find(chunk => chunk.key === moduleChunkFilter.value)?.name ?? moduleChunkFilter.value)
 const activeTabMeta = computed(() => props.tabs.find(tab => tab.id === props.tab))
@@ -460,6 +478,7 @@ watch(
   [() => props.tab, () => props.details],
   () => {
     activeDiffMode.value = diffModeOptions.value.find(item => item.count > 0)?.id ?? 'changed'
+    selectedModule.value = null
   },
   { immediate: true },
 )
@@ -736,6 +755,8 @@ function sumDelta(rows: SplitDiffRow[]) {
                 :delta="row.delta"
                 :format="row.format"
                 :ratio-text="row.ratioText"
+                :selectable="props.tab === 'modules'"
+                @select="side => openModulePanel(row.key, side)"
               />
             </template>
 
@@ -753,6 +774,8 @@ function sumDelta(rows: SplitDiffRow[]) {
                   :stats="row.currentStats"
                   :delta="row.delta"
                   :format="row.format"
+                  :selectable="props.tab === 'modules'"
+                  @select="openModulePanel(row.key, 'current')"
                 />
               </div>
             </template>
@@ -771,6 +794,8 @@ function sumDelta(rows: SplitDiffRow[]) {
                   :stats="row.previousStats"
                   :delta="row.delta"
                   :format="row.format"
+                  :selectable="props.tab === 'modules'"
+                  @select="openModulePanel(row.key, 'previous')"
                 />
               </div>
             </template>
@@ -785,6 +810,20 @@ function sumDelta(rows: SplitDiffRow[]) {
           </div>
         </div>
       </template>
+    </div>
+
+    <div
+      v-if="selectedModule"
+      class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
+      @click.self="selectedModule = null"
+    >
+      <CompareModulePanel
+        :previous="selectedModule.previous"
+        :current="selectedModule.current"
+        :side="selectedModule.side"
+        @close="selectedModule = null"
+        @update:side="side => selectedModule && (selectedModule.side = side)"
+      />
     </div>
   </div>
 </template>
