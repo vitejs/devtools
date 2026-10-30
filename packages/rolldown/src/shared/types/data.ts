@@ -99,6 +99,20 @@ export interface SessionCompareChunkDiff extends SessionCompareMetricValue {
   currentInitial: boolean
 }
 
+export interface SessionCompareModuleDiff extends SessionCompareMetricValue {
+  key: string
+  status: SessionCompareChangeStatus
+  name: string
+  package?: string
+  previousId?: string
+  currentId?: string
+  previousChunks: string[]
+  currentChunks: string[]
+  previousChunkKeys: string[]
+  currentChunkKeys: string[]
+  moved: boolean
+}
+
 export interface SessionComparePackageDiff extends SessionCompareMetricValue {
   key: string
   status: SessionCompareChangeStatus
@@ -145,6 +159,7 @@ export interface SessionCompareDetails {
   }
   assets: SessionCompareAssetDiff[]
   chunks: SessionCompareChunkDiff[]
+  modules: SessionCompareModuleDiff[]
   packages: SessionComparePackageDiff[]
   plugins: SessionComparePluginDiff[]
 }

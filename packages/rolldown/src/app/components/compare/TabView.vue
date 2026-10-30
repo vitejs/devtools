@@ -7,8 +7,9 @@ import type {
 } from '~~/shared/types'
 import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed, ref, watch } from 'vue'
+import { useRoute, useRouter } from '#app/composables/router'
 
-type CompareTab = 'overview' | 'plugins' | 'chunks' | 'assets' | 'packages'
+type CompareTab = 'overview' | 'plugins' | 'chunks' | 'modules' | 'assets' | 'packages'
 type DiffMode = 'changed' | 'added' | 'removed'
 type DiffFormat = 'bytes' | 'duration' | 'number'
 type SummaryTone = 'increase' | 'decrease'
@@ -37,6 +38,8 @@ interface SplitDiffRow extends SessionCompareMetricValue {
   currentTitleMeta?: string
   previousSubtitle?: string
   currentSubtitle?: string
+  previousLink?: string
+  currentLink?: string
   previousStats?: SplitDiffStat[]
   currentStats?: SplitDiffStat[]
   previousBadges: string[]
@@ -54,7 +57,31 @@ const props = defineProps<{
 
 const TABLE_LIMIT = 300
 
+const route = useRoute()
+const router = useRouter()
+
 const activeDiffMode = ref<DiffMode>('changed')
+const moduleSearch = ref('')
+
+const selectedModule = ref<{
+  previous?: { session: string, module: string }
+  current?: { session: string, module: string }
+  side: 'previous' | 'current'
+} | null>(null)
+
+function openModulePanel(key: string, side: 'previous' | 'current') {
+  const [sessionA, sessionB] = props.sessions
+  const diff = props.details?.modules.find(item => item.key === key)
+  if (!diff)
+    return
+  selectedModule.value = {
+    previous: diff.previousId && sessionA ? { session: sessionA.id, module: diff.previousId } : undefined,
+    current: diff.currentId && sessionB ? { session: sessionB.id, module: diff.currentId } : undefined,
+    side,
+  }
+}
+const moduleChunkFilter = computed(() => typeof route.query.chunk === 'string' ? route.query.chunk : undefined)
+const moduleChunkFilterName = computed(() => props.details?.chunks.find(chunk => chunk.key === moduleChunkFilter.value)?.name ?? moduleChunkFilter.value)
 const activeTabMeta = computed(() => props.tabs.find(tab => tab.id === props.tab))
 
 const comparisonMetrics = computed(() => {
@@ -167,6 +194,26 @@ const sessionSummaries = computed(() => {
           tone: getSummaryTone(index, session.initial_js, sessionA?.initial_js),
         },
       ])
+    case 'modules': {
+      return props.sessions.map((session, index) => {
+        const codeSize = sumCompareSide(props.details?.modules, index, item => item.previous, item => item.current)
+        const codeSizeA = sumCompareSide(props.details?.modules, 0, item => item.previous, item => item.current)
+        return [
+          {
+            label: 'Modules',
+            value: session.modules.toLocaleString(),
+            icon: 'i-ph-graph-duotone',
+            tone: getSummaryTone(index, session.modules, sessionA?.modules),
+          },
+          {
+            label: 'Code Size',
+            value: formatBytesSummary(codeSize),
+            icon: 'i-ph-file-code-duotone',
+            tone: getSummaryTone(index, codeSize, codeSizeA),
+          },
+        ]
+      })
+    }
     case 'packages': {
       const packageStatsA = getPackageSummaryStats(0)
       return props.sessions.map((_session, index) => {
@@ -226,6 +273,17 @@ const sessionSummaries = computed(() => {
 
 const assetDiffs = computed(() => changedEntries(props.details?.assets))
 const chunkDiffs = computed(() => changedEntries(props.details?.chunks))
+const moduleDiffs = computed(() => {
+  const chunk = moduleChunkFilter.value
+  const search = moduleSearch.value.trim().toLowerCase()
+  return changedEntries(props.details?.modules).filter((item) => {
+    if (chunk && !item.previousChunkKeys.includes(chunk) && !item.currentChunkKeys.includes(chunk))
+      return false
+    if (search && !item.name.toLowerCase().includes(search) && !item.package?.toLowerCase().includes(search))
+      return false
+    return true
+  })
+})
 const packageDiffs = computed(() => changedEntries(props.details?.packages))
 const pluginDiffs = computed(() => changedEntries(props.details?.plugins))
 
@@ -250,6 +308,8 @@ const chunkRows = computed<SplitDiffRow[]>(() => chunkDiffs.value.map(item => cr
   status: item.status,
   previousTitle: item.previousChunkId == null ? undefined : item.name,
   currentTitle: item.currentChunkId == null ? undefined : item.name,
+  previousLink: item.previousChunkId == null ? undefined : getChunkModulesLink(item.key),
+  currentLink: item.currentChunkId == null ? undefined : getChunkModulesLink(item.key),
   previousStats: createChunkStats(item.previousModules, item.previousImports),
   currentStats: createChunkStats(item.currentModules, item.currentImports, {
     modules: item.previousModules,
@@ -269,6 +329,29 @@ const chunkRows = computed<SplitDiffRow[]>(() => chunkDiffs.value.map(item => cr
     item.currentInitial ? 'initial' : undefined,
   ].filter(Boolean) as string[],
 })))
+
+const moduleRows = computed<SplitDiffRow[]>(() => {
+  const [sessionA, sessionB] = props.sessions
+  return moduleDiffs.value.map(item => createSplitRow({
+    key: item.key,
+    status: item.status,
+    previousTitle: item.previousId == null ? undefined : item.name,
+    currentTitle: item.currentId == null ? undefined : item.name,
+    previousSubtitle: formatModuleChunks(item.previousChunks),
+    currentSubtitle: formatModuleChunks(item.currentChunks),
+    previousLink: item.previousId == null || !sessionA ? undefined : getModuleLink(sessionA.id, item.previousId),
+    currentLink: item.currentId == null || !sessionB ? undefined : getModuleLink(sessionB.id, item.currentId),
+    previous: item.previous,
+    current: item.current,
+    delta: item.delta,
+    deltaRatio: item.deltaRatio,
+    format: 'bytes',
+    previousBadges: item.package ? [item.package] : [],
+    currentBadges: item.moved
+      ? [item.package, 'moved'].filter(Boolean) as string[]
+      : item.package ? [item.package] : [],
+  }))
+})
 
 const packageRows = computed<SplitDiffRow[]>(() => packageDiffs.value.map(item => createSplitRow({
   key: item.key,
@@ -322,6 +405,8 @@ const activeRows = computed(() => {
       return assetRows.value
     case 'chunks':
       return chunkRows.value
+    case 'modules':
+      return moduleRows.value
     case 'packages':
       return packageRows.value
     case 'plugins':
@@ -393,6 +478,7 @@ watch(
   [() => props.tab, () => props.details],
   () => {
     activeDiffMode.value = diffModeOptions.value.find(item => item.count > 0)?.id ?? 'changed'
+    selectedModule.value = null
   },
   { immediate: true },
 )
@@ -418,6 +504,24 @@ function changedEntries<T extends { status: SessionCompareChangeStatus }>(items:
 
 function formatAssetTitleMeta(chunkName: string | undefined) {
   return chunkName?.replace(/[[\]]/g, '')
+}
+
+function formatModuleChunks(chunks: string[]) {
+  if (!chunks.length)
+    return undefined
+  return `in ${chunks.map(chunk => chunk.replace(/[[\]]/g, '')).join(', ')}`
+}
+
+function getChunkModulesLink(chunkKey: string) {
+  return `/compare/${props.sessions.map(session => session.id).join(',')}/modules?chunk=${encodeURIComponent(chunkKey)}`
+}
+
+function clearModuleChunkFilter() {
+  router.replace({ query: { ...route.query, chunk: undefined } })
+}
+
+function getModuleLink(session: string, module: string) {
+  return `/session/${session}/graph?module=${encodeURIComponent(module)}`
 }
 
 function formatPackageTitle(name: string, version: string | undefined) {
@@ -586,6 +690,28 @@ function sumDelta(rows: SplitDiffRow[]) {
 
       <template v-else>
         <div class="flex flex-col gap-4">
+          <div v-if="props.tab === 'modules'" class="flex items-center gap-2">
+            <div class="flex-1 flex items-center gap-2 border border-base rounded px3 py1.5">
+              <div class="i-ph-magnifying-glass-duotone op50" />
+              <input
+                v-model="moduleSearch"
+                class="flex-1 bg-transparent outline-none font-mono text-sm"
+                placeholder="Filter modules by path or package"
+              >
+            </div>
+            <button
+              v-if="moduleChunkFilter"
+              type="button"
+              class="btn-action"
+              title="Clear chunk filter"
+              @click="clearModuleChunkFilter"
+            >
+              <div class="i-ph-shapes-duotone" />
+              <span class="font-mono">{{ moduleChunkFilterName }}</span>
+              <div class="i-ph-x" />
+            </button>
+          </div>
+
           <div class="grid grid-cols-3 gap-3">
             <button
               v-for="item of diffModeOptions"
@@ -618,6 +744,8 @@ function sumDelta(rows: SplitDiffRow[]) {
                 :current-title-meta="row.currentTitleMeta"
                 :previous-subtitle="row.previousSubtitle"
                 :current-subtitle="row.currentSubtitle"
+                :previous-link="row.previousLink"
+                :current-link="row.currentLink"
                 :previous-stats="row.previousStats"
                 :current-stats="row.currentStats"
                 :previous-badges="row.previousBadges"
@@ -627,6 +755,8 @@ function sumDelta(rows: SplitDiffRow[]) {
                 :delta="row.delta"
                 :format="row.format"
                 :ratio-text="row.ratioText"
+                :selectable="props.tab === 'modules'"
+                @select="side => openModulePanel(row.key, side)"
               />
             </template>
 
@@ -639,10 +769,13 @@ function sumDelta(rows: SplitDiffRow[]) {
                   :title="row.currentTitle || row.key"
                   :title-meta="row.currentTitleMeta"
                   :subtitle="row.currentSubtitle"
+                  :link="row.currentLink"
                   :badges="row.currentBadges"
                   :stats="row.currentStats"
                   :delta="row.delta"
                   :format="row.format"
+                  :selectable="props.tab === 'modules'"
+                  @select="openModulePanel(row.key, 'current')"
                 />
               </div>
             </template>
@@ -656,20 +789,41 @@ function sumDelta(rows: SplitDiffRow[]) {
                   :title="row.previousTitle || row.key"
                   :title-meta="row.previousTitleMeta"
                   :subtitle="row.previousSubtitle"
+                  :link="row.previousLink"
                   :badges="row.previousBadges"
                   :stats="row.previousStats"
                   :delta="row.delta"
                   :format="row.format"
+                  :selectable="props.tab === 'modules'"
+                  @select="openModulePanel(row.key, 'previous')"
                 />
               </div>
             </template>
           </section>
+
+          <div v-if="activeDiffRows.length > TABLE_LIMIT" class="text-center text-sm op50">
+            Showing {{ TABLE_LIMIT }} of {{ activeDiffRows.length.toLocaleString() }} entries{{ props.tab === 'modules' ? ', filter to narrow down' : '' }}
+          </div>
 
           <div v-if="!activeDiffRows.length" class="h40 flex items-center justify-center op50 italic">
             {{ activeDiffEmptyText }}
           </div>
         </div>
       </template>
+    </div>
+
+    <div
+      v-if="selectedModule"
+      class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content"
+      @click.self="selectedModule = null"
+    >
+      <CompareModulePanel
+        :previous="selectedModule.previous"
+        :current="selectedModule.current"
+        :side="selectedModule.side"
+        @close="selectedModule = null"
+        @update:side="side => selectedModule && (selectedModule.side = side)"
+      />
     </div>
   </div>
 </template>

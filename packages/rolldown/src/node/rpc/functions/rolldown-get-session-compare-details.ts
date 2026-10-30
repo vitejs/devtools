@@ -8,12 +8,13 @@ import type {
   SessionCompareChunkDiff,
   SessionCompareDetails,
   SessionCompareMetricValue,
+  SessionCompareModuleDiff,
   SessionComparePackageDiff,
   SessionComparePluginDiff,
 } from '../../../shared/types'
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
-import { extname } from 'pathe'
+import { extname, isAbsolute, relative } from 'pathe'
 import { getLogsManager } from '../utils'
 import { getPackageMeta } from './rolldown-get-packages'
 
@@ -134,6 +135,44 @@ function getChunkSize(reader: RolldownEventsReader, chunk: RolldownChunkInfo | u
     const transforms = reader.manager.modules.get(id)?.build_metrics?.transforms
     return total + (transforms?.at(-1)?.transformed_code_size ?? 0)
   }, 0)
+}
+
+function getModuleSize(reader: RolldownEventsReader, id: string) {
+  return reader.manager.modules.get(id)?.build_metrics?.transforms?.at(-1)?.transformed_code_size ?? 0
+}
+
+function getModuleName(id: string, cwd: string) {
+  const [path = id, query] = id.split('?')
+  if (!isAbsolute(path))
+    return id
+  // Show dependencies from their package root, instead of a long `../node_modules/.pnpm/...` path
+  const nodeModulesIndex = path.lastIndexOf('/node_modules/')
+  const name = nodeModulesIndex === -1
+    ? relative(cwd, path)
+    : path.slice(nodeModulesIndex + '/node_modules/'.length)
+  return query == null ? name : `${name}?${query}`
+}
+
+function getModulePackage(id: string) {
+  const match = id.match(/node_modules\/((?:@[^/]+\/)?[^/]+)\/(?!.*node_modules\/)/)
+  return match?.[1]
+}
+
+function getChunkLabel(chunk: RolldownChunkInfo) {
+  return chunk.name || chunk.entry_module || `#${chunk.chunk_id}`
+}
+
+function createModuleChunksMap(chunks: RolldownChunkInfo[]) {
+  const map = new Map<string, RolldownChunkInfo[]>()
+  for (const chunk of chunks) {
+    for (const id of chunk.modules)
+      map.set(id, [...(map.get(id) ?? []), chunk])
+  }
+  return map
+}
+
+function getSortedChunkValues(chunks: RolldownChunkInfo[], getValue: (chunk: RolldownChunkInfo) => string) {
+  return chunks.map(getValue).toSorted((a, b) => a.localeCompare(b))
 }
 
 function getChunkKey(chunk: RolldownChunkInfo) {
@@ -318,6 +357,47 @@ function compareChunks(previous: SessionCompareSource, current: SessionCompareSo
   }))
 }
 
+// Same keys as `compareChunks`, including the `#2` suffix for duplicates, so the chunk filter lines up
+function createChunkKeyMap(chunks: RolldownChunkInfo[]) {
+  return new Map(Array.from(createUniqueMap(chunks, getChunkKey), ([key, chunk]) => [chunk.chunk_id, key]))
+}
+
+function compareModules(previous: SessionCompareSource, current: SessionCompareSource, cwd: string): SessionCompareModuleDiff[] {
+  const previousChunks = createModuleChunksMap(previous.chunks)
+  const currentChunks = createModuleChunksMap(current.chunks)
+  const previousChunkKeyMap = createChunkKeyMap(previous.chunks)
+  const currentChunkKeyMap = createChunkKeyMap(current.chunks)
+  // Only modules that end up in an output chunk contribute to the bundle
+  const previousModules = new Map(Array.from(previousChunks.keys(), id => [id, id]))
+  const currentModules = new Map(Array.from(currentChunks.keys(), id => [id, id]))
+
+  return sortByDeltaImpact(compareMaps(previousModules, currentModules, (key, previousId, currentId) => {
+    const previousSize = previousId ? getModuleSize(previous.reader, previousId) : 0
+    const currentSize = currentId ? getModuleSize(current.reader, currentId) : 0
+    const previousModuleChunks = previousId ? previousChunks.get(previousId) ?? [] : []
+    const currentModuleChunks = currentId ? currentChunks.get(currentId) ?? [] : []
+
+    const previousChunkKeys = getSortedChunkValues(previousModuleChunks, chunk => previousChunkKeyMap.get(chunk.chunk_id)!)
+    const currentChunkKeys = getSortedChunkValues(currentModuleChunks, chunk => currentChunkKeyMap.get(chunk.chunk_id)!)
+    const moved = !!previousId && !!currentId && previousChunkKeys.join('\0') !== currentChunkKeys.join('\0')
+
+    return {
+      key,
+      status: getStatus(previousId, currentId, previousSize !== currentSize || moved),
+      name: getModuleName(key, cwd),
+      package: getModulePackage(key),
+      previousId,
+      currentId,
+      previousChunks: getSortedChunkValues(previousModuleChunks, getChunkLabel),
+      currentChunks: getSortedChunkValues(currentModuleChunks, getChunkLabel),
+      previousChunkKeys,
+      currentChunkKeys,
+      moved,
+      ...createMetric(previousSize, currentSize),
+    }
+  }))
+}
+
 function comparePackages(previous: SessionCompareSource, current: SessionCompareSource): SessionComparePackageDiff[] {
   const previousPackages = createPackageProfiles(previous.packages)
   const currentPackages = createPackageProfiles(current.packages)
@@ -417,6 +497,7 @@ export const rolldownGetSessionCompareDetails = defineRpcFunction({
 
         const assets = compareAssets(previous, current)
         const chunks = compareChunks(previous, current)
+        const modules = compareModules(previous, current, context.cwd)
         const packages = comparePackages(previous, current)
         const plugins = await comparePlugins(previous, current)
 
@@ -433,6 +514,7 @@ export const rolldownGetSessionCompareDetails = defineRpcFunction({
           },
           assets,
           chunks,
+          modules,
           packages,
           plugins,
         }

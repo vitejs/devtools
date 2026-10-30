@@ -14,14 +14,21 @@ withDefaults(defineProps<{
   delta: number
   format: 'bytes' | 'duration' | 'number'
   subtitle?: string
+  link?: string
   badges?: string[]
   stats?: SingleSideDiffStat[]
+  selectable?: boolean
 }>(), {
   subtitle: '',
   titleMeta: '',
   badges: () => [],
   stats: () => [],
+  selectable: false,
 })
+
+const emit = defineEmits<{
+  (e: 'select'): void
+}>()
 </script>
 
 <template>
@@ -32,7 +39,13 @@ withDefaults(defineProps<{
           {{ sessionLabel }}
         </div>
         <div class="flex items-baseline gap-2 min-w-0 font-mono" :title="titleMeta ? `${title} (${titleMeta})` : title">
-          <span class="truncate">{{ title }}</span>
+          <button v-if="selectable" type="button" class="truncate hover:underline text-left" @click="emit('select')">
+            {{ title }}
+          </button>
+          <NuxtLink v-else-if="link" :to="link" class="truncate hover:underline">
+            {{ title }}
+          </NuxtLink>
+          <span v-else class="truncate">{{ title }}</span>
           <span v-if="titleMeta" class="flex-none op50">({{ titleMeta }})</span>
         </div>
         <div v-if="subtitle" class="truncate text-xs op55 mt1" :title="subtitle">
