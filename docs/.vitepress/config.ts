@@ -8,6 +8,7 @@ import {
   groupIconMdPlugin,
   groupIconVitePlugin,
 } from 'vitepress-plugin-group-icons'
+import llmstxt from 'vitepress-plugin-llms'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 import packageJson from '../../package.json' with { type: 'json' }
 
@@ -231,6 +232,10 @@ export default extendConfig(withMermaid(defineConfig({
     publicDir: resolve(fileURLToPath(new URL('.', import.meta.url)), '../public'),
     plugins: [
       groupIconVitePlugin(),
+      llmstxt({
+        ignoreFiles: ['index.md', 'team.md', '**/README.md', 'privacy.md', 'plans/**'],
+        description: 'An extensible devtools framework for the Vite ecosystem. Build, compose, and integrate developer tools with a unified foundation.',
+      }),
     ],
     optimizeDeps: {
       entries: ['docs/**/*.md'],
