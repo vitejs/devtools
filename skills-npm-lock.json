@@ -1,13 +1,15 @@
 {
-  "version": 2,
+  "version": 3,
   "skills": {
     "add-diagnostic": {
       "package": "nostics",
-      "skillFolder": "add-diagnostic"
+      "version": "1.3.0",
+      "skillPath": "skills/add-diagnostic/SKILL.md"
     },
     "nostics": {
       "package": "nostics",
-      "skillFolder": "nostics"
+      "version": "1.3.0",
+      "skillPath": "skills/nostics/SKILL.md"
     }
   }
 }
