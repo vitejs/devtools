@@ -232,7 +232,7 @@ Server-side JSON specs rendered by the built-in component library. No client cod
 ```ts
 interface JsonRenderEntry extends DockEntryBase {
   type: 'json-render'
-  ui: JsonRenderer // Handle from ctx.createJsonRenderer()
+  view: JsonRenderViewRef // Reference from ctx.createJsonRenderer().view
 }
 
 // Registration
@@ -265,7 +265,7 @@ ctx.docks.register({
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
   type: 'json-render',
-  ui,
+  view: ui.view,
 })
 ```
 

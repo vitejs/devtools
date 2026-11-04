@@ -256,7 +256,7 @@ ctx.docks.register({
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
   type: 'json-render',
-  ui,
+  view: ui.view,
 })
 ```
 

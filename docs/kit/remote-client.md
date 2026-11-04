@@ -85,8 +85,8 @@ interface RemoteDockOptions {
 
 #### `transport`
 
-- **`'fragment'` (default)** — the descriptor rides as a URL fragment (`#vite-devtools-kit-connection=...`). Fragments stay client-side: they don't reach servers, don't enter access logs, and get stripped from `Referer` on sub-resource requests. The safest place to carry an auth token.
-- **`'query'`** — the descriptor rides as a query parameter (`?vite-devtools-kit-connection=...`). Pick this when your SPA router uses the fragment for navigation, or when your hosting platform / CDN rewrites URLs in a way that drops fragments.
+- **`'fragment'` (default)** — the descriptor rides as a URL fragment (`#devframe-remote-connection=...`). Fragments stay client-side: they don't reach servers, don't enter access logs, and get stripped from `Referer` on sub-resource requests. The safest place to carry an auth token.
+- **`'query'`** — the descriptor rides as a query parameter (`?devframe-remote-connection=...`). Pick this when your SPA router uses the fragment for navigation, or when your hosting platform / CDN rewrites URLs in a way that drops fragments.
 
 > [!WARNING]
 > With `'query'` transport, the auth token appears in server access logs and outbound `Referer` headers. Use it only when you control the analytics / log pipeline on the hosted origin.
@@ -156,8 +156,8 @@ const rpc = await connectRemoteDevTools({
 For testing or non-browser environments, pass an explicit URL or raw fragment/query string to `parseRemoteConnection`:
 
 ```ts
-parseRemoteConnection('https://example.com/p#vite-devtools-kit-connection=...')
-parseRemoteConnection('?vite-devtools-kit-connection=...')
+parseRemoteConnection('https://example.com/p#devframe-remote-connection=...')
+parseRemoteConnection('?devframe-remote-connection=...')
 ```
 
 ## Descriptor shape
@@ -176,7 +176,7 @@ interface RemoteConnectionInfo {
 }
 ```
 
-It's JSON-encoded and base64url-encoded, then appended to the iframe URL under the parameter name `vite-devtools-kit-connection`.
+It's JSON-encoded and base64url-encoded, then appended to the iframe URL under the parameter name `devframe-remote-connection`.
 
 ## Trust boundary
 

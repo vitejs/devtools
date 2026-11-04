@@ -10,7 +10,7 @@ Vite DevTools provides `ctx.createJsonRenderer()`; the `JsonRenderSpec` / `JsonR
 
 ## Getting started
 
-Create a renderer handle with `ctx.createJsonRenderer()` and pass it as `ui` when registering a `json-render` dock entry:
+Create a renderer handle with `ctx.createJsonRenderer()` and pass its `view` reference when registering a `json-render` dock entry:
 
 ```ts
 import type { PluginWithDevTools } from '@vitejs/devtools-kit'
@@ -49,7 +49,7 @@ export function MyPlugin(): PluginWithDevTools {
           title: 'My Panel',
           icon: 'ph:chart-bar-duotone',
           type: 'json-render',
-          ui,
+          view: ui.view,
         })
       },
     },
@@ -109,7 +109,7 @@ ctx.docks.update({
   type: 'json-render',
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
-  ui,
+  view: ui.view,
   badge: hasWarnings ? '!' : undefined,
 })
 ```
@@ -701,7 +701,7 @@ export function BuildReportPlugin(): PluginWithDevTools {
           title: 'Build Report',
           icon: 'ph:chart-bar-duotone',
           type: 'json-render',
-          ui,
+          view: ui.view,
         })
 
         ctx.rpc.register(defineRpcFunction({
