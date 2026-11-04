@@ -15,6 +15,7 @@ const MAX_READERS = 32
 const MAX_MODULE_METRICS_CACHE = 32
 const MAX_MODULE_METRICS_CACHE_BYTES = 64 * 1024 * 1024
 const READ_STREAM_HIGH_WATER_MARK = 1024 * 1024
+const PARSE_SLICE_MS = 8
 const LINE_FEED = '\n'.charCodeAt(0)
 const CARRIAGE_RETURN = '\r'.charCodeAt(0)
 const ACTION_PREVIEW_BYTES = 512
@@ -341,7 +342,7 @@ export class RolldownEventsReader {
     if (restoredSummary) {
       this.clearModuleMetricsCache()
       this.pendingModuleMetrics.clear()
-      this.summaryOnly = restoredSummary !== 'complete'
+      this.summaryOnly = true
       this.packageSummaryOnly = false
       this.assetsHydrated = false
       return
@@ -455,6 +456,7 @@ export class RolldownEventsReader {
       lineStartOffset = nextLineStartOffset
     }
 
+    let sliceStart = performance.now()
     for await (const chunk of stream) {
       const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)
       let segmentStart = 0
@@ -481,6 +483,11 @@ export class RolldownEventsReader {
             line = Buffer.concat(parts, partsLength + segment.length)
           }
           await processLine(line, location)
+        }
+        // Large logs take seconds to parse; yield so the server keeps answering meanwhile.
+        if (performance.now() - sliceStart > PARSE_SLICE_MS) {
+          await new Promise(resolve => setImmediate(resolve))
+          sliceStart = performance.now()
         }
 
         segmentStart = newline + 1

@@ -4,14 +4,15 @@ import type { ModuleBuildMetrics, PluginBuildMetrics } from '../../shared/types'
 import type { RolldownEventsManager } from './events-manager'
 import fs from 'node:fs/promises'
 import { basename, dirname, join } from 'pathe'
+import { decodeReaderIndex, encodeReaderIndex } from './reader-index-codec'
 
 export const ROLLDOWN_LOG_CACHE_DIR = '.cache'
 export const ROLLDOWN_LOG_SESSION_SUMMARY_CACHE_FILENAME = 'session-summary.json'
-export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.json'
+export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.bin'
 export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json'
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
-const ROLLDOWN_LOG_CACHE_VERSION = 2
+const ROLLDOWN_LOG_CACHE_VERSION = 3
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 
@@ -91,21 +92,6 @@ interface RolldownPluginSummaryCacheSnapshot {
   plugins: Array<[number, PluginBuildMetricsSummary]>
 }
 
-interface RolldownReaderIndexCacheSnapshot {
-  reader: {
-    lastBytes: number
-    lastTimestamp: number
-    moduleEventIndex: Array<[string, {
-      resolveIds: Array<[string, IndexedHookCall]>
-      loads: Array<[string, IndexedHookCall]>
-      transforms: Array<[string, IndexedHookCall]>
-    }]>
-    stringRefIndex: Array<[string, LineLocation]>
-    pendingHookCallStarts: Array<[string, PendingHookCallStart]>
-    assetsReadyLocations: LineLocation[]
-  }
-}
-
 interface RolldownPackageSummaryCacheSnapshot {
   packageSummaryTimestamp: number
   manager: ManagerSnapshot
@@ -165,6 +151,46 @@ class RolldownLogCacheFile<T> {
       && cache.log.size === stat.size
       && cache.log.mtime === stat.mtime.getTime()
   }
+}
+
+class RolldownReaderIndexCacheFile {
+  private constructor(
+    readonly filepath: string,
+  ) {
+  }
+
+  static forLogFile(logFilepath: string) {
+    if (basename(logFilepath) !== 'logs.json')
+      return undefined
+
+    return new RolldownReaderIndexCacheFile(join(dirname(logFilepath), ROLLDOWN_LOG_CACHE_DIR, ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME))
+  }
+
+  async read(stat: Stats) {
+    try {
+      return await decodeReaderIndex(await fs.readFile(this.filepath), toLogStat(stat))
+    }
+    catch {
+      return undefined
+    }
+  }
+
+  async write(stat: Stats, state: RolldownLogCacheState) {
+    try {
+      const chunks = await encodeReaderIndex(state, toLogStat(stat))
+      const temporaryFilepath = `${this.filepath}.tmp`
+      await fs.mkdir(dirname(this.filepath), { recursive: true })
+      await fs.writeFile(temporaryFilepath, chunks)
+      await fs.rename(temporaryFilepath, this.filepath)
+    }
+    catch {
+      // The cache is best-effort. The reader can always rebuild from logs.json.
+    }
+  }
+}
+
+function toLogStat(stat: Stats) {
+  return { size: stat.size, mtime: stat.mtime.getTime() }
 }
 
 function createMetricSummary(): PluginMetricSummary {
@@ -297,7 +323,7 @@ export class RolldownLogCache {
   private sessionSummaryCache: RolldownLogCacheFile<RolldownSessionSummaryCacheSnapshot> | undefined
   private moduleMetricsSummaryCache: RolldownLogCacheFile<RolldownModuleMetricsSummaryCacheSnapshot> | undefined
   private pluginSummaryCache: RolldownLogCacheFile<RolldownPluginSummaryCacheSnapshot> | undefined
-  private readerIndexCache: RolldownLogCacheFile<RolldownReaderIndexCacheSnapshot> | undefined
+  private readerIndexCache: RolldownReaderIndexCacheFile | undefined
   private packageSummaryCache: RolldownLogCacheFile<RolldownPackageSummaryCacheSnapshot> | undefined
   private completeSessionWriteAttempted = false
   private summaryWriteAttempted = false
@@ -308,7 +334,7 @@ export class RolldownLogCache {
       this.sessionSummaryCache = RolldownLogCacheFile.forLogFile(logFilepath, ROLLDOWN_LOG_SESSION_SUMMARY_CACHE_FILENAME)
       this.moduleMetricsSummaryCache = RolldownLogCacheFile.forLogFile(logFilepath, ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME)
       this.pluginSummaryCache = RolldownLogCacheFile.forLogFile(logFilepath, ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME)
-      this.readerIndexCache = RolldownLogCacheFile.forLogFile(logFilepath, ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME)
+      this.readerIndexCache = RolldownReaderIndexCacheFile.forLogFile(logFilepath)
     }
     this.packageSummaryCache = RolldownLogCacheFile.forLogFile(logFilepath, ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME)
   }
@@ -351,11 +377,14 @@ export class RolldownLogCache {
     if (!sessionSummaryCache || !moduleMetricsCache || !pluginSummaryCacheExists || !indexCache)
       return false
 
-    if (sessionSummaryCache.reader.lastBytes !== stat.size || indexCache.reader.lastBytes !== stat.size)
+    if (sessionSummaryCache.reader.lastBytes !== stat.size || indexCache.lastBytes !== stat.size)
       return false
 
     this.restoreSessionSnapshot(sessionSummaryCache, state, moduleMetricsCache)
-    this.restoreReaderIndexSnapshot(indexCache, state)
+    state.moduleEventIndex = indexCache.moduleEventIndex
+    state.stringRefIndex = indexCache.stringRefIndex
+    state.pendingHookCallStarts = indexCache.pendingHookCallStarts
+    state.assetsReadyLocations = indexCache.assetsReadyLocations
     this.completeSessionWriteAttempted = true
     this.summaryWriteAttempted = true
     return true
@@ -365,27 +394,15 @@ export class RolldownLogCache {
     if (state.lastBytes || state.manager.eventCount)
       return false
 
-    const [sessionSummaryCache, moduleMetricsCache, _pluginSummaryCache, indexCache] = await Promise.all([
-      this.sessionSummaryCache?.read(stat),
-      this.moduleMetricsSummaryCache?.read(stat),
-      this.pluginSummaryCache?.read(stat),
-      this.readerIndexCache?.read(stat),
-    ])
-    if (!sessionSummaryCache)
+    // The summary only needs the session summary; the index and metrics are loaded on a full read.
+    const sessionSummaryCache = await this.sessionSummaryCache?.read(stat)
+    if (!sessionSummaryCache || sessionSummaryCache.reader.lastBytes !== stat.size)
       return false
 
-    if (sessionSummaryCache.reader.lastBytes !== stat.size)
-      return false
-
-    this.restoreSessionSnapshot(sessionSummaryCache, state, moduleMetricsCache)
-    const hasCompleteCache = !!moduleMetricsCache && !!_pluginSummaryCache && !!indexCache
-    if (indexCache?.reader.lastBytes === stat.size)
-      this.restoreReaderIndexSnapshot(indexCache, state)
-    else
-      this.clearReaderIndexState(state)
+    this.restoreSessionSnapshot(sessionSummaryCache, state)
+    this.clearReaderIndexState(state)
     this.summaryWriteAttempted = true
-    this.completeSessionWriteAttempted = hasCompleteCache
-    return hasCompleteCache ? 'complete' : 'summary'
+    return 'summary' as const
   }
 
   async restorePackageSummary(stat: Stats, state: RolldownLogCacheState) {
@@ -416,17 +433,19 @@ export class RolldownLogCache {
       this.sessionSummaryCache?.write(stat, this.createSessionSummarySnapshot(state)),
       this.moduleMetricsSummaryCache?.write(stat, this.createModuleMetricsSummarySnapshot(state)),
       this.pluginSummaryCache?.write(stat, this.createPluginSummarySnapshot(state)),
-      this.readerIndexCache?.write(stat, this.createReaderIndexSnapshot(state)),
+      this.readerIndexCache?.write(stat, state),
     ])
   }
 
   async writeSummary(stat: Stats, state: RolldownLogCacheState) {
     this.summaryWriteAttempted = true
+    // Writes the same sidecars as a complete session, so don't write them again for the full read.
+    this.completeSessionWriteAttempted = true
     await Promise.all([
       this.sessionSummaryCache?.write(stat, this.createSessionSummarySnapshot(state)),
       this.moduleMetricsSummaryCache?.write(stat, this.createModuleMetricsSummarySnapshot(state)),
       this.pluginSummaryCache?.write(stat, this.createPluginSummarySnapshot(state)),
-      this.readerIndexCache?.write(stat, this.createReaderIndexSnapshot(state)),
+      this.readerIndexCache?.write(stat, state),
     ])
   }
 
@@ -471,23 +490,6 @@ export class RolldownLogCache {
     }
   }
 
-  private createReaderIndexSnapshot(state: RolldownLogCacheState): RolldownReaderIndexCacheSnapshot {
-    return {
-      reader: {
-        lastBytes: state.lastBytes,
-        lastTimestamp: state.lastTimestamp,
-        moduleEventIndex: Array.from(state.moduleEventIndex.entries()).map(([module, index]) => [module, {
-          resolveIds: Array.from(index.resolveIds.entries()),
-          loads: Array.from(index.loads.entries()),
-          transforms: Array.from(index.transforms.entries()),
-        }]),
-        stringRefIndex: Array.from(state.stringRefIndex.entries()),
-        pendingHookCallStarts: Array.from(state.pendingHookCallStarts.entries()),
-        assetsReadyLocations: state.assetsReadyLocations,
-      },
-    }
-  }
-
   private createPackageSummarySnapshot(state: RolldownLogCacheState): RolldownPackageSummaryCacheSnapshot {
     return {
       packageSummaryTimestamp: state.packageSummaryTimestamp,
@@ -519,17 +521,6 @@ export class RolldownLogCache {
       build_start_time: session.manager.build_start_time,
       build_end_time: session.manager.build_end_time,
     })
-  }
-
-  private restoreReaderIndexSnapshot(snapshot: RolldownReaderIndexCacheSnapshot, state: RolldownLogCacheState) {
-    state.moduleEventIndex = new Map(snapshot.reader.moduleEventIndex.map(([module, item]) => [module, {
-      resolveIds: new Map(item.resolveIds),
-      loads: new Map(item.loads),
-      transforms: new Map(item.transforms),
-    }]))
-    state.stringRefIndex = new Map(snapshot.reader.stringRefIndex)
-    state.pendingHookCallStarts = new Map(snapshot.reader.pendingHookCallStarts)
-    state.assetsReadyLocations = snapshot.reader.assetsReadyLocations
   }
 
   private restorePackageSummarySnapshot(snapshot: RolldownPackageSummaryCacheSnapshot, state: RolldownLogCacheState) {
