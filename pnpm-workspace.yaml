@@ -241,5 +241,4 @@ catalogs:
     '@types/prompts': ^2.4.9
     '@types/react': ^19.3.0
     '@types/react-dom': ^19.3.0
-    '@types/splitpanes': ^2.2.6
     '@types/ws': ^8.18.2
