@@ -80,13 +80,16 @@ describe('rolldown log cache', () => {
     return [state.moduleEventIndex, state.stringRefIndex, state.pendingHookCallStarts, state.assetsReadyLocations]
   }
 
-  it('restores the summary without loading the index, then restores the same index on a full read', async () => {
+  it('restores the summary with module metrics but without the index, then restores the same index on a full read', async () => {
     const filepath = writeLog()
     const cold = RolldownEventsReader.get(filepath)
     await cold.read()
     expect((cold as unknown as { moduleEventIndex: Map<string, unknown> }).moduleEventIndex.size).toBeGreaterThan(0)
     const coldIndex = structuredClone(indexOf(cold))
     const coldEvents = cold.manager.eventCount
+    const coldModules = cold.manager.module_build_metrics.size
+    const coldMetrics = cold.manager.module_build_metrics.get('/src/main.ts')!
+    expect(coldMetrics.transforms).toHaveLength(1)
     cold.dispose()
 
     const warm = RolldownEventsReader.get(filepath)
@@ -94,6 +97,11 @@ describe('rolldown log cache', () => {
       await warm.readSummary()
       expect(warm.manager.eventCount).toBe(coldEvents)
       expect((warm as unknown as { moduleEventIndex: Map<string, unknown> }).moduleEventIndex.size).toBe(0)
+      // The summary keeps the compacted metrics the module list and chunk sizes rely on.
+      const warmMetrics = warm.manager.module_build_metrics.get('/src/main.ts')
+      expect(warm.manager.module_build_metrics.size).toBe(coldModules)
+      expect(warmMetrics?.transforms.at(-1)?.transformed_code_size).toBe(coldMetrics.transforms.at(-1)!.transformed_code_size)
+      expect(warmMetrics?.resolve_ids[0]?.duration).toBe(coldMetrics.resolve_ids[0]!.duration)
 
       await warm.read()
       expect(indexOf(warm)).toEqual(coldIndex)

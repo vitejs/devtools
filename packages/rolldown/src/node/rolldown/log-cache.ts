@@ -394,12 +394,15 @@ export class RolldownLogCache {
     if (state.lastBytes || state.manager.eventCount)
       return false
 
-    // The summary only needs the session summary; the index and metrics are loaded on a full read.
-    const sessionSummaryCache = await this.sessionSummaryCache?.read(stat)
+    // The module list needs the metrics; the index is loaded on a full read.
+    const [sessionSummaryCache, moduleMetricsCache] = await Promise.all([
+      this.sessionSummaryCache?.read(stat),
+      this.moduleMetricsSummaryCache?.read(stat),
+    ])
     if (!sessionSummaryCache || sessionSummaryCache.reader.lastBytes !== stat.size)
       return false
 
-    this.restoreSessionSnapshot(sessionSummaryCache, state)
+    this.restoreSessionSnapshot(sessionSummaryCache, state, moduleMetricsCache)
     this.clearReaderIndexState(state)
     this.summaryWriteAttempted = true
     return 'summary' as const
