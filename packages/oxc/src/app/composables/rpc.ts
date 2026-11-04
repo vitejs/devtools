@@ -1,6 +1,7 @@
 // oxlint-disable unicorn/require-module-specifiers
 // oxlint-disable unicorn/require-module-specifiers
 import type {} from '@vitejs/devtools'
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../../src/node/rpc'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
@@ -48,7 +49,7 @@ export async function connect() {
     // standalone (devframe CLI) it is served from the app's own base. Probe
     // both, keeping the base that answered first so the WS URL resolves there.
     let bases = [DEVTOOLS_MOUNT_PATH, runtimeConfig.app.baseURL]
-    let connectionMeta = runtimeConfig.app.connection
+    let connectionMeta = runtimeConfig.app.connection as ConnectionMeta | undefined
     if (!connectionMeta) {
       const resolved = await resolveConnection(bases)
       if (resolved) {
