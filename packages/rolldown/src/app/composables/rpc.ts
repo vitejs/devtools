@@ -1,4 +1,5 @@
 import type {} from '@vitejs/devtools'
+import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
 import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
@@ -25,7 +26,7 @@ export async function connect() {
         runtimeConfig.app.baseURL,
       ],
       cacheOptions: true,
-      connectionMeta: runtimeConfig.app.connection,
+      connectionMeta: runtimeConfig.app.connection as ConnectionMeta | undefined,
       wsOptions: {
         onConnected: () => {
           connectionState.connected = true
