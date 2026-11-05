@@ -12,7 +12,7 @@ export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.bin'
 export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json'
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
-const ROLLDOWN_LOG_CACHE_VERSION = 3
+const ROLLDOWN_LOG_CACHE_VERSION = 4
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 
@@ -232,12 +232,9 @@ function compactModuleBuildMetrics(metrics: ModuleBuildMetrics): ModuleBuildMetr
     : []
 
   const transformsByPlugin = new Map<number, ModuleBuildMetrics['transforms'][number]>()
-  let finalTransformedCodeSize = 0
+  const finalTransformedCodeSize = metrics.transforms.at(-1)?.transformed_code_size
   for (const transform of metrics.transforms) {
-    if (transform.transformed_code_size)
-      finalTransformedCodeSize = transform.transformed_code_size
-
-    if (!transform.transformed_code_size || transform.source_code_size === transform.transformed_code_size)
+    if (transform.source_code_size === transform.transformed_code_size)
       continue
 
     const item = transformsByPlugin.get(transform.plugin_id)
@@ -275,7 +272,7 @@ function compactModuleBuildMetrics(metrics: ModuleBuildMetrics): ModuleBuildMetr
     })
   }
 
-  if (finalTransformedCodeSize && metrics.transforms.length) {
+  if (finalTransformedCodeSize != null && metrics.transforms.length) {
     transforms.push({
       ...metrics.transforms.at(-1)!,
       id: '',

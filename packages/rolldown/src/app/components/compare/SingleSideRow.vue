@@ -11,7 +11,7 @@ withDefaults(defineProps<{
   sessionLabel: string
   title: string
   titleMeta?: string
-  delta: number
+  delta: number | null
   format: 'bytes' | 'duration' | 'number'
   subtitle?: string
   link?: string

@@ -64,12 +64,12 @@ export interface SessionCompareContext {
   initial_js: number
 }
 
-export type SessionCompareChangeStatus = 'added' | 'removed' | 'changed' | 'unchanged'
+export type SessionCompareChangeStatus = 'added' | 'removed' | 'changed' | 'unchanged' | 'unavailable'
 
-export interface SessionCompareMetricValue {
-  previous: number
-  current: number
-  delta: number
+export interface SessionCompareMetricValue<T extends number | null = number> {
+  previous: T
+  current: T
+  delta: T
   deltaRatio: number | null
 }
 
@@ -99,7 +99,7 @@ export interface SessionCompareChunkDiff extends SessionCompareMetricValue {
   currentInitial: boolean
 }
 
-export interface SessionCompareModuleDiff extends SessionCompareMetricValue {
+export interface SessionCompareModuleDiff extends SessionCompareMetricValue<number | null> {
   key: string
   status: SessionCompareChangeStatus
   name: string

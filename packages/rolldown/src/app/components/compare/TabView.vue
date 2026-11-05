@@ -7,10 +7,11 @@ import type {
 } from '~~/shared/types'
 import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed, ref, watch } from 'vue'
+import { formatMetricRatio, sumMetrics } from '~~/shared/utils/compare-metrics'
 import { useRoute, useRouter } from '#app/composables/router'
 
 type CompareTab = 'overview' | 'plugins' | 'chunks' | 'modules' | 'assets' | 'packages'
-type DiffMode = 'changed' | 'added' | 'removed'
+type DiffMode = 'changed' | 'added' | 'removed' | 'unavailable'
 type DiffFormat = 'bytes' | 'duration' | 'number'
 type SummaryTone = 'increase' | 'decrease'
 
@@ -29,7 +30,7 @@ interface SplitDiffStat {
   hidden?: boolean
 }
 
-interface SplitDiffRow extends SessionCompareMetricValue {
+interface SplitDiffRow extends SessionCompareMetricValue<number | null> {
   key: string
   status: SessionCompareChangeStatus
   previousTitle?: string
@@ -253,7 +254,7 @@ const sessionSummaries = computed(() => {
           },
           {
             label: 'Calls',
-            value: pluginStats.calls.toLocaleString(),
+            value: pluginStats.calls?.toLocaleString() ?? 'Unavailable',
             icon: 'i-ph-arrow-counter-clockwise-duotone',
             tone: getSummaryTone(index, pluginStats.calls, pluginStatsA.calls),
           },
@@ -416,12 +417,16 @@ const activeRows = computed(() => {
   }
 })
 
+const unavailableRows = computed(() => activeRows.value.filter(item => item.status === 'unavailable'))
+
 const changedRows = computed(() => activeRows.value.filter(item => item.status === 'changed'))
 const addedRows = computed(() => activeRows.value.filter(item => item.status === 'added'))
 const removedRows = computed(() => activeRows.value.filter(item => item.status === 'removed'))
 
 const activeDiffRows = computed(() => {
   switch (activeDiffMode.value) {
+    case 'unavailable':
+      return unavailableRows.value
     case 'added':
       return addedRows.value
     case 'removed':
@@ -438,7 +443,7 @@ const diffModeOptions = computed<Array<{
   description: string
   icon: string
   count: number
-  delta: number
+  delta: number | null
   rows: SplitDiffRow[]
 }>>(() => {
   return [
@@ -469,6 +474,17 @@ const diffModeOptions = computed<Array<{
       delta: sumDelta(removedRows.value),
       rows: removedRows.value.slice(0, TABLE_LIMIT),
     },
+    ...(props.tab === 'modules'
+      ? [{
+          id: 'unavailable' as const,
+          label: 'Unavailable',
+          icon: 'i-ph-question-duotone',
+          description: 'Matched modules without a size measurement on one or both sides.',
+          count: unavailableRows.value.length,
+          delta: null,
+          rows: unavailableRows.value.slice(0, TABLE_LIMIT),
+        }]
+      : []),
   ]
 })
 
@@ -487,6 +503,8 @@ const activeDiffFormat = computed(() => activeRows.value[0]?.format || 'bytes')
 
 const activeDiffEmptyText = computed(() => {
   switch (activeDiffMode.value) {
+    case 'unavailable':
+      return 'No unavailable measurements'
     case 'added':
       return 'No added entries'
     case 'removed':
@@ -607,20 +625,13 @@ function getStatTone(value: number, baseline: number | undefined): SplitDiffStat
 function createSplitRow(row: Omit<SplitDiffRow, 'ratioText'>): SplitDiffRow {
   return {
     ...row,
-    ratioText: formatRatio(row),
+    ratioText: formatMetricRatio(row),
   }
 }
 
-function formatRatio(item: SessionCompareMetricValue) {
-  if (item.deltaRatio == null)
-    return item.previous === 0 && item.current > 0 ? 'new' : '-'
-  if (item.deltaRatio === 0)
-    return '0%'
-  const sign = item.deltaRatio > 0 ? '+' : ''
-  return `${sign}${(item.deltaRatio * 100).toFixed(2)}%`
-}
-
-function formatValue(value: number, format: DiffFormat) {
+function formatValue(value: number | null, format: DiffFormat) {
+  if (value == null)
+    return 'Unavailable'
   if (format === 'duration') {
     if (value >= 1000)
       return `${+(value / 1000).toFixed(2)}s`
@@ -630,14 +641,16 @@ function formatValue(value: number, format: DiffFormat) {
   return value.toLocaleString()
 }
 
-function formatBytesSummary(value: number) {
+function formatBytesSummary(value: number | null) {
+  if (value == null)
+    return 'Unavailable'
   if (!value)
     return '0 B'
   return bytesToHumanSize(value).join(' ')
 }
 
-function getSummaryTone(index: number, value: number, baseline: number | undefined): SummaryTone | undefined {
-  if (index === 0 || baseline == null || value === baseline)
+function getSummaryTone(index: number, value: number | null, baseline: number | null | undefined): SummaryTone | undefined {
+  if (index === 0 || value == null || baseline == null || value === baseline)
     return undefined
   return value > baseline ? 'increase' : 'decrease'
 }
@@ -662,12 +675,12 @@ function getPluginSummaryStats(index: number, session: NormalizedSessionCompareC
   }
 }
 
-function sumCompareSide<T>(items: T[] | undefined, index: number, getPrevious: (item: T) => number, getCurrent: (item: T) => number) {
-  return (items ?? []).reduce((total, item) => total + (index === 0 ? getPrevious(item) : getCurrent(item)), 0)
+function sumCompareSide<T>(items: T[] | undefined, index: number, getPrevious: (item: T) => number | null, getCurrent: (item: T) => number | null) {
+  return sumMetrics((items ?? []).map(item => index === 0 ? getPrevious(item) : getCurrent(item)))
 }
 
 function sumDelta(rows: SplitDiffRow[]) {
-  return rows.reduce((total, row) => total + row.delta, 0)
+  return sumMetrics(rows.map(row => row.delta))
 }
 </script>
 
@@ -712,7 +725,7 @@ function sumDelta(rows: SplitDiffRow[]) {
             </button>
           </div>
 
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid gap-3" :class="props.tab === 'modules' ? 'grid-cols-4' : 'grid-cols-3'">
             <button
               v-for="item of diffModeOptions"
               :key="item.id"
@@ -728,13 +741,13 @@ function sumDelta(rows: SplitDiffRow[]) {
               </div>
               <div class="flex items-end gap-2">
                 <span class="text-3xl font-mono font-600">{{ item.count }}</span>
-                <CompareDeltaValue v-if="item.delta" :value="item.delta" :format="activeDiffFormat" signed />
+                <CompareDeltaValue v-if="item.delta !== 0" :value="item.delta" :format="activeDiffFormat" signed />
               </div>
             </button>
           </div>
 
           <section v-if="activeDiffOption" class="flex flex-col gap-2">
-            <template v-if="activeDiffMode === 'changed'">
+            <template v-if="activeDiffMode === 'changed' || activeDiffMode === 'unavailable'">
               <CompareSplitRow
                 v-for="row of activeDiffOption.rows"
                 :key="row.key"
