@@ -7,10 +7,11 @@ import type {
 } from '~~/shared/types'
 import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed, ref, watch } from 'vue'
+import { filterComparedModules, getComparedModuleCount } from '~~/shared/utils/compare-modules'
 import { useRoute, useRouter } from '#app/composables/router'
 
 type CompareTab = 'overview' | 'plugins' | 'chunks' | 'modules' | 'assets' | 'packages'
-type DiffMode = 'changed' | 'added' | 'removed'
+type DiffMode = 'changed' | 'added' | 'removed' | 'all' | 'unchanged'
 type DiffFormat = 'bytes' | 'duration' | 'number'
 type SummaryTone = 'increase' | 'decrease'
 
@@ -195,18 +196,18 @@ const sessionSummaries = computed(() => {
         },
       ])
     case 'modules': {
-      return props.sessions.map((session, index) => {
+      return props.sessions.map((_session, index) => {
         const codeSize = sumCompareSide(props.details?.modules, index, item => item.previous, item => item.current)
         const codeSizeA = sumCompareSide(props.details?.modules, 0, item => item.previous, item => item.current)
         return [
           {
-            label: 'Modules',
-            value: session.modules.toLocaleString(),
+            label: 'Compared Modules',
+            value: getComparedModuleCount(props.details?.modules, index).toLocaleString(),
             icon: 'i-ph-graph-duotone',
-            tone: getSummaryTone(index, session.modules, sessionA?.modules),
+            tone: getSummaryTone(index, getComparedModuleCount(props.details?.modules, index), getComparedModuleCount(props.details?.modules, 0)),
           },
           {
-            label: 'Code Size',
+            label: 'Transformed Code Size',
             value: formatBytesSummary(codeSize),
             icon: 'i-ph-file-code-duotone',
             tone: getSummaryTone(index, codeSize, codeSizeA),
@@ -273,17 +274,10 @@ const sessionSummaries = computed(() => {
 
 const assetDiffs = computed(() => changedEntries(props.details?.assets))
 const chunkDiffs = computed(() => changedEntries(props.details?.chunks))
-const moduleDiffs = computed(() => {
-  const chunk = moduleChunkFilter.value
-  const search = moduleSearch.value.trim().toLowerCase()
-  return changedEntries(props.details?.modules).filter((item) => {
-    if (chunk && !item.previousChunkKeys.includes(chunk) && !item.currentChunkKeys.includes(chunk))
-      return false
-    if (search && !item.name.toLowerCase().includes(search) && !item.package?.toLowerCase().includes(search))
-      return false
-    return true
-  })
-})
+const moduleDiffs = computed(() => filterComparedModules(props.details?.modules, {
+  chunk: moduleChunkFilter.value,
+  search: moduleSearch.value,
+}))
 const packageDiffs = computed(() => changedEntries(props.details?.packages))
 const pluginDiffs = computed(() => changedEntries(props.details?.plugins))
 
@@ -416,12 +410,18 @@ const activeRows = computed(() => {
   }
 })
 
+const unchangedRows = computed(() => activeRows.value.filter(item => item.status === 'unchanged'))
+
 const changedRows = computed(() => activeRows.value.filter(item => item.status === 'changed'))
 const addedRows = computed(() => activeRows.value.filter(item => item.status === 'added'))
 const removedRows = computed(() => activeRows.value.filter(item => item.status === 'removed'))
 
 const activeDiffRows = computed(() => {
   switch (activeDiffMode.value) {
+    case 'all':
+      return moduleRows.value
+    case 'unchanged':
+      return unchangedRows.value
     case 'added':
       return addedRows.value
     case 'removed':
@@ -469,8 +469,33 @@ const diffModeOptions = computed<Array<{
       delta: sumDelta(removedRows.value),
       rows: removedRows.value.slice(0, TABLE_LIMIT),
     },
+    ...(props.tab === 'modules'
+      ? [
+          {
+            id: 'all' as const,
+            label: 'All',
+            icon: 'i-ph-list-duotone',
+            description: 'All matching output-chunk members from either session.',
+            count: moduleRows.value.length,
+            delta: sumDelta(moduleRows.value),
+            rows: moduleRows.value.slice(0, TABLE_LIMIT),
+          },
+          {
+            id: 'unchanged' as const,
+            label: 'Unchanged',
+            icon: 'i-ph-equals-duotone',
+            description: 'Members with the same transform size and chunk membership.',
+            count: unchangedRows.value.length,
+            delta: sumDelta(unchangedRows.value),
+            rows: unchangedRows.value.slice(0, TABLE_LIMIT),
+          },
+        ]
+      : []),
   ]
 })
+
+const changeModeOptions = computed(() => diffModeOptions.value.filter(item => item.id !== 'all' && item.id !== 'unchanged'))
+const memberModeOptions = computed(() => diffModeOptions.value.filter(item => item.id === 'all' || item.id === 'unchanged'))
 
 const activeDiffOption = computed(() => diffModeOptions.value.find(item => item.id === activeDiffMode.value))
 
@@ -487,6 +512,10 @@ const activeDiffFormat = computed(() => activeRows.value[0]?.format || 'bytes')
 
 const activeDiffEmptyText = computed(() => {
   switch (activeDiffMode.value) {
+    case 'all':
+      return 'No matching chunk members'
+    case 'unchanged':
+      return 'No unchanged members'
     case 'added':
       return 'No added entries'
     case 'removed':
@@ -712,9 +741,33 @@ function sumDelta(rows: SplitDiffRow[]) {
             </button>
           </div>
 
+          <template v-if="props.tab === 'modules'">
+            <p class="text-sm op60">
+              Sizes use each member's last recorded transform, before bundling, tree shaking and minification.
+              Added and Removed mean entering or leaving output-chunk membership.
+              The totals above cover all compared members in each session; list filters apply only to the rows.
+              Emitted chunk sizes can change while transform sizes stay the same.
+            </p>
+            <div class="flex items-center gap-2">
+              <button
+                v-for="item of memberModeOptions"
+                :key="item.id"
+                type="button"
+                class="btn-action"
+                :class="activeDiffMode === item.id ? 'bg-active font-600' : 'op60'"
+                :aria-pressed="activeDiffMode === item.id"
+                :title="item.description"
+                @click="activeDiffMode = item.id"
+              >
+                <span :class="item.icon" />
+                {{ item.label }} ({{ item.count }})
+              </button>
+            </div>
+          </template>
+
           <div class="grid grid-cols-3 gap-3">
             <button
-              v-for="item of diffModeOptions"
+              v-for="item of changeModeOptions"
               :key="item.id"
               type="button"
               class="border rounded p4 text-left flex flex-col gap-3 transition"
@@ -734,7 +787,7 @@ function sumDelta(rows: SplitDiffRow[]) {
           </div>
 
           <section v-if="activeDiffOption" class="flex flex-col gap-2">
-            <template v-if="activeDiffMode === 'changed'">
+            <template v-if="activeDiffMode === 'changed' || activeDiffMode === 'all' || activeDiffMode === 'unchanged'">
               <CompareSplitRow
                 v-for="row of activeDiffOption.rows"
                 :key="row.key"
