@@ -15,6 +15,7 @@ import type {
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { extname, isAbsolute, relative } from 'pathe'
+import { createModuleMetric } from '../../../shared/utils/compare-metrics'
 import { getLogsManager } from '../utils'
 import { getPackageMeta } from './rolldown-get-packages'
 
@@ -74,8 +75,10 @@ function compareMaps<TPrevious, TCurrent, TResult>(
     .map(key => map(key, previous.get(key), current.get(key)))
 }
 
-function sortByDeltaImpact<T extends { delta: number, name?: string, key: string }>(items: T[]) {
+function sortByDeltaImpact<T extends { delta: number | null, name?: string, key: string }>(items: T[]) {
   return items.toSorted((a, b) => {
+    if (a.delta == null || b.delta == null)
+      return a.delta == null ? (b.delta == null ? a.key.localeCompare(b.key) : 1) : -1
     const impact = Math.abs(b.delta) - Math.abs(a.delta)
     if (impact)
       return impact
@@ -138,7 +141,7 @@ function getChunkSize(reader: RolldownEventsReader, chunk: RolldownChunkInfo | u
 }
 
 function getModuleSize(reader: RolldownEventsReader, id: string) {
-  return reader.manager.modules.get(id)?.build_metrics?.transforms?.at(-1)?.transformed_code_size ?? 0
+  return reader.manager.modules.get(id)?.build_metrics?.transforms?.at(-1)?.transformed_code_size ?? null
 }
 
 function getModuleName(id: string, cwd: string) {
@@ -383,7 +386,9 @@ function compareModules(previous: SessionCompareSource, current: SessionCompareS
 
     return {
       key,
-      status: getStatus(previousId, currentId, previousSize !== currentSize || moved),
+      status: previousId && currentId && (previousSize == null || currentSize == null)
+        ? 'unavailable' as const
+        : getStatus(previousId, currentId, previousSize !== currentSize || moved),
       name: getModuleName(key, cwd),
       package: getModulePackage(key),
       previousId,
@@ -393,7 +398,7 @@ function compareModules(previous: SessionCompareSource, current: SessionCompareS
       previousChunkKeys,
       currentChunkKeys,
       moved,
-      ...createMetric(previousSize, currentSize),
+      ...createModuleMetric(previousSize, currentSize),
     }
   }))
 }

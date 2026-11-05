@@ -22,9 +22,9 @@ const props = withDefaults(defineProps<{
   currentStats?: SplitDiffStat[]
   previousBadges?: string[]
   currentBadges?: string[]
-  previous: number
-  current: number
-  delta: number
+  previous: number | null
+  current: number | null
+  delta: number | null
   format: 'bytes' | 'duration' | 'number'
   ratioText?: string
   selectable?: boolean
@@ -42,9 +42,9 @@ const emit = defineEmits<{
 }>()
 
 const ratioClass = computed(() => {
-  if (props.delta > 0)
+  if (props.delta != null && props.delta > 0)
     return 'text-red-500'
-  if (props.delta < 0)
+  if (props.delta != null && props.delta < 0)
     return 'text-green-500'
   return 'text-gray-500'
 })

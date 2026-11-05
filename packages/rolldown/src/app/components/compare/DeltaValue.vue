@@ -3,7 +3,7 @@ import { bytesToHumanSize } from '@vitejs/devtools-ui/utils/format'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
-  value: number
+  value: number | null
   format?: 'bytes' | 'duration' | 'number'
   signed?: boolean
 }>(), {
@@ -12,18 +12,21 @@ const props = withDefaults(defineProps<{
 })
 
 const sign = computed(() => {
-  if (!props.signed || props.value === 0)
+  if (!props.signed || props.value == null || props.value === 0)
     return ''
   return props.value > 0 ? '+' : '-'
 })
 
 const colorClass = computed(() => {
-  if (!props.signed || props.value === 0)
+  if (!props.signed || props.value == null || props.value === 0)
     return 'text-gray-500'
   return props.value > 0 ? 'text-red-500' : 'text-green-500'
 })
 
 const formatted = computed(() => {
+  if (props.value == null)
+    return { amount: 'Unavailable', unit: '' }
+
   const value = props.signed ? Math.abs(props.value) : props.value
 
   if (props.format === 'bytes') {

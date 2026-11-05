@@ -37,8 +37,8 @@ const sourceCodeSize = computed(() => {
 })
 
 const transformedCodeSize = computed(() => {
-  const data = props.metrics?.transforms.filter(t => t.transformed_code_size)
-  return data.at(-1)?.transformed_code_size
+  const data = props.metrics?.transforms
+  return data?.at(-1)?.transformed_code_size
 })
 </script>
 
@@ -69,7 +69,7 @@ const transformedCodeSize = computed(() => {
     >
       <span class="i-ph-clock-duotone inline-block" />
     </DisplayDuration>
-    <template v-if="sourceCodeSize && transformedCodeSize">
+    <template v-if="sourceCodeSize != null && transformedCodeSize != null">
       <span class="op40">|</span>
       <div class="flex gap-1 items-center">
         <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
