@@ -1,9 +1,10 @@
 import type { SessionMeta } from '@rolldown/debug'
 import type { Stats } from 'node:fs'
-import type { ModuleBuildMetrics, PluginBuildMetrics } from '../../shared/types'
-import type { RolldownEventsManager } from './events-manager'
+import type { ModuleBuildMetrics } from '../../shared/types'
+import type { PluginBuildMetricsSummary, RolldownEventsManager } from './events-manager'
 import fs from 'node:fs/promises'
 import { basename, dirname, join } from 'pathe'
+import { createPluginBuildMetricsSummary } from './events-manager'
 import { decodeReaderIndex, encodeReaderIndex } from './reader-index-codec'
 
 export const ROLLDOWN_LOG_CACHE_DIR = '.cache'
@@ -13,6 +14,8 @@ export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
 const ROLLDOWN_LOG_CACHE_VERSION = 3
+
+export type { PluginBuildMetricsSummary, PluginMetricSummary } from './events-manager'
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 
@@ -74,20 +77,6 @@ interface RolldownModuleMetricsSummaryCacheSnapshot {
   metrics: Array<[string, ModuleBuildMetrics]>
 }
 
-export interface PluginMetricSummary {
-  count: number
-  duration: number
-}
-
-export interface PluginBuildMetricsSummary {
-  plugin_id: number
-  plugin_name: string
-  total: PluginMetricSummary
-  resolve: PluginMetricSummary
-  load: PluginMetricSummary
-  transform: PluginMetricSummary
-}
-
 interface RolldownPluginSummaryCacheSnapshot {
   plugins: Array<[number, PluginBuildMetricsSummary]>
 }
@@ -127,7 +116,7 @@ class RolldownLogCacheFile<T> {
     try {
       const temporaryFilepath = `${this.filepath}.tmp`
       await fs.mkdir(dirname(this.filepath), { recursive: true })
-      await fs.writeFile(temporaryFilepath, JSON.stringify(this.createFile(stat, data)), 'utf8')
+      await fs.writeFile(temporaryFilepath, await stringifyInSlices(this.createFile(stat, data)), 'utf8')
       await fs.rename(temporaryFilepath, this.filepath)
     }
     catch {
@@ -189,20 +178,69 @@ class RolldownReaderIndexCacheFile {
   }
 }
 
-function toLogStat(stat: Stats) {
-  return { size: stat.size, mtime: stat.mtime.getTime() }
-}
+const SNAPSHOT_SLICE_MS = 8
 
-function createMetricSummary(): PluginMetricSummary {
-  return {
-    count: 0,
-    duration: 0,
+function createYielder() {
+  let sliceStart = performance.now()
+  return async () => {
+    if (performance.now() - sliceStart <= SNAPSHOT_SLICE_MS)
+      return
+    await new Promise(resolve => setImmediate(resolve))
+    sliceStart = performance.now()
   }
 }
 
-function addMetricSummary(summary: PluginMetricSummary, duration: number) {
-  summary.count += 1
-  summary.duration += duration
+const SLICED_ARRAY_MIN_LENGTH = 1024
+
+/**
+ * Same output as `JSON.stringify(value)`, but large arrays are serialized item by item with
+ * yields in between, so a cache of tens of megabytes doesn't block the event loop at once.
+ */
+// Anything else (boxed primitives, dates, class instances) is left to `JSON.stringify`.
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object')
+    return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+export async function stringifyInSlices(value: unknown): Promise<string[]> {
+  const parts: string[] = []
+  const yieldIfBusy = createYielder()
+  const visit = async (item: unknown, inArray: boolean): Promise<void> => {
+    if (Array.isArray(item) && item.length >= SLICED_ARRAY_MIN_LENGTH) {
+      parts.push('[')
+      for (let index = 0; index < item.length; index++) {
+        if (index)
+          parts.push(',')
+        await visit(item[index], true)
+        await yieldIfBusy()
+      }
+      parts.push(']')
+      return
+    }
+    if (isPlainObject(item) && typeof item.toJSON !== 'function') {
+      parts.push('{')
+      let first = true
+      for (const [key, child] of Object.entries(item)) {
+        if (child === undefined || typeof child === 'function' || typeof child === 'symbol')
+          continue
+        parts.push(`${first ? '' : ','}${JSON.stringify(key)}:`)
+        first = false
+        await visit(child, false)
+      }
+      parts.push('}')
+      return
+    }
+    const json = JSON.stringify(item)
+    parts.push(json ?? (inArray ? 'null' : ''))
+  }
+  await visit(value, false)
+  return parts
+}
+
+function toLogStat(stat: Stats) {
+  return { size: stat.size, mtime: stat.mtime.getTime() }
 }
 
 function compactModuleBuildMetrics(metrics: ModuleBuildMetrics): ModuleBuildMetrics {
@@ -294,29 +332,6 @@ function compactModuleBuildMetrics(metrics: ModuleBuildMetrics): ModuleBuildMetr
     loads,
     transforms,
   }
-}
-
-function createPluginBuildMetricsSummary(metrics: PluginBuildMetrics): PluginBuildMetricsSummary {
-  const summary = {
-    plugin_id: metrics.plugin_id,
-    plugin_name: metrics.plugin_name,
-    total: createMetricSummary(),
-    resolve: createMetricSummary(),
-    load: createMetricSummary(),
-    transform: createMetricSummary(),
-  }
-
-  for (const call of metrics.calls) {
-    addMetricSummary(summary.total, call.duration)
-    if (call.type === 'resolve')
-      addMetricSummary(summary.resolve, call.duration)
-    else if (call.type === 'load')
-      addMetricSummary(summary.load, call.duration)
-    else if (call.type === 'transform')
-      addMetricSummary(summary.transform, call.duration)
-  }
-
-  return summary
 }
 
 export class RolldownLogCache {
@@ -432,22 +447,26 @@ export class RolldownLogCache {
   async writeCompleteSession(stat: Stats, state: RolldownLogCacheState) {
     this.completeSessionWriteAttempted = true
     this.summaryWriteAttempted = true
-    await Promise.all([
-      this.sessionSummaryCache?.write(stat, this.createSessionSummarySnapshot(state)),
-      this.moduleMetricsSummaryCache?.write(stat, this.createModuleMetricsSummarySnapshot(state)),
-      this.pluginSummaryCache?.write(stat, this.createPluginSummarySnapshot(state)),
-      this.readerIndexCache?.write(stat, state),
-    ])
+    await this.writeSidecars(stat, state)
   }
 
   async writeSummary(stat: Stats, state: RolldownLogCacheState) {
     this.summaryWriteAttempted = true
     // Writes the same sidecars as a complete session, so don't write them again for the full read.
     this.completeSessionWriteAttempted = true
+    await this.writeSidecars(stat, state)
+  }
+
+  private async writeSidecars(stat: Stats, state: RolldownLogCacheState) {
+    // Large sessions have tens of thousands of modules, so build the snapshots in slices first.
+    const manager = state.manager.snapshot()
+    const sessionSummary = this.createSessionSummarySnapshot(state, manager)
+    const moduleMetrics = await this.createModuleMetricsSummarySnapshot(manager)
+    const pluginSummary = await this.createPluginSummarySnapshot(state)
     await Promise.all([
-      this.sessionSummaryCache?.write(stat, this.createSessionSummarySnapshot(state)),
-      this.moduleMetricsSummaryCache?.write(stat, this.createModuleMetricsSummarySnapshot(state)),
-      this.pluginSummaryCache?.write(stat, this.createPluginSummarySnapshot(state)),
+      this.sessionSummaryCache?.write(stat, sessionSummary),
+      this.moduleMetricsSummaryCache?.write(stat, moduleMetrics),
+      this.pluginSummaryCache?.write(stat, pluginSummary),
       this.readerIndexCache?.write(stat, state),
     ])
   }
@@ -457,8 +476,7 @@ export class RolldownLogCache {
     await this.packageSummaryCache?.write(stat, this.createPackageSummarySnapshot(state))
   }
 
-  private createSessionSummarySnapshot(state: RolldownLogCacheState): RolldownSessionSummaryCacheSnapshot {
-    const manager = state.manager.snapshot()
+  private createSessionSummarySnapshot(state: RolldownLogCacheState, manager: ManagerSnapshot): RolldownSessionSummaryCacheSnapshot {
     return {
       reader: {
         lastBytes: state.lastBytes,
@@ -479,18 +497,25 @@ export class RolldownLogCache {
     }
   }
 
-  private createModuleMetricsSummarySnapshot(state: RolldownLogCacheState): RolldownModuleMetricsSummaryCacheSnapshot {
-    const manager = state.manager.snapshot()
-    return {
-      metrics: manager.module_build_metrics.map(([module, metrics]) => [module, compactModuleBuildMetrics(metrics)]),
+  private async createModuleMetricsSummarySnapshot(manager: ManagerSnapshot): Promise<RolldownModuleMetricsSummaryCacheSnapshot> {
+    const yieldIfBusy = createYielder()
+    const metrics: RolldownModuleMetricsSummaryCacheSnapshot['metrics'] = []
+    for (const [module, moduleMetrics] of manager.module_build_metrics) {
+      metrics.push([module, compactModuleBuildMetrics(moduleMetrics)])
+      await yieldIfBusy()
     }
+    return { metrics }
   }
 
-  private createPluginSummarySnapshot(state: RolldownLogCacheState): RolldownPluginSummaryCacheSnapshot {
-    const manager = state.manager.snapshot()
-    return {
-      plugins: manager.plugin_build_metrics.map(([pluginId, metrics]) => [pluginId, createPluginBuildMetricsSummary(metrics)]),
+  private async createPluginSummarySnapshot(state: RolldownLogCacheState): Promise<RolldownPluginSummaryCacheSnapshot> {
+    const yieldIfBusy = createYielder()
+    const plugins: RolldownPluginSummaryCacheSnapshot['plugins'] = []
+    for (const [pluginId, metrics] of state.manager.plugin_build_metrics) {
+      // Summaries are accumulated while parsing; metrics hydrated from the index don't have one yet.
+      plugins.push([pluginId, state.manager.plugin_build_summaries.get(pluginId) ?? createPluginBuildMetricsSummary(metrics)])
+      await yieldIfBusy()
     }
+    return { plugins }
   }
 
   private createPackageSummarySnapshot(state: RolldownLogCacheState): RolldownPackageSummaryCacheSnapshot {

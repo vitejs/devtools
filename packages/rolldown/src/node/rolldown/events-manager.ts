@@ -63,6 +63,62 @@ function getContentInfo(content: string | null | undefined): ContentInfo {
   }
 }
 
+export interface PluginMetricSummary {
+  count: number
+  duration: number
+}
+
+export interface PluginBuildMetricsSummary {
+  plugin_id: number
+  plugin_name: string
+  total: PluginMetricSummary
+  resolve: PluginMetricSummary
+  load: PluginMetricSummary
+  transform: PluginMetricSummary
+}
+
+function createMetricSummary(): PluginMetricSummary {
+  return {
+    count: 0,
+    duration: 0,
+  }
+}
+
+function addMetricSummary(summary: PluginMetricSummary, duration: number) {
+  summary.count += 1
+  summary.duration += duration
+}
+
+function createEmptyPluginBuildMetricsSummary(pluginId: number, pluginName: string): PluginBuildMetricsSummary {
+  return {
+    plugin_id: pluginId,
+    plugin_name: pluginName,
+    total: createMetricSummary(),
+    resolve: createMetricSummary(),
+    load: createMetricSummary(),
+    transform: createMetricSummary(),
+  }
+}
+
+function addPluginCallToSummary(summary: PluginBuildMetricsSummary, call: Pick<PluginBuildMetrics['calls'][number], 'type' | 'duration'>) {
+  addMetricSummary(summary.total, call.duration)
+  if (call.type === 'resolve')
+    addMetricSummary(summary.resolve, call.duration)
+  else if (call.type === 'load')
+    addMetricSummary(summary.load, call.duration)
+  else if (call.type === 'transform')
+    addMetricSummary(summary.transform, call.duration)
+}
+
+export function createPluginBuildMetricsSummary(metrics: PluginBuildMetrics): PluginBuildMetricsSummary {
+  const summary = createEmptyPluginBuildMetricsSummary(metrics.plugin_id, metrics.plugin_name)
+
+  for (const call of metrics.calls)
+    addPluginCallToSummary(summary, call)
+
+  return summary
+}
+
 export function getContentRef(content: unknown) {
   return typeof content === 'string' && content.startsWith('$ref:')
     ? content.slice(5)
@@ -106,6 +162,8 @@ export class RolldownEventsManager {
   module_build_hook_events: Map<string, PendingModuleBuildHookEvent> = new Map()
   module_build_metrics: Map<string, ModuleBuildMetrics> = new Map()
   plugin_build_metrics: Map<number, PluginBuildMetrics> = new Map()
+  // Kept in step with `plugin_build_metrics`, so writing the plugin summary cache doesn't rescan every call.
+  plugin_build_summaries: Map<number, PluginBuildMetricsSummary> = new Map()
   build_start_time: number = 0
   build_end_time: number = 0
 
@@ -122,6 +180,15 @@ export class RolldownEventsManager {
     return typeof content === 'string'
       ? getContentInfo(content)
       : getContentInfo(undefined)
+  }
+
+  private addPluginCallSummary(pluginId: number, pluginName: string, duration: number, type: PluginBuildMetrics['calls'][number]['type']) {
+    let summary = this.plugin_build_summaries.get(pluginId)
+    if (!summary) {
+      summary = createEmptyPluginBuildMetricsSummary(pluginId, pluginName)
+      this.plugin_build_summaries.set(pluginId, summary)
+    }
+    addPluginCallToSummary(summary, { type, duration })
   }
 
   recordBuildMetrics(event: ModuleBuildHookEvents) {
@@ -225,6 +292,8 @@ export class RolldownEventsManager {
           })
         }
         this.plugin_build_metrics.set(pluginId, plugin_build_metrics)
+        // Every branch above either returned or recorded a call.
+        this.addPluginCallSummary(pluginId, event.plugin_name, info.duration, plugin_build_metrics.calls.at(-1)!.type)
         this.module_build_metrics.set(module_id, module_build_metrics)
       }
     }
@@ -320,6 +389,7 @@ export class RolldownEventsManager {
     this.module_build_hook_events.clear()
     this.module_build_metrics.clear()
     this.plugin_build_metrics.clear()
+    this.plugin_build_summaries.clear()
     this.build_start_time = 0
     this.build_end_time = 0
   }
@@ -360,6 +430,7 @@ export class RolldownEventsManager {
       build_metrics: this.module_build_metrics.get(id),
     }]))
     this.plugin_build_metrics = new Map(snapshot.plugin_build_metrics)
+    this.plugin_build_summaries = new Map(snapshot.plugin_build_metrics.map(([pluginId, metrics]) => [pluginId, createPluginBuildMetricsSummary(metrics)]))
     this.build_start_time = snapshot.build_start_time
     this.build_end_time = snapshot.build_end_time
   }
