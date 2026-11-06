@@ -56,6 +56,9 @@ describe('sliced cache serialization', () => {
           skipped: undefined,
           nested: index % 5 ? [index, null, undefined, { deep: [1, 2] }] : Array.from({ length: 1100 }, (_, i) => i),
           fn: () => index,
+          // eslint-disable-next-line no-new-wrappers, unicorn/new-for-builtins
+          boxed: new String(`s${index}`),
+          date: new Date(index),
         })
     const value = { version: 3, log: { size: 1, mtime: 2 }, data: { metrics: large, empty: [], text: 'x' }, missing: undefined }
 

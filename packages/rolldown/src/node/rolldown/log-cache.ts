@@ -196,6 +196,14 @@ const SLICED_ARRAY_MIN_LENGTH = 1024
  * Same output as `JSON.stringify(value)`, but large arrays are serialized item by item with
  * yields in between, so a cache of tens of megabytes doesn't block the event loop at once.
  */
+// Anything else (boxed primitives, dates, class instances) is left to `JSON.stringify`.
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== 'object')
+    return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
 export async function stringifyInSlices(value: unknown): Promise<string[]> {
   const parts: string[] = []
   const yieldIfBusy = createYielder()
@@ -211,7 +219,7 @@ export async function stringifyInSlices(value: unknown): Promise<string[]> {
       parts.push(']')
       return
     }
-    if (item && typeof item === 'object' && !Array.isArray(item) && typeof (item as { toJSON?: unknown }).toJSON !== 'function') {
+    if (isPlainObject(item) && typeof item.toJSON !== 'function') {
       parts.push('{')
       let first = true
       for (const [key, child] of Object.entries(item)) {
