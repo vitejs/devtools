@@ -191,6 +191,7 @@ function createYielder() {
 }
 
 const SLICED_ARRAY_MIN_LENGTH = 1024
+const STRINGIFY_CHUNK_SIZE = 64 * 1024
 
 /**
  * Same output as `JSON.stringify(value)`, but large arrays are serialized item by item with
@@ -205,37 +206,48 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 export async function stringifyInSlices(value: unknown): Promise<string[]> {
+  // Coalesce fragments into bounded chunks, so writing the result doesn't issue one write per comma.
   const parts: string[] = []
+  let chunk = ''
+  const push = (fragment: string) => {
+    chunk += fragment
+    if (chunk.length >= STRINGIFY_CHUNK_SIZE) {
+      parts.push(chunk)
+      chunk = ''
+    }
+  }
   const yieldIfBusy = createYielder()
   const visit = async (item: unknown, inArray: boolean): Promise<void> => {
     if (Array.isArray(item) && item.length >= SLICED_ARRAY_MIN_LENGTH) {
-      parts.push('[')
+      push('[')
       for (let index = 0; index < item.length; index++) {
         if (index)
-          parts.push(',')
+          push(',')
         await visit(item[index], true)
         await yieldIfBusy()
       }
-      parts.push(']')
+      push(']')
       return
     }
     if (isPlainObject(item) && typeof item.toJSON !== 'function') {
-      parts.push('{')
+      push('{')
       let first = true
       for (const [key, child] of Object.entries(item)) {
         if (child === undefined || typeof child === 'function' || typeof child === 'symbol')
           continue
-        parts.push(`${first ? '' : ','}${JSON.stringify(key)}:`)
+        push(`${first ? '' : ','}${JSON.stringify(key)}:`)
         first = false
         await visit(child, false)
       }
-      parts.push('}')
+      push('}')
       return
     }
     const json = JSON.stringify(item)
-    parts.push(json ?? (inArray ? 'null' : ''))
+    push(json ?? (inArray ? 'null' : ''))
   }
   await visit(value, false)
+  if (chunk)
+    parts.push(chunk)
   return parts
 }
 

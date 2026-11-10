@@ -182,13 +182,15 @@ export class RolldownEventsManager {
       : getContentInfo(undefined)
   }
 
-  private addPluginCallSummary(pluginId: number, pluginName: string, duration: number, type: PluginBuildMetrics['calls'][number]['type']) {
-    let summary = this.plugin_build_summaries.get(pluginId)
+  // `metrics` already contains the call being recorded.
+  private addPluginCallSummary(metrics: PluginBuildMetrics) {
+    const summary = this.plugin_build_summaries.get(metrics.plugin_id)
     if (!summary) {
-      summary = createEmptyPluginBuildMetricsSummary(pluginId, pluginName)
-      this.plugin_build_summaries.set(pluginId, summary)
+      // Metrics may have been hydrated from the index without a summary, so seed it from every call.
+      this.plugin_build_summaries.set(metrics.plugin_id, createPluginBuildMetricsSummary(metrics))
+      return
     }
-    addPluginCallToSummary(summary, { type, duration })
+    addPluginCallToSummary(summary, metrics.calls.at(-1)!)
   }
 
   recordBuildMetrics(event: ModuleBuildHookEvents) {
@@ -293,7 +295,7 @@ export class RolldownEventsManager {
         }
         this.plugin_build_metrics.set(pluginId, plugin_build_metrics)
         // Every branch above either returned or recorded a call.
-        this.addPluginCallSummary(pluginId, event.plugin_name, info.duration, plugin_build_metrics.calls.at(-1)!.type)
+        this.addPluginCallSummary(plugin_build_metrics)
         this.module_build_metrics.set(module_id, module_build_metrics)
       }
     }

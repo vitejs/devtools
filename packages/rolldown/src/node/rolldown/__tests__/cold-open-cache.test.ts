@@ -45,6 +45,22 @@ describe('plugin summaries accumulated while parsing', () => {
     restored.restore(manager.snapshot())
     expect(restored.plugin_build_summaries).toEqual(manager.plugin_build_summaries)
   })
+
+  it('include hydrated calls when the log grows after metrics were set without a summary', () => {
+    const source = new RolldownEventsManager()
+    for (const event of [{ timestamp: 1, action: 'BuildStart', ...base }, ...hookCalls('a', 1, '/src/a.ts', 10)])
+      source.handleEvent(event as unknown as Event)
+
+    // Mirrors `hydratePluginBuildMetrics()` on a summary-only read: metrics come from the index, no summary.
+    const manager = new RolldownEventsManager()
+    manager.handleEvent({ timestamp: 1, action: 'BuildStart', ...base } as unknown as Event)
+    manager.plugin_build_metrics.set(1, structuredClone(source.plugin_build_metrics.get(1)!))
+    for (const event of hookCalls('b', 1, '/src/b.ts', 20))
+      manager.handleEvent(event as unknown as Event)
+
+    expectSummariesMatchCalls(manager)
+    expect(manager.plugin_build_summaries.get(1)!.total.count).toBe(6)
+  })
 })
 
 describe('sliced cache serialization', () => {
@@ -62,6 +78,9 @@ describe('sliced cache serialization', () => {
         })
     const value = { version: 3, log: { size: 1, mtime: 2 }, data: { metrics: large, empty: [], text: 'x' }, missing: undefined }
 
-    expect((await stringifyInSlices(value)).join('')).toBe(JSON.stringify(value))
+    const parts = await stringifyInSlices(value)
+    expect(parts.join('')).toBe(JSON.stringify(value))
+    // Fragments are coalesced, so writing doesn't issue one write per item.
+    expect(parts.length).toBeLessThan(JSON.stringify(value).length / 1024)
   })
 })
