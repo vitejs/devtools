@@ -54,4 +54,30 @@ describe('rolldown reader cache', () => {
         reader.dispose()
     }
   })
+
+  it('keeps the data of an evicted reader that a caller still holds', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'rolldown-reader-evict-'))
+    const base = { build_id: 'bid_1', session_id: 'sid_1' }
+    const filepaths = ['a', 'b', 'c'].map((name) => {
+      mkdirSync(join(dir, name))
+      const filepath = join(dir, name, 'logs.json')
+      writeFileSync(filepath, `${JSON.stringify({ timestamp: 2, action: 'BuildStart', ...base })}\n`)
+      return filepath
+    })
+    const readers = filepaths.map(filepath => RolldownEventsReader.get(filepath))
+    try {
+      for (const reader of readers)
+        Object.defineProperty(reader, 'estimateLogBytes', { value: () => 1024 ** 3 })
+      // Concurrent loads: the oldest finishes and gets pruned before its caller resumes.
+      await Promise.all(readers.map(reader => reader.read()))
+
+      expect(RolldownEventsReader.peek(filepaths[0]!)).toBeUndefined()
+      expect(readers[0]!.manager.eventCount).toBe(1)
+    }
+    finally {
+      for (const reader of readers)
+        reader.dispose()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })

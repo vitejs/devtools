@@ -202,14 +202,16 @@ function pruneReaders() {
   for (const reader of readers.values())
     logBytes += reader.estimateLogBytes()
 
-  const evictable = Array.from(readers.values()).slice(0, -KEEP_RECENT_READERS)
-  for (const reader of evictable) {
+  const evictable = Array.from(readers).slice(0, -KEEP_RECENT_READERS)
+  for (const [cacheKey, reader] of evictable) {
     if (readers.size <= MAX_READERS && logBytes <= MAX_READER_LOG_BYTES)
       return
     if (reader.hasPendingRead())
       continue
     logBytes -= reader.estimateLogBytes()
-    reader.dispose()
+    // Only drop the cache entry: a caller may still hold the reader (e.g. awaiting `read()`),
+    // so clearing its data would hand it an empty session. GC frees it once released.
+    readers.delete(cacheKey)
   }
 }
 
@@ -1355,7 +1357,9 @@ export class RolldownEventsReader {
 
   dispose() {
     readers.delete(this.cacheKey)
-    this.disposeData()
+    // Reset read positions too, so a later `read()` on a held reader reads the log again.
+    this.resetReadState()
+    this.packageSummaryTimestamp = 0
   }
 
   private resetReadState() {
