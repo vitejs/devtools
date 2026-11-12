@@ -1,8 +1,10 @@
 import type { SessionMeta } from '@rolldown/debug'
 import { existsSync } from 'node:fs'
 import fs from 'node:fs/promises'
+import { parseToEvent } from '@rolldown/debug'
 import { join } from 'pathe'
 import { diagnostics } from '../diagnostics'
+import { getEventId } from './events-manager'
 import { RolldownEventsReader } from './events-reader'
 
 export interface BuildInfo {
@@ -20,10 +22,49 @@ function assertValidSessionId(id: string): void {
   }
 }
 
+interface CachedSessionMeta {
+  size: number
+  mtime: number
+  meta: SessionMeta | undefined
+}
+
 export class RolldownLogsManager {
+  // Session metas are tiny; caching them here keeps list() from filling the log reader cache.
+  private readonly metas = new Map<string, CachedSessionMeta>()
+
   constructor(
     readonly dir: string,
   ) {
+  }
+
+  async readSessionMeta(session: string): Promise<SessionMeta | undefined> {
+    const filepath = join(this.dir, session, 'meta.json')
+    const stat = await fs.stat(filepath)
+    const cached = this.metas.get(filepath)
+    if (cached && cached.size === stat.size && cached.mtime === stat.mtimeMs)
+      return cached.meta
+
+    let meta: SessionMeta | undefined
+    const lines = (await fs.readFile(filepath, 'utf-8')).split('\n')
+    let eventCount = 0
+    for (const [index, line] of lines.entries()) {
+      const text = line.endsWith('\r') ? line.slice(0, -1) : line
+      if (!text)
+        continue
+      try {
+        const event = parseToEvent(text)
+        // Same id the events reader assigns, so the meta matches what logs.json readers expose.
+        ;(event as { event_id?: string }).event_id = getEventId(event, eventCount++)
+        if (event.action === 'SessionMeta')
+          meta = event as SessionMeta
+      }
+      catch (e) {
+        const preview = text.length > 256 ? `${text.slice(0, 256)}...` : text
+        diagnostics.RDDT0002({ line: index + 1, error: (e as Error).message, preview })
+      }
+    }
+    this.metas.set(filepath, { size: stat.size, mtime: stat.mtimeMs, meta })
+    return meta
   }
 
   /** Path of the sidecar file holding user-defined session aliases. */
@@ -60,9 +101,7 @@ export class RolldownLogsManager {
       .filter(d => d.isDirectory())
       .filter(d => existsSync(join(this.dir, d.name, 'meta.json')))
       .map(async (d): Promise<BuildInfo | undefined> => {
-        const reader = RolldownEventsReader.get(join(this.dir, d.name, 'meta.json'))
-        await reader.read()
-        const meta = reader.meta
+        const meta = await this.readSessionMeta(d.name)
         if (!meta) {
           return
         }
@@ -97,6 +136,7 @@ export class RolldownLogsManager {
   async deleteSession(id: string): Promise<void> {
     assertValidSessionId(id)
     const target = join(this.dir, id)
+    this.metas.delete(join(target, 'meta.json'))
     if (existsSync(target)) {
       await fs.rm(target, { recursive: true, force: true })
     }
@@ -110,22 +150,16 @@ export class RolldownLogsManager {
   async loadSession(session: string) {
     const reader = RolldownEventsReader.get(join(this.dir, session, 'logs.json'))
     await reader.read()
-    if (!reader.meta) {
-      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
-      await metaReader.read()
-      reader.meta = metaReader.meta!
-    }
+    if (!reader.meta)
+      reader.meta = (await this.readSessionMeta(session))!
     return reader
   }
 
   async loadSessionSummary(session: string) {
     const reader = RolldownEventsReader.get(join(this.dir, session, 'logs.json'))
     await reader.readSummary()
-    if (!reader.meta) {
-      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
-      await metaReader.read()
-      reader.meta = metaReader.meta!
-    }
+    if (!reader.meta)
+      reader.meta = (await this.readSessionMeta(session))!
     return reader
   }
 
@@ -141,21 +175,15 @@ export class RolldownLogsManager {
     if (loadedReader?.hasCompleteSession() || loadedReader?.isReadingCompleteSession()) {
       await loadedReader.read()
       await loadedReader.ensurePackageSummaryCache()
-      if (!loadedReader.meta) {
-        const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
-        await metaReader.read()
-        loadedReader.meta = metaReader.meta!
-      }
+      if (!loadedReader.meta)
+        loadedReader.meta = (await this.readSessionMeta(session))!
       return loadedReader
     }
 
     const reader = RolldownEventsReader.get(filepath, `${filepath}:package-summary`)
     await reader.readPackageSummary()
-    if (!reader.meta) {
-      const metaReader = RolldownEventsReader.get(join(this.dir, session, 'meta.json'))
-      await metaReader.read()
-      reader.meta = metaReader.meta!
-    }
+    if (!reader.meta)
+      reader.meta = (await this.readSessionMeta(session))!
     return reader
   }
 }

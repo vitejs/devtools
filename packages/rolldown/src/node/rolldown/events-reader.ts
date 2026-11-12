@@ -12,6 +12,10 @@ import { RolldownLogCache } from './log-cache'
 
 const readers: Map<string, RolldownEventsReader> = new Map()
 const MAX_READERS = 32
+// A fully read session keeps roughly its log size worth of data in memory, so cap the total too.
+const MAX_READER_LOG_BYTES = 1024 ** 3
+// Never evict the most recently used readers, e.g. the two sessions of a compare view.
+const KEEP_RECENT_READERS = 2
 const MAX_MODULE_METRICS_CACHE = 32
 const MAX_MODULE_METRICS_CACHE_BYTES = 64 * 1024 * 1024
 const READ_STREAM_HIGH_WATER_MARK = 1024 * 1024
@@ -194,15 +198,20 @@ function summarizePluginCalls(calls: PluginBuildMetrics['calls']): Pick<PluginBu
 }
 
 function pruneReaders() {
-  if (readers.size <= MAX_READERS)
-    return
+  let logBytes = 0
+  for (const reader of readers.values())
+    logBytes += reader.estimateLogBytes()
 
-  for (const reader of Array.from(readers.values())) {
-    if (readers.size <= MAX_READERS)
+  const evictable = Array.from(readers).slice(0, -KEEP_RECENT_READERS)
+  for (const [cacheKey, reader] of evictable) {
+    if (readers.size <= MAX_READERS && logBytes <= MAX_READER_LOG_BYTES)
       return
-    if (!reader.hasPendingRead()) {
-      reader.dispose()
-    }
+    if (reader.hasPendingRead())
+      continue
+    logBytes -= reader.estimateLogBytes()
+    // Only drop the cache entry: a caller may still hold the reader (e.g. awaiting `read()`),
+    // so clearing its data would hand it an empty session. GC frees it once released.
+    readers.delete(cacheKey)
   }
 }
 
@@ -265,6 +274,7 @@ export class RolldownEventsReader {
 
     this.pendingRead = this.readChanges().finally(() => {
       this.pendingRead = undefined
+      pruneReaders()
     })
     return this.pendingRead
   }
@@ -278,6 +288,7 @@ export class RolldownEventsReader {
 
     this.pendingSummaryRead = this.readSummaryChanges().finally(() => {
       this.pendingSummaryRead = undefined
+      pruneReaders()
     })
     return this.pendingSummaryRead
   }
@@ -555,6 +566,7 @@ export class RolldownEventsReader {
 
     this.pendingPackageSummaryRead = this.readPackageSummaryChanges().finally(() => {
       this.pendingPackageSummaryRead = undefined
+      pruneReaders()
     })
     return this.pendingPackageSummaryRead
   }
@@ -1258,6 +1270,11 @@ export class RolldownEventsReader {
     return !!this.pendingRead || !!this.pendingSummaryRead || !!this.pendingPackageSummaryRead
   }
 
+  /** Log bytes this reader holds in memory; summary-only readers keep little besides the summary. */
+  estimateLogBytes() {
+    return this.hasCompleteSession() ? this.lastBytes : 0
+  }
+
   hasReadData() {
     return this.lastBytes > 0 || this.manager.eventCount > 0
   }
@@ -1340,7 +1357,9 @@ export class RolldownEventsReader {
 
   dispose() {
     readers.delete(this.cacheKey)
-    this.disposeData()
+    // Reset read positions too, so a later `read()` on a held reader reads the log again.
+    this.resetReadState()
+    this.packageSummaryTimestamp = 0
   }
 
   private resetReadState() {
