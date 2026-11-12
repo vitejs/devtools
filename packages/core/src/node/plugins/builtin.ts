@@ -1,4 +1,5 @@
 import type { Plugin } from 'vite'
+import type { DevToolsBuiltinIntegrationId, DevToolsBuiltinOptions } from '../plugin-options'
 import process from 'node:process'
 import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
@@ -13,7 +14,7 @@ import { hideDockWhenEmpty } from './auto-hide'
 
 interface BuiltinLauncherIntegration {
   /** Dock id, shared by the install launcher and the mounted integration. */
-  id: string
+  id: DevToolsBuiltinIntegrationId
   /** Package whose presence means the integration is already installed. */
   pkg: string
   /** Dock title. */
@@ -93,12 +94,31 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
 ]
 
 /**
+ * Normalize `builtinDevTools` into per-feature switches. `false` disables every
+ * built-in (returns `undefined`); in the object form, omitted entries stay enabled.
+ */
+export function resolveBuiltinOptions(
+  options: boolean | DevToolsBuiltinOptions = true,
+): Required<DevToolsBuiltinOptions> | undefined {
+  if (options === false)
+    return
+
+  const config = options === true ? {} : options
+  return {
+    terminals: config.terminals ?? true,
+    messages: config.messages ?? true,
+    inspect: config.inspect ?? true,
+    integrations: config.integrations ?? true,
+  }
+}
+
+/**
  * Set up the built-in DevTools dock entries (Terminals, Messages, Inspector) and
  * the built-in integration launchers (Rolldown, Vite, Vitest, Oxc).
  */
 export async function DevToolsBuiltin(options: {
   cwd?: string
-  builtinDevTools?: boolean
+  builtinDevTools?: boolean | DevToolsBuiltinOptions
 }): Promise<Plugin[]> {
   const plugins: (Plugin | Promise<Plugin[] | Plugin>)[] = []
 
@@ -106,12 +126,16 @@ export async function DevToolsBuiltin(options: {
   // mounts its own built-in docks (terminals / messages / inspector) and
   // integrations by hand. Mounting them here too would double-register each
   // devframe on the hub (DF8105) and its RPC functions (DF0021).
-  if (!options.builtinDevTools)
+  const builtin = resolveBuiltinOptions(options.builtinDevTools)
+  if (!builtin)
     return []
 
   const cwd = resolve(options.cwd ?? process.cwd())
   const launchers: BuiltinLauncherIntegration[] = []
+  const { integrations } = builtin
   for (const integration of BUILTIN_LAUNCHER_INTEGRATIONS) {
+    if (integrations === false || (integrations !== true && integrations[integration.id] === false))
+      continue
     if (isPackageExists(integration.pkg, { paths: [cwd] })) {
       plugins.push(integration.load())
     }
@@ -136,27 +160,31 @@ export async function DevToolsBuiltin(options: {
         // An empty messages feed should hide its tab, so we attach that rule here —
         // the dock is filtered out of the bar (`when: 'false'`) whenever there are
         // no messages.
-        const terminalsDevframe = createTerminalsDevframe()
-        const messagesDevframe = createMessagesDevframe()
-        const inspectDevframe = createInspectDevframe({ id: DEVTOOLS_INSPECTOR_DOCK_ID })
-
-        plugins.push(createPluginFromDevframe(terminalsDevframe, {
-          dock: { category: '~builtin' },
-        }))
-        plugins.push(createPluginFromDevframe(messagesDevframe, {
-          dock: { category: '~builtin' },
-          setup(ctx) {
-            hideDockWhenEmpty(ctx, messagesDevframe.id, () => ctx.messages.entries.size === 0)
-          },
-        }))
+        if (builtin.terminals) {
+          const terminalsOptions = builtin.terminals === true ? undefined : builtin.terminals
+          plugins.push(createPluginFromDevframe(createTerminalsDevframe(terminalsOptions), {
+            dock: { category: '~builtin' },
+          }))
+        }
+        if (builtin.messages) {
+          const messagesDevframe = createMessagesDevframe()
+          plugins.push(createPluginFromDevframe(messagesDevframe, {
+            dock: { category: '~builtin' },
+            setup(ctx) {
+              hideDockWhenEmpty(ctx, messagesDevframe.id, () => ctx.messages.entries.size === 0)
+            },
+          }))
+        }
         // Meta-introspection ("DevTools for the DevTools"), provided by the
         // official devframe inspector plugin (replaces the former
         // `@vitejs/devtools-self-inspect` package). Pinned to a stable id so the
         // client can gate it behind the `showDevframeInspector` user setting;
         // hidden by default (opt in via Settings → Advanced).
-        plugins.push(createPluginFromDevframe(inspectDevframe, {
-          dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
-        }))
+        if (builtin.inspect) {
+          plugins.push(createPluginFromDevframe(createInspectDevframe({ id: DEVTOOLS_INSPECTOR_DOCK_ID }), {
+            dock: { category: '~builtin', icon: 'ph:stethoscope-duotone' },
+          }))
+        }
 
         for (const integration of launchers) {
           plugins.push(createInstallLauncher({
