@@ -3,6 +3,7 @@ import type { DevToolsRpcServerFunctions } from '@vitejs/devtools-kit'
 import type { InspectModuleUpdatedPayload } from '~/composables/rpc'
 import type { ViteModuleListItem } from '~/types/modules'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
+import VisualEmptyState from '@vitejs/devtools-ui/components/Visual/VisualEmptyState.vue'
 import { useDebounceFn } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useRpc } from '#imports'
@@ -72,12 +73,13 @@ function selectFlowNode(v: boolean) {
 </script>
 
 <template>
-  <div v-if="info" class="relative h-full w-full">
+  <div class="relative h-full w-full">
     <DisplayCloseButton
       class="absolute right-2 top-1.5 bg-glass z-panel-content"
       @click="emit('close')"
     />
     <div
+      v-if="info"
       class="bg-glass absolute left-2 top-2 z-panel-content p2 border border-base rounded-lg flex flex-col gap-2"
     >
       <DisplayModuleId :id="module" class="px2 pt1" :cwd="root" />
@@ -111,7 +113,7 @@ function selectFlowNode(v: boolean) {
         </button>
       </div>
     </div>
-    <div class="of-auto h-full pt-30">
+    <div v-if="info" class="of-auto h-full pt-30">
       <FlowmapModuleFlow
         v-if="settings.moduleDetailsViewType === 'flow'"
         :module="info"
@@ -135,6 +137,11 @@ function selectFlowNode(v: boolean) {
         :root="root"
       />
     </div>
+    <VisualEmptyState
+      v-else
+      class="h-full"
+      title="No module details yet"
+      description="Details will appear when Vite records this module."
+    />
   </div>
-  <VisualLoading v-else />
 </template>
