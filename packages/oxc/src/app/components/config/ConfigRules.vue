@@ -186,7 +186,7 @@ function showRule(rule: InspectedRule) {
       <div class="flex items-center gap-2 border border-base rounded-full bg-active px3 py1">
         <span class="i-ph-list-checks-duotone" />
         <span>{{ filteredRules.length }}</span>
-        <span>rules {{ hasActiveFilters ? 'filtered' : 'enabled' }}</span>
+        <span>rules shown</span>
         <span class="text-sm op-fade">out of {{ config.stats.totalRules }} rules</span>
       </div>
       <button
