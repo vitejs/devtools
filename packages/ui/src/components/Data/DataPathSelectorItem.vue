@@ -102,7 +102,7 @@ async function clear() {
       >
       <template #popper>
         <div :id="listId" role="listbox" :aria-label="placeholder" class="p2 w100">
-          <DynamicScroller v-if="data.length" ref="scroller" :items="data" key-field="id" :min-item-size="32" class="max-h-64 overflow-y-auto">
+          <DynamicScroller v-if="data.length" :key="search" ref="scroller" :items="data" key-field="id" :min-item-size="32" class="max-h-64 overflow-y-auto">
             <template #default="{ item, index, active }">
               <DynamicScrollerItem :item="item" :active="active" :index="index">
                 <div
