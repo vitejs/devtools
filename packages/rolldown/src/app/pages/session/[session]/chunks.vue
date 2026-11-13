@@ -213,14 +213,12 @@ watch(() => settings.value.chunkViewType, () => {
       <DataSearchPanel v-model="searchValue" :rules="[]">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :data="searched" import-id-key="chunk_id" :search-keys="['name']" @select="selectPathNodes" @close="togglePathSelector(false)">
-            <template #list="{ select, data }">
-              <ChunksFlatList
-                :session="session"
-                :chunks="data"
-                :link="false"
-                :basic="true"
-                @select="select"
-              />
+            <template #option="{ item }">
+              <ChunksBaseInfo :chunk="item" basic class="flex gap-4 items-center text-sm font-mono">
+                <template #left-after>
+                  <DisplayBadge v-if="item.is_initial" text="initial" />
+                </template>
+              </ChunksBaseInfo>
             </template>
             <template #item="{ id }">
               {{ chunksMap.get(id)?.name || '[unnamed]' }}
