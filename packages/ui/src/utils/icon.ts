@@ -128,7 +128,7 @@ export const PluginTypeRules: FilterMatchRule[] = [
     icon: 'i-catppuccin-rollup',
   },
   {
-    match: /^vite:/i,
+    match: /^[vV][iI][tT][eE]:|^rolldown:vite-resolve$/,
     name: 'vite',
     description: 'Vite',
     icon: 'i-catppuccin-vite',
