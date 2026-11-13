@@ -50,6 +50,7 @@ describe('getPluginTypeFromName', () => {
   it('should match plugin types', () => {
     expect(getPluginTypeFromName('replace').name).toBe('rollup')
     expect(getPluginTypeFromName('vite:css').name).toBe('vite')
+    expect(getPluginTypeFromName('rolldown:vite-resolve').name).toBe('vite')
     expect(getPluginTypeFromName('unocss:core').name).toBe('unocss')
     expect(getPluginTypeFromName('nuxt:pages').name).toBe('nuxt')
     expect(getPluginTypeFromName('builtin:fs').name).toBe('builtin')
@@ -57,5 +58,6 @@ describe('getPluginTypeFromName', () => {
 
   it('should return default for unknown plugins', () => {
     expect(getPluginTypeFromName('custom-plugin')).toBe(DefaultPluginType)
+    expect(getPluginTypeFromName('rolldown:vite-resolve-custom')).toBe(DefaultPluginType)
   })
 })
