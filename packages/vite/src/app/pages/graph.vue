@@ -255,16 +255,6 @@ onKeyDown('Escape', (e) => {
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
-            <template #list="{ select, data }">
-              <ModulesFlatList
-                v-if="data?.length"
-                :root="root"
-                :modules="data"
-                disable-tooltip
-                :link="false"
-                @select="select"
-              />
-            </template>
             <template #item="{ id }">
               <DisplayModuleId
                 :id="id"

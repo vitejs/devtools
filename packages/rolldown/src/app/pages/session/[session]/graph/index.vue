@@ -141,16 +141,6 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
       <DataSearchPanel v-model="searchValue" :rules="searchFilterTypes">
         <template v-if="pathSelectorVisible" #search>
           <DataPathSelector :data="searched" import-id-key="module_id" :search-keys="['id']" @select="selectPathNodes" @close="togglePathSelector(false)">
-            <template #list="{ select, data }">
-              <ModulesFlatList
-                v-if="data?.length"
-                :session="session"
-                :modules="data"
-                disable-tooltip
-                :link="false"
-                @select="select"
-              />
-            </template>
             <template #item="{ id }">
               <DisplayModuleId
                 :id="id"
