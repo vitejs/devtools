@@ -54,8 +54,8 @@ remote: { transport: 'query', originLock: false }
 
 | Value | Descriptor location | Visibility |
 |-------|--------------------|------------|
-| `'fragment'` (default) | `#vite-devtools-kit-connection=...` | Not sent to servers, not in access logs, stripped from Referer |
-| `'query'` | `?vite-devtools-kit-connection=...` | Appears in server logs and outbound Referer |
+| `'fragment'` (default) | `#devframe-remote-connection=...` | Not sent to servers, not in access logs, stripped from Referer |
+| `'query'` | `?devframe-remote-connection=...` | Appears in server logs and outbound Referer |
 
 Prefer `'fragment'`. Opt into `'query'` only when:
 - Your SPA router uses the fragment for navigation.
@@ -113,8 +113,8 @@ const rpc = await connectRemoteDevTools({
 For tests or non-browser environments, pass an explicit URL or raw fragment/query string to `parseRemoteConnection`:
 
 ```ts
-parseRemoteConnection('https://example.com/p#vite-devtools-kit-connection=...')
-parseRemoteConnection('?vite-devtools-kit-connection=...')
+parseRemoteConnection('https://example.com/p#devframe-remote-connection=...')
+parseRemoteConnection('?devframe-remote-connection=...')
 ```
 
 ## Descriptor shape
@@ -131,7 +131,7 @@ interface RemoteConnectionInfo {
 }
 ```
 
-JSON-encoded then base64url-encoded, appended to the iframe URL under the key `vite-devtools-kit-connection`.
+JSON-encoded then base64url-encoded, appended to the iframe URL under the key `devframe-remote-connection`.
 
 ## Trust model
 

@@ -44,7 +44,7 @@ ctx.docks.register({
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
   type: 'json-render',
-  ui,
+  view: ui.view,
 })
 ```
 
@@ -70,7 +70,7 @@ ctx.docks.update({
   type: 'json-render',
   title: 'My Panel',
   icon: 'ph:chart-bar-duotone',
-  ui,
+  view: ui.view,
   badge: hasWarnings ? '!' : undefined,
 })
 ```
@@ -263,7 +263,7 @@ export function BuildReportPlugin(): PluginWithDevTools {
           title: 'Build Report',
           icon: 'ph:chart-bar-duotone',
           type: 'json-render',
-          ui,
+          view: ui.view,
         })
 
         ctx.rpc.register(defineRpcFunction({
