@@ -70,6 +70,7 @@ describe('rolldown log cache', () => {
       { timestamp: 3.3, action: 'HookTransformCallEnd', module_id: '/src/main.ts', content: 'a', plugin_name: 'first', plugin_id: 1, trigger: 'automatic', call_id: 'first', ...base },
       { timestamp: 4, action: 'HookTransformCallStart', module_id: '/src/main.ts', content: 'a', plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c2', ...base },
       { timestamp: 5, action: 'HookTransformCallEnd', module_id: '/src/main.ts', content: finalContent, plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c2', ...base },
+      { timestamp: 5.5, action: 'ModuleRenderedReady', modules: [{ id: '/src/main.ts', bytes: 17 }], ...base },
       { timestamp: 6, action: 'BuildEnd', ...base },
     ]
     const filepath = join(dir, 'logs.json')
@@ -97,6 +98,7 @@ describe('rolldown log cache', () => {
     const warm = RolldownEventsReader.get(filepath)
     try {
       await warm.readSummary()
+      expect(warm.manager.moduleRenderedBytes?.get('/src/main.ts')).toBe(17)
       expect(warm.manager.eventCount).toBe(coldEvents)
       expect((warm as unknown as { moduleEventIndex: Map<string, unknown> }).moduleEventIndex.size).toBe(0)
       // The summary keeps the compacted metrics the module list and chunk sizes rely on.
@@ -108,6 +110,7 @@ describe('rolldown log cache', () => {
 
       await warm.read()
       expect(indexOf(warm)).toEqual(coldIndex)
+      expect(warm.manager.moduleRenderedBytes?.get('/src/main.ts')).toBe(17)
       expect(warm.manager.eventCount).toBe(coldEvents)
       const detail = await warm.readModuleBuildMetrics('/src/main.ts')
       expect(detail.transforms.at(-1)?.transformed_code_size).toBe(content.length)

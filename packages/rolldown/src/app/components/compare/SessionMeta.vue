@@ -1,5 +1,6 @@
 <script setup lang="ts">
 export interface CompareSessionSummaryItem {
+  title?: string
   label: string
   value: string
   icon: string
@@ -33,7 +34,7 @@ defineProps<{
       </div>
 
       <div v-if="summaries?.[index]?.length" class="col-span-3 border-t border-base mt2 pt3 flex items-center gap-4 flex-wrap">
-        <div v-for="summary of summaries?.[index] || []" :key="summary.label" class="flex items-center gap-2">
+        <div v-for="summary of summaries?.[index] || []" :key="summary.label" :title="summary.title" class="flex items-center gap-2">
           <div :class="summary.icon" class="op50" />
           <div class="text-xs op50">
             {{ summary.label }}

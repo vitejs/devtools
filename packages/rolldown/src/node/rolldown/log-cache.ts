@@ -12,7 +12,7 @@ export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.bin'
 export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json'
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
-const ROLLDOWN_LOG_CACHE_VERSION = 5
+const ROLLDOWN_LOG_CACHE_VERSION = 6
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 
@@ -67,7 +67,7 @@ interface RolldownSessionSummaryCacheSnapshot {
     lineNumber: number
   }
   meta: SessionMeta | undefined
-  manager: Pick<ManagerSnapshot, 'eventCount' | 'lastEvent' | 'chunks' | 'modules' | 'packageGraphReady' | 'packages' | 'build_start_time' | 'build_end_time'>
+  manager: Pick<ManagerSnapshot, 'eventCount' | 'lastEvent' | 'chunks' | 'modules' | 'moduleRenderedBytes' | 'packageGraphReady' | 'packages' | 'build_start_time' | 'build_end_time'>
 }
 
 interface RolldownModuleMetricsSummaryCacheSnapshot {
@@ -469,6 +469,7 @@ export class RolldownLogCache {
         lastEvent: manager.lastEvent,
         chunks: manager.chunks,
         modules: manager.modules,
+        moduleRenderedBytes: manager.moduleRenderedBytes,
         packageGraphReady: manager.packageGraphReady,
         packages: manager.packages,
         build_start_time: manager.build_start_time,
@@ -513,6 +514,7 @@ export class RolldownLogCache {
       lastEvent: session.manager.lastEvent,
       chunks: session.manager.chunks,
       modules: session.manager.modules,
+      moduleRenderedBytes: session.manager.moduleRenderedBytes,
       packageGraphReady: session.manager.packageGraphReady ?? !!session.manager.packages?.length,
       packages: session.manager.packages ?? [],
       source_refs: [],

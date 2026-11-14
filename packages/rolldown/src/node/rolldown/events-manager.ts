@@ -42,6 +42,7 @@ export interface RolldownEventsManagerSnapshot {
   lastEvent: RolldownEvent | undefined
   chunks: Array<[number, RolldownChunkInfo]>
   modules: Array<[string, ModuleSnapshot]>
+  moduleRenderedBytes?: Array<[string, number]>
   packageGraphReady: boolean
   packages: Array<[string, RolldownPackageInfo]>
   source_refs: Array<[string, ContentInfo]>
@@ -100,6 +101,7 @@ export class RolldownEventsManager {
   assets: Map<string, RolldownAssetInfo> = new Map()
   chunkAssetMap = new Map<number, RolldownAssetInfo>()
   modules: Map<string, ModuleInfo & { build_metrics?: ModuleBuildMetrics }> = new Map()
+  moduleRenderedBytes?: Map<string, number>
   packageGraphReady = false
   packages: Map<string, RolldownPackageInfo> = new Map()
   source_refs: Map<string, ContentInfo> = new Map()
@@ -260,6 +262,11 @@ export class RolldownEventsManager {
       return
     }
 
+    if (event.action === 'ModuleRenderedReady') {
+      this.moduleRenderedBytes = new Map(event.modules.map(module => [module.id, module.bytes]))
+      return
+    }
+
     if (event.action === 'PackageGraphReady') {
       this.packageGraphReady = true
       this.packages = new Map(event.packages.map(pkg => [pkg.package_id, pkg]))
@@ -314,6 +321,7 @@ export class RolldownEventsManager {
     this.assets.clear()
     this.chunkAssetMap.clear()
     this.modules.clear()
+    this.moduleRenderedBytes = undefined
     this.packageGraphReady = false
     this.packages.clear()
     this.source_refs.clear()
@@ -329,6 +337,7 @@ export class RolldownEventsManager {
       eventCount: this.eventCount,
       lastEvent: this.lastEvent,
       chunks: Array.from(this.chunks.entries()),
+      moduleRenderedBytes: this.moduleRenderedBytes && Array.from(this.moduleRenderedBytes),
       packageGraphReady: this.packageGraphReady,
       packages: Array.from(this.packages.entries()),
       modules: Array.from(this.modules.entries()).map(([id, module]) => {
@@ -348,6 +357,7 @@ export class RolldownEventsManager {
     this.eventCount = snapshot.eventCount
     this.lastEvent = snapshot.lastEvent
     this.chunks = new Map(snapshot.chunks)
+    this.moduleRenderedBytes = snapshot.moduleRenderedBytes && new Map(snapshot.moduleRenderedBytes)
     this.packageGraphReady = snapshot.packageGraphReady ?? !!snapshot.packages?.length
     this.packages = new Map(snapshot.packages ?? [])
     this.assets.clear()

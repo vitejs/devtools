@@ -150,10 +150,12 @@ export interface SessionCompareDetails {
   sessionStats: {
     previous: {
       packages: number
+      renderedBytes: number | null
       duplicatedPackages: number
     }
     current: {
       packages: number
+      renderedBytes: number | null
       duplicatedPackages: number
     }
   }

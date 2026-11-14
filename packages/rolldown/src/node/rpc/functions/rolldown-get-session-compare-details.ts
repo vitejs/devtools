@@ -15,7 +15,7 @@ import type {
 import type { RolldownEventsReader } from '../../rolldown/events-reader'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { extname, isAbsolute, relative } from 'pathe'
-import { createModuleMetric } from '../../../shared/utils/compare-metrics'
+import { createModuleMetric, sumMetrics } from '../../../shared/utils/compare-metrics'
 import { getLogsManager } from '../utils'
 import { getPackageMeta } from './rolldown-get-packages'
 
@@ -140,8 +140,8 @@ function getChunkSize(reader: RolldownEventsReader, chunk: RolldownChunkInfo | u
   }, 0)
 }
 
-function getModuleSize(reader: RolldownEventsReader, id: string) {
-  return reader.manager.modules.get(id)?.build_metrics?.transforms?.at(-1)?.transformed_code_size ?? null
+function getRenderedModuleSize(reader: RolldownEventsReader, id: string) {
+  return reader.manager.moduleRenderedBytes?.get(id) ?? null
 }
 
 function getModuleName(id: string, cwd: string) {
@@ -375,8 +375,8 @@ function compareModules(previous: SessionCompareSource, current: SessionCompareS
   const currentModules = new Map(Array.from(currentChunks.keys(), id => [id, id]))
 
   return sortByDeltaImpact(compareMaps(previousModules, currentModules, (key, previousId, currentId) => {
-    const previousSize = previousId ? getModuleSize(previous.reader, previousId) : 0
-    const currentSize = currentId ? getModuleSize(current.reader, currentId) : 0
+    const previousSize = previousId ? getRenderedModuleSize(previous.reader, previousId) : 0
+    const currentSize = currentId ? getRenderedModuleSize(current.reader, currentId) : 0
     const previousModuleChunks = previousId ? previousChunks.get(previousId) ?? [] : []
     const currentModuleChunks = currentId ? currentChunks.get(currentId) ?? [] : []
 
@@ -509,10 +509,12 @@ export const rolldownGetSessionCompareDetails = defineRpcFunction({
         return {
           sessionStats: {
             previous: {
+              renderedBytes: previousReader.manager.moduleRenderedBytes ? sumMetrics(modules.map(module => module.previous)) : null,
               packages: previous.packages.length,
               duplicatedPackages: previous.packages.filter(pkg => pkg.duplicated).length,
             },
             current: {
+              renderedBytes: currentReader.manager.moduleRenderedBytes ? sumMetrics(modules.map(module => module.current)) : null,
               packages: current.packages.length,
               duplicatedPackages: current.packages.filter(pkg => pkg.duplicated).length,
             },

@@ -197,8 +197,7 @@ const sessionSummaries = computed(() => {
       ])
     case 'modules': {
       return props.sessions.map((session, index) => {
-        const codeSize = sumCompareSide(props.details?.modules, index, item => item.previous, item => item.current)
-        const codeSizeA = sumCompareSide(props.details?.modules, 0, item => item.previous, item => item.current)
+        const renderedBytes = props.details?.sessionStats[index === 0 ? 'previous' : 'current'].renderedBytes ?? null
         return [
           {
             label: 'Modules',
@@ -207,10 +206,11 @@ const sessionSummaries = computed(() => {
             tone: getSummaryTone(index, session.modules, sessionA?.modules),
           },
           {
-            label: 'Code Size',
-            value: formatBytesSummary(codeSize),
+            label: 'Rendered Size',
+            title: 'Module bytes across all output chunks, after tree-shaking and before chunk minification.',
+            value: formatBytesSummary(renderedBytes),
             icon: 'i-ph-file-code-duotone',
-            tone: getSummaryTone(index, codeSize, codeSizeA),
+            tone: getSummaryTone(index, renderedBytes, props.details?.sessionStats.previous.renderedBytes),
           },
         ]
       })
@@ -479,7 +479,7 @@ const diffModeOptions = computed<Array<{
           id: 'unavailable' as const,
           label: 'Unavailable',
           icon: 'i-ph-question-duotone',
-          description: 'Matched modules without a size measurement on one or both sides.',
+          description: 'Matched modules without a rendered size measurement on one or both sides.',
           count: unavailableRows.value.length,
           delta: null,
           rows: unavailableRows.value.slice(0, TABLE_LIMIT),
