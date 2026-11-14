@@ -5,6 +5,7 @@ import { computed } from 'vue'
 const props = withDefaults(
   defineProps<{
     bytes?: number
+    showZero?: boolean
     colorize?: boolean
     digits?: number
     percent?: boolean
@@ -47,7 +48,7 @@ const formatted = computed(() => bytesToHumanSize(props.bytes || 0, props.digits
 </script>
 
 <template>
-  <div v-if="bytes" :class="color" class="px-0.4em py-0.2em font-mono line-height-none bg-gray:5 dark:bg-gray:4 flex items-center">
+  <div v-if="bytes || (showZero && bytes === 0)" :class="color" class="px-0.4em py-0.2em font-mono line-height-none bg-gray:5 dark:bg-gray:4 flex items-center">
     <div v-if="icon" :class="icon" class="mr-1" />
     {{ formatted[0] }}<span class="text-xs op75 ml-0.4">{{ formatted[1] }}</span>
     <slot name="after">

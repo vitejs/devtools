@@ -12,7 +12,7 @@ export const ROLLDOWN_LOG_READER_INDEX_CACHE_FILENAME = 'reader-index.bin'
 export const ROLLDOWN_LOG_PACKAGE_SUMMARY_CACHE_FILENAME = 'package-summary.json'
 export const ROLLDOWN_LOG_PLUGIN_SUMMARY_CACHE_FILENAME = 'plugin-summary.json'
 export const ROLLDOWN_LOG_MODULE_METRICS_SUMMARY_CACHE_FILENAME = 'module-metrics-summary.json'
-const ROLLDOWN_LOG_CACHE_VERSION = 4
+const ROLLDOWN_LOG_CACHE_VERSION = 5
 
 type ManagerSnapshot = ReturnType<RolldownEventsManager['snapshot']>
 
@@ -264,8 +264,9 @@ function compactModuleBuildMetrics(metrics: ModuleBuildMetrics): ModuleBuildMetr
       plugin_id: 0,
       content_from: null,
       content_to: null,
-      source_code_size: 0,
-      transformed_code_size: 0,
+      // This duration-only entry can be the first transform in the cached summary.
+      source_code_size: metrics.transforms[0]!.source_code_size,
+      transformed_code_size: metrics.transforms[0]!.source_code_size,
       duration: remainingDuration,
       timestamp_start: metrics.transforms[0]!.timestamp_start,
       timestamp_end: metrics.transforms.at(-1)!.timestamp_end,

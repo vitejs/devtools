@@ -72,9 +72,9 @@ const transformedCodeSize = computed(() => {
     <template v-if="sourceCodeSize != null && transformedCodeSize != null">
       <span class="op40">|</span>
       <div class="flex gap-1 items-center">
-        <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" />
+        <DisplayFileSizeBadge title="Source code size" :bytes="sourceCodeSize" show-zero />
         <span class="i-ph-arrow-right-duotone op50" />
-        <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" />
+        <DisplayFileSizeBadge title="Transformed code size" :bytes="transformedCodeSize" show-zero />
       </div>
     </template>
   </div>

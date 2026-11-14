@@ -58,7 +58,7 @@ describe('reader index codec', () => {
 })
 
 describe('rolldown log cache', () => {
-  function writeLog(finalContent = 'b') {
+  function writeLog(finalContent = 'b', sourceContent = 'aa') {
     const dir = mkdtempSync(join(tmpdir(), 'rolldown-log-cache-'))
     dirs.push(dir)
     const base = { build_id: 'bid_1', session_id: 'sid_1' }
@@ -66,7 +66,7 @@ describe('rolldown log cache', () => {
       { timestamp: 1, action: 'BuildStart', ...base },
       { timestamp: 2, action: 'HookResolveIdCallStart', importer: null, module_request: '/src/main.ts', import_kind: 'import-statement', plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c1', ...base },
       { timestamp: 3, action: 'HookResolveIdCallEnd', resolved_id: '/src/main.ts', is_external: false, plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c1', ...base },
-      { timestamp: 3.2, action: 'HookTransformCallStart', module_id: '/src/main.ts', content: 'aa', plugin_name: 'first', plugin_id: 1, trigger: 'automatic', call_id: 'first', ...base },
+      { timestamp: 3.2, action: 'HookTransformCallStart', module_id: '/src/main.ts', content: sourceContent, plugin_name: 'first', plugin_id: 1, trigger: 'automatic', call_id: 'first', ...base },
       { timestamp: 3.3, action: 'HookTransformCallEnd', module_id: '/src/main.ts', content: 'a', plugin_name: 'first', plugin_id: 1, trigger: 'automatic', call_id: 'first', ...base },
       { timestamp: 4, action: 'HookTransformCallStart', module_id: '/src/main.ts', content: 'a', plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c2', ...base },
       { timestamp: 5, action: 'HookTransformCallEnd', module_id: '/src/main.ts', content: finalContent, plugin_name: 'p', plugin_id: 0, trigger: 'automatic', call_id: 'c2', ...base },
@@ -82,8 +82,8 @@ describe('rolldown log cache', () => {
     return [state.moduleEventIndex, state.stringRefIndex, state.pendingHookCallStarts, state.assetsReadyLocations]
   }
 
-  it.each(['b', ''])('preserves the final transform %j through summary, full and detail cache reads', async (content) => {
-    const filepath = writeLog(content)
+  it.each([['aa', 'b'], ['aa', ''], ['a', 'a']])('preserves sizes from %j to %j through summary, full and detail cache reads', async (source, content) => {
+    const filepath = writeLog(content, source)
     const cold = RolldownEventsReader.get(filepath)
     await cold.read()
     expect((cold as unknown as { moduleEventIndex: Map<string, unknown> }).moduleEventIndex.size).toBeGreaterThan(0)
@@ -102,6 +102,7 @@ describe('rolldown log cache', () => {
       // The summary keeps the compacted metrics the module list and chunk sizes rely on.
       const warmMetrics = warm.manager.module_build_metrics.get('/src/main.ts')
       expect(warm.manager.module_build_metrics.size).toBe(coldModules)
+      expect(warmMetrics?.transforms[0]?.source_code_size).toBe(source.length)
       expect(warmMetrics?.transforms.at(-1)?.transformed_code_size).toBe(coldMetrics.transforms.at(-1)!.transformed_code_size)
       expect(warmMetrics?.resolve_ids[0]?.duration).toBe(coldMetrics.resolve_ids[0]!.duration)
 
