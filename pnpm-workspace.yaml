@@ -36,7 +36,7 @@ overrides:
   cac: 'catalog:deps'
   chokidar: 'catalog:devtools'
   compression: ^1.8.2
-  devframe: &devframe ^1.3.2
+  devframe: &devframe ^1.3.5
   # Keep the whole devframe family on one lockstep version. @nuxt/devtools
   # still pins @devframes/*@^0.9, so without these the plugins it drags in
   # bind against devframe 0.10 and crash on APIs 0.10 removed.
@@ -46,6 +46,7 @@ overrides:
   '@devframes/json-render': *devframe
   '@devframes/json-render-ui': *devframe
   '@devframes/plugin-a11y': *devframe
+  '@devframes/plugin-assets': *devframe
   '@devframes/plugin-code-server': *devframe
   '@devframes/plugin-data-inspector': *devframe
   '@devframes/plugin-git': *devframe
