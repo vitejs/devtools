@@ -167,19 +167,19 @@ The [A11y Checker example](/kit/examples#a11y-checker) is a plugin that uses mes
 
 ## Events
 
-The host emits events for observers of the message stream:
+The host emits these events within the Node process:
 
 ```ts
-ctx.messages.events.on('message:added', (entry) => { /* ... */ })
-ctx.messages.events.on('message:updated', (entry) => { /* ... */ })
-ctx.messages.events.on('message:removed', (id) => { /* ... */ })
-ctx.messages.events.on('message:cleared', () => { /* ... */ })
+ctx.messages.events.on('messages:added', (entry) => { /* ... */ })
+ctx.messages.events.on('messages:updated', (entry) => { /* ... */ })
+ctx.messages.events.on('messages:removed', (id) => { /* ... */ })
+ctx.messages.events.on('messages:cleared', () => { /* ... */ })
 ```
 
 Use the events to bridge messages into external tools — mirror them into a structured log, forward certain categories to your own reporter, etc.:
 
 ```ts
-ctx.messages.events.on('message:added', (entry) => {
+ctx.messages.events.on('messages:added', (entry) => {
   if (entry.category === 'a11y')
     console.log('a11y finding:', entry.message)
 })

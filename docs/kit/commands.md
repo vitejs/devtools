@@ -271,13 +271,13 @@ for (const cmd of commands) {
 }
 ```
 
-Subscribe to lifecycle events to react to registrations:
+Subscribe to lifecycle events in the Node process to react to registrations:
 
 ```ts
-ctx.commands.events.on('command:registered', (cmd) => {
+ctx.commands.events.on('commands:registered', (cmd) => {
   console.log('new command:', cmd.id)
 })
-ctx.commands.events.on('command:unregistered', (id) => {
+ctx.commands.events.on('commands:unregistered', (id) => {
   console.log('removed:', id)
 })
 ```
