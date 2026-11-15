@@ -99,6 +99,23 @@ export default defineConfig({
 })
 ```
 
+### Configure built-in features
+
+`builtinDevTools` controls the built-in panels and integrations. `true` (the default) mounts all of them and `false` mounts none. Pass an object to toggle the Terminals, Messages, and Inspect panels and the integrations individually; entries you leave out stay enabled. `terminals` also accepts [`@devframes/plugin-terminals`](https://devfra.me) options, such as a custom `shell` or command `presets`.
+
+```ts [vite.config.ts]
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    builtinDevTools: {
+      terminals: false, // or { shell: '/bin/zsh' }
+      integrations: { oxc: false },
+    },
+  },
+})
+```
+
 #### Projects without an HTML entry
 
 For apps where Vite doesn't serve the HTML (JS-only entries, backend integration, middleware mode), load the client script that the dev server hosts at `/__devtools/embedded.js` from a browser entry instead:

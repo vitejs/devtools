@@ -1,3 +1,4 @@
+import type { TerminalsOptions } from '@devframes/plugin-terminals'
 import type { DevToolsConfig } from './config'
 
 export type DevToolsBrandingLogo
@@ -41,13 +42,43 @@ export interface ViteDevToolsUiOptions {
   dockPreferences?: DevToolsDockPreferences
 }
 
-export interface DevToolsUserOptions {
+export type DevToolsBuiltinIntegrationId = 'rolldown' | 'vite' | 'vitest' | 'oxc'
+
+export interface DevToolsBuiltinOptions {
   /**
-   * Include the Vite builtin devtools UI.
+   * Terminals panel. Pass options to configure it, e.g. a custom `shell` or `presets`.
    *
    * @default true
    */
-  builtinDevTools?: boolean
+  terminals?: boolean | TerminalsOptions
+  /**
+   * Messages panel.
+   *
+   * @default true
+   */
+  messages?: boolean
+  /**
+   * DevTools inspector panel.
+   *
+   * @default true
+   */
+  inspect?: boolean
+  /**
+   * Built-in integrations (Rolldown, Vite, Vitest, Oxc), including their install launchers.
+   *
+   * @default true
+   */
+  integrations?: boolean | Partial<Record<DevToolsBuiltinIntegrationId, boolean>>
+}
+
+export interface DevToolsUserOptions {
+  /**
+   * Include the Vite builtin devtools UI. Pass an object to toggle or configure
+   * individual built-in panels; omitted entries stay enabled.
+   *
+   * @default true
+   */
+  builtinDevTools?: boolean | DevToolsBuiltinOptions
   /** Dock renderer modules, replacing built-ins with the same type and appending new types. */
   renderers?: readonly DevToolsDockRendererRegistration[]
   /** Override the branding handed to the DevTools client. */
