@@ -17,10 +17,9 @@ export interface BuildStaticOptions {
   outDir: string
   /**
    * Absolute path the snapshot is deployed under (e.g. `/ci-build-123456/`).
-   * Prefixes the root-relative URLs baked into the output — the root redirect
-   * and the hub's own absolute specifiers (renderer imports, per-frame meta
-   * pointers) — so the snapshot works when hosted below the domain root.
-   * Defaults to `/`.
+   * Prefixes the root-relative URLs baked into the output, from the root
+   * redirect to frame, dock, and SPA asset URLs, so the snapshot works when
+   * hosted below the domain root. Defaults to `/`.
    */
   base?: string
   /** Dock renderer modules copied into the static output, replacing built-ins by matching type. */
@@ -65,6 +64,7 @@ export async function buildStaticDevTools(options: BuildStaticOptions): Promise<
     context,
     outDir: join(outDir, DEVTOOLS_DIRNAME),
     base: mountPath,
+    deployBase: options.base ?? '/',
     ui: createViteDevToolsUi(options.ui),
     renderers: resolveDockRendererRegistrations(options.renderers),
     // We own the deploy-root lifecycle (the `!withApp` wipe above); leave any
