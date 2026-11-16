@@ -2,7 +2,7 @@
   "type": "module",
   "version": "0.8.3",
   "private": true,
-  "packageManager": "pnpm@12.16.1",
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "actionspack": "actionspack update",
     "build:debug": "NUXT_DEBUG_BUILD=true pnpm -r run build",
@@ -134,6 +134,6 @@
     "pre-commit": "pnpm i --frozen-lockfile --ignore-scripts --offline && npx nano-staged"
   },
   "nano-staged": {
-    "*": "eslint --fix"
+    "*": "eslint --fix --no-error-on-unmatched-pattern"
   }
 }
