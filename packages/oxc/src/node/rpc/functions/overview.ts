@@ -7,8 +7,43 @@ import { needsOxlintMigration } from './oxlint-setup'
 type Package = {
   installed: boolean
   version: string | undefined
-  latest: boolean
+  /** `undefined` when the latest version could not be determined. */
+  latest: boolean | undefined
   npmxLink: string | undefined
+}
+
+type LatestVersions = {
+  oxlint: string | undefined
+  oxfmt: string | undefined
+}
+
+const LATEST_VERSIONS_URL = 'https://npm.antfu.dev/oxlint+oxfmt'
+const LATEST_VERSIONS_TIMEOUT = 5000
+
+/**
+ * Best-effort lookup of the latest published Oxlint / Oxfmt versions.
+ * Resolves to `undefined` versions when the registry is unreachable so the
+ * overview can still render local toolchain info.
+ */
+export async function fetchLatestVersions(): Promise<LatestVersions> {
+  try {
+    const res = await fetch(LATEST_VERSIONS_URL, {
+      signal: AbortSignal.timeout(LATEST_VERSIONS_TIMEOUT),
+    })
+    if (!res.ok) return { oxlint: undefined, oxfmt: undefined }
+    const data = await res.json()
+    const [oxlintData, oxfmtData] = Array.isArray(data) ? data : []
+    return {
+      oxlint: typeof oxlintData?.version === 'string' ? oxlintData.version : undefined,
+      oxfmt: typeof oxfmtData?.version === 'string' ? oxfmtData.version : undefined,
+    }
+  } catch {
+    return { oxlint: undefined, oxfmt: undefined }
+  }
+}
+
+function isLatest(version: string | undefined, latestVersion: string | undefined) {
+  return version && latestVersion ? version === latestVersion : undefined
 }
 
 export const overview = defineOxcRpc({
@@ -31,8 +66,7 @@ export const overview = defineOxcRpc({
           npmxLink: undefined,
         }
 
-        const res = await fetch('https://npm.antfu.dev/oxlint+oxfmt')
-        const [oxlintData, oxfmtData] = await res.json()
+        const latestVersions = await fetchLatestVersions()
         const vitePlus = isVitePlusInstalled(ctx.cwd)
         const vitePlusVersions = vitePlus ? await getVitePlusVersions(ctx.cwd) : undefined
 
@@ -40,13 +74,13 @@ export const overview = defineOxcRpc({
           oxlint = {
             installed: true,
             version: vitePlusVersions.oxlint,
-            latest: vitePlusVersions.oxlint === oxlintData.version,
+            latest: isLatest(vitePlusVersions.oxlint, latestVersions.oxlint),
             npmxLink: `https://npmx.dev/package/oxlint/v/${vitePlusVersions.oxlint}`,
           }
           oxfmt = {
             installed: true,
             version: vitePlusVersions.oxfmt,
-            latest: vitePlusVersions.oxfmt === oxfmtData.version,
+            latest: isLatest(vitePlusVersions.oxfmt, latestVersions.oxfmt),
             npmxLink: `https://npmx.dev/package/oxfmt/v/${vitePlusVersions.oxfmt}`,
           }
         } else {
@@ -57,7 +91,7 @@ export const overview = defineOxcRpc({
             }
             oxlint.installed = true
             oxlint.version = stdout.split(' ')[1]?.trim().replaceAll('\n', '') ?? undefined
-            oxlint.latest = oxlint.version === oxlintData.version
+            oxlint.latest = isLatest(oxlint.version, latestVersions.oxlint)
             oxlint.npmxLink = `https://npmx.dev/package/oxlint/v/${oxlint.version}`
           } catch {
             oxlint.installed = false
@@ -69,7 +103,7 @@ export const overview = defineOxcRpc({
             }
             oxfmt.installed = true
             oxfmt.version = stdout.split(' ')[1]?.trim().replaceAll('\n', '') ?? undefined
-            oxfmt.latest = oxfmt.version === oxfmtData.version
+            oxfmt.latest = isLatest(oxfmt.version, latestVersions.oxfmt)
             oxfmt.npmxLink = `https://npmx.dev/package/oxfmt/v/${oxfmt.version}`
           } catch {
             oxfmt.installed = false

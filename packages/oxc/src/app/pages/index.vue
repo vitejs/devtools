@@ -137,6 +137,7 @@ const tools = computed(() => {
             </div>
             <template v-if="tool.info.installed">
               <a
+                v-if="tool.info.latest !== undefined"
                 :href="
                   tool.info.latest ? undefined : `https://npmx.dev/package/${tool.id}/v/latest`
                 "
