@@ -89,7 +89,7 @@ async function clear() {
       </div>
       <button ref="clearButton" type="button" class="i-carbon-clean text-4 hover:op100 op50 absolute right-2" :aria-label="`Clear ${placeholder}`" title="Clear" @click="clear" />
     </div>
-    <VMenu v-else v-model:shown="open" :distance="15" :triggers="[]" :auto-hide="false" :delay="0" no-auto-focus class="h-full">
+    <VMenu v-else v-model:shown="open" :distance="15" :triggers="[]" :popper-triggers="[]" :auto-hide="false" :delay="0" no-auto-focus class="h-full">
       <input
         ref="input"
         v-model="search"
