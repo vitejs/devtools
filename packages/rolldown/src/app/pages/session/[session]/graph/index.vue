@@ -145,7 +145,7 @@ function toggleDisplay(type: ClientSettings['moduleGraphViewType']) {
               <DisplayModuleId
                 :id="id"
                 :session="session"
-                class="block text-nowrap"
+                class="block"
                 :link="false"
                 :disable-tooltip="true"
               />

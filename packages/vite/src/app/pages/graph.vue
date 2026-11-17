@@ -259,7 +259,7 @@ onKeyDown('Escape', (e) => {
               <DisplayModuleId
                 :id="id"
                 :cwd="root"
-                class="block text-nowrap"
+                class="block"
                 :link="false"
                 :disable-tooltip="true"
               />

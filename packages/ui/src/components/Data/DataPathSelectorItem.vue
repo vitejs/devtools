@@ -84,7 +84,7 @@ async function clear() {
 <template>
   <div class="flex-1 w-0 h-full">
     <div v-if="selector.state.value.selected" class="w-full overflow-hidden flex items-center border border-base rounded p1 relative">
-      <div class="overflow-hidden text-ellipsis pr6 w-0 flex-1">
+      <div class="overflow-hidden text-ellipsis text-nowrap pr6 w-0 flex-1">
         <slot name="item" />
       </div>
       <button ref="clearButton" type="button" class="i-carbon-clean text-4 hover:op100 op50 absolute right-2" :aria-label="`Clear ${placeholder}`" title="Clear" @click="clear" />
