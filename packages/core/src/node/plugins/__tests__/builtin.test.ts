@@ -32,7 +32,7 @@ describe('resolveBuiltinOptions', () => {
 describe('devToolsBuiltin', () => {
   it('skips disabled integrations', async () => {
     vi.mocked(isPackageExists).mockClear()
-    await DevToolsBuiltin({ builtinDevTools: { integrations: { vitest: false, oxc: false } } })
+    await DevToolsBuiltin({ builtinDevTools: { integrations: { 'vitest': false, 'vite-task': false, 'oxc': false } } })
 
     expect(vi.mocked(isPackageExists).mock.calls.map(([pkg]) => pkg))
       .toEqual(['@vitejs/devtools-rolldown', '@vitejs/devtools-vite'])

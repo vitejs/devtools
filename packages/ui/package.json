@@ -40,6 +40,7 @@
       "types": "./src/unocss/shortcuts.ts",
       "import": "./src/unocss/shortcuts.ts"
     },
+    "./styles/floating-vue.css": "./src/styles/floating-vue.css",
     "./styles/global.css": "./src/styles/global.css",
     "./components/*": {
       "types": "./src/components/*.vue",

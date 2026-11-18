@@ -1,0 +1,8 @@
+@import '@vitejs/devtools-ui/styles/global.css';
+@import '@vitejs/devtools-ui/styles/floating-vue.css';
+
+.task-program-path .v-popper__inner {
+  --uno: font-mono text-xs;
+  max-width: min(38rem, calc(100vw - 2rem));
+  overflow-wrap: anywhere;
+}

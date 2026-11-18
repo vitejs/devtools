@@ -44,6 +44,7 @@ const BuiltinDevToolsNav = [
   { text: 'DevTools for Rolldown', link: '/rolldown/' },
   { text: 'DevTools for Vite', link: '/vite/' },
   { text: 'DevTools for Vitest', link: '/vitest/' },
+  { text: 'DevTools for Vite Task', link: '/vite-task/' },
   { text: 'DevTools for Oxc', link: '/oxc/' },
 ]
 
@@ -123,6 +124,7 @@ export default extendConfig(withMermaid(defineConfig({
             { text: 'DevTools for Rolldown', link: '/rolldown/' },
             { text: 'DevTools for Vite', link: '/vite/' },
             { text: 'DevTools for Vitest', link: '/vitest/' },
+            { text: 'DevTools for Vite Task', link: '/vite-task/' },
             { text: 'DevTools for Oxc', link: '/oxc/' },
           ],
         },
@@ -163,6 +165,14 @@ export default extendConfig(withMermaid(defineConfig({
               text: 'Rolldown DevTools (RDDT)',
               collapsed: true,
               items: listErrorCodes('RDDT').map(code => ({
+                text: code,
+                link: `/errors/${code}`,
+              })),
+            },
+            {
+              text: 'Vite Task DevTools (VTKDT)',
+              collapsed: true,
+              items: listErrorCodes('VTKDT').map(code => ({
                 text: code,
                 link: `/errors/${code}`,
               })),

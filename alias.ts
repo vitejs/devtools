@@ -16,6 +16,7 @@ export const alias = {
   '@vitejs/devtools-kit': r('kit/src/index.ts'),
   '@vitejs/devtools-rolldown': r('rolldown/src/index.ts'),
   '@vitejs/devtools-vite': r('vite/src/index.ts'),
+  '@vitejs/devtools-vite-task': r('vite-task/src/index.ts'),
   '@vitejs/devtools-vitest': r('vitest/src/index.ts'),
   '@vitejs/devtools/internal': r('core/src/internal.ts'),
   '@vitejs/devtools/json-render': r('core/src/json-render.ts'),

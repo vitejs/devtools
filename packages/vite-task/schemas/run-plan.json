@@ -1,0 +1,581 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RunPlan",
+  "description": "The tasks a run would run, in what order, and whether each step would hit the cache, as printed by `vp run --dry-run --json`.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "`file://` URL of the JSON Schema that describes this document.",
+      "type": "string"
+    },
+    "version": {
+      "description": "Format version. It changes only for a breaking change: a rename, a removal, or a changed meaning. New fields and values don't change it; ignore fields you don't know.",
+      "type": "integer",
+      "const": 1
+    },
+    "workspaceRoot": {
+      "description": "Absolute path of the workspace root. Other paths are relative to it, with `/` on every platform, except paths outside the workspace, which are absolute.",
+      "type": "string"
+    },
+    "plan": {
+      "description": "The tasks this run would run, keyed by task ID, the same IDs as in `vp run --json`.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/PlanTask"
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "version",
+    "workspaceRoot",
+    "plan"
+  ],
+  "definitions": {
+    "PlanTask": {
+      "description": "A task the run would run.",
+      "type": "object",
+      "properties": {
+        "package": {
+          "description": "The path of the task's package, such as `packages/ui`, or `.` for the workspace root.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The task name, such as `build`.",
+          "type": "string"
+        },
+        "dependsOn": {
+          "description": "IDs of the tasks in the same `plan` that must finish before this one starts. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "steps": {
+          "description": "What the task runs, in order. Each part of the command between `&&`, each entry of a command array, and each `pre`/`post` script is one step. Each step is cached separately.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Step"
+          }
+        }
+      },
+      "required": [
+        "package",
+        "name",
+        "steps"
+      ]
+    },
+    "Step": {
+      "description": "A step of a task: a command, or a nested `vp run`.",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CommandStep"
+        },
+        {
+          "$ref": "#/definitions/NestedStep"
+        }
+      ]
+    },
+    "CommandStep": {
+      "description": "A command the task runs.",
+      "type": "object",
+      "properties": {
+        "program": {
+          "description": "The executable that would be started: a path relative to the workspace root if it is inside it, such as `apps/web/node_modules/.bin/vite`, otherwise an absolute path. A command with shell syntax, such as a pipe, runs through the shell: `/bin/sh` with `-c` and the command, or `cmd.exe` with `/d /s /c` on Windows. For a built-in such as `echo`, which runs without a new process, this is just its name.",
+          "type": "string"
+        },
+        "args": {
+          "description": "The arguments, including any given after the task name. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cwd": {
+          "description": "The directory it runs in, when the task's `cwd` setting or an earlier `cd` in the command changes it. Absent when it runs in the package directory.",
+          "type": "string"
+        },
+        "hook": {
+          "description": "The `pre` or `post` script the step comes from, such as `prebuild`. Absent for the task's own command.",
+          "type": "string"
+        },
+        "cache": {
+          "description": "Whether the cache would be used. Absent for a built-in such as `echo`.\n\nThe check looks at the files as they are now. `unknown` marks a step whose files an earlier step may change before it starts.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Cache"
+            }
+          ]
+        }
+      },
+      "required": [
+        "program"
+      ]
+    },
+    "Cache": {
+      "description": "Whether a step would use the cache, and why it would run.",
+      "oneOf": [
+        {
+          "description": "Matches `baseline`, so it would replay `baseline` instead of running.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "hit"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "allOf": [
+            {
+              "$ref": "#/definitions/Hit"
+            }
+          ]
+        },
+        {
+          "description": "Differs from `baseline`, so it would run. `changes` lists the differences.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "changed"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "allOf": [
+            {
+              "$ref": "#/definitions/Changed"
+            }
+          ]
+        },
+        {
+          "description": "Can't be predicted yet: a step that runs before it would write files first, by running or by restoring a hit's outputs. `changes` shows the check of the files as they are now.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "unknown"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "allOf": [
+            {
+              "$ref": "#/definitions/Changed"
+            }
+          ]
+        },
+        {
+          "description": "Would run: there is no cached run to compare with, as on a first run or after `vp cache clean`. Arguments given after the task name count, so a new combination of arguments is also `noBaseline`.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "noBaseline"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        },
+        {
+          "description": "Would run: the cache couldn't be read. For example, the remote cache failed and nothing is cached locally.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "error"
+            },
+            "message": {
+              "description": "What went wrong.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status",
+            "message"
+          ]
+        },
+        {
+          "description": "Would run without caching, because caching is off for this step.",
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "const": "disabled"
+            }
+          },
+          "required": [
+            "status"
+          ]
+        }
+      ]
+    },
+    "Baseline": {
+      "description": "The cached run a step is compared with.",
+      "type": "object",
+      "properties": {
+        "durationMs": {
+          "description": "How long the cached run took, in milliseconds. On a hit, the time a replay saves.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "fingerprint": {
+          "description": "With `-vv`: everything the cached run depends on, changed or not: the env names and inputs the cache records for this step. Absent when it depends on none.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Fingerprint"
+            }
+          ]
+        },
+        "outputs": {
+          "description": "With `-vv`: the files a hit restores, by path. Directories don't get entries of their own. Absent when there are none. `\"notDownloaded\"` for a cached run from the remote cache that has outputs: a dry run doesn't download its archive, so its files aren't known.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Outputs"
+            }
+          ]
+        }
+      },
+      "required": [
+        "durationMs"
+      ]
+    },
+    "Fingerprint": {
+      "description": "Everything a cached run depends on.",
+      "type": "object",
+      "properties": {
+        "env": {
+          "description": "Env names, sorted. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inputs": {
+          "description": "The cached run's inputs, by path, with what is checked: the files it matched or read, the directories it opened, and the paths it found missing. Absent when there are none.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/PathFingerprint"
+          }
+        }
+      }
+    },
+    "PathFingerprint": {
+      "description": "What a cached run recorded of a path it depends on.",
+      "oneOf": [
+        {
+          "description": "A file, matched by `cache.input` or read by the task. Its content is checked.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "file"
+            },
+            "hash": {
+              "description": "A hash of the content the cached run recorded. Compare it only with hashes from the same version of `vp run`: the algorithm can change.",
+              "type": "string"
+            },
+            "mayBeMissing": {
+              "description": "The task rewrites this file, so it may be missing, as on a fresh checkout. When it is there, its content is still checked.",
+              "type": "boolean",
+              "const": true
+            }
+          },
+          "required": [
+            "type",
+            "hash"
+          ]
+        },
+        {
+          "description": "A directory the task opened.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "dir"
+            },
+            "entries": {
+              "description": "The names of the directory's entries, when the task listed it. Adding or removing an entry is a change. An empty array means the directory was empty. Absent when the task opened the directory without listing it: then only that it exists is checked.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "mayBeMissing": {
+              "description": "The task creates this directory, as a folder or a link, so it may be missing, as on a fresh checkout. When it is there, it is still checked.",
+              "type": "boolean",
+              "const": true
+            }
+          },
+          "required": [
+            "type"
+          ]
+        },
+        {
+          "description": "A path the task looked for and didn't find. Creating it is a change.",
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "missing"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "Outputs": {
+      "description": "The files a hit restores, or why they aren't listed.",
+      "anyOf": [
+        {
+          "description": "The files, by path.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        {
+          "description": "Why the files aren't listed.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Unlisted"
+            }
+          ]
+        }
+      ]
+    },
+    "Unlisted": {
+      "description": "Why a hit's output files aren't listed.",
+      "oneOf": [
+        {
+          "description": "The cached run is in the remote cache, and a dry run doesn't download its archive.",
+          "type": "string",
+          "const": "notDownloaded"
+        }
+      ]
+    },
+    "Hit": {
+      "description": "A step that matches its cached run.",
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "description": "The cached run the step matches.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Baseline"
+            }
+          ]
+        }
+      },
+      "required": [
+        "baseline"
+      ]
+    },
+    "Change": {
+      "description": "One difference between a step and its cached run.",
+      "oneOf": [
+        {
+          "description": "The program changed. Each is the program as the cache records it: a path inside the workspace, or just the file name outside it, so `node` from another install is not a change.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "program"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "from",
+            "to"
+          ]
+        },
+        {
+          "description": "The arguments changed.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "args"
+            },
+            "from": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "to": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "from",
+            "to"
+          ]
+        },
+        {
+          "description": "The working directory changed. Each is relative to the workspace root.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "cwd"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "from",
+            "to"
+          ]
+        },
+        {
+          "description": "The setting changed. A changed `input` is one change: the files it now matches aren't listed.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "config"
+            },
+            "setting": {
+              "$ref": "#/definitions/Setting"
+            }
+          },
+          "required": [
+            "kind",
+            "setting"
+          ]
+        },
+        {
+          "description": "An env var was added, removed, or changed value.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "env"
+            },
+            "name": {
+              "type": "string"
+            },
+            "change": {
+              "$ref": "#/definitions/HowChanged"
+            }
+          },
+          "required": [
+            "kind",
+            "name",
+            "change"
+          ]
+        },
+        {
+          "description": "A file was added, removed, or changed. `added` also covers a new file in a directory the task listed.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "file"
+            },
+            "path": {
+              "type": "string"
+            },
+            "change": {
+              "$ref": "#/definitions/HowChanged"
+            }
+          },
+          "required": [
+            "kind",
+            "path",
+            "change"
+          ]
+        }
+      ]
+    },
+    "Setting": {
+      "description": "A task setting that affects caching.",
+      "type": "string",
+      "enum": [
+        "input",
+        "output",
+        "untrackedEnv"
+      ]
+    },
+    "HowChanged": {
+      "description": "How an env var or a file changed.",
+      "type": "string",
+      "enum": [
+        "added",
+        "removed",
+        "changed"
+      ]
+    },
+    "Changed": {
+      "description": "A step that differs from its cached run.",
+      "type": "object",
+      "properties": {
+        "baseline": {
+          "description": "The cached run the step is compared with, which has the same command, config and env. Absent when the command, config or env changed: then `changes` lists only those.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Baseline"
+            }
+          ]
+        },
+        "changes": {
+          "description": "What differs from the cached run, sorted by kind in the order listed here, then by name or path. Undoing all of them would make the step a hit, unless `changesPartial` is set. Present for `changed`, and for `unknown` when today's check found differences.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Change"
+          }
+        },
+        "changesPartial": {
+          "description": "Other files may have changed too: without `-v`, the file check stops at the first changed file it finds, and after a command, config or env change, it doesn't run. Absent when every change is listed.",
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "NestedStep": {
+      "description": "A nested `vp run`, which runs a plan of its own.",
+      "type": "object",
+      "properties": {
+        "expandedFrom": {
+          "description": "The `vp run …` command this step stands for, as written, with any arguments given after the task name: `vp run -r test`.",
+          "type": "string"
+        },
+        "plan": {
+          "description": "The plan of that nested `vp run`, in the same shape. Its tasks' `dependsOn` refer only to tasks in it, so the same ID can appear in more than one plan.",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/PlanTask"
+          }
+        }
+      },
+      "required": [
+        "expandedFrom",
+        "plan"
+      ]
+    }
+  }
+}

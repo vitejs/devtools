@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskGraph",
+  "description": "Every package and task in the workspace, and how the tasks depend on each other, as printed by `vp run --json`.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "description": "`file://` URL of the JSON Schema that describes this document.",
+      "type": "string"
+    },
+    "version": {
+      "description": "Format version. It changes only for a breaking change: a rename, a removal, or a changed meaning. New fields and values don't change it; ignore fields you don't know.",
+      "type": "integer",
+      "const": 1
+    },
+    "workspaceRoot": {
+      "description": "Absolute path of the workspace root. Other paths are relative to it, with `/` on every platform.",
+      "type": "string"
+    },
+    "packages": {
+      "description": "Every package in the workspace, keyed by path (`\".\"` for the root), even ones without tasks.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Package"
+      }
+    },
+    "tasks": {
+      "description": "Every task, keyed by task ID: `<package path>#<task name>`, e.g. `packages/ui#build`, or just the task name for a task of the root package. In each part, `%` is written `%25` and `#` is written `%23`. Compare IDs; don't decode them.",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Task"
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "version",
+    "workspaceRoot",
+    "packages",
+    "tasks"
+  ],
+  "definitions": {
+    "Package": {
+      "description": "A package in the workspace.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name in `package.json`. Absent when the package has none.",
+          "type": "string"
+        },
+        "dependencies": {
+          "description": "The other workspace packages in `dependencies` in `package.json`, by path. Packages from outside the workspace aren't listed. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "devDependencies": {
+          "description": "The other workspace packages in `devDependencies` in `package.json`, by path. Packages from outside the workspace aren't listed. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "peerDependencies": {
+          "description": "The other workspace packages in `peerDependencies` in `package.json`, by path. Packages from outside the workspace aren't listed. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Task": {
+      "description": "A task.",
+      "type": "object",
+      "properties": {
+        "package": {
+          "description": "The path of the task's package, which is also its key in `packages`.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The task name, from `vite.config.*` or a `package.json` script.",
+          "type": "string"
+        },
+        "cwd": {
+          "description": "The directory the command runs in, when the task's `cwd` setting changes it. It is absolute when it's outside the workspace.",
+          "type": "string"
+        },
+        "command": {
+          "description": "The command as the task defines it.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "dependsOn": {
+          "description": "The tasks in the task's own `dependsOn`, by ID. An entry such as `{ task: 'build', from: 'dependencies' }` is replaced by the tasks it selects. Absent when there are none.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "package",
+        "name",
+        "command"
+      ]
+    }
+  }
+}

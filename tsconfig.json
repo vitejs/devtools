@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/oxc/src/tsconfig.json" },
     { "path": "./packages/rolldown/src/tsconfig.json" },
+    { "path": "./packages/vite-task/src/tsconfig.json" },
     { "path": "./packages/vite/src/tsconfig.json" },
     { "path": "./packages/webext/tsconfig.json" }
   ],
