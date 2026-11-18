@@ -17,10 +17,7 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  list: (props: {
-    select: (module: T) => void
-    data: T[]
-  }) => void
+  option?: (props: { item: T }) => void
   item: (props: {
     id: string
   }) => void
@@ -111,8 +108,10 @@ function close() {
         :data="startSelector.modules.value"
         @clear="() => { startSelector.clear(); endSelector.clear() }"
       >
-        <template #list>
-          <slot name="list" :select="startSelector.select" :data="startSelector.modules.value" />
+        <template #option="{ item }">
+          <slot name="option" :item="item">
+            <slot :id="item.id" name="item" />
+          </slot>
         </template>
         <template #item>
           <slot :id="startSelector.state.value.selected!" name="item" />
@@ -127,8 +126,10 @@ function close() {
         :data="filteredEndModules"
         @clear="endSelector.clear"
       >
-        <template #list>
-          <slot name="list" :select="endSelector.select" :data="filteredEndModules" />
+        <template #option="{ item }">
+          <slot name="option" :item="item">
+            <slot :id="item.id" name="item" />
+          </slot>
         </template>
         <template #item>
           <slot :id="endSelector.state.value.selected!" name="item" />
