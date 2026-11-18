@@ -23,6 +23,7 @@ const stage = ref<Stage>('confirm')
 const commandLine = ref('vite build')
 const buildSessionId = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
+const errorOutput = ref<string | null>(null)
 const newSessions = ref<BuildInfo[]>([])
 
 // Reset to the confirmation step and load the exact command each time the
@@ -32,6 +33,7 @@ watch(open, async (isOpen) => {
     return
   stage.value = 'confirm'
   errorMessage.value = null
+  errorOutput.value = null
   newSessions.value = []
   buildSessionId.value = null
   try {
@@ -47,12 +49,13 @@ watch(open, async (isOpen) => {
 async function confirmRun() {
   stage.value = 'running'
   errorMessage.value = null
+  errorOutput.value = null
   // Snapshot existing session ids to surface only the ones this build produces.
   const before = new Set((await rpc.value.call('vite:rolldown:list-sessions')).map(s => s.id))
   try {
     const { sessionId } = await rpc.value.call('vite:rolldown:run-build')
     buildSessionId.value = sessionId
-    const { exitCode } = await rpc.value.call('vite:rolldown:wait-for-build')
+    const { exitCode, errorOutput: output } = await rpc.value.call('vite:rolldown:wait-for-build')
     const list = await rpc.value.call('vite:rolldown:list-sessions')
     emit('refresh', list)
     newSessions.value = list.filter(s => !before.has(s.id))
@@ -63,6 +66,7 @@ async function confirmRun() {
     if (exitCode != null && exitCode !== 0) {
       stage.value = 'error'
       errorMessage.value = `Build exited with code ${exitCode}.`
+      errorOutput.value = output ?? null
     }
     else {
       stage.value = 'success'
@@ -177,9 +181,10 @@ async function viewInTerminal() {
           <span class="i-ph-x-circle-duotone" />
           Build failed.
         </div>
-        <p v-if="errorMessage" class="m0 op70 text-sm">
+        <p v-if="errorMessage && !errorOutput" class="m0 op70 text-sm">
           {{ errorMessage }}
         </p>
+        <pre v-if="errorOutput" class="m0 p3 max-h-72 rounded-lg border border-base bg-code font-mono text-sm of-auto text-left whitespace-pre-wrap break-words" tabindex="0" aria-label="Build error output"><code>{{ errorOutput }}</code></pre>
         <div class="flex-auto" />
         <div class="flex justify-end gap-2">
           <ActionButton @click="open = false">

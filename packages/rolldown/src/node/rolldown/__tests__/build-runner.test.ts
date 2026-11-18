@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getBuildCommand, startBuild } from '../build-runner'
+import { getBuildCommand, startBuild, waitForBuild } from '../build-runner'
 
 const fixtures: string[] = []
 
@@ -19,6 +19,7 @@ function fakeContext() {
     status: 'running',
     terminate: vi.fn(async () => {}),
     getResult: vi.fn(),
+    buffer: [] as string[],
   }))
   const context = {
     cwd: '/project',
@@ -69,5 +70,38 @@ describe('startBuild', () => {
     expect(startChildProcess.mock.calls[0]![0]).toMatchObject({
       env: { NODE_ENV: 'production' },
     })
+  })
+})
+
+describe('waitForBuild', () => {
+  it('returns the last 20 terminal lines without ANSI escapes for a failed build', async () => {
+    const { context, startChildProcess } = fakeContext()
+    await startBuild(context)
+    const session = await startChildProcess.mock.results[0]!.value
+    session.buffer.push('earlier output\r\n', ...Array.from({ length: 25 }, (_, i) => `\u001B[31merror ${i}\u001B[0m\r\n`))
+    session.getResult.mockResolvedValue({ exitCode: 1, stdout: 'stdout', stderr: 'stderr' })
+
+    expect(await waitForBuild()).toEqual({
+      exitCode: 1,
+      errorOutput: Array.from({ length: 20 }, (_, i) => `error ${i + 5}`).join('\n'),
+    })
+  })
+
+  it('falls back to captured output when the terminal buffer is empty', async () => {
+    const { context, startChildProcess } = fakeContext()
+    await startBuild(context)
+    const session = await startChildProcess.mock.results[0]!.value
+    session.getResult.mockResolvedValue({ exitCode: 1, stdout: 'Building...', stderr: '\u001B[31mMissing config\u001B[0m\n' })
+
+    expect(await waitForBuild()).toEqual({ exitCode: 1, errorOutput: 'Building...\nMissing config' })
+  })
+
+  it('keeps successful results free of error output', async () => {
+    const { context, startChildProcess } = fakeContext()
+    await startBuild(context)
+    const session = await startChildProcess.mock.results[0]!.value
+    session.getResult.mockResolvedValue({ exitCode: 0, stdout: 'Built', stderr: '' })
+
+    expect(await waitForBuild()).toEqual({ exitCode: 0 })
   })
 })
