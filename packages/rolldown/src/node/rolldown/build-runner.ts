@@ -1,5 +1,6 @@
 import type { DevToolsChildProcessExecuteOptions, ViteDevToolsNodeContext } from '@vitejs/devtools-kit'
 import process from 'node:process'
+import { stripVTControlCharacters } from 'node:util'
 import { ROLLDOWN_DEVTOOLS_ENV } from '@vitejs/devtools-kit/constants'
 import { isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { diagnostics } from '../diagnostics'
@@ -29,6 +30,8 @@ export interface RunBuildResult {
 export interface WaitBuildResult {
   /** Process exit code, or `null` when there is no build to await. */
   exitCode: number | null
+  /** Last 20 lines of terminal output when the build fails, without ANSI escapes. */
+  errorOutput?: string
 }
 
 /**
@@ -94,10 +97,16 @@ export async function startBuild(context: ViteDevToolsNodeContext): Promise<RunB
 
 /** Resolve once the spawned build exits. */
 export async function waitForBuild(): Promise<WaitBuildResult> {
-  if (!current)
+  const session = current
+  if (!session)
     return { exitCode: null }
   try {
-    const result = await current.getResult()
+    const result = await session.getResult()
+    if (result.exitCode != null && result.exitCode !== 0) {
+      const output = session.buffer?.join('') || `${result.stdout}\n${result.stderr}`
+      const errorOutput = stripVTControlCharacters(output).trimEnd().split(/\r\n|\r|\n/).slice(-20).join('\n')
+      return { exitCode: result.exitCode, errorOutput }
+    }
     return { exitCode: result.exitCode ?? null }
   }
   catch {
