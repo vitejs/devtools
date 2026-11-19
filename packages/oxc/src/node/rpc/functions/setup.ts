@@ -6,17 +6,18 @@ import { diagnostics } from '../../diagnostics'
 
 export type SetupContext = DevframeNodeContext & { terminals?: DevToolsTerminalHost }
 type SetupSession = Awaited<ReturnType<DevToolsTerminalHost['startChildProcess']>>
+type SetupDiagnostic = (typeof diagnostics)['OXDT0005' | 'OXDT0006']
 
 let current: SetupSession | undefined
 let currentSessionId: string | undefined
 let runCount = 0
-let setupDiagnostic = diagnostics.OXDT0005
+let setupDiagnostic: SetupDiagnostic = diagnostics.OXDT0005
 
 export async function startSetup(
   context: SetupContext,
   commandLines: string[],
   title: string,
-  diagnostic = diagnostics.OXDT0005,
+  diagnostic: SetupDiagnostic = diagnostics.OXDT0005,
 ): Promise<{ sessionId?: string }> {
   setupDiagnostic = diagnostic
   const terminals = context.terminals
