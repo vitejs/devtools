@@ -1,0 +1,12 @@
+{
+  "name": "@vite-task-playground/ui",
+  "type": "module",
+  "version": "0.8.3",
+  "private": true,
+  "scripts": {
+    "lint": "node ../../scripts/task.mjs lint"
+  },
+  "dependencies": {
+    "@vite-task-playground/core": "workspace:*"
+  }
+}

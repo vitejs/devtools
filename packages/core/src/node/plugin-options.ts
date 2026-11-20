@@ -42,7 +42,7 @@ export interface ViteDevToolsUiOptions {
   dockPreferences?: DevToolsDockPreferences
 }
 
-export type DevToolsBuiltinIntegrationId = 'rolldown' | 'vite' | 'vitest' | 'oxc'
+export type DevToolsBuiltinIntegrationId = 'rolldown' | 'vite' | 'vitest' | 'vite-task' | 'oxc'
 
 export interface DevToolsBuiltinOptions {
   /**
@@ -64,7 +64,7 @@ export interface DevToolsBuiltinOptions {
    */
   inspect?: boolean
   /**
-   * Built-in integrations (Rolldown, Vite, Vitest, Oxc), including their install launchers.
+   * Built-in integrations (Rolldown, Vite, Vitest, Vite Task, Oxc), including their install launchers.
    *
    * @default true
    */

@@ -1,0 +1,9 @@
+{
+  "name": "@vite-task-playground/types",
+  "type": "module",
+  "version": "0.8.3",
+  "private": true,
+  "scripts": {
+    "lint": "node ../../scripts/task.mjs lint"
+  }
+}

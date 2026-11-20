@@ -1,0 +1,16 @@
+{
+  "name": "playground-vite-task",
+  "type": "module",
+  "version": "0.8.3",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "check": "node -e \"console.log('workspace checked')\""
+  },
+  "devDependencies": {
+    "@vitejs/devtools": "workspace:*",
+    "@vitejs/devtools-vite-task": "workspace:*",
+    "vite": "catalog:build",
+    "vite-plus": "catalog:build"
+  }
+}

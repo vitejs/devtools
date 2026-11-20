@@ -1,0 +1,13 @@
+{
+  "name": "@vite-task-playground/core",
+  "type": "module",
+  "version": "0.8.3",
+  "private": true,
+  "scripts": {
+    "lint": "node ../../scripts/task.mjs lint"
+  },
+  "dependencies": {
+    "@vite-task-playground/shared": "workspace:*",
+    "@vite-task-playground/types": "workspace:*"
+  }
+}

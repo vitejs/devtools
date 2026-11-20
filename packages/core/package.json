@@ -49,6 +49,7 @@
     "@vitejs/devtools-oxc": "workspace:^",
     "@vitejs/devtools-rolldown": "workspace:^",
     "@vitejs/devtools-vite": "workspace:^",
+    "@vitejs/devtools-vite-task": "workspace:^",
     "@vitejs/devtools-vitest": "workspace:^",
     "vite": "*"
   },
@@ -60,6 +61,9 @@
       "optional": true
     },
     "@vitejs/devtools-vite": {
+      "optional": true
+    },
+    "@vitejs/devtools-vite-task": {
       "optional": true
     },
     "@vitejs/devtools-vitest": {

@@ -39,6 +39,9 @@
       "@vitejs/devtools-vite": [
         "./packages/vite/src/index.ts"
       ],
+      "@vitejs/devtools-vite-task": [
+        "./packages/vite-task/src/index.ts"
+      ],
       "@vitejs/devtools-vitest": [
         "./packages/vitest/src/index.ts"
       ],
