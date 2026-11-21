@@ -99,6 +99,27 @@ export default defineConfig({
 })
 ```
 
+Use `settingsDefaults` for panel settings the project shares, such as freeing <kbd>⌘</kbd> <kbd>K</kbd> for the app's own palette. A developer's own choice in Settings still wins, and a reset returns to these values.
+
+```ts [vite.config.ts] twoslash
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  devtools: {
+    apply: 'serve',
+    settingsDefaults: {
+      commandShortcuts: {
+        // An empty array leaves the command unbound.
+        'devframes:toggle-palette': [],
+      },
+      docksCustomOrder: {
+        devframes_plugin_git: -10,
+      },
+    },
+  },
+})
+```
+
 ### Configure built-in features
 
 `builtinDevTools` controls the built-in panels and integrations. `true` (the default) mounts all of them and `false` mounts none. Pass an object to toggle the Terminals, Messages, and Inspect panels and the integrations individually; entries you leave out stay enabled. `terminals` also accepts [`@devframes/plugin-terminals`](https://devfra.me) options, such as a custom `shell` or command `presets`.
