@@ -35,7 +35,7 @@ ctx.commands.register(clearCache)
 | `when` | `string` | Conditional visibility expression — see [When Clauses](./when-clauses.md) |
 | `keybindings` | `DevToolsCommandKeybinding[]` | Default keyboard shortcuts |
 | `handler` | `Function` | Server-side handler. Optional if the command is a group for children. |
-| `children` | `DevToolsServerCommandInput[]` | Static sub-commands (two levels max) |
+| `children` | `DevToolsServerCommandInput[]` | Static sub-commands. Each child can have its own children. |
 
 ## Command Handle
 
@@ -57,7 +57,7 @@ handle.unregister()
 
 ## Sub-Commands
 
-Two-level hierarchy. Selecting a parent in the palette drills down into its children.
+You can nest command groups at any depth. Select a group in the palette to see its children.
 
 ```ts
 ctx.commands.register({

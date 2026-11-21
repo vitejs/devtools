@@ -73,7 +73,7 @@ const plugin: Plugin = {
 | `when` | `string` | Conditional visibility expression (see [When Clauses](/kit/when-clauses)) |
 | `keybindings` | `DevToolsCommandKeybinding[]` | Default keyboard shortcuts |
 | `handler` | `Function` | Server-side handler. Optional if the command is a group for children. |
-| `children` | `DevToolsServerCommandInput[]` | Static sub-commands (two levels max) |
+| `children` | `DevToolsServerCommandInput[]` | Static sub-commands. Each child can have its own children. |
 
 ### Command handle
 
@@ -95,7 +95,7 @@ handle.unregister()
 
 ## Sub-commands
 
-Commands can have static children, forming a two-level hierarchy. Selecting a parent in the palette drills into its children.
+You can nest command groups at any depth. Select a group in the palette to see its children.
 
 ```ts
 ctx.commands.register({
