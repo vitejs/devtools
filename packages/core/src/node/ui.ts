@@ -36,6 +36,7 @@ export function createViteDevToolsUi(options: ViteDevToolsUiOptions = {}): Devfr
     branding: resolveBranding(options.branding),
     embeddedVisibility: options.embeddedVisibility,
     dockPreferences: options.dockPreferences,
+    settingsDefaults: options.settingsDefaults,
   })
 }
 
