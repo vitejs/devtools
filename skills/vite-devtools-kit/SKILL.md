@@ -298,12 +298,11 @@ const session = await ctx.terminals.startChildProcess(
   },
 )
 
-// Lifecycle controls
-await session.terminate()
+// Restart the running watcher in the same terminal session
 await session.restart()
 ```
 
-A common pattern is combining with launcher docks — see [Terminals Patterns](./references/terminals-patterns.md).
+After the process exits or you call `await session.terminate()`, remove the closed session and start a new one with a fresh ID. See [Terminals Patterns](./references/terminals-patterns.md) for the replacement example and launcher docks.
 
 ## Commands & Command Palette
 
