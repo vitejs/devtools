@@ -3,50 +3,48 @@ import { statSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 import { x } from 'tinyexec'
+import { isVitePlusVersionSupported } from '../shared/version'
 import { diagnostics } from './diagnostics'
 
 const versionChecks = new Map<string, { mtimeMs: number, check: Promise<void> }>()
 const taskSelectorsByWorkspace = new Map<string, Map<string, string[]>>()
-const planAbortControllers = new Map<string, AbortController>()
 
-async function execute(workspaceRoot: string, executable: string, args: string[], signal?: AbortSignal): Promise<string> {
+async function execute(workspaceRoot: string, executable: string, args: string[]): Promise<string> {
   const command = `vp ${args.join(' ')}`
-  signal?.throwIfAborted()
   try {
     const result = await x(executable, args, {
       nodeOptions: { cwd: workspaceRoot },
       throwOnError: true,
-      signal,
     })
-    signal?.throwIfAborted()
     return result.stdout
   }
   catch (cause) {
-    signal?.throwIfAborted()
     throw diagnostics.VTKDT0003({ command, reason: String(cause), cause })
   }
 }
 
 async function checkVersion(workspaceRoot: string, executable: string): Promise<void> {
   const output = await execute(workspaceRoot, executable, ['--version'])
-  const match = /^vp v?(\d+)\.(\d+)\.(\d+)(-[\w.-]+)?(?:\+\S+)?\s*$/m.exec(output)
+  const match = /^vp v?(\d+\.\d+\.\d+(?:-[\w.-]+)?)(?:\+\S+)?\s*$/m.exec(output)
   if (!match)
     throw diagnostics.VTKDT0003({ command: 'vp --version', reason: `Unrecognized version output: ${output.trim()}` })
-  const [, major, minor, patch, prerelease] = match
-  const supported = Number(major) > 1 || (Number(major) === 1 && (Number(minor) > 6 || (Number(minor) === 6 && (Number(patch) > 0 || !prerelease))))
-  if (!supported)
+  if (!isVitePlusVersionSupported(match[1]!))
     throw diagnostics.VTKDT0002({ version: match[0].trim() })
 }
 
-async function runJson<T>(workspaceRoot: string, args: string[], signal?: AbortSignal): Promise<T> {
-  signal?.throwIfAborted()
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function runJson(workspaceRoot: string, args: string[], format: 'graph'): Promise<TaskGraph>
+function runJson(workspaceRoot: string, args: string[], format: 'plan'): Promise<RunPlan>
+async function runJson(workspaceRoot: string, args: string[], format: 'graph' | 'plan'): Promise<TaskGraph | RunPlan> {
   const executable = join(workspaceRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'vp.cmd' : 'vp')
   const stat = statSync(executable, { throwIfNoEntry: false })
   if (!stat)
     throw diagnostics.VTKDT0001({ executable })
 
   if (versionChecks.get(executable)?.mtimeMs !== stat.mtimeMs) {
-    // Shared version checks continue even when a plan request is cancelled.
     const check = checkVersion(workspaceRoot, executable).catch((error) => {
       if (versionChecks.get(executable)?.check === check)
         versionChecks.delete(executable)
@@ -56,17 +54,23 @@ async function runJson<T>(workspaceRoot: string, args: string[], signal?: AbortS
   }
   await versionChecks.get(executable)!.check
 
-  const json = await execute(workspaceRoot, executable, args, signal)
+  const json = await execute(workspaceRoot, executable, args)
+  let value: unknown
   try {
-    return JSON.parse(json) as T
+    value = JSON.parse(json)
   }
   catch (cause) {
     throw diagnostics.VTKDT0004({ command: `vp ${args.join(' ')}`, cause })
   }
+  if (!isRecord(value) || value.version !== 1 || typeof value.$schema !== 'string' || typeof value.workspaceRoot !== 'string'
+    || !(format === 'graph' ? isRecord(value.tasks) && isRecord(value.packages) : isRecord(value.plan))) {
+    throw diagnostics.VTKDT0004({ command: `vp ${args.join(' ')}` })
+  }
+  return value as TaskGraph | RunPlan
 }
 
-export async function loadTaskGraph(workspaceRoot: string, signal?: AbortSignal): Promise<TaskGraph> {
-  const graph = await runJson<TaskGraph>(workspaceRoot, ['run', '--json'], signal)
+export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
+  const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
   const taskSelectors = new Map<string, string[]>()
   for (const [id, task] of Object.entries(graph.tasks)) {
     // Graph IDs use package paths; the CLI expects package names or a directory filter.
@@ -82,27 +86,14 @@ export async function loadTaskGraph(workspaceRoot: string, signal?: AbortSignal)
 }
 
 export async function loadRunPlan(workspaceRoot: string, options: GetPlanOptions): Promise<RunPlan> {
-  planAbortControllers.get(workspaceRoot)?.abort()
-  const controller = new AbortController()
-  planAbortControllers.set(workspaceRoot, controller)
-  try {
-    if (typeof options.task !== 'string' || !options.task.trim() || options.task.startsWith('-'))
-      throw diagnostics.VTKDT0005({ task: String(options.task) })
-    // Refresh reloads the graph when task selectors become stale.
-    if (!taskSelectorsByWorkspace.get(workspaceRoot)?.has(options.task))
-      await loadTaskGraph(workspaceRoot, controller.signal)
-    const selector = taskSelectorsByWorkspace.get(workspaceRoot)?.get(options.task)
-    if (!selector)
-      throw diagnostics.VTKDT0005({ task: options.task })
+  if (typeof options.task !== 'string' || !options.task.trim() || options.task.startsWith('-'))
+    throw diagnostics.VTKDT0005({ task: String(options.task) })
+  // Refresh reloads the graph when task selectors become stale.
+  if (!taskSelectorsByWorkspace.get(workspaceRoot)?.has(options.task))
+    await loadTaskGraph(workspaceRoot)
+  const selector = taskSelectorsByWorkspace.get(workspaceRoot)?.get(options.task)
+  if (!selector)
+    throw diagnostics.VTKDT0005({ task: options.task })
 
-    return await runJson(workspaceRoot, ['run', '--dry-run', '--json', ...(options.verbose ? ['-vv'] : []), ...selector], controller.signal)
-  }
-  catch (error) {
-    controller.signal.throwIfAborted()
-    throw error
-  }
-  finally {
-    if (planAbortControllers.get(workspaceRoot) === controller)
-      planAbortControllers.delete(workspaceRoot)
-  }
+  return runJson(workspaceRoot, ['run', '--dry-run', '--json', ...(options.verbose ? ['-vv'] : []), ...selector], 'plan')
 }

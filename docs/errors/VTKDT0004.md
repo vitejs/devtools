@@ -6,11 +6,11 @@ outline: deep
 
 ## Message
 
-> Vite Plus returned invalid JSON for "`{command}`".
+> Vite Plus returned invalid or unsupported JSON for "`{command}`".
 
 ## Cause
 
-The inspector could not parse the command's standard output as JSON.
+The inspector expects a version 1 JSON object with string `$schema` and `workspaceRoot` fields. Task graphs must also contain `tasks` and `packages` objects, and dry-run responses must contain a `plan` object.
 
 ## Example
 
@@ -22,4 +22,4 @@ Check the Vite Plus version and ensure the workspace configuration does not prin
 
 ## Source
 
-- [`packages/vite-task/src/node/tasks.ts`](https://github.com/vitejs/devtools/blob/main/packages/vite-task/src/node/tasks.ts) — `runJson()` throws this when JSON parsing fails.
+- [`packages/vite-task/src/node/tasks.ts`](https://github.com/vitejs/devtools/blob/main/packages/vite-task/src/node/tasks.ts) — `runJson()` throws this when parsing fails or the top-level fields do not match the expected format.

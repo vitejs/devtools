@@ -8,7 +8,7 @@ import CacheFileList from './CacheFileList.vue'
 import CacheStatusBadge from './CacheStatusBadge.vue'
 import TaskFilePath from './TaskFilePath.vue'
 
-const props = withDefaults(defineProps<{ cache: StepCache, mode?: 'summary' | 'details', duration?: number }>(), { mode: 'details' })
+const props = withDefaults(defineProps<{ cache: StepCache, mode?: 'summary' | 'details' }>(), { mode: 'details' })
 const label = computed(() => cacheLabel(props.cache.status))
 
 const inputs = computed(() => Object.entries(props.cache.baseline?.fingerprint?.inputs ?? {}).map(([path, fingerprint]) => ({ path, fingerprint })))
@@ -21,9 +21,9 @@ function format(value: unknown) {
 
 <template>
   <template v-if="mode === 'summary'">
-    <span v-if="label || duration !== undefined || cache.baseline" class="inline-flex items-center gap2 text-xs">
+    <span v-if="label || cache.baseline" class="inline-flex items-center gap2 text-xs">
       <CacheStatusBadge :status="cache.status" />
-      <DisplayDuration v-if="duration !== undefined || cache.baseline" v-tooltip="'Duration of the cached run'" :duration="duration ?? cache.baseline?.durationMs" />
+      <DisplayDuration v-if="cache.baseline" v-tooltip="'Duration of the cached run'" :duration="cache.baseline.durationMs" />
     </span>
   </template>
   <div v-else class="w-fit max-w-[min(100%,48rem)] text-xs">

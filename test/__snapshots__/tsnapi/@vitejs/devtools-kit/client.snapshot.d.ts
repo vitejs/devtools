@@ -19,6 +19,7 @@ export type DevToolsRpcClientOptions = DevframeRpcClientOptions;
 // #region Functions
 export declare function getDevToolsClientContext(): DevToolsClientContext | undefined;
 export declare function getDevToolsRpcClient(_?: DevToolsRpcClientOptions): Promise<DevToolsRpcClient>;
+export declare function resolveDevToolsConnection(_: string[], _?: ConnectionMeta): Promise<Pick<DevToolsRpcClientOptions, 'baseURL' | 'connectionMeta'>>;
 // #endregion
 
 // #region Variables

@@ -4,6 +4,7 @@
 // #region Functions
 export function getDevToolsClientContext() {}
 export function getDevToolsRpcClient(_) {}
+export async function resolveDevToolsConnection(_, _) {}
 // #endregion
 
 // #region Variables

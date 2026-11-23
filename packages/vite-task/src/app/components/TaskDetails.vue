@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GraphTask, RunPlan } from '../../shared/types'
+import type { RunPlan } from '../../shared/types'
 import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
 import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
 import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
@@ -10,7 +10,7 @@ import TaskFlow from './TaskFlow.vue'
 import TaskId from './TaskId.vue'
 import TaskSteps from './TaskSteps.vue'
 
-const props = defineProps<{ graphTasks: Record<string, GraphTask>, selected: string, plan?: RunPlan, planLoading: boolean, planError: string }>()
+const props = defineProps<{ dependencies: string[], dependents: string[], selected: string, plan?: RunPlan, planLoading: boolean, planError: string }>()
 defineEmits<{ close: [], retry: [], select: [id: string] }>()
 const views = [
   { name: 'Task Flow', icon: 'i-ph-git-branch-duotone rotate-180' },
@@ -20,8 +20,6 @@ const views = [
 const view = ref<typeof views[number]['name']>('Task Flow')
 const rows = computed(() => planRows(props.plan?.plan ?? {}, props.selected))
 const cachedStepDurationsMs = computed(() => rows.value.flatMap(row => row.cachedStepDurationsMs))
-const dependencies = computed(() => props.graphTasks[props.selected]?.dependsOn ?? [])
-const dependents = computed(() => Object.keys(props.graphTasks).filter(id => props.graphTasks[id]?.dependsOn?.includes(props.selected)))
 const metrics = computed(() => [
   { status: 'hit', label: 'Cache hit', icon: 'i-ph-check-circle-duotone' },
   { status: 'changed', label: 'Inputs changed', icon: 'i-ph-pencil-simple-duotone' },

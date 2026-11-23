@@ -1,5 +1,5 @@
 import type { DevframeRpcClient, DevframeRpcClientOptions } from '@devframes/hub/client'
-import type { DevframeRpcClientFunctions } from '@devframes/hub/types'
+import type { ConnectionMeta, DevframeRpcClientFunctions } from '@devframes/hub/types'
 import type { BirpcReturn } from 'devframe/rpc'
 import type { DevToolsRpcServerFunctions } from '../types/rpc-augments'
 import { getDevframeRpcClient } from '@devframes/hub/client'
@@ -16,6 +16,25 @@ export interface DevToolsRpcClient extends Omit<
   call: DevToolsRpcClientCall
   callEvent: DevToolsRpcClientCallEvent
   callOptional: DevToolsRpcClientCallOptional
+}
+
+/** Prefer the mount path that serves the descriptor when dialing the WebSocket. */
+export async function resolveDevToolsConnection(baseURL: string[], connectionMeta?: ConnectionMeta): Promise<Pick<DevToolsRpcClientOptions, 'baseURL' | 'connectionMeta'>> {
+  if (!connectionMeta) {
+    for (const base of baseURL) {
+      try {
+        const response = await fetch(`${base}__connection.json`)
+        if (response.ok) {
+          return {
+            connectionMeta: await response.json() as ConnectionMeta,
+            baseURL: [base, ...baseURL.filter(candidate => candidate !== base)],
+          }
+        }
+      }
+      catch {}
+    }
+  }
+  return { baseURL, connectionMeta }
 }
 
 /**

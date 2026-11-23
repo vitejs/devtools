@@ -1,7 +1,7 @@
 import type { ConnectionMeta } from '@vitejs/devtools-kit'
 import type { DevToolsRpcClient } from '@vitejs/devtools-kit/client'
 import type {} from '../../node/rpc'
-import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client'
+import { getDevToolsRpcClient, resolveDevToolsConnection } from '@vitejs/devtools-kit/client'
 import { DEVTOOLS_MOUNT_PATH } from '@vitejs/devtools-kit/constants'
 import { reactive, shallowRef } from 'vue'
 import { useRuntimeConfig } from '#app/nuxt'
@@ -16,35 +16,16 @@ export const connectionState = reactive<{
 
 const rpc = shallowRef<DevToolsRpcClient>(undefined!)
 
-async function resolveConnection(bases: string[]) {
-  for (const base of bases) {
-    try {
-      const res = await fetch(`${base}__connection.json`)
-      if (!res.ok)
-        continue
-      return { connectionMeta: await res.json() as ConnectionMeta, base }
-    }
-    catch {}
-  }
-}
-
 export async function connect() {
   const runtimeConfig = useRuntimeConfig()
   try {
-    let bases = [DEVTOOLS_MOUNT_PATH, runtimeConfig.app.baseURL]
-    let connectionMeta = runtimeConfig.app.connection as ConnectionMeta | undefined
-    if (!connectionMeta) {
-      const resolved = await resolveConnection(bases)
-      if (resolved) {
-        connectionMeta = resolved.connectionMeta
-        bases = [resolved.base, ...bases.filter(base => base !== resolved.base)]
-      }
-    }
-
+    const connection = await resolveDevToolsConnection(
+      [DEVTOOLS_MOUNT_PATH, runtimeConfig.app.baseURL],
+      runtimeConfig.app.connection as ConnectionMeta | undefined,
+    )
     rpc.value = await getDevToolsRpcClient({
-      baseURL: bases,
+      ...connection,
       cacheOptions: false,
-      connectionMeta,
       wsOptions: {
         onConnected: () => {
           connectionState.connected = true
