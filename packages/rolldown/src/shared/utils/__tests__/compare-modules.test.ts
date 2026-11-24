@@ -13,33 +13,58 @@ function moduleDiff(key: string, overrides: Partial<SessionCompareModuleDiff> = 
     current: 42,
     delta: 0,
     deltaRatio: 0,
-    previousChunks: ['before'],
-    currentChunks: ['after'],
-    previousChunkKeys: ['name:before'],
-    currentChunkKeys: ['name:after'],
+    previousChunks: ['main'],
+    currentChunks: ['main'],
+    previousChunkKeys: ['name:main'],
+    currentChunkKeys: ['name:main'],
     moved: false,
     ...overrides,
   }
 }
 
 describe('compared module membership', () => {
-  const modules = [
-    moduleDiff('stable.js', { package: '@example/shared' }),
-    moduleDiff('added.js', { status: 'added', previousId: undefined, previousChunkKeys: [] }),
-    moduleDiff('removed.js', { status: 'removed', currentId: undefined, currentChunkKeys: [] }),
-  ]
-
-  it('keeps unchanged members searchable inside either side of a chunk filter', () => {
-    expect(filterComparedModules(modules, { chunk: 'name:before', search: ' STABLE ' }).map(item => item.key)).toEqual(['stable.js'])
-    expect(filterComparedModules(modules, { chunk: 'name:after', search: '@EXAMPLE/SHARED' }).map(item => item.key)).toEqual(['stable.js'])
-    expect(filterComparedModules(modules, { chunk: 'name:after', search: '' }).map(item => item.key)).toEqual(['stable.js', 'added.js'])
-    expect(filterComparedModules(modules, { chunk: 'name:missing', search: '' })).toEqual([])
-    expect(filterComparedModules(modules, { search: '' })).toHaveLength(3)
+  const stable = moduleDiff('stable.js', { package: '@example/shared' })
+  const moved = moduleDiff('moved.js', {
+    status: 'changed',
+    currentChunks: ['lazy'],
+    currentChunkKeys: ['name:lazy'],
+    moved: true,
   })
 
-  it('counts each session member once without using the full module graph count', () => {
-    expect(getComparedModuleCount(modules, 0)).toBe(2)
-    expect(getComparedModuleCount(modules, 1)).toBe(2)
+  const added = moduleDiff('added.js', {
+    status: 'added',
+    previousId: undefined,
+    previousChunks: [],
+    previousChunkKeys: [],
+    previous: 0,
+    delta: 42,
+    deltaRatio: null,
+  })
+  const removed = moduleDiff('removed.js', {
+    status: 'removed',
+    currentId: undefined,
+    currentChunks: [],
+    currentChunkKeys: [],
+    current: 0,
+    delta: -42,
+    deltaRatio: -1,
+  })
+
+  it('keeps unchanged members searchable and matches moved members in either chunk', () => {
+    const modules = [stable, moved, added, removed]
+    expect(filterComparedModules(modules, { chunk: 'name:main', search: ' STABLE ' })).toEqual([stable])
+    expect(filterComparedModules(modules, { chunk: 'name:main', search: '@EXAMPLE/SHARED' })).toEqual([stable])
+    expect(filterComparedModules(modules, { chunk: 'name:main', search: '' })).toEqual([stable, moved, added, removed])
+    expect(filterComparedModules(modules, { chunk: 'name:lazy', search: '' })).toEqual([moved])
+    expect(filterComparedModules(modules, { chunk: 'name:missing', search: '' })).toEqual([])
+    expect(filterComparedModules(modules, { search: '' })).toEqual(modules)
+  })
+
+  it('counts members on the side where they are present', () => {
+    expect(getComparedModuleCount([stable, added], 0)).toBe(1)
+    expect(getComparedModuleCount([stable, added], 1)).toBe(2)
+    expect(getComparedModuleCount([stable, removed], 0)).toBe(2)
+    expect(getComparedModuleCount([stable, removed], 1)).toBe(1)
     expect(getComparedModuleCount(undefined, 0)).toBe(0)
   })
 })
