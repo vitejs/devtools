@@ -484,7 +484,7 @@ const diffModeOptions = computed<Array<{
             id: 'unchanged' as const,
             label: 'Unchanged',
             icon: 'i-ph-equals-duotone',
-            description: 'Members with the same transform size and chunk membership.',
+            description: 'Members with the same chunk membership and compared size. Missing transform sizes count as 0 B.',
             count: unchangedRows.value.length,
             delta: sumDelta(unchangedRows.value),
             rows: unchangedRows.value.slice(0, TABLE_LIMIT),
@@ -744,6 +744,7 @@ function sumDelta(rows: SplitDiffRow[]) {
           <template v-if="props.tab === 'modules'">
             <p class="text-sm op60">
               Sizes use each member's last recorded transform, before bundling, tree shaking and minification.
+              Missing transform sizes count as 0 B in comparisons and totals.
               Added and Removed mean entering or leaving output-chunk membership.
               The totals above cover all compared members in each session; list filters apply only to the rows.
               Emitted chunk sizes can change while transform sizes stay the same.
