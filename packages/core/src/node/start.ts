@@ -39,8 +39,8 @@ export async function startDevTools(
   })
 
   const { createServer } = await import('node:http')
-  // Import from `h3/node`, not bare `h3`: Nuxt 4.6 pins bare `h3` to its own v1 types in the
-  // generated tsconfigs of the Nuxt apps that type-check this file.
+  // Nuxt's generated tsconfigs map `h3` to v1 types.
+  // The standalone server uses the H3 v2 API from `h3/node`.
   const { defineHandler, H3, sendRedirect, toNodeHandler } = await import('h3/node')
   const { mountStaticHandler } = await import('devframe/utils/serve-static')
   const { resolveStaticAssetsSource } = await import('devframe/utils/remote-assets')
