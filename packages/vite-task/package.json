@@ -38,7 +38,6 @@
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "devframe": "catalog:deps",
-    "local-pkg": "catalog:deps",
     "nostics": "catalog:deps",
     "tinyexec": "catalog:deps"
   },

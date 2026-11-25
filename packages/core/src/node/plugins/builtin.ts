@@ -5,7 +5,7 @@ import { createInspectDevframe } from '@devframes/plugin-inspect'
 import { createMessagesDevframe } from '@devframes/plugin-messages'
 import { createTerminalsDevframe } from '@devframes/plugin-terminals'
 import { DEVTOOLS_INSPECTOR_DOCK_ID } from '@vitejs/devtools-kit/constants'
-import { createInstallLauncher, createPluginFromDevframe } from '@vitejs/devtools-kit/node'
+import { createInstallLauncher, createPluginFromDevframe, isVitePlusInstalled } from '@vitejs/devtools-kit/node'
 import { isPackageExists } from 'local-pkg'
 import { resolve } from 'pathe'
 import { version } from '../../../package.json'
@@ -199,6 +199,9 @@ export async function DevToolsBuiltin(options: {
         }
 
         for (const integration of launchers) {
+          if (integration.id === 'vite-task' && !isVitePlusInstalled(ctx.cwd))
+            continue
+
           plugins.push(createInstallLauncher({
             id: integration.id,
             title: integration.title,

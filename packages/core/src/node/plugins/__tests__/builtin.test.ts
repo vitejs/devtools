@@ -1,5 +1,8 @@
 import { isPackageExists } from 'local-pkg'
+import { resolve } from 'pathe'
+import { resolveConfig } from 'vite'
 import { describe, expect, it, vi } from 'vitest'
+import { createDevToolsContext } from '../../context'
 import { DevToolsBuiltin, resolveBuiltinOptions } from '../builtin'
 
 vi.mock('local-pkg', () => ({
@@ -30,6 +33,29 @@ describe('resolveBuiltinOptions', () => {
 })
 
 describe('devToolsBuiltin', () => {
+  it.each([false, true])('matches Vite Task launcher visibility to Vite+ in the project (%s)', async (vitePlusInstalled) => {
+    const workspaceRoot = resolve('workspace')
+    const cwd = resolve(workspaceRoot, 'apps/web')
+
+    await vi.mocked(isPackageExists).withImplementation(
+      (name, options) => vitePlusInstalled && name === 'vite-plus' && options?.paths?.[0] === cwd,
+      async () => {
+        const config = await resolveConfig({
+          configFile: false,
+          root: cwd,
+          plugins: [DevToolsBuiltin({
+            cwd: workspaceRoot,
+            builtinDevTools: { terminals: false, messages: false, inspect: false },
+          })],
+        }, 'serve')
+        const { docks } = await createDevToolsContext(config)
+        const dockIds = docks.values().map(dock => dock.id)
+        expect(dockIds.includes('vite-task')).toBe(vitePlusInstalled)
+        expect(dockIds).toContain('oxc')
+      },
+    )
+  })
+
   it('skips disabled integrations', async () => {
     vi.mocked(isPackageExists).mockClear()
     await DevToolsBuiltin({ builtinDevTools: { integrations: { 'vitest': false, 'vite-task': false, 'oxc': false } } })
