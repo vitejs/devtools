@@ -21,12 +21,9 @@ export declare function getDevToolsClientContext(): DevToolsClientContext | unde
 export declare function getDevToolsRpcClient(_?: DevToolsRpcClientOptions): Promise<DevToolsRpcClient>;
 // #endregion
 
-// #region Variables
-export declare const CLIENT_CONTEXT_KEY: string;
-// #endregion
-
 // #region Other
 export { attachDevToolsFrameNav }
+export { CLIENT_CONTEXT_KEY }
 export { CommandsContext }
 export { connectRemoteDevTools }
 export { ConnectRemoteDevToolsOptions }
