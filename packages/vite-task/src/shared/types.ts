@@ -1,0 +1,106 @@
+/** JSON formats from voidzero-dev/vite-task revision cb1ea8d214b26a0f3ca2b2ef3b6bc471b18ffacb. */
+export interface TaskPackage {
+  name?: string
+  dependencies?: string[]
+  devDependencies?: string[]
+  peerDependencies?: string[]
+  [key: string]: unknown
+}
+
+export interface GraphTask {
+  package: string
+  name: string
+  command: string | string[]
+  cwd?: string
+  dependsOn?: string[]
+  [key: string]: unknown
+}
+
+export interface TaskGraph {
+  $schema: string
+  version: 1
+  workspaceRoot: string
+  packages: Record<string, TaskPackage>
+  tasks: Record<string, GraphTask>
+  [key: string]: unknown
+}
+
+export type CacheStatus = 'hit' | 'changed' | 'unknown' | 'noBaseline' | 'error' | 'disabled' | (string & {})
+
+export interface PathFingerprint {
+  type: 'file' | 'dir' | 'missing' | (string & {})
+  hash?: string
+  entries?: string[]
+  mayBeMissing?: boolean
+  [key: string]: unknown
+}
+
+export interface CacheBaseline {
+  durationMs: number
+  fingerprint?: {
+    env?: string[]
+    inputs?: Record<string, PathFingerprint>
+    [key: string]: unknown
+  }
+  outputs?: string[] | 'notDownloaded' | (string & {})
+  [key: string]: unknown
+}
+
+export interface CacheChange {
+  kind: 'program' | 'args' | 'cwd' | 'config' | 'env' | 'file' | (string & {})
+  from?: string | string[]
+  to?: string | string[]
+  setting?: string
+  name?: string
+  path?: string
+  change?: 'added' | 'removed' | 'changed' | (string & {})
+  [key: string]: unknown
+}
+
+export interface StepCache {
+  status: CacheStatus
+  baseline?: CacheBaseline
+  changes?: CacheChange[]
+  changesPartial?: boolean
+  message?: string
+  [key: string]: unknown
+}
+
+export interface CommandStep {
+  program: string
+  args?: string[]
+  cwd?: string
+  hook?: string
+  cache?: StepCache
+  [key: string]: unknown
+}
+
+export interface NestedStep {
+  expandedFrom: string
+  plan: Record<string, PlanTask>
+  [key: string]: unknown
+}
+
+export type PlanStep = CommandStep | NestedStep
+
+export interface PlanTask {
+  package: string
+  name: string
+  dependsOn?: string[]
+  steps: PlanStep[]
+  [key: string]: unknown
+}
+
+export interface RunPlan {
+  $schema: string
+  version: 1
+  workspaceRoot: string
+  plan: Record<string, PlanTask>
+  [key: string]: unknown
+}
+
+export interface GetPlanOptions {
+  /** Exact key from TaskGraph.tasks, e.g. `packages/lib#build`. */
+  task: string
+  verbose: boolean
+}

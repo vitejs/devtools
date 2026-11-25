@@ -9,7 +9,7 @@ Vite DevTools uses structured diagnostics to surface actionable warnings and err
 ## How error codes work
 
 - Codes follow the pattern **prefix + 4-digit number** (e.g., `DF0001`, `DTK0008`, `RDDT0002`).
-- Each prefix maps to a package: `DTK` for `@vitejs/devtools` (Vite-specific pieces), `RDDT` for `@vitejs/devtools-rolldown`, `VDT` for `@vitejs/devtools-vite`, `VTDT` for `@vitejs/devtools-vitest`. The framework-neutral `devframe` package documents its own `DF`-prefixed codes at the [Devframe docs site](https://devfra.me/errors/).
+- Each prefix maps to a package: `DTK` for `@vitejs/devtools` (Vite-specific pieces), `RDDT` for `@vitejs/devtools-rolldown`, `VDT` for `@vitejs/devtools-vite`, `VTDT` for `@vitejs/devtools-vitest`, `VTKDT` for `@vitejs/devtools-vite-task`. The framework-neutral `devframe` package documents its own `DF`-prefixed codes at the [Devframe docs site](https://devfra.me/errors/).
 - Every error page includes the cause, recommended fix, and a reference to the source file that emits it.
 - The diagnostics system is powered by [`nostics`](https://github.com/vercel-labs/nostics), which provides structured diagnostic codes with docs URLs and ANSI-formatted console output.
 
@@ -70,6 +70,18 @@ Emitted by `@vitejs/devtools-vitest`.
 |------|-------|-------|
 | [VTDT0001](./VTDT0001) | error | Vitest UI Install Failed |
 | [VTDT0002](./VTDT0002) | error | Vitest UI Server Unreachable |
+
+## Vite Task DevTools (VTKDT)
+
+Emitted by `@vitejs/devtools-vite-task`.
+
+| Code | Level | Title |
+|------|-------|-------|
+| [VTKDT0001](./VTKDT0001) | error | Vite Plus Executable Not Found |
+| [VTKDT0002](./VTKDT0002) | error | Unsupported Vite Plus Version |
+| [VTKDT0003](./VTKDT0003) | error | Vite Plus Command Failed |
+| [VTKDT0004](./VTKDT0004) | error | Invalid Vite Plus JSON |
+| [VTKDT0005](./VTKDT0005) | error | Invalid Task Name |
 
 ## Oxc DevTools (OXDT)
 

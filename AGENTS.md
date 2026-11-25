@@ -25,6 +25,7 @@ Monorepo (`pnpm` workspaces + `turbo`). ESM TypeScript; bundled with `tsdown`. P
 | `packages/vite` | `@vitejs/devtools-vite` | Nuxt UI for the Vite dev server's plugin pipeline and module transforms. Hub-mounted via `Plugin.devtools.setup`. Serves at `/__devtools-vite/`. |
 | `packages/oxc` | `@vitejs/devtools-oxc` | Oxc toolchain (oxlint/oxfmt) inspector, donated from [`yuyinws/oxc-inspector`](https://github.com/yuyinws/oxc-inspector) with full history; owned by Leo. Advertised by core as a built-in install launcher in the `viteplus` group (installed on demand), mounted via `DevToolsOxc()` from `@vitejs/devtools-oxc/vite` once present, plus a standalone CLI/client. Its Nuxt client is on the shared stack — UnoCSS via `presetDevToolsUI` and `@vitejs/devtools-ui` components (an oxc-cyan `primary` scale derived from the `BannerOxcDevTools` accent) — and is wired into the turbo build, `vue-tsc` typecheck (own `src/tsconfig.json` reference) and export-snapshot gates. It dogfoods its own oxlint/oxfmt on itself (run `pnpm -C packages/oxc lint`), whose formatting conflicts with the repo-wide antfu ESLint config, so it stays out of the shared ESLint run. |
 | `packages/vitest` | `@vitejs/devtools-vitest` | Slim launcher for the Vitest UI, in the `viteplus` dock group. A `launcher` dock (only shown when the project uses Vitest) installs `@vitest/ui` on demand, spawns `vitest --ui`, then swaps to an iframe. Serves its favicon at `/__devtools-vitest/`. |
+| `packages/vite-task` | `@vitejs/devtools-vite-task` | Vite Plus task graph and dry-run cache inspector, mounted in the `viteplus` dock group. Serves at `/__devtools-vite-task/`. |
 | `packages/webext` | — | Browser extension scaffolding (ancillary). |
 
 Meta-introspection ("DevTools for the DevTools") is provided by the official upstream `@devframes/plugin-inspect`, mounted as a built-in via `createPluginFromDevframe` (replaces the former `packages/self-inspect`).
@@ -38,10 +39,11 @@ flowchart TD
   hub --> devframe
   kit --> hub
   core --> kit
-  core --> rolldown & vite & vitest
+  core --> rolldown & vite & vitest & vite-task
   rolldown --> kit & ui
   vite --> kit & ui
   vitest --> kit
+  vite-task --> kit
   webext --> core
 ```
 
@@ -110,6 +112,7 @@ All node-side warnings and errors use structured diagnostics via [`nostics`](htt
 | `RDDT` | `packages/rolldown` | `packages/rolldown/src/node/diagnostics.ts` |
 | `VDT` | `packages/vite` | `packages/vite/src/node/diagnostics.ts` |
 | `VTDT` | `packages/vitest` | `packages/vitest/src/node/diagnostics.ts` |
+| `VTKDT` | `packages/vite-task` | `packages/vite-task/src/node/diagnostics.ts` |
 | `OXDT` | `packages/oxc` | `packages/oxc/src/node/diagnostics.ts` |
 
 `DF` codes belong to the upstream devframe/hub projects — file new ones there. The `DF8xxx` sub-range covers `@devframes/hub` (DF8100–DF8199 docks, DF8200–DF8299 terminals, DF8300–DF8399 messages, DF8400–DF8499 commands).

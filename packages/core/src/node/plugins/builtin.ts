@@ -80,6 +80,18 @@ const BUILTIN_LAUNCHER_INTEGRATIONS: BuiltinLauncherIntegration[] = [
     install: ['vitest', `@vitejs/devtools-vitest@^${version}`, '@vitest/ui'],
   },
   {
+    id: 'vite-task',
+    pkg: '@vitejs/devtools-vite-task',
+    title: 'Vite Task',
+    icon: `${DEVTOOLS_ASSETS_BASE}vite-task.svg`,
+    groupId: 'viteplus',
+    load: () =>
+      // eslint-disable-next-line ts/ban-ts-comment
+      // @ts-ignore optional integration, resolved at runtime only
+      import('@vitejs/devtools-vite-task/vite').then(m => m.DevToolsViteTaskUI()),
+    install: [`@vitejs/devtools-vite-task@^${version}`],
+  },
+  {
     id: 'oxc',
     pkg: '@vitejs/devtools-oxc',
     title: 'Oxc DevTools',
@@ -114,7 +126,7 @@ export function resolveBuiltinOptions(
 
 /**
  * Set up the built-in DevTools dock entries (Terminals, Messages, Inspector) and
- * the built-in integration launchers (Rolldown, Vite, Vitest, Oxc).
+ * the built-in integration launchers (Rolldown, Vite, Vitest, Vite Task, Oxc).
  */
 export async function DevToolsBuiltin(options: {
   cwd?: string

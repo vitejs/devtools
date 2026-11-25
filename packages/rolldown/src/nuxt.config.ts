@@ -145,6 +145,7 @@ export default defineNuxtConfig({
         // (see the root tsconfig); keep them out of rolldown's
         // workspace-wide Nuxt typecheck so they resolve under their own aliases.
         '../../../vite/**/*',
+        '../../../vite-task/**/*',
         '../../../oxc/**/*',
       ],
     },

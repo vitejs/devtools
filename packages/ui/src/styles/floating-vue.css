@@ -1,0 +1,35 @@
+.v-popper--theme-dropdown .v-popper__inner,
+.v-popper--theme-tooltip .v-popper__inner {
+  --uno: bg-tooltip color-base font-sans rounded border border-base shadow dark:shadow-2xl;
+  box-shadow: 0 6px 30px #0000001a;
+}
+
+.v-popper--theme-tooltip .v-popper__inner {
+  --uno: text-sm;
+}
+
+.v-popper--theme-dropdown .v-popper__inner {
+  max-width: 50vw;
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-inner,
+.v-popper--theme-dropdown .v-popper__arrow-inner {
+  visibility: visible;
+  --uno: border-solid border-white dark:border-#111;
+}
+
+.v-popper--theme-tooltip .v-popper__arrow-outer,
+.v-popper--theme-dropdown .v-popper__arrow-outer {
+  --uno: border-solid border-base;
+}
+
+.v-popper--theme-tooltip.v-popper--shown,
+.v-popper--theme-tooltip.v-popper--shown * {
+  transition: none !important;
+}
+
+.v-popper__popper--shown {
+  overflow: visible !important;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@vite-task-playground/config",
+  "type": "module",
+  "version": "0.8.3",
+  "private": true,
+  "scripts": {
+    "lint": "node ../../scripts/task.mjs lint",
+    "preverify": "node ../../scripts/task.mjs preverify",
+    "verify": "node ../../scripts/task.mjs verify",
+    "postverify": "node ../../scripts/task.mjs postverify"
+  }
+}

@@ -2,6 +2,7 @@
 import FlowmapNode from './FlowmapNode.vue'
 
 withDefaults(defineProps<{
+  label?: string
   expandable?: boolean
   classRootNode?: string
   activeStart?: boolean
@@ -17,7 +18,7 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
 <template>
   <FlowmapNode
     v-model:expanded="expanded"
-    :lines="{ top: true, bottom: !expandable || !expanded }" class="pl6 pt4"
+    :lines="{ top: true, bottom: showTail && (!expandable || !expanded) }" class="pl6 pt4"
     :class-node-outer="classRootNode"
     :active="activeStart"
   >
@@ -28,6 +29,8 @@ const expanded = defineModel<boolean>('expanded', { required: false, default: tr
     <template v-if="expandable" #inline-before>
       <button
         class="w-6 h-6 mr1 ml--7 mya rounded-full hover:bg-active flex items-center justify-center cursor-pointer"
+        :aria-label="label"
+        :aria-expanded="expanded"
         @click="expanded = !expanded"
       >
         <div class="i-ph-caret-right text-sm op50 transition duration-300" :class="{ 'rotate-90': expanded }" />

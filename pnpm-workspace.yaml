@@ -20,6 +20,7 @@ packages:
   - packages/*
   - examples/*
   - playgrounds/*
+  - playgrounds/vite-task/packages/*
   - '!playgrounds/production'
   - '!playgrounds/production-nuxt'
   - docs
@@ -98,6 +99,7 @@ catalogs:
     unplugin-vue: ^8.0.1
     unrun: ^0.3.1
     vite: ^8.3.8
+    vite-plus: 1.6.0 # Keep in sync with playgrounds/vite-task/pnpm-workspace.yaml.
   deps:
     '@devframes/agentic': *devframe
     '@devframes/hub': *devframe
