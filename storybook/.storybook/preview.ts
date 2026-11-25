@@ -3,8 +3,6 @@ import { GLOBALS_UPDATED } from 'storybook/internal/core-events'
 import { addons } from 'storybook/preview-api'
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
-// The dock shells rely on the `#vite-devtools-*` id selectors shipped here.
-import '../../packages/core/src/client/webcomponents/style.css'
 import './docs-dark.css'
 
 // The manager (chrome) and preview (iframe) are separate roots; toggle the

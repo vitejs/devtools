@@ -3,6 +3,7 @@ import DisplayExpandableContainer from './DisplayExpandableContainer.vue'
 
 const meta = {
   title: 'Display/DisplayExpandableContainer',
+  tags: ['autodocs'],
 } satisfies Meta
 
 export default meta
