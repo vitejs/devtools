@@ -1,4 +1,5 @@
 import type { TerminalsOptions } from '@devframes/plugin-terminals'
+import type { DevToolsDocksUserSettings } from '@vitejs/devtools-kit'
 import type { DevToolsConfig } from './config'
 
 export type DevToolsBrandingLogo
@@ -36,10 +37,24 @@ export interface DevToolsDockRendererRegistration {
 
 export type DevToolsEmbeddedVisibility = 'normal' | 'passive' | 'hidden'
 
+/**
+ * Panel settings the project sets, resolved below each developer's own choice.
+ *
+ * The three dock lists (`docksHidden`, `docksCategoriesHidden`, `docksPinned`)
+ * are left out: the stored list is always present, so a seeded one could never
+ * be undone from Settings. `commandShortcuts` takes an empty array to leave a
+ * command unbound, e.g. `{ 'devframes:toggle-palette': [] }` for `Mod+K`.
+ */
+export type DevToolsSettingsDefaults = Omit<
+  Partial<DevToolsDocksUserSettings>,
+  'docksHidden' | 'docksCategoriesHidden' | 'docksPinned'
+>
+
 export interface ViteDevToolsUiOptions {
   branding?: DevToolsBranding
   embeddedVisibility?: DevToolsEmbeddedVisibility
   dockPreferences?: DevToolsDockPreferences
+  settingsDefaults?: DevToolsSettingsDefaults
 }
 
 export type DevToolsBuiltinIntegrationId = 'rolldown' | 'vite' | 'vitest' | 'vite-task' | 'oxc'
@@ -87,6 +102,12 @@ export interface DevToolsUserOptions {
   embeddedVisibility?: ViteDevToolsUiOptions['embeddedVisibility']
   /** Configure the initial dock layout. */
   dockPreferences?: ViteDevToolsUiOptions['dockPreferences']
+  /**
+   * Panel settings this project ships as its defaults, such as leaving `Mod+K`
+   * unbound or ordering the dock bar. A developer's own choice in Settings
+   * still wins, and a reset returns to these values.
+   */
+  settingsDefaults?: ViteDevToolsUiOptions['settingsDefaults']
   /** Options for building static DevTools output alongside `vite build`. */
   build?: {
     /**
