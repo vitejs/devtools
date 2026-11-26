@@ -37,17 +37,22 @@ The second argument provides terminal metadata (`id`, `title`, and optional `des
 
 ## Session Lifecycle
 
-`startChildProcess()` returns a `DevToolsChildProcessTerminalSession` with lifecycle controls:
+While the process is running, call `restart()` to replace it within the same terminal session:
 
 ```ts
-// Terminate the process
-await session.terminate()
-
-// Restart (kill + re-spawn)
 await session.restart()
-
-// Access the underlying Node.js ChildProcess
 const cp = session.getChildProcess()
+```
+
+When the process exits or you stop it with `await session.terminate()`, its output stream closes. To run the command again, remove the closed session and start a new one with a fresh ID:
+
+```ts
+ctx.terminals.remove(session)
+const replacement = await ctx.terminals.startChildProcess(session.executeOptions, {
+  id: 'my-plugin:build-watcher-2',
+  title: session.title,
+  icon: session.icon,
+})
 ```
 
 ### Session Status
