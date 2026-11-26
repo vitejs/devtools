@@ -7,12 +7,9 @@ export function getDevToolsRpcClient(_) {}
 export async function resolveDevToolsConnection(_, _) {}
 // #endregion
 
-// #region Variables
-export var CLIENT_CONTEXT_KEY /* const */
-// #endregion
-
 // #region Other
 export { attachDevToolsFrameNav }
+export { CLIENT_CONTEXT_KEY }
 export { connectRemoteDevTools }
 export { FRAME_NAV_CHANNEL }
 export { FRAME_NAV_VERSION }
