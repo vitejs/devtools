@@ -322,7 +322,7 @@ ctx.commands.register(defineCommand({
 }))
 ```
 
-Commands support sub-commands (two-level hierarchy), conditional visibility via `when` clauses, and user-customizable keyboard shortcuts.
+Commands support nested sub-commands, conditional visibility via `when` clauses, and user-customizable keyboard shortcuts.
 
 See [Commands Patterns](./references/commands-patterns.md) and [When Clauses](./references/when-clauses.md) for full details.
 
