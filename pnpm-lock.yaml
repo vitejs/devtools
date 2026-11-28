@@ -238,6 +238,9 @@ catalogs:
     h3:
       specifier: ^2.0.8
       version: 2.0.8
+    jsonc-parser:
+      specifier: ^3.3.1
+      version: 3.3.1
     local-pkg:
       specifier: ^2.0.0
       version: 2.0.0
@@ -1430,6 +1433,9 @@ importers:
       devframe:
         specifier: ^1.4.0
         version: 1.4.0(@devframes/agentic@1.4.0)(cac@7.1.1)(srvx@1.0.8)
+      jsonc-parser:
+        specifier: catalog:deps
+        version: 3.3.1
       nostics:
         specifier: catalog:deps
         version: 1.4.0

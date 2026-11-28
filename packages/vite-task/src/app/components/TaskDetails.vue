@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import type { RunPlan } from '../../shared/types'
-import DisplayCloseButton from '@vitejs/devtools-ui/components/Display/DisplayCloseButton.vue'
+import type { GraphTask, RunPlan } from '../../shared/types'
 import DisplayDuration from '@vitejs/devtools-ui/components/Display/DisplayDuration.vue'
 import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
 import { computed, ref } from 'vue'
 import { planRows } from '../utils/task-plan'
 import TaskDependencies from './TaskDependencies.vue'
+import TaskDetailsHeading from './TaskDetailsHeading.vue'
 import TaskFlow from './TaskFlow.vue'
-import TaskId from './TaskId.vue'
 import TaskSteps from './TaskSteps.vue'
 
-const props = defineProps<{ dependencies: string[], dependents: string[], selected: string, plan?: RunPlan, planLoading: boolean, planError: string }>()
+const props = defineProps<{ task?: GraphTask, dependents: string[], selected: string, plan?: RunPlan, planLoading: boolean, planError: string }>()
 defineEmits<{ close: [], retry: [], select: [id: string] }>()
 const views = [
   { name: 'Task Flow', icon: 'i-ph-git-branch-duotone rotate-180' },
@@ -18,6 +17,7 @@ const views = [
   { name: 'Dependencies', icon: 'i-ph-graph-duotone' },
 ] as const
 const view = ref<typeof views[number]['name']>('Task Flow')
+const dependencies = computed(() => props.task?.dependsOn ?? [])
 const rows = computed(() => planRows(props.plan?.plan ?? {}, props.selected))
 const cachedStepDurationsMs = computed(() => rows.value.flatMap(row => row.cachedStepDurationsMs))
 const metrics = computed(() => [
@@ -29,12 +29,8 @@ const metrics = computed(() => [
 
 <template>
   <section class="task-details relative flex flex-col h-full w-full min-w-0 text-base" aria-label="Task details" :aria-busy="planLoading">
-    <DisplayCloseButton class="absolute top-1.5 right-2 z-panel-content bg-glass" @click="$emit('close')" />
-    <header class="self-start min-w-0 max-w-[calc(100%_-_3.5rem)] m2 mb0 p2 bg-glass border border-base rounded-lg flex flex-col gap2">
-      <h2 class="flex items-center gap2 px2 pt1 m0 text-sm font-mono">
-        <span class="i-ph-terminal-window-duotone shrink-0" />
-        <TaskId :id="selected" class="truncate" />
-      </h2>
+    <header class="min-w-0 m2 mb0 p2 bg-glass border border-base rounded-lg flex flex-col gap2">
+      <TaskDetailsHeading :selected :task @close="$emit('close')" />
       <div v-if="plan" class="flex flex-wrap items-center gap3 ml2 min-h-5 text-xs font-mono">
         <span class="flex items-center gap1"><i class="i-ph-stack-duotone op50" />{{ rows.length }} {{ rows.length === 1 ? 'task' : 'tasks' }}</span>
         <span v-for="metric in metrics" :key="metric.status" v-tooltip="metric.label" :aria-label="`${metric.count} · ${metric.label}`" class="flex items-center gap1">
@@ -74,14 +70,6 @@ const metrics = computed(() => [
 }
 
 @container (max-width: 28rem) {
-  header {
-    max-width: calc(100% - 1rem);
-  }
-
-  h2 {
-    padding-right: 2rem;
-  }
-
   .detail-tabs {
     gap: 0.25rem;
     overflow-x: auto;

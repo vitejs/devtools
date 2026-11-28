@@ -99,6 +99,11 @@ export interface RunPlan {
   [key: string]: unknown
 }
 
+export interface TaskSource {
+  kind: 'script' | 'config' | 'unknown'
+  canOpen: boolean
+}
+
 export interface GetPlanOptions {
   /** Exact key from TaskGraph.tasks, e.g. `packages/lib#build`. */
   task: string

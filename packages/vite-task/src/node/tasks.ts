@@ -1,13 +1,21 @@
-import type { GetPlanOptions, RunPlan, TaskGraph } from '../shared/types'
+import type { GetPlanOptions, GraphTask, RunPlan, TaskGraph, TaskSource } from '../shared/types'
 import { statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import process from 'node:process'
 import { x } from 'tinyexec'
 import { isVitePlusVersionSupported } from '../shared/version'
 import { diagnostics } from './diagnostics'
+import { readTaskManifest, sourceKind } from './task-source'
 
 const versionChecks = new Map<string, { mtimeMs: number, check: Promise<void> }>()
-const taskSelectorsByWorkspace = new Map<string, Map<string, string[]>>()
+interface IndexedTask {
+  task: GraphTask
+  packageDir: string
+  selector: string[]
+  kind: TaskSource['kind']
+}
+
+const tasksByWorkspace = new Map<string, Map<string, IndexedTask>>()
 
 async function execute(workspaceRoot: string, executable: string, args: string[]): Promise<string> {
   const command = `vp ${args.join(' ')}`
@@ -71,27 +79,36 @@ async function runJson(workspaceRoot: string, args: string[], format: 'graph' | 
 
 export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
   const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
-  const taskSelectors = new Map<string, string[]>()
+  // Record the source kind with this graph, so a later edit cannot turn a stale
+  // script into a config task merely by removing its key from package.json.
+  const manifests = new Map(await Promise.all(Object.keys(graph.packages).map(async pkg =>
+    [pkg, await readTaskManifest(workspaceRoot, resolve(graph.workspaceRoot, pkg))] as const)))
+  const tasks = new Map<string, IndexedTask>()
   for (const [id, task] of Object.entries(graph.tasks)) {
     // Graph IDs use package paths; the CLI expects package names or a directory filter.
     const packageName = graph.packages[task.package]?.name
-    taskSelectors.set(id, task.package === '.'
+    const selector = task.package === '.'
       ? [task.name]
       : packageName
         ? [`${packageName}#${task.name}`]
-        : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name])
+        : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name]
+    tasks.set(id, { task, packageDir: resolve(graph.workspaceRoot, task.package), selector, kind: sourceKind(task, manifests.get(task.package)) })
   }
-  taskSelectorsByWorkspace.set(workspaceRoot, taskSelectors)
+  tasksByWorkspace.set(workspaceRoot, tasks)
   return graph
+}
+
+export function getIndexedTask(workspaceRoot: string, id: string): IndexedTask | undefined {
+  return tasksByWorkspace.get(workspaceRoot)?.get(id)
 }
 
 export async function loadRunPlan(workspaceRoot: string, options: GetPlanOptions): Promise<RunPlan> {
   if (typeof options.task !== 'string' || !options.task.trim() || options.task.startsWith('-'))
     throw diagnostics.VTKDT0005({ task: String(options.task) })
   // Refresh reloads the graph when task selectors become stale.
-  if (!taskSelectorsByWorkspace.get(workspaceRoot)?.has(options.task))
+  if (!getIndexedTask(workspaceRoot, options.task))
     await loadTaskGraph(workspaceRoot)
-  const selector = taskSelectorsByWorkspace.get(workspaceRoot)?.get(options.task)
+  const selector = getIndexedTask(workspaceRoot, options.task)?.selector
   if (!selector)
     throw diagnostics.VTKDT0005({ task: options.task })
 

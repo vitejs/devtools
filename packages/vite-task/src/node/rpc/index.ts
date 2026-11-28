@@ -1,8 +1,10 @@
 import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { DevframeNodeContext } from 'devframe/types'
-import type { GetPlanOptions } from '../../shared/types'
-import { createDefineWrapperWithContext } from 'devframe/rpc'
-import { loadRunPlan, loadTaskGraph } from '../tasks'
+import type { GetPlanOptions, TaskSource } from '../../shared/types'
+import { createDefineWrapperWithContext, getRpcHandler } from 'devframe/rpc'
+import { diagnostics } from '../diagnostics'
+import { resolveTaskSource } from '../task-source'
+import { getIndexedTask, loadRunPlan, loadTaskGraph } from '../tasks'
 
 // Bind defineRpcFunction to the portable context, as in the Oxc integration.
 const defineRpcFunction = createDefineWrapperWithContext<DevframeNodeContext>()
@@ -30,7 +32,40 @@ export const getPlan = defineRpcFunction({
   setup: ctx => ({ handler: (options: GetPlanOptions) => loadRunPlan(ctx.workspaceRoot, options).catch(handleVersionError) }),
 })
 
-export const rpcFunctions = [getGraph, getPlan] as const
+const openInEditor = 'vite:core:open-in-editor'
+
+export const getTaskSource = defineRpcFunction({
+  name: 'vite-task:get-task-source',
+  type: 'query',
+  cacheable: false,
+  jsonSerializable: true,
+  setup: ctx => ({
+    handler: (id: string): TaskSource => {
+      const kind = getIndexedTask(ctx.workspaceRoot, id)?.kind ?? 'unknown'
+      return { kind, canOpen: kind !== 'unknown' && ctx.rpc.definitions.has(openInEditor) }
+    },
+  }),
+})
+
+export const openTaskSource = defineRpcFunction({
+  name: 'vite-task:open-task-source',
+  type: 'action',
+  setup: ctx => ({
+    handler: async (id: string, expected: 'script' | 'config') => {
+      const editor = ctx.rpc.definitions.get(openInEditor)
+      if (!editor)
+        throw diagnostics.VTKDT0006({ reason: 'This host cannot open a local editor.' })
+      const entry = getIndexedTask(ctx.workspaceRoot, id)
+      if (!entry || entry.kind === 'unknown' || entry.kind !== expected)
+        throw diagnostics.VTKDT0006({ reason: 'The task source has changed or is unavailable. Refresh the task list.' })
+      const target = await resolveTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, expected)
+      const open = await getRpcHandler(editor, ctx.rpc.context)
+      await open(target)
+    },
+  }),
+})
+
+export const rpcFunctions = [getGraph, getPlan, getTaskSource, openTaskSource] as const
 export type ServerFunctions = RpcDefinitionsToFunctions<typeof rpcFunctions>
 
 declare module 'devframe/types' {

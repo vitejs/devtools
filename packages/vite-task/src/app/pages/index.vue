@@ -267,7 +267,7 @@ onMounted(refresh)
     </div>
     <div v-if="selected && graph" class="fixed inset-0 backdrop-blur-8 backdrop-brightness-95 z-panel-content" @click.self="closeTask">
       <div class="fixed right-0 bottom-0 top-3 left-3 sm:top-20 sm:left-20 z-panel-content bg-glass border-l border-t border-base rounded-tl-xl">
-        <TaskDetails :dependencies="graph.tasks[selected]?.dependsOn ?? []" :dependents="dependentsByTask.get(selected) ?? []" :selected="selected" :plan="plan" :plan-loading="planLoading" :plan-error="planError" @select="selectTask" @close="closeTask" @retry="loadPlan(selected)" />
+        <TaskDetails :task="graph.tasks[selected]" :dependents="dependentsByTask.get(selected) ?? []" :selected="selected" :plan="plan" :plan-loading="planLoading" :plan-error="planError" @select="selectTask" @close="closeTask" @retry="loadPlan(selected)" />
       </div>
     </div>
   </div>

@@ -82,6 +82,7 @@ Emitted by `@vitejs/devtools-vite-task`.
 | [VTKDT0003](./VTKDT0003) | error | Vite Plus Command Failed |
 | [VTKDT0004](./VTKDT0004) | error | Invalid Vite Plus JSON |
 | [VTKDT0005](./VTKDT0005) | error | Invalid Task Name |
+| [VTKDT0006](./VTKDT0006) | error | Cannot Open Task Source |
 
 ## Oxc DevTools (OXDT)
 
