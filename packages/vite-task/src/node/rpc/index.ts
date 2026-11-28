@@ -1,6 +1,7 @@
 import type { RpcDefinitionsToFunctions } from '@vitejs/devtools-kit'
 import type { DevframeNodeContext } from 'devframe/types'
-import type { GetPlanOptions, TaskSource } from '../../shared/types'
+import type { GetPlanOptions, GraphTask, TaskSource } from '../../shared/types'
+import { isDeepStrictEqual } from 'node:util'
 import { createDefineWrapperWithContext, getRpcHandler } from 'devframe/rpc'
 import { diagnostics } from '../diagnostics'
 import { findTaskSource } from '../task-source'
@@ -34,19 +35,22 @@ export const getPlan = defineRpcFunction({
 
 const openInEditor = 'vite:core:open-in-editor'
 
+async function resolveSelectedSource(workspaceRoot: string, id: string, kind: TaskSource['kind'], command: GraphTask['command']) {
+  const entry = getIndexedTask(workspaceRoot, id)
+  if (!entry || kind === 'unknown' || entry.task.sourceKind !== kind || !isDeepStrictEqual(entry.task.command, command))
+    return
+  return findTaskSource(workspaceRoot, entry.packageDir, entry.task, kind)
+}
+
 export const getTaskSource = defineRpcFunction({
   name: 'vite-task:get-task-source',
   type: 'query',
   cacheable: false,
   jsonSerializable: true,
   setup: ctx => ({
-    handler: async (id: string): Promise<TaskSource> => {
-      const entry = getIndexedTask(ctx.workspaceRoot, id)
-      const kind = entry?.kind ?? 'unknown'
-      if (!entry || kind === 'unknown' || !ctx.rpc.definitions.has(openInEditor))
-        return { kind, canOpen: false }
-      const target = await findTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, kind)
-      return { kind, canOpen: !!target }
+    handler: async (id: string, kind: TaskSource['kind'], command: GraphTask['command']): Promise<TaskSource> => {
+      const canOpen = ctx.rpc.definitions.has(openInEditor) && !!await resolveSelectedSource(ctx.workspaceRoot, id, kind, command)
+      return { kind, canOpen }
     },
   }),
 })
@@ -55,14 +59,11 @@ export const openTaskSource = defineRpcFunction({
   name: 'vite-task:open-task-source',
   type: 'action',
   setup: ctx => ({
-    handler: async (id: string, expected: 'script' | 'config') => {
+    handler: async (id: string, expected: 'script' | 'config', command: GraphTask['command']) => {
       const editor = ctx.rpc.definitions.get(openInEditor)
       if (!editor)
         throw diagnostics.VTKDT0006({ reason: 'This host cannot open a local editor.' })
-      const entry = getIndexedTask(ctx.workspaceRoot, id)
-      if (!entry || entry.kind === 'unknown' || entry.kind !== expected)
-        throw diagnostics.VTKDT0006({ reason: 'The task source has changed or is unavailable. Refresh the task list.' })
-      const target = await findTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, expected)
+      const target = await resolveSelectedSource(ctx.workspaceRoot, id, expected, command)
       if (!target) {
         const reason = expected === 'config'
           ? 'Check that the task is current and its package contains a single accessible Vite configuration file.'

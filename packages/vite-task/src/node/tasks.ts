@@ -1,4 +1,4 @@
-import type { GetPlanOptions, GraphTask, RunPlan, TaskGraph, TaskSource } from '../shared/types'
+import type { GetPlanOptions, GraphTask, RunPlan, TaskGraph } from '../shared/types'
 import { statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
@@ -12,10 +12,10 @@ interface IndexedTask {
   task: GraphTask
   packageDir: string
   selector: string[]
-  kind: TaskSource['kind']
 }
 
-const tasksByWorkspace = new Map<string, Map<string, IndexedTask>>()
+let nextGraphRequest = 0
+const tasksByWorkspace = new Map<string, { request: number, tasks: Map<string, IndexedTask> }>()
 
 async function execute(workspaceRoot: string, executable: string, args: string[]): Promise<string> {
   const command = `vp ${args.join(' ')}`
@@ -78,6 +78,7 @@ async function runJson(workspaceRoot: string, args: string[], format: 'graph' | 
 }
 
 export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
+  const request = ++nextGraphRequest
   const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
   // Record the source kind with this graph, so a later edit cannot turn a stale
   // script into a config task merely by removing its key from package.json.
@@ -98,14 +99,17 @@ export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
       : packageName
         ? [`${packageName}#${task.name}`]
         : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name]
-    tasks.set(id, { task, packageDir: resolve(graph.workspaceRoot, task.package), selector, kind: sourceKind(task, manifests.get(task.package)) })
+    task.sourceKind = sourceKind(task, manifests.get(task.package))
+    tasks.set(id, { task, packageDir: resolve(graph.workspaceRoot, task.package), selector })
   }
-  tasksByWorkspace.set(workspaceRoot, tasks)
+  // A slower refresh must not replace the index used by a newer view.
+  if (request > (tasksByWorkspace.get(workspaceRoot)?.request ?? 0))
+    tasksByWorkspace.set(workspaceRoot, { request, tasks })
   return graph
 }
 
 export function getIndexedTask(workspaceRoot: string, id: string): IndexedTask | undefined {
-  return tasksByWorkspace.get(workspaceRoot)?.get(id)
+  return tasksByWorkspace.get(workspaceRoot)?.tasks.get(id)
 }
 
 export async function loadRunPlan(workspaceRoot: string, options: GetPlanOptions): Promise<RunPlan> {

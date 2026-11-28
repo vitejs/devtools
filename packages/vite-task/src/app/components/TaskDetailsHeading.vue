@@ -22,12 +22,12 @@ watch([() => props.selected, () => props.task], async ([id, task]) => {
   const current = reactive<SourceState>({})
   state.value = current
   if (task)
-    await refreshSource(current, id)
+    await refreshSource(current, id, task)
 }, { immediate: true })
 
-async function refreshSource(current: SourceState, id: string) {
+async function refreshSource(current: SourceState, id: string, task: GraphTask) {
   try {
-    current.source = await rpc.value.call('vite-task:get-task-source', id)
+    current.source = await rpc.value.call('vite-task:get-task-source', id, task.sourceKind ?? 'unknown', task.command)
   }
   catch (error) {
     current.error ??= error instanceof Error ? error.message : String(error)
@@ -37,18 +37,19 @@ async function refreshSource(current: SourceState, id: string) {
 async function openSource() {
   const current = state.value
   const source = current.source
-  if (!source?.canOpen || source.kind === 'unknown' || current.opening)
+  const task = props.task
+  if (!task || !source?.canOpen || source.kind === 'unknown' || current.opening)
     return
   const id = props.selected
   current.opening = true
   current.error = undefined
   try {
-    await rpc.value.call('vite-task:open-task-source', id, source.kind)
+    await rpc.value.call('vite-task:open-task-source', id, source.kind, task.command)
   }
   catch (error) {
     current.error = error instanceof Error ? error.message : String(error)
     if (current === state.value)
-      await refreshSource(current, id)
+      await refreshSource(current, id, task)
   }
   finally {
     current.opening = false

@@ -38,6 +38,7 @@ export interface GraphTask {
   package: string;
   name: string;
   command: string | string[];
+  sourceKind?: TaskSource['kind'];
   cwd?: string;
   dependsOn?: string[];
   [key: string]: unknown;
