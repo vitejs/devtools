@@ -30,6 +30,11 @@ describe('openInEditor – path traversal protection', () => {
     await expect(handler('src/utils/helper.ts')).resolves.not.toThrow()
   })
 
+  it('opens a file in a workspace member whose name starts with two dots', async () => {
+    const handler = await getHandler()
+    await expect(handler('..tools/package.json:3:5')).resolves.toBeUndefined()
+  })
+
   it('rejects path traversal with ../', async () => {
     const handler = await getHandler()
     await expect(handler('../../etc/passwd')).rejects.toThrow(
