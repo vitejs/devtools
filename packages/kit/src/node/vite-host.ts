@@ -1,6 +1,7 @@
 import type { DevframeHost, DevframeStorageScope } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ConnectionMeta } from '../types'
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, posix } from 'node:path'
 import { serveStaticNodeMiddleware } from 'devframe/utils/serve-static'
@@ -30,6 +31,63 @@ export interface ViteDevToolsHost extends DevframeHost {
    * host can be created before the WS server allocates its endpoint.
    */
   provideConnectionMeta: (getter: () => ConnectionMeta | Promise<ConnectionMeta>) => void
+  /**
+   * Where earlier kit versions kept each scope. Adapters that persist files
+   * through `getStorageDir` can offer a one-time import from here.
+   */
+  getLegacyStorageDir: (scope: DevframeStorageScope) => string
+  /**
+   * Move workspace-scoped data written by earlier kit versions into its current
+   * directory. Idempotent, and safe to call on every start: it only ever reads
+   * the legacy workspace directory, which is where those versions put shared
+   * data.
+   */
+  migrateStorage: () => void
+}
+
+/**
+ * Move everything under `legacyDir` into `targetDir`, then drop the legacy dir.
+ *
+ * The rename to `<legacyDir>.migrating` is the claim: it is atomic, so a
+ * concurrent process (or a second call) finds neither name and returns instead
+ * of moving the same entries twice. A renamed-but-unfinished directory is picked
+ * up by the next call, so an interrupted run resumes.
+ *
+ * Entries that already exist in `targetDir` win, since they were written by the
+ * newer layout and are the only copy the user has touched.
+ */
+function migrateDirectory(legacyDir: string, targetDir: string): void {
+  const claimed = `${legacyDir}.migrating`
+  if (!existsSync(claimed)) {
+    if (!existsSync(legacyDir))
+      return
+    try {
+      renameSync(legacyDir, claimed)
+    }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT')
+        return
+      throw error
+    }
+  }
+
+  const entries = readdirSync(claimed)
+  if (entries.length)
+    mkdirSync(targetDir, { recursive: true })
+  for (const entry of entries)
+    mergeEntry(join(claimed, entry), join(targetDir, entry))
+  rmSync(claimed, { recursive: true, force: true })
+}
+
+function mergeEntry(from: string, to: string): void {
+  if (!existsSync(to)) {
+    renameSync(from, to)
+    return
+  }
+  if (!statSync(from).isDirectory() || !statSync(to).isDirectory())
+    return
+  for (const entry of readdirSync(from))
+    mergeEntry(join(from, entry), join(to, entry))
 }
 
 /**
@@ -75,6 +133,18 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
     workspace: join(workspaceRoot, '.vite/devtools'),
     project: join(workspaceRoot, 'node_modules/.vite-devtools'),
     global: join(homedir(), '.vite/devtools'),
+  }
+
+  /**
+   * Where earlier kit versions kept each scope, for adapters that want to offer
+   * their own one-time import. `workspace` moved out of `node_modules` and
+   * `project` moved out of the per-user directory, so both have a legacy path.
+   * `global` never moved.
+   */
+  const legacyStorageDirs: Record<DevframeStorageScope, string> = {
+    workspace: join(workspaceRoot, 'node_modules/.vite/devtools'),
+    project: storageDirs.global,
+    global: storageDirs.global,
   }
 
   let connectionMetaGetter: (() => ConnectionMeta | Promise<ConnectionMeta>) | undefined
@@ -134,6 +204,12 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
     },
     getStorageDir(scope) {
       return storageDirs[scope]
+    },
+    getLegacyStorageDir(scope) {
+      return legacyStorageDirs[scope]
+    },
+    migrateStorage() {
+      migrateDirectory(legacyStorageDirs.workspace, storageDirs.workspace)
     },
   }
 }
