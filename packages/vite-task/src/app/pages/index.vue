@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { RunPlan, TaskGraph } from '../../shared/types'
+import type { TaskNameSelection } from '../utils/task-name-selection'
 import DataSearchPanel from '@vitejs/devtools-ui/components/Data/DataSearchPanel.vue'
 import DisplayIconButton from '@vitejs/devtools-ui/components/Display/DisplayIconButton.vue'
 import VisualLoading from '@vitejs/devtools-ui/components/Visual/VisualLoading.vue'
@@ -11,6 +12,7 @@ import TaskDetails from '../components/TaskDetails.vue'
 import TaskGraphView from '../components/TaskGraphView.vue'
 import TaskNameFilter from '../components/TaskNameFilter.vue'
 import { useRpc } from '../composables/rpc'
+import { isTaskNameSelected } from '../utils/task-name-selection'
 import { getTaskPackageKey, isTaskInGraphKey } from '../utils/task-plan'
 
 const rpc = useRpc()
@@ -27,12 +29,12 @@ const graphError = ref('')
 const planError = ref('')
 const unsupportedVersion = ref(false)
 const filters = ref({ search: '' })
-const excludedNames = ref<string[]>([])
+const nameSelection = ref<TaskNameSelection>({ mode: 'exclude', names: new Set() })
 const isolatedTasksVisible = ref(false)
 const taskEntries = computed(() => Object.entries(graph.value?.tasks || {}))
 const taskNames = computed(() => [...new Set(taskEntries.value.map(([, task]) => task.name))].sort())
 const matchedTasks = computed(() => taskEntries.value.filter(([id, task]) =>
-  !excludedNames.value.includes(task.name)
+  isTaskNameSelected(nameSelection.value, task.name)
   && `${id} ${graph.value?.packages[task.package]?.name || ''}`.toLowerCase().includes(filters.value.search.toLowerCase()),
 ))
 const matchedIds = computed(() => new Set(matchedTasks.value.map(([id]) => id)))
@@ -160,7 +162,6 @@ async function refresh() {
     if (result === 'unsupported-version')
       return
     graph.value = result
-    excludedNames.value = excludedNames.value.filter(name => taskNames.value.includes(name))
     if (selected.value && graph.value.tasks[selected.value])
       await loadPlan(selected.value)
     else
@@ -217,7 +218,7 @@ onMounted(refresh)
       <DataSearchPanel v-model="filters" :rules="[]">
         <template #search-end>
           <div class="h10 mr2 flex items-center gap2">
-            <TaskNameFilter v-model:excluded="excludedNames" :names="taskNames" />
+            <TaskNameFilter v-model="nameSelection" :names="taskNames" />
             <DisplayIconButton v-tooltip="'Refresh tasks'" title="Refresh tasks" :class-icon="graphLoading ? 'i-ph-arrow-clockwise-duotone animate-spin' : 'i-ph-arrow-clockwise-duotone'" :disabled="graphLoading" @click="refresh" />
           </div>
         </template>
