@@ -1,7 +1,6 @@
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 import process from 'node:process'
 import { defineRpcFunction } from 'devframe'
 import { createHostContext } from 'devframe/node'
@@ -101,27 +100,30 @@ it('opens the exact script key in its package and rechecks its current location'
   expect(editor.handler).toHaveBeenCalledTimes(1)
 })
 
-it('uses the project loader on click and opens its current package entry file', async () => {
-  writeFileSync(join(workspaceRoot, 'package.json'), '{"type":"module"}')
-  symlinkSync(dirname(createRequire(import.meta.url).resolve('vite-plus/package.json')), join(workspaceRoot, 'node_modules/vite-plus'), 'dir')
-  writeFileSync(join(workspaceRoot, 'vite.config.ts'), 'throw new Error("Do not evaluate me while inspecting the task")')
+it('opens the only config in the selected package without evaluating it', async () => {
+  const dir = join(workspaceRoot, 'packages/lib')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'package.json'), '{}')
+  writeFileSync(join(workspaceRoot, 'vite.config.ts'), 'export default {}')
+  writeFileSync(join(dir, 'vite.config.ts.bak'), '')
+  const task = 'packages/lib#lint'
   const { ctx, editor } = await createTaskHost(workspaceRoot)
   ctx.rpc.register(editor)
   await loadTaskGraph(workspaceRoot)
-  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'build')).toEqual({ kind: 'config', canOpen: true })
-  await expect(ctx.rpc.invokeLocal('vite-task:open-task-source', 'build', 'config')).rejects.toThrow(/Do not evaluate me/)
-  expect(editor.handler).not.toHaveBeenCalled()
+  const source = () => ctx.rpc.invokeLocal('vite-task:get-task-source', task)
+  const open = () => ctx.rpc.invokeLocal('vite-task:open-task-source', task, 'config')
 
-  const config = join(workspaceRoot, 'vite.config.js')
-  writeFileSync(join(workspaceRoot, 'tasks.js'), 'export default { build: \'build\' }')
-  writeFileSync(config, `
-    import { lazyPlugins } from 'vite-plus'
-    import tasks from './tasks.js'
-    console.log('User config output')
-    export default { run: { tasks }, plugins: lazyPlugins(() => { throw new Error('Build-only factory') }) }
-  `)
-  await ctx.rpc.invokeLocal('vite-task:open-task-source', 'build', 'config')
+  expect(await source()).toEqual({ kind: 'config', canOpen: false })
+  const config = join(dir, 'vite.config.ts')
+  writeFileSync(config, 'throw new Error("Opening this file must not evaluate it")')
+  expect(await source()).toEqual({ kind: 'config', canOpen: true })
+  await open()
   expect(editor.handler).toHaveBeenCalledExactlyOnceWith(config)
+
+  writeFileSync(join(dir, 'vite.config.js'), '')
+  await expect(open()).rejects.toMatchObject({ name: 'VTKDT0006' })
+  expect(await source()).toEqual({ kind: 'config', canOpen: false })
+  expect(editor.handler).toHaveBeenCalledTimes(1)
 })
 
 it.each([

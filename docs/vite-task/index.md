@@ -16,7 +16,7 @@ Select a task from the list or graph to see its run plan. DevTools builds the pl
 
 After editing an input, click **Refresh tasks** to see how the change affects the plan.
 
-The **Source** row identifies how the selected task is defined. In a host with editor support, **Open script definition** opens its key in the package's `package.json`. For a configured task, **Open package config** opens the package's current Vite configuration file. That file can import the task definition from another module.
+The **Source** row identifies how the selected task is defined. In a host with editor support, **Open script definition** opens its key in the package's `package.json`. When the task’s package directory contains a single standard Vite configuration file, **Open package config** opens it in the editor. That file can import the task definition from another module.
 
 ## Getting started
 

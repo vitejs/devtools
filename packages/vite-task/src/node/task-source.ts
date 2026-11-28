@@ -1,10 +1,8 @@
 import type { Node, ParseError } from 'jsonc-parser'
 import type { GraphTask, TaskSource } from '../shared/types'
-import { spawn } from 'node:child_process'
-import { once } from 'node:events'
-import { readFile, realpath } from 'node:fs/promises'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import process from 'node:process'
+import { constants } from 'node:fs'
+import { access, readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseTree } from 'jsonc-parser'
 import { diagnostics } from './diagnostics'
 
@@ -54,36 +52,37 @@ export function sourceKind(task: GraphTask, manifest?: Manifest): TaskSource['ki
   return command?.type === 'string' && command.value === task.command ? 'script' : 'unknown'
 }
 
-// Run the project's own public Vite+ loader in the same metadata mode as vp run.
-// Keep config side effects and the metadata flag out of the live dev server.
-// The IPC reply stays separate from anything the user's config prints.
-const loadConfigEntry = `
-  import { loadConfigFromFile } from 'vite-plus'
-  let reply
-  try {
-    const config = await loadConfigFromFile({ command: 'build', mode: 'development' }, undefined, process.argv[1], 'silent')
-    reply = { path: config?.path }
-  }
-  catch (error) {
-    reply = { error: String(error) }
-  }
-  process.send(reply, () => process.exit())
-`
+const configFilename = /^vite\.config\.[cm]?[jt]s$/
 
-async function loadPackageConfig(workspaceRoot: string, packageDir: string) {
-  const child = spawn(process.execPath, ['--input-type=module', '-e', loadConfigEntry, packageDir], {
-    cwd: workspaceRoot,
-    env: { ...process.env, VP_RESOLVING_CONFIG_METADATA: '1' },
-    stdio: ['ignore', 'ignore', 'inherit', 'ipc'],
-  })
-  let reply: { path?: string, error?: string } | undefined
-  child.on('message', (message) => {
-    reply = message as typeof reply
-  })
-  const [code, signal] = await once(child, 'close')
-  if (!reply || reply.error)
-    throw diagnostics.VTKDT0006({ reason: `Could not load the package configuration: ${reply?.error ?? signal ?? `exit ${code}`}` })
-  return reply.path
+export async function findPackageConfig(workspaceRoot: string, packageDir: string): Promise<string | undefined> {
+  try {
+    const [root, directory] = await Promise.all([realpath(workspaceRoot), realpath(packageDir)])
+    if (!isWithin(root, directory))
+      return
+    const entries = await readdir(directory, { withFileTypes: true })
+    let candidate: string | undefined
+    for (const entry of entries) {
+      if (!configFilename.test(entry.name))
+        continue
+      const path = join(directory, entry.name)
+      if (!entry.isFile() && !(entry.isSymbolicLink() && (await stat(path).catch(() => undefined))?.isFile()))
+        continue
+      if (candidate)
+        return
+      candidate = path
+    }
+    if (!candidate)
+      return
+    const path = await realpath(candidate)
+    if (!isWithin(root, path) || !(await stat(path)).isFile())
+      return
+    await access(path, constants.R_OK)
+    return resolve(workspaceRoot, relative(root, path))
+  }
+  catch {
+    // A package or its configuration can disappear after the graph loads.
+    return undefined
+  }
 }
 
 export async function resolveTaskSource(
@@ -101,19 +100,8 @@ export async function resolveTaskSource(
     return `${manifest.path}:${lines.length}:${lines.at(-1)!.length + 1}`
   }
 
-  try {
-    const loaded = await loadPackageConfig(workspaceRoot, dirname(manifest.path))
-    if (loaded) {
-      const root = await realpath(workspaceRoot)
-      const path = await realpath(loaded)
-      if (isWithin(root, path))
-        return resolve(workspaceRoot, relative(root, path))
-    }
-  }
-  catch (cause) {
-    if (cause instanceof Error && cause.name === 'VTKDT0006')
-      throw cause
-    throw diagnostics.VTKDT0006({ reason: `Could not load the package configuration: ${String(cause)}`, cause })
-  }
-  throw diagnostics.VTKDT0006({ reason: 'The package has no accessible Vite configuration file.' })
+  const config = await findPackageConfig(workspaceRoot, packageDir)
+  if (!config)
+    throw diagnostics.VTKDT0006({ reason: 'The package must contain a single accessible Vite configuration file.' })
+  return config
 }

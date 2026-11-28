@@ -3,7 +3,7 @@ import type { DevframeNodeContext } from 'devframe/types'
 import type { GetPlanOptions, TaskSource } from '../../shared/types'
 import { createDefineWrapperWithContext, getRpcHandler } from 'devframe/rpc'
 import { diagnostics } from '../diagnostics'
-import { resolveTaskSource } from '../task-source'
+import { findPackageConfig, resolveTaskSource } from '../task-source'
 import { getIndexedTask, loadRunPlan, loadTaskGraph } from '../tasks'
 
 // Bind defineRpcFunction to the portable context, as in the Oxc integration.
@@ -40,9 +40,12 @@ export const getTaskSource = defineRpcFunction({
   cacheable: false,
   jsonSerializable: true,
   setup: ctx => ({
-    handler: (id: string): TaskSource => {
-      const kind = getIndexedTask(ctx.workspaceRoot, id)?.kind ?? 'unknown'
-      return { kind, canOpen: kind !== 'unknown' && ctx.rpc.definitions.has(openInEditor) }
+    handler: async (id: string): Promise<TaskSource> => {
+      const entry = getIndexedTask(ctx.workspaceRoot, id)
+      const kind = entry?.kind ?? 'unknown'
+      if (!entry || kind === 'unknown' || !ctx.rpc.definitions.has(openInEditor))
+        return { kind, canOpen: false }
+      return { kind, canOpen: kind === 'script' || !!await findPackageConfig(ctx.workspaceRoot, entry.packageDir) }
     },
   }),
 })

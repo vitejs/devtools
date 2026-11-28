@@ -10,7 +10,7 @@ outline: deep
 
 ## Cause
 
-The selected task changed, the package files could not be read, the Vite configuration failed to load, or the host cannot open a local editor.
+The selected task changed, the package files could not be read, the package has no unique configuration file to open, or the host cannot open a local editor.
 
 ## Example
 
