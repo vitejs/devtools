@@ -21,28 +21,34 @@ watch([() => props.selected, () => props.task], async ([id, task]) => {
   // Each graph refresh or selection owns its responses, including editor errors.
   const current = reactive<SourceState>({})
   state.value = current
-  if (!task)
-    return
+  if (task)
+    await refreshSource(current, id)
+}, { immediate: true })
+
+async function refreshSource(current: SourceState, id: string) {
   try {
     current.source = await rpc.value.call('vite-task:get-task-source', id)
   }
   catch (error) {
-    current.error = error instanceof Error ? error.message : String(error)
+    current.error ??= error instanceof Error ? error.message : String(error)
   }
-}, { immediate: true })
+}
 
 async function openSource() {
   const current = state.value
   const source = current.source
   if (!source?.canOpen || source.kind === 'unknown' || current.opening)
     return
+  const id = props.selected
   current.opening = true
   current.error = undefined
   try {
-    await rpc.value.call('vite-task:open-task-source', props.selected, source.kind)
+    await rpc.value.call('vite-task:open-task-source', id, source.kind)
   }
   catch (error) {
     current.error = error instanceof Error ? error.message : String(error)
+    if (current === state.value)
+      await refreshSource(current, id)
   }
   finally {
     current.opening = false

@@ -3,7 +3,7 @@ import type { DevframeNodeContext } from 'devframe/types'
 import type { GetPlanOptions, TaskSource } from '../../shared/types'
 import { createDefineWrapperWithContext, getRpcHandler } from 'devframe/rpc'
 import { diagnostics } from '../diagnostics'
-import { findPackageConfig, resolveTaskSource } from '../task-source'
+import { findTaskSource } from '../task-source'
 import { getIndexedTask, loadRunPlan, loadTaskGraph } from '../tasks'
 
 // Bind defineRpcFunction to the portable context, as in the Oxc integration.
@@ -45,7 +45,8 @@ export const getTaskSource = defineRpcFunction({
       const kind = entry?.kind ?? 'unknown'
       if (!entry || kind === 'unknown' || !ctx.rpc.definitions.has(openInEditor))
         return { kind, canOpen: false }
-      return { kind, canOpen: kind === 'script' || !!await findPackageConfig(ctx.workspaceRoot, entry.packageDir) }
+      const target = await findTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, kind)
+      return { kind, canOpen: !!target }
     },
   }),
 })
@@ -61,7 +62,13 @@ export const openTaskSource = defineRpcFunction({
       const entry = getIndexedTask(ctx.workspaceRoot, id)
       if (!entry || entry.kind === 'unknown' || entry.kind !== expected)
         throw diagnostics.VTKDT0006({ reason: 'The task source has changed or is unavailable. Refresh the task list.' })
-      const target = await resolveTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, expected)
+      const target = await findTaskSource(ctx.workspaceRoot, entry.packageDir, entry.task, expected)
+      if (!target) {
+        const reason = expected === 'config'
+          ? 'Check that the task is current and its package contains a single accessible Vite configuration file.'
+          : 'The task source has changed or is unavailable. Refresh the task list.'
+        throw diagnostics.VTKDT0006({ reason })
+      }
       const open = await getRpcHandler(editor, ctx.rpc.context)
       await open(target)
     },

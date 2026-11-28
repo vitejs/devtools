@@ -1,10 +1,9 @@
 import type { Node, ParseError } from 'jsonc-parser'
 import type { GraphTask, TaskSource } from '../shared/types'
 import { constants } from 'node:fs'
-import { access, readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { access, lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseTree } from 'jsonc-parser'
-import { diagnostics } from './diagnostics'
 
 function isWithin(root: string, path: string): boolean {
   const rel = relative(root, path)
@@ -19,10 +18,21 @@ interface Manifest {
 
 export async function readTaskManifest(workspaceRoot: string, packageDir: string): Promise<Manifest | undefined> {
   try {
-    const [root, directory, path] = await Promise.all([realpath(workspaceRoot), realpath(packageDir), realpath(join(packageDir, 'package.json'))])
-    if (!isWithin(root, directory) || !isWithin(root, path))
+    const [root, directory] = await Promise.all([realpath(workspaceRoot), realpath(packageDir)])
+    if (!isWithin(root, directory))
       return
-    const content = await readFile(path, 'utf8')
+    const file = join(directory, 'package.json')
+    const entry = await lstat(file).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== 'ENOENT')
+        throw error
+    })
+    // Vite+ treats a workspace root without a manifest as having no scripts.
+    if (!entry)
+      return directory === root ? { path: file, content: '', scripts: new Map() } : undefined
+    const path = entry.isSymbolicLink() ? await realpath(file) : file
+    if (!isWithin(root, path))
+      return
+    const content = (await readFile(path, 'utf8')).replace(/^\uFEFF/, '')
     const errors: ParseError[] = []
     const tree = parseTree(content, errors, { disallowComments: true })
     if (errors.length || tree?.type !== 'object')
@@ -54,7 +64,7 @@ export function sourceKind(task: GraphTask, manifest?: Manifest): TaskSource['ki
 
 const configFilename = /^vite\.config\.[cm]?[jt]s$/
 
-export async function findPackageConfig(workspaceRoot: string, packageDir: string): Promise<string | undefined> {
+async function findPackageConfig(workspaceRoot: string, packageDir: string): Promise<string | undefined> {
   try {
     const [root, directory] = await Promise.all([realpath(workspaceRoot), realpath(packageDir)])
     if (!isWithin(root, directory))
@@ -85,23 +95,20 @@ export async function findPackageConfig(workspaceRoot: string, packageDir: strin
   }
 }
 
-export async function resolveTaskSource(
+export async function findTaskSource(
   workspaceRoot: string,
   packageDir: string,
   task: GraphTask,
   expected: 'script' | 'config',
-): Promise<string> {
+): Promise<string | undefined> {
   const manifest = await readTaskManifest(workspaceRoot, packageDir)
   if (!manifest || sourceKind(task, manifest) !== expected)
-    throw diagnostics.VTKDT0006({ reason: 'The task source has changed or is unavailable. Refresh the task list.' })
+    return
   if (expected === 'script') {
     const key = manifest.scripts.get(task.name)!.children![0]!
     const lines = manifest.content.slice(0, key.offset).split(/\r\n|\r|\n/)
     return `${manifest.path}:${lines.length}:${lines.at(-1)!.length + 1}`
   }
 
-  const config = await findPackageConfig(workspaceRoot, packageDir)
-  if (!config)
-    throw diagnostics.VTKDT0006({ reason: 'The package must contain a single accessible Vite configuration file.' })
-  return config
+  return findPackageConfig(workspaceRoot, packageDir)
 }

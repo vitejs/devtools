@@ -22,5 +22,4 @@ Check the package manifest and configuration, refresh the task list, and select 
 
 ## Source
 
-- [`packages/vite-task/src/node/task-source.ts`](https://github.com/vitejs/devtools/blob/main/packages/vite-task/src/node/task-source.ts) — resolves the current script location or config file.
-- [`packages/vite-task/src/node/rpc/index.ts`](https://github.com/vitejs/devtools/blob/main/packages/vite-task/src/node/rpc/index.ts) — checks the selected task and the host editor action.
+- [`packages/vite-task/src/node/rpc/index.ts`](https://github.com/vitejs/devtools/blob/main/packages/vite-task/src/node/rpc/index.ts) — checks the selected task, its current file and the host editor action.

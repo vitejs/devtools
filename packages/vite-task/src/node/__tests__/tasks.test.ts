@@ -91,13 +91,42 @@ it('opens the exact script key in its package and rechecks its current location'
   ctx.rpc.register(editor)
   expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'packages/lib#lint')).toEqual({ kind: 'script', canOpen: true })
 
-  writeFileSync(path, `\r\n${manifest}`)
+  writeFileSync(path, `\uFEFF\r\n${manifest}`)
   await ctx.rpc.invokeLocal('vite-task:open-task-source', 'packages/lib#lint', 'script')
   expect(editor.handler).toHaveBeenCalledExactlyOnceWith(`${path}:6:5`)
 
+  writeFileSync(path, '{"scripts":{"lint":"changed"}}')
+  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'packages/lib#lint')).toEqual({ kind: 'script', canOpen: false })
   writeFileSync(path, '{"scripts":{}}')
+  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'packages/lib#lint')).toEqual({ kind: 'script', canOpen: false })
   await expect(ctx.rpc.invokeLocal('vite-task:open-task-source', 'packages/lib#lint', 'script')).rejects.toMatchObject({ name: 'VTKDT0006' })
   expect(editor.handler).toHaveBeenCalledTimes(1)
+})
+
+it('opens a first-line script key in a UTF-8 manifest with a BOM', async () => {
+  const path = join(workspaceRoot, 'package.json')
+  writeFileSync(path, '\uFEFF{"scripts":{"build":"build"}}')
+  const { ctx, editor } = await createTaskHost(workspaceRoot)
+  ctx.rpc.register(editor)
+  await loadTaskGraph(workspaceRoot)
+  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'build')).toEqual({ kind: 'script', canOpen: true })
+  await ctx.rpc.invokeLocal('vite-task:open-task-source', 'build', 'script')
+  expect(editor.handler).toHaveBeenCalledExactlyOnceWith(`${path}:1:13`)
+})
+
+it('opens a configuration task at a manifestless root and keeps missing members unknown', async () => {
+  const config = join(workspaceRoot, 'vite.config.mts')
+  const member = join(workspaceRoot, 'packages/lib')
+  mkdirSync(member, { recursive: true })
+  writeFileSync(join(member, 'vite.config.ts'), '')
+  writeFileSync(config, '')
+  const { ctx, editor } = await createTaskHost(workspaceRoot)
+  ctx.rpc.register(editor)
+  await loadTaskGraph(workspaceRoot)
+  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'build')).toEqual({ kind: 'config', canOpen: true })
+  await ctx.rpc.invokeLocal('vite-task:open-task-source', 'build', 'config')
+  expect(editor.handler).toHaveBeenCalledExactlyOnceWith(config)
+  expect(await ctx.rpc.invokeLocal('vite-task:get-task-source', 'packages/lib#lint')).toEqual({ kind: 'unknown', canOpen: false })
 })
 
 it('opens the only config in the selected package without evaluating it', async () => {
@@ -127,13 +156,11 @@ it('opens the only config in the selected package without evaluating it', async 
 })
 
 it.each([
-  undefined,
   '{ invalid',
   '{"scripts":{"build":"wrong command"}}',
   '{"scripts":{"build":"build","build":"build"}}',
 ])('does not guess the source for unavailable or ambiguous manifest %s', async (content) => {
-  if (content)
-    writeFileSync(join(workspaceRoot, 'package.json'), content)
+  writeFileSync(join(workspaceRoot, 'package.json'), content)
   const { ctx, editor } = await createTaskHost(workspaceRoot)
   ctx.rpc.register(editor)
   await loadTaskGraph(workspaceRoot)
