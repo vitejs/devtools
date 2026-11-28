@@ -77,20 +77,27 @@ async function runJson(workspaceRoot: string, args: string[], format: 'graph' | 
   return value as TaskGraph | RunPlan
 }
 
-export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
-  const request = ++nextGraphRequest
-  const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
-  // Record the source kind with this graph, so a later edit cannot turn a stale
-  // script into a config task merely by removing its key from package.json.
+async function readManifests(workspaceRoot: string, directories: string[]) {
   const manifests = new Map<string, Awaited<ReturnType<typeof readTaskManifest>>>()
-  const packages = Object.keys(graph.packages)
   const batchSize = 16
-  for (let offset = 0; offset < packages.length; offset += batchSize) {
-    await Promise.all(packages.slice(offset, offset + batchSize).map(async (pkg) => {
-      manifests.set(pkg, await readTaskManifest(workspaceRoot, resolve(graph.workspaceRoot, pkg)))
+  for (let offset = 0; offset < directories.length; offset += batchSize) {
+    await Promise.all(directories.slice(offset, offset + batchSize).map(async (dir) => {
+      manifests.set(dir, await readTaskManifest(workspaceRoot, dir))
     }))
   }
+  return manifests
+}
+
+export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
+  const request = ++nextGraphRequest
+  const knownDirs = new Set([resolve(workspaceRoot)])
+  for (const entry of tasksByWorkspace.get(workspaceRoot)?.tasks.values() ?? [])
+    knownDirs.add(entry.packageDir)
+  const before = await readManifests(workspaceRoot, [...knownDirs])
+  const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
+  const after = await readManifests(workspaceRoot, Object.keys(graph.packages).map(pkg => resolve(graph.workspaceRoot, pkg)))
   const tasks = new Map<string, IndexedTask>()
+  const configsToConfirm = new Map<string, GraphTask>()
   for (const [id, task] of Object.entries(graph.tasks)) {
     // Graph IDs use package paths; the CLI expects package names or a directory filter.
     const packageName = graph.packages[task.package]?.name
@@ -99,8 +106,24 @@ export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
       : packageName
         ? [`${packageName}#${task.name}`]
         : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name]
-    task.sourceKind = sourceKind(task, manifests.get(task.package))
-    tasks.set(id, { task, packageDir: resolve(graph.workspaceRoot, task.package), selector })
+    const packageDir = resolve(graph.workspaceRoot, task.package)
+    task.sourceKind = sourceKind(task, after.get(packageDir))
+    if (task.sourceKind === 'config' && typeof task.command === 'string') {
+      if (!before.has(packageDir))
+        configsToConfirm.set(id, task)
+      else if (sourceKind(task, before.get(packageDir)) !== 'config')
+        task.sourceKind = 'unknown'
+    }
+    tasks.set(id, { task, packageDir, selector })
+  }
+  // A newly discovered package had no manifest snapshot before the CLI ran.
+  // Confirm its inferred config tasks still exist after reading the manifest.
+  if (configsToConfirm.size) {
+    const current = await runJson(workspaceRoot, ['run', '--json'], 'graph').catch(() => undefined)
+    for (const [id, task] of configsToConfirm) {
+      if (current?.tasks[id]?.command !== task.command)
+        task.sourceKind = 'unknown'
+    }
   }
   // A slower refresh must not replace the index used by a newer view.
   if (request > (tasksByWorkspace.get(workspaceRoot)?.request ?? 0))

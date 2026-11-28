@@ -112,6 +112,32 @@ it('opens a first-line script key in a UTF-8 manifest with a BOM', async () => {
   expect(editor.handler).toHaveBeenCalledExactlyOnceWith(`${path}:1:13`)
 })
 
+it.each(['new', 'known'])('does not offer the package config for a script deleted during graph refresh (%s package)', async (pkg) => {
+  const dir = join(workspaceRoot, 'packages/lib')
+  mkdirSync(dir, { recursive: true })
+  const path = join(dir, 'package.json')
+  writeFileSync(path, '{"scripts":{"lint":"lint"}}')
+  writeFileSync(join(dir, 'vite.config.ts'), 'export default {}')
+  const id = 'packages/lib#lint'
+  graph.tasks = { [id]: { name: 'lint', package: 'packages/lib', command: 'lint' } }
+  if (pkg === 'known')
+    await loadTaskGraph(workspaceRoot)
+  command.mockImplementation(async (_, args) => {
+    if (args[0] === '--version')
+      return { stdout: 'vp v1.6.0' }
+    const stdout = JSON.stringify(graph)
+    writeFileSync(path, '{"scripts":{}}')
+    graph.tasks = {}
+    return { stdout }
+  })
+
+  const { ctx, editor, getSource } = await createTaskHost(workspaceRoot)
+  ctx.rpc.register(editor)
+  expect(await getSource(id)).toEqual({ kind: 'unknown', canOpen: false })
+  await expect(ctx.rpc.invokeLocal('vite-task:open-task-source', id, 'config', 'lint')).rejects.toMatchObject({ name: 'VTKDT0006' })
+  expect(editor.handler).not.toHaveBeenCalled()
+})
+
 it('opens a configuration task at a manifestless root and keeps missing members unknown', async () => {
   const config = join(workspaceRoot, 'vite.config.mts')
   const member = join(workspaceRoot, 'packages/lib')
