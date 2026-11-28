@@ -1,13 +1,21 @@
-import type { GetPlanOptions, RunPlan, TaskGraph } from '../shared/types'
+import type { GetPlanOptions, GraphTask, RunPlan, TaskGraph } from '../shared/types'
 import { statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import process from 'node:process'
 import { x } from 'tinyexec'
 import { isVitePlusVersionSupported } from '../shared/version'
 import { diagnostics } from './diagnostics'
+import { readTaskManifest, sourceKind } from './task-source'
 
 const versionChecks = new Map<string, { mtimeMs: number, check: Promise<void> }>()
-const taskSelectorsByWorkspace = new Map<string, Map<string, string[]>>()
+interface IndexedTask {
+  task: GraphTask
+  packageDir: string
+  selector: string[]
+}
+
+let nextGraphRequest = 0
+const tasksByWorkspace = new Map<string, { request: number, tasks: Map<string, IndexedTask> }>()
 
 async function execute(workspaceRoot: string, executable: string, args: string[]): Promise<string> {
   const command = `vp ${args.join(' ')}`
@@ -69,29 +77,71 @@ async function runJson(workspaceRoot: string, args: string[], format: 'graph' | 
   return value as TaskGraph | RunPlan
 }
 
+async function readManifests(workspaceRoot: string, directories: string[]) {
+  const manifests = new Map<string, Awaited<ReturnType<typeof readTaskManifest>>>()
+  const batchSize = 16
+  for (let offset = 0; offset < directories.length; offset += batchSize) {
+    await Promise.all(directories.slice(offset, offset + batchSize).map(async (dir) => {
+      manifests.set(dir, await readTaskManifest(workspaceRoot, dir))
+    }))
+  }
+  return manifests
+}
+
 export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
+  const request = ++nextGraphRequest
+  const knownDirs = new Set([resolve(workspaceRoot)])
+  for (const entry of tasksByWorkspace.get(workspaceRoot)?.tasks.values() ?? [])
+    knownDirs.add(entry.packageDir)
+  const before = await readManifests(workspaceRoot, [...knownDirs])
   const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
-  const taskSelectors = new Map<string, string[]>()
+  const after = await readManifests(workspaceRoot, Object.keys(graph.packages).map(pkg => resolve(graph.workspaceRoot, pkg)))
+  const tasks = new Map<string, IndexedTask>()
+  const configsToConfirm = new Map<string, GraphTask>()
   for (const [id, task] of Object.entries(graph.tasks)) {
     // Graph IDs use package paths; the CLI expects package names or a directory filter.
     const packageName = graph.packages[task.package]?.name
-    taskSelectors.set(id, task.package === '.'
+    const selector = task.package === '.'
       ? [task.name]
       : packageName
         ? [`${packageName}#${task.name}`]
-        : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name])
+        : ['--filter', `./${task.package}`, '--fail-if-no-match', task.name]
+    const packageDir = resolve(graph.workspaceRoot, task.package)
+    task.sourceKind = sourceKind(task, after.get(packageDir))
+    if (task.sourceKind === 'config' && typeof task.command === 'string') {
+      if (!before.has(packageDir))
+        configsToConfirm.set(id, task)
+      else if (sourceKind(task, before.get(packageDir)) !== 'config')
+        task.sourceKind = 'unknown'
+    }
+    tasks.set(id, { task, packageDir, selector })
   }
-  taskSelectorsByWorkspace.set(workspaceRoot, taskSelectors)
+  // A newly discovered package had no manifest snapshot before the CLI ran.
+  // Confirm its inferred config tasks still exist after reading the manifest.
+  if (configsToConfirm.size) {
+    const current = await runJson(workspaceRoot, ['run', '--json'], 'graph').catch(() => undefined)
+    for (const [id, task] of configsToConfirm) {
+      if (current?.tasks[id]?.command !== task.command)
+        task.sourceKind = 'unknown'
+    }
+  }
+  // A slower refresh must not replace the index used by a newer view.
+  if (request > (tasksByWorkspace.get(workspaceRoot)?.request ?? 0))
+    tasksByWorkspace.set(workspaceRoot, { request, tasks })
   return graph
+}
+
+export function getIndexedTask(workspaceRoot: string, id: string): IndexedTask | undefined {
+  return tasksByWorkspace.get(workspaceRoot)?.tasks.get(id)
 }
 
 export async function loadRunPlan(workspaceRoot: string, options: GetPlanOptions): Promise<RunPlan> {
   if (typeof options.task !== 'string' || !options.task.trim() || options.task.startsWith('-'))
     throw diagnostics.VTKDT0005({ task: String(options.task) })
   // Refresh reloads the graph when task selectors become stale.
-  if (!taskSelectorsByWorkspace.get(workspaceRoot)?.has(options.task))
+  if (!getIndexedTask(workspaceRoot, options.task))
     await loadTaskGraph(workspaceRoot)
-  const selector = taskSelectorsByWorkspace.get(workspaceRoot)?.get(options.task)
+  const selector = getIndexedTask(workspaceRoot, options.task)?.selector
   if (!selector)
     throw diagnostics.VTKDT0005({ task: options.task })
 

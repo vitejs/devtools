@@ -38,6 +38,7 @@
   "dependencies": {
     "@vitejs/devtools-kit": "workspace:*",
     "devframe": "catalog:deps",
+    "jsonc-parser": "catalog:deps",
     "nostics": "catalog:deps",
     "tinyexec": "catalog:deps"
   },

@@ -11,6 +11,8 @@ export interface GraphTask {
   package: string
   name: string
   command: string | string[]
+  /** Source observed by DevTools when it loaded this graph. */
+  sourceKind?: TaskSource['kind']
   cwd?: string
   dependsOn?: string[]
   [key: string]: unknown
@@ -97,6 +99,11 @@ export interface RunPlan {
   workspaceRoot: string
   plan: Record<string, PlanTask>
   [key: string]: unknown
+}
+
+export interface TaskSource {
+  kind: 'script' | 'config' | 'unknown'
+  canOpen: boolean
 }
 
 export interface GetPlanOptions {

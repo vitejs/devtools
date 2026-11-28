@@ -38,6 +38,7 @@ export interface GraphTask {
   package: string;
   name: string;
   command: string | string[];
+  sourceKind?: TaskSource['kind'];
   cwd?: string;
   dependsOn?: string[];
   [key: string]: unknown;
@@ -90,6 +91,10 @@ export interface TaskPackage {
   devDependencies?: string[];
   peerDependencies?: string[];
   [key: string]: unknown;
+}
+export interface TaskSource {
+  kind: 'script' | 'config' | 'unknown';
+  canOpen: boolean;
 }
 // #endregion
 

@@ -121,6 +121,7 @@ catalogs:
     diff: ^9.0.0
     envinfo: ^7.21.0
     h3: ^2.0.8
+    jsonc-parser: ^3.3.1
     local-pkg: ^2.0.0
     mrmime: ^2.0.1
     nostics: ^1.4.0

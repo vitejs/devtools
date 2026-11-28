@@ -24,5 +24,9 @@ export const diagnostics = /* #__PURE__ */ defineDiagnostics({
       why: (p: { task: string }) => `Invalid task name "${p.task}".`,
       fix: 'Select a non-empty task name from the task graph that does not start with a dash.',
     },
+    VTKDT0006: {
+      why: (p: { reason: string }) => `Cannot open the task source. ${p.reason}`,
+      fix: 'Check the package files and refresh the task list.',
+    },
   },
 })
