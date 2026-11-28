@@ -1,5 +1,28 @@
 # Migration Guide
 
+## 0.8 → 0.9
+
+### Devtools storage gets one directory per scope
+
+`getStorageDir()` resolved `project` and `global` to the same per-user directory, and put `workspace` inside `node_modules`. Each scope now has its own directory:
+
+| Scope | 0.8 and earlier | 0.9 |
+| --- | --- | --- |
+| `workspace` | `<workspaceRoot>/node_modules/.vite/devtools` | `<workspaceRoot>/.vite/devtools` |
+| `project` | `~/.vite/devtools` | `<workspaceRoot>/node_modules/.vite-devtools` |
+| `global` | `~/.vite/devtools` | `~/.vite/devtools` |
+
+On first start, workspace data written by earlier versions is moved into the new workspace directory. Auth tokens and global settings keep their path and are not touched.
+
+Project-scope data written by earlier versions stays in `~/.vite/devtools`, which is now the global directory:
+
+- Settings saved as project overrides now read as global settings, so they apply to every project. Set them again inside the project that needs a different value.
+- Saved Data Inspector queries from earlier versions are no longer listed. Data Inspector supports importing them into the current project.
+
+### For plugin authors
+
+`ViteDevToolsHost.getLegacyStorageDir(scope)` returns where earlier versions kept each scope, so adapters that persist user-authored files can offer a one-time import instead of dropping them.
+
 ## 0.2 → 0.3 (devframe 0.5.x + `@devframes/hub`)
 
 `@vitejs/devtools-kit` now thins onto [`@devframes/hub`](https://www.npmjs.com/package/@devframes/hub) for the hub primitives (docks, terminals, messages, commands, `mountDevframe`, json-render factory). The kit's public `DevTools*` surface stays in place via re-export aliases — most plugin authors don't need to change anything.

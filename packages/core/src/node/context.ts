@@ -44,11 +44,16 @@ export async function createDevToolsContext(
   const mode = viteConfig.command === 'serve' ? 'dev' : 'build'
   const workspaceRoot = searchForWorkspaceRoot(cwd) ?? cwd
 
+  const host = createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot })
+  // Move workspace data written by earlier kit versions into its current
+  // directory before any plugin setup reads storage. Idempotent.
+  host.migrateStorage()
+
   const context = (await createKitContext({
     cwd,
     workspaceRoot,
     mode,
-    host: createViteDevToolsHost({ viteConfig, viteServer, workspaceRoot }),
+    host,
     builtinRpcDeclarations,
     viteConfig,
     viteServer,

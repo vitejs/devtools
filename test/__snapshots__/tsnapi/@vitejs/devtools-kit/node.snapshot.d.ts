@@ -66,6 +66,8 @@ export interface ProcessLauncherOptions {
 }
 export interface ViteDevToolsHost extends DevframeHost {
   provideConnectionMeta: (_: () => ConnectionMeta | Promise<ConnectionMeta>) => void;
+  getLegacyStorageDir: (_: DevframeStorageScope) => string;
+  migrateStorage: () => void;
 }
 // #endregion
 
