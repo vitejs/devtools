@@ -81,8 +81,14 @@ export async function loadTaskGraph(workspaceRoot: string): Promise<TaskGraph> {
   const graph = await runJson(workspaceRoot, ['run', '--json'], 'graph')
   // Record the source kind with this graph, so a later edit cannot turn a stale
   // script into a config task merely by removing its key from package.json.
-  const manifests = new Map(await Promise.all(Object.keys(graph.packages).map(async pkg =>
-    [pkg, await readTaskManifest(workspaceRoot, resolve(graph.workspaceRoot, pkg))] as const)))
+  const manifests = new Map<string, Awaited<ReturnType<typeof readTaskManifest>>>()
+  const packages = Object.keys(graph.packages)
+  const batchSize = 16
+  for (let offset = 0; offset < packages.length; offset += batchSize) {
+    await Promise.all(packages.slice(offset, offset + batchSize).map(async (pkg) => {
+      manifests.set(pkg, await readTaskManifest(workspaceRoot, resolve(graph.workspaceRoot, pkg)))
+    }))
+  }
   const tasks = new Map<string, IndexedTask>()
   for (const [id, task] of Object.entries(graph.tasks)) {
     // Graph IDs use package paths; the CLI expects package names or a directory filter.
