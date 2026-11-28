@@ -194,8 +194,16 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
     },
     resolveOrigin() {
       const resolved = viteServer?.resolvedUrls?.local?.[0]
-      if (resolved)
-        return new URL(resolved).origin
+      if (resolved) {
+        try {
+          return new URL(resolved).origin
+        }
+        catch {
+          // `resolvedUrls` comes from the server, so a host or proxy plugin can
+          // put anything here. Fall through to the config-derived origin instead
+          // of throwing on a value we cannot parse.
+        }
+      }
       const https = !!viteConfig.server.https
       const host = typeof viteConfig.server.host === 'string' ? viteConfig.server.host : 'localhost'
       const port = viteConfig.server.port ?? (https ? 443 : 80)
