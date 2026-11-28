@@ -1,7 +1,7 @@
 import type { Node, ParseError } from 'jsonc-parser'
 import type { GraphTask, TaskSource } from '../shared/types'
 import { constants } from 'node:fs'
-import { access, lstat, readdir, readFile, realpath, stat } from 'node:fs/promises'
+import { access, lstat, readFile, realpath, stat } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseTree } from 'jsonc-parser'
 
@@ -62,20 +62,21 @@ export function sourceKind(task: GraphTask, manifest?: Manifest): TaskSource['ki
   return command?.type === 'string' && command.value === task.command ? 'script' : 'unknown'
 }
 
-const configFilename = /^vite\.config\.[cm]?[jt]s$/
+const configFilenames = ['vite.config.js', 'vite.config.mjs', 'vite.config.ts', 'vite.config.cjs', 'vite.config.mts', 'vite.config.cts']
 
 async function findPackageConfig(workspaceRoot: string, packageDir: string): Promise<string | undefined> {
   try {
     const [root, directory] = await Promise.all([realpath(workspaceRoot), realpath(packageDir)])
     if (!isWithin(root, directory))
       return
-    const entries = await readdir(directory, { withFileTypes: true })
     let candidate: string | undefined
-    for (const entry of entries) {
-      if (!configFilename.test(entry.name))
-        continue
-      const path = join(directory, entry.name)
-      if (!entry.isFile() && !(entry.isSymbolicLink() && (await stat(path).catch(() => undefined))?.isFile()))
+    for (const filename of configFilenames) {
+      const path = join(directory, filename)
+      const entry = await stat(path).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR' && error.code !== 'ELOOP')
+          throw error
+      })
+      if (!entry?.isFile())
         continue
       if (candidate)
         return

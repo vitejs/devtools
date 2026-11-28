@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
@@ -153,6 +153,23 @@ it('opens the only config in the selected package without evaluating it', async 
   await expect(open()).rejects.toMatchObject({ name: 'VTKDT0006' })
   expect(await source()).toEqual({ kind: 'config', canOpen: false })
   expect(editor.handler).toHaveBeenCalledTimes(1)
+})
+
+it('uses the filesystem casing rules to count standard config files', async () => {
+  const mixedCase = join(workspaceRoot, 'Vite.config.js')
+  writeFileSync(mixedCase, '')
+  const matchesStandardName = existsSync(join(workspaceRoot, 'vite.config.js'))
+  const { ctx, editor } = await createTaskHost(workspaceRoot)
+  ctx.rpc.register(editor)
+  await loadTaskGraph(workspaceRoot)
+  const source = () => ctx.rpc.invokeLocal('vite-task:get-task-source', 'build')
+  expect((await source()).canOpen).toBe(matchesStandardName)
+  writeFileSync(join(workspaceRoot, 'vite.config.ts'), '')
+  expect((await source()).canOpen).toBe(!matchesStandardName)
+  if (matchesStandardName) {
+    await expect(ctx.rpc.invokeLocal('vite-task:open-task-source', 'build', 'config')).rejects.toMatchObject({ name: 'VTKDT0006' })
+    expect(editor.handler).not.toHaveBeenCalled()
+  }
 })
 
 it.each([
