@@ -1,4 +1,4 @@
-import { isAbsolute, relative, resolve, sep } from 'node:path'
+import { relative, resolve } from 'node:path'
 import { defineRpcFunction } from '@vitejs/devtools-kit'
 import { launchEditor } from 'devframe/utils/launch-editor'
 import { diagnostics } from '../../diagnostics'
@@ -14,7 +14,7 @@ export const openInEditor = defineRpcFunction({
         const rel = relative(context.workspaceRoot, resolved)
 
         // Prevent escaping the workspace root
-        if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel) || rel.includes('\0')) {
+        if (rel.startsWith('..') || rel.includes('\0')) {
           throw diagnostics.DTK0028()
         }
 
