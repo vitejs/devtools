@@ -1,4 +1,4 @@
-import type { DevframeHost } from 'devframe/types'
+import type { DevframeHost, DevframeStorageScope } from 'devframe/types'
 import type { ResolvedConfig, ViteDevServer } from 'vite'
 import type { ConnectionMeta } from '../types'
 import { homedir } from 'node:os'
@@ -57,6 +57,26 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
   const { viteConfig, viteServer } = options
   const workspaceRoot = options.workspaceRoot ?? viteConfig.root
 
+  /**
+   * Mirror devframe's storage layout: `workspace` is committable and
+   * team-shared, `project` rotates with the checkout's `node_modules`, and
+   * `global` is per-user. Each scope needs its own directory, or a
+   * per-checkout file lands where every other project reads it.
+   *
+   * `project` deliberately avoids `<workspaceRoot>/node_modules/.vite/devtools`,
+   * where every earlier version looked for workspace data. Keeping it a fresh
+   * path means the one-time migration of that directory cannot pick up private
+   * writes, whenever it runs.
+   *
+   * `workspace` deliberately avoids `<workspaceRoot>/.vite-devtools`, which is
+   * the CLI's default build `outDir` and gets wiped by every build.
+   */
+  const storageDirs: Record<DevframeStorageScope, string> = {
+    workspace: join(workspaceRoot, '.vite/devtools'),
+    project: join(workspaceRoot, 'node_modules/.vite-devtools'),
+    global: join(homedir(), '.vite/devtools'),
+  }
+
   let connectionMetaGetter: (() => ConnectionMeta | Promise<ConnectionMeta>) | undefined
 
   return {
@@ -113,9 +133,7 @@ export function createViteDevToolsHost(options: CreateViteDevToolsHostOptions): 
       return `${https ? 'https' : 'http'}://${reachable}:${port}`
     },
     getStorageDir(scope) {
-      return scope === 'workspace'
-        ? join(workspaceRoot, 'node_modules/.vite/devtools')
-        : join(homedir(), '.vite/devtools')
+      return storageDirs[scope]
     },
   }
 }
